@@ -1,13 +1,9 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import {
-  Send, Sparkles, Code, FileText,
-  Search, AlertTriangle, Clock,
-} from "lucide-react"
+import { Send, Sparkles, Code, FileText, Search, AlertTriangle, Clock } from "lucide-react"
 import { useState, useRef } from "react"
 
-/* ── Stars ──────────────────────────────────────────────────────────── */
 const STAR_DATA = [
   { top:"15%", left:"8%",   sz:2,   op:0.6,  d:0   },
   { top:"25%", left:"12%",  sz:1.5, op:0.4,  d:0.5 },
@@ -24,18 +20,13 @@ function StarsBg() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {STAR_DATA.map((s, i) => (
-        <div
-          key={i}
-          className="absolute rounded-full bg-white animate-pulse"
+        <div key={i} className="absolute rounded-full bg-white animate-pulse"
           style={{
-            top:             s.top,
-            left:            "left"  in s ? s.left  : undefined,
-            right:           "right" in s ? s.right : undefined,
-            width:           s.sz * 2 + "px",
-            height:          s.sz * 2 + "px",
-            opacity:         s.op,
-            animationDelay:  s.d + "s",
-            animationDuration: "2.5s",
+            top: s.top,
+            left:  "left"  in s ? s.left  : undefined,
+            right: "right" in s ? s.right : undefined,
+            width: s.sz * 2 + "px", height: s.sz * 2 + "px",
+            opacity: s.op, animationDelay: s.d + "s", animationDuration: "2.5s",
           }}
         />
       ))}
@@ -43,20 +34,17 @@ function StarsBg() {
   )
 }
 
-/* ── Suggestions ─────────────────────────────────────────────────────── */
 const SUGGESTIONS = [
-  { icon: Sparkles,  text: "Creative writing", color: "text-purple-400",  query: "Help me write a creative story about" },
-  { icon: Code,      text: "Code help",        color: "text-emerald-400", query: "Help me fix this code:" },
-  { icon: Search,    text: "Web search",       color: "text-blue-400",    query: "Search the web for" },
-  { icon: FileText,  text: "Summarize",        color: "text-orange-400",  query: "Summarize this for me:" },
+  { icon:Sparkles, text:"Creative writing", color:"text-purple-400",  query:"Help me write a creative story about" },
+  { icon:Code,     text:"Code help",        color:"text-emerald-400", query:"Help me fix this code:" },
+  { icon:Search,   text:"Web search",       color:"text-blue-400",    query:"Search the web for" },
+  { icon:FileText, text:"Summarize",        color:"text-orange-400",  query:"Summarize this for me:" },
 ]
 
-/* ── Component ───────────────────────────────────────────────────────── */
 export function HomeView() {
   const {
     t, selectedModel, setCurrentView, isPremium,
-    isThrottled, minutesUntilReset, throttle,
-    sendToBot,
+    isThrottled, minutesUntilReset, sendToBot,
   } = useApp()
 
   const [message, setMessage] = useState("")
@@ -73,29 +61,20 @@ export function HomeView() {
     if (e.key === "Enter" && !e.shiftKey) handleSend()
   }
 
-  function handleSuggestion(query: string) {
-    setMessage(query)
-    inputRef.current?.focus()
-  }
-
-  // Throttle info — solo muestra si el modelo seleccionado es Grok 4 Mini
   const showThrottle = isThrottled && selectedModel === "Grok 4 Mini"
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center px-4 pb-8 relative">
       <StarsBg />
-
       <div className="flex flex-col items-center gap-5 w-full max-w-md relative z-10">
 
-        {/* ── Logo ────────────────────────────────────────────────────── */}
+        {/* ── Logo — solo PNG, sin contenedor con fondo ───────────────── */}
         <div className="relative">
-          <div className="w-28 h-28 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/30">
-            <img
-              src="/xblum-logo-blue.png"
-              alt="xBlum"
-              className="w-full h-full object-contain"
-            />
-          </div>
+          <img
+            src="/xblum-logo-blue.png"
+            alt="xBlum"
+            className="w-28 h-28 object-contain drop-shadow-2xl"
+          />
           {isPremium && (
             <div className="absolute -top-1 -right-1 w-7 h-7 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
               <Sparkles className="w-4 h-4 text-white" />
@@ -110,12 +89,11 @@ export function HomeView() {
             onClick={() => setCurrentView("settings")}
             className="text-xs text-neutral-500 mt-1 hover:text-neutral-400 transition-colors"
           >
-            Powered by{" "}
-            <span className="font-medium text-neutral-400">{selectedModel}</span>
+            Powered by <span className="font-medium text-neutral-400">{selectedModel}</span>
           </button>
         </div>
 
-        {/* ── Throttle warning (Grok 4 Mini cooling down) ─────────────── */}
+        {/* ── Throttle warning ────────────────────────────────────────── */}
         {showThrottle && (
           <div className="w-full p-3.5 bg-orange-500/10 border border-orange-500/30 rounded-xl flex items-start gap-3">
             <AlertTriangle className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
@@ -129,19 +107,13 @@ export function HomeView() {
               </div>
               <p className="text-xs text-neutral-500 mt-0.5">{t("throttleDesc")}</p>
               <div className="mt-2 flex gap-2">
-                <button
-                  onClick={() => setCurrentView("settings")}
-                  className="text-xs text-blue-400 underline underline-offset-2"
-                >
+                <button onClick={() => setCurrentView("settings")} className="text-xs text-blue-400 underline underline-offset-2">
                   {t("changeModel")}
                 </button>
                 {!isPremium && (
                   <>
                     <span className="text-neutral-600 text-xs">·</span>
-                    <button
-                      onClick={() => setCurrentView("premium")}
-                      className="text-xs text-amber-400 underline underline-offset-2"
-                    >
+                    <button onClick={() => setCurrentView("premium")} className="text-xs text-amber-400 underline underline-offset-2">
                       upgrade Pro
                     </button>
                   </>
@@ -154,9 +126,8 @@ export function HomeView() {
         {/* ── Suggestions ─────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-2 w-full">
           {SUGGESTIONS.map((item, i) => (
-            <button
-              key={i}
-              onClick={() => handleSuggestion(item.query)}
+            <button key={i}
+              onClick={() => { setMessage(item.query); inputRef.current?.focus() }}
               className="flex items-center gap-2 p-3 bg-neutral-900 hover:bg-neutral-800 active:bg-neutral-700 border border-neutral-800 rounded-xl transition-colors text-left"
             >
               <item.icon className={"w-4 h-4 " + item.color + " shrink-0"} />
@@ -165,20 +136,18 @@ export function HomeView() {
           ))}
         </div>
 
-        {/* ── Premium upsell ───────────────────────────────────────────── */}
+        {/* ── Premium upsell — logo PNG sin contenedor ─────────────────── */}
         {!isPremium && (
           <button
             onClick={() => setCurrentView("premium")}
             className="w-full p-3.5 bg-gradient-to-r from-neutral-900 to-neutral-800 border border-neutral-700 rounded-2xl text-left hover:border-neutral-600 transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 group-hover:shadow-lg group-hover:shadow-orange-500/20 transition-all">
-                <img
-                  src="/xblum-logo-blue.png"
-                  alt=""
-                  className="w-full h-full object-contain"
-                />
-              </div>
+              <img
+                src="/xblum-logo-blue.png"
+                alt="xBlum Pro"
+                className="w-9 h-9 object-contain shrink-0 group-hover:drop-shadow-lg transition-all"
+              />
               <div>
                 <p className="text-white font-medium text-sm">{t("getXBlumPro")}</p>
                 <p className="text-neutral-500 text-xs mt-0.5">
@@ -193,18 +162,13 @@ export function HomeView() {
         <div className="w-full">
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600 pointer-events-none" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={message}
+            <input ref={inputRef} type="text" value={message}
               onChange={e => setMessage(e.target.value)}
               onKeyDown={handleKey}
               placeholder={t("typeMessage")}
               className="w-full pl-10 pr-14 py-4 bg-neutral-900 border border-neutral-800 rounded-2xl text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
             />
-            <button
-              onClick={handleSend}
-              disabled={!message.trim()}
+            <button onClick={handleSend} disabled={!message.trim()}
               className={
                 "absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl flex items-center justify-center transition-all " +
                 (message.trim()
