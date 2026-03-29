@@ -44,17 +44,7 @@ export function PremiumView() {
     { icon: Rocket,   title: t("monthlyTokens"),              desc: "Chat + image tokens refill every month",    color: "bg-amber-500/20 text-amber-400" },
     { icon: Zap,      title: t("priorityAccess"),             desc: "Skip the queue at peak hours",             color: "bg-emerald-500/20 text-emerald-400" },
   ]
-
-  const comparison = [
-    { feature: "Grok 4 / hour",      free: "5",        pro: "20"        },
-    { feature: "Grok 4 Mini / hour", free: "12",       pro: "40"        },
-    { feature: "GPT-5.2 / hour",     free: "2",        pro: "15"        },
-    { feature: "GPT-5.4 / hour",     free: "🔒",       pro: "8"         },
-    { feature: "Image generation",   free: "limited",        pro: "✅"        },
-    { feature: "Chat tokens/month",  free: "—",        pro: "200–1500"  },
-    { feature: "Image tokens/month", free: "—",        pro: "20–150"    },
-  ]
-
+  
   return (
     <div className="flex-1 bg-[#0a0a0a]">
       <div className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-neutral-800 px-4 py-3 flex items-center gap-3 z-10">
