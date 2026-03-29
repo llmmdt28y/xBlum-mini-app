@@ -27,6 +27,7 @@ export function PremiumView() {
 
   const subscribe = (planId: string) => {
     try {
+      // En producción: window.Telegram?.WebApp?.openInvoice(invoiceLink)
       window.Telegram?.WebApp?.sendData(JSON.stringify({ action: "subscribe", plan_id: planId }))
       setIsPremium(true)
       setCurrentView("home")
@@ -44,6 +45,16 @@ export function PremiumView() {
     { icon: Zap,      title: t("priorityAccess"),             desc: "Skip the queue at peak hours",             color: "bg-emerald-500/20 text-emerald-400" },
   ]
 
+  const comparison = [
+    { feature: "Grok 4 / hour",      free: "5",        pro: "20"        },
+    { feature: "Grok 4 Mini / hour", free: "12",       pro: "40"        },
+    { feature: "GPT-5.2 / hour",     free: "2",        pro: "15"        },
+    { feature: "GPT-5.4 / hour",     free: "🔒",       pro: "8"         },
+    { feature: "Image generation",   free: "0",        pro: "✅"        },
+    { feature: "Chat tokens/month",  free: "—",        pro: "200–1500"  },
+    { feature: "Image tokens/month", free: "—",        pro: "20–150"    },
+  ]
+
   return (
     <div className="flex-1 bg-[#0a0a0a]">
       <div className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-neutral-800 px-4 py-3 flex items-center gap-3 z-10">
@@ -58,12 +69,11 @@ export function PremiumView() {
         <div className="bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 rounded-3xl p-6 text-center relative overflow-hidden border border-neutral-800">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-gradient-to-b from-amber-500/20 to-transparent rounded-full blur-3xl" />
           <div className="relative">
-            {/* ← AQUÍ VA TU IMAGEN (reemplaza el nombre si es diferente) */}
-            <img
-              src="/xblum-pro-logo.png"     {/* ← Cambia el nombre si subes otro archivo */}
-              alt="xBlum Pro Logo"
-              className="w-20 h-20 mx-auto rounded-3xl object-cover shadow-2xl shadow-orange-500/30 mb-4"
-            />
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-amber-400 to-orange-500 rounded-3xl flex items-center justify-center mb-4 shadow-2xl shadow-orange-500/30">
+              <svg viewBox="0 0 100 100" className="w-14 h-14 text-white" fill="currentColor">
+                <path d="M50 5C50 5 28 28 28 52C28 64 34 75 43 82C34 72 32 58 38 46C46 32 50 25 50 25C50 25 54 32 62 46C68 58 66 72 57 82C66 75 72 64 72 52C72 28 50 5 50 5Z" />
+              </svg>
+            </div>
             <h1 className="text-xl font-bold text-white mb-1">xBlum Pro</h1>
             <p className="text-neutral-400 text-sm">More power, less waiting</p>
           </div>
@@ -80,6 +90,22 @@ export function PremiumView() {
                 <p className="font-semibold text-white text-sm">{b.title}</p>
                 <p className="text-xs text-neutral-400 mt-0.5">{b.desc}</p>
               </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Comparison table */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-3 border-b border-neutral-800">
+            <div className="p-3"><p className="text-xs text-neutral-500">Feature</p></div>
+            <div className="p-3 text-center border-x border-neutral-800"><p className="text-xs text-neutral-500">{t("free")}</p></div>
+            <div className="p-3 text-center bg-amber-500/10"><p className="text-xs font-medium text-amber-400">Pro</p></div>
+          </div>
+          {comparison.map((row, i) => (
+            <div key={i} className="grid grid-cols-3 border-b border-neutral-800 last:border-0">
+              <div className="p-3"><p className="text-xs text-neutral-300">{row.feature}</p></div>
+              <div className="p-3 text-center border-x border-neutral-800"><p className="text-xs text-neutral-500">{row.free}</p></div>
+              <div className="p-3 text-center bg-amber-500/10"><p className="text-xs font-medium text-white">{row.pro}</p></div>
             </div>
           ))}
         </div>
