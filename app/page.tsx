@@ -1,11 +1,14 @@
 "use client"
 
+"use client"
+
 import { AppProvider, useApp } from "@/lib/app-context"
-import Header from "@/components/header"        // Sin llaves si es export default
-import HomeView from "@/components/home-view"    // Sin llaves
-import SettingsView from "@/components/settings-view" // Sin llaves
-import StoreView from "@/components/store-view"   // Sin llaves
-import PremiumView from "@/components/premium-view" // Sin llaves
+import { Header } from "@/components/header"
+import HomeView from "@/components/home-view" // <-- Sin llaves porque es export default
+import { SettingsView } from "@/components/settings-view"
+import { StoreView } from "@/components/store-view"
+import { PremiumView } from "@/components/premium-view"
+import { useEffect } from "react"
 import { useEffect } from "react"
 
 function AppContent() {
