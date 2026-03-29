@@ -4,7 +4,7 @@
 
 import { AppProvider, useApp } from "@/lib/app-context"
 import { Header } from "@/components/header"
-import HomeView from "@/components/home-view" // <-- Sin llaves porque es export default
+import { HomeView } from "@/components/home-view" // <-- Sin llaves porque es export default
 import { SettingsView } from "@/components/settings-view"
 import { StoreView } from "@/components/store-view"
 import { PremiumView } from "@/components/premium-view"
