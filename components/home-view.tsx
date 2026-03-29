@@ -68,19 +68,21 @@ export function HomeView() {
       <StarsBg />
       <div className="flex flex-col items-center gap-5 w-full max-w-md relative z-10">
 
-        {/* ── Logo — solo PNG, sin contenedor con fondo ───────────────── */}
-        <div className="relative">
+        {/* ── Logo Principal xBlum ─────────────────────────────── */}
+        <div className="relative flex items-center justify-center">
           <img
             src="/xblum-logo-blue.png"
             alt="xBlum"
-            className="w-35 h-35 object-contain drop-shadow-2xl"
+            className="w-40 h-40 object-contain drop-shadow-2xl transition-all hover:scale-105"
           />
+  
+          {/* Badge Pro (solo si es premium) */}
           {isPremium && (
-            <div className="absolute -top-1 -right-1 w-7 h-7 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+            <div className="absolute -top-2 -right-2 w-9 h-9 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl ring-2 ring-neutral-900">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
           )}
-        </div>
+       </div>
 
         {/* ── Title ───────────────────────────────────────────────────── */}
         <div className="text-center">
