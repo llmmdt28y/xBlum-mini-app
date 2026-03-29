@@ -73,11 +73,11 @@ export function HomeView() {
           <img
             src="/xblum-logo-blue.png"
             alt="xBlum"
-            className="w-50 h-50 object-contain drop-shadow-2xl"
+            className="w-35 h-35 object-contain drop-shadow-2xl"
           />
           {isPremium && (
             <div className="absolute -top-1 -right-1 w-7 h-7 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-              <Sparkles className="w-4 h-4 text-white" />
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
           )}
         </div>
