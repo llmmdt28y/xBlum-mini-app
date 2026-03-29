@@ -89,7 +89,7 @@ export function HomeView() {
 
         {/* ── Logo ────────────────────────────────────────────────────── */}
         <div className="relative">
-          <div className="w-28 h-28 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/30">
+          <div className="w-50 h-50 rounded-3xl overflow-hidden shadow-2xl shadow-blue-500/30">
             <img
               src="/xblum-logo-blue.png"
               alt="xBlum"
