@@ -42,7 +42,7 @@ const SUGGESTIONS = [
   { icon: FileText, text: "Summarize",        color: "text-orange-400", query: "Summarize this for me:" },
 ]
 
-export function HomeView() {
+export default function HomeView() {
   const { t, selectedModel, setCurrentView, isPremium, hourlyUsage, sendToBot } = useApp()
   const [message, setMessage] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
@@ -57,7 +57,7 @@ export function HomeView() {
     setMessage("")
   }
 
-  const handleKey = (e: React.KeyboardEvent) => {
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) handleSend()
   }
 
@@ -207,5 +207,3 @@ export function HomeView() {
     </div>
   )
 }
-
-export default HomeView
