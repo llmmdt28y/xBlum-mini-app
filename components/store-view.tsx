@@ -78,7 +78,7 @@ export function StoreView() {
         {/* ── Token balance ──────────────────────────────────────────── */}
         <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-5 text-white">
           <div className="flex items-center gap-2 mb-1">
-            <img src="/icon-dark-32x32.png" alt="" className="w-10 h-10 object-contain brightness-200" />
+            <img src="/icon-dark-32x32.png" alt="" className="w-5 h-5 object-contain brightness-200" />
             <p className="text-blue-100 text-sm font-medium">{t("tokens")}</p>
           </div>
           <p className="text-4xl font-bold">{tokens}</p>
