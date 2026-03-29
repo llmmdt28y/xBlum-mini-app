@@ -28,7 +28,7 @@ export function PremiumView() {
   }
 
   const benefits = [
-    { icon:Clock, title:"Higher limits",        desc:"Grok 4 Mini throttle resets faster · less waiting",   color:"bg-blue-500/20 text-blue-400"    },
+    { icon:Clock, title:"Higher limits",        desc:"Grok & GPT throttle resets faster · less waiting",   color:"bg-blue-500/20 text-blue-400"    },
     { icon:Bot,   title:t("gptModels"),          desc:"GPT-5.2 & GPT-5.4 fully unlocked",                    color:"bg-purple-500/20 text-purple-400" },
     { icon:Rocket,title:t("monthlyTokens"),      desc:"Tokens refill every month · use them for AI images",  color:"bg-amber-500/20 text-amber-400"   },
     { icon:Zap,   title:t("priorityAccess"),     desc:"Skip the queue at peak hours",                        color:"bg-emerald-500/20 text-emerald-400"},
