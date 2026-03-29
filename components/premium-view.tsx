@@ -50,7 +50,7 @@ export function PremiumView() {
     { feature: "Grok 4 Mini / hour", free: "12",       pro: "40"        },
     { feature: "GPT-5.2 / hour",     free: "2",        pro: "15"        },
     { feature: "GPT-5.4 / hour",     free: "🔒",       pro: "8"         },
-    { feature: "Image generation",   free: "0",        pro: "✅"        },
+    { feature: "Image generation",   free: "limited",        pro: "✅"        },
     { feature: "Chat tokens/month",  free: "—",        pro: "200–1500"  },
     { feature: "Image tokens/month", free: "—",        pro: "20–150"    },
   ]
