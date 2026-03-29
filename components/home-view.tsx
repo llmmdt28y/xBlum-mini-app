@@ -111,9 +111,9 @@ export default function HomeView() {
             <div className="h-1.5 bg-neutral-800 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
-                  usage.used >= usage.limit ? "bg-red-500" : usage.used / usage.limit > 0.7 ? "bg-amber-500" : "bg-blue-500"
+                  usage.used >= usage.limit ? "bg-red-500" : (usage.used / usage.limit) > 0.7 ? "bg-amber-500" : "bg-blue-500"
                 }`}
-                style={{ width: `${Math.min((usage.used / usage.limit) * 100, 100)}%` }}
+                style={{ width: `${Math.min(((usage.used / usage.limit) * 100), 100)}%` }}
               />
             </div>
           </div>
@@ -126,7 +126,7 @@ export default function HomeView() {
             <div className="flex-1">
               <p className="text-xs text-amber-300 font-medium">Hourly limit for {selectedModel}</p>
               <p className="text-xs text-neutral-500 mt-0.5">
-                {usage.resetsInMin > 0 ? `Free in \~${usage.resetsInMin} min · ` : ""}
+                {usage.resetsInMin > 0 ? `Free in ~${usage.resetsInMin} min · ` : ""}
                 <button onClick={() => setCurrentView("settings")} className="text-blue-400 underline underline-offset-2">
                   {t("changeModel")}
                 </button>
