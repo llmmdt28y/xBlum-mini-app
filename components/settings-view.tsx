@@ -1,28 +1,83 @@
 "use client"
 
 import { useApp, type ModelName } from "@/lib/app-context"
-import {
-  ChevronLeft, ChevronRight, Check,
-  Globe, Bot, User, Lock,
-} from "lucide-react"
+import { ChevronLeft, ChevronRight, Check, Globe, Bot, User, Lock } from "lucide-react"
 import { useState } from "react"
 
+// Logos de modelos — sube estos archivos a /public:
+// grok.png     → logo de Grok (xAI)
+// gpt.png      → logo de GPT (OpenAI)
+// Si no están aún, muestra un fallback con inicial
+const MODEL_LOGO: Record<ModelName, string> = {
+  "Grok 4":      "/grok.png",
+  "Grok 4 Mini": "/grok.png",
+  "GPT-5.4":     "/gpt.png",
+  "GPT-5.2":     "/gpt.png",
+}
+
 const MODELS: {
-  name: ModelName; desc: string
-  tag: string | null; tagColor: string
+  name: ModelName
+  desc: string
+  tag: string | null
+  tagColor: string
   proOnly: boolean
+  initial: string
 }[] = [
-  { name:"Grok 4",      desc:"Most capable · no throttle",   tag:"Popular", tagColor:"bg-orange-500/20 text-orange-400", proOnly:false },
-  { name:"Grok 4 Mini", desc:"Fast & free · smart throttle", tag:"Free",    tagColor:"bg-emerald-500/20 text-emerald-400", proOnly:false },
-  { name:"GPT-5.4",     desc:"OpenAI latest · Pro only",     tag:"Pro",     tagColor:"bg-amber-500/20 text-amber-400",  proOnly:true },
-  { name:"GPT-5.2",     desc:"Balanced · low usage Pro",     tag:null,      tagColor:"",                               proOnly:false },
+  { name:"Grok 4",      desc:"Most capable · no throttle",       tag:"Popular", tagColor:"bg-orange-500/20 text-orange-400",  proOnly:false, initial:"G" },
+  { name:"Grok 4 Mini", desc:"Fast & free · smart throttle",     tag:"Free",    tagColor:"bg-emerald-500/20 text-emerald-400", proOnly:false, initial:"G" },
+  { name:"GPT-5.4",     desc:"OpenAI latest · Pro only",         tag:"Pro",     tagColor:"bg-amber-500/20 text-amber-400",    proOnly:true,  initial:"4" },
+  { name:"GPT-5.2",     desc:"Balanced performance",             tag:null,      tagColor:"",                                  proOnly:false, initial:"2" },
 ]
 
 const LANGS = [
-  { code:"en" as const, name:"English",  flag:"🇬🇧" },
-  { code:"ru" as const, name:"Русский",  flag:"🇷🇺" },
-  { code:"es" as const, name:"Español",  flag:"🇪🇸" },
+  { code:"en" as const, name:"English", flag:"🇬🇧" },
+  { code:"ru" as const, name:"Русский", flag:"🇷🇺" },
+  { code:"es" as const, name:"Español", flag:"🇪🇸" },
 ]
+
+function ModelLogo({ name, active, locked }: { name: ModelName; active: boolean; locked: boolean }) {
+  const model = MODELS.find(m => m.name === name)
+  const src   = MODEL_LOGO[name]
+
+  if (locked) {
+    return (
+      <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center shrink-0">
+        <Lock className="w-4 h-4 text-neutral-500" />
+      </div>
+    )
+  }
+
+  return (
+    <div className={
+      "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden " +
+      (active ? "ring-2 ring-blue-500" : "")
+    }>
+      <img
+        src={src}
+        alt={name}
+        className="w-full h-full object-contain"
+        onError={e => {
+          // Fallback con inicial si aún no has subido el logo
+          const el = e.currentTarget
+          el.style.display = "none"
+          const parent = el.parentElement
+          if (parent) {
+            parent.style.background = active ? "#3b82f6" : "#262626"
+            parent.style.display = "flex"
+            parent.style.alignItems = "center"
+            parent.style.justifyContent = "center"
+            const span = document.createElement("span")
+            span.textContent = model?.initial ?? "?"
+            span.style.color = "white"
+            span.style.fontWeight = "700"
+            span.style.fontSize = "14px"
+            parent.appendChild(span)
+          }
+        }}
+      />
+    </div>
+  )
+}
 
 export function SettingsView() {
   const {
@@ -32,7 +87,7 @@ export function SettingsView() {
     isPremium, isThrottled, minutesUntilReset,
   } = useApp()
 
-  const [page, setPage]       = useState<"main"|"model"|"lang"|"prefs">("main")
+  const [page, setPage]           = useState<"main"|"model"|"lang"|"prefs">("main")
   const [tempPrefs, setTempPrefs] = useState(userPreferences)
 
   function selectModel(m: ModelName) {
@@ -52,11 +107,13 @@ export function SettingsView() {
         </button>
         <h2 className="font-semibold text-white">{t("selectModel")}</h2>
       </div>
+
       <div className="p-4 space-y-2">
         {MODELS.map(m => {
-          const locked  = m.proOnly && !isPremium
-          const active  = selectedModel === m.name
+          const locked    = m.proOnly && !isPremium
+          const active    = selectedModel === m.name
           const throttled = isThrottled && m.name === "Grok 4 Mini"
+
           return (
             <button
               key={m.name}
@@ -65,28 +122,32 @@ export function SettingsView() {
               className={
                 "w-full p-4 rounded-2xl flex items-start justify-between transition-all " +
                 (locked
-                  ? "bg-neutral-900/50 border-2 border-neutral-800 opacity-60"
+                  ? "opacity-60 bg-neutral-900/50 border-2 border-neutral-800"
                   : active
                   ? "bg-blue-500/10 border-2 border-blue-500"
                   : "bg-neutral-900 border-2 border-neutral-800 hover:border-neutral-700")
               }
             >
               <div className="flex items-start gap-3 flex-1">
-                <div className={
-                  "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden " +
-                  (locked ? "bg-neutral-800" : active ? "bg-blue-500" : "bg-neutral-800")
-                }>
-                  {locked
-                    ? <Lock className="w-4 h-4 text-neutral-500" />
-                    : <img src="/icon-dark-32x32.png" alt="" className="w-7 h-7 object-contain" />
-                  }
-                </div>
+                <ModelLogo name={m.name} active={active} locked={locked} />
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-medium text-white">{m.name}</p>
-                    {m.tag && <span className={"text-xs px-2 py-0.5 rounded-full " + m.tagColor}>{m.tag}</span>}
-                    {locked && <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400">{t("locked")}</span>}
-                    {throttled && <span className="text-xs px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400">cooling {minutesUntilReset}min</span>}
+                    {m.tag && (
+                      <span className={"text-xs px-2 py-0.5 rounded-full " + m.tagColor}>
+                        {m.tag}
+                      </span>
+                    )}
+                    {locked && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400">
+                        {t("locked")}
+                      </span>
+                    )}
+                    {throttled && (
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400">
+                        cooling {minutesUntilReset}min
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-neutral-500 mt-0.5">{m.desc}</p>
                 </div>
@@ -95,6 +156,7 @@ export function SettingsView() {
             </button>
           )
         })}
+
         {!isPremium && (
           <button
             onClick={() => { setPage("main"); setCurrentView("premium") }}
@@ -118,7 +180,9 @@ export function SettingsView() {
       </div>
       <div className="p-4 space-y-2">
         {LANGS.map(lang => (
-          <button key={lang.code} onClick={() => { setLanguage(lang.code); setPage("main") }}
+          <button
+            key={lang.code}
+            onClick={() => { setLanguage(lang.code); setPage("main") }}
             className={
               "w-full p-4 rounded-2xl flex items-center justify-between transition-all " +
               (language === lang.code
@@ -147,10 +211,12 @@ export function SettingsView() {
         <h2 className="font-semibold text-white">{t("preferences")}</h2>
       </div>
       <div className="p-4 space-y-4">
-        {(["name","age","location"] as const).map(field => (
+        {(["name", "age", "location"] as const).map(field => (
           <div key={field} className="space-y-1.5">
             <label className="text-sm font-medium text-neutral-400 capitalize">{field}</label>
-            <input type="text" value={tempPrefs[field]}
+            <input
+              type="text"
+              value={tempPrefs[field]}
               onChange={e => setTempPrefs({ ...tempPrefs, [field]: e.target.value })}
               className="w-full p-3 bg-neutral-900 rounded-xl border border-neutral-800 text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -158,13 +224,15 @@ export function SettingsView() {
         ))}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-neutral-400">{t("yourPreferences")}</label>
-          <textarea value={tempPrefs.preferences}
+          <textarea
+            value={tempPrefs.preferences}
             onChange={e => setTempPrefs({ ...tempPrefs, preferences: e.target.value })}
             className="w-full p-3 bg-neutral-900 rounded-xl border border-neutral-800 text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[90px] resize-none"
             placeholder="I prefer concise answers..."
           />
         </div>
-        <button onClick={() => { setUserPreferences(tempPrefs); setPage("main") }}
+        <button
+          onClick={() => { setUserPreferences(tempPrefs); setPage("main") }}
           className="w-full py-3 bg-blue-500 text-white font-medium rounded-xl hover:bg-blue-600 transition-colors"
         >
           {t("save")}
@@ -174,6 +242,8 @@ export function SettingsView() {
   )
 
   /* ── Main settings ──────────────────────────────────────────────── */
+  const currentModelInfo = MODELS.find(m => m.name === selectedModel)
+
   return (
     <div className="flex-1 bg-[#0a0a0a]">
       <div className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-neutral-800 px-4 py-3 flex items-center gap-3">
@@ -182,25 +252,81 @@ export function SettingsView() {
         </button>
         <h2 className="font-semibold text-white">{t("settings")}</h2>
       </div>
+
       <div className="p-4 space-y-3">
-        {[
-          { label:t("model"), sub:selectedModel + (isThrottled && selectedModel==="Grok 4 Mini" ? " · cooling" : ""), icon:<Bot className="w-5 h-5 text-purple-400" />, bg:"bg-purple-500/20", action:() => setPage("model") },
-          { label:t("language"), sub:LANGS.find(l => l.code===language)?.name ?? "", icon:<Globe className="w-5 h-5 text-blue-400" />, bg:"bg-blue-500/20", action:() => setPage("lang") },
-          { label:t("preferences"), sub:userPreferences.name || "Not set", icon:<User className="w-5 h-5 text-emerald-400" />, bg:"bg-emerald-500/20", action:() => { setTempPrefs(userPreferences); setPage("prefs") } },
-        ].map((row, i) => (
-          <button key={i} onClick={row.action}
-            className="w-full p-4 bg-neutral-900 border border-neutral-800 rounded-2xl flex items-center justify-between hover:border-neutral-700 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <div className={"w-10 h-10 rounded-xl flex items-center justify-center " + row.bg}>{row.icon}</div>
-              <div className="text-left">
-                <p className="font-medium text-white">{row.label}</p>
-                <p className="text-sm text-neutral-500">{row.sub}</p>
-              </div>
+        {/* Model row — muestra logo del modelo actual */}
+        <button
+          onClick={() => setPage("model")}
+          className="w-full p-4 bg-neutral-900 border border-neutral-800 rounded-2xl flex items-center justify-between hover:border-neutral-700 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
+              <img
+                src={MODEL_LOGO[selectedModel]}
+                alt={selectedModel}
+                className="w-full h-full object-contain"
+                onError={e => {
+                  const el = e.currentTarget
+                  el.style.display = "none"
+                  const parent = el.parentElement
+                  if (parent) {
+                    parent.style.background = "#262626"
+                    parent.style.display = "flex"
+                    parent.style.alignItems = "center"
+                    parent.style.justifyContent = "center"
+                    const span = document.createElement("span")
+                    span.textContent = currentModelInfo?.initial ?? "?"
+                    span.style.color = "white"
+                    span.style.fontWeight = "700"
+                    parent.appendChild(span)
+                  }
+                }}
+              />
             </div>
-            <ChevronRight className="w-5 h-5 text-neutral-500" />
-          </button>
-        ))}
+            <div className="text-left">
+              <p className="font-medium text-white">{t("model")}</p>
+              <p className="text-sm text-neutral-500">
+                {selectedModel}
+                {isThrottled && selectedModel === "Grok 4 Mini" ? " · cooling" : ""}
+              </p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-neutral-500" />
+        </button>
+
+        {/* Language */}
+        <button
+          onClick={() => setPage("lang")}
+          className="w-full p-4 bg-neutral-900 border border-neutral-800 rounded-2xl flex items-center justify-between hover:border-neutral-700 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+              <Globe className="w-5 h-5 text-blue-400" />
+            </div>
+            <div className="text-left">
+              <p className="font-medium text-white">{t("language")}</p>
+              <p className="text-sm text-neutral-500">{LANGS.find(l => l.code === language)?.name}</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-neutral-500" />
+        </button>
+
+        {/* Preferences */}
+        <button
+          onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
+          className="w-full p-4 bg-neutral-900 border border-neutral-800 rounded-2xl flex items-center justify-between hover:border-neutral-700 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+              <User className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div className="text-left">
+              <p className="font-medium text-white">{t("preferences")}</p>
+              <p className="text-sm text-neutral-500">{userPreferences.name || "Not set"}</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-neutral-500" />
+        </button>
       </div>
     </div>
   )
