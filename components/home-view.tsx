@@ -20,13 +20,18 @@ function StarsBg() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {STAR_DATA.map((s, i) => (
-        <div key={i} className="absolute rounded-full bg-white animate-pulse"
+        <div key={i} 
+          /* CAMBIO: Se cambió animate-pulse por animate-twinkle y se añadió la sombra blanca */
+          className="absolute rounded-full bg-white animate-twinkle shadow-[0_0_10px_2px_rgba(255,255,255,0.4)]"
           style={{
             top: s.top,
             left:  "left"  in s ? s.left  : undefined,
             right: "right" in s ? s.right : undefined,
-            width: s.sz * 2 + "px", height: s.sz * 2 + "px",
-            opacity: s.op, animationDelay: s.d + "s", animationDuration: "2.5s",
+            width: s.sz * 2 + "px", 
+            height: s.sz * 2 + "px",
+            opacity: s.op, 
+            animationDelay: s.d + "s", 
+            animationDuration: "4s", // Un poco más lento para que sea natural
           }}
         />
       ))}
@@ -66,22 +71,23 @@ export function HomeView() {
   const showThrottle = isThrottled && selectedModel === "Grok 4 Mini"
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 pb-8 relative">
+    /* CAMBIO: 
+       1. Se cambió 'justify-center' por 'justify-start'
+       2. Se añadió 'pt-12' (o pt-[10vh]) para que todo suba y deje espacio abajo 
+    */
+    <div className="flex-1 flex flex-col items-center justify-start pt-[8vh] px-4 pb-20 relative">
       <StarsBg />
+      
       <div className="flex flex-col items-center gap-5 w-full max-w-md relative z-10">
 
-        {/* ── Logo principal — grande, badge encima-derecha ────────────
-            Usamos un wrapper con tamaño fijo para que el badge absolute
-            se posicione sobre la imagen visible, no sobre el espacio
-            transparente del PNG. El truco: padding para encajar el badge. */}
+        {/* Logo principal */}
         <div className="relative inline-flex">
           <img
             src="/icon-dark-32x32.png"
             alt="xBlum"
-            className="w-36 h-36 object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.4)]"
+            /* CAMBIO: Se aumentó un poco el drop-shadow para que brille más el logo */
+            className="w-36 h-36 object-contain drop-shadow-[0_0_40px_rgba(59,130,246,0.5)]"
           />
-          {/* Badge Pro — esquina superior derecha de la imagen visible
-              Ajusta right/top si tu PNG tiene más/menos padding transparente */}
           {isPremium && (
             <div className="absolute top-1 right-1 w-9 h-9 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-xl shadow-orange-500/40 ring-2 ring-[#0a0a0a]">
               <Zap className="w-4 h-4 text-white" />
@@ -89,7 +95,7 @@ export function HomeView() {
           )}
         </div>
 
-        {/* ── Title ───────────────────────────────────────────────────── */}
+        {/* Title */}
         <div className="text-center -mt-2">
           <h1 className="text-2xl font-bold text-white">{t("howCanIHelp")}</h1>
           <button
@@ -100,7 +106,7 @@ export function HomeView() {
           </button>
         </div>
 
-        {/* ── Throttle warning ────────────────────────────────────────── */}
+        {/* Throttle warning */}
         {showThrottle && (
           <div className="w-full p-3.5 bg-orange-500/10 border border-orange-500/30 rounded-2xl flex items-start gap-3">
             <AlertTriangle className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
@@ -133,12 +139,12 @@ export function HomeView() {
           </div>
         )}
 
-        {/* ── Suggestion chips ────────────────────────────────────────── */}
+        {/* Suggestion chips */}
         <div className="grid grid-cols-2 gap-2 w-full">
           {SUGGESTIONS.map((item, i) => (
             <button key={i}
               onClick={() => { setMessage(item.query); inputRef.current?.focus() }}
-              className="flex items-center gap-2 p-3 bg-neutral-900 hover:bg-neutral-800 active:bg-neutral-700 border border-neutral-800 rounded-xl transition-colors text-left"
+              className="flex items-center gap-2 p-3 bg-neutral-900/80 backdrop-blur-sm hover:bg-neutral-800 active:bg-neutral-700 border border-neutral-800 rounded-xl transition-colors text-left"
             >
               <item.icon className={"w-4 h-4 " + item.color + " shrink-0"} />
               <span className="text-sm text-neutral-300">{item.text}</span>
@@ -146,7 +152,7 @@ export function HomeView() {
           ))}
         </div>
 
-        {/* ── Premium upsell (free users) ──────────────────────────────── */}
+        {/* Premium upsell */}
         {!isPremium && (
           <button
             onClick={() => setCurrentView("premium")}
@@ -168,7 +174,7 @@ export function HomeView() {
           </button>
         )}
 
-        {/* ── Search input ─────────────────────────────────────────────── */}
+        {/* Search input */}
         <div className="w-full">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600 pointer-events-none" />
@@ -179,7 +185,7 @@ export function HomeView() {
               onChange={e => setMessage(e.target.value)}
               onKeyDown={handleKey}
               placeholder={t("typeMessage")}
-              className="w-full pl-11 pr-14 py-4 bg-neutral-900 border border-neutral-800 rounded-2xl text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+              className="w-full pl-11 pr-14 py-4 bg-neutral-900/90 border border-neutral-800 rounded-2xl text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm backdrop-blur-sm"
             />
             <button
               onClick={handleSend}
@@ -194,14 +200,10 @@ export function HomeView() {
               <Send className="w-4 h-4" />
             </button>
           </div>
-          {message.trim() && (
-            <p className="text-xs text-neutral-600 mt-1.5 text-center">
-              Tap to send to xBlum in chat
-            </p>
-          )}
         </div>
 
       </div>
+      {/* ESPACIO VACÍO AQUÍ ABAJO: Al usar justify-start arriba, ahora tienes espacio aquí */}
     </div>
   )
 }
