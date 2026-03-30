@@ -3,7 +3,7 @@
 import { useApp } from "@/lib/app-context"
 import { Send, Sparkles, Code, FileText, Search, AlertTriangle, Clock, Zap } from "lucide-react"
 import { useState, useRef } from "react"
-
+ 
 /* ── Stars background ────────────────────────────────────────────────── */
 const STAR_DATA = [
   { top:"12%", left:"6%",   sz:2,   op:0.5,  d:0   },
