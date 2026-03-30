@@ -68,7 +68,7 @@ function StarPrice({ stars }: { stars: number }) {
     <div className="flex items-center gap-1.5">
       {/* star-icon.png sube el usuario — fallback al SVG de telegram star */}
       <img
-        src="/star-icon.png"
+        src="/telegram-star-icon.png"
         alt="⭐"
         className="w-5 h-5 object-contain"
         onError={e => { e.currentTarget.style.display = "none" }}
