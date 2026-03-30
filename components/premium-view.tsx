@@ -6,9 +6,9 @@ import { TelegramStar } from "./icons/telegram-star"
 
 // Tokens incluidos por plan (misma moneda — se usan para generar imágenes)
 const PLANS = [
-  { id:"premium_1m", label:"1 Month",  stars:800,  tokens:200,  months:1, popular:false, perMonth:null },
-  { id:"premium_3m", label:"3 Months", stars:1800, tokens:700,  months:3, popular:true,  perMonth:600  },
-  { id:"premium_6m", label:"6 Months", stars:3000, tokens:1500, months:6, popular:false, perMonth:500  },
+  { id:"premium_1m", label:"1 Month",  stars:800,  tokens:1000, months:1, popular:false, perMonth:null },
+  { id:"premium_3m", label:"3 Months", stars:1800, tokens:3000, months:3, popular:true,  perMonth:600  },
+  { id:"premium_6m", label:"6 Months", stars:3000, tokens:6000, months:6, popular:false, perMonth:500  },
 ]
 
 export function PremiumView() {

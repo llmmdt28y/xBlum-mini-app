@@ -24,7 +24,6 @@ const MISSIONS = [
   { id:"ref",    icon:Users,             title:"Invite a Friend",      tokens:15, color:"bg-purple-500/20 text-purple-400"  },
 ]
 
-const DAILY_MAX    = 20
 const IMG_COST_AVG = 27  // (25+30)/2 para el cálculo de imágenes
 
 // ── Estrellas decorativas alrededor del hero ──────────────────────────────────
@@ -83,14 +82,12 @@ function StarPrice({ stars }: { stars: number }) {
 export function StoreView() {
   const {
     t, setCurrentView, tokens,
-    missionTokensToday, claimMissionTokens,
+    claimMissionTokens,
   } = useApp()
 
-  const [claimed, setClaimed]   = useState<string[]>([])
-  const [limitMsg, setLimitMsg] = useState("")
+  const [claimed, setClaimed] = useState<string[]>([])
 
   const approxImages = Math.floor(tokens / IMG_COST_AVG)
-  const spaceLeft    = DAILY_MAX - missionTokensToday
 
   function handleInvite() {
     try {
@@ -111,18 +108,13 @@ export function StoreView() {
   function handleClaim(id: string, amount: number) {
     if (id === "ref") { handleInvite(); return }
     if (claimed.includes(id)) return
-    const ok = claimMissionTokens(amount)
-    if (ok) {
-      setClaimed(p => [...p, id])
-      try {
-        window.Telegram?.WebApp?.sendData(
-          JSON.stringify({ action: "claim_mission", mission_id: id, amount })
-        )
-      } catch {}
-    } else {
-      setLimitMsg("Daily limit reached (20 tokens/day). Resets at midnight.")
-      setTimeout(() => setLimitMsg(""), 3000)
-    }
+    claimMissionTokens(amount)
+    setClaimed(p => [...p, id])
+    try {
+      window.Telegram?.WebApp?.sendData(
+        JSON.stringify({ action: "claim_mission", mission_id: id, amount })
+      )
+    } catch {}
   }
 
   return (
@@ -261,18 +253,12 @@ export function StoreView() {
         <div>
           <h3 className="text-white font-bold text-lg mb-3">Earn Tokens</h3>
 
-          {limitMsg && (
-            <div className="mb-3 px-3 py-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300 text-center">
-              {limitMsg}
-            </div>
-          )}
+
 
           <div className="space-y-2">
             {MISSIONS.map(m => {
               const isClaimed = claimed.includes(m.id)
-              const isMaxed   = m.id !== "ref" && missionTokensToday >= DAILY_MAX
               const isInvite  = m.id === "ref"
-              const canGet    = Math.min(m.tokens, spaceLeft)
 
               return (
                 <div
@@ -290,21 +276,18 @@ export function StoreView() {
                         <span className="text-xs text-amber-400 font-semibold">
                           +{isInvite ? "15 tokens + 10% commission" : m.tokens + " tokens"}
                         </span>
-                        {!isInvite && spaceLeft > 0 && spaceLeft < m.tokens && (
-                          <span className="text-xs text-neutral-600">(+{canGet} left)</span>
-                        )}
                       </div>
                     </div>
                   </div>
 
                   <button
                     onClick={() => handleClaim(m.id, m.tokens)}
-                    disabled={!isInvite && (isClaimed || isMaxed)}
+                    disabled={!isInvite && isClaimed}
                     className={
                       "px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " +
                       (isInvite
                         ? "bg-blue-500 text-white hover:bg-blue-600"
-                        : isClaimed || isMaxed
+                        : isClaimed
                         ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
                         : "bg-amber-500 text-black hover:bg-amber-400")
                     }
@@ -313,24 +296,14 @@ export function StoreView() {
                       <span className="flex items-center gap-1">
                         <Check className="w-3 h-3" />Done
                       </span>
-                    ) : isMaxed ? "Max" : "+" + m.tokens}
+                    ) : "+" + m.tokens}
                   </button>
                 </div>
               )
             })}
           </div>
 
-          <div className="flex items-center justify-between mt-3 px-1">
-            <p className="text-xs text-neutral-600">
-              Daily limit: {missionTokensToday}/{DAILY_MAX} tokens
-            </p>
-            <div className="flex-1 max-w-24 ml-3 h-1 bg-neutral-800 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-amber-500 rounded-full transition-all"
-                style={{ width: Math.min((missionTokensToday / DAILY_MAX) * 100, 100) + "%" }}
-              />
-            </div>
-          </div>
+
         </div>
 
       </div>
