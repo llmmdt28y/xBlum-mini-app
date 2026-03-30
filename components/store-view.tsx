@@ -5,71 +5,111 @@ import {
   ChevronLeft, Gift, MessageCirclePlus,
   Share2, Users, Check, Zap,
 } from "lucide-react"
-import { TelegramStar } from "./icons/telegram-star"
 import { useState } from "react"
 
-/* ── Configuración de Estrellas Decorativas (Estilo Muni) ─────────── */
-// He ampliado y re-distribuido para igualar la referencia y añadido rotación 'rot'
-const DECORATIVE_STARS = [
-  // Top-Left quadrant
-  { top: "-15%", left: "15%", sz: "w-5 h-5", d: "0.2s", rot: "-15deg" },
-  { top: "5%",   left: "-5%",  sz: "w-3 h-3", d: "2.1s", rot: "20deg"  },
-  { top: "25%",  left: "8%",   sz: "w-2 h-2", d: "1.3s", rot: "-30deg" },
-  
-  // Top-Right quadrant
-  { top: "-10%", right: "12%", sz: "w-6 h-6", d: "0.8s", rot: "10deg"  },
-  { top: "10%",  right: "-2%", sz: "w-2 h-2", d: "3.5s", rot: "45deg"  },
-  { top: "35%",  right: "18%", sz: "w-4 h-4", d: "2.8s", rot: "-20deg" },
-  
-  // Bottom-Left quadrant
-  { top: "65%",  left: "-10%", sz: "w-4 h-4", d: "1.7s", rot: "25deg"  },
-  { top: "80%",  left: "12%",  sz: "w-2 h-2", d: "3.1s", rot: "-10deg" },
-  { top: "100%", left: "-5%",  sz: "w-3 h-3", d: "0.5s", rot: "35deg"  },
-  
-  // Bottom-Right quadrant
-  { top: "60%",  right: "-5%", sz: "w-5 h-5", d: "4.2s", rot: "-15deg" },
-  { top: "85%",  right: "10%", sz: "w-3 h-3", d: "2.4s", rot: "30deg"  },
-  { top: "105%", right: "20%", sz: "w-2 h-2", d: "1.0s", rot: "-40deg" },
-  
-  // Extras for detailed framing
-  { top: "45%",  left: "0%",   sz: "w-1 h-1", d: "0.0s", rot: "0deg" },
-  { top: "50%",  right: "0%",  sz: "w-1 h-1", d: "1.1s", rot: "0deg" },
-  { top: "-20%", left: "45%",  sz: "w-3 h-3", d: "2.6s", rot: "15deg" },
-  { top: "115%", right: "45%", sz: "w-2 h-2", d: "3.8s", rot: "-25deg"},
-]
-
+// ── Paquetes — STARS_PACKAGES del bot ────────────────────────────────────────
+// coins: cuántas monedas apiladas muestra (1, 2 o 3)
+// discount: badge opcional de descuento
 const TOKEN_PACKAGES = [
-  { id: "tok_s",   tokens: 100,  stars: 80,   bonus: null,   popular: false, approxImgs: 3  },
-  { id: "tok_m",   tokens: 350,  stars: 200,  bonus: "+50",  popular: true,  approxImgs: 12 },
-  { id: "tok_l",   tokens: 1000, stars: 500,  bonus: "+150", popular: false, approxImgs: 35 },
-  { id: "tok_xl",  tokens: 3000, stars: 1200, bonus: "+500", popular: false, approxImgs: 100},
+  { id:"tok_s",  tokens:100,  stars:80,   approxImgs:3,  coins:1, discount:null    },
+  { id:"tok_m",  tokens:350,  stars:200,  approxImgs:12, coins:2, discount:"-17%"  },
+  { id:"tok_l",  tokens:1000, stars:500,  approxImgs:35, coins:3, discount:"-25%"  },
+  { id:"tok_xl", tokens:3000, stars:1200, approxImgs:100,coins:3, discount:"-35%"  },
 ]
 
 const MISSIONS = [
-  { id:"daily",  icon:Gift,              title:"Daily Reward",        tokens:5,  color:"bg-amber-500/20 text-amber-400" },
-  { id:"chat",   icon:MessageCirclePlus, title:"Add to a Group",      tokens:10, color:"bg-blue-500/20 text-blue-400" },
-  { id:"share",  icon:Share2,             title:"Share with a Friend", tokens:8,  color:"bg-emerald-500/20 text-emerald-400" },
-  { id:"ref",    icon:Users,             title:"Invite a Friend",     tokens:15, color:"bg-purple-500/20 text-purple-400" },
+  { id:"daily",  icon:Gift,              title:"Daily Reward",         tokens:5,  color:"bg-amber-500/20 text-amber-400"    },
+  { id:"addChat",icon:MessageCirclePlus, title:"Add to a Group",       tokens:10, color:"bg-blue-500/20 text-blue-400"      },
+  { id:"share",  icon:Share2,            title:"Share with a Friend",  tokens:8,  color:"bg-emerald-500/20 text-emerald-400"},
+  { id:"ref",    icon:Users,             title:"Invite a Friend",      tokens:15, color:"bg-purple-500/20 text-purple-400"  },
 ]
 
-const DAILY_MISSION_MAX = 20
+const DAILY_MAX    = 20
+const IMG_COST_AVG = 27  // (25+30)/2 para el cálculo de imágenes
+
+// ── Estrellas decorativas alrededor del hero ──────────────────────────────────
+// Cada estrella tiene posición, tamaño, opacidad inicial, rotación y delay de animación
+const DECO_STARS = [
+  { x:  8, y: 22, size:28, rot: 0,   delay:0.0, opacity:0.7 },
+  { x: 14, y: 48, size:18, rot:20,   delay:0.4, opacity:0.5 },
+  { x:  5, y: 68, size:14, rot:-15,  delay:0.8, opacity:0.4 },
+  { x: 18, y: 80, size:10, rot:35,   delay:1.2, opacity:0.3 },
+  { x: 72, y: 18, size:22, rot:10,   delay:0.2, opacity:0.6 },
+  { x: 82, y: 42, size:30, rot:-20,  delay:0.6, opacity:0.7 },
+  { x: 78, y: 70, size:16, rot:45,   delay:1.0, opacity:0.4 },
+  { x: 88, y: 85, size:12, rot:-30,  delay:1.4, opacity:0.35},
+  { x: 30, y: 10, size:12, rot:15,   delay:0.3, opacity:0.3 },
+  { x: 62, y:  8, size:10, rot:-10,  delay:0.9, opacity:0.25},
+  { x: 22, y: 90, size:14, rot:25,   delay:0.7, opacity:0.3 },
+  { x: 68, y: 88, size:16, rot:-25,  delay:1.1, opacity:0.35},
+]
+
+// ── Stacked coin logos ────────────────────────────────────────────────────────
+function CoinStack({ count }: { count: number }) {
+  const offsets = [0, 8, 16]
+  return (
+    <div className="relative flex items-center" style={{ width: 24 + (count - 1) * 8 + "px", height: "32px" }}>
+      {Array.from({ length: count }).map((_, i) => (
+        <img
+          key={i}
+          src="/icon-dark-32x32.png"
+          alt=""
+          className="absolute w-8 h-8 object-contain"
+          style={{ left: offsets[i] + "px", zIndex: count - i }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// ── Star price badge ──────────────────────────────────────────────────────────
+function StarPrice({ stars }: { stars: number }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {/* star-icon.png sube el usuario — fallback al SVG de telegram star */}
+      <img
+        src="/star-icon.png"
+        alt="⭐"
+        className="w-5 h-5 object-contain"
+        onError={e => { e.currentTarget.style.display = "none" }}
+      />
+      <span className="text-amber-400 font-bold text-base">
+        {stars.toLocaleString()}
+      </span>
+    </div>
+  )
+}
 
 export function StoreView() {
-  const { t, setCurrentView, tokens, missionTokensToday, claimMissionTokens } = useApp()
-  const [claimed, setClaimed] = useState<string[]>([])
+  const {
+    t, setCurrentView, tokens,
+    missionTokensToday, claimMissionTokens,
+  } = useApp()
+
+  const [claimed, setClaimed]   = useState<string[]>([])
   const [limitMsg, setLimitMsg] = useState("")
 
-  const missionSpaceLeft = DAILY_MISSION_MAX - missionTokensToday
+  const approxImages = Math.floor(tokens / IMG_COST_AVG)
+  const spaceLeft    = DAILY_MAX - missionTokensToday
 
-  function buyPackage(pkgId: string, amount: number) {
+  function handleInvite() {
+    try {
+      window.Telegram?.WebApp?.sendData(JSON.stringify({ action: "get_referral" }))
+    } catch {
+      window.Telegram?.WebApp?.openTelegramLink("https://t.me/xBlumAI?start=invite")
+    }
+  }
+
+  function buyPackage(pkgId: string) {
     try {
       window.Telegram?.WebApp?.sendData(
-        JSON.stringify({ action: "buy_tokens", package_id: pkgId, amount })
+        JSON.stringify({ action: "buy_tokens", package_id: pkgId })
       )
-    } catch { /* no TG */ }
+    } catch {}
   }
 
   function handleClaim(id: string, amount: number) {
+    if (id === "ref") { handleInvite(); return }
     if (claimed.includes(id)) return
     const ok = claimMissionTokens(amount)
     if (ok) {
@@ -78,17 +118,18 @@ export function StoreView() {
         window.Telegram?.WebApp?.sendData(
           JSON.stringify({ action: "claim_mission", mission_id: id, amount })
         )
-      } catch { /* no TG */ }
+      } catch {}
     } else {
-      setLimitMsg("Daily mission limit reached (20 tokens/day)")
+      setLimitMsg("Daily limit reached (20 tokens/day). Resets at midnight.")
       setTimeout(() => setLimitMsg(""), 3000)
     }
   }
 
   return (
     <div className="flex-1 bg-[#0a0a0a]">
-      {/* Header Fijo */}
-      <div className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-neutral-800 px-4 py-3 flex items-center gap-3 z-20">
+
+      {/* Header */}
+      <div className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-neutral-800 px-4 py-3 flex items-center gap-3 z-10">
         <button
           onClick={() => setCurrentView("home")}
           className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-800 transition-colors"
@@ -98,179 +139,161 @@ export function StoreView() {
         <h2 className="font-semibold text-white">{t("store")}</h2>
       </div>
 
-      <div className="p-4 space-y-8 pb-20">
+      <div className="px-4 pt-6 pb-8 space-y-8">
 
-        {/* ── SECCIÓN DE BALANCE ACTUALIZADA (ESTILO MIRA + ICONO PUBLIC) ── */}
-        <div className="flex flex-col items-center pt-8 pb-4 relative">
-          
-          {/* Contenedor de Logo y Estrellas */}
-          <div className="relative w-44 h-44 flex items-center justify-center mb-6">
-            
-            {/* Estrellas decorativas animadas */}
-            {DECORATIVE_STARS.map((s, i) => (
-              <div
+        {/* ── HERO — logo + estrellas flotantes + balance ───────────────── */}
+        <div className="flex flex-col items-center">
+          {/* Contenedor relativo para las estrellas decorativas */}
+          <div className="relative w-full flex justify-center" style={{ height: "200px" }}>
+
+            {/* Estrellas decorativas con animación fade */}
+            {DECO_STARS.map((s, i) => (
+              <img
                 key={i}
-                /* AJUSTES CLAVE: 
-                   1. Clase 'animate-mira-star' (con movimiento y parpadeo).
-                   2. Se eliminó la opacidad estática de 'style' para que la animación la maneje.
-                   3. 'sz' define el tamaño visual visualmente.
-                */
-                className={`absolute animate-mira-star text-blue-400/70 ${s.sz}`}
-                style={{ 
-                  top: s.top, 
-                  left: s.left, 
-                  right: s.right, 
-                  animationDelay: s.d,
-                  /* 4. Rotación aleatoria hardcodeada */
-                  transform: `rotate(${s.rot || '0deg'})`
+                src="/star-icon.png"
+                alt=""
+                className="absolute object-contain pointer-events-none select-none"
+                style={{
+                  left:            s.x + "%",
+                  top:             s.y + "%",
+                  width:           s.size + "px",
+                  height:          s.size + "px",
+                  opacity:         s.opacity,
+                  transform:       "rotate(" + s.rot + "deg)",
+                  animation:       "starFade 3s ease-in-out infinite",
+                  animationDelay:  s.delay + "s",
                 }}
-              >
-                {/* 1. Usamos tu icono de estrella guardado en public */}
-                <img 
-                  src="/star-icon.png" 
-                  alt=""
-                  className="w-full h-full object-contain" 
-                  /* Un sutil brillo extra para las estrellas */
-                  style={{ filter: 'drop-shadow(0 0 12px rgba(96,165,250,0.6))' }}
-                />
-              </div>
+                onError={e => { e.currentTarget.style.display = "none" }}
+              />
             ))}
 
-            {/* Logo xBlum Blue */}
-            <img 
-              src="/xblum-logo-blue.png" 
-              alt="xBlum" 
-              className="w-32 h-32 object-contain relative z-10 drop-shadow-[0_0_30px_rgba(59,130,246,0.45)]"
-            />
+            {/* Logo central en círculo azul */}
+            <div
+              className="absolute rounded-full flex items-center justify-center shadow-2xl shadow-blue-500/40"
+              style={{
+                width:"120px", height:"120px",
+                background:"linear-gradient(135deg,#3b82f6,#2563eb)",
+                top:"50%", left:"50%",
+                transform:"translate(-50%,-60%)",
+              }}
+            >
+              <img
+                src="/icon-dark-32x32.png"
+                alt="xBlum"
+                className="w-16 h-16 object-contain brightness-0 invert"
+              />
+            </div>
           </div>
 
-          {/* Textos de Balance */}
-          <div className="text-center">
-            <p className="text-[10px] tracking-[0.28em] font-bold text-neutral-500 uppercase mb-2">
-              MY BALANCE
+          {/* Balance text */}
+          <div className="text-center -mt-4">
+            <p className="text-xs font-semibold tracking-widest text-neutral-500 uppercase mb-1">
+              My Balance
             </p>
-            <h2 className="text-4xl font-bold text-white mb-2">
-              {tokens} tokens
-            </h2>
-            <p className="text-xs text-neutral-500 font-medium px-4">
-              25–30 tokens per AI image generated
+            <p className="text-5xl font-black text-white leading-tight">
+              {tokens} <span className="text-3xl font-bold">tokens</span>
+            </p>
+            <p className="text-neutral-400 text-sm mt-1.5">
+              {approxImages > 0
+                ? "That's enough for " + approxImages + " image" + (approxImages !== 1 ? "s" : "")
+                : "Buy tokens to generate images"}
             </p>
           </div>
         </div>
 
-        {/* ── Chat free notice ── */}
-        <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-2xl flex items-start gap-3">
-          <span className="text-xl shrink-0">💬</span>
-          <div>
-            <p className="text-blue-300/80 font-medium text-sm">Chat is always free</p>
-            <p className="text-neutral-600 text-xs mt-0.5">
-              Tokens are only spent when generating images. AI chat has no token cost.
-            </p>
-          </div>
-        </div>
-
-        {/* ── Buy tokens ── */}
+        {/* ── TOP UP ────────────────────────────────────────────────────── */}
         <div>
-          <h3 className="font-semibold text-white mb-3 px-1">{t("buyTokens")}</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <h3 className="text-white font-bold text-lg mb-3">Top Up</h3>
+
+          {/* Un solo contenedor con todas las filas */}
+          <div className="bg-neutral-900 rounded-2xl overflow-hidden divide-y divide-neutral-800">
             {TOKEN_PACKAGES.map(pkg => (
               <button
                 key={pkg.id}
-                onClick={() => buyPackage(pkg.id, pkg.tokens)}
-                className={
-                  "relative p-4 rounded-2xl text-left transition-all active:scale-95 " +
-                  (pkg.popular
-                    ? "bg-blue-600/10 border-2 border-blue-600/50 shadow-[0_0_15px_rgba(37,99,235,0.1)]"
-                    : "bg-neutral-900 border-2 border-neutral-800 hover:border-neutral-700")
-                }
+                onClick={() => buyPackage(pkg.id)}
+                className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
               >
-                {pkg.popular && (
-                  <span className="absolute -top-2.5 right-3 text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                    {t("popular")}
-                  </span>
-                )}
-                <div className="flex items-center gap-1.5 mb-1">
-                  <img src="/icon-dark-32x32.png" alt="" className="w-4 h-4 object-contain" />
-                  <span className="font-bold text-xl text-white">{pkg.tokens}</span>
+                {/* Coin stack */}
+                <CoinStack count={pkg.coins} />
+
+                {/* Token info */}
+                <div className="flex-1 text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="text-white font-bold text-base">
+                      {pkg.tokens.toLocaleString()} tokens
+                    </span>
+                    {pkg.discount && (
+                      <span className="text-xs font-bold px-1.5 py-0.5 rounded-md bg-blue-500 text-white">
+                        {pkg.discount}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-neutral-500 text-xs mt-0.5">
+                    ~{pkg.approxImgs} images
+                  </p>
                 </div>
-                <p className="text-[11px] text-neutral-500 mb-3">
-                  tokens
-                  {pkg.bonus && <span className="text-emerald-500 font-bold"> {pkg.bonus}</span>}
-                  {" · ~"}{pkg.approxImgs} imgs
-                </p>
-                <div className="flex items-center gap-1.5 pt-2 border-t border-neutral-800/50">
-                  <TelegramStar className="w-4 h-4" />
-                  <span className="text-amber-500 font-bold text-sm">{pkg.stars}</span>
-                </div>
+
+                {/* Star price */}
+                <StarPrice stars={pkg.stars} />
               </button>
             ))}
           </div>
         </div>
 
-        {/* ── Premium upsell ── */}
+        {/* ── Premium upsell ────────────────────────────────────────────── */}
         <button
           onClick={() => setCurrentView("premium")}
-          className="w-full p-4 bg-gradient-to-r from-neutral-900 to-[#111] border border-neutral-800 rounded-2xl flex items-center justify-between hover:border-neutral-700 transition-all"
+          className="w-full p-4 bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/30 rounded-2xl flex items-center justify-between hover:border-amber-500/50 transition-all"
         >
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/10">
+            <div className="w-11 h-11 bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shrink-0">
               <Zap className="w-6 h-6 text-white" />
             </div>
             <div className="text-left">
-              <p className="text-white font-semibold">{t("getXBlumPro")}</p>
-              <p className="text-neutral-500 text-xs mt-0.5">From 800 ⭐ · includes tokens monthly</p>
+              <p className="text-white font-bold text-sm">{t("getXBlumPro")}</p>
+              <p className="text-amber-400/70 text-xs mt-0.5">
+                Monthly tokens + higher limits + GPT models
+              </p>
             </div>
           </div>
-          <ChevronLeft className="w-5 h-5 text-neutral-600 rotate-180" />
+          <span className="text-amber-400 text-xs font-semibold shrink-0">from 800 ⭐</span>
         </button>
 
-                {/* ── Missions ──────────────────────────────────────────────── */}
+        {/* ── Earn Tokens (Missions) ────────────────────────────────────── */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-white">{t("missions")}</h3>
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs text-neutral-500">Daily:</span>
-              <span className="text-xs text-neutral-400 font-medium">
-                {missionTokensToday}/{DAILY_MISSION_MAX}
-              </span>
-              {/* Mini progress bar */}
-              <div className="w-16 h-1.5 bg-neutral-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-amber-500 rounded-full transition-all"
-                  style={{ width: Math.min((missionTokensToday / DAILY_MISSION_MAX) * 100, 100) + "%" }}
-                />
-              </div>
-            </div>
-          </div>
+          <h3 className="text-white font-bold text-lg mb-3">Earn Tokens</h3>
 
           {limitMsg && (
-            <div className="mb-2 px-3 py-2 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300 text-center">
+            <div className="mb-3 px-3 py-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300 text-center">
               {limitMsg}
             </div>
           )}
 
           <div className="space-y-2">
             {MISSIONS.map(m => {
-              const isClaimed  = claimed.includes(m.id)
-              const wouldExceed = missionTokensToday >= DAILY_MISSION_MAX
-              const disabled   = isClaimed || wouldExceed
+              const isClaimed = claimed.includes(m.id)
+              const isMaxed   = m.id !== "ref" && missionTokensToday >= DAILY_MAX
+              const isInvite  = m.id === "ref"
+              const canGet    = Math.min(m.tokens, spaceLeft)
 
               return (
                 <div
                   key={m.id}
-                  className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 flex items-center justify-between"
+                  className="bg-neutral-900 rounded-2xl px-4 py-3.5 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={"w-10 h-10 rounded-xl flex items-center justify-center " + m.color}>
+                    <div className={"w-10 h-10 rounded-xl flex items-center justify-center shrink-0 " + m.color}>
                       <m.icon className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="font-medium text-white text-sm">{m.title}</p>
+                      <p className="text-white font-medium text-sm">{m.title}</p>
                       <div className="flex items-center gap-1 mt-0.5">
                         <img src="/icon-dark-32x32.png" alt="" className="w-3 h-3 object-contain" />
-                        <span className="text-xs text-amber-400 font-medium">+{m.tokens} tokens</span>
-                        {missionSpaceLeft > 0 && missionSpaceLeft < m.tokens && (
-                          <span className="text-xs text-neutral-600">(only +{missionSpaceLeft} left)</span>
+                        <span className="text-xs text-amber-400 font-semibold">
+                          +{isInvite ? "15 tokens + 10% commission" : m.tokens + " tokens"}
+                        </span>
+                        {!isInvite && spaceLeft > 0 && spaceLeft < m.tokens && (
+                          <span className="text-xs text-neutral-600">(+{canGet} left)</span>
                         )}
                       </div>
                     </div>
@@ -278,36 +301,52 @@ export function StoreView() {
 
                   <button
                     onClick={() => handleClaim(m.id, m.tokens)}
-                    disabled={disabled}
+                    disabled={!isInvite && (isClaimed || isMaxed)}
                     className={
-                      "px-3 py-2 rounded-xl text-xs font-medium transition-all " +
-                      (disabled
+                      "px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 " +
+                      (isInvite
+                        ? "bg-blue-500 text-white hover:bg-blue-600"
+                        : isClaimed || isMaxed
                         ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
-                        : "bg-amber-500 text-white hover:bg-amber-600")
+                        : "bg-amber-500 text-black hover:bg-amber-400")
                     }
                   >
-                    {isClaimed ? (
+                    {isInvite ? "Invite" : isClaimed ? (
                       <span className="flex items-center gap-1">
-                        <Check className="w-3 h-3" />
-                        {t("claimed")}
+                        <Check className="w-3 h-3" />Done
                       </span>
-                    ) : wouldExceed ? (
-                      "Max reached"
-                    ) : (
-                      t("claim")
-                    )}
+                    ) : isMaxed ? "Max" : "+" + m.tokens}
                   </button>
                 </div>
               )
             })}
           </div>
 
-          <p className="text-xs text-neutral-600 text-center mt-3">
-            Max {DAILY_MISSION_MAX} tokens from missions per day · resets at midnight
-          </p>
+          <div className="flex items-center justify-between mt-3 px-1">
+            <p className="text-xs text-neutral-600">
+              Daily limit: {missionTokensToday}/{DAILY_MAX} tokens
+            </p>
+            <div className="flex-1 max-w-24 ml-3 h-1 bg-neutral-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-amber-500 rounded-full transition-all"
+                style={{ width: Math.min((missionTokensToday / DAILY_MAX) * 100, 100) + "%" }}
+              />
+            </div>
+          </div>
         </div>
 
       </div>
+
+      {/* ── CSS para animación de estrellas ──────────────────────────────── */}
+      <style>{`
+        @keyframes starFade {
+          0%   { opacity: var(--star-op, 0.5); transform: scale(1) rotate(var(--star-rot, 0deg)); }
+          45%  { opacity: 0.05; transform: scale(0.85) rotate(var(--star-rot, 0deg)); }
+          55%  { opacity: 0.05; transform: scale(0.85) rotate(var(--star-rot, 0deg)); }
+          100% { opacity: var(--star-op, 0.5); transform: scale(1) rotate(var(--star-rot, 0deg)); }
+        }
+      `}</style>
+
     </div>
   )
 }
