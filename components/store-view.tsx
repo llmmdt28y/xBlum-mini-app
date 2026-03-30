@@ -188,7 +188,7 @@ export function StoreView() {
             <p className="text-xs font-semibold tracking-widest text-neutral-500 uppercase mb-1">
               My Balance
             </p>
-            <p className="text-5xl font-black text-white leading-tight">
+            <p className="text-3xl font-black text-white leading-tight">
               {tokens} <span className="text-3xl font-bold">tokens</span>
             </p>
             <p className="text-neutral-400 text-sm mt-1.5">
