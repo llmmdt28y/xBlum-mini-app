@@ -8,14 +8,34 @@ import {
 import { TelegramStar } from "./icons/telegram-star"
 import { useState } from "react"
 
-/* ── Configuración de Estrellas Decorativas ─────────────────────────── */
+/* ── Configuración de Estrellas Decorativas (Estilo Muni) ─────────── */
+// He ampliado y re-distribuido para igualar la referencia y añadido rotación 'rot'
 const DECORATIVE_STARS = [
-  { top: "-5%",  left: "20%", sz: "w-4 h-4", d: "0s",   op: 0.4 },
-  { top: "15%",  right: "10%", sz: "w-3 h-3", d: "1.2s", op: 0.6 },
-  { top: "45%",  left: "5%",  sz: "w-5 h-5", d: "0.5s", op: 0.3 },
-  { top: "60%",  right: "15%", sz: "w-2 h-2", d: "2.1s", op: 0.5 },
-  { top: "-10%", right: "25%", sz: "w-6 h-6", d: "0.8s", op: 0.4 },
-  { top: "30%",  left: "15%", sz: "w-2 h-2", d: "3s",   op: 0.7 },
+  // Top-Left quadrant
+  { top: "-15%", left: "15%", sz: "w-5 h-5", d: "0.2s", rot: "-15deg" },
+  { top: "5%",   left: "-5%",  sz: "w-3 h-3", d: "2.1s", rot: "20deg"  },
+  { top: "25%",  left: "8%",   sz: "w-2 h-2", d: "1.3s", rot: "-30deg" },
+  
+  // Top-Right quadrant
+  { top: "-10%", right: "12%", sz: "w-6 h-6", d: "0.8s", rot: "10deg"  },
+  { top: "10%",  right: "-2%", sz: "w-2 h-2", d: "3.5s", rot: "45deg"  },
+  { top: "35%",  right: "18%", sz: "w-4 h-4", d: "2.8s", rot: "-20deg" },
+  
+  // Bottom-Left quadrant
+  { top: "65%",  left: "-10%", sz: "w-4 h-4", d: "1.7s", rot: "25deg"  },
+  { top: "80%",  left: "12%",  sz: "w-2 h-2", d: "3.1s", rot: "-10deg" },
+  { top: "100%", left: "-5%",  sz: "w-3 h-3", d: "0.5s", rot: "35deg"  },
+  
+  // Bottom-Right quadrant
+  { top: "60%",  right: "-5%", sz: "w-5 h-5", d: "4.2s", rot: "-15deg" },
+  { top: "85%",  right: "10%", sz: "w-3 h-3", d: "2.4s", rot: "30deg"  },
+  { top: "105%", right: "20%", sz: "w-2 h-2", d: "1.0s", rot: "-40deg" },
+  
+  // Extras for detailed framing
+  { top: "45%",  left: "0%",   sz: "w-1 h-1", d: "0.0s", rot: "0deg" },
+  { top: "50%",  right: "0%",  sz: "w-1 h-1", d: "1.1s", rot: "0deg" },
+  { top: "-20%", left: "45%",  sz: "w-3 h-3", d: "2.6s", rot: "15deg" },
+  { top: "115%", right: "45%", sz: "w-2 h-2", d: "3.8s", rot: "-25deg"},
 ]
 
 const TOKEN_PACKAGES = [
@@ -78,30 +98,41 @@ export function StoreView() {
         <h2 className="font-semibold text-white">{t("store")}</h2>
       </div>
 
-      <div className="p-4 space-y-8">
+      <div className="p-4 space-y-8 pb-20">
 
-        {/* ── NUEVA SECCIÓN DE BALANCE (ESTILO MIRA) ─────────────────── */}
-        <div className="flex flex-col items-center pt-6 pb-2 relative">
+        {/* ── SECCIÓN DE BALANCE ACTUALIZADA (ESTILO MIRA + ICONO PUBLIC) ── */}
+        <div className="flex flex-col items-center pt-8 pb-4 relative">
           
           {/* Contenedor de Logo y Estrellas */}
-          <div className="relative w-40 h-40 flex items-center justify-center mb-6">
+          <div className="relative w-44 h-44 flex items-center justify-center mb-6">
             
-            {/* Estrellas animadas rodeando el logo */}
+            {/* Estrellas decorativas animadas */}
             {DECORATIVE_STARS.map((s, i) => (
               <div
                 key={i}
-                className={`absolute animate-mira-star text-blue-400/40 ${s.sz}`}
+                /* AJUSTES CLAVE: 
+                   1. Clase 'animate-mira-star' (con movimiento y parpadeo).
+                   2. Se eliminó la opacidad estática de 'style' para que la animación la maneje.
+                   3. 'sz' define el tamaño visual visualmente.
+                */
+                className={`absolute animate-mira-star text-blue-400/70 ${s.sz}`}
                 style={{ 
                   top: s.top, 
                   left: s.left, 
                   right: s.right, 
                   animationDelay: s.d,
-                  opacity: s.op 
+                  /* 4. Rotación aleatoria hardcodeada */
+                  transform: `rotate(${s.rot || '0deg'})`
                 }}
               >
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L14.5 9.5H22L16 14L18.5 21.5L12 17L5.5 21.5L8 14L2 9.5H9.5L12 2Z" />
-                </svg>
+                {/* 1. Usamos tu icono de estrella guardado en public */}
+                <img 
+                  src="/star-icon.png" 
+                  alt=""
+                  className="w-full h-full object-contain" 
+                  /* Un sutil brillo extra para las estrellas */
+                  style={{ filter: 'drop-shadow(0 0 12px rgba(96,165,250,0.6))' }}
+                />
               </div>
             ))}
 
@@ -109,19 +140,19 @@ export function StoreView() {
             <img 
               src="/xblum-logo-blue.png" 
               alt="xBlum" 
-              className="w-28 h-28 object-contain relative z-10 drop-shadow-[0_0_25px_rgba(59,130,246,0.4)]"
+              className="w-32 h-32 object-contain relative z-10 drop-shadow-[0_0_30px_rgba(59,130,246,0.45)]"
             />
           </div>
 
           {/* Textos de Balance */}
           <div className="text-center">
-            <p className="text-[10px] tracking-[0.25em] font-bold text-neutral-500 uppercase mb-2">
+            <p className="text-[10px] tracking-[0.28em] font-bold text-neutral-500 uppercase mb-2">
               MY BALANCE
             </p>
             <h2 className="text-4xl font-bold text-white mb-2">
               {tokens} tokens
             </h2>
-            <p className="text-xs text-neutral-500 font-medium">
+            <p className="text-xs text-neutral-500 font-medium px-4">
               25–30 tokens per AI image generated
             </p>
           </div>
@@ -194,7 +225,7 @@ export function StoreView() {
         </button>
 
         {/* ── Missions ── */}
-        <div className="pb-4">
+        <div>
           <div className="flex items-center justify-between mb-4 px-1">
             <h3 className="font-semibold text-white">{t("missions")}</h3>
             <div className="flex items-center gap-2">
@@ -240,7 +271,7 @@ export function StoreView() {
                     }
                   >
                     {isClaimed ? (
-                      <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1">
                         <Check className="w-3 h-3" />
                         {t("claimed")}
                       </span>
