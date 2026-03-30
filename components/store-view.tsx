@@ -52,7 +52,7 @@ function CoinStack({ count }: { count: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <img
           key={i}
-          src="/telegram-star-icon.png"
+          src="/icon-dark-32x32.png"
           alt=""
           className="absolute w-8 h-8 object-contain"
           style={{ left: offsets[i] + "px", zIndex: count - i }}
@@ -68,7 +68,7 @@ function StarPrice({ stars }: { stars: number }) {
     <div className="flex items-center gap-1.5">
       {/* star-icon.png sube el usuario — fallback al SVG de telegram star */}
       <img
-        src="/star-icon.png"
+        src="/telegram-star-icon.png"
         alt="⭐"
         className="w-5 h-5 object-contain"
         onError={e => { e.currentTarget.style.display = "none" }}
@@ -171,7 +171,7 @@ export function StoreView() {
             <div
               className="absolute rounded-full flex items-center justify-center shadow-2xl shadow-blue-500/40"
               style={{
-                width:"120px", height:"120px",
+                width:"110px", height:"110px",
                 top:"50%", left:"50%",
                 transform:"translate(-50%,-60%)",
               }}
