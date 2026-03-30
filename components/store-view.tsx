@@ -224,17 +224,30 @@ export function StoreView() {
           <ChevronLeft className="w-5 h-5 text-neutral-600 rotate-180" />
         </button>
 
-        {/* ── Missions ── */}
+                {/* ── Missions ──────────────────────────────────────────────── */}
         <div>
-          <div className="flex items-center justify-between mb-4 px-1">
+          <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-white">{t("missions")}</h3>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-neutral-500 uppercase font-bold tracking-tight">Daily Limit:</span>
-              <span className="text-xs text-amber-500 font-bold">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-neutral-500">Daily:</span>
+              <span className="text-xs text-neutral-400 font-medium">
                 {missionTokensToday}/{DAILY_MISSION_MAX}
               </span>
+              {/* Mini progress bar */}
+              <div className="w-16 h-1.5 bg-neutral-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-amber-500 rounded-full transition-all"
+                  style={{ width: Math.min((missionTokensToday / DAILY_MISSION_MAX) * 100, 100) + "%" }}
+                />
+              </div>
             </div>
           </div>
+
+          {limitMsg && (
+            <div className="mb-2 px-3 py-2 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300 text-center">
+              {limitMsg}
+            </div>
+          )}
 
           <div className="space-y-2">
             {MISSIONS.map(m => {
@@ -245,7 +258,7 @@ export function StoreView() {
               return (
                 <div
                   key={m.id}
-                  className="bg-neutral-900/50 border border-neutral-800/50 rounded-2xl p-4 flex items-center justify-between"
+                  className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3">
                     <div className={"w-10 h-10 rounded-xl flex items-center justify-center " + m.color}>
@@ -255,7 +268,10 @@ export function StoreView() {
                       <p className="font-medium text-white text-sm">{m.title}</p>
                       <div className="flex items-center gap-1 mt-0.5">
                         <img src="/icon-dark-32x32.png" alt="" className="w-3 h-3 object-contain" />
-                        <span className="text-xs text-amber-500/80 font-bold">+{m.tokens} tokens</span>
+                        <span className="text-xs text-amber-400 font-medium">+{m.tokens} tokens</span>
+                        {missionSpaceLeft > 0 && missionSpaceLeft < m.tokens && (
+                          <span className="text-xs text-neutral-600">(only +{missionSpaceLeft} left)</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -264,14 +280,14 @@ export function StoreView() {
                     onClick={() => handleClaim(m.id, m.tokens)}
                     disabled={disabled}
                     className={
-                      "px-4 py-2 rounded-xl text-xs font-bold transition-all " +
+                      "px-3 py-2 rounded-xl text-xs font-medium transition-all " +
                       (disabled
-                        ? "bg-neutral-800 text-neutral-600 cursor-not-allowed"
-                        : "bg-amber-500 text-white hover:bg-amber-600 active:scale-95 shadow-lg shadow-amber-500/10")
+                        ? "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                        : "bg-amber-500 text-white hover:bg-amber-600")
                     }
                   >
                     {isClaimed ? (
-                    <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1">
                         <Check className="w-3 h-3" />
                         {t("claimed")}
                       </span>
@@ -285,6 +301,10 @@ export function StoreView() {
               )
             })}
           </div>
+
+          <p className="text-xs text-neutral-600 text-center mt-3">
+            Max {DAILY_MISSION_MAX} tokens from missions per day · resets at midnight
+          </p>
         </div>
 
       </div>
