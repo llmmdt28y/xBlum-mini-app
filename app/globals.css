@@ -124,18 +124,16 @@
   }
 }
 
-/* src/app/globals.css */
-
 @keyframes twinkle-float {
   0%, 100% {
     opacity: 0.3;
     transform: translateY(0) scale(1);
-    filter: blur(0.5px);
+    filter: blur(0px);
   }
   50% {
     opacity: 1;
-    transform: translateY(-8px) scale(1.3); /* Movimiento vertical y aumento de tamaño */
-    filter: blur(1.5px); /* Efecto de brillo difuso */
+    transform: translateY(-10px) scale(1.2); /* Se mueve hacia arriba y crece un poco */
+    filter: blur(1px); /* Efecto de luz difusa */
   }
 }
 
