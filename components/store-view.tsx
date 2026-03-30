@@ -171,7 +171,7 @@ export function StoreView() {
             <div
               className="absolute rounded-full flex items-center justify-center shadow-2xl shadow-blue-500/40"
               style={{
-                width:"110px", height:"110px",
+                width:"105px", height:"105px",
                 top:"50%", left:"50%",
                 transform:"translate(-50%,-60%)",
               }}
