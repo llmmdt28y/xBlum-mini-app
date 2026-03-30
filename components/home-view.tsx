@@ -76,7 +76,7 @@ export function HomeView() {
             transparente del PNG. El truco: padding para encajar el badge. */}
         <div className="relative inline-flex">
           <img
-            src="/xblum-logo-blue.png"
+            src="/icon-dark-32x32.png"
             alt="xBlum"
             className="w-36 h-36 object-contain drop-shadow-[0_0_30px_rgba(59,130,246,0.4)]"
           />
