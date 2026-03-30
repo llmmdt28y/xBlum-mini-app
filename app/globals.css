@@ -124,19 +124,15 @@
   }
 }
 
-@keyframes twinkle-float {
+@keyframes twinkle-sutil {
   0%, 100% {
-    opacity: 0.3;
-    transform: translateY(0) scale(1);
-    filter: blur(0px);
+    opacity: 0.3; /* Parpadeo mínimo */
   }
   50% {
-    opacity: 1;
-    transform: translateY(-10px) scale(1.2); /* Se mueve hacia arriba y crece un poco */
-    filter: blur(1px); /* Efecto de luz difusa */
+    opacity: 1; /* Brillo máximo */
   }
 }
 
-.animate-twinkle {
-  animation: twinkle-float 5s infinite ease-in-out;
+.animate-twinkle-sutil {
+  animation: twinkle-sutil 3s infinite ease-in-out;
 }
