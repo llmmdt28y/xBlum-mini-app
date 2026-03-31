@@ -196,6 +196,11 @@ async function apiCall(endpoint: string, body: Record<string, unknown>): Promise
   const tg       = getTg()
   const initData = tg?.initData ?? ""
 
+  // Debug: log initData length para diagnosticar problemas de conexión
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[API] ${endpoint} initData length=${initData.length}`)
+  }
+
   const res = await fetch(`${API_BASE}${endpoint}`, {
     method:  "POST",
     headers: { "Content-Type": "application/json" },
@@ -203,8 +208,11 @@ async function apiCall(endpoint: string, body: Record<string, unknown>): Promise
   })
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error((err as { detail?: string }).detail ?? `HTTP ${res.status}`)
+    const text = await res.text().catch(() => "")
+    let detail = `HTTP ${res.status}`
+    try { detail = JSON.parse(text).detail ?? detail } catch {}
+    console.error(`[API] ${endpoint} failed: ${detail}`)
+    throw new Error(detail)
   }
 
   return res.json()
@@ -272,12 +280,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     // Cargar estado real del servidor
-    if (tg?.initData) {
-      loadStatus()
-    } else {
-      // Sin initData (dev/browser) — marcar como no loading
-      setState(s => ({ ...s, isLoading: false }))
+    // Esperar un tick porque Telegram a veces tarda en exponer initData
+    const tryLoad = () => {
+      const _tg = getTg()
+      if (_tg?.initData && _tg.initData.length > 10) {
+        loadStatus()
+      } else {
+        // Reintentar hasta 3 veces con delay
+        let attempts = 0
+        const retry = setInterval(() => {
+          attempts++
+          const _t2 = getTg()
+          if (_t2?.initData && _t2.initData.length > 10) {
+            clearInterval(retry)
+            loadStatus()
+          } else if (attempts >= 3) {
+            clearInterval(retry)
+            console.warn("[AppContext] initData no disponible — modo offline")
+            setState(s => ({ ...s, isLoading: false }))
+          }
+        }, 600)
+      }
     }
+    tryLoad()
   }, [loadStatus])
 
   // ── Throttle countdown ────────────────────────────────────────────────────
