@@ -82,40 +82,38 @@ function StarPrice({ stars }: { stars: number }) {
 export function StoreView() {
   const {
     t, setCurrentView, tokens,
-    claimMissionTokens,
+    missionTokensToday, claimMissionTokens, openInvoice,
   } = useApp()
 
   const [claimed, setClaimed] = useState<string[]>([])
 
   const approxImages = Math.floor(tokens / IMG_COST_AVG)
 
+  const BOT = process.env.NEXT_PUBLIC_BOT_USERNAME ?? "xBlumAI"
+
   function handleInvite() {
+    // Abrir el bot para que genere el link de referido
+    window.Telegram?.WebApp?.openTelegramLink(`https://t.me/${BOT}?start=invite`)
+  }
+
+  async function buyPackage(pkgId: string) {
     try {
-      window.Telegram?.WebApp?.sendData(JSON.stringify({ action: "get_referral" }))
-    } catch {
-      window.Telegram?.WebApp?.openTelegramLink("https://t.me/xBlumAI?start=invite")
+      await openInvoice(pkgId)
+    } catch (e) {
+      console.error("[buyPackage]", e)
     }
   }
 
-  function buyPackage(pkgId: string) {
-    try {
-      window.Telegram?.WebApp?.sendData(
-        JSON.stringify({ action: "buy_tokens", package_id: pkgId })
-      )
-    } catch {}
-  }
-
-  function handleClaim(id: string, amount: number) {
+  async function handleClaim(id: string, amount: number) {
     if (id === "ref") { handleInvite(); return }
     if (claimed.includes(id)) return
-    claimMissionTokens(amount)
-    setClaimed(p => [...p, id])
-    try {
-      window.Telegram?.WebApp?.sendData(
-        JSON.stringify({ action: "claim_mission", mission_id: id, amount })
-      )
-    } catch {}
+    const ok = await claimMissionTokens(id, amount)
+    if (ok) {
+      setClaimed(p => [...p, id])
+    }
   }
+
+  const spaceLeft = (20 - (missionTokensToday || 0))
 
   return (
     <div className="flex-1 bg-[#0a0a0a]">
