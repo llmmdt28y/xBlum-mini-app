@@ -193,15 +193,16 @@ function todayStr(): string {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
 
 async function apiCall(endpoint: string, body: Record<string, unknown>): Promise<unknown> {
-  // Leer initData y userId SIEMPRE en el momento del call — directo de window
+  // Leer initData directo de window en cada call (nunca desde estado/closure)
+  // El script telegram-web-app.js se carga en layout.tsx beforeInteractive
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tg       = (window as any)?.Telegram?.WebApp
   const initData: string = tg?.initData ?? ""
-  // Enviar userId como fallback cuando initData está vacío
-  // (ocurre cuando la mini-app se abre desde el Menu Button de BotFather)
   const userId   = tg?.initDataUnsafe?.user?.id ?? null
 
-  console.log(`[API] ${endpoint} — initData=${initData.length}chars userId=${userId}`)
+  if (!initData) {
+    console.warn(`[API] ${endpoint} — initData vacío. ¿Script cargado?`)
+  }
 
   const res = await fetch(`${API_BASE}${endpoint}`, {
     method:  "POST",
@@ -281,30 +282,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setState(s => ({ ...s, userId: user?.id ?? null, language: lang }))
     }
 
-    // Cargar estado real del servidor
-    // Esperar un tick porque Telegram a veces tarda en exponer initData
-    const tryLoad = () => {
-      const _tg = getTg()
-      if (_tg?.initData && _tg.initData.length > 10) {
-        loadStatus()
-      } else {
-        // Reintentar hasta 3 veces con delay
-        let attempts = 0
-        const retry = setInterval(() => {
-          attempts++
-          const _t2 = getTg()
-          if (_t2?.initData && _t2.initData.length > 10) {
-            clearInterval(retry)
-            loadStatus()
-          } else if (attempts >= 3) {
-            clearInterval(retry)
-            console.warn("[AppContext] initData no disponible — modo offline")
-            setState(s => ({ ...s, isLoading: false }))
-          }
-        }, 600)
-      }
-    }
-    tryLoad()
+    // Cargar estado desde el servidor
+    // El script telegram-web-app.js debe estar en layout.tsx con strategy="beforeInteractive"
+    // para que window.Telegram.WebApp esté disponible aquí
+    loadStatus()
   }, [loadStatus])
 
   // ── Throttle countdown ────────────────────────────────────────────────────
