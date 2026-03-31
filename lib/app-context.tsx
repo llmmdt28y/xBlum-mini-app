@@ -193,18 +193,20 @@ function todayStr(): string {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
 
 async function apiCall(endpoint: string, body: Record<string, unknown>): Promise<unknown> {
-  const tg       = getTg()
-  const initData = tg?.initData ?? ""
+  // Leer initData y userId SIEMPRE en el momento del call — directo de window
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tg       = (window as any)?.Telegram?.WebApp
+  const initData: string = tg?.initData ?? ""
+  // Enviar userId como fallback cuando initData está vacío
+  // (ocurre cuando la mini-app se abre desde el Menu Button de BotFather)
+  const userId   = tg?.initDataUnsafe?.user?.id ?? null
 
-  // Debug: log initData length para diagnosticar problemas de conexión
-  if (process.env.NODE_ENV === "development") {
-    console.log(`[API] ${endpoint} initData length=${initData.length}`)
-  }
+  console.log(`[API] ${endpoint} — initData=${initData.length}chars userId=${userId}`)
 
   const res = await fetch(`${API_BASE}${endpoint}`, {
     method:  "POST",
     headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify({ ...body, initData }),
+    body:    JSON.stringify({ ...body, initData, userId }),
   })
 
   if (!res.ok) {
