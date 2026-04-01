@@ -189,12 +189,9 @@ function todayStr(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-// URL del servidor FastAPI — se pone en .env.local y en Vercel env vars
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
 
 async function apiCall(endpoint: string, body: Record<string, unknown>): Promise<unknown> {
-  // Leer initData directo de window en cada call (nunca desde estado/closure)
-  // El script telegram-web-app.js se carga en layout.tsx beforeInteractive
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tg       = (window as any)?.Telegram?.WebApp
   const initData: string = tg?.initData ?? ""
@@ -234,7 +231,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isLoading: true, apiError: "",
   })
 
-  // ── Cargar estado real desde el servidor ──────────────────────────────────
   const loadStatus = useCallback(async () => {
     try {
       const data = await apiCall("/api/status", {}) as Record<string, unknown>
@@ -258,7 +254,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // ── Init ─────────────────────────────────────────────────────────────────
   useEffect(() => {
     const tg = getTg()
     if (tg) { tg.ready(); tg.expand() }
@@ -268,7 +263,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const lang: Language =
       code.startsWith("ru") ? "ru" : code.startsWith("es") ? "es" : "en"
 
-    // Cargar prefs guardadas localmente (idioma, prefs de usuario — cosas no en DB)
     try {
       const raw   = localStorage.getItem("xblum-v4")
       const saved = raw ? JSON.parse(raw) : {}
@@ -282,13 +276,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setState(s => ({ ...s, userId: user?.id ?? null, language: lang }))
     }
 
-    // Cargar estado desde el servidor
-    // El script telegram-web-app.js debe estar en layout.tsx con strategy="beforeInteractive"
-    // para que window.Telegram.WebApp esté disponible aquí
     loadStatus()
   }, [loadStatus])
 
-  // ── Throttle countdown ────────────────────────────────────────────────────
   useEffect(() => {
     const id = setInterval(() => {
       setState(s => {
@@ -302,7 +292,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(id)
   }, [])
 
-  // ── Persistir solo preferencias locales ──────────────────────────────────
   useEffect(() => {
     try {
       localStorage.setItem("xblum-v4", JSON.stringify({
@@ -312,7 +301,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch {}
   }, [state.language, state.userPreferences])
 
-  // ── sendToBot — abre el bot en chat ───────────────────────────────────────
   function sendToBot(text: string) {
     const tg = getTg()
     if (!tg) return
@@ -325,7 +313,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // ── Cambiar modelo (llama al servidor) ────────────────────────────────────
   async function setSelectedModel(model: ModelName) {
     setState(s => ({ ...s, selectedModel: model }))
     try {
@@ -335,7 +322,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // ── Pago con Stars — openInvoice nativo ───────────────────────────────────
   async function openInvoice(pkgId: string) {
     try {
       const data = await apiCall("/api/get_invoice_link", { package_id: pkgId }) as { invoice_link: string }
@@ -344,7 +330,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       tg.openInvoice(data.invoice_link, (status: string) => {
         if (status === "paid") {
-          // Recargar estado desde servidor para reflejar tokens/premium nuevos
           loadStatus()
         }
       })
@@ -353,29 +338,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // ── Claim misión ──────────────────────────────────────────────────────────
+  // ── Claim misión con Resiliencia ──────────────────────────────────────────
   async function claimMissionTokens(missionId: string, amount: number): Promise<boolean> {
     try {
       const data = await apiCall("/api/claim_mission", {
         mission_id: missionId, amount,
-      }) as { ok: boolean; tokens: number; today: number }
+      }) as { ok?: boolean; tokens?: number; today?: number }
 
-      if (data.ok) {
+      if (data.ok !== false) {
         setState(s => ({
           ...s,
-          tokens:             data.tokens,
-          missionTokensToday: data.today,
+          tokens:             typeof data.tokens === "number" ? data.tokens : s.tokens + amount,
+          missionTokensToday: typeof data.today === "number"  ? data.today  : s.missionTokensToday + amount,
           missionResetDate:   todayStr(),
         }))
+        return true
       }
-      return data.ok
+      return false
     } catch (e) {
       console.error("[claimMission]", e)
       return false
     }
   }
 
-  // ── Personalize memories ──────────────────────────────────────────────────
   async function setPersonalizeMemories(v: boolean) {
     setState(s => ({ ...s, personalizeMemories: v }))
     try {
@@ -385,7 +370,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // ── Delete memories ───────────────────────────────────────────────────────
   async function deleteAllMemories() {
     try {
       await apiCall("/api/delete_memories", {})
@@ -394,7 +378,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // ── Delete history ────────────────────────────────────────────────────────
   async function deleteAllHistory() {
     try {
       await apiCall("/api/delete_history", {})
