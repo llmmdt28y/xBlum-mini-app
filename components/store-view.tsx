@@ -73,13 +73,12 @@ function formatCountdown(seconds: number): string {
 export function StoreView() {
   const {
     t, setCurrentView, tokens,
-    missionTokensToday, claimMissionTokens, openInvoice,
-    referralLink, userId,
+    claimMissionTokens, openInvoice,
+    referralLink,
   } = useApp()
 
   const [completedOnce, setCompletedOnce] = useState<string[]>([])
   const [dailySecondsLeft, setDailySecondsLeft] = useState(0)
-  const [limitMsg, setLimitMsg] = useState("")
 
   const BOT = process.env.NEXT_PUBLIC_BOT_USERNAME ?? "xBlumAI"
   const CHANNEL = process.env.NEXT_PUBLIC_CHANNEL_USERNAME ?? "xBlumAI"
@@ -92,7 +91,7 @@ export function StoreView() {
       const now = Date.now()
       const elapsed = Math.floor((now - lastDaily) / 1000)
       const remaining = Math.max(0, 86400 - elapsed)
-      setDailySecondsLeft(remaining)
+      setDailySecondsLeft(remaining > 0 ? remaining : 0)
     } catch {}
   }, [])
 
@@ -108,41 +107,50 @@ export function StoreView() {
     try { await openInvoice(pkgId) } catch (e) { console.error(e) }
   }
 
+  function saveMissions(completed: string[], lastDaily?: number) {
+    try {
+      const stored = JSON.parse(localStorage.getItem("xblum-missions") ?? "{}")
+      const payload: any = { ...stored, completedOnce: completed }
+      if (lastDaily !== undefined) {
+        payload.lastDaily = lastDaily
+      }
+      localStorage.setItem("xblum-missions", JSON.stringify(payload))
+    } catch {}
+  }
+
   async function handleClaim(id: string, amount: number) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp;
 
-    // 1. INVITAR AMIGO (ref): El bot da los tokens silenciosamente cuando se unen
+    const markAsDone = () => {
+      const updated = [...completedOnce, id];
+      setCompletedOnce(updated);
+      saveMissions(updated); // Solo guarda el array, no toca el temporizador diario
+    }
+
+    // 1. INVITAR AMIGO (ref):
     if (id === "ref") {
       const shareText = "Try xBlum AI on Telegram — chat for free!";
       const link = referralLink || `https://t.me/${BOT}`;
       const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
       tg?.openTelegramLink(shareUrl);
-      return;
+      return; // "ref" nunca se pone Claimed, siempre se puede invitar.
     }
 
-    // 2. AÑADIR A GRUPO (addChat): El bot da los tokens al entrar al grupo
+    // 2. AÑADIR A GRUPO (addChat):
     if (id === "addChat") {
       tg?.openTelegramLink(`https://t.me/${BOT}?startgroup=true`);
       tg?.showAlert("Tokens will be added automatically once the bot is added to your group!");
+      markAsDone(); // Forzamos que se marque como Claimed inmediatamente
       return;
     }
 
-    // 3. UNIRSE AL CANAL (channel): Abre link, espera y verifica con backend
+    // 3. UNIRSE AL CANAL (channel):
     if (id === "channel") {
       tg?.openTelegramLink(`https://t.me/${CHANNEL}`);
-      
-      setTimeout(async () => {
-        if (!completedOnce.includes(id)) {
-          const ok = await claimMissionTokens(id, amount);
-          if (ok) {
-            const updated = [...completedOnce, id];
-            setCompletedOnce(updated);
-            saveMissions(updated);
-          } else {
-            tg?.showAlert("Please join the channel first to claim your tokens!");
-          }
-        }
+      setTimeout(() => {
+        claimMissionTokens(id, amount); // Intenta backend
+        markAsDone(); // Forzamos Claimed para que la UI responda rápido
       }, 3000);
       return;
     }
@@ -150,53 +158,30 @@ export function StoreView() {
     // 4. RECOMPENSA DIARIA (daily):
     if (id === "daily") {
       if (dailySecondsLeft > 0) return;
-      const ok = await claimMissionTokens(id, amount);
-      if (ok) {
-        const now = Date.now();
-        setDailySecondsLeft(86400); // 24 horas
-        saveMissions(completedOnce, now);
-      } else {
-        setLimitMsg("Daily mission limit reached. Resets at midnight.");
-        setTimeout(() => setLimitMsg(""), 3000);
-      }
+      claimMissionTokens(id, amount); // Sube tokens
+      const now = Date.now();
+      setDailySecondsLeft(86400); // Forzamos el reloj en pantalla a 24h
+      saveMissions(completedOnce, now); // Guardamos la hora actual
       return;
     }
 
-    // 5. COMPARTIR (share): Recompensa por clic simulado (Telegram no permite saber si se envió)
+    // 5. COMPARTIR (share):
     if (id === "share") {
       const shareText = "Check out xBlum AI on Telegram!";
       const link = `https://t.me/${BOT}`;
       const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`;
       tg?.openTelegramLink(shareUrl);
-      
-      if (!completedOnce.includes(id)) {
-        setTimeout(async () => {
-          const ok = await claimMissionTokens(id, amount);
-          if (ok) {
-            const updated = [...completedOnce, id];
-            setCompletedOnce(updated);
-            saveMissions(updated);
-          }
-        }, 2000);
-      }
+      setTimeout(() => {
+        claimMissionTokens(id, amount);
+        markAsDone(); // Forzamos Claimed
+      }, 2000);
       return;
     }
   }
 
-  function saveMissions(completed: string[], lastDaily?: number) {
-    try {
-      const stored = JSON.parse(localStorage.getItem("xblum-missions") ?? "{}")
-      localStorage.setItem("xblum-missions", JSON.stringify({
-        ...stored,
-        completedOnce: completed,
-        ...(lastDaily ? { lastDaily } : {}),
-      }))
-    } catch {}
-  }
-
   function getMissionState(m: typeof MISSIONS[0]): "done" | "cooldown" | "ready" {
     if (m.id === "daily") return dailySecondsLeft > 0 ? "cooldown" : "ready"
-    if (m.id === "ref" || m.id === "addChat") return "ready" 
+    if (m.id === "ref") return "ready" 
     if (completedOnce.includes(m.id)) return "done"
     return "ready"
   }
@@ -229,7 +214,7 @@ export function StoreView() {
                 onError={e => { e.currentTarget.style.display="none" }}
               />
             ))}
-            {/* Logo sin fondo ni filtro */}
+            {/* Logo sin fondo */}
             <div className="absolute flex items-center justify-center"
               style={{ width:"120px", height:"120px", top:"50%", left:"50%", transform:"translate(-50%,-60%)" }}>
               <img src="/icon-dark-32x32.png" alt="xBlum" className="w-24 h-24 object-contain" />
@@ -290,12 +275,6 @@ export function StoreView() {
         <div>
           <h3 className="text-white font-bold text-lg mb-3">Earn Tokens</h3>
 
-          {limitMsg && (
-            <div className="mb-3 px-3 py-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300 text-center">
-              {limitMsg}
-            </div>
-          )}
-
           <div className="space-y-2">
             {MISSIONS.map(m => {
               const state = getMissionState(m)
@@ -325,7 +304,6 @@ export function StoreView() {
                     </div>
                   </div>
 
-                  {/* Estado Visual: Claimed se ve en gris opaco */}
                   <button
                     onClick={() => isReady && handleClaim(m.id, m.tokens)}
                     disabled={isDone || isCooldown}
@@ -334,7 +312,7 @@ export function StoreView() {
                       (isDone
                         ? "bg-neutral-800 text-neutral-500/60 cursor-not-allowed" // Gris/Opaco
                         : isCooldown
-                        ? "bg-neutral-800 text-neutral-400 cursor-not-allowed"
+                        ? "bg-neutral-800 text-neutral-400 cursor-not-allowed" // Gris/Opaco para daily
                         : m.id === "ref" || m.id === "addChat"
                         ? "bg-purple-500 text-white hover:bg-purple-600"
                         : "bg-amber-500 text-black hover:bg-amber-400")
