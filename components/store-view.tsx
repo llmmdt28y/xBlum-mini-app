@@ -294,7 +294,7 @@ export function StoreView() {
                         <img src="/icon-dark-32x32.png" alt="" className="w-3 h-3 object-contain" />
                         <span className="text-xs text-amber-400 font-semibold">
                           {m.id === "ref"
-                            ? `+${m.tokens} tokens + 10% commission`
+                            ? `+${m.tokens} tokens + 80% commission`
                             : `+${m.tokens} tokens`}
                         </span>
                         {m.once_only && isDone && (
