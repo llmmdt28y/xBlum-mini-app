@@ -6,6 +6,7 @@ import { HomeView } from "@/components/home-view"
 import { SettingsView } from "@/components/settings-view"
 import { StoreView } from "@/components/store-view"
 import { PremiumView } from "@/components/premium-view"
+import { ReferralView } from "@/components/referral-view"
 
 function AppContent() {
   const { currentView } = useApp()
@@ -21,6 +22,7 @@ function AppContent() {
       {currentView === "settings" && <SettingsView />}
       {currentView === "store" && <StoreView />}
       {currentView === "premium" && <PremiumView />}
+      {currentView === "referral" && <ReferralView />}
     </div>
   )
 }

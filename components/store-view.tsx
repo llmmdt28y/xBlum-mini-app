@@ -271,6 +271,21 @@ export function StoreView() {
           <span className="text-amber-400 text-xs font-semibold shrink-0">from 800 ⭐</span>
         </button>
 
+        {/* Referral Program */}
+        <button onClick={() => setCurrentView("referral")}
+          className="w-full p-4 bg-gradient-to-r from-sky-600/20 to-blue-600/20 border border-sky-500/30 rounded-2xl flex items-center justify-between hover:border-sky-500/50 transition-all">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 bg-gradient-to-r from-sky-500 to-blue-500 rounded-xl flex items-center justify-center shrink-0">
+              <Users className="w-6 h-6 text-white" />
+            </div>
+            <div className="text-left">
+              <p className="text-white font-bold text-sm">Referral Program</p>
+              <p className="text-sky-400/70 text-xs mt-0.5">Invite friends & earn rewards</p>
+            </div>
+          </div>
+          <span className="text-sky-400 text-xs font-semibold shrink-0">80% commission</span>
+        </button>
+
         {/* ── Earn Tokens ───────────────────────────────────────────────── */}
         <div>
           <h3 className="text-white font-bold text-lg mb-3">Earn Tokens</h3>
