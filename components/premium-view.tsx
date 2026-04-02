@@ -5,7 +5,7 @@ import { useApp } from "@/lib/app-context"
 import { X, Sparkles, ImagePlus, Bot, Zap, Check } from "lucide-react"
 
 const PLANS = [
-  { id: "premium_1m", label: "1 Month", stars: 800, months: 1 },
+  { id: "premium_1m", label: "Monthly", stars: 800, months: 1 },
   { id: "premium_3m", label: "3 Months", stars: 1800, months: 3, save: "25%" },
 ]
 
@@ -65,7 +65,7 @@ export function PremiumView() {
       </div>
 
       {/* Bottom section */}
-      <div className="px-4 pb-6 pt-4 space-y-4">
+      <div className="px-4 pb-6 pt-8 mt-auto space-y-4">
         {/* Plan selection */}
         <div className="flex gap-3">
           {PLANS.map((plan) => (
@@ -97,7 +97,9 @@ export function PremiumView() {
                 />
                 <span className="text-xl font-black text-white">{plan.stars}</span>
               </div>
-              {plan.months > 1 && (
+              {plan.months === 1 ? (
+                <p className="text-neutral-500 text-xs mt-1">/month</p>
+              ) : (
                 <p className="text-neutral-500 text-xs mt-1">
                   {Math.round(plan.stars / plan.months)} ⭐/month
                 </p>
