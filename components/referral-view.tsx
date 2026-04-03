@@ -104,7 +104,7 @@ export function ReferralView() {
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
               <img
-                src="/icon-dark-32x32.png"
+                src="/token2-icon.png"
                 alt="Tokens"
                 className="w-6 h-6 object-contain"
                 onError={(e) => { e.currentTarget.style.display = "none" }}
