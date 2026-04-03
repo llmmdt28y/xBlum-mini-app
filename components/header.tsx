@@ -83,7 +83,7 @@ export function Header() {
       >
         {/* Icono de token — imagen más grande */}
         <img
-          src="/token-icon.jpg"
+          src="/token2-icon.png"
           alt="tokens"
           className="w-5 h-5 object-contain rounded-full"
           onError={e => { e.currentTarget.style.display = "none" }}
