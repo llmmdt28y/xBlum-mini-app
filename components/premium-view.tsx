@@ -11,17 +11,18 @@ const PLANS = [
 
 export function PremiumView() {
   const { setCurrentView, isPremium, openInvoice } = useApp()
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+  const [selectedPlan, setSelectedPlan] = useState<string>("premium_1m")
+  const [isLoading, setIsLoading] = useState(false)
 
-  async function subscribe(planId: string) {
-    if (loadingPlan) return
-    setLoadingPlan(planId)
+  async function subscribe() {
+    if (!selectedPlan) return
+    setIsLoading(true)
     try {
-      await openInvoice(planId)
+      await openInvoice(selectedPlan)
     } catch (e) {
       console.error("[Subscribe]", e)
     } finally {
-      setLoadingPlan(null)
+      setIsLoading(false)
     }
   }
 
@@ -64,59 +65,57 @@ export function PremiumView() {
       </div>
 
       {/* Bottom section */}
-      <div className="px-4 pb-6 pt-8 mt-auto space-y-3">
-
-        {/* Plan cards — each with its own upgrade button */}
-        {PLANS.map((plan) => {
-          const isLoading = loadingPlan === plan.id
-          return (
-            <div
+      <div className="px-4 pb-6 pt-8 mt-auto space-y-4">
+        {/* Plan selection */}
+        <div className="flex gap-3">
+          {PLANS.map((plan) => (
+            <button
               key={plan.id}
-              className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4"
+              onClick={() => setSelectedPlan(plan.id)}
+              className={`flex-1 p-4 rounded-2xl text-left transition-all border-2 ${
+                selectedPlan === plan.id
+                  ? "bg-neutral-800 border-white"
+                  : "bg-neutral-900 border-neutral-800 hover:border-neutral-700"
+              }`}
             >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <p className="text-white font-semibold text-base">{plan.label}</p>
-                  {plan.save && (
-                    <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded font-semibold">
-                      Save {plan.save}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <img
-                    src="/telegram-star-icon.png"
-                    alt="star"
-                    className="w-4 h-4 object-contain"
-                    onError={(e) => { e.currentTarget.style.display = "none" }}
-                  />
-                  <span className="text-xl font-black text-white">{plan.stars}</span>
-                  {plan.months === 1 ? (
-                    <span className="text-neutral-500 text-xs">/mo</span>
-                  ) : (
-                    <span className="text-neutral-500 text-xs">total</span>
-                  )}
-                </div>
+              <div className="flex items-center gap-2">
+                <p className="text-white font-semibold text-sm">{plan.label}</p>
+                {plan.save && (
+                  <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded font-semibold">
+                    Save {plan.save}
+                  </span>
+                )}
               </div>
-              {plan.months > 1 && (
-                <p className="text-neutral-500 text-xs mb-3">
-                  {Math.round(plan.stars / plan.months)} ⭐/month · billed once
+              <div className="flex items-center gap-1.5 mt-2">
+                <img
+                  src="/telegram-star-icon.png"
+                  alt="star"
+                  className="w-4 h-4 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none"
+                  }}
+                />
+                <span className="text-xl font-black text-white">{plan.stars}</span>
+              </div>
+              {plan.months === 1 ? (
+                <p className="text-neutral-500 text-xs mt-1">/month</p>
+              ) : (
+                <p className="text-neutral-500 text-xs mt-1">
+                  {Math.round(plan.stars / plan.months)} ⭐/month
                 </p>
               )}
-              <button
-                onClick={() => subscribe(plan.id)}
-                disabled={isLoading || !!isPremium}
-                className="w-full py-3 bg-white text-black font-bold text-sm rounded-xl transition-all hover:bg-neutral-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isPremium
-                  ? "xBlum Pro Active"
-                  : isLoading
-                  ? "Processing..."
-                  : `Upgrade to xBlum Pro`}
-              </button>
-            </div>
-          )
-        })}
+            </button>
+          ))}
+        </div>
+
+        {/* Upgrade button */}
+        <button
+          onClick={subscribe}
+          disabled={isLoading || isPremium}
+          className="w-full py-4 bg-white text-black font-bold text-base rounded-2xl transition-all hover:bg-neutral-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isPremium ? "xBlum Pro Active" : isLoading ? "Processing..." : "Upgrade to xBlum Pro"}
+        </button>
 
         {isPremium && (
           <div className="flex items-center justify-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
