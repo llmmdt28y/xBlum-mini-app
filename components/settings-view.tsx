@@ -373,7 +373,7 @@ export function SettingsView() {
 
             {/* Terms of Use */}
             <a
-              href="https://xblum.gitbook.io/terms"
+              href="https://xblum.gitbook.io/home/xblum/terms"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
@@ -388,7 +388,7 @@ export function SettingsView() {
 
             {/* Privacy Policy */}
             <a
-              href="https://xblum.gitbook.io/privacypolicy"
+              href="https://xblum.gitbook.io/home/xblum/privacy"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
