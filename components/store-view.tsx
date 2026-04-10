@@ -220,7 +220,7 @@ export function StoreView() {
               <img src="/icon-dark-32x32.png" alt="xBlum" className="w-24 h-24 object-contain" />
             </div>
           </div>
-          <div className="text-center -mt-8">
+          <div className="text-center -mt-4">
             <p className="text-xs font-semibold tracking-widest text-neutral-500 uppercase mb-0">My Balance</p>
             <p className="text-3xl font-black text-white leading-tight">
               {tokens} <span className="text-3xl font-bold">tokens</span>
