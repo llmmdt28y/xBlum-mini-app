@@ -200,7 +200,7 @@ export function StoreView() {
 
         {/* ── Hero balance ───────────────────────────────────────────────── */}
         <div className="flex flex-col items-center">
-          <div className="relative w-full flex justify-center" style={{ height:"200px" }}>
+          <div className="relative w-full flex justify-center" style={{ height:"160px" }}>
             {DECO_STARS.map((s, i) => (
               <img key={i} src="/star-icon.png" alt=""
                 className="absolute object-contain pointer-events-none select-none"
@@ -216,16 +216,16 @@ export function StoreView() {
             ))}
             {/* Logo sin fondo */}
             <div className="absolute flex items-center justify-center"
-              style={{ width:"120px", height:"120px", top:"50%", left:"50%", transform:"translate(-50%,-60%)" }}>
+              style={{ width:"120px", height:"120px", top:"50%", left:"50%", transform:"translate(-50%,-50%)" }}>
               <img src="/icon-dark-32x32.png" alt="xBlum" className="w-24 h-24 object-contain" />
             </div>
           </div>
-          <div className="text-center -mt-4">
-            <p className="text-xs font-semibold tracking-widest text-neutral-500 uppercase mb-1">My Balance</p>
+          <div className="text-center -mt-8">
+            <p className="text-xs font-semibold tracking-widest text-neutral-500 uppercase mb-0">My Balance</p>
             <p className="text-3xl font-black text-white leading-tight">
               {tokens} <span className="text-3xl font-bold">tokens</span>
             </p>
-            <p className="text-neutral-400 text-sm mt-1.5">
+            <p className="text-neutral-400 text-sm mt-0.5">
               {approxImages > 0
                 ? `That's enough for ${approxImages} image${approxImages!==1?"s":""}`
                 : "Buy tokens to generate images"}
