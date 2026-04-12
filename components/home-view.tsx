@@ -67,7 +67,7 @@ export function HomeView() {
   const showThrottle = isThrottled && selectedModel === "Grok 4 Mini"
 
   return (
-    <div className="flex-1 flex flex-col items-center px-4 pt-16 pb-8 bg-gradient-to-b from-[#1a0a00] via-[#3d1800] to-[#ff6b00]">
+    <div className="flex-1 flex flex-col items-center px-4 pt-16 pb-8 bg-black">
       <div className="flex flex-col items-center gap-6 w-full max-w-md">
 
         {/* ── Title ───────────────────────────────────────────────────── */}
@@ -121,16 +121,16 @@ export function HomeView() {
               onChange={e => setMessage(e.target.value)}
               onKeyDown={handleKey}
               placeholder={t("typeMessage")}
-              className="w-full pl-5 pr-14 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-orange-400/50 focus:border-transparent transition-all text-sm"
+              className="w-full pl-5 pr-14 py-4 bg-neutral-900 border border-neutral-700 rounded-2xl text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
             />
             <button
               onClick={handleSend}
               disabled={!message.trim() || sending}
               className={
-                "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center transition-all backdrop-blur-md " +
+                "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center transition-all " +
                 (message.trim() && !sending
-                  ? "bg-white/20 text-white hover:bg-white/30 active:bg-white/40"
-                  : "bg-white/10 text-white/40 cursor-not-allowed")
+                  ? "bg-neutral-700 text-white hover:bg-neutral-600 active:bg-neutral-500"
+                  : "bg-neutral-800 text-neutral-600 cursor-not-allowed")
               }
             >
               {sending ? (
@@ -146,23 +146,23 @@ export function HomeView() {
         <div className="w-full flex flex-wrap justify-center gap-3">
           <button
             onClick={handleCreateImage}
-            className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/20 active:bg-white/30 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-700 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
           >
-            <Image className="w-4 h-4 text-white/70" />
+            <Image className="w-4 h-4 text-neutral-400" />
             <span className="text-sm">{t("createImage")}</span>
           </button>
           <button
             onClick={handleGetTokens}
-            className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/20 active:bg-white/30 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-700 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
           >
-            <Coins className="w-4 h-4 text-white/70" />
+            <Coins className="w-4 h-4 text-neutral-400" />
             <span className="text-sm">{t("getTokens")}</span>
           </button>
           <button
             onClick={handleAddToChat}
-            className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/20 active:bg-white/30 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-700 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
           >
-            <MessageCircle className="w-4 h-4 text-white/70" />
+            <MessageCircle className="w-4 h-4 text-neutral-400" />
             <span className="text-sm">{t("addToChat")}</span>
           </button>
         </div>
@@ -184,9 +184,9 @@ export function HomeView() {
             {/* Private Mode */}
             <button
               onClick={() => setExploreModal("private")}
-              className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-left hover:bg-white/20 active:bg-white/30 transition-colors"
+              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
             >
-              <span className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] text-white/80 font-medium">
+              <span className="absolute top-3 right-3 px-2 py-0.5 bg-neutral-700 rounded-full text-[10px] text-neutral-300 font-medium">
                 beta
               </span>
               <div className="w-10 h-10 mb-3 flex items-center justify-center">
@@ -198,9 +198,9 @@ export function HomeView() {
 
             {/* TON Wallet */}
             <button
-              className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-left opacity-70 cursor-not-allowed"
+              className="relative bg-neutral-900 rounded-2xl p-4 text-left opacity-70 cursor-not-allowed"
             >
-              <span className="absolute top-3 right-3 px-2 py-0.5 bg-white/20 backdrop-blur-md rounded-full text-[10px] text-white/80 font-medium">
+              <span className="absolute top-3 right-3 px-2 py-0.5 bg-neutral-700 rounded-full text-[10px] text-neutral-300 font-medium">
                 soon
               </span>
               <div className="w-10 h-10 mb-3 flex items-center justify-center">
@@ -213,7 +213,7 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("telegram")}
               disabled={openingTopic === "telegram"}
-              className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-left hover:bg-white/20 active:bg-white/30 transition-colors disabled:opacity-60"
+              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
             >
               {openingTopic === "telegram" && (
                 <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
@@ -228,7 +228,7 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("google")}
               disabled={openingTopic === "google"}
-              className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-left hover:bg-white/20 active:bg-white/30 transition-colors disabled:opacity-60"
+              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
             >
               {openingTopic === "google" && (
                 <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
@@ -243,7 +243,7 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("writing")}
               disabled={openingTopic === "writing"}
-              className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-left hover:bg-white/20 active:bg-white/30 transition-colors disabled:opacity-60"
+              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
             >
               {openingTopic === "writing" && (
                 <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
@@ -258,7 +258,7 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("coding")}
               disabled={openingTopic === "coding"}
-              className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 text-left hover:bg-white/20 active:bg-white/30 transition-colors disabled:opacity-60"
+              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
             >
               {openingTopic === "coding" && (
                 <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
