@@ -1,7 +1,7 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { Send, Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles } from "lucide-react"
+import { Send, Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronLeft, ChevronRight } from "lucide-react"
 import { useState, useRef } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
@@ -18,6 +18,8 @@ export function HomeView() {
   const [modalInput, setModalInput] = useState("")
   const [sending, setSending] = useState(false)
   const [openingTopic, setOpeningTopic] = useState<ExploreModalType>(null)
+  const [currentBanner, setCurrentBanner] = useState(0)
+  const bannerContainerRef = useRef<HTMLDivElement>(null)
 
   // Main input bar → sends directly, AI responds in bot chat
   async function handleSend() {
@@ -64,26 +66,54 @@ export function HomeView() {
     // Función para Telegram - se agregará después
   }
 
+  // Banner carousel - only 1 banner for now, more coming soon
+  const totalBanners = 1
+
+  function handleBannerScroll(direction: "left" | "right") {
+    if (direction === "left" && currentBanner > 0) {
+      setCurrentBanner(currentBanner - 1)
+    } else if (direction === "right" && currentBanner < totalBanners - 1) {
+      setCurrentBanner(currentBanner + 1)
+    }
+  }
+
   const showThrottle = isThrottled && selectedModel === "Grok 4 Mini"
 
   return (
-    <div className="flex-1 flex flex-col items-center px-4 pt-16 pb-8 bg-black">
-      <div className="flex flex-col items-center gap-6 w-full max-w-md">
+    <div className="flex-1 flex flex-col items-center px-4 pt-16 pb-8 relative overflow-hidden">
+      {/* Gradient background: black to warm orange/red */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "linear-gradient(to bottom, #000000 0%, #0a0a0a 30%, #1a0a05 50%, #3d1a0a 70%, #6b2810 85%, #8b3a1d 100%)"
+        }}
+      />
+      
+      {/* Subtle grain overlay */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "repeat",
+        }}
+      />
+
+      <div className="flex flex-col items-center gap-6 w-full max-w-md relative z-10">
 
         {/* ── Title ───────────────────────────────────────────────────── */}
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white">{t("howCanIHelp")}</h1>
           <button
             onClick={() => setCurrentView("settings")}
-            className="text-xs text-neutral-500 mt-2 hover:text-neutral-400 transition-colors"
+            className="text-xs text-neutral-400 mt-2 hover:text-neutral-300 transition-colors"
           >
-            {t("poweredBy")} <span className="font-medium text-neutral-400">{selectedModel}</span>
+            {t("poweredBy")} <span className="font-medium text-neutral-300">{selectedModel}</span>
           </button>
         </div>
 
         {/* ── Throttle warning ────────────────────────────────────────── */}
         {showThrottle && (
-          <div className="w-full p-3.5 bg-orange-500/10 border border-orange-500/30 rounded-xl flex items-start gap-3">
+          <div className="w-full p-3.5 bg-orange-500/10 backdrop-blur-md border border-orange-500/30 rounded-xl flex items-start gap-3">
             <AlertTriangle className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
             <div className="flex-1">
               <div className="flex items-center gap-2">
@@ -93,7 +123,7 @@ export function HomeView() {
                   <span className="text-xs">{minutesUntilReset} {t("min")}</span>
                 </div>
               </div>
-              <p className="text-xs text-neutral-500 mt-0.5">{t("throttleDesc")}</p>
+              <p className="text-xs text-neutral-400 mt-0.5">{t("throttleDesc")}</p>
               <div className="mt-2 flex gap-2">
                 <button onClick={() => setCurrentView("settings")} className="text-xs text-blue-400 underline underline-offset-2">
                   {t("changeModel")}
@@ -111,7 +141,7 @@ export function HomeView() {
           </div>
         )}
 
-        {/* ── Input ───────────────────────────────────────────────────── */}
+        {/* ── Input with liquid blur ─────────────────────────────────── */}
         <div className="w-full">
           <div className="relative">
             <input
@@ -121,16 +151,16 @@ export function HomeView() {
               onChange={e => setMessage(e.target.value)}
               onKeyDown={handleKey}
               placeholder={t("typeMessage")}
-              className="w-full pl-5 pr-14 py-4 bg-neutral-900 border border-neutral-700 rounded-2xl text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+              className="w-full pl-5 pr-14 py-4 bg-white/5 backdrop-blur-xl border border-white/20 rounded-2xl text-white placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/30 transition-all text-sm"
             />
             <button
               onClick={handleSend}
               disabled={!message.trim() || sending}
               className={
-                "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center transition-all " +
+                "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center transition-all backdrop-blur-md " +
                 (message.trim() && !sending
-                  ? "bg-neutral-700 text-white hover:bg-neutral-600 active:bg-neutral-500"
-                  : "bg-neutral-800 text-neutral-600 cursor-not-allowed")
+                  ? "bg-white/20 border border-white/30 text-white hover:bg-white/30 active:bg-white/40"
+                  : "bg-white/5 border border-white/10 text-neutral-500 cursor-not-allowed")
               }
             >
               {sending ? (
@@ -142,41 +172,130 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* ── Action Buttons ──────────────────────────────────────────── */}
+        {/* ── Action Buttons with liquid blur ─────────────────────────── */}
         <div className="w-full flex flex-wrap justify-center gap-3">
           <button
             onClick={handleCreateImage}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-700 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/10 hover:border-white/30 active:bg-white/15 transition-all"
           >
-            <Image className="w-4 h-4 text-neutral-400" />
+            <Image className="w-4 h-4 text-neutral-300" />
             <span className="text-sm">{t("createImage")}</span>
           </button>
           <button
             onClick={handleGetTokens}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-700 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/10 hover:border-white/30 active:bg-white/15 transition-all"
           >
-            <Coins className="w-4 h-4 text-neutral-400" />
+            <Coins className="w-4 h-4 text-neutral-300" />
             <span className="text-sm">{t("getTokens")}</span>
           </button>
           <button
             onClick={handleAddToChat}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-700 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-xl border border-white/20 rounded-full text-white hover:bg-white/10 hover:border-white/30 active:bg-white/15 transition-all"
           >
-            <MessageCircle className="w-4 h-4 text-neutral-400" />
+            <MessageCircle className="w-4 h-4 text-neutral-300" />
             <span className="text-sm">{t("addToChat")}</span>
           </button>
         </div>
 
-        {/* ── Telegram Banner ───────────────────────────────────────────── */}
-        <div className="w-full flex justify-center -mt-2 overflow-visible">
-          <img
-            src="/telegram-banner.png"
-            alt="Chat xBlum in Telegram"
-            className="w-[120%] h-auto rounded-2xl"
-          />
+        {/* ── Native Telegram Banner ──────────────────────────────────── */}
+        <div className="w-full -mt-1">
+          <div 
+            ref={bannerContainerRef}
+            className="relative overflow-hidden"
+          >
+            {/* Banner Container - swipeable */}
+            <div 
+              className="flex transition-transform duration-300 ease-out"
+              style={{ transform: `translateX(-${currentBanner * 100}%)` }}
+            >
+              {/* Banner 1: Telegram */}
+              <div className="w-full flex-shrink-0 px-1">
+                <div className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]">
+                  {/* Banner background with subtle pattern */}
+                  <div className="absolute inset-0 opacity-20">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/30 rounded-full blur-3xl" />
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl" />
+                  </div>
+                  
+                  <div className="relative flex items-center p-4 gap-4">
+                    {/* Phone mockup placeholder - you'll replace with actual PNG */}
+                    <div className="relative flex-shrink-0 w-20 h-36">
+                      <img 
+                        src="/telegram-phone.png" 
+                        alt="xBlum on Telegram"
+                        className="w-full h-full object-contain drop-shadow-2xl"
+                      />
+                    </div>
+                    
+                    {/* Text content */}
+                    <div className="flex-1 flex flex-col justify-center">
+                      <div className="inline-flex items-center gap-1.5 mb-2">
+                        <span className="px-2 py-0.5 bg-[#0088cc] rounded text-[10px] font-bold text-white uppercase tracking-wide">
+                          Telegram
+                        </span>
+                      </div>
+                      <h3 className="text-white font-bold text-base leading-tight mb-1">
+                        Chat with xBlum
+                      </h3>
+                      <p className="text-neutral-300 text-xs leading-relaxed">
+                        Add xBlum to your Telegram chats and get AI assistance anywhere
+                      </p>
+                      <button className="mt-3 self-start px-4 py-1.5 bg-[#0088cc] hover:bg-[#0099dd] rounded-lg text-white text-xs font-semibold transition-colors">
+                        Add to Telegram
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* More banners will be added here */}
+            </div>
+
+            {/* Navigation arrows (hidden when only 1 banner) */}
+            {totalBanners > 1 && (
+              <>
+                <button
+                  onClick={() => handleBannerScroll("left")}
+                  disabled={currentBanner === 0}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleBannerScroll("right")}
+                  disabled={currentBanner === totalBanners - 1}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Carousel indicators and coming soon text */}
+          <div className="flex flex-col items-center mt-3 gap-1.5">
+            {/* Dots indicator */}
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: Math.max(totalBanners, 3) }).map((_, i) => (
+                <div 
+                  key={i}
+                  className={`w-1.5 h-1.5 rounded-full transition-all ${
+                    i < totalBanners 
+                      ? i === currentBanner 
+                        ? "bg-white w-3" 
+                        : "bg-white/40"
+                      : "bg-white/20"
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-white/50 text-[10px]">
+              More banners coming soon
+            </p>
+          </div>
         </div>
 
-        {/* ── Explore Section ─────────────────────────────────────────── */}
+        {/* ── Explore Section with liquid blur cards ──────────────────── */}
         <div className="w-full mt-4">
           <h2 className="text-white font-bold text-lg mb-3">Explore</h2>
           <div className="grid grid-cols-2 gap-3">
@@ -184,9 +303,9 @@ export function HomeView() {
             {/* Private Mode */}
             <button
               onClick={() => setExploreModal("private")}
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+              className="relative bg-white/5 backdrop-blur-xl border border-white/15 rounded-2xl p-4 text-left hover:bg-white/10 hover:border-white/25 active:bg-white/15 transition-all"
             >
-              <span className="absolute top-3 right-3 px-2 py-0.5 bg-neutral-700 rounded-full text-[10px] text-neutral-300 font-medium">
+              <span className="absolute top-3 right-3 px-2 py-0.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-[10px] text-neutral-200 font-medium">
                 beta
               </span>
               <div className="w-10 h-10 mb-3 flex items-center justify-center">
@@ -198,9 +317,9 @@ export function HomeView() {
 
             {/* TON Wallet */}
             <button
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left opacity-70 cursor-not-allowed"
+              className="relative bg-white/5 backdrop-blur-xl border border-white/15 rounded-2xl p-4 text-left opacity-70 cursor-not-allowed"
             >
-              <span className="absolute top-3 right-3 px-2 py-0.5 bg-neutral-700 rounded-full text-[10px] text-neutral-300 font-medium">
+              <span className="absolute top-3 right-3 px-2 py-0.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-[10px] text-neutral-200 font-medium">
                 soon
               </span>
               <div className="w-10 h-10 mb-3 flex items-center justify-center">
@@ -213,7 +332,7 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("telegram")}
               disabled={openingTopic === "telegram"}
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
+              className="relative bg-white/5 backdrop-blur-xl border border-white/15 rounded-2xl p-4 text-left hover:bg-white/10 hover:border-white/25 active:bg-white/15 transition-all disabled:opacity-60"
             >
               {openingTopic === "telegram" && (
                 <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
@@ -228,7 +347,7 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("google")}
               disabled={openingTopic === "google"}
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
+              className="relative bg-white/5 backdrop-blur-xl border border-white/15 rounded-2xl p-4 text-left hover:bg-white/10 hover:border-white/25 active:bg-white/15 transition-all disabled:opacity-60"
             >
               {openingTopic === "google" && (
                 <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
@@ -243,7 +362,7 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("writing")}
               disabled={openingTopic === "writing"}
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
+              className="relative bg-white/5 backdrop-blur-xl border border-white/15 rounded-2xl p-4 text-left hover:bg-white/10 hover:border-white/25 active:bg-white/15 transition-all disabled:opacity-60"
             >
               {openingTopic === "writing" && (
                 <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
@@ -258,7 +377,7 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("coding")}
               disabled={openingTopic === "coding"}
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
+              className="relative bg-white/5 backdrop-blur-xl border border-white/15 rounded-2xl p-4 text-left hover:bg-white/10 hover:border-white/25 active:bg-white/15 transition-all disabled:opacity-60"
             >
               {openingTopic === "coding" && (
                 <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
@@ -311,12 +430,15 @@ export function HomeView() {
                   {/* Privacy guarantees */}
                   <div className="mx-4 mb-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 space-y-2">
                     {[
-                      "🚫  No conversation history saved",
-                      "🧠  No memory or profile updates",
-                      "👤  No context from past chats",
-                      "🔒  Each message treated as the first",
+                      "No conversation history saved",
+                      "No memory or profile updates",
+                      "No context from past chats",
+                      "Each message treated as the first",
                     ].map((line, i) => (
-                      <p key={i} className="text-amber-300/80 text-xs font-medium">{line}</p>
+                      <p key={i} className="text-amber-300/80 text-xs font-medium flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                        {line}
+                      </p>
                     ))}
                   </div>
 
@@ -346,7 +468,7 @@ export function HomeView() {
                       disabled={sending}
                       className="w-full py-3.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold rounded-2xl hover:bg-amber-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
                     >
-                      {sending ? "Opening..." : "🔒 Open Private Topic"}
+                      {sending ? "Opening..." : "Open Private Topic"}
                     </button>
                   </div>
                 </>
@@ -386,7 +508,7 @@ export function HomeView() {
                       disabled={sending}
                       className="w-full py-3.5 bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold rounded-2xl hover:bg-blue-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
                     >
-                      {sending ? "Opening..." : "✈️ Open Telegram Search Topic"}
+                      {sending ? "Opening..." : "Open Telegram Search Topic"}
                     </button>
                   </div>
                 </>
@@ -451,7 +573,7 @@ export function HomeView() {
                       disabled={sending}
                       className="w-full py-3.5 bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 font-bold rounded-2xl hover:bg-yellow-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
                     >
-                      {sending ? "Opening..." : "📧 Open Google Tools Topic"}
+                      {sending ? "Opening..." : "Open Google Tools Topic"}
                     </button>
                   </div>
                 </>
@@ -492,7 +614,7 @@ export function HomeView() {
                       disabled={sending}
                       className="w-full py-3.5 bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold rounded-2xl hover:bg-blue-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
                     >
-                      {sending ? "Opening..." : "✍️ Open Writing Topic"}
+                      {sending ? "Opening..." : "Open Writing Topic"}
                     </button>
                   </div>
                 </>
@@ -533,7 +655,7 @@ export function HomeView() {
                       disabled={sending}
                       className="w-full py-3.5 bg-green-500/20 border border-green-500/40 text-green-300 font-bold rounded-2xl hover:bg-green-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
                     >
-                      {sending ? "Opening..." : "💻 Open Coding Topic"}
+                      {sending ? "Opening..." : "Open Coding Topic"}
                     </button>
                   </div>
                 </>
