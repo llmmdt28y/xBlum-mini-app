@@ -208,41 +208,47 @@ export function HomeView() {
               className="flex transition-transform duration-300 ease-out"
               style={{ transform: `translateX(-${currentBanner * 100}%)` }}
             >
-              {/* Banner 1: Telegram */}
+              {/* Banner 1: Telegram - Blue gradient like reference */}
               <div className="w-full flex-shrink-0 px-1">
-                <div className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]">
-                  {/* Banner background with subtle pattern */}
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/30 rounded-full blur-3xl" />
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl" />
+                <div 
+                  className="relative w-full rounded-3xl overflow-hidden"
+                  style={{
+                    background: "linear-gradient(135deg, #2196F3 0%, #1E88E5 25%, #1976D2 50%, #42A5F5 75%, #64B5F6 100%)"
+                  }}
+                >
+                  {/* Subtle inner glow */}
+                  <div className="absolute inset-0 opacity-30">
+                    <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#64D2FF]/40 to-transparent" />
                   </div>
                   
-                  <div className="relative flex items-center p-4 gap-4">
-                    {/* Phone mockup placeholder - you'll replace with actual PNG */}
-                    <div className="relative flex-shrink-0 w-20 h-36">
+                  <div className="relative flex items-center p-5 min-h-[140px]">
+                    {/* Left: Text content */}
+                    <div className="flex-1 flex flex-col justify-center pr-4">
+                      <h3 className="text-white font-bold text-xl leading-tight mb-0.5">
+                        Chat xBlum
+                      </h3>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-white font-bold text-xl">in Telegram</span>
+                        {/* Telegram logo inline */}
+                        <svg viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                          <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                        </svg>
+                      </div>
+                      <button className="self-start text-[#7DD3FC] text-sm font-medium hover:text-white transition-colors">
+                        Learn more
+                      </button>
+                    </div>
+                    
+                    {/* Right: Phone mockup - upload your PNG here */}
+                    <div className="relative flex-shrink-0 w-28 h-32 -mr-2">
                       <img 
                         src="/telegram-phone.png" 
                         alt="xBlum on Telegram"
-                        className="w-full h-full object-contain drop-shadow-2xl"
+                        className="w-full h-full object-contain drop-shadow-2xl transform rotate-3"
+                        style={{
+                          filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.3))"
+                        }}
                       />
-                    </div>
-                    
-                    {/* Text content */}
-                    <div className="flex-1 flex flex-col justify-center">
-                      <div className="inline-flex items-center gap-1.5 mb-2">
-                        <span className="px-2 py-0.5 bg-[#0088cc] rounded text-[10px] font-bold text-white uppercase tracking-wide">
-                          Telegram
-                        </span>
-                      </div>
-                      <h3 className="text-white font-bold text-base leading-tight mb-1">
-                        Chat with xBlum
-                      </h3>
-                      <p className="text-neutral-300 text-xs leading-relaxed">
-                        Add xBlum to your Telegram chats and get AI assistance anywhere
-                      </p>
-                      <button className="mt-3 self-start px-4 py-1.5 bg-[#0088cc] hover:bg-[#0099dd] rounded-lg text-white text-xs font-semibold transition-colors">
-                        Add to Telegram
-                      </button>
                     </div>
                   </div>
                 </div>

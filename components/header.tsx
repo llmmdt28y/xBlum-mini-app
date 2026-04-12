@@ -35,7 +35,7 @@ export function Header() {
   }, [])
 
   return (
-    <header className="flex items-center justify-between px-4 py-3 bg-[#0a0a0a]/90 backdrop-blur-xl sticky top-0 z-50 border-b border-neutral-800">
+    <header className="flex items-center justify-between px-4 py-3 bg-black fixed top-0 left-0 right-0 z-50">
 
       {/* Left — avatar del usuario + badge Pro */}
       <div className="flex items-center gap-2.5">
