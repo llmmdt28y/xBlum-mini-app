@@ -35,7 +35,7 @@ export function Header() {
   }, [])
 
   return (
-    <header className="flex items-center justify-between px-4 py-3 bg-[#0a0a0a]/90 backdrop-blur-xl sticky top-0 z-50 border-b border-neutral-800">
+    <header className="flex items-center justify-between px-4 py-3 bg-transparent sticky top-0 z-50">
 
       {/* Left — avatar del usuario + badge Pro */}
       <div className="flex items-center gap-2.5">
@@ -61,14 +61,14 @@ export function Header() {
 
         {/* Pro badge / upgrade */}
         {isPremium ? (
-          <div className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full">
+          <div className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full backdrop-blur-md">
             <Zap className="w-3 h-3 text-white" />
             <span className="text-white text-xs font-bold">Pro</span>
           </div>
         ) : (
           <button
             onClick={() => setCurrentView("premium")}
-            className="flex items-center gap-1 px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 rounded-full hover:border-amber-500/60 transition-all"
+            className="flex items-center gap-1 px-2.5 py-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full hover:bg-white/20 transition-all"
           >
             <Zap className="w-3 h-3 text-amber-400" />
             <span className="text-amber-400 text-xs font-semibold">{t("getXBlumPro")}</span>
@@ -76,10 +76,10 @@ export function Header() {
         )}
       </div>
 
-      {/* Right — token balance, más visible */}
+      {/* Right — token balance, mas visible */}
       <button
         onClick={() => setCurrentView("store")}
-        className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900 border border-neutral-800 hover:border-neutral-700 rounded-full transition-colors"
+        className="flex items-center gap-2 px-3.5 py-2 bg-white/10 backdrop-blur-xl border border-white/20 hover:bg-white/20 rounded-full transition-colors"
       >
         {/* Icono de token — imagen más grande */}
         <img
