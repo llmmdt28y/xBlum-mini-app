@@ -12,7 +12,7 @@ function AppContent() {
   const { currentView } = useApp()
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col">
       {currentView === "home" && (
         <>
           <Header />
