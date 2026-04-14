@@ -174,67 +174,86 @@ export function HomeView() {
           onClick={() => setCurrentView("referral")}
           className="w-full relative overflow-hidden active:opacity-80 transition-opacity text-left"
           style={{
-            background: "#080808",
-            border: "1px solid #1a1a1a",
-            borderRadius: "24px",
-            minHeight: "100px",
+            background: "#060606",
+            border: "1px solid #1e1e1e",
+            borderRadius: "28px",
+            minHeight: "110px",
           }}
         >
-          {/* Subtle dark radial glow left */}
+          {/* Very subtle left glow */}
           <div className="absolute inset-0 pointer-events-none" style={{
-            background: "radial-gradient(ellipse at 15% 50%, rgba(255,255,255,0.035) 0%, transparent 65%)"
+            background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 60%)"
           }} />
 
-          {/* Stars decoration - top right area behind duck */}
-          <div className="absolute pointer-events-none" style={{ top: "10px", right: "90px" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="white" opacity="0.9">
-              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-            </svg>
-          </div>
-          <div className="absolute pointer-events-none" style={{ top: "32px", right: "68px" }}>
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="white" opacity="0.6">
-              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-            </svg>
-          </div>
-          <div className="absolute pointer-events-none" style={{ top: "58px", right: "85px" }}>
-            <svg width="6" height="6" viewBox="0 0 24 24" fill="white" opacity="0.45">
-              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-            </svg>
-          </div>
-
-          {/* Content */}
+          {/* Content row */}
           <div className="relative z-10 flex items-center justify-between h-full px-5 py-5">
+
             {/* Left: text + liquid glass button */}
-            <div className="flex flex-col gap-3.5">
-              <p className="text-white font-semibold text-[15px] leading-snug">
+            <div className="flex flex-col gap-4">
+              <p className="text-white font-bold text-[17px] leading-tight">
                 Invite a Friend &<br />Get Free Tokens
               </p>
 
-              {/* Liquid glass button */}
+              {/* Liquid glass button — smaller, refined */}
               <div
-                className="flex items-center gap-1 px-4 py-2 rounded-full w-fit relative overflow-hidden"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full w-fit relative overflow-hidden"
                 style={{
-                  background: "rgba(255,255,255,0.08)",
-                  backdropFilter: "blur(12px)",
-                  WebkitBackdropFilter: "blur(12px)",
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.15), 0 1px 3px rgba(0,0,0,0.4)",
+                  background: "rgba(255,255,255,0.07)",
+                  backdropFilter: "blur(16px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(16px) saturate(180%)",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  boxShadow: "inset 0 1.5px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.5)",
                 }}
               >
-                {/* Inner top highlight */}
-                <div className="absolute inset-x-0 top-0 h-px rounded-full" style={{ background: "rgba(255,255,255,0.25)" }} />
-                <span className="text-white text-xs font-medium relative z-10">share invite</span>
-                <span className="text-white text-xs relative z-10 opacity-70">›</span>
+                {/* Specular highlight top */}
+                <div className="absolute inset-x-2 top-0 h-px" style={{
+                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)"
+                }} />
+                <span className="text-white text-[11px] font-medium relative z-10 tracking-wide">share invite</span>
+                <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.6 }}>›</span>
               </div>
             </div>
 
-            {/* Right: referral duck image */}
-            <div className="relative shrink-0" style={{ width: "88px", height: "88px" }}>
+            {/* Right: 3 TON coins stacked/cascading like reference */}
+            <div className="relative shrink-0" style={{ width: "110px", height: "100px" }}>
+              {/* Back coin — top right, smaller, more faded */}
               <img
-                src="/referral-icon.webp"
-                alt="Invite a friend"
-                className="absolute bottom-0 right-0 object-contain"
-                style={{ width: "96px", height: "96px", transform: "scale(1.1)", transformOrigin: "bottom right" }}
+                src="/ton-coin.png"
+                alt=""
+                className="absolute"
+                style={{
+                  width: "58px", height: "58px",
+                  top: "0px", right: "0px",
+                  opacity: 0.5,
+                  transform: "rotate(15deg)",
+                  filter: "brightness(0.7)",
+                }}
+              />
+              {/* Middle coin */}
+              <img
+                src="/ton-coin.png"
+                alt=""
+                className="absolute"
+                style={{
+                  width: "68px", height: "68px",
+                  top: "18px", right: "22px",
+                  opacity: 0.75,
+                  transform: "rotate(-8deg)",
+                  filter: "brightness(0.85)",
+                }}
+              />
+              {/* Front coin — largest, fully visible */}
+              <img
+                src="/ton-coin.png"
+                alt=""
+                className="absolute"
+                style={{
+                  width: "78px", height: "78px",
+                  bottom: "0px", right: "8px",
+                  opacity: 1,
+                  transform: "rotate(5deg)",
+                  filter: "drop-shadow(0 4px 12px rgba(0,120,255,0.35))",
+                }}
               />
             </div>
           </div>
