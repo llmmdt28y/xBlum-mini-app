@@ -177,7 +177,7 @@ export function HomeView() {
             background: "#060606",
             border: "1px solid #1e1e1e",
             borderRadius: "20px",
-            height: "90px",
+            height: "96px",
           }}
         >
           {/* Subtle left glow */}
@@ -213,47 +213,36 @@ export function HomeView() {
               </div>
             </div>
 
-            {/* Right: 3 coins — fully visible, well dispersed diagonally */}
-            <div className="relative shrink-0" style={{ width: "130px", height: "90px" }}>
-              {/* Top-left coin — small, faded, fully visible */}
-              <img
-                src="/ton-coin.png"
-                alt=""
-                className="absolute"
-                style={{
-                  width: "40px", height: "40px",
-                  top: "4px", left: "4px",
-                  opacity: 0.35,
-                  transform: "rotate(20deg)",
-                  filter: "brightness(0.65)",
-                }}
-              />
-              {/* Center coin — medium, offset right */}
-              <img
-                src="/ton-coin.png"
-                alt=""
-                className="absolute"
-                style={{
-                  width: "54px", height: "54px",
-                  top: "16px", right: "48px",
-                  opacity: 0.62,
-                  transform: "rotate(-12deg)",
-                  filter: "brightness(0.8)",
-                }}
-              />
-              {/* Bottom-right coin — largest, full opacity, blue glow */}
-              <img
-                src="/ton-coin.png"
-                alt=""
-                className="absolute"
-                style={{
-                  width: "68px", height: "68px",
-                  bottom: "2px", right: "2px",
-                  opacity: 1,
-                  transform: "rotate(6deg)",
-                  filter: "drop-shadow(0 4px 14px rgba(30,140,255,0.5))",
-                }}
-              />
+            {/* Right: 3 coins — triangle layout matching reference exactly */}
+            <div className="relative shrink-0" style={{ width: "120px", height: "96px" }}>
+
+              {/* TOP-RIGHT — small, partially clipped at top, tilted right */}
+              <img src="/ton-coin.png" alt="" className="absolute" style={{
+                width: "46px", height: "46px",
+                top: "-10px", right: "4px",
+                opacity: 0.55,
+                transform: "rotate(18deg)",
+                filter: "brightness(0.75)",
+              }} />
+
+              {/* CENTER-LEFT — largest coin, slightly tilted left, main focal point */}
+              <img src="/ton-coin.png" alt="" className="absolute" style={{
+                width: "68px", height: "68px",
+                top: "50%", left: "0px",
+                transform: "translateY(-50%) rotate(-18deg)",
+                opacity: 1,
+                filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))",
+              }} />
+
+              {/* BOTTOM-RIGHT — small, below and right of center, slight tilt */}
+              <img src="/ton-coin.png" alt="" className="absolute" style={{
+                width: "44px", height: "44px",
+                bottom: "2px", right: "6px",
+                opacity: 0.6,
+                transform: "rotate(-8deg)",
+                filter: "brightness(0.8)",
+              }} />
+
             </div>
           </div>
         </button>
