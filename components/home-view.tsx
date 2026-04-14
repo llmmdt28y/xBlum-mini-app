@@ -177,7 +177,7 @@ export function HomeView() {
             background: "#060606",
             border: "1px solid #1e1e1e",
             borderRadius: "20px",
-            height: "82px",
+            height: "90px",
           }}
         >
           {/* Subtle left glow */}
@@ -213,42 +213,42 @@ export function HomeView() {
               </div>
             </div>
 
-            {/* Right: 3 coins dispersed like reference — diagonal top-right to bottom-right */}
-            <div className="relative shrink-0" style={{ width: "130px", height: "82px" }}>
-              {/* Top-left coin — smallest, most faded, partially clipped at top */}
+            {/* Right: 3 coins — fully visible, well dispersed diagonally */}
+            <div className="relative shrink-0" style={{ width: "130px", height: "90px" }}>
+              {/* Top-left coin — small, faded, fully visible */}
               <img
                 src="/ton-coin.png"
                 alt=""
                 className="absolute"
                 style={{
-                  width: "44px", height: "44px",
-                  top: "-8px", left: "8px",
+                  width: "40px", height: "40px",
+                  top: "4px", left: "4px",
                   opacity: 0.35,
                   transform: "rotate(20deg)",
-                  filter: "brightness(0.6)",
+                  filter: "brightness(0.65)",
                 }}
               />
-              {/* Center coin — medium */}
+              {/* Center coin — medium, offset right */}
               <img
                 src="/ton-coin.png"
                 alt=""
                 className="absolute"
                 style={{
-                  width: "56px", height: "56px",
-                  top: "10px", right: "44px",
-                  opacity: 0.65,
-                  transform: "rotate(-10deg)",
+                  width: "54px", height: "54px",
+                  top: "16px", right: "48px",
+                  opacity: 0.62,
+                  transform: "rotate(-12deg)",
                   filter: "brightness(0.8)",
                 }}
               />
-              {/* Bottom-right coin — largest, sharpest, with blue glow */}
+              {/* Bottom-right coin — largest, full opacity, blue glow */}
               <img
                 src="/ton-coin.png"
                 alt=""
                 className="absolute"
                 style={{
-                  width: "70px", height: "70px",
-                  bottom: "-4px", right: "0px",
+                  width: "68px", height: "68px",
+                  bottom: "2px", right: "2px",
                   opacity: 1,
                   transform: "rotate(6deg)",
                   filter: "drop-shadow(0 4px 14px rgba(30,140,255,0.5))",
