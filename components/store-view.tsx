@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import {
-  ChevronLeft, Gift, MessageCirclePlus,
+  Gift, MessageCirclePlus,
   Share2, Users, Check, Zap, Tv,
 } from "lucide-react"
 import { useState, useEffect } from "react"
@@ -187,16 +187,17 @@ export function StoreView() {
   }
 
   return (
-    <div className="flex-1 bg-[#0a0a0a]">
-      <div className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-neutral-800 px-4 py-3 flex items-center gap-3 z-10">
-        <button onClick={() => setCurrentView("home")}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-800 transition-colors">
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-        <h2 className="font-semibold text-white">{t("store")}</h2>
+    <div className="flex-1 bg-black">
+      {/* Header — centered title, no back arrow, no border, same as settings */}
+      <div className="sticky top-0 z-10 flex items-center justify-center px-4 py-3" style={{
+        background: "rgba(0,0,0,0.85)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+      }}>
+        <h2 className="font-semibold text-white text-base">{t("store")}</h2>
       </div>
 
-      <div className="px-4 pt-6 pb-8 space-y-8">
+      <div className="px-4 pt-6 pb-28 space-y-8">
 
         {/* ── Hero balance ───────────────────────────────────────────────── */}
         <div className="flex flex-col items-center">
@@ -236,10 +237,10 @@ export function StoreView() {
         {/* ── Top Up ────────────────────────────────────────────────────── */}
         <div>
           <h3 className="text-white font-bold text-lg mb-3">Top Up</h3>
-          <div className="bg-neutral-900 rounded-2xl overflow-hidden divide-y divide-neutral-800">
+          <div className="rounded-2xl overflow-hidden divide-y" style={{ background: "#1c1c1e", borderColor: "#2c2c2e" }}>
             {TOKEN_PACKAGES.map(pkg => (
               <button key={pkg.id} onClick={() => buyPackage(pkg.id)}
-                className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
+                className="w-full flex items-center gap-4 px-4 py-4 active:opacity-60 transition-opacity" style={{ borderColor: "#2c2c2e" }}>
                 <CoinStack count={pkg.coins} />
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-2">
@@ -298,7 +299,7 @@ export function StoreView() {
               const isReady    = state === "ready"
 
               return (
-                <div key={m.id} className="bg-neutral-900 rounded-2xl px-4 py-3.5 flex items-center justify-between">
+                <div key={m.id} className="rounded-2xl px-4 py-3.5 flex items-center justify-between" style={{ background: "#1c1c1e" }}>
                   <div className="flex items-center gap-3">
                     <div className={"w-10 h-10 rounded-xl flex items-center justify-center shrink-0 " + m.color}>
                       <m.icon className="w-5 h-5" />
@@ -325,13 +326,14 @@ export function StoreView() {
                     className={
                       "px-3 py-2 rounded-xl text-xs font-bold transition-all shrink-0 min-w-[64px] text-center " +
                       (isDone
-                        ? "bg-neutral-800 text-neutral-500/60 cursor-not-allowed" // Gris/Opaco
+                        ? "text-neutral-500/60 cursor-not-allowed" // Gris/Opaco
                         : isCooldown
-                        ? "bg-neutral-800 text-neutral-400 cursor-not-allowed" // Gris/Opaco para daily
+                        ? "text-neutral-400 cursor-not-allowed" // Gris/Opaco para daily
                         : m.id === "ref" || m.id === "addChat"
                         ? "bg-purple-500 text-white hover:bg-purple-600"
                         : "bg-amber-500 text-black hover:bg-amber-400")
                     }
+                    style={(isDone || isCooldown) ? { background: "#2c2c2e" } : {}}
                   >
                     {isDone ? (
                       "Claimed"
