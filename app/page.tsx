@@ -7,6 +7,7 @@ import { SettingsView } from "@/components/settings-view"
 import { StoreView } from "@/components/store-view"
 import { PremiumView } from "@/components/premium-view"
 import { ReferralView } from "@/components/referral-view"
+import { ProfileView } from "@/components/profile-view"
 import { useEffect, useState } from "react"
 
 // ── Icons ─────────────────────────────────────────────────────────────
@@ -73,8 +74,8 @@ function NavBar() {
   const activeTab = mainViews.includes(currentView) ? currentView : "home"
 
   function handleTab(id: string) {
-    if (id === "profile") return  // no-op for now
-    setCurrentView(id as "home" | "store" | "analytics")
+    if (id === "analytics") return  // disabled
+    setCurrentView(id as "home" | "store" | "profile")
   }
 
   return (
@@ -216,7 +217,7 @@ function NavBar() {
 // ── App shell ─────────────────────────────────────────────────────────
 function AppContent() {
   const { currentView } = useApp()
-  const showNav = ["home", "store", "analytics", "settings"].includes(currentView)
+  const showNav = ["home", "store", "analytics", "profile"].includes(currentView)
 
   return (
     <div className="min-h-screen bg-black flex flex-col" style={{ paddingBottom: showNav ? "96px" : "0" }}>
@@ -225,6 +226,7 @@ function AppContent() {
       {currentView === "store"     && <StoreView />}
       {currentView === "premium"   && <PremiumView />}
       {currentView === "referral"  && <ReferralView />}
+      {currentView === "profile"   && <ProfileView />}
       {currentView === "analytics" && (
         <div className="flex-1 flex items-center justify-center">
           <p className="text-neutral-600 text-sm">Analytics coming soon</p>
