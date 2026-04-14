@@ -9,33 +9,36 @@ import { PremiumView } from "@/components/premium-view"
 import { ReferralView } from "@/components/referral-view"
 import { useEffect, useState } from "react"
 
-// ── Nav tab icons ────────────────────────────────────────────────────
-function HomeIcon({ active }: { active: boolean }) {
+// ── Icons ─────────────────────────────────────────────────────────────
+function HomeIcon({ size = 20 }: { size?: number }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2 : 1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" />
-      <path d="M9 21V12h6v9" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 10.5L12 3l9 7.5V21a1 1 0 01-1 1H4a1 1 0 01-1-1v-10.5z" />
+      <path d="M9 22V13h6v9" />
     </svg>
   )
 }
-function StoreIcon({ active }: { active: boolean }) {
+function StoreIcon({ size = 20 }: { size?: number }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2 : 1.5} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="3" width="20" height="14" rx="2" />
-      <path d="M8 21h8M12 17v4" />
-      <path d="M7 8h10M7 11h7" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="13" rx="2" />
+      <path d="M8 22h8M12 17v5" />
+      <path d="M6 9h12M6 13h8" />
     </svg>
   )
 }
-function AnalyticsIcon({ active }: { active: boolean }) {
+function AnalyticsIcon({ size = 20 }: { size?: number }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2 : 1.5} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 3v18h18" />
-      <path d="M7 16l4-6 4 4 4-8" />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
     </svg>
   )
 }
 
+// ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = { id: number; first_name?: string; last_name?: string; username?: string; photo_url?: string }
 function getTgUser(): TgUser | undefined {
   if (typeof window === "undefined") return undefined
@@ -43,19 +46,19 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Nav bar ──────────────────────────────────────────────────────────
+// ── Floating Liquid NavBar ────────────────────────────────────────────
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
-  const [initials, setInitials] = useState("")
+  const [photoUrl, setPhotoUrl]   = useState<string | null>(null)
+  const [initials, setInitials]   = useState("")
 
   useEffect(() => {
     const user = getTgUser()
     if (!user) return
     if (user.photo_url) setPhotoUrl(user.photo_url)
-    const first = user.first_name?.[0] ?? ""
-    const last  = user.last_name?.[0]  ?? ""
-    setInitials((first + last).toUpperCase() || user.username?.[0]?.toUpperCase() || "?")
+    const f = user.first_name?.[0] ?? ""
+    const l = user.last_name?.[0]  ?? ""
+    setInitials((f + l).toUpperCase() || user.username?.[0]?.toUpperCase() || "?")
   }, [])
 
   type Tab = { id: string; label: string; disabled?: boolean }
@@ -66,110 +69,158 @@ function NavBar() {
     { id: "profile",   label: "Profile" },
   ]
 
-  // Only show nav on main views (not sub-views like premium/referral/settings)
   const mainViews = ["home", "store", "analytics", "profile"]
   const activeTab = mainViews.includes(currentView) ? currentView : "home"
 
-  return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-3"
-      style={{
-        paddingBottom: "max(16px, env(safe-area-inset-bottom))",
-        paddingTop: "8px",
-        background: "rgba(18,18,20,0.72)",
-        backdropFilter: "blur(28px) saturate(180%)",
-        WebkitBackdropFilter: "blur(28px) saturate(180%)",
-        borderTop: "1px solid rgba(255,255,255,0.07)",
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 -4px 32px rgba(0,0,0,0.5)",
-      }}
-    >
-      {tabs.map(tab => {
-        const isActive  = activeTab === tab.id
-        const isDisabled = tab.disabled
+  function handleTab(id: string) {
+    if (id === "profile") return  // no-op for now
+    setCurrentView(id as "home" | "store" | "analytics")
+  }
 
-        return (
-          <button
-            key={tab.id}
-            disabled={isDisabled}
-            onClick={() => {
-              if (isDisabled) return
-              if (tab.id === "profile") {
-                // no-op for now — will be designed later
-                return
-              }
-              setCurrentView(tab.id as "home" | "store" | "analytics")
-            }}
-            className="flex flex-col items-center justify-center transition-all active:scale-95"
-            style={{
-              minWidth: "64px",
-              opacity: isDisabled ? 0.32 : 1,
-              pointerEvents: isDisabled ? "none" : "auto",
-            }}
-          >
-            {/* Active tab: pill with white bg */}
-            {isActive ? (
-              <div
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-                style={{
-                  background: "rgba(255,255,255,0.13)",
-                  backdropFilter: "blur(16px) saturate(180%)",
-                  WebkitBackdropFilter: "blur(16px) saturate(180%)",
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.35)",
-                }}
-              >
-                {/* Icon inside active pill */}
-                <span className="text-white" style={{ display: "flex" }}>
-                  {tab.id === "home"      && <HomeIcon active />}
-                  {tab.id === "store"     && <StoreIcon active />}
-                  {tab.id === "analytics" && <AnalyticsIcon active />}
-                  {tab.id === "profile"   && (
-                    <span className="w-[22px] h-[22px] rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-600 to-blue-700 shrink-0 text-[10px] font-bold text-white">
-                      {photoUrl ? (
-                        <img src={photoUrl} alt="avatar" className="w-full h-full object-cover" onError={() => setPhotoUrl(null)} />
-                      ) : initials || "?"}
-                    </span>
-                  )}
-                </span>
-                <span className="text-white text-[13px] font-semibold leading-none">{tab.label}</span>
-              </div>
-            ) : (
-              /* Inactive tab: icon + label below */
-              <div className="flex flex-col items-center gap-0.5 px-2 py-1">
-                <span style={{ color: "rgba(255,255,255,0.45)", display: "flex" }}>
-                  {tab.id === "home"      && <HomeIcon active={false} />}
-                  {tab.id === "store"     && <StoreIcon active={false} />}
-                  {tab.id === "analytics" && <AnalyticsIcon active={false} />}
-                  {tab.id === "profile"   && (
-                    <span className="w-[22px] h-[22px] rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-600/60 to-blue-700/60 shrink-0 text-[10px] font-bold text-white/60">
-                      {photoUrl ? (
-                        <img src={photoUrl} alt="avatar" className="w-full h-full object-cover opacity-60" onError={() => setPhotoUrl(null)} />
-                      ) : initials || "?"}
-                    </span>
-                  )}
-                </span>
-                <span className="text-[11px] font-medium leading-none" style={{ color: "rgba(255,255,255,0.38)" }}>{tab.label}</span>
-              </div>
-            )}
-          </button>
-        )
-      })}
+  return (
+    /* ── Outer wrapper: positions the pill above safe area ── */
+    <div
+      className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none"
+      style={{ bottom: "max(20px, env(safe-area-inset-bottom))" }}
+    >
+      {/* ── The floating pill ── */}
+      <div
+        className="pointer-events-auto flex items-center"
+        style={{
+          /* pill shape */
+          borderRadius: "100px",
+          padding: "6px 6px",
+          gap: "2px",
+
+          /* liquid glass background */
+          background: "rgba(28,28,32,0.78)",
+          backdropFilter: "blur(40px) saturate(200%) brightness(1.08)",
+          WebkitBackdropFilter: "blur(40px) saturate(200%) brightness(1.08)",
+
+          /* border: subtle top highlight + full ring */
+          border: "1px solid rgba(255,255,255,0.10)",
+          boxShadow: [
+            "inset 0 1.5px 0 rgba(255,255,255,0.13)",   /* top shine */
+            "inset 0 -1px 0 rgba(0,0,0,0.35)",           /* bottom depth */
+            "0 8px 32px rgba(0,0,0,0.55)",               /* outer shadow */
+            "0 2px 8px rgba(0,0,0,0.35)",                /* close shadow */
+          ].join(", "),
+        }}
+      >
+        {tabs.map(tab => {
+          const isActive   = activeTab === tab.id
+          const isDisabled = !!tab.disabled
+
+          return (
+            <button
+              key={tab.id}
+              disabled={isDisabled}
+              onClick={() => handleTab(tab.id)}
+              className="relative flex flex-col items-center justify-center transition-all duration-200 active:scale-90"
+              style={{
+                opacity: isDisabled ? 0.30 : 1,
+                pointerEvents: isDisabled ? "none" : "auto",
+                /* equal width slots so centering is perfect */
+                width: isActive ? "auto" : "60px",
+                minHeight: "52px",
+                padding: "0",
+              }}
+            >
+              {isActive ? (
+                /* ── Active: horizontal pill ── */
+                <div
+                  className="flex items-center gap-2 px-4"
+                  style={{
+                    height: "44px",
+                    borderRadius: "100px",
+                    background: "rgba(255,255,255,0.14)",
+                    backdropFilter: "blur(20px) saturate(180%)",
+                    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                    border: "1px solid rgba(255,255,255,0.20)",
+                    boxShadow: [
+                      "inset 0 1.5px 0 rgba(255,255,255,0.28)",
+                      "inset 0 -1px 0 rgba(0,0,0,0.20)",
+                      "0 2px 12px rgba(0,0,0,0.30)",
+                    ].join(", "),
+                    minWidth: "max-content",
+                  }}
+                >
+                  {/* Icon */}
+                  <span className="text-white flex items-center justify-center shrink-0">
+                    {tab.id === "home"      && <HomeIcon size={19} />}
+                    {tab.id === "store"     && <StoreIcon size={19} />}
+                    {tab.id === "analytics" && <AnalyticsIcon size={19} />}
+                    {tab.id === "profile"   && (
+                      <span
+                        className="flex items-center justify-center overflow-hidden rounded-full shrink-0 text-[9px] font-bold text-white"
+                        style={{ width: 20, height: 20, background: "linear-gradient(135deg,#3b82f6,#1d4ed8)" }}
+                      >
+                        {photoUrl
+                          ? <img src={photoUrl} alt="" className="w-full h-full object-cover" onError={() => setPhotoUrl(null)} />
+                          : initials || "?"}
+                      </span>
+                    )}
+                  </span>
+                  {/* Label */}
+                  <span
+                    className="text-white font-semibold leading-none"
+                    style={{ fontSize: "13px", letterSpacing: "-0.01em" }}
+                  >
+                    {tab.label}
+                  </span>
+                </div>
+              ) : (
+                /* ── Inactive: icon + label stacked ── */
+                <div
+                  className="flex flex-col items-center justify-center gap-[5px]"
+                  style={{ width: "60px", height: "44px" }}
+                >
+                  <span
+                    className="flex items-center justify-center"
+                    style={{ color: "rgba(255,255,255,0.42)" }}
+                  >
+                    {tab.id === "home"      && <HomeIcon size={20} />}
+                    {tab.id === "store"     && <StoreIcon size={20} />}
+                    {tab.id === "analytics" && <AnalyticsIcon size={20} />}
+                    {tab.id === "profile"   && (
+                      <span
+                        className="flex items-center justify-center overflow-hidden rounded-full text-[9px] font-bold"
+                        style={{
+                          width: 22, height: 22,
+                          background: "linear-gradient(135deg,rgba(59,130,246,0.5),rgba(29,78,216,0.5))",
+                          color: "rgba(255,255,255,0.55)",
+                        }}
+                      >
+                        {photoUrl
+                          ? <img src={photoUrl} alt="" className="w-full h-full object-cover opacity-50" onError={() => setPhotoUrl(null)} />
+                          : initials || "?"}
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className="leading-none font-medium"
+                    style={{ fontSize: "10px", color: "rgba(255,255,255,0.36)", letterSpacing: "0.01em" }}
+                  >
+                    {tab.label}
+                  </span>
+                </div>
+              )}
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }
 
+// ── App shell ─────────────────────────────────────────────────────────
 function AppContent() {
   const { currentView } = useApp()
-  const mainViews = ["home", "store", "analytics"]
+  const showNav = ["home", "store", "analytics", "settings"].includes(currentView)
 
   return (
-    <div className="min-h-screen bg-black flex flex-col" style={{ paddingBottom: "80px" }}>
-      {currentView === "home" && (
-        <>
-          <Header />
-          <HomeView />
-        </>
-      )}
+    <div className="min-h-screen bg-black flex flex-col" style={{ paddingBottom: showNav ? "96px" : "0" }}>
+      {currentView === "home" && (<><Header /><HomeView /></>)}
       {currentView === "settings"  && <SettingsView />}
       {currentView === "store"     && <StoreView />}
       {currentView === "premium"   && <PremiumView />}
@@ -179,9 +230,7 @@ function AppContent() {
           <p className="text-neutral-600 text-sm">Analytics coming soon</p>
         </div>
       )}
-
-      {/* Nav bar visible on main views + settings */}
-      {(mainViews.includes(currentView) || currentView === "settings") && <NavBar />}
+      {showNav && <NavBar />}
     </div>
   )
 }
