@@ -1,7 +1,7 @@
 "use client"
 
 import { useApp, type ModelName } from "@/lib/app-context"
-import { ChevronLeft, ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, ImagePlus, X, ExternalLink, AlertCircle, Zap } from "lucide-react"
+import { ChevronLeft, ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, ImagePlus, X, ExternalLink, AlertCircle } from "lucide-react"
 import { useState } from "react"
 
 const MODEL_LOGO: Record<ModelName, string> = {
@@ -82,7 +82,7 @@ function Section({ title, children }: { title?: string; children: React.ReactNod
   return (
     <div>
       {title && (
-        <p className="text-xs font-semibold uppercase tracking-wider px-1 mb-1" style={{ color: "#636366" }}>
+        <p className="text-xs font-medium uppercase tracking-[0.08em] px-1 mb-1.5" style={{ color: "#636366", fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif", letterSpacing: "0.06em" }}>
           {title}
         </p>
       )}
@@ -313,12 +313,11 @@ export function SettingsView() {
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
 
-      {/* Header — centered title, no back arrow */}
+      {/* Header — centered title, no back arrow, no bottom border */}
       <div className="sticky top-0 z-10 flex items-center justify-center px-4 py-3" style={{
         background: "rgba(0,0,0,0.85)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
-        borderBottom: "1px solid #1c1c1e",
       }}>
         <h2 className="font-semibold text-white text-base">{t("settings")}</h2>
       </div>
@@ -327,24 +326,54 @@ export function SettingsView() {
 
         {/* ── xBlum Pro card — hidden when isPremium ── */}
         {!isPremium && (
-          <div className="rounded-2xl p-4" style={{ background: "#1c1c1e" }}>
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-white font-semibold text-sm">xBlum Pro</p>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-400" style={{ background: "rgba(245,158,11,0.15)" }}>PRO</span>
-                </div>
-                <p className="text-xs" style={{ color: "#8e8e93" }}>Upgrade your plan to enjoy full features</p>
+          <button
+            onClick={() => setCurrentView("premium")}
+            className="w-full relative overflow-hidden active:opacity-80 transition-opacity text-left"
+            style={{
+              background: "#060606",
+              border: "1px solid #1e1e1e",
+              borderRadius: "20px",
+              minHeight: "96px",
+            }}
+          >
+            {/* Subtle amber glow top-left */}
+            <div className="absolute inset-0 pointer-events-none" style={{
+              background: "radial-gradient(ellipse at 8% 40%, rgba(245,158,11,0.07) 0%, transparent 55%)",
+            }} />
+            {/* Decorative circle top-right */}
+            <div className="absolute pointer-events-none" style={{
+              width: "90px", height: "90px",
+              borderRadius: "50%",
+              top: "-30px", right: "-20px",
+              background: "radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)",
+              border: "1px solid rgba(245,158,11,0.10)",
+            }} />
+            <div className="absolute pointer-events-none" style={{
+              width: "55px", height: "55px",
+              borderRadius: "50%",
+              bottom: "-18px", right: "30px",
+              background: "radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)",
+              border: "1px solid rgba(245,158,11,0.08)",
+            }} />
+
+            {/* Content */}
+            <div className="relative z-10 px-5 py-4 flex flex-col gap-2">
+              {/* Title row */}
+              <div className="flex items-center gap-2">
+                <p className="text-white font-bold text-[15px] leading-tight">xBlum Pro</p>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-400" style={{ background: "rgba(245,158,11,0.15)" }}>PRO</span>
               </div>
-              <Zap className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <p className="text-xs" style={{ color: "#8e8e93" }}>Upgrade your plan to enjoy full features</p>
+
+              {/* Upgrade button */}
+              <div
+                className="flex items-center justify-center mt-1 px-4 py-2.5 rounded-xl w-full"
+                style={{ background: "rgba(255,255,255,0.93)" }}
+              >
+                <span className="text-black text-sm font-semibold">Upgrade →</span>
+              </div>
             </div>
-            <button
-              onClick={() => setCurrentView("premium")}
-              className="w-full py-2.5 bg-white text-black font-semibold rounded-xl text-sm active:opacity-80 transition-opacity flex items-center justify-center gap-2"
-            >
-              Upgrade →
-            </button>
-          </div>
+          </button>
         )}
 
         {/* ── General ── */}
