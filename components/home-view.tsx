@@ -176,83 +176,82 @@ export function HomeView() {
           style={{
             background: "#060606",
             border: "1px solid #1e1e1e",
-            borderRadius: "28px",
-            minHeight: "110px",
+            borderRadius: "20px",
+            height: "82px",
           }}
         >
-          {/* Very subtle left glow */}
+          {/* Subtle left glow */}
           <div className="absolute inset-0 pointer-events-none" style={{
-            background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 60%)"
+            background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 55%)"
           }} />
 
           {/* Content row */}
-          <div className="relative z-10 flex items-center justify-between h-full px-5 py-5">
+          <div className="relative z-10 flex items-center justify-between h-full px-5">
 
-            {/* Left: text + liquid glass button */}
-            <div className="flex flex-col gap-4">
-              <p className="text-white font-bold text-[17px] leading-tight">
-                Invite a Friend &<br />Get Free Tokens
+            {/* Left: text + button */}
+            <div className="flex flex-col gap-2">
+              <p className="text-white font-bold text-[15px] leading-tight">
+                Invite a Friend & Get<br />Free Tokens
               </p>
 
-              {/* Liquid glass button — smaller, refined */}
+              {/* Liquid glass button — compact */}
               <div
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full w-fit relative overflow-hidden"
+                className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden"
                 style={{
                   background: "rgba(255,255,255,0.07)",
                   backdropFilter: "blur(16px) saturate(180%)",
                   WebkitBackdropFilter: "blur(16px) saturate(180%)",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  boxShadow: "inset 0 1.5px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.5)",
+                  border: "1px solid rgba(255,255,255,0.13)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
                 }}
               >
-                {/* Specular highlight top */}
                 <div className="absolute inset-x-2 top-0 h-px" style={{
-                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)"
+                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)"
                 }} />
-                <span className="text-white text-[11px] font-medium relative z-10 tracking-wide">share invite</span>
-                <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.6 }}>›</span>
+                <span className="text-white text-[10px] font-medium relative z-10 tracking-wide">share invite</span>
+                <span className="text-white text-[10px] relative z-10" style={{ opacity: 0.55 }}>›</span>
               </div>
             </div>
 
-            {/* Right: 3 TON coins stacked/cascading like reference */}
-            <div className="relative shrink-0" style={{ width: "110px", height: "100px" }}>
-              {/* Back coin — top right, smaller, more faded */}
+            {/* Right: 3 coins dispersed like reference — diagonal top-right to bottom-right */}
+            <div className="relative shrink-0" style={{ width: "130px", height: "82px" }}>
+              {/* Top-left coin — smallest, most faded, partially clipped at top */}
               <img
                 src="/ton-coin.png"
                 alt=""
                 className="absolute"
                 style={{
-                  width: "58px", height: "58px",
-                  top: "0px", right: "0px",
-                  opacity: 0.5,
-                  transform: "rotate(15deg)",
-                  filter: "brightness(0.7)",
+                  width: "44px", height: "44px",
+                  top: "-8px", left: "8px",
+                  opacity: 0.35,
+                  transform: "rotate(20deg)",
+                  filter: "brightness(0.6)",
                 }}
               />
-              {/* Middle coin */}
+              {/* Center coin — medium */}
               <img
                 src="/ton-coin.png"
                 alt=""
                 className="absolute"
                 style={{
-                  width: "68px", height: "68px",
-                  top: "18px", right: "22px",
-                  opacity: 0.75,
-                  transform: "rotate(-8deg)",
-                  filter: "brightness(0.85)",
+                  width: "56px", height: "56px",
+                  top: "10px", right: "44px",
+                  opacity: 0.65,
+                  transform: "rotate(-10deg)",
+                  filter: "brightness(0.8)",
                 }}
               />
-              {/* Front coin — largest, fully visible */}
+              {/* Bottom-right coin — largest, sharpest, with blue glow */}
               <img
                 src="/ton-coin.png"
                 alt=""
                 className="absolute"
                 style={{
-                  width: "78px", height: "78px",
-                  bottom: "0px", right: "8px",
+                  width: "70px", height: "70px",
+                  bottom: "-4px", right: "0px",
                   opacity: 1,
-                  transform: "rotate(5deg)",
-                  filter: "drop-shadow(0 4px 12px rgba(0,120,255,0.35))",
+                  transform: "rotate(6deg)",
+                  filter: "drop-shadow(0 4px 14px rgba(30,140,255,0.5))",
                 }}
               />
             </div>
