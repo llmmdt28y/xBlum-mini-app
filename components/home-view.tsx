@@ -118,20 +118,22 @@ export function HomeView() {
               onChange={e => setMessage(e.target.value)}
               onKeyDown={handleKey}
               placeholder={t("typeMessage")}
-              className="w-full pl-5 pr-14 py-4 bg-neutral-900 border border-neutral-800 rounded-2xl text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:border-transparent transition-all text-sm"
+              className="w-full pl-5 pr-14 py-4 rounded-full text-white placeholder:text-[#636366] focus:outline-none transition-all text-sm"
+              style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
             />
             <button
               onClick={handleSend}
               disabled={!message.trim() || sending}
               className={
-                "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center transition-all " +
+                "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all " +
                 (message.trim() && !sending
-                  ? "bg-white text-black hover:bg-neutral-200 active:bg-neutral-300"
-                  : "bg-neutral-800 text-neutral-600 cursor-not-allowed")
+                  ? "bg-white text-black active:scale-95"
+                  : "text-[#48484a] cursor-not-allowed")
               }
+              style={!(message.trim() && !sending) ? { background: "#2c2c2e" } : {}}
             >
               {sending ? (
-                <span className="w-4 h-4 border-2 border-neutral-500 border-t-neutral-300 rounded-full animate-spin" />
+                <span className="w-4 h-4 border-2 border-[#48484a] border-t-neutral-300 rounded-full animate-spin" />
               ) : (
                 <ArrowUp className="w-4 h-4" />
               )}
@@ -143,23 +145,26 @@ export function HomeView() {
         <div className="w-full flex flex-wrap justify-start gap-2">
           <button
             onClick={handleCreateImage}
-            className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900 border border-neutral-800 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-white active:opacity-70 transition-opacity"
+            style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
           >
-            <Image className="w-3.5 h-3.5 text-neutral-400" />
+            <Image className="w-3.5 h-3.5" style={{ color: "#8e8e93" }} />
             <span className="text-xs font-medium">{t("createImage")}</span>
           </button>
           <button
             onClick={handleGetTokens}
-            className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900 border border-neutral-800 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-white active:opacity-70 transition-opacity"
+            style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
           >
-            <Coins className="w-3.5 h-3.5 text-neutral-400" />
+            <Coins className="w-3.5 h-3.5" style={{ color: "#8e8e93" }} />
             <span className="text-xs font-medium">{t("getTokens")}</span>
           </button>
           <button
             onClick={handleAddToChat}
-            className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900 border border-neutral-800 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-white active:opacity-70 transition-opacity"
+            style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
           >
-            <MessageCircle className="w-3.5 h-3.5 text-neutral-400" />
+            <MessageCircle className="w-3.5 h-3.5" style={{ color: "#8e8e93" }} />
             <span className="text-xs font-medium">{t("addToChat")}</span>
           </button>
         </div>
@@ -172,9 +177,10 @@ export function HomeView() {
             {/* Private Mode */}
             <button
               onClick={() => setExploreModal("private")}
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+              className="relative rounded-2xl p-4 text-left active:opacity-70 transition-opacity"
+              style={{ background: "#1c1c1e" }}
             >
-              <span className="absolute top-3 right-3 px-2 py-0.5 bg-neutral-700 rounded-full text-[10px] text-neutral-300 font-medium">
+              <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ background: "#2c2c2e", color: "#aeaeb2" }}>
                 beta
               </span>
               <div className="w-10 h-10 mb-3 flex items-center justify-center">
@@ -186,9 +192,10 @@ export function HomeView() {
 
             {/* TON Wallet */}
             <button
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left opacity-70 cursor-not-allowed"
+              className="relative rounded-2xl p-4 text-left opacity-50 cursor-not-allowed"
+              style={{ background: "#1c1c1e" }}
             >
-              <span className="absolute top-3 right-3 px-2 py-0.5 bg-neutral-700 rounded-full text-[10px] text-neutral-300 font-medium">
+              <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ background: "#2c2c2e", color: "#aeaeb2" }}>
                 soon
               </span>
               <div className="w-10 h-10 mb-3 flex items-center justify-center">
@@ -201,10 +208,11 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("telegram")}
               disabled={openingTopic === "telegram"}
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
+              className="relative rounded-2xl p-4 text-left active:opacity-70 transition-opacity disabled:opacity-50"
+              style={{ background: "#1c1c1e" }}
             >
               {openingTopic === "telegram" && (
-                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
+                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-[#48484a] border-t-white rounded-full animate-spin" />
               )}
               <div className="w-10 h-10 mb-3 flex items-center justify-center">
                 <img src="/telegram-icon.png" alt="Telegram" className="w-8 h-8" />
@@ -216,10 +224,11 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("google")}
               disabled={openingTopic === "google"}
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
+              className="relative rounded-2xl p-4 text-left active:opacity-70 transition-opacity disabled:opacity-50"
+              style={{ background: "#1c1c1e" }}
             >
               {openingTopic === "google" && (
-                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
+                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-[#48484a] border-t-white rounded-full animate-spin" />
               )}
               <div className="w-10 h-10 mb-3 flex items-center justify-center">
                 <img src="/gmail.png" alt="Google" className="w-8 h-8" />
@@ -231,10 +240,11 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("writing")}
               disabled={openingTopic === "writing"}
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
+              className="relative rounded-2xl p-4 text-left active:opacity-70 transition-opacity disabled:opacity-50"
+              style={{ background: "#1c1c1e" }}
             >
               {openingTopic === "writing" && (
-                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
+                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-[#48484a] border-t-white rounded-full animate-spin" />
               )}
               <div className="w-10 h-10 mb-3 flex items-center justify-center">
                 <Sparkles className="w-8 h-8 text-blue-400" />
@@ -246,10 +256,11 @@ export function HomeView() {
             <button
               onClick={() => setExploreModal("coding")}
               disabled={openingTopic === "coding"}
-              className="relative bg-neutral-900 rounded-2xl p-4 text-left hover:bg-neutral-800 active:bg-neutral-700 transition-colors disabled:opacity-60"
+              className="relative rounded-2xl p-4 text-left active:opacity-70 transition-opacity disabled:opacity-50"
+              style={{ background: "#1c1c1e" }}
             >
               {openingTopic === "coding" && (
-                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-neutral-500 border-t-white rounded-full animate-spin" />
+                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-[#48484a] border-t-white rounded-full animate-spin" />
               )}
               <div className="w-10 h-10 mb-3 flex items-center justify-center">
                 <Code className="w-8 h-8 text-green-400" />
@@ -270,10 +281,11 @@ export function HomeView() {
             onClick={() => { setExploreModal(null); setModalInput("") }}
           />
 
-          <div className="relative w-full bg-[#1a1a1a] rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col">
+          <div className="relative w-full rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col" style={{ background: "#1c1c1e" }}>
             <button
               onClick={() => { setExploreModal(null); setModalInput("") }}
-              className="absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 transition-colors z-10"
+              className="absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
+              style={{ background: "#2c2c2e" }}
             >
               <X className="w-5 h-5 text-white" />
             </button>
@@ -289,7 +301,7 @@ export function HomeView() {
                     </div>
                     <div className="flex items-center gap-2 mb-1">
                       <h2 className="text-white font-bold text-xl">Private Mode</h2>
-                      <span className="px-2 py-0.5 bg-neutral-700 rounded-full text-xs text-neutral-300 font-medium">beta</span>
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: "#2c2c2e", color: "#aeaeb2" }}>beta</span>
                     </div>
                     <p className="text-neutral-500 text-sm text-center px-4">
                       Opens a dedicated topic where nothing is saved — no history, no memory, no context. Ever.
@@ -308,7 +320,7 @@ export function HomeView() {
                     ))}
                   </div>
 
-                  <div className="mx-4 bg-neutral-800/50 rounded-2xl overflow-hidden">
+                  <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#2c2c2e" }}>
                     {[
                       { icon: "📄", text: "Review a contract for hidden risks" },
                       { icon: "✉️", text: "Draft a sensitive message" },
@@ -319,7 +331,8 @@ export function HomeView() {
                         key={i}
                         onClick={() => handleQuickSend("private", item.text)}
                         disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-neutral-700/50 transition-colors border-b border-neutral-700/50 last:border-b-0 disabled:opacity-50"
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:opacity-60 transition-opacity disabled:opacity-50"
+                        style={{ borderBottom: i < 3 ? "1px solid #3a3a3c" : "none" }}
                       >
                         <span className="text-2xl">{item.icon}</span>
                         <span className="text-white text-sm text-left">{item.text}</span>
@@ -350,7 +363,7 @@ export function HomeView() {
                     <h2 className="text-white font-bold text-xl mb-1">Search on Telegram</h2>
                     <p className="text-neutral-500 text-sm">Opens a dedicated Telegram Search topic</p>
                   </div>
-                  <div className="mx-4 bg-neutral-800/50 rounded-2xl overflow-hidden">
+                  <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#2c2c2e" }}>
                     {[
                       { icon: "🔍", text: "Find channels similar to @unofficialus" },
                       { icon: "📈", text: "How to grow followers on my channel" },
@@ -361,7 +374,8 @@ export function HomeView() {
                         key={i}
                         onClick={() => handleQuickSend("telegram", item.text)}
                         disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-neutral-700/50 transition-colors border-b border-neutral-700/50 last:border-b-0 disabled:opacity-50"
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:opacity-60 transition-opacity disabled:opacity-50"
+                        style={{ borderBottom: i < 3 ? "1px solid #3a3a3c" : "none" }}
                       >
                         <span className="text-2xl">{item.icon}</span>
                         <span className="text-white text-sm text-left">{item.text}</span>
@@ -390,32 +404,33 @@ export function HomeView() {
                     <h2 className="text-white font-bold text-xl mb-1">Google Tools</h2>
                     <p className="text-neutral-500 text-sm">Opens a dedicated Google Tools topic</p>
                   </div>
-                  <div className="mx-4 mb-3 bg-neutral-800/60 border border-neutral-700/50 rounded-2xl p-4">
+                  <div className="mx-4 mb-3 rounded-2xl p-4" style={{ background: "#2c2c2e" }}>
                     <div className="flex items-center gap-3 mb-3">
                       <img src="/gmail.png" alt="Gmail" className="w-8 h-8" />
                       <div>
                         <p className="text-white font-semibold text-sm">Gmail</p>
-                        <p className="text-neutral-500 text-xs">Read, send & manage emails with AI</p>
+                        <p className="text-xs" style={{ color: "#8e8e93" }}>Read, send & manage emails with AI</p>
                       </div>
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleQuickSend("google", "Connect my Gmail account")}
                         disabled={sending}
-                        className="flex-1 py-2.5 bg-white text-black text-sm font-bold rounded-xl hover:bg-neutral-200 active:scale-95 transition-all disabled:opacity-50"
+                        className="flex-1 py-2.5 bg-white text-black text-sm font-bold rounded-xl active:opacity-70 transition-opacity disabled:opacity-50"
                       >
                         Connect Gmail
                       </button>
                       <button
                         onClick={() => handleQuickSend("google", "Read my latest emails")}
                         disabled={sending}
-                        className="flex-1 py-2.5 bg-neutral-700 text-white text-sm font-medium rounded-xl hover:bg-neutral-600 active:scale-95 transition-all disabled:opacity-50"
+                        className="flex-1 py-2.5 text-white text-sm font-medium rounded-xl active:opacity-70 transition-opacity disabled:opacity-50"
+                        style={{ background: "#3a3a3c" }}
                       >
                         Read emails
                       </button>
                     </div>
                   </div>
-                  <div className="mx-4 bg-neutral-800/50 rounded-2xl overflow-hidden">
+                  <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#2c2c2e" }}>
                     {[
                       { icon: "✉️", text: "Compose an email for me" },
                       { icon: "📁", text: "Connect Google Drive" },
@@ -426,7 +441,8 @@ export function HomeView() {
                         key={i}
                         onClick={() => handleQuickSend("google", item.text)}
                         disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-neutral-700/50 transition-colors border-b border-neutral-700/50 last:border-b-0 disabled:opacity-50"
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:opacity-60 transition-opacity disabled:opacity-50"
+                        style={{ borderBottom: i < 3 ? "1px solid #3a3a3c" : "none" }}
                       >
                         <span className="text-2xl">{item.icon}</span>
                         <span className="text-white text-sm text-left">{item.text}</span>
@@ -455,7 +471,7 @@ export function HomeView() {
                     <h2 className="text-white font-bold text-xl mb-1">Writing Assistant</h2>
                     <p className="text-neutral-500 text-sm">Opens a dedicated Writing topic</p>
                   </div>
-                  <div className="mx-4 bg-neutral-800/50 rounded-2xl overflow-hidden">
+                  <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#2c2c2e" }}>
                     {[
                       { icon: "🌍", text: "Translate naturally to English" },
                       { icon: "✏️", text: "Fix grammar in my message" },
@@ -467,7 +483,8 @@ export function HomeView() {
                         key={i}
                         onClick={() => handleQuickSend("writing", item.text)}
                         disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-neutral-700/50 transition-colors border-b border-neutral-700/50 last:border-b-0 disabled:opacity-50"
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:opacity-60 transition-opacity disabled:opacity-50"
+                        style={{ borderBottom: i < 4 ? "1px solid #3a3a3c" : "none" }}
                       >
                         <span className="text-2xl">{item.icon}</span>
                         <span className="text-white text-sm text-left">{item.text}</span>
@@ -496,7 +513,7 @@ export function HomeView() {
                     <h2 className="text-white font-bold text-xl mb-1">Coding & Tech</h2>
                     <p className="text-neutral-500 text-sm">Opens a dedicated Coding topic</p>
                   </div>
-                  <div className="mx-4 bg-neutral-800/50 rounded-2xl overflow-hidden">
+                  <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#2c2c2e" }}>
                     {[
                       { icon: "💻", text: "Explain this code to me" },
                       { icon: "🐛", text: "Help me debug this error" },
@@ -508,7 +525,8 @@ export function HomeView() {
                         key={i}
                         onClick={() => handleQuickSend("coding", item.text)}
                         disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-neutral-700/50 transition-colors border-b border-neutral-700/50 last:border-b-0 disabled:opacity-50"
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:opacity-60 transition-opacity disabled:opacity-50"
+                        style={{ borderBottom: i < 4 ? "1px solid #3a3a3c" : "none" }}
                       >
                         <span className="text-2xl">{item.icon}</span>
                         <span className="text-white text-sm text-left">{item.text}</span>
@@ -530,7 +548,7 @@ export function HomeView() {
             </div>
 
             {/* Ask anything input bar */}
-            <div className="p-4 border-t border-neutral-800">
+            <div className="p-4" style={{ borderTop: "1px solid #2c2c2e" }}>
               <div className="relative">
                 <input
                   type="text"
@@ -542,22 +560,23 @@ export function HomeView() {
                     }
                   }}
                   placeholder="Ask anything..."
-                  className="w-full pl-4 pr-12 py-3 bg-neutral-800 rounded-full text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-600 text-sm"
+                  className="w-full pl-4 pr-12 py-3 rounded-full text-white placeholder:text-[#636366] focus:outline-none text-sm"
+                  style={{ background: "#2c2c2e" }}
                 />
                 <button
                   onClick={() => {
                     if (modalInput.trim() && exploreModal) handleQuickSend(exploreModal, modalInput.trim())
                   }}
                   disabled={sending}
-                  className={"absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-colors " +
-                    (modalInput.trim() ? "bg-neutral-600 text-white" : "bg-neutral-700 text-neutral-500")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-opacity active:opacity-70"
+                  style={{ background: modalInput.trim() ? "#3a3a3c" : "#2c2c2e", color: modalInput.trim() ? "#fff" : "#636366" }}
                 >
                   <ArrowUp className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            <div className="h-6 bg-[#1a1a1a]" />
+            <div className="h-6" style={{ background: "#1c1c1e" }} />
           </div>
         </div>
       )}
