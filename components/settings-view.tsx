@@ -322,7 +322,7 @@ export function SettingsView() {
         <h2 className="font-semibold text-white text-base">{t("settings")}</h2>
       </div>
 
-      <div className="px-4 pt-4 pb-10 space-y-5">
+      <div className="px-4 pt-4 pb-28 space-y-5">
 
         {/* ── xBlum Pro card — hidden when isPremium ── */}
         {!isPremium && (
