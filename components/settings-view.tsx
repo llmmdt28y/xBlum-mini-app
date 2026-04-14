@@ -1,7 +1,7 @@
 "use client"
 
 import { useApp, type ModelName } from "@/lib/app-context"
-import { ChevronLeft, ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, ImagePlus, X, ExternalLink, AlertCircle } from "lucide-react"
+import { ChevronLeft, ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, ImagePlus, X, ExternalLink, AlertCircle, Zap } from "lucide-react"
 import { useState } from "react"
 
 const MODEL_LOGO: Record<ModelName, string> = {
@@ -16,10 +16,10 @@ const MODELS: {
   tag: string | null; tagColor: string
   proOnly: boolean; initial: string
 }[] = [
-  { name:"Grok 4",      desc:"Most capable · no cooldown",    tag:"Popular", tagColor:"bg-orange-500/20 text-orange-400",  proOnly:false, initial:"G" },
-  { name:"Grok 4 Mini", desc:"Fast · smart throttle on heavy use", tag:"Free", tagColor:"bg-emerald-500/20 text-emerald-400", proOnly:false, initial:"G" },
-  { name:"GPT-5.4",     desc:"OpenAI latest · Pro only",      tag:"Pro",     tagColor:"bg-amber-500/20 text-amber-400",    proOnly:true,  initial:"4" },
-  { name:"GPT-5.2",     desc:"Balanced performance",          tag:null,      tagColor:"",                                  proOnly:false, initial:"2" },
+  { name:"Grok 4",      desc:"Most capable · no cooldown",         tag:"Popular", tagColor:"bg-orange-500/20 text-orange-400",  proOnly:false, initial:"G" },
+  { name:"Grok 4 Mini", desc:"Fast · smart throttle on heavy use",  tag:"Free",    tagColor:"bg-emerald-500/20 text-emerald-400", proOnly:false, initial:"G" },
+  { name:"GPT-5.4",     desc:"OpenAI latest · Pro only",            tag:"Pro",     tagColor:"bg-amber-500/20 text-amber-400",    proOnly:true,  initial:"4" },
+  { name:"GPT-5.2",     desc:"Balanced performance",                tag:null,      tagColor:"",                                  proOnly:false, initial:"2" },
 ]
 
 const LANGS = [
@@ -28,24 +28,93 @@ const LANGS = [
   { code:"es" as const, name:"Español", flag:"🇪🇸" },
 ]
 
+// ── iOS-style row item ────────────────────────────────────────────────
+function Row({ icon, iconBg, label, sublabel, right, onClick, danger }: {
+  icon: React.ReactNode
+  iconBg: string
+  label: string
+  sublabel?: string
+  right?: React.ReactNode
+  onClick?: () => void
+  danger?: boolean
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-3 px-4 active:opacity-60 transition-opacity"
+      style={{ paddingTop: "10px", paddingBottom: "10px" }}
+    >
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: iconBg }}>
+        {icon}
+      </div>
+      <div className="flex-1 text-left">
+        <p className={`text-sm font-medium ${danger ? "text-red-500" : "text-white"}`}>{label}</p>
+        {sublabel && <p className="text-xs mt-0.5" style={{ color: "#8e8e93" }}>{sublabel}</p>}
+      </div>
+      {right ?? <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
+    </button>
+  )
+}
+
+// ── Toggle switch ─────────────────────────────────────────────────────
+function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) {
+  return (
+    <button
+      onClick={onToggle}
+      disabled={disabled}
+      className={"relative rounded-full transition-all duration-200 shrink-0 " + (disabled ? "opacity-50" : "")}
+      style={{ width: "44px", height: "26px", background: on ? "white" : "rgba(255,255,255,0.2)" }}
+    >
+      <span
+        className="absolute top-[2px] rounded-full shadow-md transition-transform duration-200"
+        style={{
+          width: "22px", height: "22px",
+          background: "#1c1c1e",
+          left: on ? "20px" : "2px",
+        }}
+      />
+    </button>
+  )
+}
+
+// ── Section group ─────────────────────────────────────────────────────
+function Section({ title, children }: { title?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      {title && (
+        <p className="text-xs font-semibold uppercase tracking-wider px-1 mb-1" style={{ color: "#636366" }}>
+          {title}
+        </p>
+      )}
+      <div className="rounded-2xl overflow-hidden" style={{ background: "#1c1c1e" }}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// ── Divider inside section ────────────────────────────────────────────
+function Divider() {
+  return <div className="ml-[52px] mr-0 h-px" style={{ background: "#2c2c2e" }} />
+}
+
+// ── Model logo ────────────────────────────────────────────────────────
 function ModelLogo({ name, active, locked }: { name: ModelName; active: boolean; locked: boolean }) {
   const model = MODELS.find(m => m.name === name)
   if (locked) return (
-    <div className="w-10 h-10 rounded-xl bg-neutral-800 flex items-center justify-center shrink-0">
-      <Lock className="w-4 h-4 text-neutral-500" />
+    <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#2c2c2e" }}>
+      <Lock className="w-4 h-4" style={{ color: "#48484a" }} />
     </div>
   )
   return (
-    <div className={"w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden " + (active ? "ring-2 ring-blue-500" : "")}>
+    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ${active ? "ring-2 ring-blue-500" : ""}`}>
       <img src={MODEL_LOGO[name]} alt={name} className="w-full h-full object-contain"
         onError={e => {
           const el = e.currentTarget; el.style.display = "none"
-          const p  = el.parentElement
+          const p = el.parentElement
           if (p) {
-            p.style.background    = active ? "#3b82f6" : "#262626"
-            p.style.display       = "flex"
-            p.style.alignItems    = "center"
-            p.style.justifyContent= "center"
+            p.style.background = active ? "#3b82f6" : "#2c2c2e"
+            p.style.display = "flex"; p.style.alignItems = "center"; p.style.justifyContent = "center"
             const sp = document.createElement("span")
             sp.textContent = model?.initial ?? "?"; sp.style.color = "white"; sp.style.fontWeight = "700"
             p.appendChild(sp)
@@ -70,7 +139,7 @@ export function SettingsView() {
   const [page, setPage]           = useState<"main"|"model"|"lang"|"prefs">("main")
   const [tempPrefs, setTempPrefs] = useState(userPreferences)
   const [improveModel, setImproveModel] = useState(false)
-  const [saving, setSaving]       = useState("")   // feedback visual
+  const [saving, setSaving]       = useState("")
   const [showReportModal, setShowReportModal] = useState(false)
   const [reportType, setReportType] = useState("General feedback")
   const [reportDescription, setReportDescription] = useState("")
@@ -121,15 +190,27 @@ export function SettingsView() {
     )
   }
 
-  /* ── Model selector ───────────────────────────────────────────────── */
-  if (page === "model") return (
-    <div className="flex-1 bg-[#0a0a0a]">
-      <div className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-neutral-800 px-4 py-3 flex items-center gap-3">
-        <button onClick={() => setPage("main")} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-800 transition-colors">
-          <ChevronLeft className="w-5 h-5 text-white" />
+  // ── Sub-page header (with back arrow) ──────────────────────────────
+  function SubHeader({ title, onBack }: { title: string; onBack: () => void }) {
+    return (
+      <div className="sticky top-0 z-10 flex items-center px-4 py-3" style={{
+        background: "rgba(0,0,0,0.85)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        borderBottom: "1px solid #1c1c1e",
+      }}>
+        <button onClick={onBack} className="w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity mr-2" style={{ background: "#1c1c1e" }}>
+          <ChevronLeft className="w-4 h-4 text-white" />
         </button>
-        <h2 className="font-semibold text-white">{t("selectModel")}</h2>
+        <h2 className="font-semibold text-white text-base">{title}</h2>
       </div>
+    )
+  }
+
+  /* ── Model selector ─────────────────────────────────────────────── */
+  if (page === "model") return (
+    <div className="flex-1" style={{ background: "#000" }}>
+      <SubHeader title={t("selectModel")} onBack={() => setPage("main")} />
       <div className="p-4 space-y-2">
         {MODELS.map(m => {
           const locked    = m.proOnly && !isPremium
@@ -138,31 +219,34 @@ export function SettingsView() {
           return (
             <button key={m.name} disabled={locked || saving === "model"}
               onClick={() => !locked && selectModel(m.name)}
-              className={"w-full p-4 rounded-2xl flex items-start justify-between transition-all " +
-                (locked ? "opacity-60 bg-neutral-900/50 border-2 border-neutral-800"
-                : active ? "bg-blue-500/10 border-2 border-blue-500"
-                : "bg-neutral-900 border-2 border-neutral-800 hover:border-neutral-700")}
+              className="w-full p-3.5 rounded-2xl flex items-start justify-between transition-all active:opacity-70"
+              style={{
+                background: active ? "rgba(59,130,246,0.1)" : "#1c1c1e",
+                border: `2px solid ${active ? "#3b82f6" : "#2c2c2e"}`,
+                opacity: locked ? 0.6 : 1,
+              }}
             >
               <div className="flex items-start gap-3 flex-1">
                 <ModelLogo name={m.name} active={active} locked={locked} />
                 <div className="flex-1 text-left">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <p className="font-medium text-white">{m.name}</p>
-                    {m.tag && <span className={"text-xs px-2 py-0.5 rounded-full " + m.tagColor}>{m.tag}</span>}
+                    <p className="font-medium text-white text-sm">{m.name}</p>
+                    {m.tag && <span className={`text-xs px-2 py-0.5 rounded-full ${m.tagColor}`}>{m.tag}</span>}
                     {locked && <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400">{t("locked")}</span>}
                     {throttled && <span className="text-xs px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400">cooling {minutesUntilReset}min</span>}
                   </div>
-                  <p className="text-xs text-neutral-500 mt-0.5">{m.desc}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "#8e8e93" }}>{m.desc}</p>
                 </div>
               </div>
-              {active && !locked && saving !== "model" && <Check className="w-5 h-5 text-blue-500 shrink-0" />}
-              {saving === "model" && active && <span className="text-xs text-neutral-500">saving...</span>}
+              {active && !locked && saving !== "model" && <Check className="w-4 h-4 text-blue-500 shrink-0" />}
+              {saving === "model" && active && <span className="text-xs" style={{ color: "#8e8e93" }}>saving...</span>}
             </button>
           )
         })}
         {!isPremium && (
           <button onClick={() => { setPage("main"); setCurrentView("premium") }}
-            className="w-full p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-center text-sm text-amber-400 font-medium hover:border-amber-500/50 transition-colors">
+            className="w-full p-3.5 rounded-2xl text-center text-sm text-amber-400 font-medium active:opacity-70 transition-opacity"
+            style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)" }}>
             {t("unlockGPT")}
           </button>
         )}
@@ -170,276 +254,221 @@ export function SettingsView() {
     </div>
   )
 
-  /* ── Language ──────────────────────────────────────────────��──────── */
+  /* ── Language ───────────────────────────────────────────────────── */
   if (page === "lang") return (
-    <div className="flex-1 bg-[#0a0a0a]">
-      <div className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-neutral-800 px-4 py-3 flex items-center gap-3">
-        <button onClick={() => setPage("main")} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-800 transition-colors">
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-        <h2 className="font-semibold text-white">{t("language")}</h2>
-      </div>
+    <div className="flex-1" style={{ background: "#000" }}>
+      <SubHeader title={t("language")} onBack={() => setPage("main")} />
       <div className="p-4 space-y-2">
         {LANGS.map(lang => (
           <button key={lang.code} onClick={() => { setLanguage(lang.code); setPage("main") }}
-            className={"w-full p-4 rounded-2xl flex items-center justify-between transition-all " +
-              (language === lang.code ? "bg-blue-500/10 border-2 border-blue-500" : "bg-neutral-900 border-2 border-neutral-800 hover:border-neutral-700")}>
+            className="w-full p-3.5 rounded-2xl flex items-center justify-between active:opacity-70 transition-opacity"
+            style={{
+              background: language === lang.code ? "rgba(59,130,246,0.1)" : "#1c1c1e",
+              border: `2px solid ${language === lang.code ? "#3b82f6" : "#2c2c2e"}`,
+            }}>
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{lang.flag}</span>
-              <p className="font-medium text-white">{lang.name}</p>
+              <span className="text-xl">{lang.flag}</span>
+              <p className="font-medium text-white text-sm">{lang.name}</p>
             </div>
-            {language === lang.code && <Check className="w-5 h-5 text-blue-500" />}
+            {language === lang.code && <Check className="w-4 h-4 text-blue-500" />}
           </button>
         ))}
       </div>
     </div>
   )
 
-  /* ── Preferences ──────────────────────────────────────────────────── */
+  /* ── Preferences ────────────────────────────────────────────────── */
   if (page === "prefs") return (
-    <div className="flex-1 bg-[#0a0a0a]">
-      <div className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-neutral-800 px-4 py-3 flex items-center gap-3">
-        <button onClick={() => setPage("main")} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-800 transition-colors">
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-        <h2 className="font-semibold text-white">{t("preferences")}</h2>
-      </div>
+    <div className="flex-1" style={{ background: "#000" }}>
+      <SubHeader title={t("preferences")} onBack={() => setPage("main")} />
       <div className="p-4 space-y-4">
         {(["name","age","location"] as const).map(field => (
           <div key={field} className="space-y-1.5">
-            <label className="text-sm font-medium text-neutral-400 capitalize">{field}</label>
+            <label className="text-xs font-semibold uppercase tracking-wider px-1" style={{ color: "#636366" }}>{field}</label>
             <input type="text" value={tempPrefs[field]}
               onChange={e => setTempPrefs({ ...tempPrefs, [field]: e.target.value })}
-              className="w-full p-3 bg-neutral-900 rounded-xl border border-neutral-800 text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 rounded-xl text-white text-sm placeholder:text-[#48484a] focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
             />
           </div>
         ))}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-neutral-400">{t("yourPreferences")}</label>
+          <label className="text-xs font-semibold uppercase tracking-wider px-1" style={{ color: "#636366" }}>{t("yourPreferences")}</label>
           <textarea value={tempPrefs.preferences}
             onChange={e => setTempPrefs({ ...tempPrefs, preferences: e.target.value })}
-            className="w-full p-3 bg-neutral-900 rounded-xl border border-neutral-800 text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[90px] resize-none"
+            className="w-full p-3 rounded-xl text-white text-sm placeholder:text-[#48484a] focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px] resize-none"
+            style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
             placeholder="I prefer concise answers..."
           />
         </div>
         <button onClick={() => { setUserPreferences(tempPrefs); setPage("main") }}
-          className="w-full py-3 bg-blue-500 text-white font-medium rounded-xl hover:bg-blue-600 transition-colors">
+          className="w-full py-3 bg-blue-500 text-white font-medium rounded-xl active:opacity-80 transition-opacity text-sm">
           {t("save")}
         </button>
       </div>
     </div>
   )
 
-  /* ── Main ─────────────────────────────────────────────────────────── */
+  /* ── Main ───────────────────────────────────────────────────────── */
   return (
-    <div className="flex-1 bg-[#0a0a0a]">
-      <div className="sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-neutral-800 px-4 py-3 flex items-center gap-3">
-        <button onClick={() => setCurrentView("home")} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-800 transition-colors">
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-        <h2 className="font-semibold text-white">{t("settings")}</h2>
+    <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
+
+      {/* Header — centered title, no back arrow */}
+      <div className="sticky top-0 z-10 flex items-center justify-center px-4 py-3" style={{
+        background: "rgba(0,0,0,0.85)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        borderBottom: "1px solid #1c1c1e",
+      }}>
+        <h2 className="font-semibold text-white text-base">{t("settings")}</h2>
       </div>
 
-      <div className="px-4 pt-6 pb-8 space-y-6">
+      <div className="px-4 pt-4 pb-10 space-y-5">
 
-        {/* General */}
-        <div>
-          <h3 className="text-white font-bold text-lg mb-3">{t("general")}</h3>
-          <div className="bg-neutral-900 rounded-2xl overflow-hidden divide-y divide-neutral-800">
-
-            {/* Modelo */}
-            <button onClick={() => setPage("model")}
-              className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
-              <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
-                <img src={MODEL_LOGO[selectedModel]} alt={selectedModel} className="w-full h-full object-contain"
-                  onError={e => {
-                    const el = e.currentTarget; el.style.display = "none"
-                    const p = el.parentElement
-                    if (p) { p.style.background = "#262626"; p.style.display = "flex"; p.style.alignItems = "center"; p.style.justifyContent = "center"
-                      const sp = document.createElement("span"); sp.textContent = currentModelInfo?.initial ?? "?"; sp.style.color = "white"; sp.style.fontWeight = "700"; p.appendChild(sp) }
-                  }}
-                />
+        {/* ── xBlum Pro card — hidden when isPremium ── */}
+        {!isPremium && (
+          <div className="rounded-2xl p-4" style={{ background: "#1c1c1e" }}>
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <p className="text-white font-semibold text-sm">xBlum Pro</p>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-400" style={{ background: "rgba(245,158,11,0.15)" }}>PRO</span>
+                </div>
+                <p className="text-xs" style={{ color: "#8e8e93" }}>Upgrade your plan to enjoy full features</p>
               </div>
-              <div className="flex-1 text-left">
-                <p className="font-medium text-white">{t("model")}</p>
-                <p className="text-sm text-neutral-500">{selectedModel}{isThrottled && selectedModel === "Grok 4 Mini" ? " · cooling" : ""}</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-neutral-500" />
-            </button>
-
-            {/* Idioma */}
-            <button onClick={() => setPage("lang")}
-              className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
-              <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center shrink-0">
-                <Globe className="w-5 h-5 text-blue-400" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="font-medium text-white">{t("language")}</p>
-                <p className="text-sm text-neutral-500">{LANGS.find(l => l.code === language)?.name}</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-neutral-500" />
-            </button>
-
-            {/* Preferencias */}
-            <button onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
-              className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
-              <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center shrink-0">
-                <User className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="font-medium text-white">{t("preferences")}</p>
-                <p className="text-sm text-neutral-500">{userPreferences.name || t("notSet")}</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-neutral-500" />
-            </button>
-          </div>
-        </div>
-
-        {/* Data & Information */}
-        <div>
-          <h3 className="text-white font-bold text-lg mb-3">Data &amp; Information</h3>
-          <div className="bg-neutral-900 rounded-2xl overflow-hidden divide-y divide-neutral-800">
-
-            {/* Personalize with memories */}
-            <div className="w-full flex items-center gap-4 px-4 py-4">
-              <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center shrink-0">
-                <Database className="w-5 h-5 text-purple-400" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="font-medium text-white">{t("personalizeMemories")}</p>
-                <p className="text-xs text-neutral-500 mt-0.5">
-                  {personalizeMemories ? "xBlum learns from your conversations" : "Minimal context only"}
-                </p>
-              </div>
-              <button
-                onClick={handlePersonalizeToggle}
-                disabled={saving === "personalize"}
-                className={"relative w-[51px] h-[31px] rounded-full transition-colors duration-200 " +
-                  (personalizeMemories ? "bg-white" : "bg-white/30") +
-                  (saving === "personalize" ? " opacity-50" : "")}
-              >
-                <span className={"absolute top-[2px] w-[27px] h-[27px] rounded-full bg-[#1a1a1a] shadow-md transition-transform duration-200 " +
-                  (personalizeMemories ? "left-[22px]" : "left-[2px]")} />
-              </button>
+              <Zap className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
             </div>
+            <button
+              onClick={() => setCurrentView("premium")}
+              className="w-full py-2.5 bg-white text-black font-semibold rounded-xl text-sm active:opacity-80 transition-opacity flex items-center justify-center gap-2"
+            >
+              Upgrade →
+            </button>
+          </div>
+        )}
 
-            {/* Improve the model (estático) */}
-            <div className="w-full flex items-center gap-4 px-4 py-4">
-              <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center shrink-0">
-                <Bot className="w-5 h-5 text-blue-400" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="font-medium text-white">{t("improveModel")}</p>
-              </div>
-              <button
-                onClick={() => setImproveModel(v => !v)}
-                className={"relative w-[51px] h-[31px] rounded-full transition-colors duration-200 " +
-                  (improveModel ? "bg-white" : "bg-white/30")}
-              >
-                <span className={"absolute top-[2px] w-[27px] h-[27px] rounded-full bg-[#1a1a1a] shadow-md transition-transform duration-200 " +
-                  (improveModel ? "left-[22px]" : "left-[2px]")} />
-              </button>
+        {/* ── General ── */}
+        <Section title="General">
+          <Row
+            icon={<img src={MODEL_LOGO[selectedModel]} alt={selectedModel} className="w-5 h-5 object-contain"
+              onError={e => { e.currentTarget.style.display="none"; const p=e.currentTarget.parentElement; if(p){p.style.background="#2c2c2e"; const s=document.createElement("span"); s.textContent=currentModelInfo?.initial??"?"; s.style.color="white"; s.style.fontWeight="700"; s.style.fontSize="12px"; p.appendChild(s)} }}
+            />}
+            iconBg="#2c2c2e"
+            label={t("model")}
+            sublabel={selectedModel + (isThrottled && selectedModel === "Grok 4 Mini" ? " · cooling" : "")}
+            onClick={() => setPage("model")}
+          />
+          <Divider />
+          <Row
+            icon={<Globe className="w-4 h-4 text-blue-400" />}
+            iconBg="rgba(59,130,246,0.2)"
+            label={t("language")}
+            sublabel={LANGS.find(l => l.code === language)?.name}
+            onClick={() => setPage("lang")}
+          />
+          <Divider />
+          <Row
+            icon={<User className="w-4 h-4 text-emerald-400" />}
+            iconBg="rgba(52,199,89,0.2)"
+            label={t("preferences")}
+            sublabel={userPreferences.name || t("notSet")}
+            onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
+          />
+        </Section>
+
+        {/* ── Data & Privacy ── */}
+        <Section title="Data & Privacy">
+          <div className="flex items-center gap-3 px-4" style={{ paddingTop: "10px", paddingBottom: "10px" }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(175,82,222,0.2)" }}>
+              <Database className="w-4 h-4 text-purple-400" />
             </div>
-
-            {/* Delete All Memories */}
-            <button
-              onClick={handleDeleteMemories}
-              disabled={saving === "del_mem"}
-              className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
-              <div className="flex-1 text-left pl-14">
-                <p className={"font-medium " + (saving === "del_mem" ? "text-neutral-500" : "text-red-500")}>
-                  {saving === "del_mem" ? "Deleting..." : t("deleteAllMemories")}
-                </p>
-              </div>
-            </button>
-
-            {/* Delete All History */}
-            <button
-              onClick={handleDeleteHistory}
-              disabled={saving === "del_hist"}
-              className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
-              <div className="flex-1 text-left pl-14">
-                <p className={"font-medium " + (saving === "del_hist" ? "text-neutral-500" : "text-red-500")}>
-                  {saving === "del_hist" ? "Deleting..." : t("deleteAllHistory")}
-                </p>
-              </div>
-            </button>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-medium text-white">{t("personalizeMemories")}</p>
+              <p className="text-xs mt-0.5" style={{ color: "#8e8e93" }}>
+                {personalizeMemories ? "xBlum learns from your chats" : "Minimal context only"}
+              </p>
+            </div>
+            <Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />
           </div>
-        </div>
-
-        {/* Legal & Support */}
-        <div>
-          <div className="bg-neutral-900 rounded-2xl overflow-hidden divide-y divide-neutral-800">
-
-            {/* Terms of Use */}
-            <a
-              href="https://xblum.gitbook.io/home/xblum/terms"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
-              <div className="w-10 h-10 bg-neutral-800 rounded-xl flex items-center justify-center shrink-0">
-                <FileText className="w-5 h-5 text-neutral-400" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="font-medium text-white">Terms of Use</p>
-              </div>
-              <ExternalLink className="w-5 h-5 text-neutral-500" />
-            </a>
-
-            {/* Privacy Policy */}
-            <a
-              href="https://xblum.gitbook.io/home/xblum/privacy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
-              <div className="w-10 h-10 bg-neutral-800 rounded-xl flex items-center justify-center shrink-0">
-                <Shield className="w-5 h-5 text-neutral-400" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="font-medium text-white">Privacy Policy</p>
-              </div>
-              <ExternalLink className="w-5 h-5 text-neutral-500" />
-            </a>
-
-            {/* Report a Problem */}
-            <button
-              onClick={() => setShowReportModal(true)}
-              className="w-full flex items-center gap-4 px-4 py-4 hover:bg-neutral-800 active:bg-neutral-700 transition-colors">
-              <div className="w-10 h-10 bg-neutral-800 rounded-xl flex items-center justify-center shrink-0">
-                <AlertCircle className="w-5 h-5 text-neutral-400" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="font-medium text-white">Feedback & Support</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-neutral-500" />
-            </button>
+          <Divider />
+          <div className="flex items-center gap-3 px-4" style={{ paddingTop: "10px", paddingBottom: "10px" }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(59,130,246,0.2)" }}>
+              <Bot className="w-4 h-4 text-blue-400" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-medium text-white">{t("improveModel")}</p>
+            </div>
+            <Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />
           </div>
-        </div>
+          <Divider />
+          <Row
+            icon={<span className="text-xs">🗑</span>}
+            iconBg="rgba(255,59,48,0.15)"
+            label={saving === "del_mem" ? "Deleting..." : t("deleteAllMemories")}
+            onClick={handleDeleteMemories}
+            danger
+            right={<span />}
+          />
+          <Divider />
+          <Row
+            icon={<span className="text-xs">🗑</span>}
+            iconBg="rgba(255,59,48,0.15)"
+            label={saving === "del_hist" ? "Deleting..." : t("deleteAllHistory")}
+            onClick={handleDeleteHistory}
+            danger
+            right={<span />}
+          />
+        </Section>
+
+        {/* ── Legal & Support ── */}
+        <Section title="Support">
+          <a href="https://xblum.gitbook.io/home/xblum/terms" target="_blank" rel="noopener noreferrer"
+            className="w-full flex items-center gap-3 px-4 active:opacity-60 transition-opacity" style={{ paddingTop: "10px", paddingBottom: "10px" }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#2c2c2e" }}>
+              <FileText className="w-4 h-4" style={{ color: "#8e8e93" }} />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-medium text-white">Terms of Use</p>
+            </div>
+            <ExternalLink className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
+          </a>
+          <Divider />
+          <a href="https://xblum.gitbook.io/home/xblum/privacy" target="_blank" rel="noopener noreferrer"
+            className="w-full flex items-center gap-3 px-4 active:opacity-60 transition-opacity" style={{ paddingTop: "10px", paddingBottom: "10px" }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "#2c2c2e" }}>
+              <Shield className="w-4 h-4" style={{ color: "#8e8e93" }} />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-medium text-white">Privacy Policy</p>
+            </div>
+            <ExternalLink className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
+          </a>
+          <Divider />
+          <Row
+            icon={<AlertCircle className="w-4 h-4" style={{ color: "#8e8e93" }} />}
+            iconBg="#2c2c2e"
+            label="Feedback & Support"
+            onClick={() => setShowReportModal(true)}
+          />
+        </Section>
 
       </div>
 
-      {/* Report / Feedback Modal */}
+      {/* ── Feedback Modal ── */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-
-          {/* Modal Content */}
-          <div className="relative w-full bg-[#1a1a1a] rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[90vh] flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-4 border-b border-neutral-800">
-              <button
-                onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
-                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-800 transition-colors"
-              >
-                <X className="w-5 h-5 text-white" />
+          <div className="relative w-full rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[90vh] flex flex-col" style={{ background: "#1c1c1e" }}>
+            <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid #2c2c2e" }}>
+              <button onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
+                className="w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity" style={{ background: "#2c2c2e" }}>
+                <X className="w-4 h-4 text-white" />
               </button>
-              <h2 className="font-semibold text-white text-lg">Feedback & Support</h2>
+              <h2 className="font-semibold text-white text-base">Feedback & Support</h2>
               {reportSent ? (
-                <div className="px-4 py-2 rounded-full text-emerald-400 font-medium text-sm">Sent ✓</div>
+                <div className="px-3 py-1 rounded-full text-emerald-400 font-medium text-xs">Sent ✓</div>
               ) : (
                 <button
                   onClick={async () => {
@@ -449,99 +478,68 @@ export function SettingsView() {
                     setSubmittingReport(false)
                     if (ok) {
                       setReportSent(true)
-                      setTimeout(() => {
-                        setShowReportModal(false)
-                        setReportSent(false)
-                        setReportDescription("")
-                        setReportType("General feedback")
-                      }, 1800)
+                      setTimeout(() => { setShowReportModal(false); setReportSent(false); setReportDescription(""); setReportType("General feedback") }, 1800)
                     } else {
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       ;(window as any).Telegram?.WebApp?.showAlert("Could not send. Please try again.")
                     }
                   }}
                   disabled={!reportDescription.trim() || submittingReport}
-                  className="px-4 py-2 bg-blue-500 disabled:bg-neutral-700 rounded-full text-white font-medium text-sm hover:bg-blue-600 transition-colors disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 bg-blue-500 disabled:opacity-40 rounded-full text-white font-medium text-xs active:opacity-80 transition-opacity"
                 >
                   {submittingReport ? "Sending..." : "Submit"}
                 </button>
               )}
             </div>
-
-            {/* Content */}
-            <div className="p-4 space-y-4 overflow-y-auto flex-1">
-
+            <div className="p-4 space-y-3 overflow-y-auto flex-1">
               {reportSent ? (
                 <div className="flex flex-col items-center py-8 gap-3">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                    <span className="text-3xl">✅</span>
+                  <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "rgba(52,199,89,0.2)" }}>
+                    <span className="text-2xl">✅</span>
                   </div>
-                  <p className="text-white font-semibold text-lg">Thank you!</p>
-                  <p className="text-neutral-400 text-sm text-center">
-                    Your feedback has been received. We'll review it shortly.
-                  </p>
+                  <p className="text-white font-semibold">Thank you!</p>
+                  <p className="text-sm text-center" style={{ color: "#8e8e93" }}>Your feedback has been received. We'll review it shortly.</p>
                 </div>
               ) : (
                 <>
-                  {/* Feedback Type Dropdown */}
                   <div className="relative">
-                    <button
-                      onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
-                      className="w-full flex items-center gap-3 px-4 py-3 bg-neutral-800/50 rounded-xl border border-neutral-700"
-                    >
-                      <MessageSquare className="w-5 h-5 text-neutral-400" />
-                      <span className="flex-1 text-left text-white">{reportType}</span>
-                      <ChevronDown className={"w-5 h-5 text-neutral-400 transition-transform " + (showReportTypeDropdown ? "rotate-180" : "")} />
+                    <button onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: "#2c2c2e" }}>
+                      <MessageSquare className="w-4 h-4" style={{ color: "#8e8e93" }} />
+                      <span className="flex-1 text-left text-white text-sm">{reportType}</span>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${showReportTypeDropdown ? "rotate-180" : ""}`} style={{ color: "#8e8e93" }} />
                     </button>
-
                     {showReportTypeDropdown && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-neutral-800 rounded-xl border border-neutral-700 overflow-hidden z-10">
-                        {["General feedback", "Bug report", "Feature request", "Performance issue", "Support request", "Other"].map(type => (
-                          <button
-                            key={type}
-                            onClick={() => {
-                              setReportType(type)
-                              setShowReportTypeDropdown(false)
-                            }}
-                            className={"w-full px-4 py-3 text-left hover:bg-neutral-700 transition-colors " +
-                              (reportType === type ? "text-blue-400 bg-neutral-700/50" : "text-white")}
-                          >
+                      <div className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-hidden z-10" style={{ background: "#2c2c2e" }}>
+                        {["General feedback","Bug report","Feature request","Performance issue","Support request","Other"].map(type => (
+                          <button key={type} onClick={() => { setReportType(type); setShowReportTypeDropdown(false) }}
+                            className={`w-full px-4 py-2.5 text-left text-sm active:opacity-60 transition-opacity ${reportType === type ? "text-blue-400" : "text-white"}`}>
                             {type}
                           </button>
                         ))}
                       </div>
                     )}
                   </div>
-
-                  {/* Description Textarea */}
-                  <textarea
-                    value={reportDescription}
-                    onChange={(e) => setReportDescription(e.target.value)}
+                  <textarea value={reportDescription} onChange={e => setReportDescription(e.target.value)}
                     placeholder={
-                      reportType === "Bug report" ? "Describe what went wrong and how to reproduce it..." :
-                      reportType === "Feature request" ? "Describe the feature you'd like to see..." :
-                      reportType === "Support request" ? "Describe what you need help with..." :
-                      "Share your thoughts, ideas or issues..."
+                      reportType === "Bug report" ? "Describe what went wrong..." :
+                      reportType === "Feature request" ? "Describe the feature you'd like..." :
+                      "Share your thoughts or issues..."
                     }
-                    className="w-full min-h-[160px] p-4 bg-transparent rounded-2xl border border-neutral-700 text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:border-transparent resize-none"
+                    className="w-full min-h-[140px] p-4 rounded-2xl text-white text-sm placeholder:text-[#48484a] focus:outline-none focus:ring-2 focus:ring-neutral-600 resize-none"
+                    style={{ background: "transparent", border: "1px solid #2c2c2e" }}
                   />
-
-                  {/* Attach Images Button */}
-                  <button className="flex items-center gap-2 px-4 py-2.5 bg-neutral-800 rounded-xl text-neutral-300 hover:bg-neutral-700 transition-colors">
-                    <ImagePlus className="w-5 h-5" />
-                    <span className="text-sm font-medium">Attach images</span>
+                  <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm active:opacity-60 transition-opacity" style={{ background: "#2c2c2e", color: "#aeaeb2" }}>
+                    <ImagePlus className="w-4 h-4" />
+                    <span className="font-medium">Attach images</span>
                   </button>
-
-                  {/* Support note */}
-                  <p className="text-neutral-600 text-xs text-center px-4">
-                    Feedback is sent directly to the xBlum team. For urgent issues, contact support via Telegram.
+                  <p className="text-xs text-center px-4" style={{ color: "#48484a" }}>
+                    Feedback is sent directly to the xBlum team.
                   </p>
                 </>
               )}
             </div>
-
-            {/* Bottom safe area */}
-            <div className="h-8 bg-[#1a1a1a]" />
+            <div className="h-6" style={{ background: "#1c1c1e" }} />
           </div>
         </div>
       )}
