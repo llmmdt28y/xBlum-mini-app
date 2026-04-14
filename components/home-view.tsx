@@ -67,7 +67,7 @@ export function HomeView() {
   const showThrottle = isThrottled && selectedModel === "Grok 4 Mini"
 
   return (
-    <div className="flex-1 flex flex-col items-center px-4 pb-8 bg-black">
+    <div className="flex-1 flex flex-col items-center px-4 pb-28 bg-black">
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
 
         {/* ── Hero Header ─────────────────────────────────────────────── */}
@@ -217,7 +217,7 @@ export function HomeView() {
             <div className="relative shrink-0" style={{ width: "120px", height: "96px" }}>
 
               {/* TOP-RIGHT — small, partially clipped at top, tilted right */}
-              <img src="/ton-coin.png" alt="" className="absolute" style={{
+              <img src="/xblum-coin.png" alt="" className="absolute" style={{
                 width: "46px", height: "46px",
                 top: "-10px", right: "4px",
                 opacity: 0.55,
@@ -226,7 +226,7 @@ export function HomeView() {
               }} />
 
               {/* CENTER-LEFT — largest coin, slightly tilted left, main focal point */}
-              <img src="/ton-coin.png" alt="" className="absolute" style={{
+              <img src="/xblum-coin.png" alt="" className="absolute" style={{
                 width: "68px", height: "68px",
                 top: "50%", left: "0px",
                 transform: "translateY(-50%) rotate(-18deg)",
@@ -235,7 +235,7 @@ export function HomeView() {
               }} />
 
               {/* BOTTOM-RIGHT — small, below and right of center, slight tilt */}
-              <img src="/ton-coin.png" alt="" className="absolute" style={{
+              <img src="/xblum-coin.png" alt="" className="absolute" style={{
                 width: "44px", height: "44px",
                 bottom: "2px", right: "6px",
                 opacity: 0.6,
