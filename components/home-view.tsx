@@ -172,39 +172,69 @@ export function HomeView() {
         {/* ── Referral Banner ─────────────────────────────────────────── */}
         <button
           onClick={() => setCurrentView("referral")}
-          className="w-full relative overflow-hidden rounded-2xl active:opacity-80 transition-opacity text-left"
-          style={{ background: "#111111", border: "1px solid #222222", minHeight: "90px" }}
+          className="w-full relative overflow-hidden active:opacity-80 transition-opacity text-left"
+          style={{
+            background: "#080808",
+            border: "1px solid #1a1a1a",
+            borderRadius: "24px",
+            minHeight: "100px",
+          }}
         >
-          {/* Subtle radial glow on left */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: "radial-gradient(ellipse at 20% 50%, rgba(255,255,255,0.04) 0%, transparent 70%)"
-            }}
-          />
+          {/* Subtle dark radial glow left */}
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: "radial-gradient(ellipse at 15% 50%, rgba(255,255,255,0.035) 0%, transparent 65%)"
+          }} />
 
-          {/* Left: text + button */}
-          <div className="relative z-10 flex items-center justify-between h-full px-5 py-4">
-            <div className="flex flex-col gap-3">
-              <p className="text-white font-semibold text-base leading-snug max-w-[180px]">
+          {/* Stars decoration - top right area behind duck */}
+          <div className="absolute pointer-events-none" style={{ top: "10px", right: "90px" }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white" opacity="0.9">
+              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+            </svg>
+          </div>
+          <div className="absolute pointer-events-none" style={{ top: "32px", right: "68px" }}>
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="white" opacity="0.6">
+              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+            </svg>
+          </div>
+          <div className="absolute pointer-events-none" style={{ top: "58px", right: "85px" }}>
+            <svg width="6" height="6" viewBox="0 0 24 24" fill="white" opacity="0.45">
+              <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+            </svg>
+          </div>
+
+          {/* Content */}
+          <div className="relative z-10 flex items-center justify-between h-full px-5 py-5">
+            {/* Left: text + liquid glass button */}
+            <div className="flex flex-col gap-3.5">
+              <p className="text-white font-semibold text-[15px] leading-snug">
                 Invite a Friend &<br />Get Free Tokens
               </p>
+
+              {/* Liquid glass button */}
               <div
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full w-fit"
-                style={{ background: "#1c1c1e", border: "1px solid #333333" }}
+                className="flex items-center gap-1 px-4 py-2 rounded-full w-fit relative overflow-hidden"
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  backdropFilter: "blur(12px)",
+                  WebkitBackdropFilter: "blur(12px)",
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.15), 0 1px 3px rgba(0,0,0,0.4)",
+                }}
               >
-                <span className="text-white text-xs font-medium">share invite</span>
-                <span className="text-white text-xs">›</span>
+                {/* Inner top highlight */}
+                <div className="absolute inset-x-0 top-0 h-px rounded-full" style={{ background: "rgba(255,255,255,0.25)" }} />
+                <span className="text-white text-xs font-medium relative z-10">share invite</span>
+                <span className="text-white text-xs relative z-10 opacity-70">›</span>
               </div>
             </div>
 
-            {/* Right: referral image */}
-            <div className="relative w-24 h-20 shrink-0">
+            {/* Right: referral duck image */}
+            <div className="relative shrink-0" style={{ width: "88px", height: "88px" }}>
               <img
                 src="/referral-icon.webp"
                 alt="Invite a friend"
-                className="absolute bottom-0 right-0 w-24 h-24 object-contain"
-                style={{ transform: "scale(1.15)", transformOrigin: "bottom right" }}
+                className="absolute bottom-0 right-0 object-contain"
+                style={{ width: "96px", height: "96px", transform: "scale(1.1)", transformOrigin: "bottom right" }}
               />
             </div>
           </div>
