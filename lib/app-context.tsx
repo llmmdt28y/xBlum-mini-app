@@ -7,7 +7,7 @@ import {
 
 export type Language  = "en" | "ru" | "es"
 export type ModelName = "Grok 4" | "Grok 4 Mini" | "GPT-5.4" | "GPT-5.2"
-export type View      = "home" | "settings" | "store" | "premium" | "referral"
+export type View      = "home" | "settings" | "store" | "premium" | "referral" | "analytics"
 
 export type UserPreferences = {
   name: string; age: string; location: string; preferences: string
