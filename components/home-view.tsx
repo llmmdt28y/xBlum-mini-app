@@ -1,7 +1,7 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { Send, Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles } from "lucide-react"
+import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles } from "lucide-react"
 import { useState, useRef } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
@@ -67,18 +67,15 @@ export function HomeView() {
   const showThrottle = isThrottled && selectedModel === "Grok 4 Mini"
 
   return (
-    <div className="flex-1 flex flex-col items-center px-4 pt-4 pb-8 bg-black">
-      <div className="flex flex-col items-center gap-6 w-full max-w-md">
+    <div className="flex-1 flex flex-col items-center px-4 pb-8 bg-black">
+      <div className="flex flex-col items-center gap-5 w-full max-w-md">
 
-        {/* ── Title ───────────────────────────────────────────────────── */}
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white">{t("howCanIHelp")}</h1>
-          <button
-            onClick={() => setCurrentView("settings")}
-            className="text-xs text-neutral-500 mt-2 hover:text-neutral-400 transition-colors"
-          >
-            {t("poweredBy")} <span className="font-medium text-neutral-400">{selectedModel}</span>
-          </button>
+        {/* ── Hero Header ─────────────────────────────────────────────── */}
+        <div className="w-full pt-6 pb-2">
+          <p className="text-neutral-500 text-sm font-medium mb-1">{t("poweredBy")} <button onClick={() => setCurrentView("settings")} className="text-neutral-400 hover:text-neutral-300 transition-colors font-semibold">{selectedModel}</button></p>
+          <h1 className="text-4xl font-bold text-white leading-tight tracking-tight">
+            {t("howCanIHelp")}
+          </h1>
         </div>
 
         {/* ── Throttle warning ────────────────────────────────────────── */}
@@ -121,7 +118,7 @@ export function HomeView() {
               onChange={e => setMessage(e.target.value)}
               onKeyDown={handleKey}
               placeholder={t("typeMessage")}
-              className="w-full pl-5 pr-14 py-4 bg-neutral-900 border border-neutral-700 rounded-2xl text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+              className="w-full pl-5 pr-14 py-4 bg-neutral-900 border border-neutral-800 rounded-2xl text-white placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:border-transparent transition-all text-sm"
             />
             <button
               onClick={handleSend}
@@ -129,51 +126,42 @@ export function HomeView() {
               className={
                 "absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl flex items-center justify-center transition-all " +
                 (message.trim() && !sending
-                  ? "bg-neutral-700 text-white hover:bg-neutral-600 active:bg-neutral-500"
+                  ? "bg-white text-black hover:bg-neutral-200 active:bg-neutral-300"
                   : "bg-neutral-800 text-neutral-600 cursor-not-allowed")
               }
             >
               {sending ? (
                 <span className="w-4 h-4 border-2 border-neutral-500 border-t-neutral-300 rounded-full animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <ArrowUp className="w-4 h-4" />
               )}
             </button>
           </div>
         </div>
 
         {/* ── Action Buttons ──────────────────────────────────────────── */}
-        <div className="w-full flex flex-wrap justify-center gap-3">
+        <div className="w-full flex flex-wrap justify-start gap-2">
           <button
             onClick={handleCreateImage}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-700 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+            className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900 border border-neutral-800 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
           >
-            <Image className="w-4 h-4 text-neutral-400" />
-            <span className="text-sm">{t("createImage")}</span>
+            <Image className="w-3.5 h-3.5 text-neutral-400" />
+            <span className="text-xs font-medium">{t("createImage")}</span>
           </button>
           <button
             onClick={handleGetTokens}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-700 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+            className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900 border border-neutral-800 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
           >
-            <Coins className="w-4 h-4 text-neutral-400" />
-            <span className="text-sm">{t("getTokens")}</span>
+            <Coins className="w-3.5 h-3.5 text-neutral-400" />
+            <span className="text-xs font-medium">{t("getTokens")}</span>
           </button>
           <button
             onClick={handleAddToChat}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-700 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
+            className="flex items-center gap-2 px-3.5 py-2 bg-neutral-900 border border-neutral-800 rounded-full text-white hover:bg-neutral-800 active:bg-neutral-700 transition-colors"
           >
-            <MessageCircle className="w-4 h-4 text-neutral-400" />
-            <span className="text-sm">{t("addToChat")}</span>
+            <MessageCircle className="w-3.5 h-3.5 text-neutral-400" />
+            <span className="text-xs font-medium">{t("addToChat")}</span>
           </button>
-        </div>
-
-        {/* ── Telegram Banner ───────────────────────────────────────────── */}
-        <div className="w-full flex justify-center -mt-2 overflow-visible">
-          <img
-            src="/telegram-banner.png"
-            alt="Chat xBlum in Telegram"
-            className="w-[120%] h-auto rounded-2xl"
-          />
         </div>
 
         {/* ── Explore Section ─────────────────────────────────────────── */}
