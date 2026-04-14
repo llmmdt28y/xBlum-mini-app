@@ -135,39 +135,80 @@ export function HomeView() {
               {sending ? (
                 <span className="w-4 h-4 border-2 border-[#48484a] border-t-neutral-300 rounded-full animate-spin" />
               ) : (
-                <ArrowUp className="w-4 h-4" />
+                <ArrowUp className="w-5 h-5" />
               )}
             </button>
           </div>
         </div>
 
         {/* ── Action Buttons ──────────────────────────────────────────── */}
-        <div className="w-full flex flex-wrap justify-start gap-2">
+        <div className="w-full flex flex-nowrap justify-start gap-2">
           <button
             onClick={handleCreateImage}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-white active:opacity-70 transition-opacity"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
             style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
           >
-            <Image className="w-3.5 h-3.5" style={{ color: "#8e8e93" }} />
+            <Image className="w-3.5 h-3.5 shrink-0" style={{ color: "#8e8e93" }} />
             <span className="text-xs font-medium">{t("createImage")}</span>
           </button>
           <button
             onClick={handleGetTokens}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-white active:opacity-70 transition-opacity"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
             style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
           >
-            <Coins className="w-3.5 h-3.5" style={{ color: "#8e8e93" }} />
+            <Coins className="w-3.5 h-3.5 shrink-0" style={{ color: "#8e8e93" }} />
             <span className="text-xs font-medium">{t("getTokens")}</span>
           </button>
           <button
             onClick={handleAddToChat}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-white active:opacity-70 transition-opacity"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
             style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
           >
-            <MessageCircle className="w-3.5 h-3.5" style={{ color: "#8e8e93" }} />
+            <MessageCircle className="w-3.5 h-3.5 shrink-0" style={{ color: "#8e8e93" }} />
             <span className="text-xs font-medium">{t("addToChat")}</span>
           </button>
         </div>
+
+        {/* ── Referral Banner ─────────────────────────────────────────── */}
+        <button
+          onClick={() => setCurrentView("referral")}
+          className="w-full relative overflow-hidden rounded-2xl active:opacity-80 transition-opacity text-left"
+          style={{ background: "#111111", border: "1px solid #222222", minHeight: "90px" }}
+        >
+          {/* Subtle radial glow on left */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse at 20% 50%, rgba(255,255,255,0.04) 0%, transparent 70%)"
+            }}
+          />
+
+          {/* Left: text + button */}
+          <div className="relative z-10 flex items-center justify-between h-full px-5 py-4">
+            <div className="flex flex-col gap-3">
+              <p className="text-white font-semibold text-base leading-snug max-w-[180px]">
+                Invite a Friend &<br />Get Free Tokens
+              </p>
+              <div
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full w-fit"
+                style={{ background: "#1c1c1e", border: "1px solid #333333" }}
+              >
+                <span className="text-white text-xs font-medium">share invite</span>
+                <span className="text-white text-xs">›</span>
+              </div>
+            </div>
+
+            {/* Right: referral image */}
+            <div className="relative w-24 h-20 shrink-0">
+              <img
+                src="/referral-icon.webp"
+                alt="Invite a friend"
+                className="absolute bottom-0 right-0 w-24 h-24 object-contain"
+                style={{ transform: "scale(1.15)", transformOrigin: "bottom right" }}
+              />
+            </div>
+          </div>
+        </button>
 
         {/* ── Explore Section ─────────────────────────────────────────── */}
         <div className="w-full mt-4">
