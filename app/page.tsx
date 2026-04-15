@@ -9,8 +9,8 @@ import { PremiumView } from "@/components/premium-view"
 import { ReferralView } from "@/components/referral-view"
 import { ProfileView } from "@/components/profile-view"
 import { useEffect, useState } from "react"
-// Importamos iconos más modernos y limpios
-import { Sparkles, Coins, Activity, CircleUser } from "lucide-react"
+// Importamos los iconos actualizados
+import { Home, Coins, Activity, CircleUser } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = { id: number; first_name?: string; last_name?: string; username?: string; photo_url?: string }
@@ -37,7 +37,7 @@ function NavBar() {
 
   type Tab = { id: string; label: string; icon: any; disabled?: boolean }
   const tabs: Tab[] = [
-    { id: "home",      label: "AI",        icon: Sparkles },
+    { id: "home",      label: "Home",      icon: Home },
     { id: "store",     label: "Store",     icon: Coins },
     { id: "analytics", label: "Analytics", icon: Activity, disabled: true },
     { id: "profile",   label: "Profile",   icon: CircleUser },
@@ -62,7 +62,6 @@ function NavBar() {
           borderRadius: "100px",
           padding: "6px",
           gap: "4px",
-          /* Liquid glass background más profundo */
           background: "rgba(15, 15, 15, 0.75)",
           backdropFilter: "blur(40px) saturate(200%) brightness(1.1)",
           WebkitBackdropFilter: "blur(40px) saturate(200%) brightness(1.1)",
@@ -84,7 +83,7 @@ function NavBar() {
               style={{
                 opacity: isDisabled ? 0.25 : 1,
                 pointerEvents: isDisabled ? "none" : "auto",
-                minWidth: isActive ? "100px" : "56px",
+                minWidth: isActive ? "105px" : "56px",
                 height: "48px",
               }}
             >
@@ -116,14 +115,14 @@ function NavBar() {
                   </span>
                 </div>
               ) : (
-                /* ESTADO INACTIVO: Iconos grises, foto sin opacidad */
+                /* ESTADO INACTIVO: Iconos grises, foto siempre nítida */
                 <div className="flex flex-col items-center justify-center">
                   {tab.id === "profile" && photoUrl ? (
                     <img 
                       src={photoUrl} 
                       alt="" 
                       className="w-6 h-6 rounded-full object-cover" 
-                      style={{ opacity: 1 }} // Foto siempre nítida como pediste
+                      style={{ opacity: 1 }}
                     />
                   ) : (
                     <Icon size={22} color="rgba(255,255,255,0.45)" strokeWidth={1.8} />
