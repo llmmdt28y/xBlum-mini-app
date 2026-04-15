@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { ChevronRight, Gift, Users, Shield, Zap, Trophy, Medal } from "lucide-react"
+import { ChevronRight, Gift, Users, Shield, Zap, Trophy, Medal, Settings } from "lucide-react" // Se agregó 'Settings'
 
 // ── Telegram user helper ─────────────────────────────────────────────
 type TgUser = {
@@ -94,7 +94,7 @@ function LeaderboardView({ currentUser }: { currentUser: string }) {
       <div
         className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
         style={{
-          paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)", // Se adapta a la barra superior nativa
+          paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)", 
           background: "rgba(0,0,0,0.92)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
@@ -355,7 +355,6 @@ export function ProfileView() {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
     
-    // Mostramos la flecha nativa de Telegram
     tg.BackButton.show()
 
     const handleBack = () => {
@@ -385,13 +384,13 @@ export function ProfileView() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
+    <div className="flex-1 overflow-y-auto relative" style={{ background: "#000" }}>
 
-      {/* Header Profile */}
+      {/* Header Profile con ícono de Settings */}
       <div
         className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
         style={{
-          paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)", // Se adapta a la barra superior nativa
+          paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)", 
           background: "rgba(0,0,0,0.92)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
@@ -403,6 +402,15 @@ export function ProfileView() {
         >
           Profile
         </h2>
+        
+        {/* Ícono de Configuración superior derecha */}
+        <button 
+          onClick={() => setCurrentView("settings")}
+          className="absolute right-4 active:opacity-60 transition-opacity"
+          style={{ bottom: "10px" }}
+        >
+          <Settings className="w-[22px] h-[22px] text-white" />
+        </button>
       </div>
 
       <div className="px-4 pt-6 pb-28 space-y-6">
