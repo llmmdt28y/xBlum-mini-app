@@ -2,8 +2,9 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Tv, Users, MessageCirclePlus, Camera, Forward } from "lucide-react"
+import { Tv, Users, MessageCirclePlus, Camera, Forward, Loader2 } from "lucide-react"
 
+// ── Tipografía ────────────────────────────────────────────────────────
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
@@ -40,7 +41,6 @@ const REWARDS = {
   SHARE: 250,
 }
 
-// ── Componente auxiliar para mostrar el balance con el icono oficial ──
 function RewardBadge({ amount, className = "" }: { amount: number, className?: string }) {
   return (
     <div className={`flex items-center gap-1 ${className}`}>
@@ -51,8 +51,13 @@ function RewardBadge({ amount, className = "" }: { amount: number, className?: s
 }
 
 export function StoreView() {
-  const { setCurrentView, isPremium, referralLink, claimMissionTokens } = useApp()
+  const { setCurrentView, referralLink, claimMissionTokens } = useApp()
+  
+  // Estado persistente de misiones completadas
   const [state, setState] = useState<MissionsState>(DEFAULT_STATE)
+  
+  // Estado temporal para el flujo "Start -> Check -> Verifying -> Done"
+  const [pendingTasks, setPendingTasks] = useState<Record<string, "started" | "verifying">>({})
   const [loadingAction, setLoadingAction] = useState<string | null>(null)
 
   const BOT = process.env.NEXT_PUBLIC_BOT_USERNAME ?? "xBlumAI"
@@ -63,6 +68,7 @@ export function StoreView() {
       const stored = JSON.parse(localStorage.getItem("xblum-earn-state") || "{}")
       const today = new Date().toISOString().split('T')[0]
       const loadedState = { ...DEFAULT_STATE, ...stored }
+      
       if (loadedState.lastAdDate !== today) {
         loadedState.adCount = 0
         loadedState.lastAdDate = today
@@ -78,134 +84,218 @@ export function StoreView() {
 
   const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
 
-  const handleAction = async (action: string) => {
-    if (loadingAction) return
-    setLoadingAction(action)
-    try {
-      if (action === "invite") {
-        const shareText = "Try xBlum AI on Telegram — earn $X and chat for free!"
-        const link = referralLink || `https://t.me/${BOT}?start=ref`
-        tg?.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`)
-      } else if (action === "ads") {
-        if (state.adCount >= 3) return
-        await new Promise(res => setTimeout(res, 2000)) 
-        saveState({ ...state, adCount: state.adCount + 1 })
-        claimMissionTokens("ad", REWARDS.AD)
-        tg?.showAlert(`+${REWARDS.AD} $X earned!`)
-      } else if (action === "channel") {
-        tg?.openTelegramLink(`https://t.me/${CHANNEL}`)
-        await new Promise(res => setTimeout(res, 3000))
-        saveState({ ...state, joinedChannel: true })
-        claimMissionTokens("channel", REWARDS.CHANNEL)
-      } else if (action === "addChat") {
-        if (state.addChatCount >= 2) return
-        tg?.openTelegramLink(`https://t.me/${BOT}?startgroup=true`)
-        await new Promise(res => setTimeout(res, 2000))
-        saveState({ ...state, addChatCount: state.addChatCount + 1 })
-        claimMissionTokens("addChat", REWARDS.ADD_CHAT)
-      } else if (action === "story") {
+  // ── Lógica de Verificación Simulada ──
+  const handleAction = async (id: string, actionType: "invite" | "ads" | "channel" | "addChat" | "story" | "shareFriend") => {
+    
+    // 1. Misiones de Acción Directa (No requieren Check)
+    if (actionType === "invite") {
+      const shareText = "Try xBlum AI on Telegram — earn $X and chat for free!"
+      const link = referralLink || `https://t.me/${BOT}?start=ref`
+      tg?.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`)
+      return
+    }
+    
+    if (actionType === "ads") {
+      if (state.adCount >= 3 || loadingAction === "ads") return
+      setLoadingAction("ads")
+      // Simula ver un anuncio (Aquí iría la llamada a Adsgram)
+      await new Promise(res => setTimeout(res, 2000)) 
+      saveState({ ...state, adCount: state.adCount + 1 })
+      claimMissionTokens("ad", REWARDS.AD)
+      tg?.showAlert(`+${REWARDS.AD} $X earned!`)
+      setLoadingAction(null)
+      return
+    }
+
+    // 2. Misiones de 2 Pasos (Start -> Check)
+    const taskStatus = pendingTasks[id]
+
+    if (!taskStatus) {
+      // PASO 1: START
+      if (actionType === "channel") tg?.openTelegramLink(`https://t.me/${CHANNEL}`)
+      if (actionType === "addChat") tg?.openTelegramLink(`https://t.me/${BOT}?startgroup=true`)
+      if (actionType === "shareFriend") {
+        const link = `https://t.me/${BOT}`
+        tg?.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=Check out xBlum AI!`)
+      }
+      if (actionType === "story") {
         if (tg?.shareToStory) {
           tg.shareToStory("https://xblum.vercel.app/story-bg.jpg", {
             text: "Join me on xBlum AI and earn $X! 🚀",
             widget_link: { url: `https://t.me/${BOT}`, name: "Open xBlum" }
           })
-          await new Promise(res => setTimeout(res, 2000))
-          saveState({ ...state, storyShared: true })
-          claimMissionTokens("story", REWARDS.STORY)
         } else {
-          tg?.showAlert("Stories not supported.")
+          tg?.showAlert("Stories not supported on this version of Telegram.")
+          return // Salimos si no soporta stories
         }
-      } else if (action === "shareFriend") {
-        const link = `https://t.me/${BOT}`
-        tg?.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=Check out xBlum AI!`)
-        await new Promise(res => setTimeout(res, 2000))
-        saveState({ ...state, friendShared: true })
-        claimMissionTokens("share", REWARDS.SHARE)
       }
-    } catch (e) { console.error(e) } finally { setLoadingAction(null) }
+      
+      // Marcamos la tarea como iniciada para mostrar el botón "Check"
+      setPendingTasks(prev => ({ ...prev, [id]: "started" }))
+      
+    } else if (taskStatus === "started") {
+      // PASO 2: CHECK (Verificando en Backend)
+      setPendingTasks(prev => ({ ...prev, [id]: "verifying" }))
+      
+      // Simulación de llamada a tu API para verificar (2 segundos)
+      await new Promise(res => setTimeout(res, 2000))
+      
+      // Actualizamos el estado general como completado
+      const newState = { ...state }
+      if (actionType === "channel") { newState.joinedChannel = true; claimMissionTokens("channel", REWARDS.CHANNEL) }
+      if (actionType === "story") { newState.storyShared = true; claimMissionTokens("story", REWARDS.STORY) }
+      if (actionType === "shareFriend") { newState.friendShared = true; claimMissionTokens("share", REWARDS.SHARE) }
+      if (actionType === "addChat") { 
+        newState.addChatCount += 1
+        claimMissionTokens("addChat", REWARDS.ADD_CHAT) 
+        // Si aún le falta otra vez, reiniciamos el pending task
+        if (newState.addChatCount < 2) {
+          setPendingTasks(prev => { const next = {...prev}; delete next[id]; return next })
+          saveState(newState)
+          return
+        }
+      }
+      
+      saveState(newState)
+    }
   }
 
-  const GridCard = ({ id, title, reward, progress, max, isDone, emoji }: any) => (
-    <div className="flex-1 bg-[#111] border border-[#1c1c1e] rounded-[24px] p-4 relative overflow-hidden flex flex-col h-[150px]">
-      <div className="absolute -bottom-4 -right-4 text-7xl opacity-[0.12] select-none pointer-events-none grayscale">{emoji}</div>
-      <div className="relative z-10">
-        <p className="text-white font-bold text-[15px] leading-tight" style={{ fontFamily: SFD }}>{title}</p>
-        <RewardBadge amount={reward} className="mt-1" />
-      </div>
-      <div className="relative z-10 mt-auto flex items-center justify-between">
-        <span className="text-[#636366] font-bold text-xs">{progress !== undefined ? `${progress}/${max}` : "∞"}</span>
-        <button 
-          onClick={() => handleAction(id)}
-          disabled={isDone || loadingAction === id}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${isDone ? "bg-[#1c1c1e] text-[#636366]" : "bg-white text-black"}`}
-        >
-          {loadingAction === id ? "..." : isDone ? "Done" : "Start"}
-        </button>
-      </div>
-    </div>
-  )
+  // ── Renderizado del botón dinámico (Start / Check / Verifying / Claimed) ──
+  const getButtonUI = (id: string, isDone: boolean, defaultText = "Start") => {
+    if (isDone) return { text: "Claimed", bg: "bg-transparent text-[#636366]", disabled: true }
+    
+    const status = pendingTasks[id]
+    if (status === "verifying") return { text: <Loader2 className="w-4 h-4 animate-spin text-black" />, bg: "bg-white", disabled: true }
+    if (status === "started") return { text: "Check", bg: "bg-[#34c759] text-white", disabled: false } // Verde para Check
+    
+    // Ads loading state
+    if (loadingAction === "ads" && id === "ads") return { text: <Loader2 className="w-4 h-4 animate-spin text-black" />, bg: "bg-white", disabled: true }
 
-  const ListItem = ({ id, title, reward, icon: Icon, isDone, isMulti, progress, max }: any) => (
-    <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e] last:border-0 bg-[#111]">
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-          <Icon className="w-5 h-5 text-white" />
+    return { text: defaultText, bg: "bg-white text-black", disabled: false }
+  }
+
+  const GridCard = ({ id, title, reward, progress, max, isDone, emoji, actionType }: any) => {
+    const btn = getButtonUI(id, isDone, id === "invite" ? "Invite" : "Watch")
+    return (
+      <div className="flex-1 bg-[#111] border border-[#1c1c1e] rounded-[24px] p-4 relative overflow-hidden flex flex-col h-[150px]">
+        <div className="absolute -bottom-4 -right-4 text-7xl opacity-[0.12] select-none pointer-events-none grayscale">{emoji}</div>
+        <div className="relative z-10">
+          <p className="text-white font-bold text-[15px] leading-tight" style={{ fontFamily: SFD }}>{title}</p>
+          <RewardBadge amount={reward} className="mt-1" />
         </div>
-        <div>
-          <p className="text-white font-medium text-sm">{title}</p>
-          <div className="flex items-center gap-2 mt-0.5">
-            <RewardBadge amount={reward} />
-            {isMulti && <span className="text-[#636366] text-xs font-medium">· {progress}/{max}</span>}
+        <div className="relative z-10 mt-auto flex items-center justify-between">
+          <span className="text-[#636366] font-bold text-xs">{progress !== undefined ? `${progress}/${max}` : "∞"}</span>
+          <button 
+            onClick={() => handleAction(id, actionType)}
+            disabled={btn.disabled}
+            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 flex items-center justify-center min-w-[64px] ${isDone ? "bg-[#1c1c1e] text-[#636366]" : btn.bg}`}
+          >
+            {isDone && id !== "invite" ? "Done" : btn.text}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const ListItem = ({ id, title, reward, icon: Icon, isDone, isMulti, progress, max, actionType }: any) => {
+    const btn = getButtonUI(id, isDone)
+    return (
+      <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e] last:border-0 bg-[#111]">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
+            <Icon className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-white font-medium text-sm">{title}</p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <RewardBadge amount={reward} />
+              {isMulti && <span className="text-[#636366] text-xs font-medium">· {progress}/{max}</span>}
+            </div>
           </div>
         </div>
+        <button 
+          onClick={() => handleAction(id, actionType)}
+          disabled={btn.disabled}
+          className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 flex items-center justify-center min-w-[72px] ${btn.bg}`}
+        >
+          {btn.text}
+        </button>
       </div>
-      <button 
-        onClick={() => handleAction(id)}
-        disabled={isDone || loadingAction === id}
-        className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${isDone ? "bg-transparent text-[#636366]" : "bg-white text-black"}`}
-      >
-        {loadingAction === id ? "..." : isDone ? "Claimed" : "Start"}
-      </button>
-    </div>
-  )
+    )
+  }
 
   return (
     <div className="flex-1 overflow-y-auto relative" style={{ background: "#000", minHeight: "100vh" }}>
-      <div className="sticky top-0 z-20 flex items-center justify-center px-4 pb-3" style={{ paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 12px)", background: "rgba(0,0,0,0.92)", backdropFilter: "blur(20px)" }}>
-        <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD }}>Earn</h2>
+      
+      {/* ── Título Earn Grande a la Izquierda ── */}
+      <div className="px-5 pb-2" style={{ paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 24px)" }}>
+        <h1 className="text-4xl font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>
+          Earn
+        </h1>
       </div>
 
-      <div className="px-4 pt-4 pb-28 space-y-6">
-        {!isPremium && (
-          <button onClick={() => setCurrentView("premium")} className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left" style={{ background: "#060606", border: "1px solid #1e1e1e", borderRadius: "20px", minHeight: "96px" }}>
-            <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 8% 40%, rgba(245,158,11,0.07) 0%, transparent 55%)" }} />
-            <div className="relative z-10 px-5 py-4 flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <p className="text-white font-bold text-[16px]">xBlum Pro</p>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500" style={{ background: "rgba(245,158,11,0.15)" }}>PRO</span>
-              </div>
-              <p style={{ fontSize: "13px", color: "#8e8e93" }}>Upgrade your plan to enjoy full features</p>
-              <div className="flex items-center justify-center mt-2 px-4 py-3 rounded-xl w-full bg-white">
-                <span className="text-black font-bold text-sm">Upgrade →</span>
-              </div>
-            </div>
-          </button>
-        )}
+      <div className="px-4 pt-2 pb-28 space-y-6">
+        
+        {/* ── xBlum Pro Banner (Siempre Visible) ── */}
+        <button
+          onClick={() => setCurrentView("premium")}
+          className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left"
+          style={{ background: "#060606", border: "1px solid #1e1e1e", borderRadius: "20px", minHeight: "96px" }}
+        >
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 8% 40%, rgba(245,158,11,0.07) 0%, transparent 55%)" }} />
+          <div className="absolute pointer-events-none" style={{ width: "90px", height: "90px", borderRadius: "50%", top: "-30px", right: "-20px", background: "radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)", border: "1px solid rgba(245,158,11,0.10)" }} />
+          <div className="absolute pointer-events-none" style={{ width: "55px", height: "55px", borderRadius: "50%", bottom: "-18px", right: "30px", background: "radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)", border: "1px solid rgba(245,158,11,0.08)" }} />
 
+          <div className="relative z-10 px-5 py-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500" style={{ background: "rgba(245,158,11,0.15)", fontFamily: SF }}>PRO</span>
+            </div>
+            <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>Upgrade your plan to enjoy full features</p>
+
+            <div className="flex items-center justify-center mt-2 px-4 py-3 rounded-xl w-full" style={{ background: "#fff" }}>
+              <span className="text-black font-bold" style={{ fontSize: "14px", fontFamily: SF }}>Upgrade →</span>
+            </div>
+          </div>
+        </button>
+
+        {/* ── Daily & Top Quests (Grid 2 Columnas) ── */}
         <div className="flex gap-3">
-          <GridCard id="ads" title="Watch Ads" reward={REWARDS.AD} progress={state.adCount} max={3} isDone={state.adCount >= 3} emoji="👀" />
-          <GridCard id="invite" title="Invite Friends" reward={REWARDS.INVITE} isDone={false} emoji="👥" />
+          <GridCard 
+            id="ads" title="Watch Ads" reward={REWARDS.AD} 
+            progress={state.adCount} max={3} isDone={state.adCount >= 3} 
+            emoji="👀" actionType="ads"
+          />
+          <GridCard 
+            id="invite" title="Invite Friends" reward={REWARDS.INVITE} 
+            isDone={false} emoji="👥" actionType="invite"
+          />
         </div>
 
+        {/* ── Socials & Community Quests (Lista) ── */}
         <div>
           <p className="px-2 mb-3 text-white font-bold text-lg" style={{ fontFamily: SFD }}>Tasks</p>
           <div className="rounded-[24px] overflow-hidden border border-[#1c1c1e]" style={{ background: "#111" }}>
-            <ListItem id="channel" title="Join xBlum Channel" reward={REWARDS.CHANNEL} icon={Tv} isDone={state.joinedChannel} />
-            <ListItem id="addChat" title="Add to Group" reward={REWARDS.ADD_CHAT} icon={MessageCirclePlus} isDone={state.addChatCount >= 2} isMulti={true} progress={state.addChatCount} max={2} />
-            <ListItem id="story" title="Share to Story" reward={REWARDS.STORY} icon={Camera} isDone={state.storyShared} />
-            <ListItem id="shareFriend" title="Share with 1 Friend" reward={REWARDS.SHARE} icon={Forward} isDone={state.friendShared} />
+            <ListItem 
+              id="channel" title="Join xBlum Channel" reward={REWARDS.CHANNEL} 
+              icon={Tv} isDone={state.joinedChannel} actionType="channel" 
+            />
+            <ListItem 
+              id="addChat" title="Add to Group" reward={REWARDS.ADD_CHAT} 
+              icon={MessageCirclePlus} isDone={state.addChatCount >= 2} 
+              isMulti={true} progress={state.addChatCount} max={2} actionType="addChat" 
+            />
+            <ListItem 
+              id="story" title="Share to Story" reward={REWARDS.STORY} 
+              icon={Camera} isDone={state.storyShared} actionType="story" 
+            />
+            <ListItem 
+              id="shareFriend" title="Share with 1 Friend" reward={REWARDS.SHARE} 
+              icon={Forward} isDone={state.friendShared} actionType="shareFriend" 
+            />
           </div>
         </div>
+
       </div>
     </div>
   )
