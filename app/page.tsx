@@ -8,6 +8,7 @@ import { StoreView } from "@/components/store-view"
 import { PremiumView } from "@/components/premium-view"
 import { ReferralView } from "@/components/referral-view"
 import { ProfileView } from "@/components/profile-view"
+import { XRewardsView } from "@/components/x-rewards-view" // Añadimos la importación
 import { useEffect, useState } from "react"
 // Importamos los iconos actualizados
 import { Home, Coins, Activity, CircleUser } from "lucide-react"
@@ -140,6 +141,8 @@ function NavBar() {
 // ── App shell ─────────────────────────────────────────────────────────
 function AppContent() {
   const { currentView } = useApp()
+  // La NavBar solo se muestra en estas vistas principales.
+  // Al no incluir "x-rewards", la navbar se oculta automáticamente (como en referral o premium) dando todo el espacio a tu nueva vista.
   const showNav = ["home", "store", "analytics", "profile"].includes(currentView)
 
   return (
@@ -150,6 +153,10 @@ function AppContent() {
       {currentView === "premium"   && <PremiumView />}
       {currentView === "referral"  && <ReferralView />}
       {currentView === "profile"   && <ProfileView />}
+      
+      {/* Añadimos la nueva vista aquí */}
+      {currentView === "x-rewards" && <XRewardsView />}
+
       {currentView === "analytics" && (
         <div className="flex-1 flex items-center justify-center">
           <p className="text-neutral-600 text-sm">Analytics coming soon</p>
