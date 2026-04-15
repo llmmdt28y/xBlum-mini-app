@@ -1,8 +1,9 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles } from "lucide-react"
-import { useState, useRef } from "react"
+// Agregamos Zap para el icono de Pro y useEffect para el botón nativo
+import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, Zap } from "lucide-react"
+import { useState, useRef, useEffect } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
 
@@ -18,6 +19,15 @@ export function HomeView() {
   const [modalInput, setModalInput] = useState("")
   const [sending, setSending] = useState(false)
   const [openingTopic, setOpeningTopic] = useState<ExploreModalType>(null)
+
+  // ── FIX: Ocultar flecha nativa de Telegram al volver al Home ──
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tg = (window as any).Telegram?.WebApp
+    if (tg?.BackButton) {
+      tg.BackButton.hide() // Esto hace que regrese el botón "Close" nativo
+    }
+  }, [])
 
   // Main input bar → sends directly, AI responds in bot chat
   async function handleSend() {
@@ -67,11 +77,31 @@ export function HomeView() {
   const showThrottle = isThrottled && selectedModel === "Grok 4 Mini"
 
   return (
-    <div className="flex-1 flex flex-col items-center px-4 pb-28 bg-black">
+    // FIX: Agregamos relative y padding superior para empujar el contenido debajo de la zona segura
+    <div 
+      className="flex-1 flex flex-col items-center px-4 pb-28 bg-black relative"
+      style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 50px)" }}
+    >
+      
+      {/* ── FIX: Botón Pro debajo del menú nativo (⋮) ── */}
+      <div 
+        className="absolute right-4 z-10"
+        style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}
+      >
+        <button
+          onClick={() => setCurrentView("premium")}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold active:scale-95 transition-transform"
+          style={{ background: "#f59e0b", color: "#fff", boxShadow: "0 2px 8px rgba(245, 158, 11, 0.3)" }}
+        >
+          <Zap className="w-[14px] h-[14px]" fill="currentColor" />
+          <span className="text-[13px]">{isPremium ? "Pro" : "Pro"}</span>
+        </button>
+      </div>
+
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
 
         {/* ── Hero Header ─────────────────────────────────────────────── */}
-        <div className="w-full pt-6 pb-2">
+        <div className="w-full pb-2">
           <p className="text-neutral-500 text-sm font-medium mb-1">{t("poweredBy")} <button onClick={() => setCurrentView("settings")} className="text-neutral-400 hover:text-neutral-300 transition-colors font-semibold">{selectedModel}</button></p>
           <h1 className="text-4xl font-bold text-white leading-tight tracking-tight">
             {t("howCanIHelp")}
@@ -216,7 +246,7 @@ export function HomeView() {
             {/* Right: 3 coins — triangle layout matching reference exactly */}
             <div className="relative shrink-0" style={{ width: "120px", height: "96px" }}>
 
-              {/* TOP-RIGHT — small, partially clipped at top, tilted right */}
+              {/* TOP-RIGHT */}
               <img src="/xblum-coin.png" alt="" className="absolute" style={{
                 width: "46px", height: "46px",
                 top: "-10px", right: "4px",
@@ -225,7 +255,7 @@ export function HomeView() {
                 filter: "brightness(0.75)",
               }} />
 
-              {/* CENTER-LEFT — largest coin, slightly tilted left, main focal point */}
+              {/* CENTER-LEFT */}
               <img src="/xblum-coin.png" alt="" className="absolute" style={{
                 width: "68px", height: "68px",
                 top: "50%", left: "0px",
@@ -234,7 +264,7 @@ export function HomeView() {
                 filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))",
               }} />
 
-              {/* BOTTOM-RIGHT — small, below and right of center, slight tilt */}
+              {/* BOTTOM-RIGHT */}
               <img src="/xblum-coin.png" alt="" className="absolute" style={{
                 width: "44px", height: "44px",
                 bottom: "2px", right: "6px",
