@@ -89,15 +89,16 @@ function LeaderboardView({ currentUser }: { currentUser: string }) {
   }
 
   return (
-    // Contenedor principal con overflow-hidden para aislar el scroll
-    <div className="flex-1 flex flex-col overflow-hidden" style={{ background: "#000", minHeight: "100vh" }}>
-      
-      {/* Header Leaderboard - Completamente estático */}
+    // CAMBIO 1: Agregado "overflow-y-auto relative" para que el scroll funcione con el sticky header
+    <div className="flex-1 overflow-y-auto relative" style={{ background: "#000", minHeight: "100vh" }}>
+      {/* Header Leaderboard */}
       <div
-        className="shrink-0 z-10 flex items-center justify-center px-4 pb-3"
+        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
         style={{
-          paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 12px)", 
-          background: "#000", // Fondo negro sólido
+          paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 12px)", // max() para solucionar bug de Android 0px
+          background: "rgba(0,0,0,0.92)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
           borderBottom: "1px solid rgba(255,255,255,0.05)",
         }}
       >
@@ -109,8 +110,8 @@ function LeaderboardView({ currentUser }: { currentUser: string }) {
         </h2>
       </div>
 
-      {/* Contenedor escroleable independiente */}
-      <div className="flex-1 overflow-y-auto px-4 pt-5 pb-32">
+      {/* CAMBIO 2: Eliminado "overflow-y-auto" de este contenedor */}
+      <div className="px-4 pt-5 pb-32">
 
         {/* Subtitle */}
         <p className="text-sm mb-5 leading-relaxed" style={{ color: "#636366", fontFamily: SF }}>
@@ -177,7 +178,8 @@ function LeaderboardView({ currentUser }: { currentUser: string }) {
         </div>
 
         {/* Podium — top 3 */}
-        <div className="flex items-end justify-center gap-2 mb-4 px-2" style={{ height: "135px" }}>
+        {/* CAMBIO 3: Height aumentado a 150px y se agregó el score de $X */}
+        <div className="flex items-end justify-center gap-2 mb-4 px-2" style={{ height: "150px" }}>
           {[entries[1], entries[0], entries[2]].map((entry, i) => {
             if (!entry) return null
             const isFirst = entry.rank === 1
@@ -203,8 +205,9 @@ function LeaderboardView({ currentUser }: { currentUser: string }) {
                 >
                   {entry.username}
                 </p>
+                {/* ── Score $X del podio ── */}
                 <p 
-                  className="text-[10px] font-semibold truncate w-full text-center"
+                  className="text-[10px] font-semibold truncate w-full text-center mb-1.5"
                   style={{ color: isFirst ? "#f59e0b" : "#636366", fontFamily: SFD }}
                 >
                   {formatX(entry.tp)} $X
@@ -391,9 +394,9 @@ export function ProfileView() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
+    <div className="flex-1 overflow-y-auto relative" style={{ background: "#000" }}>
 
-      {/* Header Profile - Solucionado con función max() para Android */}
+      {/* Header Profile */}
       <div
         className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
         style={{
