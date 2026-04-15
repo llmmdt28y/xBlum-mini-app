@@ -442,14 +442,15 @@ export function ProfileView() {
             leftNode={
               <img
                 src="/xblum2-icon.png"
-                alt="xBlum"
-                className="w-full h-full object-contain"
+                alt="$X Rewards"
+                className="w-full h-full object-contain pointer-events-none select-none"
+                draggable={false}
                 onError={(e) => { e.currentTarget.style.display = "none"; const p = e.currentTarget.parentElement; if (p) p.textContent = "🚀" }}
               />
             }
-            label="xBlum Rewards"
+            label="$X Rewards"
             sublabel="Earn tokens & exclusive perks"
-            onClick={() => {}}
+            onClick={() => setCurrentView("x-rewards")}
           />
         </Section>
 
