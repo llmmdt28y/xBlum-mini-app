@@ -386,9 +386,9 @@ export function ProfileView() {
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
 
-      {/* Header Profile con clase 'relative' añadida */}
+      {/* Header Profile - Limpio sin botones nativos para evitar conflictos */}
       <div
-        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3 relative"
+        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
         style={{
           paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)", 
           background: "rgba(0,0,0,0.92)",
@@ -402,18 +402,18 @@ export function ProfileView() {
         >
           Profile
         </h2>
-        
-        {/* Ícono de Configuración ahora anclado correctamente al texto */}
-        <button 
-          onClick={() => setCurrentView("settings")}
-          className="absolute right-4 active:opacity-60 transition-opacity"
-          style={{ bottom: "11px" }}
-        >
-          <Settings className="w-[22px] h-[22px] text-white" />
-        </button>
       </div>
 
-      <div className="px-4 pt-6 pb-28 space-y-6">
+      <div className="px-4 pt-6 pb-28 space-y-6 relative">
+        
+        {/* Ícono de Configuración - Posicionado absolutamente sobre el fondo negro para evitar el Header de Telegram */}
+        <button 
+          onClick={() => setCurrentView("settings")}
+          className="absolute right-6 top-0 active:opacity-60 transition-opacity z-20"
+          style={{ marginTop: "10px" }} // Ajuste fino para quedar arriba de la foto
+        >
+          <Settings className="w-[22px] h-[22px] text-white/80" />
+        </button>
 
         {/* Avatar + name */}
         <div className="flex flex-col items-center gap-3 pt-2 pb-2">
