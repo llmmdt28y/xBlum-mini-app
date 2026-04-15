@@ -83,22 +83,6 @@ export function HomeView() {
       style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 50px)" }}
     >
       
-      {/* ── FIX: Botón Pro debajo del menú nativo (⋮) ── */}
-      <div 
-        className="absolute right-4 z-10"
-        style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}
-      >
-        <button
-          onClick={() => setCurrentView("premium")}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold active:scale-95 transition-transform"
-          style={{ background: "#f59e0b", color: "#fff", boxShadow: "0 2px 8px rgba(245, 158, 11, 0.3)" }}
-        >
-          <Zap className="w-[14px] h-[14px]" fill="currentColor" />
-          <span className="text-[13px]">{isPremium ? "Pro" : "Pro"}</span>
-        </button>
-      </div>
-
-      <div className="flex flex-col items-center gap-5 w-full max-w-md">
 
         {/* ── Hero Header ─────────────────────────────────────────────── */}
         <div className="w-full pb-2">
