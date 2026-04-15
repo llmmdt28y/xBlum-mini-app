@@ -89,15 +89,15 @@ function LeaderboardView({ currentUser }: { currentUser: string }) {
   }
 
   return (
-    <div className="flex-1 flex flex-col" style={{ background: "#000", minHeight: "100vh" }}>
-      {/* Header Leaderboard */}
+    // Contenedor principal con overflow-hidden para aislar el scroll
+    <div className="flex-1 flex flex-col overflow-hidden" style={{ background: "#000", minHeight: "100vh" }}>
+      
+      {/* Header Leaderboard - Completamente estático */}
       <div
-        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
+        className="shrink-0 z-10 flex items-center justify-center px-4 pb-3"
         style={{
-          paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)", 
-          background: "rgba(0,0,0,0.92)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
+          paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 12px)", 
+          background: "#000", // Fondo negro sólido
           borderBottom: "1px solid rgba(255,255,255,0.05)",
         }}
       >
@@ -109,7 +109,8 @@ function LeaderboardView({ currentUser }: { currentUser: string }) {
         </h2>
       </div>
 
-      <div className="px-4 pt-5 pb-32 overflow-y-auto">
+      {/* Contenedor escroleable independiente */}
+      <div className="flex-1 overflow-y-auto px-4 pt-5 pb-32">
 
         {/* Subtitle */}
         <p className="text-sm mb-5 leading-relaxed" style={{ color: "#636366", fontFamily: SF }}>
@@ -176,7 +177,7 @@ function LeaderboardView({ currentUser }: { currentUser: string }) {
         </div>
 
         {/* Podium — top 3 */}
-        <div className="flex items-end justify-center gap-2 mb-4 px-2" style={{ height: "120px" }}>
+        <div className="flex items-end justify-center gap-2 mb-4 px-2" style={{ height: "135px" }}>
           {[entries[1], entries[0], entries[2]].map((entry, i) => {
             if (!entry) return null
             const isFirst = entry.rank === 1
@@ -198,9 +199,15 @@ function LeaderboardView({ currentUser }: { currentUser: string }) {
                 </div>
                 <p
                   className="text-xs font-medium truncate w-full text-center"
-                  style={{ color: isFirst ? "#fff" : "#8e8e93", fontFamily: SF }}
+                  style={{ color: isFirst ? "#fff" : "#8e8e93", fontFamily: SF, marginBottom: "-2px" }}
                 >
                   {entry.username}
+                </p>
+                <p 
+                  className="text-[10px] font-semibold truncate w-full text-center"
+                  style={{ color: isFirst ? "#f59e0b" : "#636366", fontFamily: SFD }}
+                >
+                  {formatX(entry.tp)} $X
                 </p>
                 <div
                   className="w-full rounded-t-xl flex items-center justify-center"
@@ -386,11 +393,11 @@ export function ProfileView() {
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
 
-      {/* Header Profile - Limpio sin botones nativos para evitar conflictos */}
+      {/* Header Profile - Solucionado con función max() para Android */}
       <div
         className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
         style={{
-          paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)", 
+          paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 12px)", 
           background: "rgba(0,0,0,0.92)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
@@ -406,11 +413,11 @@ export function ProfileView() {
 
       <div className="px-4 pt-6 pb-28 space-y-6 relative">
         
-        {/* Ícono de Configuración - Posicionado absolutamente sobre el fondo negro para evitar el Header de Telegram */}
+        {/* Ícono de Configuración */}
         <button 
           onClick={() => setCurrentView("settings")}
           className="absolute right-6 top-0 active:opacity-60 transition-opacity z-20"
-          style={{ marginTop: "10px" }} // Ajuste fino para quedar arriba de la foto
+          style={{ marginTop: "10px" }} 
         >
           <Settings className="w-[22px] h-[22px] text-white/80" />
         </button>
