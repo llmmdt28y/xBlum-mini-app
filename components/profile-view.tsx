@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { ChevronRight, Gift, Users, Shield, Zap, Trophy, Medal, Settings } from "lucide-react" // Se agregó 'Settings'
+import { ChevronRight, Gift, Users, Shield, Zap, Trophy, Medal, Settings } from "lucide-react"
 
 // ── Telegram user helper ─────────────────────────────────────────────
 type TgUser = {
@@ -23,7 +23,7 @@ type LeaderboardPeriod = "this_week" | "last_week" | "all_time"
 type LeaderboardEntry = {
   rank: number
   username: string
-  tp: number // Mantenemos el nombre de la propiedad 'tp' para la estructura de datos
+  tp: number 
   initials: string
   avatarColor: string
 }
@@ -384,11 +384,11 @@ export function ProfileView() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto relative" style={{ background: "#000" }}>
+    <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
 
-      {/* Header Profile con ícono de Settings */}
+      {/* Header Profile con clase 'relative' añadida */}
       <div
-        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
+        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3 relative"
         style={{
           paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)", 
           background: "rgba(0,0,0,0.92)",
@@ -403,11 +403,11 @@ export function ProfileView() {
           Profile
         </h2>
         
-        {/* Ícono de Configuración superior derecha */}
+        {/* Ícono de Configuración ahora anclado correctamente al texto */}
         <button 
           onClick={() => setCurrentView("settings")}
           className="absolute right-4 active:opacity-60 transition-opacity"
-          style={{ bottom: "10px" }}
+          style={{ bottom: "11px" }}
         >
           <Settings className="w-[22px] h-[22px] text-white" />
         </button>
@@ -490,8 +490,8 @@ export function ProfileView() {
           <Divider />
           <Row
             leftNode={<Gift className="w-[18px] h-[18px]" style={{ color: "#636366" }} />}
-            label="Get Tokens"
-            sublabel="Earn free tokens from missions"
+            label="Get $X"
+            sublabel="Earn free $X from missions"
             onClick={() => setCurrentView("store")}
           />
           <Divider />
