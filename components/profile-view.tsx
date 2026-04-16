@@ -26,6 +26,7 @@ type LeaderboardEntry = {
   tp: number 
   initials: string
   avatarColor: string
+  photoUrl?: string
 }
 
 const MOCK_LEADERBOARD: Record<LeaderboardPeriod, LeaderboardEntry[]> = {
@@ -83,7 +84,7 @@ async function fetchLeaderboard(scope: string) {
   const res = await fetch(`${API_BASE_LB}/api/leaderboard?scope=${scope}`)
   if (!res.ok) return []
   const data = await res.json()
-  return (data.entries ?? []) as { rank: number; user_id: number; tp: number }[]
+  return (data.entries ?? []) as { rank: number; user_id: number; tp: number; username?: string; first_name?: string; last_name?: string; photo_url?: string }[]
 }
 
 const AVATAR_COLORS = ["#3b82f6","#8b5cf6","#f59e0b","#10b981","#ec4899","#6366f1","#14b8a6","#f97316","#a855f7","#22c55e"]
@@ -99,13 +100,22 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
       this_week: "weekly", last_week: "last_week", all_time: "global"
     }
     fetchLeaderboard(scopeMap[period]).then(raw => {
-      const mapped: LeaderboardEntry[] = raw.map((r, i) => ({
-        rank:        r.rank,
-        username:    `User #${r.user_id}`,
-        tp:          r.tp,
-        initials:    String(r.user_id).slice(-2),
-        avatarColor: AVATAR_COLORS[i % AVATAR_COLORS.length],
-      }))
+      const mapped: LeaderboardEntry[] = raw.map((r, i) => {
+        const fullName = [r.first_name, r.last_name].filter(Boolean).join(" ")
+        const displayName = r.username ? `@${r.username}` : fullName || `User #${String(r.user_id).slice(-6)}`
+        const words = displayName.replace("@","").split(/\s+/)
+        const initials = words.length >= 2
+          ? (words[0][0] + words[1][0]).toUpperCase()
+          : displayName.replace("@","").slice(0, 2).toUpperCase()
+        return {
+          rank:        r.rank,
+          username:    displayName,
+          tp:          r.tp,
+          initials,
+          avatarColor: AVATAR_COLORS[i % AVATAR_COLORS.length],
+          photoUrl:    r.photo_url,
+        }
+      })
       setEntries(mapped)
       setLoading(false)
     }).catch(() => {
@@ -115,7 +125,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
     })
   }, [period])
 
-  const myEntry = myUserId ? entries.find(e => e.username === `User #${myUserId}`) : undefined
+  const myEntry = myUserId ? entries.find(e => e.username.includes(String(myUserId).slice(-6)) || e.username === `@${myUserId}`) : undefined
 
   const PERIOD_LABELS: Record<LeaderboardPeriod, string> = {
     this_week: "This week",
@@ -236,7 +246,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
             return (
               <div key={entry.rank} className="flex flex-col items-center gap-1 flex-1">
                 <div
-                  className="rounded-full flex items-center justify-center font-bold text-white shrink-0"
+                  className="rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden"
                   style={{
                     width: isFirst ? 44 : 36,
                     height: isFirst ? 44 : 36,
@@ -245,7 +255,9 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                     fontSize: isFirst ? "15px" : "13px",
                   }}
                 >
-                  {entry.initials}
+                  {entry.photoUrl
+                    ? <img src={entry.photoUrl} alt={entry.username} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display="none" }} />
+                    : entry.initials}
                 </div>
                 <p
                   className="text-xs font-medium truncate w-full text-center"
@@ -278,10 +290,12 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
               {i > 0 && <div className="h-px" style={{ background: "#1c1c1e", marginLeft: "60px" }} />}
               <div className="flex items-center gap-3 px-4 py-3">
                 <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0"
+                  className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0 overflow-hidden"
                   style={{ background: entry.avatarColor }}
                 >
-                  {entry.initials}
+                  {entry.photoUrl
+                    ? <img src={entry.photoUrl} alt={entry.username} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display="none" }} />
+                    : entry.initials}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-white text-sm font-medium truncate" style={{ fontFamily: SF }}>
