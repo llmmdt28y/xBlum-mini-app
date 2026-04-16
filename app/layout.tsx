@@ -43,6 +43,11 @@ export default function RootLayout({
           src="https://telegram.org/js/telegram-web-app.js"
           strategy="beforeInteractive"
         />
+        {/* Adsgram SDK — carga después del hydration, no bloquea */}
+        <Script
+          src="https://sad.adsgram.ai/js/sad.min.js"
+          strategy="afterInteractive"
+        />
       </head>
       <body className="font-sans antialiased bg-[#0a0a0a]">
         {children}
