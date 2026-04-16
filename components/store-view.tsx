@@ -1,8 +1,69 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { Tv, MessageCirclePlus, Camera, Forward, Loader2 } from "lucide-react"
+
+// ── Adsgram types ─────────────────────────────────────────────────────
+interface ShowPromiseResult {
+  done: boolean
+  description: string
+  state: "load" | "render" | "playing" | "destroy"
+  error: boolean
+}
+interface AdController {
+  show: () => Promise<ShowPromiseResult>
+  destroy: () => void
+}
+declare global {
+  interface Window {
+    // Añadimos tgid a los parámetros aceptados
+    Adsgram?: { init: (params: { blockId: string; debug?: boolean; tgid?: string }) => AdController }
+  }
+}
+
+// ── useAdsgram hook ───────────────────────────────────────────────────
+function useAdsgram({
+  blockId,
+  onReward,
+  onError,
+}: {
+  blockId: string
+  onReward: () => void
+  onError: (r: ShowPromiseResult) => void
+}) {
+  const adControllerRef = useRef<AdController | undefined>(undefined)
+
+  useEffect(() => {
+    // Obtenemos el ID de Telegram para pasarlo a Adsgram
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
+    const userId = tg?.initDataUnsafe?.user?.id?.toString()
+
+    adControllerRef.current = window.Adsgram?.init({ 
+      blockId,
+      tgid: userId // CRÍTICO: Esto conecta al usuario con el webhook
+    })
+    
+    return () => {
+      adControllerRef.current?.destroy()
+    }
+  }, [blockId])
+
+  return useCallback(() => {
+    if (!adControllerRef.current) {
+      onError({ done: false, description: "Adsgram not loaded", state: "load", error: true })
+      return
+    }
+    adControllerRef.current
+      .show()
+      .then((result: ShowPromiseResult) => {
+        if (result.done) onReward()
+        else onError(result)
+      })
+      .catch((result: ShowPromiseResult) => onError(result))
+  }, [onReward, onError])
+}
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -36,10 +97,42 @@ export function StoreView() {
   const [pendingTasks, setPendingTasks] = useState<Record<string, "started" | "verifying">>({})
   const [loadingAd, setLoadingAd]       = useState(false)
 
-  const BOT     = process.env.NEXT_PUBLIC_BOT_USERNAME    ?? "xBlumAI"
-  const CHANNEL = process.env.NEXT_PUBLIC_CHANNEL_USERNAME ?? "xBlumAI"
+  const ADSGRAM_BLOCK_ID = process.env.NEXT_PUBLIC_ADSGRAM_BLOCK_ID ?? ""
+  
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
+
+  // ── PARCHE DE SEGURIDAD APLICADO AQUÍ ──
+  const onAdReward = useCallback(async () => {
+    setLoadingAd(true)
+    
+    // Ya NO llamamos a claimMissionTokens aquí. 
+    // El servidor (Webhook S2S) se encargará de sumar los +100 $X a la base de datos de forma segura.
+    
+    tg?.showAlert(`✅ +${REWARDS.AD} $X earned!`)
+    
+    // Opcional: Si en tu contexto tienes una función para refrescar los datos desde el servidor,
+    // puedes llamarla aquí para que el balance se actualice visualmente.
+    // ej: if (ctx.refreshUserData) await ctx.refreshUserData()
+    
+    setLoadingAd(false)
+  }, [tg])
+
+  const onAdError = useCallback((result: ShowPromiseResult) => {
+    setLoadingAd(false)
+    if (result.error) {
+      tg?.showAlert("Ad not available right now. Try again later.")
+    }
+  }, [tg])
+
+  const showAd = useAdsgram({
+    blockId: ADSGRAM_BLOCK_ID,
+    onReward: onAdReward,
+    onError:  onAdError,
+  })
+
+  const BOT     = process.env.NEXT_PUBLIC_BOT_USERNAME    ?? "xBlumAI"
+  const CHANNEL = process.env.NEXT_PUBLIC_CHANNEL_USERNAME ?? "xBlumAI"
 
   // Limpiar pending si la misión ya está completada
   useEffect(() => {
@@ -63,17 +156,11 @@ export function StoreView() {
     }
 
     if (actionType === "ads") {
-      if (adsToday >= 3 || loadingAd) return
-      setLoadingAd(true)
-      // Aquí irá la integración con Adsgram SDK
-      await new Promise(res => setTimeout(res, 2000))
-      const ok = await claimMissionTokens("ad", REWARDS.AD)
-      if (ok) {
-        tg?.showAlert(`+${REWARDS.AD} $X earned! ${3 - (adsToday + 1)} ads remaining today.`)
-      } else {
+      if (adsToday >= 3 || loadingAd) {
         tg?.showAlert("Daily ad limit reached (3/3). Come back tomorrow!")
+        return
       }
-      setLoadingAd(false)
+      showAd()
       return
     }
 
