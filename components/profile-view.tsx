@@ -102,7 +102,8 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
     fetchLeaderboard(scopeMap[period]).then(raw => {
       const mapped: LeaderboardEntry[] = raw.map((r, i) => {
         const fullName = [r.first_name, r.last_name].filter(Boolean).join(" ")
-        const displayName = r.username ? `@${r.username}` : fullName || `User #${String(r.user_id).slice(-6)}`
+        // Prioridad: Nombre Real -> Username -> ID
+        const displayName = fullName ? fullName : r.username ? `@${r.username}` : `User #${String(r.user_id).slice(-6)}`
         const words = displayName.replace("@","").split(/\s+/)
         const initials = words.length >= 2
           ? (words[0][0] + words[1][0]).toUpperCase()
@@ -134,13 +135,14 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
   }
 
   return (
-    // CAMBIO 1: Agregado "overflow-y-auto relative" para que el scroll funcione con el sticky header
     <div className="flex-1 overflow-y-auto relative" style={{ background: "#000", minHeight: "100vh" }}>
-      {/* Header Leaderboard */}
+      
+      {/* ── Header Leaderboard (Centrado Exacto) ── */}
       <div
-        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
+        className="sticky top-0 z-30 flex items-center justify-center w-full"
         style={{
-          paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 12px)", // max() para solucionar bug de Android 0px
+          paddingTop: "var(--tg-safe-area-inset-top, 24px)",
+          height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)",
           background: "rgba(0,0,0,0.92)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
@@ -155,7 +157,6 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         </h2>
       </div>
 
-      {/* CAMBIO 2: Eliminado "overflow-y-auto" de este contenedor */}
       <div className="px-4 pt-5 pb-32">
 
         {/* Subtitle */}
@@ -223,7 +224,6 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         </div>
 
         {/* Podium — top 3 */}
-        {/* CAMBIO 3: Height aumentado a 150px y se agregó el score de $X */}
         {loading ? (
           <div className="flex justify-center items-center py-16">
             <Loader2 className="w-7 h-7 animate-spin" style={{ color: "#48484a" }} />
@@ -265,13 +265,15 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                 >
                   {entry.username}
                 </p>
-                {/* ── Score $X del podio ── */}
-                <p 
-                  className="text-[10px] font-semibold truncate w-full text-center mb-1.5"
-                  style={{ color: isFirst ? "#f59e0b" : "#636366", fontFamily: SFD }}
-                >
-                  {formatX(entry.tp)} $X
-                </p>
+                <div className="flex items-center justify-center gap-1 mb-1.5 w-full">
+                  <p 
+                    className="text-[10px] font-semibold truncate text-center"
+                    style={{ color: isFirst ? "#f59e0b" : "#636366", fontFamily: SFD }}
+                  >
+                    {formatX(entry.tp)}
+                  </p>
+                  <img src="/xblum2-icon.png" alt="" className="w-2.5 h-2.5 object-contain" />
+                </div>
                 <div
                   className="w-full rounded-t-xl flex items-center justify-center"
                   style={{ background: "#111", height: `${heights[i]}px` }}
@@ -301,7 +303,10 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                   <p className="text-white text-sm font-medium truncate" style={{ fontFamily: SF }}>
                     {entry.username}
                   </p>
-                  <p className="text-xs" style={{ color: "#636366" }}>{formatX(entry.tp)} $X</p>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <p className="text-xs" style={{ color: "#636366", fontFamily: SFD }}>{formatX(entry.tp)}</p>
+                    <img src="/xblum2-icon.png" alt="" className="w-3 h-3 object-contain opacity-60" />
+                  </div>
                 </div>
                 <span className="text-sm font-semibold shrink-0" style={{ color: "#3a3a3c" }}>
                   #{entry.rank}
@@ -424,6 +429,20 @@ export function ProfileView() {
     setDisplayName(full || user.username || "User")
     setUsername(user.username ? "@" + user.username : "")
     setUserId(user.id)
+
+    // Sincronizar perfil con la base de datos
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
+    fetch(`${API_BASE}/api/sync_profile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: user.id,
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        photo_url: user.photo_url || ""
+      })
+    }).catch(console.error)
+
   }, [])
 
   useEffect(() => {
@@ -463,11 +482,12 @@ export function ProfileView() {
   return (
     <div className="flex-1 overflow-y-auto relative" style={{ background: "#000" }}>
 
-      {/* Header Profile */}
+      {/* ── Header Profile (Centrado Exacto) ── */}
       <div
-        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
+        className="sticky top-0 z-30 flex items-center justify-center w-full"
         style={{
-          paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 12px)", 
+          paddingTop: "var(--tg-safe-area-inset-top, 24px)",
+          height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)",
           background: "rgba(0,0,0,0.92)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
@@ -481,13 +501,13 @@ export function ProfileView() {
         </h2>
       </div>
 
-      <div className="px-4 pt-6 pb-28 space-y-6 relative">
+      <div className="px-4 pt-4 pb-28 space-y-6 relative">
         
         {/* Ícono de Configuración */}
         <button 
           onClick={() => setCurrentView("settings")}
           className="absolute right-6 top-0 active:opacity-60 transition-opacity z-20"
-          style={{ marginTop: "10px" }} 
+          style={{ marginTop: "6px" }} 
         >
           <Settings className="w-[22px] h-[22px] text-white/80" />
         </button>
