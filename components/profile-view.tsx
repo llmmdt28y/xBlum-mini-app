@@ -399,6 +399,7 @@ export function ProfileView() {
   const [photoUrl,        setPhotoUrl]        = useState<string | null>(null)
   const [displayName,     setDisplayName]     = useState("")
   const [username,        setUsername]        = useState("")
+  const [userId,          setUserId]          = useState<number | undefined>(undefined)
   const [showLeaderboard, setShowLeaderboard] = useState(false)
 
   useEffect(() => {
@@ -408,6 +409,7 @@ export function ProfileView() {
     const full = [user.first_name, user.last_name].filter(Boolean).join(" ")
     setDisplayName(full || user.username || "User")
     setUsername(user.username ? "@" + user.username : "")
+    setUserId(user.id)
   }, [])
 
   useEffect(() => {
