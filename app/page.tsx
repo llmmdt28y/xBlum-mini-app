@@ -20,15 +20,6 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Componente Pantalla de Carga (Negro con Spinner Blanco) ───────────
-function LoadingScreen() {
-  return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black">
-      <Loader2 className="w-10 h-10 text-white animate-spin" />
-    </div>
-  )
-}
-
 // ── Floating Liquid NavBar ────────────────────────────────────────────
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
@@ -133,42 +124,116 @@ function AppContent() {
   const { currentView, isLoading } = useApp()
   const showNav = ["home", "store", "analytics", "profile"].includes(currentView)
 
-  // ── Soportes de Telegram: Fullsize & Ready ──
+  // Estados para la transición de carga
+  const [imagesLoaded, setImagesLoaded] = useState(false)
+  const [showLoading, setShowLoading] = useState(true)
+  const [fadeLoading, setFadeLoading] = useState(false)
+
+  // ── Soportes de Telegram: Fullscreen Real & Ready ──
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
     if (tg) {
-      tg.ready()    // Avisa a Telegram que la app cargó
-      tg.expand()   // Fuerza el modo Fullsize (Pantalla Completa)
+      tg.ready()    // Avisa a Telegram que la app está montada
+      
+      // Nueva API de Telegram (8.0+) para el modo Fullscreen verdadero
+      try {
+        if (tg.requestFullscreen) {
+          tg.requestFullscreen()
+        } else {
+          tg.expand() // Fallback para usuarios con Telegram desactualizado
+        }
+      } catch (e) {
+        tg.expand()
+      }
     }
   }, [])
 
-  // Si el AppContext está cargando los datos iniciales, mostramos el spinner
-  if (isLoading) {
-    return <LoadingScreen />
-  }
+  // ── Lógica Inteligente para Precargar Imágenes ──
+  useEffect(() => {
+    const checkImages = () => {
+      const images = Array.from(document.images)
+      if (images.length === 0) {
+        setImagesLoaded(true)
+        return
+      }
+
+      let loadedCount = 0
+      const checkDone = () => {
+        loadedCount++
+        if (loadedCount === images.length) setImagesLoaded(true)
+      }
+
+      images.forEach(img => {
+        if (img.complete) {
+          checkDone()
+        } else {
+          // Escuchamos a que la imagen se descargue o falle para no trabar la app
+          img.addEventListener('load', checkDone, { once: true })
+          img.addEventListener('error', checkDone, { once: true }) 
+        }
+      })
+    }
+
+    // Le damos a React 50ms para que inyecte las <img> en el DOM y las encuentre
+    const timer = setTimeout(checkImages, 50)
+    
+    // Timeout de seguridad: Si el internet es muy lento, forzamos quitar la carga a los 3 segundos
+    const fallback = setTimeout(() => setImagesLoaded(true), 3000) 
+
+    return () => {
+      clearTimeout(timer)
+      clearTimeout(fallback)
+    }
+  }, [currentView])
+
+  // ── Control de Transición de Pantalla de Carga ──
+  useEffect(() => {
+    // Solo quitamos la carga si el servidor ya respondió (isLoading=false) Y las imágenes descargaron
+    if (!isLoading && imagesLoaded) {
+      setFadeLoading(true) // Inicia el desvanecimiento CSS (opacity-0)
+      
+      // Esperamos que termine la animación (400ms) para destruir el div y liberar recursos
+      const t = setTimeout(() => setShowLoading(false), 400) 
+      return () => clearTimeout(t)
+    }
+  }, [isLoading, imagesLoaded])
 
   return (
-    <div 
-      className="bg-black flex flex-col relative" 
-      style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
-    >
-      {currentView === "home" && (<><Header /><HomeView /></>)}
-      {currentView === "settings"  && <SettingsView />}
-      {currentView === "store"     && <StoreView />}
-      {currentView === "premium"   && <PremiumView />}
-      {currentView === "referral"  && <ReferralView />}
-      {currentView === "profile"   && <ProfileView />}
-      {currentView === "x-rewards" && <XRewardsView />}
-
-      {currentView === "analytics" && (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-neutral-600 text-sm">Analytics coming soon</p>
+    <>
+      {/* ── Pantalla de Carga Flotante ── */}
+      {showLoading && (
+        <div 
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${fadeLoading ? "opacity-0" : "opacity-100"}`}
+        >
+          <Loader2 className="w-10 h-10 text-white animate-spin" />
         </div>
       )}
-      
-      {showNav && <NavBar />}
-    </div>
+
+      {/* ── Contenido Principal ── 
+          Renderizamos esto SIEMPRE (incluso bajo la pantalla negra) para 
+          que el navegador descubra los links de las imágenes y empiece a descargarlas. */}
+      <div 
+        className="bg-black flex flex-col relative" 
+        style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
+      >
+        {currentView === "home" && (<><Header /><HomeView /></>)}
+        {currentView === "settings"  && <SettingsView />}
+        {currentView === "store"     && <StoreView />}
+        {currentView === "premium"   && <PremiumView />}
+        {currentView === "referral"  && <ReferralView />}
+        {currentView === "profile"   && <ProfileView />}
+        {currentView === "x-rewards" && <XRewardsView />}
+
+        {currentView === "analytics" && (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-neutral-600 text-sm">Analytics coming soon</p>
+          </div>
+        )}
+        
+        {showNav && <NavBar />}
+      </div>
+    </>
   )
 }
 
