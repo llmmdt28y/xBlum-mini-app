@@ -10,7 +10,7 @@ import { ReferralView } from "@/components/referral-view"
 import { ProfileView } from "@/components/profile-view"
 import { XRewardsView } from "@/components/x-rewards-view" 
 import { useEffect, useState } from "react"
-import { Home, Coins, Activity, CircleUser } from "lucide-react"
+import { Home, Coins, Activity, CircleUser, Loader2 } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = { id: number; first_name?: string; last_name?: string; username?: string; photo_url?: string }
@@ -20,19 +20,24 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
+// ── Componente Pantalla de Carga (Negro con Spinner Blanco) ───────────
+function LoadingScreen() {
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black">
+      <Loader2 className="w-10 h-10 text-white animate-spin" />
+    </div>
+  )
+}
+
 // ── Floating Liquid NavBar ────────────────────────────────────────────
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
   const [photoUrl, setPhotoUrl]   = useState<string | null>(null)
-  const [initials, setInitials]   = useState("")
 
   useEffect(() => {
     const user = getTgUser()
     if (!user) return
     if (user.photo_url) setPhotoUrl(user.photo_url)
-    const f = user.first_name?.[0] ?? ""
-    const l = user.last_name?.[0]  ?? ""
-    setInitials((f + l).toUpperCase() || user.username?.[0]?.toUpperCase() || "?")
   }, [])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,7 +94,6 @@ function NavBar() {
               }}
             >
               {isActive ? (
-                /* ESTADO ACTIVO: Fondo blanco, texto e iconos negros */
                 <div
                   className="flex items-center gap-2 px-5 h-full w-full justify-center"
                   style={{
@@ -99,32 +103,18 @@ function NavBar() {
                   }}
                 >
                   {tab.id === "profile" && photoUrl ? (
-                    <img 
-                      src={photoUrl} 
-                      alt="" 
-                      className="w-5 h-5 rounded-full object-cover" 
-                      style={{ opacity: 1 }} 
-                    />
+                    <img src={photoUrl} alt="" className="w-5 h-5 rounded-full object-cover" />
                   ) : (
                     <Icon size={18} color="#000000" strokeWidth={2.5} />
                   )}
-                  <span
-                    className="text-black font-bold"
-                    style={{ fontSize: "14px", letterSpacing: "-0.02em" }}
-                  >
+                  <span className="text-black font-bold" style={{ fontSize: "14px", letterSpacing: "-0.02em" }}>
                     {tab.label}
                   </span>
                 </div>
               ) : (
-                /* ESTADO INACTIVO: Iconos grises, foto siempre nítida */
                 <div className="flex flex-col items-center justify-center">
                   {tab.id === "profile" && photoUrl ? (
-                    <img 
-                      src={photoUrl} 
-                      alt="" 
-                      className="w-6 h-6 rounded-full object-cover" 
-                      style={{ opacity: 1 }}
-                    />
+                    <img src={photoUrl} alt="" className="w-6 h-6 rounded-full object-cover" />
                   ) : (
                     <Icon size={22} color="rgba(255,255,255,0.45)" strokeWidth={1.8} />
                   )}
@@ -140,12 +130,25 @@ function NavBar() {
 
 // ── App shell ─────────────────────────────────────────────────────────
 function AppContent() {
-  const { currentView } = useApp()
-  // La NavBar solo se muestra en estas vistas principales.
+  const { currentView, isLoading } = useApp()
   const showNav = ["home", "store", "analytics", "profile"].includes(currentView)
 
+  // ── Soportes de Telegram: Fullsize & Ready ──
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tg = (window as any).Telegram?.WebApp
+    if (tg) {
+      tg.ready()    // Avisa a Telegram que la app cargó
+      tg.expand()   // Fuerza el modo Fullsize (Pantalla Completa)
+    }
+  }, [])
+
+  // Si el AppContext está cargando los datos iniciales, mostramos el spinner
+  if (isLoading) {
+    return <LoadingScreen />
+  }
+
   return (
-    // CAMBIO: Eliminamos paddingBottom estricto y usamos variables dinámicas de Telegram
     <div 
       className="bg-black flex flex-col relative" 
       style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
@@ -156,7 +159,6 @@ function AppContent() {
       {currentView === "premium"   && <PremiumView />}
       {currentView === "referral"  && <ReferralView />}
       {currentView === "profile"   && <ProfileView />}
-      
       {currentView === "x-rewards" && <XRewardsView />}
 
       {currentView === "analytics" && (
