@@ -226,10 +226,10 @@ export function HomeView() {
             </div>
 
             {/* Right: 3 coins — triangle layout matching reference exactly */}
-            <div className="relative shrink-0" style={{ width: "120px", height: "96px" }}>
+            <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "96px" }}>
 
               {/* TOP-RIGHT — small, partially clipped at top, tilted right */}
-              <img src="/xblum-coin.png" alt="" className="absolute" style={{
+              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{
                 width: "46px", height: "46px",
                 top: "-10px", right: "4px",
                 opacity: 0.55,
@@ -238,7 +238,7 @@ export function HomeView() {
               }} />
 
               {/* CENTER-LEFT — largest coin, slightly tilted left, main focal point */}
-              <img src="/xblum-coin.png" alt="" className="absolute" style={{
+              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{
                 width: "68px", height: "68px",
                 top: "50%", left: "0px",
                 transform: "translateY(-50%) rotate(-18deg)",
@@ -247,7 +247,7 @@ export function HomeView() {
               }} />
 
               {/* BOTTOM-RIGHT — small, below and right of center, slight tilt */}
-              <img src="/xblum-coin.png" alt="" className="absolute" style={{
+              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{
                 width: "44px", height: "44px",
                 bottom: "2px", right: "6px",
                 opacity: 0.6,
@@ -288,8 +288,8 @@ export function HomeView() {
               <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ background: "#2c2c2e", color: "#aeaeb2" }}>
                 soon
               </span>
-              <div className="w-10 h-10 mb-3 flex items-center justify-center">
-                <img src="/TON-ICON.png" alt="TON" className="w-8 h-8" />
+              <div className="w-10 h-10 mb-3 flex items-center justify-center pointer-events-none select-none">
+                <img src="/TON-ICON.png" alt="TON" draggable={false} className="w-8 h-8 pointer-events-none select-none" />
               </div>
               <p className="text-white font-medium text-sm">TON Wallet</p>
             </button>
@@ -304,8 +304,8 @@ export function HomeView() {
               {openingTopic === "telegram" && (
                 <span className="absolute top-3 right-3 w-4 h-4 border-2 border-[#48484a] border-t-white rounded-full animate-spin" />
               )}
-              <div className="w-10 h-10 mb-3 flex items-center justify-center">
-                <img src="/telegram-icon.png" alt="Telegram" className="w-8 h-8" />
+              <div className="w-10 h-10 mb-3 flex items-center justify-center pointer-events-none select-none">
+                <img src="/telegram-icon.png" alt="Telegram" draggable={false} className="w-8 h-8 pointer-events-none select-none" />
               </div>
               <p className="text-white font-medium text-sm">Search on Telegram</p>
             </button>
@@ -320,8 +320,8 @@ export function HomeView() {
               {openingTopic === "google" && (
                 <span className="absolute top-3 right-3 w-4 h-4 border-2 border-[#48484a] border-t-white rounded-full animate-spin" />
               )}
-              <div className="w-10 h-10 mb-3 flex items-center justify-center">
-                <img src="/gmail.png" alt="Google" className="w-8 h-8" />
+              <div className="w-10 h-10 mb-3 flex items-center justify-center pointer-events-none select-none">
+                <img src="/gmail.png" alt="Google" draggable={false} className="w-8 h-8 pointer-events-none select-none" />
               </div>
               <p className="text-white font-medium text-sm">Google Tools</p>
             </button>
@@ -447,8 +447,8 @@ export function HomeView() {
               {exploreModal === "telegram" && (
                 <>
                   <div className="flex flex-col items-center px-4 mb-6">
-                    <div className="w-20 h-20 mb-4 flex items-center justify-center">
-                      <img src="/telegram-icon.png" alt="Telegram" className="w-16 h-16" />
+                    <div className="w-20 h-20 mb-4 flex items-center justify-center pointer-events-none select-none">
+                      <img src="/telegram-icon.png" alt="Telegram" draggable={false} className="w-16 h-16 pointer-events-none select-none" />
                     </div>
                     <h2 className="text-white font-bold text-xl mb-1">Search on Telegram</h2>
                     <p className="text-neutral-500 text-sm">Opens a dedicated Telegram Search topic</p>
@@ -488,15 +488,15 @@ export function HomeView() {
               {exploreModal === "google" && (
                 <>
                   <div className="flex flex-col items-center px-4 mb-6">
-                    <div className="w-20 h-20 mb-4 flex items-center justify-center">
-                      <img src="/gmail.png" alt="Google" className="w-16 h-16" />
+                    <div className="w-20 h-20 mb-4 flex items-center justify-center pointer-events-none select-none">
+                      <img src="/gmail.png" alt="Google" draggable={false} className="w-16 h-16 pointer-events-none select-none" />
                     </div>
                     <h2 className="text-white font-bold text-xl mb-1">Google Tools</h2>
                     <p className="text-neutral-500 text-sm">Opens a dedicated Google Tools topic</p>
                   </div>
                   <div className="mx-4 mb-3 rounded-2xl p-4" style={{ background: "#2c2c2e" }}>
-                    <div className="flex items-center gap-3 mb-3">
-                      <img src="/gmail.png" alt="Gmail" className="w-8 h-8" />
+                    <div className="flex items-center gap-3 mb-3 pointer-events-none select-none">
+                      <img src="/gmail.png" alt="Gmail" draggable={false} className="w-8 h-8 pointer-events-none select-none" />
                       <div>
                         <p className="text-white font-semibold text-sm">Gmail</p>
                         <p className="text-xs" style={{ color: "#8e8e93" }}>Read, send & manage emails with AI</p>
