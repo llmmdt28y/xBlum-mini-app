@@ -39,7 +39,7 @@ export function ReferralView() {
     const tg = (window as any).Telegram?.WebApp
     const shareText = "Join xBlum AI and get free tokens! Generate amazing AI images and chat with the smartest AI."
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(shareText)}`
-    if (tg) {
+    if (tg && tg.openTelegramLink) {
       tg.openTelegramLink(shareUrl)
     } else {
       window.open(shareUrl, "_blank")
@@ -57,21 +57,15 @@ export function ReferralView() {
     })
   }
 
-  // Propiedades para evitar el menú de contexto en imágenes
-  const imageProps = {
-    draggable: false,
-    onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
-    style: { WebkitTouchCallout: "none" as const, userSelect: "none" as const }
-  }
-
   return (
-    <div className="flex-1 flex flex-col" style={{ background: "#000", minHeight: "100vh" }}>
+    <div className="flex-1 overflow-y-auto relative" style={{ background: "#000", minHeight: "100vh" }}>
       
-      {/* Header Centrado Nativo */}
+      {/* ── Header Centrado Exacto ── */}
       <div
-        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
+        className="sticky top-0 z-30 flex items-center justify-center w-full"
         style={{
-          paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)",
+          paddingTop: "var(--tg-safe-area-inset-top, 24px)",
+          height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)",
           background: "rgba(0,0,0,0.92)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
@@ -86,15 +80,15 @@ export function ReferralView() {
       </div>
 
       {/* Contenedor principal */}
-      <div className="px-4 pt-6 pb-28 space-y-6 overflow-y-auto">
+      <div className="px-4 pt-6 pb-28 space-y-6">
         
         {/* Sticker and Title */}
         <div className="flex flex-col items-center text-center">
           <img
             src="/referral-icon.webp"
             alt="Referral Program"
-            className="w-32 h-32 object-contain mb-4 rounded-2xl"
-            {...imageProps}
+            draggable={false}
+            className="w-32 h-32 object-contain mb-4 rounded-2xl pointer-events-none select-none"
           />
           <h1 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: SFD }}>
             Referral Program
@@ -113,8 +107,8 @@ export function ReferralView() {
               <img
                 src="/referral-comission.webp"
                 alt="Commission"
-                className="w-6 h-6 object-contain"
-                {...imageProps}
+                draggable={false}
+                className="w-6 h-6 object-contain pointer-events-none select-none"
               />
             </div>
             <div>
@@ -131,8 +125,8 @@ export function ReferralView() {
               <img
                 src="/token-icon.png"
                 alt="Pro"
-                className="w-6 h-6 object-contain"
-                {...imageProps}
+                draggable={false}
+                className="w-6 h-6 object-contain pointer-events-none select-none"
               />
             </div>
             <div>
@@ -143,14 +137,14 @@ export function ReferralView() {
             </div>
           </div>
 
-          {/* Benefit 3 - ACTUALIZADO */}
+          {/* Benefit 3 */}
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
               <img
                 src="/xblum2-icon.png"
                 alt="Partners"
-                className="w-6 h-6 object-contain"
-                {...imageProps}
+                draggable={false}
+                className="w-6 h-6 object-contain pointer-events-none select-none"
               />
             </div>
             <div>
@@ -185,7 +179,7 @@ export function ReferralView() {
           </div>
         </div>
 
-        {/* Referrals Counter — ACTUALIZADO */}
+        {/* Referrals Counter */}
         <div>
           <p className="text-[#636366] text-xs font-semibold tracking-wider uppercase mb-2" style={{ fontFamily: SF }}>
             FRIENDS INVITED: {referralCount}
