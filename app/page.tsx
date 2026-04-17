@@ -8,9 +8,8 @@ import { StoreView } from "@/components/store-view"
 import { PremiumView } from "@/components/premium-view"
 import { ReferralView } from "@/components/referral-view"
 import { ProfileView } from "@/components/profile-view"
-import { XRewardsView } from "@/components/x-rewards-view" // Añadimos la importación
+import { XRewardsView } from "@/components/x-rewards-view" 
 import { useEffect, useState } from "react"
-// Importamos los iconos actualizados
 import { Home, Coins, Activity, CircleUser } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
@@ -36,6 +35,7 @@ function NavBar() {
     setInitials((f + l).toUpperCase() || user.username?.[0]?.toUpperCase() || "?")
   }, [])
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type Tab = { id: string; label: string; icon: any; disabled?: boolean }
   const tabs: Tab[] = [
     { id: "home",      label: "Home",      icon: Home },
@@ -55,7 +55,7 @@ function NavBar() {
   return (
     <div
       className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none"
-      style={{ bottom: "max(24px, env(safe-area-inset-bottom))" }}
+      style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 24px)" }}
     >
       <div
         className="pointer-events-auto flex items-center"
@@ -142,11 +142,14 @@ function NavBar() {
 function AppContent() {
   const { currentView } = useApp()
   // La NavBar solo se muestra en estas vistas principales.
-  // Al no incluir "x-rewards", la navbar se oculta automáticamente (como en referral o premium) dando todo el espacio a tu nueva vista.
   const showNav = ["home", "store", "analytics", "profile"].includes(currentView)
 
   return (
-    <div className="min-h-screen bg-black flex flex-col" style={{ paddingBottom: showNav ? "100px" : "0" }}>
+    // CAMBIO: Eliminamos paddingBottom estricto y usamos variables dinámicas de Telegram
+    <div 
+      className="bg-black flex flex-col relative" 
+      style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
+    >
       {currentView === "home" && (<><Header /><HomeView /></>)}
       {currentView === "settings"  && <SettingsView />}
       {currentView === "store"     && <StoreView />}
@@ -154,7 +157,6 @@ function AppContent() {
       {currentView === "referral"  && <ReferralView />}
       {currentView === "profile"   && <ProfileView />}
       
-      {/* Añadimos la nueva vista aquí */}
       {currentView === "x-rewards" && <XRewardsView />}
 
       {currentView === "analytics" && (
@@ -162,6 +164,7 @@ function AppContent() {
           <p className="text-neutral-600 text-sm">Analytics coming soon</p>
         </div>
       )}
+      
       {showNav && <NavBar />}
     </div>
   )
