@@ -494,9 +494,8 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                     className="text-[10px] font-semibold truncate text-center"
                     style={{ color: isFirst ? "#f59e0b" : "#636366", fontFamily: SFD }}
                   >
-                    {formatX(entry.tp)}
+                    {formatX(entry.tp)} $X
                   </p>
-                  <span style={{ fontSize: "10px", fontWeight: 800, color: isFirst ? "#f59e0b" : "#636366", fontFamily: SFD }}>$X</span>
                 </div>
                 <div
                   className="w-full rounded-t-xl flex items-center justify-center"
@@ -528,8 +527,9 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                     {entry.username}
                   </p>
                   <div className="flex items-center gap-1 mt-0.5">
-                    <p className="text-xs" style={{ color: "#636366", fontFamily: SFD }}>{formatX(entry.tp)}</p>
-                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#8e8e93", fontFamily: SFD }}>$X</span>
+                    <p className="text-xs" style={{ color: "#636366", fontFamily: SFD }}>
+                      {formatX(entry.tp)} $X
+                    </p>
                   </div>
                 </div>
                 <span className="text-sm font-semibold shrink-0" style={{ color: "#3a3a3c" }}>
