@@ -74,7 +74,7 @@ function formatX(n: number) {
   return n.toLocaleString()
 }
 
-const REWARDS = { INVITE: 1000, CHANNEL: 500, AD: 100, ADD_CHAT: 500, STORY: 500, SHARE: 250 }
+const REWARDS = { INVITE: 1000, CHANNEL: 500, AD: 300, ADD_CHAT: 500, STORY: 500, SHARE: 250 }
 
 function RewardBadge({ amount, className = "" }: { amount: number, className?: string }) {
   return (
@@ -102,21 +102,19 @@ export function StoreView() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
 
-  // ── PARCHE DE SEGURIDAD APLICADO AQUÍ ──
+  // ── onAdReward: refresca estado después del ad ──
   const onAdReward = useCallback(async () => {
     setLoadingAd(true)
-    
-    // Ya NO llamamos a claimMissionTokens aquí. 
-    // El servidor (Webhook S2S) se encargará de sumar los +100 $X a la base de datos de forma segura.
-    
+
+    // Esperamos ~1.5s para que el webhook S2S de Adsgram llegue al servidor primero
+    await new Promise(r => setTimeout(r, 1500))
+
+    // Refrescamos: actualiza ads_today (contador 0/3), x_points y todo el estado
+    if (ctx.refreshUserData) await ctx.refreshUserData()
+
     tg?.showAlert(`✅ +${REWARDS.AD} $X earned!`)
-    
-    // Opcional: Si en tu contexto tienes una función para refrescar los datos desde el servidor,
-    // puedes llamarla aquí para que el balance se actualice visualmente.
-    // ej: if (ctx.refreshUserData) await ctx.refreshUserData()
-    
     setLoadingAd(false)
-  }, [tg])
+  }, [tg, ctx])
 
   const onAdError = useCallback((result: ShowPromiseResult) => {
     setLoadingAd(false)
