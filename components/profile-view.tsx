@@ -1,8 +1,58 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { useEffect, useState } from "react"
-import { ChevronRight, Gift, Users, Shield, Zap, Trophy, Medal, Settings, Loader2 } from "lucide-react"
+import { useEffect, useState, useCallback } from "react"
+import { Info, History, ArrowDownRight, ArrowUpRight, Loader2, ChevronRight, Gift, Users, Shield, Zap, Trophy, Medal, Settings } from "lucide-react"
+
+const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
+const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getTg(): any {
+  if (typeof window === "undefined") return undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (window as any).Telegram?.WebApp
+}
+
+async function apiPost(endpoint: string, body: Record<string, unknown>) {
+  const tg       = getTg()
+  const initData = tg?.initData ?? ""
+  const userId   = tg?.initDataUnsafe?.user?.id ?? null
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...body, initData, userId }),
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+type Transaction = {
+  amount:      number
+  description: string
+  timestamp:   string
+  is_out:      boolean
+}
+
+function formatBalance(balance: number) {
+  const rounded = Math.floor(balance).toString()
+  return { integer: rounded }
+}
+
+function formatDate(iso: string) {
+  try {
+    const d = new Date(iso)
+    const now = new Date()
+    const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000)
+    if (diffDays === 0) return `Today, ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+    if (diffDays === 1) return `Yesterday, ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+    return d.toLocaleDateString([], { day: "numeric", month: "short" }) + ", " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  } catch {
+    return iso.slice(0, 16).replace("T", " ")
+  }
+}
 
 // ── Telegram user helper ─────────────────────────────────────────────
 type TgUser = {
@@ -31,51 +81,223 @@ type LeaderboardEntry = {
 
 const MOCK_LEADERBOARD: Record<LeaderboardPeriod, LeaderboardEntry[]> = {
   this_week: [
-    { rank: 1, username: "vertetigr",       tp: 118079, initials: "VT", avatarColor: "#3b82f6" },
-    { rank: 2, username: "some_dogs",        tp:  55438, initials: "SD", avatarColor: "#8b5cf6" },
-    { rank: 3, username: "XHamsterx",        tp:  36400, initials: "XH", avatarColor: "#f59e0b" },
-    { rank: 4, username: "Anvar1982n",        tp:  33300, initials: "AN", avatarColor: "#10b981" },
-    { rank: 5, username: "Tuvanta",          tp:  33000, initials: "TU", avatarColor: "#ec4899" },
-    { rank: 6, username: "Shdioawhxueigo",   tp:  30750, initials: "SH", avatarColor: "#6366f1" },
-    { rank: 7, username: "jstgcalchara",     tp:  28400, initials: "JG", avatarColor: "#14b8a6" },
-    { rank: 8, username: "cryptowolf99",     tp:  24200, initials: "CW", avatarColor: "#f97316" },
-    { rank: 9, username: "moon_tradr",       tp:  21100, initials: "MT", avatarColor: "#a855f7" },
-    { rank: 10, username: "blainkz",         tp:  18900, initials: "BK", avatarColor: "#22c55e" },
+    { rank: 1, username: "vertetigr",       tp: 2500000, initials: "VT", avatarColor: "#3b82f6" },
+    { rank: 2, username: "some_dogs",       tp: 1000000, initials: "SD", avatarColor: "#8b5cf6" },
+    { rank: 3, username: "XHamsterx",       tp:  855000, initials: "XH", avatarColor: "#f59e0b" },
+    { rank: 4, username: "Anvar1982n",      tp:  150000, initials: "AN", avatarColor: "#10b981" },
+    { rank: 5, username: "Tuvanta",         tp:   10500, initials: "TU", avatarColor: "#ec4899" },
+    { rank: 6, username: "Shdioawhxueigo",  tp:    5000, initials: "SH", avatarColor: "#6366f1" },
+    { rank: 7, username: "jstgcalchara",    tp:    2200, initials: "JG", avatarColor: "#14b8a6" },
+    { rank: 8, username: "cryptowolf99",    tp:    1500, initials: "CW", avatarColor: "#f97316" },
+    { rank: 9, username: "moon_tradr",      tp:    1000, initials: "MT", avatarColor: "#a855f7" },
+    { rank: 10, username: "blainkz",        tp:     500, initials: "BK", avatarColor: "#22c55e" },
   ],
   last_week: [
-    { rank: 1, username: "cryptowolf99",     tp: 204310, initials: "CW", avatarColor: "#f97316" },
-    { rank: 2, username: "vertetigr",        tp: 189022, initials: "VT", avatarColor: "#3b82f6" },
-    { rank: 3, username: "blainkz",          tp: 142700, initials: "BK", avatarColor: "#22c55e" },
-    { rank: 4, username: "moon_tradr",       tp:  98400, initials: "MT", avatarColor: "#a855f7" },
-    { rank: 5, username: "XHamsterx",        tp:  87200, initials: "XH", avatarColor: "#f59e0b" },
-    { rank: 6, username: "some_dogs",        tp:  74500, initials: "SD", avatarColor: "#8b5cf6" },
-    { rank: 7, username: "Tuvanta",          tp:  61300, initials: "TU", avatarColor: "#ec4899" },
-    { rank: 8, username: "Anvar1982n",        tp:  55100, initials: "AN", avatarColor: "#10b981" },
-    { rank: 9, username: "jstgcalchara",     tp:  42000, initials: "JG", avatarColor: "#14b8a6" },
-    { rank: 10, username: "niko_blm",        tp:  38750, initials: "NB", avatarColor: "#6366f1" },
+    { rank: 1, username: "cryptowolf99",    tp: 2800000, initials: "CW", avatarColor: "#f97316" },
+    { rank: 2, username: "vertetigr",       tp: 1200000, initials: "VT", avatarColor: "#3b82f6" },
+    { rank: 3, username: "blainkz",         tp:  900000, initials: "BK", avatarColor: "#22c55e" },
+    { rank: 4, username: "moon_tradr",      tp:  250000, initials: "MT", avatarColor: "#a855f7" },
+    { rank: 5, username: "XHamsterx",       tp:   87000, initials: "XH", avatarColor: "#f59e0b" },
+    { rank: 6, username: "some_dogs",       tp:   15500, initials: "SD", avatarColor: "#8b5cf6" },
+    { rank: 7, username: "Tuvanta",         tp:   10000, initials: "TU", avatarColor: "#ec4899" },
+    { rank: 8, username: "Anvar1982n",      tp:    5200, initials: "AN", avatarColor: "#10b981" },
+    { rank: 9, username: "jstgcalchara",    tp:    3000, initials: "JG", avatarColor: "#14b8a6" },
+    { rank: 10, username: "niko_blm",       tp:    1200, initials: "NB", avatarColor: "#6366f1" },
   ],
   all_time: [
-    { rank: 1, username: "cryptowolf99",     tp: 1204310, initials: "CW", avatarColor: "#f97316" },
-    { rank: 2, username: "vertetigr",        tp:  998022, initials: "VT", avatarColor: "#3b82f6" },
-    { rank: 3, username: "some_dogs",        tp:  874500, initials: "SD", avatarColor: "#8b5cf6" },
-    { rank: 4, username: "XHamsterx",        tp:  720400, initials: "XH", avatarColor: "#f59e0b" },
-    { rank: 5, username: "blainkz",          tp:  642700, initials: "BK", avatarColor: "#22c55e" },
-    { rank: 6, username: "Anvar1982n",        tp:  598100, initials: "AN", avatarColor: "#10b981" },
-    { rank: 7, username: "moon_tradr",       tp:  541200, initials: "MT", avatarColor: "#a855f7" },
-    { rank: 8, username: "Tuvanta",          tp:  488900, initials: "TU", avatarColor: "#ec4899" },
-    { rank: 9, username: "niko_blm",         tp:  412000, initials: "NB", avatarColor: "#6366f1" },
-    { rank: 10, username: "jstgcalchara",    tp:  398750, initials: "JG", avatarColor: "#14b8a6" },
+    { rank: 1, username: "cryptowolf99",    tp: 12500000, initials: "CW", avatarColor: "#f97316" },
+    { rank: 2, username: "vertetigr",       tp:  9980000, initials: "VT", avatarColor: "#3b82f6" },
+    { rank: 3, username: "some_dogs",       tp:  4874000, initials: "SD", avatarColor: "#8b5cf6" },
+    { rank: 4, username: "XHamsterx",       tp:  2720000, initials: "XH", avatarColor: "#f59e0b" },
+    { rank: 5, username: "blainkz",         tp:  1642000, initials: "BK", avatarColor: "#22c55e" },
+    { rank: 6, username: "Anvar1982n",      tp:   598000, initials: "AN", avatarColor: "#10b981" },
+    { rank: 7, username: "moon_tradr",      tp:   254000, initials: "MT", avatarColor: "#a855f7" },
+    { rank: 8, username: "Tuvanta",         tp:    88000, initials: "TU", avatarColor: "#ec4899" },
+    { rank: 9, username: "niko_blm",        tp:    41000, initials: "NB", avatarColor: "#6366f1" },
+    { rank: 10, username: "jstgcalchara",   tp:    12000, initials: "JG", avatarColor: "#14b8a6" },
   ],
 }
 
 function formatX(n: number) {
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + "M"
-  if (n >= 1_000)     return (n / 1_000).toFixed(0) + "K"
+  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"
+  if (n >= 1_000)     return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K"
   return n.toLocaleString()
 }
 
-const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
-const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+
+export function XRewardsView() {
+  const { setCurrentView } = useApp()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ctx = useApp() as any
+
+  // Balance real desde el contexto (cargado por /api/status)
+  const xBalance: number = ctx.x_points ?? ctx.tokens ?? 0
+  const { integer } = formatBalance(xBalance)
+
+  const [transactions, setTransactions]   = useState<Transaction[]>([])
+  const [loadingTxns, setLoadingTxns]     = useState(true)
+  const [showAll, setShowAll]             = useState(false)
+  const [allLoaded, setAllLoaded]         = useState(false)
+  const [total, setTotal]                 = useState(0)
+
+  // Telegram back button
+  useEffect(() => {
+    const tg = getTg()
+    if (!tg?.BackButton) return
+    tg.BackButton.show()
+    const handleBack = () => { setCurrentView("profile"); tg.BackButton.hide() }
+    tg.BackButton.onClick(handleBack)
+    return () => { tg.BackButton.offClick(handleBack) }
+  }, [setCurrentView])
+
+  // Cargar transacciones desde el backend
+  const loadTransactions = useCallback(async (all = false) => {
+    try {
+      setLoadingTxns(true)
+      const data = await apiPost("/api/x_ledger", { limit: all ? 50 : 5, offset: 0 }) as any
+      setTransactions(data.transactions ?? [])
+      setTotal(data.total ?? 0)
+      if (all) setAllLoaded(true)
+    } catch (e) {
+      console.error("[XRewards] ledger error:", e)
+    } finally {
+      setLoadingTxns(false)
+    }
+  }, [])
+
+  useEffect(() => { loadTransactions(false) }, [loadTransactions])
+
+  const handleViewAll = () => {
+    if (!allLoaded) {
+      loadTransactions(true)
+    }
+    setShowAll(true)
+  }
+
+  return (
+    <div className="flex-1 flex flex-col" style={{ background: "#000", minHeight: "100vh" }}>
+
+      {/* Header */}
+      <div
+        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
+        style={{
+          paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)",
+          background: "rgba(0,0,0,0.92)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+        }}
+      >
+        <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+          $X Rewards
+        </h2>
+      </div>
+
+      <div className="px-4 pt-6 pb-28 overflow-y-auto space-y-6">
+
+        {/* ── Balance Card ── */}
+        <div
+          className="rounded-[24px] p-6 relative overflow-hidden"
+          style={{ background: "#111", border: "1px solid #1c1c1e" }}
+        >
+          <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, fontWeight: 500 }}>
+              Total $X Points
+            </p>
+            <button className="active:opacity-60 transition-opacity">
+              <Info size={18} style={{ color: "#48484a" }} />
+            </button>
+          </div>
+
+          {/* Balance */}
+          <div className="flex items-end gap-3 mb-6 relative z-10">
+            <span className="flex items-center justify-center shrink-0" style={{ fontSize: "48px", fontWeight: 800, color: "#f59e0b", fontFamily: SFD, filter: "drop-shadow(0 4px 12px rgba(245,158,11,0.2))", lineHeight: 1 }}>
+              $X
+            </span>
+            <div className="flex items-baseline gap-0.5">
+              <span style={{ fontSize: "44px", fontWeight: 800, color: "#fff", fontFamily: SFD, letterSpacing: "-0.02em", lineHeight: 1 }}>
+                {integer}
+              </span>
+            </div>
+          </div>
+
+          {/* Info: $X para leaderboard */}
+          <div
+            className="relative z-10 rounded-[14px] px-4 py-3"
+            style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}
+          >
+            <p style={{ fontSize: "13px", color: "#f59e0b", fontFamily: SF, lineHeight: 1.4 }}>
+              🏆 $X points are used in the weekly leaderboard.
+              Top 3 each week win <b>7 days of xBlum Pro</b>!
+            </p>
+          </div>
+        </div>
+
+        {/* ── Recent Activity ── */}
+        <div>
+          <div className="flex items-center justify-between px-1 mb-2">
+            <p style={{ fontSize: "11px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.07em", color: "#48484a", fontFamily: SF }}>
+              Recent Activity
+            </p>
+            {total > 5 && !showAll && (
+              <button onClick={handleViewAll} className="flex items-center gap-1 active:opacity-60 transition-opacity">
+                <History size={13} style={{ color: "#636366" }} />
+                <span style={{ fontSize: "12px", color: "#636366", fontFamily: SF }}>View All ({total})</span>
+              </button>
+            )}
+          </div>
+
+          <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+            {loadingTxns ? (
+              <div className="flex items-center justify-center py-10">
+                <Loader2 className="w-6 h-6 animate-spin text-[#48484a]" />
+              </div>
+            ) : transactions.length === 0 ? (
+              <div className="flex flex-col items-center py-10 gap-2 px-4">
+                <History size={32} style={{ color: "#48484a" }} />
+                <p style={{ fontSize: "14px", color: "#636366", fontFamily: SF, textAlign: "center" }}>
+                  No transactions yet. Complete missions to earn $X!
+                </p>
+              </div>
+            ) : (
+              (showAll ? transactions : transactions.slice(0, 5)).map((tx, i, arr) => (
+                <div key={i}>
+                  <div className="flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: tx.is_out ? "rgba(239,68,68,0.1)" : "rgba(34,197,94,0.1)" }}
+                    >
+                      {tx.is_out
+                        ? <ArrowUpRight size={20} style={{ color: "#ef4444" }} />
+                        : <ArrowDownRight size={20} style={{ color: "#22c55e" }} />
+                      }
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-[15px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+                        {tx.description}
+                      </p>
+                      <p className="mt-0.5" style={{ fontSize: "12px", color: "#636366", fontFamily: SF }}>
+                        {formatDate(tx.timestamp)}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[15px] font-semibold" style={{ color: tx.is_out ? "#ef4444" : "#22c55e", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                        {tx.amount > 0 ? "+" : ""}{tx.amount.toLocaleString()} $X
+                      </p>
+                    </div>
+                  </div>
+                  {i < arr.length - 1 && <div style={{ height: "0.5px", background: "#1e1e1e", marginLeft: "68px" }} />}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  )
+}
 
 // ── Leaderboard sub-view ─────────────────────────────────────────────
 const API_BASE_LB = process.env.NEXT_PUBLIC_API_URL ?? ""
@@ -90,6 +312,11 @@ async function fetchLeaderboard(scope: string) {
 const AVATAR_COLORS = ["#3b82f6","#8b5cf6","#f59e0b","#10b981","#ec4899","#6366f1","#14b8a6","#f97316","#a855f7","#22c55e"]
 
 function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUserId?: number }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ctx = useApp() as any
+  const { setCurrentView } = ctx
+  const myBalance = ctx.x_points ?? ctx.tokens ?? 0
+
   const [period, setPeriod]   = useState<LeaderboardPeriod>("this_week")
   const [entries, setEntries] = useState<LeaderboardEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -102,7 +329,6 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
     fetchLeaderboard(scopeMap[period]).then(raw => {
       const mapped: LeaderboardEntry[] = raw.map((r, i) => {
         const fullName = [r.first_name, r.last_name].filter(Boolean).join(" ")
-        // Prioridad: Nombre Real -> Username -> ID
         const displayName = fullName ? fullName : r.username ? `@${r.username}` : `User #${String(r.user_id).slice(-6)}`
         const words = displayName.replace("@","").split(/\s+/)
         const initials = words.length >= 2
@@ -120,7 +346,6 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
       setEntries(mapped)
       setLoading(false)
     }).catch(() => {
-      // Fallback to mock on error
       setEntries(MOCK_LEADERBOARD[period])
       setLoading(false)
     })
@@ -137,7 +362,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
   return (
     <div className="flex-1 overflow-y-auto relative" style={{ background: "#000", minHeight: "100vh" }}>
       
-      {/* ── Header Leaderboard (Centrado Exacto) ── */}
+      {/* ── Header Leaderboard ── */}
       <div
         className="sticky top-0 z-30 flex items-center justify-center w-full"
         style={{
@@ -205,20 +430,21 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
           </div>
           <div className="flex-1">
             <p className="text-white font-medium text-sm" style={{ fontFamily: SF }}>
-              {currentUser || "Nickjjjj"}
+              {currentUser || "User"}
             </p>
             <p className="text-xs" style={{ color: "#636366" }}>
-              {myEntry ? `${formatX(myEntry.tp)} $X` : "0 $X"}
+              {myEntry ? `${formatX(myEntry.tp)} $X` : `${formatX(myBalance)} $X`}
             </p>
           </div>
           {myEntry ? (
             <span className="text-sm font-semibold" style={{ color: "#f59e0b" }}>#{myEntry.rank}</span>
           ) : (
             <button
-              className="px-4 py-1.5 rounded-full text-sm font-medium"
+              onClick={() => setCurrentView("x-rewards")}
+              className="px-4 py-1.5 rounded-full text-sm font-medium transition-opacity active:opacity-70"
               style={{ background: "#3b82f6", color: "#fff", fontFamily: SF }}
             >
-              Start →
+              Rewards
             </button>
           )}
         </div>
@@ -272,7 +498,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                   >
                     {formatX(entry.tp)}
                   </p>
-                  <img src="/xblum2-icon.png" alt="" className="w-2.5 h-2.5 object-contain" />
+                  <span style={{ fontSize: "10px", fontWeight: 800, color: isFirst ? "#f59e0b" : "#636366", fontFamily: SFD }}>$X</span>
                 </div>
                 <div
                   className="w-full rounded-t-xl flex items-center justify-center"
@@ -305,7 +531,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                   </p>
                   <div className="flex items-center gap-1 mt-0.5">
                     <p className="text-xs" style={{ color: "#636366", fontFamily: SFD }}>{formatX(entry.tp)}</p>
-                    <img src="/xblum2-icon.png" alt="" className="w-3 h-3 object-contain opacity-60" />
+                    <span style={{ fontSize: "11px", fontWeight: 700, color: "#8e8e93", fontFamily: SFD }}>$X</span>
                   </div>
                 </div>
                 <span className="text-sm font-semibold shrink-0" style={{ color: "#3a3a3c" }}>
@@ -482,7 +708,7 @@ export function ProfileView() {
   return (
     <div className="flex-1 overflow-y-auto relative" style={{ background: "#000" }}>
 
-      {/* ── Header Profile (Centrado Exacto) ── */}
+      {/* ── Header Profile ── */}
       <div
         className="sticky top-0 z-30 flex items-center justify-center w-full"
         style={{
@@ -545,13 +771,9 @@ export function ProfileView() {
         <Section title="Rewards">
           <Row
             leftNode={
-              <img
-                src="/xblum2-icon.png"
-                alt="$X Rewards"
-                className="w-full h-full object-contain pointer-events-none select-none"
-                draggable={false}
-                onError={(e) => { e.currentTarget.style.display = "none"; const p = e.currentTarget.parentElement; if (p) p.textContent = "🚀" }}
-              />
+              <span style={{ fontSize: "16px", fontWeight: 800, color: "#f59e0b", fontFamily: SFD }}>
+                $X
+              </span>
             }
             label="$X Rewards"
             sublabel="Earn tokens & exclusive perks"
