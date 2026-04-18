@@ -211,15 +211,13 @@ export function XRewardsView() {
           </div>
 
           {/* Balance */}
-          <div className="flex items-end gap-3 mb-6 relative z-10">
-            <span className="flex items-center justify-center shrink-0" style={{ fontSize: "48px", fontWeight: 800, color: "#f59e0b", fontFamily: SFD, filter: "drop-shadow(0 4px 12px rgba(245,158,11,0.2))", lineHeight: 1 }}>
+          <div className="flex items-baseline gap-2 mb-6 relative z-10">
+            <span style={{ fontSize: "44px", fontWeight: 800, color: "#fff", fontFamily: SFD, letterSpacing: "-0.02em", lineHeight: 1 }}>
+              {integer}
+            </span>
+            <span style={{ fontSize: "24px", fontWeight: 700, color: "#fff", fontFamily: SFD }}>
               $X
             </span>
-            <div className="flex items-baseline gap-0.5">
-              <span style={{ fontSize: "44px", fontWeight: 800, color: "#fff", fontFamily: SFD, letterSpacing: "-0.02em", lineHeight: 1 }}>
-                {integer}
-              </span>
-            </div>
           </div>
 
           {/* Info: $X para leaderboard */}
@@ -432,7 +430,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
             <p className="text-white font-medium text-sm" style={{ fontFamily: SF }}>
               {currentUser || "User"}
             </p>
-            <p className="text-xs" style={{ color: "#636366" }}>
+            <p className="text-xs" style={{ color: "#636366", fontFamily: SFD }}>
               {myEntry ? `${formatX(myEntry.tp)} $X` : `${formatX(myBalance)} $X`}
             </p>
           </div>
@@ -771,9 +769,13 @@ export function ProfileView() {
         <Section title="Rewards">
           <Row
             leftNode={
-              <span style={{ fontSize: "16px", fontWeight: 800, color: "#f59e0b", fontFamily: SFD }}>
-                $X
-              </span>
+              <img
+                src="/xblum2-icon.png"
+                alt="$X Rewards"
+                className="w-full h-full object-contain pointer-events-none select-none"
+                draggable={false}
+                onError={(e) => { e.currentTarget.style.display = "none"; const p = e.currentTarget.parentElement; if (p) p.textContent = "🚀" }}
+              />
             }
             label="$X Rewards"
             sublabel="Earn tokens & exclusive perks"
