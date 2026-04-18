@@ -72,6 +72,7 @@ function getTgUser(): TgUser | undefined {
 type LeaderboardPeriod = "this_week" | "last_week" | "all_time"
 type LeaderboardEntry = {
   rank: number
+  userId?: number // ID numérico añadido
   username: string
   tp: number 
   initials: string
@@ -334,6 +335,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
           : displayName.replace("@","").slice(0, 2).toUpperCase()
         return {
           rank:        r.rank,
+          userId:      r.user_id, // Agregado aquí para la comparación exacta
           username:    displayName,
           tp:          r.tp,
           initials,
@@ -349,7 +351,8 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
     })
   }, [period])
 
-  const myEntry = myUserId ? entries.find(e => e.username.includes(String(myUserId).slice(-6)) || e.username === `@${myUserId}`) : undefined
+  // Corrección: Ahora busca coincidencias exactas por ID numérico
+  const myEntry = myUserId ? entries.find(e => e.userId === myUserId) : undefined
 
   const PERIOD_LABELS: Record<LeaderboardPeriod, string> = {
     this_week: "This week",
