@@ -8,7 +8,7 @@ import {
 // Se ha simplificado para dejar solo inglés
 export type Language  = "en"
 export type ModelName = "Grok 4" | "Grok 4 Mini" | "GPT-5.4" | "GPT-5.2"
-export type View      = "home" | "settings" | "store" | "premium" | "referral" | "analytics" | "profile" | "x-rewards"
+export type View      = "home" | "settings" | "store" | "premium" | "referral" | "analytics" | "profile" | "x-rewards" | "group-settings"
 
 export type UserPreferences = {
   name: string; age: string; location: string; preferences: string
@@ -39,6 +39,7 @@ export type AppState = {
   image_daily_limit: number
   my_rank_global: { rank: number; tp: number }
   my_rank_weekly: { rank: number; tp: number }
+  selectedGroupId: number | null
 }
 
 export type AppContextType = AppState & {
@@ -60,6 +61,7 @@ export type AppContextType = AppState & {
   submitFeedback: (type: string, desc: string) => Promise<boolean>
   minutesUntilReset: number
   t: (key: string) => string
+  setSelectedGroupId: (id: number | null) => void
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -83,6 +85,7 @@ const LANG_MAP: Record<Language, Record<string, string>> = {
 
 function getTgUser() {
   if (typeof window === "undefined") return null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user
 }
 
@@ -112,6 +115,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     image_daily_limit: 5,
     my_rank_global: { rank: 0, tp: 0 },
     my_rank_weekly: { rank: 0, tp: 0 },
+    selectedGroupId: null,
   })
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
@@ -137,6 +141,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return
     }
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const initData = (window as any).Telegram?.WebApp?.initData
       const data = await apiCall("/api/status", { initData }) as any
       if (data && !data.error) {
@@ -173,24 +178,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const setSelectedModel = async (m: ModelName) => {
     setState(s => ({ ...s, selectedModel: m }))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await apiCall("/api/set_model", { initData: (window as any).Telegram?.WebApp?.initData, model: m })
   }
 
   const setPersonalizeMemories = async (enabled: boolean) => {
     setState(s => ({ ...s, personalizeMemories: enabled }))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await apiCall("/api/set_personalize_memories", { initData: (window as any).Telegram?.WebApp?.initData, enabled })
   }
 
   const deleteAllMemories = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await apiCall("/api/delete_memories", { initData: (window as any).Telegram?.WebApp?.initData })
   }
 
   const deleteAllHistory = async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await apiCall("/api/delete_history", { initData: (window as any).Telegram?.WebApp?.initData })
   }
 
   const claimMissionTokens = async (mission_id: string, amount: number) => {
     const data = await apiCall("/api/claim_mission", {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       initData: (window as any).Telegram?.WebApp?.initData,
       mission_id
     }) as any
@@ -207,24 +217,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const openInvoice = async (package_id: string) => {
     const data = await apiCall("/api/get_invoice_link", {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       initData: (window as any).Telegram?.WebApp?.initData,
       package_id
     }) as any
     if (data.ok && data.invoice_link) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).Telegram?.WebApp?.openInvoice(data.invoice_link)
     }
   }
 
   const sendToBot = async (text: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).Telegram?.WebApp?.sendData(text)
   }
 
   const sendChatMessage = async (text: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await apiCall("/api/chat_message", { initData: (window as any).Telegram?.WebApp?.initData, text })
   }
 
   const openExploreTopic = async (topic_key: string, text?: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await apiCall("/api/open_explore_topic", { initData: (window as any).Telegram?.WebApp?.initData, topic_key, text })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     try { (window as any).Telegram?.WebApp?.close() } catch (e) { console.error(e) }
   }
 
@@ -232,7 +248,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       const data = await apiCall("/api/submit_feedback", { feedback_type: type, description }) as { ok?: boolean }
       return data.ok !== false
-    } catch (e) { console.error(e); return false }
+    } catch (e) { 
+      console.error(e); 
+      return false 
+    }
   }
 
   function t(key: string): string {
@@ -259,6 +278,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     submitFeedback,
     minutesUntilReset: state.throttleMinutes,
     t,
+    setSelectedGroupId:     id => setState(s => ({ ...s, selectedGroupId: id })),
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
