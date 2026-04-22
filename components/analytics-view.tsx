@@ -29,10 +29,12 @@ async function apiGet(endpoint: string) {
 async function apiPost(endpoint: string, body: Record<string, unknown>) {
   const tg = getTg()
   const initData = tg?.initData ?? ""
+  const userId = tg?.initDataUnsafe?.user?.id ?? null
+  
   const res = await fetch(`${API_BASE}${endpoint}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...body, initData }),
+    body: JSON.stringify({ ...body, initData, userId }),
   })
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
@@ -101,7 +103,7 @@ export function AnalyticsView() {
   const { setCurrentView } = useApp()
   const [groups, setGroups] = useState<GroupInfo[]>([])
   const [loading, setLoading] = useState(true)
-  const [registering, setRegistering] = useState(false) // Usado para el Auto-Scan
+  const [registering, setRegistering] = useState(false)
   
   const [activeGroup, setActiveGroup] = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<"settings" | "members">("settings")
@@ -114,10 +116,8 @@ export function AnalyticsView() {
   const [saving, setSaving] = useState(false)
   const [refreshingTags, setRefreshingTags] = useState(false)
 
-  // Estado para el modal del Custom Tag
   const [editingTag, setEditingTag] = useState<{uid: number, tag: string} | null>(null)
 
-  // Cargar lista de grupos
   const loadGroupsList = useCallback(async () => {
     setLoading(true)
     try {
@@ -134,7 +134,6 @@ export function AnalyticsView() {
     loadGroupsList()
   }, [loadGroupsList])
 
-  // Telegram Back Button logic
   useEffect(() => {
     const tg = getTg()
     if (!tg?.BackButton) return
@@ -143,7 +142,7 @@ export function AnalyticsView() {
       if (activeGroup) {
         setActiveGroup(null)
         setSettings(null)
-        loadGroupsList() // Refrescar la lista al volver por si hubo cambios
+        loadGroupsList() 
       } else {
         setCurrentView("home")
         tg.BackButton.hide()
@@ -218,7 +217,6 @@ export function AnalyticsView() {
     }
   }
 
-  // Ejecutar el Auto-Scan de grupos
   const handleAutoScan = async () => {
     setRegistering(true)
     try {
@@ -226,7 +224,7 @@ export function AnalyticsView() {
       if (res.found > 0) {
         getTg()?.HapticFeedback?.notificationOccurred("success")
         alert(`Success! Found and linked ${res.found} group(s).`)
-        await loadGroupsList() // Recargar la lista de grupos visualmente
+        await loadGroupsList() 
       } else {
         getTg()?.HapticFeedback?.notificationOccurred("warning")
         alert("No missing groups found. Make sure xBlum has seen at least one message in the group.")
@@ -250,7 +248,6 @@ export function AnalyticsView() {
   return (
     <div className="flex-1 flex flex-col relative" style={{ background: "#000", minHeight: "100vh" }}>
       
-      {/* HEADER ESTÁTICO CENTRADO */}
       <div
         className="sticky top-0 z-30 flex items-center justify-center px-4"
         style={{
@@ -269,7 +266,6 @@ export function AnalyticsView() {
 
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
         
-        {/* --- VISTA 1: LISTA DE GRUPOS --- */}
         {!activeGroup && (
           <div className="space-y-6">
             <p className="text-[#636366] text-[14px] leading-snug px-1" style={{ fontFamily: SF }}>
@@ -315,7 +311,6 @@ export function AnalyticsView() {
               </div>
             )}
 
-            {/* SECCIÓN AUTO-SCAN (Siempre visible debajo de la lista o estado vacío) */}
             <div className="mt-4 rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
               <div className="p-4">
                 <div className="flex items-center gap-2 mb-1">
@@ -340,7 +335,6 @@ export function AnalyticsView() {
           </div>
         )}
 
-        {/* --- VISTA 2: PANEL DEL GRUPO SELECCIONADO --- */}
         {activeGroup && !loading && settings && (
           <div className="space-y-6">
             <div className="flex p-1 rounded-xl" style={{ background: "#1c1c1e" }}>
@@ -368,7 +362,6 @@ export function AnalyticsView() {
               </button>
             </div>
 
-            {/* TAB: SETTINGS */}
             {activeTab === "settings" && (
               <div className="space-y-6">
                 <div className="space-y-3">
@@ -413,7 +406,6 @@ export function AnalyticsView() {
                         onChange={(v) => setSettings({...settings, adapt_to_group: v})} 
                       />
                     </div>
-                    {/* TEXTAREA RESTAURADO */}
                     {settings.adapt_to_group && (
                       <div className="px-4 pb-4">
                         <textarea 
@@ -521,7 +513,6 @@ export function AnalyticsView() {
               </div>
             )}
 
-            {/* TAB: MEMBERS */}
             {activeTab === "members" && (
               <div className="space-y-4">
                 <button 
@@ -577,7 +568,6 @@ export function AnalyticsView() {
 
       </div>
       
-      {/* MODAL RESTAURADO: Editar Tag */}
       {editingTag !== null && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#111] border border-[#1c1c1e] rounded-2xl p-5 w-full max-w-sm">
