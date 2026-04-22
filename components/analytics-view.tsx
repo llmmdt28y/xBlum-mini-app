@@ -76,6 +76,8 @@ export function AnalyticsView() {
   
   const [groups, setGroups] = useState<any[]>([])
   const [loadingList, setLoadingList] = useState(true)
+  const [registering, setRegistering] = useState(false)
+  const [registerChatId, setRegisterChatId] = useState("")
 
   // Settings State
   const [settings, setSettings] = useState<any>(null)
@@ -165,6 +167,30 @@ export function AnalyticsView() {
     }
   }
 
+  // Registrar grupo existente (backfill para grupos ya añadidos antes del fix)
+  const registerGroup = async () => {
+    const chatId = registerChatId.trim()
+    if (!chatId) return
+    setRegistering(true)
+    try {
+      const res = await apiPost("/api/group_register", { chat_id: Number(chatId) })
+      setGroups(prev => [...prev, {
+        chat_id: res.chat_id,
+        chat_title: res.chat_title,
+        total_msgs: 0,
+        flood_enabled: false,
+        auto_tags_enabled: false,
+        has_rules: false,
+      }])
+      setRegisterChatId("")
+      getTg()?.HapticFeedback?.notificationOccurred("success")
+    } catch (e) {
+      getTg()?.showAlert("Could not register group. Make sure xBlum is an admin and the chat ID is correct.")
+    } finally {
+      setRegistering(false)
+    }
+  }
+
   // Refrescar tags
   const refreshAllTags = async () => {
     try {
@@ -226,11 +252,39 @@ export function AnalyticsView() {
             {loadingList ? (
               <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-[#48484a]" /></div>
             ) : groups.length === 0 ? (
-              <div className="text-center py-12">
-                <Shield className="w-12 h-12 mx-auto mb-4" style={{ color: "#48484a" }} />
-                <p style={{ color: "#636366", fontSize: "14px", fontFamily: SF }}>
-                  No groups found. Add xBlum as an admin to your Telegram group to configure it here.
-                </p>
+              <div className="space-y-6">
+                <div className="text-center py-8">
+                  <Shield className="w-12 h-12 mx-auto mb-3" style={{ color: "#48484a" }} />
+                  <p className="text-white font-medium mb-1" style={{ fontFamily: SF }}>No groups yet</p>
+                  <p style={{ color: "#636366", fontSize: "13px", fontFamily: SF }}>
+                    Add xBlum as an admin to a group, then register it below.
+                  </p>
+                </div>
+                <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+                  <div className="p-4">
+                    <p className="text-white text-[14px] font-medium mb-1" style={{ fontFamily: SF }}>Register existing group</p>
+                    <p className="text-[12px] mb-3" style={{ color: "#636366", fontFamily: SF }}>
+                      If xBlum is already an admin, enter the group chat ID to link it here.
+                    </p>
+                    <input
+                      type="number"
+                      value={registerChatId}
+                      onChange={e => setRegisterChatId(e.target.value)}
+                      placeholder="-100123456789"
+                      className="w-full bg-[#1c1c1e] text-white text-[14px] rounded-xl px-3 py-2.5 outline-none mb-3 placeholder-[#48484a]"
+                      style={{ fontFamily: SF }}
+                    />
+                    <button
+                      onClick={registerGroup}
+                      disabled={registering || !registerChatId.trim()}
+                      className="w-full py-2.5 rounded-xl text-white font-medium text-[14px] active:opacity-70 transition-all flex items-center justify-center gap-2"
+                      style={{ background: registerChatId.trim() ? "#3b82f6" : "#1c1c1e", color: registerChatId.trim() ? "#fff" : "#48484a", fontFamily: SF }}
+                    >
+                      {registering ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                      {registering ? "Registering..." : "Register Group"}
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-3">
@@ -248,14 +302,45 @@ export function AnalyticsView() {
                       </div>
                       <div className="flex-1 text-left min-w-0">
                         <p className="text-white text-[15px] font-medium truncate" style={{ fontFamily: SF }}>{g.chat_title}</p>
-                        <p className="text-xs mt-0.5" style={{ color: "#636366", fontFamily: SF }}>
-                          {g.total_msgs.toLocaleString()} messages analyzed
-                        </p>
+                        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                          <span className="text-[11px]" style={{ color: "#636366", fontFamily: SF }}>{g.total_msgs.toLocaleString()} msgs</span>
+                          {g.flood_enabled && <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(59,130,246,0.15)", color: "#60a5fa", fontFamily: SF }}>Anti-Flood</span>}
+                          {g.auto_tags_enabled && <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(168,85,247,0.15)", color: "#c084fc", fontFamily: SF }}>Auto-Tags</span>}
+                          {g.has_rules && <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: "rgba(34,197,94,0.15)", color: "#4ade80", fontFamily: SF }}>AI Rules</span>}
+                        </div>
                       </div>
                       <ChevronRight className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />
                     </button>
                   )
                 })}
+              </div>
+            )}
+
+            {/* Register new group section — always shown when groups exist */}
+            {!loadingList && groups.length > 0 && (
+              <div className="mt-4 rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+                <div className="p-4">
+                  <p className="text-[13px] font-medium text-white mb-1" style={{ fontFamily: SF }}>Add another group</p>
+                  <p className="text-[11px] mb-3" style={{ color: "#636366", fontFamily: SF }}>Enter the chat ID of a group where xBlum is admin.</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      value={registerChatId}
+                      onChange={e => setRegisterChatId(e.target.value)}
+                      placeholder="-100123456789"
+                      className="flex-1 bg-[#1c1c1e] text-white text-[13px] rounded-xl px-3 py-2 outline-none placeholder-[#48484a]"
+                      style={{ fontFamily: SF }}
+                    />
+                    <button
+                      onClick={registerGroup}
+                      disabled={registering || !registerChatId.trim()}
+                      className="px-4 py-2 rounded-xl text-white font-medium text-[13px] active:opacity-70 flex items-center gap-1"
+                      style={{ background: registerChatId.trim() ? "#3b82f6" : "#2c2c2e", fontFamily: SF }}
+                    >
+                      {registering ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "+"}
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </>
