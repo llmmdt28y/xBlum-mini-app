@@ -101,6 +101,7 @@ export function AnalyticsView() {
   const { setCurrentView } = useApp()
   const [groups, setGroups] = useState<GroupInfo[]>([])
   const [loading, setLoading] = useState(true)
+  const [registering, setRegistering] = useState(false) // Usado para el Auto-Scan
   
   const [activeGroup, setActiveGroup] = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<"settings" | "members">("settings")
@@ -113,20 +114,25 @@ export function AnalyticsView() {
   const [saving, setSaving] = useState(false)
   const [refreshingTags, setRefreshingTags] = useState(false)
 
+  // Estado para el modal del Custom Tag
+  const [editingTag, setEditingTag] = useState<{uid: number, tag: string} | null>(null)
+
   // Cargar lista de grupos
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await apiGet("/api/group_admin_list")
-        setGroups(data.groups || [])
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setLoading(false)
-      }
+  const loadGroupsList = useCallback(async () => {
+    setLoading(true)
+    try {
+      const data = await apiGet("/api/group_admin_list")
+      setGroups(data.groups || [])
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoading(false)
     }
-    load()
   }, [])
+
+  useEffect(() => {
+    loadGroupsList()
+  }, [loadGroupsList])
 
   // Telegram Back Button logic
   useEffect(() => {
@@ -137,20 +143,20 @@ export function AnalyticsView() {
       if (activeGroup) {
         setActiveGroup(null)
         setSettings(null)
+        loadGroupsList() // Refrescar la lista al volver por si hubo cambios
       } else {
         setCurrentView("home")
         tg.BackButton.hide()
       }
     }
 
-    // El botón de atrás siempre visible en esta vista para poder regresar al Home
     tg.BackButton.show()
     tg.BackButton.onClick(handleBack)
     
     return () => {
       tg.BackButton.offClick(handleBack)
     }
-  }, [activeGroup, setCurrentView])
+  }, [activeGroup, setCurrentView, loadGroupsList])
 
   const loadGroupDetail = useCallback(async (chatId: number) => {
     setLoading(true)
@@ -199,13 +205,38 @@ export function AnalyticsView() {
     }
   }
 
-  const editMemberTag = (uid: number, current: string) => {
-    const tg = getTg()
-    tg?.showPrompt(`Set custom tag for member (max 16 chars):`, (val: string) => {
-      if (val === null) return
-      apiPost("/api/group_tag", { chat_id: activeGroup, user_id: uid, tag: val.substring(0, 16) })
-        .then(() => loadGroupDetail(activeGroup!))
-    }, current)
+  const handleSaveTag = async () => {
+    if (!editingTag || !activeGroup) return
+    try {
+      await apiPost("/api/group_tag", { chat_id: activeGroup, user_id: editingTag.uid, tag: editingTag.tag })
+      setMembers(m => m.map(x => x.user_id === editingTag.uid ? { ...x, tag_text: editingTag.tag, tag_source: "admin_manual" } : x))
+      setEditingTag(null)
+      const tg = getTg()
+      if (tg?.HapticFeedback) tg.HapticFeedback.notificationOccurred("success")
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  // Ejecutar el Auto-Scan de grupos
+  const handleAutoScan = async () => {
+    setRegistering(true)
+    try {
+      const res = await apiPost("/api/group_auto_scan", {})
+      if (res.found > 0) {
+        getTg()?.HapticFeedback?.notificationOccurred("success")
+        alert(`Success! Found and linked ${res.found} group(s).`)
+        await loadGroupsList() // Recargar la lista de grupos visualmente
+      } else {
+        getTg()?.HapticFeedback?.notificationOccurred("warning")
+        alert("No missing groups found. Make sure xBlum has seen at least one message in the group.")
+      }
+    } catch (e) {
+      console.error(e)
+      alert("An error occurred while scanning.")
+    } finally {
+      setRegistering(false)
+    }
   }
 
   if (loading && !activeGroup) {
@@ -238,6 +269,7 @@ export function AnalyticsView() {
 
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
         
+        {/* --- VISTA 1: LISTA DE GRUPOS --- */}
         {!activeGroup && (
           <div className="space-y-6">
             <p className="text-[#636366] text-[14px] leading-snug px-1" style={{ fontFamily: SF }}>
@@ -245,7 +277,7 @@ export function AnalyticsView() {
             </p>
 
             {groups.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+              <div className="flex flex-col items-center justify-center pt-10 pb-6 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-[#1c1c1e] flex items-center justify-center">
                   <Shield className="w-8 h-8 text-[#3a3a3c]" />
                 </div>
@@ -282,9 +314,33 @@ export function AnalyticsView() {
                 ))}
               </div>
             )}
+
+            {/* SECCIÓN AUTO-SCAN (Siempre visible debajo de la lista o estado vacío) */}
+            <div className="mt-4 rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+              <div className="p-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Shield className="w-4 h-4 text-[#3b82f6]" />
+                  <p className="text-[13px] font-medium text-white" style={{ fontFamily: SF }}>Auto-Scan Groups</p>
+                </div>
+                <p className="text-[11px] mb-4" style={{ color: "#636366", fontFamily: SF }}>
+                  Missing a group? We can scan the database and auto-link groups where you are the Creator and xBlum is present.
+                </p>
+                <button
+                  onClick={handleAutoScan}
+                  disabled={registering}
+                  className="w-full py-3 rounded-xl text-white font-medium text-[13px] active:opacity-70 flex items-center justify-center gap-2 transition-colors"
+                  style={{ background: "#3b82f6", fontFamily: SF }}
+                >
+                  {registering ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                  {registering ? "Scanning databases..." : "Scan & Link My Groups"}
+                </button>
+              </div>
+            </div>
+
           </div>
         )}
 
+        {/* --- VISTA 2: PANEL DEL GRUPO SELECCIONADO --- */}
         {activeGroup && !loading && settings && (
           <div className="space-y-6">
             <div className="flex p-1 rounded-xl" style={{ background: "#1c1c1e" }}>
@@ -312,6 +368,7 @@ export function AnalyticsView() {
               </button>
             </div>
 
+            {/* TAB: SETTINGS */}
             {activeTab === "settings" && (
               <div className="space-y-6">
                 <div className="space-y-3">
@@ -356,6 +413,18 @@ export function AnalyticsView() {
                         onChange={(v) => setSettings({...settings, adapt_to_group: v})} 
                       />
                     </div>
+                    {/* TEXTAREA RESTAURADO */}
+                    {settings.adapt_to_group && (
+                      <div className="px-4 pb-4">
+                        <textarea 
+                          value={settings.group_context}
+                          onChange={e => setSettings({...settings, group_context: e.target.value})}
+                          placeholder="Describe the group's normal tone so the AI avoids false positives..."
+                          className="w-full bg-[#1c1c1e] text-white text-[14px] rounded-xl p-3 outline-none resize-none h-20 placeholder-[#48484a]"
+                          style={{ fontFamily: SF }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -452,6 +521,7 @@ export function AnalyticsView() {
               </div>
             )}
 
+            {/* TAB: MEMBERS */}
             {activeTab === "members" && (
               <div className="space-y-4">
                 <button 
@@ -475,13 +545,17 @@ export function AnalyticsView() {
                         <div className="flex-1 min-w-0">
                           <p className="text-white font-medium text-[15px] truncate" style={{ fontFamily: SF }}>{m.first_name}</p>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <p className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>{m.msg_count} msgs</p>
+                            <p className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>
+                              {m.msg_count} msgs
+                            </p>
                             <span className="text-[#48484a] text-[10px]">•</span>
-                            <p className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>{m.join_label}</p>
+                            <p className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>
+                              {m.join_label}
+                            </p>
                           </div>
                         </div>
                         <button 
-                          onClick={() => editMemberTag(m.user_id, m.tag_text)}
+                          onClick={() => setEditingTag({uid: m.user_id, tag: m.tag_text || ""})}
                           className="shrink-0 flex flex-col items-end pl-2 active:opacity-60"
                         >
                           <div className="flex items-center gap-1">
@@ -502,6 +576,29 @@ export function AnalyticsView() {
         )}
 
       </div>
+      
+      {/* MODAL RESTAURADO: Editar Tag */}
+      {editingTag !== null && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#111] border border-[#1c1c1e] rounded-2xl p-5 w-full max-w-sm">
+            <h3 className="text-white font-semibold text-[16px] mb-3" style={{ fontFamily: SFD }}>Edit Custom Tag</h3>
+            <p className="text-[13px] text-[#8e8e93] mb-4" style={{ fontFamily: SF }}>Set a custom tag for this member (Max 16 characters).</p>
+            <input 
+              autoFocus
+              maxLength={16}
+              value={editingTag.tag}
+              onChange={e => setEditingTag({...editingTag, tag: e.target.value})}
+              className="w-full bg-[#1c1c1e] text-white px-4 py-3 rounded-xl outline-none border border-[#2c2c2e] focus:border-white transition-colors mb-5"
+              placeholder="e.g. 👑 Legend"
+              style={{ fontFamily: SF }}
+            />
+            <div className="flex gap-3">
+              <button onClick={() => setEditingTag(null)} className="flex-1 py-3 rounded-xl text-white font-medium bg-[#1c1c1e] active:bg-[#2c2c2e]" style={{ fontFamily: SF }}>Cancel</button>
+              <button onClick={handleSaveTag} className="flex-1 py-3 rounded-xl text-black font-medium bg-white active:bg-gray-200" style={{ fontFamily: SF }}>Apply</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
