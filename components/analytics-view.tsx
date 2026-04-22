@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useCallback } from "react"
-import { Loader2, Users, Settings2, MessageSquare, Shield, ChevronRight, ArrowLeft, RefreshCw, Save, Edit3 } from "lucide-react"
+import { Loader2, MessageSquare, Shield, ChevronRight, RefreshCw, Save, Edit3 } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -40,9 +40,6 @@ async function apiPost(endpoint: string, body: Record<string, unknown>) {
 
 // --- Componentes UI Reutilizables ---
 
-/**
- * Switch minimalista blanco/negro de alto contraste
- */
 function Switch({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <div 
@@ -56,9 +53,6 @@ function Switch({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   )
 }
 
-/**
- * Selector segmentado tipo iOS para opciones de configuración
- */
 function SegmentedControl({ options, selected, onChange }: { options: {label: string, value: string}[], selected: string, onChange: (v: string) => void }) {
   return (
     <div className="flex p-[3px] rounded-xl w-full" style={{ background: "#1c1c1e" }}>
@@ -108,12 +102,12 @@ export function AnalyticsView() {
   const [groups, setGroups] = useState<GroupInfo[]>([])
   const [loading, setLoading] = useState(true)
   
-  // Estado para la vista de detalle de un grupo
   const [activeGroup, setActiveGroup] = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<"settings" | "members">("settings")
   
-  // Datos del grupo seleccionado
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [settings, setSettings] = useState<any>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [stats, setStats] = useState<any>(null)
   const [members, setMembers] = useState<GroupMember[]>([])
   const [saving, setSaving] = useState(false)
@@ -134,7 +128,30 @@ export function AnalyticsView() {
     load()
   }, [])
 
-  // Cargar detalle del grupo
+  // Telegram Back Button logic
+  useEffect(() => {
+    const tg = getTg()
+    if (!tg?.BackButton) return
+
+    const handleBack = () => {
+      if (activeGroup) {
+        setActiveGroup(null)
+        setSettings(null)
+      } else {
+        setCurrentView("home")
+        tg.BackButton.hide()
+      }
+    }
+
+    // El botón de atrás siempre visible en esta vista para poder regresar al Home
+    tg.BackButton.show()
+    tg.BackButton.onClick(handleBack)
+    
+    return () => {
+      tg.BackButton.offClick(handleBack)
+    }
+  }, [activeGroup, setCurrentView])
+
   const loadGroupDetail = useCallback(async (chatId: number) => {
     setLoading(true)
     setActiveGroup(chatId)
@@ -154,7 +171,6 @@ export function AnalyticsView() {
     }
   }, [])
 
-  // Guardar configuración
   const handleSaveSettings = async () => {
     if (!activeGroup || !settings) return
     setSaving(true)
@@ -169,7 +185,6 @@ export function AnalyticsView() {
     }
   }
 
-  // Refrescar tags
   const handleRefreshTags = async () => {
     if (!activeGroup) return
     setRefreshingTags(true)
@@ -184,7 +199,6 @@ export function AnalyticsView() {
     }
   }
 
-  // Editar tag manual
   const editMemberTag = (uid: number, current: string) => {
     const tg = getTg()
     tg?.showPrompt(`Set custom tag for member (max 16 chars):`, (val: string) => {
@@ -205,9 +219,9 @@ export function AnalyticsView() {
   return (
     <div className="flex-1 flex flex-col relative" style={{ background: "#000", minHeight: "100vh" }}>
       
-      {/* HEADER DINÁMICO */}
+      {/* HEADER ESTÁTICO CENTRADO */}
       <div
-        className="sticky top-0 z-30 flex items-center px-4"
+        className="sticky top-0 z-30 flex items-center justify-center px-4"
         style={{
           paddingTop: "var(--tg-safe-area-inset-top, 24px)",
           height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)",
@@ -217,25 +231,13 @@ export function AnalyticsView() {
           borderBottom: "1px solid rgba(255,255,255,0.05)"
         }}
       >
-        {activeGroup ? (
-          <>
-            <button onClick={() => { setActiveGroup(null); setSettings(null); }} className="p-2 -ml-2 active:opacity-50 transition-opacity">
-              <ArrowLeft className="w-6 h-6 text-white" />
-            </button>
-            <h2 className="flex-1 text-center font-bold text-white text-[17px] truncate pr-8" style={{ fontFamily: SFD }}>
-              {stats?.chat_title || "Group Settings"}
-            </h2>
-          </>
-        ) : (
-          <h2 className="w-full text-center font-bold text-white text-[17px]" style={{ fontFamily: SFD }}>
-            My Groups
-          </h2>
-        )}
+        <h2 className="font-bold text-white text-[16px] truncate" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+          {activeGroup ? (stats?.chat_title || "Group Settings") : "My Groups"}
+        </h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
         
-        {/* VISTA 1: LISTA DE GRUPOS */}
         {!activeGroup && (
           <div className="space-y-6">
             <p className="text-[#636366] text-[14px] leading-snug px-1" style={{ fontFamily: SF }}>
@@ -283,17 +285,8 @@ export function AnalyticsView() {
           </div>
         )}
 
-        {/* VISTA 2: PANEL DEL GRUPO SELECCIONADO */}
-        {activeGroup && loading && (
-          <div className="flex justify-center py-10">
-            <Loader2 className="w-6 h-6 animate-spin text-[#48484a]" />
-          </div>
-        )}
-
         {activeGroup && !loading && settings && (
           <div className="space-y-6">
-            
-            {/* TABS INTERNAS */}
             <div className="flex p-1 rounded-xl" style={{ background: "#1c1c1e" }}>
               <button 
                 onClick={() => setActiveTab("settings")}
@@ -319,11 +312,8 @@ export function AnalyticsView() {
               </button>
             </div>
 
-            {/* TAB 1: CONFIGURACIÓN */}
             {activeTab === "settings" && (
               <div className="space-y-6">
-                
-                {/* SECCIÓN: NATURAL RULES */}
                 <div className="space-y-3">
                   <h3 className="text-[#48484a] text-[12px] font-bold uppercase tracking-wider px-1" style={{ fontFamily: SF }}>AI Moderation</h3>
                   <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
@@ -336,13 +326,8 @@ export function AnalyticsView() {
                         className="w-full h-24 bg-[#1c1c1e] rounded-xl p-3 text-white text-[14px] outline-none resize-none placeholder-[#48484a]"
                         style={{ fontFamily: SF }}
                       />
-                      <p className="text-[#636366] text-[12px] leading-tight">
-                        Our LLM will evaluate every message based on these rules.
-                      </p>
                     </div>
                     <div style={{ height: "0.5px", background: "#1e1e1e" }} />
-                    
-                    {/* SELECTOR: SENSITIVITY */}
                     <div className="p-4 flex flex-col gap-3">
                       <div className="flex items-center justify-between">
                         <div>
@@ -360,7 +345,6 @@ export function AnalyticsView() {
                         onChange={v => setSettings({...settings, sensitivity: v})}
                       />
                     </div>
-
                     <div style={{ height: "0.5px", background: "#1e1e1e" }} />
                     <div className="p-4 flex items-center justify-between">
                       <div>
@@ -375,7 +359,6 @@ export function AnalyticsView() {
                   </div>
                 </div>
 
-                {/* SECCIÓN: ANTI-FLOOD */}
                 <div className="space-y-3">
                   <h3 className="text-[#48484a] text-[12px] font-bold uppercase tracking-wider px-1" style={{ fontFamily: SF }}>Anti-Flood</h3>
                   <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
@@ -410,8 +393,6 @@ export function AnalyticsView() {
                           </div>
                         </div>
                         <div style={{ height: "0.5px", background: "#1e1e1e" }} />
-                        
-                        {/* SELECTOR: ACTION */}
                         <div className="p-4 flex flex-col gap-3">
                           <p className="text-white text-[15px]" style={{ fontFamily: SF }}>Action</p>
                           <SegmentedControl 
@@ -429,7 +410,6 @@ export function AnalyticsView() {
                   </div>
                 </div>
 
-                {/* SECCIÓN: AUTO-TAGS */}
                 <div className="space-y-3">
                   <h3 className="text-[#48484a] text-[12px] font-bold uppercase tracking-wider px-1" style={{ fontFamily: SF }}>Member Tags</h3>
                   <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
@@ -443,8 +423,6 @@ export function AnalyticsView() {
                     {settings.auto_tags_enabled && (
                       <>
                         <div style={{ height: "0.5px", background: "#1e1e1e" }} />
-                        
-                        {/* SELECTOR: TAG MODE */}
                         <div className="p-4 flex flex-col gap-3">
                           <p className="text-white text-[15px]" style={{ fontFamily: SF }}>Mode</p>
                           <SegmentedControl 
@@ -462,7 +440,6 @@ export function AnalyticsView() {
                   </div>
                 </div>
 
-                {/* BOTÓN GUARDAR */}
                 <button 
                   onClick={handleSaveSettings}
                   disabled={saving}
@@ -472,11 +449,9 @@ export function AnalyticsView() {
                   {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {saving ? "Saving Changes..." : "Save Settings"}
                 </button>
-
               </div>
             )}
 
-            {/* TAB 2: MIEMBROS */}
             {activeTab === "members" && (
               <div className="space-y-4">
                 <button 
@@ -500,13 +475,9 @@ export function AnalyticsView() {
                         <div className="flex-1 min-w-0">
                           <p className="text-white font-medium text-[15px] truncate" style={{ fontFamily: SF }}>{m.first_name}</p>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <p className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>
-                              {m.msg_count} msgs
-                            </p>
+                            <p className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>{m.msg_count} msgs</p>
                             <span className="text-[#48484a] text-[10px]">•</span>
-                            <p className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>
-                              {m.join_label}
-                            </p>
+                            <p className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>{m.join_label}</p>
                           </div>
                         </div>
                         <button 
