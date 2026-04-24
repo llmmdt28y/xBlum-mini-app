@@ -72,7 +72,7 @@ function getTgUser(): TgUser | undefined {
 type LeaderboardPeriod = "this_week" | "last_week" | "all_time"
 type LeaderboardEntry = {
   rank: number
-  userId?: number // ID numérico añadido
+  userId?: number
   username: string
   tp: number 
   initials: string
@@ -125,13 +125,11 @@ function formatX(n: number) {
   return n.toLocaleString()
 }
 
-
 export function XRewardsView() {
   const { setCurrentView } = useApp()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ctx = useApp() as any
 
-  // Balance real desde el contexto (cargado por /api/status)
   const xBalance: number = ctx.x_points ?? ctx.tokens ?? 0
   const { integer } = formatBalance(xBalance)
 
@@ -141,7 +139,6 @@ export function XRewardsView() {
   const [allLoaded, setAllLoaded]         = useState(false)
   const [total, setTotal]                 = useState(0)
 
-  // Telegram back button
   useEffect(() => {
     const tg = getTg()
     if (!tg?.BackButton) return
@@ -151,7 +148,6 @@ export function XRewardsView() {
     return () => { tg.BackButton.offClick(handleBack) }
   }, [setCurrentView])
 
-  // Cargar transacciones desde el backend
   const loadTransactions = useCallback(async (all = false) => {
     try {
       setLoadingTxns(true)
@@ -169,14 +165,12 @@ export function XRewardsView() {
   useEffect(() => { loadTransactions(false) }, [loadTransactions])
 
   const handleViewAll = () => {
-    if (!allLoaded) {
-      loadTransactions(true)
-    }
+    if (!allLoaded) loadTransactions(true)
     setShowAll(true)
   }
 
   return (
-    <div className="flex-1 flex flex-col" style={{ background: "#000", minHeight: "100vh" }}>
+    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
 
       {/* Header */}
       <div
@@ -197,8 +191,8 @@ export function XRewardsView() {
 
         {/* ── Balance Card ── */}
         <div
-          className="rounded-[24px] p-6 relative overflow-hidden"
-          style={{ background: "#111", border: "1px solid #1c1c1e" }}
+          className="rounded-[24px] p-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500"
+          style={{ background: "#1c1c1e" }}
         >
           <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -207,11 +201,10 @@ export function XRewardsView() {
               Total $X Points
             </p>
             <button className="active:opacity-60 transition-opacity">
-              <Info size={18} style={{ color: "#48484a" }} />
+              <Info size={20} style={{ color: "#8e8e93" }} />
             </button>
           </div>
 
-          {/* Balance */}
           <div className="flex items-baseline gap-2 mb-6 relative z-10">
             <span style={{ fontSize: "44px", fontWeight: 800, color: "#fff", fontFamily: SFD, letterSpacing: "-0.02em", lineHeight: 1 }}>
               {integer}
@@ -221,48 +214,46 @@ export function XRewardsView() {
             </span>
           </div>
 
-          {/* Info: $X para leaderboard */}
           <div
-            className="relative z-10 rounded-[14px] px-4 py-3"
+            className="relative z-10 rounded-[16px] px-4 py-3.5"
             style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}
           >
             <p style={{ fontSize: "13px", color: "#f59e0b", fontFamily: SF, lineHeight: 1.4 }}>
-              🏆 $X points are used in the weekly leaderboard.
-              Top 3 each week win <b>7 days of xBlum Pro</b>!
+              🏆 $X points are used in the weekly leaderboard. Top 3 each week win <b>7 days of xBlum Pro</b>!
             </p>
           </div>
         </div>
 
         {/* ── Recent Activity ── */}
-        <div>
-          <div className="flex items-center justify-between px-1 mb-2">
-            <p style={{ fontSize: "11px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.07em", color: "#48484a", fontFamily: SF }}>
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both">
+          <div className="flex items-center justify-between px-4 mb-2">
+            <p className="font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
               Recent Activity
             </p>
             {total > 5 && !showAll && (
               <button onClick={handleViewAll} className="flex items-center gap-1 active:opacity-60 transition-opacity">
-                <History size={13} style={{ color: "#636366" }} />
-                <span style={{ fontSize: "12px", color: "#636366", fontFamily: SF }}>View All ({total})</span>
+                <History size={14} style={{ color: "#8e8e93" }} />
+                <span style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>View All ({total})</span>
               </button>
             )}
           </div>
 
-          <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+          <div className="rounded-[24px] overflow-hidden" style={{ background: "#1c1c1e" }}>
             {loadingTxns ? (
               <div className="flex items-center justify-center py-10">
-                <Loader2 className="w-6 h-6 animate-spin text-[#48484a]" />
+                <Loader2 className="w-6 h-6 animate-spin text-[#8e8e93]" />
               </div>
             ) : transactions.length === 0 ? (
-              <div className="flex flex-col items-center py-10 gap-2 px-4">
+              <div className="flex flex-col items-center py-10 gap-3 px-4">
                 <History size={32} style={{ color: "#48484a" }} />
-                <p style={{ fontSize: "14px", color: "#636366", fontFamily: SF, textAlign: "center" }}>
+                <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, textAlign: "center" }}>
                   No transactions yet. Complete missions to earn $X!
                 </p>
               </div>
             ) : (
               (showAll ? transactions : transactions.slice(0, 5)).map((tx, i, arr) => (
                 <div key={i}>
-                  <div className="flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors">
+                  <div className="flex items-center gap-4 px-5 py-4 active:bg-white/5 transition-colors">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                       style={{ background: tx.is_out ? "rgba(239,68,68,0.1)" : "rgba(34,197,94,0.1)" }}
@@ -273,20 +264,20 @@ export function XRewardsView() {
                       }
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-[15px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+                      <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
                         {tx.description}
                       </p>
-                      <p className="mt-0.5" style={{ fontSize: "12px", color: "#636366", fontFamily: SF }}>
+                      <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
                         {formatDate(tx.timestamp)}
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-[15px] font-semibold" style={{ color: tx.is_out ? "#ef4444" : "#22c55e", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                      <p className="text-[16px] font-semibold" style={{ color: tx.is_out ? "#ef4444" : "#22c55e", fontFamily: SFD, letterSpacing: "-0.01em" }}>
                         {tx.amount > 0 ? "+" : ""}{tx.amount.toLocaleString()} $X
                       </p>
                     </div>
                   </div>
-                  {i < arr.length - 1 && <div style={{ height: "0.5px", background: "#1e1e1e", marginLeft: "68px" }} />}
+                  {i < arr.length - 1 && <div style={{ height: "1px", background: "#2c2c2e", marginLeft: "76px" }} />}
                 </div>
               ))
             )}
@@ -335,7 +326,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
           : displayName.replace("@","").slice(0, 2).toUpperCase()
         return {
           rank:        r.rank,
-          userId:      r.user_id, // Agregado aquí para la comparación exacta
+          userId:      r.user_id, 
           username:    displayName,
           tp:          r.tp,
           initials,
@@ -351,7 +342,6 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
     })
   }, [period])
 
-  // Corrección: Ahora busca coincidencias exactas por ID numérico
   const myEntry = myUserId ? entries.find(e => e.userId === myUserId) : undefined
 
   const PERIOD_LABELS: Record<LeaderboardPeriod, string> = {
@@ -361,7 +351,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
   }
 
   return (
-    <div className="flex-1 overflow-y-auto relative" style={{ background: "#000", minHeight: "100vh" }}>
+    <div className="flex-1 overflow-y-auto relative animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
       
       {/* ── Header Leaderboard ── */}
       <div
@@ -375,10 +365,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
           borderBottom: "1px solid rgba(255,255,255,0.05)",
         }}
       >
-        <h2
-          className="font-semibold text-white text-base"
-          style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
-        >
+        <h2 className="font-semibold text-white text-[16px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
           Leaderboard
         </h2>
       </div>
@@ -386,30 +373,31 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
       <div className="px-4 pt-5 pb-32">
 
         {/* Subtitle */}
-        <p className="text-sm mb-5 leading-relaxed" style={{ color: "#636366", fontFamily: SF }}>
+        <p className="text-sm mb-5 leading-relaxed" style={{ color: "#8e8e93", fontFamily: SF }}>
           Earn $X and get in the Top of Weekly Leaderboard.{" "}
           Results every Sunday at <span className="text-white font-medium">00:00 UTC</span>.
         </p>
+
         <div
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-5"
+          className="flex items-center gap-2 px-4 py-3 rounded-2xl mb-5 animate-in fade-in slide-in-from-bottom-2 duration-300"
           style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}
         >
-          <Trophy className="w-4 h-4 shrink-0" style={{ color: "#f59e0b" }} />
-          <p className="text-xs font-medium" style={{ color: "#f59e0b", fontFamily: SF }}>
+          <Trophy className="w-5 h-5 shrink-0" style={{ color: "#f59e0b" }} />
+          <p className="text-[13px] font-medium" style={{ color: "#f59e0b", fontFamily: SF }}>
             Top 3 winners receive xBlum Pro for one week
           </p>
         </div>
 
         {/* Period tabs */}
-        <div className="flex rounded-xl p-1 mb-5" style={{ background: "#111" }}>
+        <div className="flex rounded-[16px] p-1.5 mb-6" style={{ background: "#1c1c1e" }}>
           {(["this_week", "last_week", "all_time"] as LeaderboardPeriod[]).map(p => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className="flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              className="flex-1 py-2.5 rounded-[12px] text-sm font-medium transition-all duration-200"
               style={{
-                background: period === p ? "#fff" : "transparent",
-                color: period === p ? "#000" : "#636366",
+                background: period === p ? "#3a3a3c" : "transparent",
+                color: period === p ? "#fff" : "#8e8e93",
                 fontFamily: SF,
               }}
             >
@@ -420,29 +408,29 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
 
         {/* My position */}
         <div
-          className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-4"
-          style={{ background: "#111" }}
+          className="flex items-center gap-4 px-5 py-4 rounded-[24px] mb-6 animate-in fade-in duration-500"
+          style={{ background: "#1c1c1e" }}
         >
           <div
-            className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0"
+            className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-[15px] text-white shrink-0"
             style={{ background: "linear-gradient(135deg,#3b82f6,#1d4ed8)" }}
           >
             {(currentUser || "ME").replace("@","").slice(0,2).toUpperCase()}
           </div>
           <div className="flex-1">
-            <p className="text-white font-medium text-sm" style={{ fontFamily: SF }}>
+            <p className="text-white font-medium text-[16px]" style={{ fontFamily: SF }}>
               {currentUser || "User"}
             </p>
-            <p className="text-xs" style={{ color: "#636366", fontFamily: SFD }}>
+            <p className="text-[13px] mt-0.5" style={{ color: "#8e8e93", fontFamily: SFD }}>
               {myEntry ? `${formatX(myEntry.tp)} $X` : `${formatX(myBalance)} $X`}
             </p>
           </div>
           {myEntry ? (
-            <span className="text-sm font-semibold" style={{ color: "#f59e0b" }}>#{myEntry.rank}</span>
+            <span className="text-[16px] font-bold" style={{ color: "#f59e0b" }}>#{myEntry.rank}</span>
           ) : (
             <button
               onClick={() => setCurrentView("x-rewards")}
-              className="px-4 py-1.5 rounded-full text-sm font-medium transition-opacity active:opacity-70"
+              className="px-5 py-2 rounded-full text-[13px] font-bold transition-opacity active:opacity-70"
               style={{ background: "#3b82f6", color: "#fff", fontFamily: SF }}
             >
               Rewards
@@ -453,33 +441,33 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         {/* Podium — top 3 */}
         {loading ? (
           <div className="flex justify-center items-center py-16">
-            <Loader2 className="w-7 h-7 animate-spin" style={{ color: "#48484a" }} />
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#8e8e93" }} />
           </div>
         ) : entries.length === 0 ? (
           <div className="text-center py-12">
-            <Trophy className="w-10 h-10 mx-auto mb-3" style={{ color: "#48484a" }} />
-            <p style={{ color: "#636366", fontSize: "14px", fontFamily: SF }}>
+            <Trophy className="w-12 h-12 mx-auto mb-4" style={{ color: "#48484a" }} />
+            <p style={{ color: "#8e8e93", fontSize: "14px", fontFamily: SF }}>
               No entries yet — complete missions to earn $X and appear here!
             </p>
           </div>
         ) : (
         <>
-        <div className="flex items-end justify-center gap-2 mb-4 px-2" style={{ height: "150px" }}>
+        <div className="flex items-end justify-center gap-3 mb-6 px-2 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ height: "160px" }}>
           {[entries[1], entries[0], entries[2]].map((entry, i) => {
             if (!entry) return null
             const isFirst = entry.rank === 1
             const medals = ["🥈", "🥇", "🥉"]
-            const heights = [56, 76, 42]
+            const heights = [60, 80, 46]
             return (
-              <div key={entry.rank} className="flex flex-col items-center gap-1 flex-1">
+              <div key={entry.rank} className="flex flex-col items-center gap-1.5 flex-1">
                 <div
                   className="rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden"
                   style={{
-                    width: isFirst ? 44 : 36,
-                    height: isFirst ? 44 : 36,
+                    width: isFirst ? 48 : 40,
+                    height: isFirst ? 48 : 40,
                     background: entry.avatarColor,
                     boxShadow: isFirst ? `0 0 0 2px #f59e0b` : "none",
-                    fontSize: isFirst ? "15px" : "13px",
+                    fontSize: isFirst ? "16px" : "14px",
                   }}
                 >
                   {entry.photoUrl
@@ -487,24 +475,24 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                     : entry.initials}
                 </div>
                 <p
-                  className="text-xs font-medium truncate w-full text-center"
+                  className="text-[13px] font-medium truncate w-full text-center"
                   style={{ color: isFirst ? "#fff" : "#8e8e93", fontFamily: SF, marginBottom: "-2px" }}
                 >
                   {entry.username}
                 </p>
-                <div className="flex items-center justify-center gap-1 mb-1.5 w-full">
+                <div className="flex items-center justify-center gap-1 mb-2 w-full">
                   <p 
-                    className="text-[10px] font-semibold truncate text-center"
-                    style={{ color: isFirst ? "#f59e0b" : "#636366", fontFamily: SFD }}
+                    className="text-[11px] font-bold truncate text-center"
+                    style={{ color: isFirst ? "#f59e0b" : "#8e8e93", fontFamily: SFD }}
                   >
                     {formatX(entry.tp)} $X
                   </p>
                 </div>
                 <div
-                  className="w-full rounded-t-xl flex items-center justify-center"
-                  style={{ background: "#111", height: `${heights[i]}px` }}
+                  className="w-full rounded-t-2xl flex items-center justify-center"
+                  style={{ background: "#1c1c1e", height: `${heights[i]}px` }}
                 >
-                  <span style={{ fontSize: isFirst ? "22px" : "17px" }}>{medals[i]}</span>
+                  <span style={{ fontSize: isFirst ? "24px" : "18px" }}>{medals[i]}</span>
                 </div>
               </div>
             )
@@ -512,13 +500,13 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         </div>
 
         {/* Ranks 4–10 */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: "#111" }}>
+        <div className="rounded-[24px] overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both" style={{ background: "#1c1c1e" }}>
           {entries.slice(3).map((entry, i) => (
             <div key={entry.rank}>
-              {i > 0 && <div className="h-px" style={{ background: "#1c1c1e", marginLeft: "60px" }} />}
-              <div className="flex items-center gap-3 px-4 py-3">
+              {i > 0 && <div className="h-px" style={{ background: "#2c2c2e", marginLeft: "68px" }} />}
+              <div className="flex items-center gap-4 px-5 py-3.5">
                 <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0 overflow-hidden"
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-[14px] text-white shrink-0 overflow-hidden"
                   style={{ background: entry.avatarColor }}
                 >
                   {entry.photoUrl
@@ -526,16 +514,16 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                     : entry.initials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium truncate" style={{ fontFamily: SF }}>
+                  <p className="text-white text-[15px] font-medium truncate" style={{ fontFamily: SF }}>
                     {entry.username}
                   </p>
                   <div className="flex items-center gap-1 mt-0.5">
-                    <p className="text-xs" style={{ color: "#636366", fontFamily: SFD }}>
+                    <p className="text-[13px]" style={{ color: "#8e8e93", fontFamily: SFD }}>
                       {formatX(entry.tp)} $X
                     </p>
                   </div>
                 </div>
-                <span className="text-sm font-semibold shrink-0" style={{ color: "#3a3a3c" }}>
+                <span className="text-[15px] font-bold shrink-0" style={{ color: "#48484a" }}>
                   #{entry.rank}
                 </span>
               </div>
@@ -545,7 +533,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         </>
         )}
 
-        <p className="text-center text-xs mt-5" style={{ color: "#3a3a3c", fontFamily: SF }}>
+        <p className="text-center text-[13px] mt-6" style={{ color: "#48484a", fontFamily: SF }}>
           Resets every Sunday at 00:00 UTC
         </p>
       </div>
@@ -566,45 +554,44 @@ function Row({
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-4 px-5 active:opacity-50 transition-opacity"
-      style={{ paddingTop: "13px", paddingBottom: "13px" }}
+      className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
+      style={{ paddingTop: "14px", paddingBottom: "14px" }}
     >
       {leftNode && (
-        <div className="shrink-0 flex items-center justify-center" style={{ width: "20px", height: "20px" }}>
+        <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
           {leftNode}
         </div>
       )}
       <div className="flex-1 text-left">
-        <p className="text-white" style={{ fontSize: "15px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+        <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
           {label}
         </p>
         {sublabel && (
-          <p className="mt-0.5" style={{ fontSize: "12px", color: "#636366", fontFamily: SF }}>
+          <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
             {sublabel}
           </p>
         )}
       </div>
-      {right ?? <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#3a3a3c" }} />}
+      {right ?? <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
     </button>
   )
 }
 
 function Divider() {
-  return <div style={{ height: "0.5px", background: "#1e1e1e", marginLeft: "20px" }} />
+  return <div style={{ height: "1px", background: "#2c2c2e", marginLeft: "56px" }} />
 }
 
 function Section({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <div>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
       {title && (
-        <p
-          className="px-1 mb-2"
-          style={{ fontSize: "11px", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.07em", color: "#48484a", fontFamily: SF }}
-        >
-          {title}
-        </p>
+        <div className="flex items-center justify-between px-4 mb-2">
+          <p className="font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+            {title}
+          </p>
+        </div>
       )}
-      <div className="rounded-2xl overflow-hidden" style={{ background: "#111" }}>
+      <div className="rounded-[24px] overflow-hidden" style={{ background: "#1c1c1e" }}>
         {children}
       </div>
     </div>
@@ -616,17 +603,17 @@ function LeaderboardBanner({ onLeaderboard }: { onLeaderboard: () => void }) {
   return (
     <button
       onClick={onLeaderboard}
-      className="w-full flex items-center justify-between rounded-2xl px-5 py-4 active:opacity-70 transition-opacity"
-      style={{ background: "#111", border: "1px solid #1c1c1e" }}
+      className="w-full flex items-center justify-between rounded-[24px] px-5 py-4 active:bg-white/5 transition-colors animate-in fade-in slide-in-from-bottom-4 duration-500"
+      style={{ background: "#1c1c1e" }}
     >
       <div className="text-left flex flex-col gap-1">
         <div className="flex items-center gap-1">
           <p className="text-white font-bold" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
             Weekly Leaderboard
           </p>
-          <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#fff" }} />
+          <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#8e8e93" }} />
         </div>
-        <p style={{ fontSize: "13px", color: "#636366", fontFamily: SF }}>
+        <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
           Earn $X and get to the Top!
         </p>
       </div>
@@ -707,7 +694,7 @@ export function ProfileView() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto relative" style={{ background: "#000" }}>
+    <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000" }}>
 
       {/* ── Header Profile ── */}
       <div
@@ -736,29 +723,29 @@ export function ProfileView() {
           className="absolute right-6 top-0 active:opacity-60 transition-opacity z-20"
           style={{ marginTop: "6px" }} 
         >
-          <Settings className="w-[22px] h-[22px] text-white/80" />
+          <Settings className="w-[24px] h-[24px] text-white/80" />
         </button>
 
         {/* Avatar + name */}
-        <div className="flex flex-col items-center gap-3 pt-2 pb-2">
+        <div className="flex flex-col items-center gap-3 pt-2 pb-2 animate-in fade-in zoom-in-95 duration-500">
           <div
-            className="flex items-center justify-center overflow-hidden rounded-full"
-            style={{ width: 82, height: 82, background: "linear-gradient(135deg,#3b82f6,#1d4ed8)" }}
+            className="flex items-center justify-center overflow-hidden rounded-full shadow-lg"
+            style={{ width: 88, height: 88, background: "linear-gradient(135deg,#3b82f6,#1d4ed8)" }}
           >
             {photoUrl ? (
               <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" onError={() => setPhotoUrl(null)} />
             ) : (
-              <span className="text-white font-bold" style={{ fontSize: "28px", letterSpacing: "-0.02em", fontFamily: SFD }}>
+              <span className="text-white font-bold" style={{ fontSize: "32px", letterSpacing: "-0.02em", fontFamily: SFD }}>
                 {initials || "?"}
               </span>
             )}
           </div>
           <div className="text-center">
-            <p className="text-white font-semibold" style={{ fontSize: "18px", letterSpacing: "-0.02em", fontFamily: SFD }}>
+            <p className="text-white font-semibold" style={{ fontSize: "20px", letterSpacing: "-0.02em", fontFamily: SFD }}>
               {displayName || "Your Name"}
             </p>
             {username && (
-              <p className="mt-0.5" style={{ fontSize: "13px", color: "#48484a", fontFamily: SF }}>
+              <p className="mt-1" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
                 {username}
               </p>
             )}
@@ -789,14 +776,14 @@ export function ProfileView() {
         {/* Social */}
         <Section title="Social">
           <Row
-            leftNode={<Users className="w-[18px] h-[18px]" style={{ color: "#636366" }} />}
+            leftNode={<Users className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
             label="Referral Program"
             sublabel={referralCount > 0 ? `${referralCount} friends invited` : "Invite friends & earn tokens"}
             onClick={() => setCurrentView("referral")}
           />
           <Divider />
           <Row
-            leftNode={<Medal className="w-[18px] h-[18px]" style={{ color: "#636366" }} />}
+            leftNode={<Medal className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
             label="Top Holders"
             sublabel="See the leaderboard"
             onClick={() => setShowLeaderboard(true)}
@@ -806,21 +793,21 @@ export function ProfileView() {
         {/* Account */}
         <Section title="Account">
           <Row
-            leftNode={<Zap className="w-[18px] h-[18px]" style={{ color: "#636366" }} />}
+            leftNode={<Zap className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
             label={isPremium ? "xBlum Pro · Active" : "Upgrade to Pro"}
             sublabel={isPremium ? "All features unlocked" : "Unlock full power of xBlum"}
             onClick={() => setCurrentView("premium")}
           />
           <Divider />
           <Row
-            leftNode={<Gift className="w-[18px] h-[18px]" style={{ color: "#636366" }} />}
+            leftNode={<Gift className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
             label="Get $X"
             sublabel="Earn free $X from missions"
             onClick={() => setCurrentView("store")}
           />
           <Divider />
           <Row
-            leftNode={<Shield className="w-[18px] h-[18px]" style={{ color: "#636366" }} />}
+            leftNode={<Shield className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
             label="Privacy & Data"
             sublabel="Manage your data & memories"
             onClick={() => setCurrentView("settings")}
