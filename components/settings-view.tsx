@@ -24,25 +24,25 @@ const MODELS: {
 }[] = [
   { 
     name:"Grok 4.1",      
-    desc:"Most capable · no cooldown",         
+    desc:"Advanced reasoning and deep analysis",         
     tag:"New", 
-    tagColor:"bg-[#3b82f6] text-white", 
+    tagColor:"bg-white text-[#111]", 
     tagStyle: "rounded-md", 
     proOnly:false, 
     initial:"G" 
   },
   { 
     name:"GPT-5.4",       
-    desc:"OpenAI latest · Pro only",            
-    tag:"Pro",     
-    tagColor:"bg-[#2c2c2e] text-[#f59e0b]",    
-    tagStyle: "rounded-full",
+    desc:"Maximum capability for complex tasks",            
+    tag:"PRO",     
+    tagColor:"bg-amber-500/15 text-amber-500", // Color ámbar coordinado con xBlum Pro
+    tagStyle: "rounded",
     proOnly:true,  
     initial:"4" 
   },
   { 
     name:"GPT-5.2",       
-    desc:"Balanced performance",                
+    desc:"Fast and reliable for everyday use",                
     tag:null,      
     tagColor:"",                                  
     proOnly:false, 
@@ -54,7 +54,6 @@ const LANGS = [
   { code:"en" as const, name:"English", flag:"🇬🇧" },
 ]
 
-// ── Profile-style row item ────────────────────────────────────────────
 function Row({ label, sublabel, right, onClick, leftNode, danger }: {
   leftNode?: React.ReactNode
   label: string
@@ -84,13 +83,13 @@ function Row({ label, sublabel, right, onClick, leftNode, danger }: {
           </p>
         )}
       </div>
-      {right ?? <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
+      {right ?? (danger ? <div /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />)}
     </button>
   )
 }
 
 function Divider() {
-  return <div style={{ height: "1px", background: "#2c2c2e", marginLeft: "56px" }} />
+  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />
 }
 
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
@@ -104,7 +103,7 @@ function Section({ title, children, rightAction }: { title?: string; children: R
           {rightAction && <div>{rightAction}</div>}
         </div>
       )}
-      <div className="rounded-[24px] overflow-hidden" style={{ background: "#1c1c1e" }}>
+      <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
         {children}
       </div>
     </div>
@@ -140,18 +139,18 @@ function ModelLogo({ name, active, locked }: { name: string; active: boolean; lo
   }
 
   if (locked) return (
-    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#2c2c2e" }}>
+    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
       <Lock className="w-4 h-4" style={{ color: "#636366" }} />
     </div>
   )
   return (
-    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ${active ? "ring-2 ring-white" : "ring-1 ring-[#3a3a3c]"}`} style={{ background: "#2c2c2e" }}>
+    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-[#1c1c1e]`} style={{ background: "#111" }}>
       <img src={MODEL_LOGO[name] || "/grok.png"} alt={name} className="w-6 h-6 object-contain pointer-events-none select-none" {...imageProps}
         onError={e => {
           const el = e.currentTarget; el.style.display = "none"
           const p = el.parentElement
           if (p) {
-            p.style.background = "#2c2c2e"
+            p.style.background = "#1c1c1e"
             const sp = document.createElement("span")
             sp.textContent = model?.initial ?? "?"
             sp.style.color = "#fff"; sp.style.fontWeight = "600"; sp.style.fontFamily = SFD
@@ -163,7 +162,6 @@ function ModelLogo({ name, active, locked }: { name: string; active: boolean; lo
   )
 }
 
-// ── Sub-page header ──
 function SubHeader({ title }: { title: string }) {
   return (
     <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3" style={{
@@ -202,28 +200,17 @@ export function SettingsView() {
 
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
 
-  // ── Telegram Native Back Button ──
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
-    
     tg.BackButton.show()
-
     const handleBack = () => {
-      if (page !== "main") {
-        setPage("main") 
-      } else {
-        setCurrentView("profile") 
-        tg.BackButton.hide()
-      }
+      if (page !== "main") setPage("main")
+      else { setCurrentView("profile"); tg.BackButton.hide() }
     }
-    
     tg.BackButton.onClick(handleBack)
-    
-    return () => { 
-      tg.BackButton.offClick(handleBack) 
-    }
+    return () => { tg.BackButton.offClick(handleBack) }
   }, [page, setCurrentView])
 
   async function selectModel(m: string) {
@@ -267,49 +254,66 @@ export function SettingsView() {
     )
   }
 
-  /* ── Model selector ─────────────────────────────────────────────── */
   if (page === "model") return (
     <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Select Model" />
-      <div className="px-4 pt-6 space-y-3">
-        {MODELS.map(m => {
-          const locked    = m.proOnly && !isPremium
-          const active    = selectedModel === m.name
-          const throttled = isThrottled && m.name === "Grok 4.1"
-          return (
-            <button key={m.name} disabled={locked || saving === "model"}
-              onClick={() => !locked && selectModel(m.name)}
-              className="w-full p-4 rounded-[24px] flex items-center justify-between transition-all active:scale-[0.98]"
-              style={{
-                background: "#1c1c1e",
-                border: `1px solid ${active ? "#fff" : "#2c2c2e"}`,
-                opacity: locked ? 0.5 : 1,
-              }}
-            >
-              <div className="flex items-center gap-4 flex-1">
-                <ModelLogo name={m.name} active={active} locked={locked} />
-                <div className="flex-1 text-left">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 600 }}>{m.name}</p>
-                    {m.tag && (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 ${m.tagStyle || 'rounded-full'} ${m.tagColor}`} style={{ fontFamily: SF }}>
-                        {m.tag}
-                      </span>
-                    )}
-                    {locked && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500" style={{ fontFamily: SF }}>Locked</span>}
-                    {throttled && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-500" style={{ fontFamily: SF }}>cooling {minutesUntilReset}min</span>}
+      <div className="px-4 pt-6 space-y-4">
+        <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+          
+          <div className="px-5 pt-4 pb-1">
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>LLM model</p>
+          </div>
+
+          {MODELS.map((m) => {
+            const locked    = m.proOnly && !isPremium
+            const active    = selectedModel === m.name
+            const throttled = isThrottled && m.name === "Grok 4.1"
+            
+            return (
+              <button 
+                key={m.name} 
+                disabled={locked || saving === "model"}
+                onClick={() => !locked && selectModel(m.name)}
+                className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
+                style={{ opacity: locked ? 0.5 : 1 }}
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  <ModelLogo name={m.name} active={active} locked={locked} />
+                  <div className="flex-1 text-left">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>{m.name}</p>
+                      {m.tag && !locked && (
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || 'rounded'} ${m.tagColor}`} style={{ fontFamily: SF }}>
+                          {m.tag}
+                        </span>
+                      )}
+                      {locked && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500" style={{ fontFamily: SF }}>
+                          PRO
+                        </span>
+                      )}
+                      {throttled && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500" style={{ fontFamily: SF }}>cooling {minutesUntilReset}min</span>}
+                    </div>
+                    <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
                   </div>
-                  <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
                 </div>
-              </div>
-              {active && !locked && saving !== "model" && <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center shrink-0"><Check className="w-3 h-3 text-black" /></div>}
-              {saving === "model" && active && <span style={{ fontSize: "12px", color: "#636366", fontFamily: SF }}>saving...</span>}
-            </button>
-          )
-        })}
+                
+                <div className="shrink-0 flex items-center justify-center w-6 h-6">
+                  {saving === "model" && active ? (
+                    <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8e8e93" }} />
+                  ) : active && !locked ? (
+                    <Check className="w-5 h-5" style={{ color: "#3b82f6" }} strokeWidth={2.5} />
+                  ) : null}
+                </div>
+              </button>
+            )
+          })}
+          <div className="pb-2" />
+        </div>
+
         {!isPremium && (
           <button onClick={() => { setPage("main"); setCurrentView("premium") }}
-            className="w-full p-4 rounded-[24px] text-center text-sm font-bold active:scale-[0.98] transition-transform mt-4"
+            className="w-full p-4 rounded-2xl text-center text-[15px] font-bold active:scale-[0.98] transition-transform mt-2"
             style={{ background: "#fff", color: "#000", fontFamily: SF }}>
             Unlock Pro Models
           </button>
@@ -318,12 +322,11 @@ export function SettingsView() {
     </div>
   )
 
-  /* ── Language ───────────────────────────────────────────────────── */
   if (page === "lang") return (
     <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 space-y-2">
-        <div className="rounded-[24px] overflow-hidden" style={{ background: "#1c1c1e" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
           {LANGS.map((lang, i, arr) => (
             <div key={lang.code}>
               <button onClick={() => { setLanguage(lang.code); setPage("main") }}
@@ -333,9 +336,9 @@ export function SettingsView() {
                   <span className="text-[22px]">{lang.flag}</span>
                   <p className="text-white" style={{ fontFamily: SF, fontSize: "16px" }}>{lang.name}</p>
                 </div>
-                {language === lang.code && <Check className="w-5 h-5 text-white" />}
+                {language === lang.code && <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} />}
               </button>
-              {i < arr.length - 1 && <div style={{ height: "1px", background: "#2c2c2e", marginLeft: "56px" }} />}
+              {i < arr.length - 1 && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />}
             </div>
           ))}
         </div>
@@ -343,7 +346,6 @@ export function SettingsView() {
     </div>
   )
 
-  /* ── Preferences ────────────────────────────────────────────────── */
   if (page === "prefs") return (
     <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Preferences" />
@@ -353,8 +355,8 @@ export function SettingsView() {
             <label className="px-2 font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, textTransform: "capitalize" }}>{field}</label>
             <input type="text" value={tempPrefs[field]}
               onChange={e => setTempPrefs({ ...tempPrefs, [field]: e.target.value })}
-              className="w-full p-4 rounded-[24px] text-white placeholder:text-[#636366] focus:outline-none transition-colors"
-              style={{ background: "#1c1c1e", border: "1px solid transparent", fontFamily: SF, fontSize: "16px" }}
+              className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none transition-colors"
+              style={{ background: "#111", border: "1px solid #1c1c1e", fontFamily: SF, fontSize: "16px" }}
               onFocus={(e) => e.target.style.borderColor = "#3a3a3c"}
               onBlur={(e) => e.target.style.borderColor = "transparent"}
             />
@@ -364,15 +366,15 @@ export function SettingsView() {
           <label className="px-2 font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>Your Preferences</label>
           <textarea value={tempPrefs.preferences}
             onChange={e => setTempPrefs({ ...tempPrefs, preferences: e.target.value })}
-            className="w-full p-4 rounded-[24px] text-white placeholder:text-[#636366] focus:outline-none min-h-[140px] resize-none transition-colors"
-            style={{ background: "#1c1c1e", border: "1px solid transparent", fontFamily: SF, fontSize: "16px" }}
+            className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none min-h-[140px] resize-none transition-colors"
+            style={{ background: "#111", border: "1px solid #1c1c1e", fontFamily: SF, fontSize: "16px" }}
             placeholder="I prefer concise answers..."
             onFocus={(e) => e.target.style.borderColor = "#3a3a3c"}
             onBlur={(e) => e.target.style.borderColor = "transparent"}
           />
         </div>
         <button onClick={() => { setUserPreferences(tempPrefs); setPage("main") }}
-          className="w-full py-4 mt-4 bg-white text-black font-bold rounded-[24px] active:scale-[0.98] transition-transform"
+          className="w-full py-4 mt-4 bg-white text-black font-bold rounded-2xl active:scale-[0.98] transition-transform"
           style={{ fontFamily: SF, fontSize: "16px" }}>
           Save Preferences
         </button>
@@ -380,7 +382,6 @@ export function SettingsView() {
     </div>
   )
 
-  /* ── Main ───────────────────────────────────────────────────────── */
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
 
@@ -400,7 +401,7 @@ export function SettingsView() {
           <button
             onClick={() => setCurrentView("premium")}
             className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left animate-in fade-in slide-in-from-bottom-4 duration-500"
-            style={{ background: "#1c1c1e", borderRadius: "24px", minHeight: "96px" }}
+            style={{ background: "#111", border: "1px solid #1c1c1e", borderRadius: "20px", minHeight: "96px" }}
           >
             <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 8% 40%, rgba(245,158,11,0.07) 0%, transparent 55%)" }} />
             <div className="absolute pointer-events-none" style={{ width: "90px", height: "90px", borderRadius: "50%", top: "-30px", right: "-20px", background: "radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)", border: "1px solid rgba(245,158,11,0.10)" }} />
@@ -424,9 +425,9 @@ export function SettingsView() {
         <Section title="Profile">
           <Row
             leftNode={
-              <div className="w-[24px] h-[24px] flex items-center justify-center rounded overflow-hidden" style={{ background: "#2c2c2e" }}>
+              <div className="w-[24px] h-[24px] flex items-center justify-center rounded overflow-hidden" style={{ background: "#1c1c1e" }}>
                  <img src={MODEL_LOGO[selectedModel] || "/grok.png"} alt="" className="w-full h-full object-contain pointer-events-none select-none" draggable={false}
-                   onError={e => { e.currentTarget.style.display="none"; const p=e.currentTarget.parentElement; if(p){p.style.background="#2c2c2e"; const s=document.createElement("span"); s.textContent=currentModelInfo?.initial??"?"; s.style.color="white"; s.style.fontWeight="700"; s.style.fontSize="12px"; p.appendChild(s)} }}
+                   onError={e => { e.currentTarget.style.display="none"; const p=e.currentTarget.parentElement; if(p){p.style.background="#1c1c1e"; const s=document.createElement("span"); s.textContent=currentModelInfo?.initial??"?"; s.style.color="white"; s.style.fontWeight="700"; s.style.fontSize="12px"; p.appendChild(s)} }}
                  />
               </div>
             }
@@ -487,7 +488,7 @@ export function SettingsView() {
             label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
             onClick={handleDeleteMemories}
             danger
-            right={<span />} 
+            right={<div />} 
           />
           <Divider />
           <Row
@@ -495,7 +496,7 @@ export function SettingsView() {
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
-            right={<span />} 
+            right={<div />} 
           />
         </Section>
 
@@ -539,10 +540,10 @@ export function SettingsView() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-          <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[90vh] flex flex-col" style={{ background: "#1c1c1e" }}>
-            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #2c2c2e" }}>
+          <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[90vh] flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
               <button onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
-                className="w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity" style={{ background: "#2c2c2e" }}>
+                className="w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity" style={{ background: "#1c1c1e" }}>
                 <X className="w-4 h-4 text-white" />
               </button>
               <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>Feedback & Support</h2>
@@ -584,16 +585,16 @@ export function SettingsView() {
                 <>
                   <div className="relative">
                     <button onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
-                      className="w-full flex items-center gap-3 px-4 py-4 rounded-[20px] active:scale-[0.98] transition-transform" style={{ background: "#2c2c2e" }}>
+                      className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform" style={{ background: "#1c1c1e" }}>
                       <MessageSquare className="w-5 h-5" style={{ color: "#8e8e93" }} />
                       <span className="flex-1 text-left text-white font-medium" style={{ fontSize: "15px", fontFamily: SF }}>{reportType}</span>
                       <ChevronDown className={`w-5 h-5 transition-transform ${showReportTypeDropdown ? "rotate-180" : ""}`} style={{ color: "#8e8e93" }} />
                     </button>
                     {showReportTypeDropdown && (
-                      <div className="absolute top-full left-0 right-0 mt-2 rounded-[20px] overflow-hidden z-10 border border-[#3a3a3c]" style={{ background: "#2c2c2e" }}>
+                      <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-hidden z-10 border border-[#2c2c2e]" style={{ background: "#1c1c1e" }}>
                         {["General feedback","Bug report","Feature request","Performance issue","Support request","Other"].map(type => (
                           <button key={type} onClick={() => { setReportType(type); setShowReportTypeDropdown(false) }}
-                            className={`w-full px-5 py-3.5 text-left text-[15px] font-medium active:bg-[#3a3a3c] transition-colors ${reportType === type ? "text-white" : "text-[#8e8e93]"}`} style={{ fontFamily: SF }}>
+                            className={`w-full px-5 py-3.5 text-left text-[15px] font-medium active:bg-[#2c2c2e] transition-colors ${reportType === type ? "text-white" : "text-[#8e8e93]"}`} style={{ fontFamily: SF }}>
                             {type}
                           </button>
                         ))}
@@ -606,8 +607,8 @@ export function SettingsView() {
                       reportType === "Feature request" ? "Describe the feature you'd like..." :
                       "Share your thoughts or issues..."
                     }
-                    className="w-full min-h-[160px] p-5 rounded-[20px] text-white placeholder:text-[#636366] focus:outline-none transition-colors"
-                    style={{ background: "#2c2c2e", border: "1px solid transparent", fontSize: "15px", fontFamily: SF }}
+                    className="w-full min-h-[160px] p-5 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none transition-colors"
+                    style={{ background: "#1c1c1e", border: "1px solid #2c2c2e", fontSize: "15px", fontFamily: SF }}
                     onFocus={(e) => e.target.style.borderColor = "#48484a"}
                     onBlur={(e) => e.target.style.borderColor = "transparent"}
                   />
