@@ -7,7 +7,6 @@ import { useState, useEffect } from "react"
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// Forcing typing for new model names to avoid type errors before app-context updates
 const MODEL_LOGO: Record<string, string> = {
   "Grok 4.1":      "/grok.png",
   "GPT-5.4":       "/gpt.png",
@@ -28,7 +27,7 @@ const MODELS: {
     desc:"Most capable · no cooldown",         
     tag:"New", 
     tagColor:"bg-[#3b82f6] text-white", 
-    tagStyle: "rounded-md", // Square tag
+    tagStyle: "rounded-md", 
     proOnly:false, 
     initial:"G" 
   },
@@ -118,13 +117,13 @@ function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void;
       onClick={onToggle}
       disabled={disabled}
       className={"relative rounded-full transition-all duration-200 shrink-0 " + (disabled ? "opacity-50" : "")}
-      style={{ width: "44px", height: "26px", background: on ? "#34c759" : "#3a3a3c" }}
+      style={{ width: "44px", height: "26px", background: on ? "#ffffff" : "#3a3a3c" }}
     >
       <span
         className="absolute top-[2px] rounded-full shadow-sm transition-transform duration-200"
         style={{
           width: "22px", height: "22px",
-          background: "#ffffff",
+          background: on ? "#000000" : "#ffffff",
           left: on ? "20px" : "2px",
         }}
       />
@@ -181,7 +180,7 @@ function SubHeader({ title }: { title: string }) {
 
 export function SettingsView() {
   const {
-    t, setCurrentView, language, setLanguage,
+    setCurrentView, language, setLanguage,
     selectedModel, setSelectedModel,
     userPreferences, setUserPreferences,
     isPremium, isThrottled, minutesUntilReset,
@@ -271,7 +270,7 @@ export function SettingsView() {
   /* ── Model selector ─────────────────────────────────────────────── */
   if (page === "model") return (
     <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
-      <SubHeader title={t("selectModel") || "Select Model"} />
+      <SubHeader title="Select Model" />
       <div className="px-4 pt-6 space-y-3">
         {MODELS.map(m => {
           const locked    = m.proOnly && !isPremium
@@ -297,7 +296,7 @@ export function SettingsView() {
                         {m.tag}
                       </span>
                     )}
-                    {locked && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500" style={{ fontFamily: SF }}>{t("locked") || "Locked"}</span>}
+                    {locked && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500" style={{ fontFamily: SF }}>Locked</span>}
                     {throttled && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-500" style={{ fontFamily: SF }}>cooling {minutesUntilReset}min</span>}
                   </div>
                   <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
@@ -312,7 +311,7 @@ export function SettingsView() {
           <button onClick={() => { setPage("main"); setCurrentView("premium") }}
             className="w-full p-4 rounded-[24px] text-center text-sm font-bold active:scale-[0.98] transition-transform mt-4"
             style={{ background: "#fff", color: "#000", fontFamily: SF }}>
-            {t("unlockGPT") || "Unlock Pro Models"}
+            Unlock Pro Models
           </button>
         )}
       </div>
@@ -322,7 +321,7 @@ export function SettingsView() {
   /* ── Language ───────────────────────────────────────────────────── */
   if (page === "lang") return (
     <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
-      <SubHeader title={t("language") || "Language"} />
+      <SubHeader title="Language" />
       <div className="px-4 pt-6 space-y-2">
         <div className="rounded-[24px] overflow-hidden" style={{ background: "#1c1c1e" }}>
           {LANGS.map((lang, i, arr) => (
@@ -347,7 +346,7 @@ export function SettingsView() {
   /* ── Preferences ────────────────────────────────────────────────── */
   if (page === "prefs") return (
     <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
-      <SubHeader title={t("preferences") || "Preferences"} />
+      <SubHeader title="Preferences" />
       <div className="px-4 pt-6 space-y-5">
         {(["name","age","location"] as const).map(field => (
           <div key={field} className="space-y-2">
@@ -362,7 +361,7 @@ export function SettingsView() {
           </div>
         ))}
         <div className="space-y-2">
-          <label className="px-2 font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>{t("yourPreferences") || "Your Preferences"}</label>
+          <label className="px-2 font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>Your Preferences</label>
           <textarea value={tempPrefs.preferences}
             onChange={e => setTempPrefs({ ...tempPrefs, preferences: e.target.value })}
             className="w-full p-4 rounded-[24px] text-white placeholder:text-[#636366] focus:outline-none min-h-[140px] resize-none transition-colors"
@@ -375,7 +374,7 @@ export function SettingsView() {
         <button onClick={() => { setUserPreferences(tempPrefs); setPage("main") }}
           className="w-full py-4 mt-4 bg-white text-black font-bold rounded-[24px] active:scale-[0.98] transition-transform"
           style={{ fontFamily: SF, fontSize: "16px" }}>
-          {t("save") || "Save Preferences"}
+          Save Preferences
         </button>
       </div>
     </div>
@@ -483,27 +482,21 @@ export function SettingsView() {
 
         {/* ── Danger Zone ── */}
         <Section title="Danger Zone">
-           <div className="px-4 py-4 flex flex-col gap-3">
-              <button
-                onClick={handleDeleteMemories}
-                disabled={saving === "del_mem"}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-semibold transition-all active:scale-[0.98] disabled:opacity-50"
-                style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", fontSize: "15px", fontFamily: SF }}
-              >
-                {saving === "del_mem" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
-                {saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
-              </button>
-
-              <button
-                onClick={handleDeleteHistory}
-                disabled={saving === "del_hist"}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-semibold transition-all active:scale-[0.98] disabled:opacity-50"
-                style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", fontSize: "15px", fontFamily: SF }}
-              >
-                {saving === "del_hist" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
-                {saving === "del_hist" ? "Deleting..." : "Delete All History"}
-              </button>
-           </div>
+          <Row
+            leftNode={saving === "del_mem" ? <Loader2 className="w-[20px] h-[20px] animate-spin text-[#ef4444]" /> : <Trash2 className="w-[20px] h-[20px]" style={{ color: "#ef4444" }} />}
+            label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
+            onClick={handleDeleteMemories}
+            danger
+            right={<span />} 
+          />
+          <Divider />
+          <Row
+            leftNode={saving === "del_hist" ? <Loader2 className="w-[20px] h-[20px] animate-spin text-[#ef4444]" /> : <Trash2 className="w-[20px] h-[20px]" style={{ color: "#ef4444" }} />}
+            label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
+            onClick={handleDeleteHistory}
+            danger
+            right={<span />} 
+          />
         </Section>
 
         {/* ── Support ── */}
