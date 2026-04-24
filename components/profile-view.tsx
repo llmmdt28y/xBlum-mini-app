@@ -379,25 +379,25 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         </p>
 
         <div
-          className="flex items-center gap-2 px-4 py-3 rounded-2xl mb-5 animate-in fade-in slide-in-from-bottom-2 duration-300"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-5 animate-in fade-in slide-in-from-bottom-2 duration-300"
           style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}
         >
-          <Trophy className="w-5 h-5 shrink-0" style={{ color: "#f59e0b" }} />
-          <p className="text-[13px] font-medium" style={{ color: "#f59e0b", fontFamily: SF }}>
+          <Trophy className="w-4 h-4 shrink-0" style={{ color: "#f59e0b" }} />
+          <p className="text-xs font-medium" style={{ color: "#f59e0b", fontFamily: SF }}>
             Top 3 winners receive xBlum Pro for one week
           </p>
         </div>
 
-        {/* Period tabs */}
-        <div className="flex rounded-[16px] p-1.5 mb-6" style={{ background: "#1c1c1e" }}>
+        {/* Period tabs (ESTILO RESTAURADO) */}
+        <div className="flex rounded-xl p-1 mb-5" style={{ background: "#1c1c1e" }}>
           {(["this_week", "last_week", "all_time"] as LeaderboardPeriod[]).map(p => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className="flex-1 py-2.5 rounded-[12px] text-sm font-medium transition-all duration-200"
+              className="flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200"
               style={{
-                background: period === p ? "#3a3a3c" : "transparent",
-                color: period === p ? "#fff" : "#8e8e93",
+                background: period === p ? "#fff" : "transparent",
+                color: period === p ? "#000" : "#8e8e93",
                 fontFamily: SF,
               }}
             >
@@ -406,31 +406,31 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
           ))}
         </div>
 
-        {/* My position */}
+        {/* My position (ESTILO RESTAURADO) */}
         <div
-          className="flex items-center gap-4 px-5 py-4 rounded-[24px] mb-6 animate-in fade-in duration-500"
+          className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-4 animate-in fade-in duration-500"
           style={{ background: "#1c1c1e" }}
         >
           <div
-            className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-[15px] text-white shrink-0"
+            className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0"
             style={{ background: "linear-gradient(135deg,#3b82f6,#1d4ed8)" }}
           >
             {(currentUser || "ME").replace("@","").slice(0,2).toUpperCase()}
           </div>
           <div className="flex-1">
-            <p className="text-white font-medium text-[16px]" style={{ fontFamily: SF }}>
+            <p className="text-white font-medium text-sm" style={{ fontFamily: SF }}>
               {currentUser || "User"}
             </p>
-            <p className="text-[13px] mt-0.5" style={{ color: "#8e8e93", fontFamily: SFD }}>
+            <p className="text-xs" style={{ color: "#8e8e93", fontFamily: SFD }}>
               {myEntry ? `${formatX(myEntry.tp)} $X` : `${formatX(myBalance)} $X`}
             </p>
           </div>
           {myEntry ? (
-            <span className="text-[16px] font-bold" style={{ color: "#f59e0b" }}>#{myEntry.rank}</span>
+            <span className="text-sm font-semibold" style={{ color: "#f59e0b" }}>#{myEntry.rank}</span>
           ) : (
             <button
               onClick={() => setCurrentView("x-rewards")}
-              className="px-5 py-2 rounded-full text-[13px] font-bold transition-opacity active:opacity-70"
+              className="px-4 py-1.5 rounded-full text-sm font-medium transition-opacity active:opacity-70"
               style={{ background: "#3b82f6", color: "#fff", fontFamily: SF }}
             >
               Rewards
@@ -441,33 +441,33 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         {/* Podium — top 3 */}
         {loading ? (
           <div className="flex justify-center items-center py-16">
-            <Loader2 className="w-8 h-8 animate-spin" style={{ color: "#8e8e93" }} />
+            <Loader2 className="w-7 h-7 animate-spin" style={{ color: "#8e8e93" }} />
           </div>
         ) : entries.length === 0 ? (
           <div className="text-center py-12">
-            <Trophy className="w-12 h-12 mx-auto mb-4" style={{ color: "#48484a" }} />
+            <Trophy className="w-10 h-10 mx-auto mb-3" style={{ color: "#48484a" }} />
             <p style={{ color: "#8e8e93", fontSize: "14px", fontFamily: SF }}>
               No entries yet — complete missions to earn $X and appear here!
             </p>
           </div>
         ) : (
         <>
-        <div className="flex items-end justify-center gap-3 mb-6 px-2 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ height: "160px" }}>
+        <div className="flex items-end justify-center gap-2 mb-4 px-2 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ height: "150px" }}>
           {[entries[1], entries[0], entries[2]].map((entry, i) => {
             if (!entry) return null
             const isFirst = entry.rank === 1
             const medals = ["🥈", "🥇", "🥉"]
-            const heights = [60, 80, 46]
+            const heights = [56, 76, 42]
             return (
-              <div key={entry.rank} className="flex flex-col items-center gap-1.5 flex-1">
+              <div key={entry.rank} className="flex flex-col items-center gap-1 flex-1">
                 <div
                   className="rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden"
                   style={{
-                    width: isFirst ? 48 : 40,
-                    height: isFirst ? 48 : 40,
+                    width: isFirst ? 44 : 36,
+                    height: isFirst ? 44 : 36,
                     background: entry.avatarColor,
                     boxShadow: isFirst ? `0 0 0 2px #f59e0b` : "none",
-                    fontSize: isFirst ? "16px" : "14px",
+                    fontSize: isFirst ? "15px" : "13px",
                   }}
                 >
                   {entry.photoUrl
@@ -475,24 +475,24 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                     : entry.initials}
                 </div>
                 <p
-                  className="text-[13px] font-medium truncate w-full text-center"
+                  className="text-xs font-medium truncate w-full text-center"
                   style={{ color: isFirst ? "#fff" : "#8e8e93", fontFamily: SF, marginBottom: "-2px" }}
                 >
                   {entry.username}
                 </p>
-                <div className="flex items-center justify-center gap-1 mb-2 w-full">
+                <div className="flex items-center justify-center gap-1 mb-1.5 w-full">
                   <p 
-                    className="text-[11px] font-bold truncate text-center"
+                    className="text-[10px] font-semibold truncate text-center"
                     style={{ color: isFirst ? "#f59e0b" : "#8e8e93", fontFamily: SFD }}
                   >
                     {formatX(entry.tp)} $X
                   </p>
                 </div>
                 <div
-                  className="w-full rounded-t-2xl flex items-center justify-center"
+                  className="w-full rounded-t-xl flex items-center justify-center"
                   style={{ background: "#1c1c1e", height: `${heights[i]}px` }}
                 >
-                  <span style={{ fontSize: isFirst ? "24px" : "18px" }}>{medals[i]}</span>
+                  <span style={{ fontSize: isFirst ? "22px" : "17px" }}>{medals[i]}</span>
                 </div>
               </div>
             )
@@ -500,13 +500,13 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         </div>
 
         {/* Ranks 4–10 */}
-        <div className="rounded-[24px] overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both" style={{ background: "#1c1c1e" }}>
+        <div className="rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both" style={{ background: "#1c1c1e" }}>
           {entries.slice(3).map((entry, i) => (
             <div key={entry.rank}>
-              {i > 0 && <div className="h-px" style={{ background: "#2c2c2e", marginLeft: "68px" }} />}
-              <div className="flex items-center gap-4 px-5 py-3.5">
+              {i > 0 && <div className="h-px" style={{ background: "#2c2c2e", marginLeft: "60px" }} />}
+              <div className="flex items-center gap-3 px-4 py-3">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-[14px] text-white shrink-0 overflow-hidden"
+                  className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0 overflow-hidden"
                   style={{ background: entry.avatarColor }}
                 >
                   {entry.photoUrl
@@ -514,16 +514,16 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                     : entry.initials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-[15px] font-medium truncate" style={{ fontFamily: SF }}>
+                  <p className="text-white text-sm font-medium truncate" style={{ fontFamily: SF }}>
                     {entry.username}
                   </p>
                   <div className="flex items-center gap-1 mt-0.5">
-                    <p className="text-[13px]" style={{ color: "#8e8e93", fontFamily: SFD }}>
+                    <p className="text-xs" style={{ color: "#8e8e93", fontFamily: SFD }}>
                       {formatX(entry.tp)} $X
                     </p>
                   </div>
                 </div>
-                <span className="text-[15px] font-bold shrink-0" style={{ color: "#48484a" }}>
+                <span className="text-sm font-semibold shrink-0" style={{ color: "#48484a" }}>
                   #{entry.rank}
                 </span>
               </div>
@@ -533,7 +533,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         </>
         )}
 
-        <p className="text-center text-[13px] mt-6" style={{ color: "#48484a", fontFamily: SF }}>
+        <p className="text-center text-xs mt-5" style={{ color: "#48484a", fontFamily: SF }}>
           Resets every Sunday at 00:00 UTC
         </p>
       </div>
