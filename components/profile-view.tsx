@@ -125,170 +125,6 @@ function formatX(n: number) {
   return n.toLocaleString()
 }
 
-export function XRewardsView() {
-  const { setCurrentView } = useApp()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ctx = useApp() as any
-
-  const xBalance: number = ctx.x_points ?? ctx.tokens ?? 0
-  const { integer } = formatBalance(xBalance)
-
-  const [transactions, setTransactions]   = useState<Transaction[]>([])
-  const [loadingTxns, setLoadingTxns]     = useState(true)
-  const [showAll, setShowAll]             = useState(false)
-  const [allLoaded, setAllLoaded]         = useState(false)
-  const [total, setTotal]                 = useState(0)
-
-  useEffect(() => {
-    const tg = getTg()
-    if (!tg?.BackButton) return
-    tg.BackButton.show()
-    const handleBack = () => { setCurrentView("profile"); tg.BackButton.hide() }
-    tg.BackButton.onClick(handleBack)
-    return () => { tg.BackButton.offClick(handleBack) }
-  }, [setCurrentView])
-
-  const loadTransactions = useCallback(async (all = false) => {
-    try {
-      setLoadingTxns(true)
-      const data = await apiPost("/api/x_ledger", { limit: all ? 50 : 5, offset: 0 }) as any
-      setTransactions(data.transactions ?? [])
-      setTotal(data.total ?? 0)
-      if (all) setAllLoaded(true)
-    } catch (e) {
-      console.error("[XRewards] ledger error:", e)
-    } finally {
-      setLoadingTxns(false)
-    }
-  }, [])
-
-  useEffect(() => { loadTransactions(false) }, [loadTransactions])
-
-  const handleViewAll = () => {
-    if (!allLoaded) loadTransactions(true)
-    setShowAll(true)
-  }
-
-  return (
-    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
-
-      {/* Header */}
-      <div
-        className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3"
-        style={{
-          paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)",
-          background: "rgba(0,0,0,0.92)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-        }}
-      >
-        <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
-          $X Rewards
-        </h2>
-      </div>
-
-      <div className="px-4 pt-6 pb-28 overflow-y-auto space-y-6">
-
-        {/* ── Balance Card ── */}
-        <div
-          className="rounded-[24px] p-6 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500"
-          style={{ background: "#1c1c1e" }}
-        >
-          <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="flex items-center justify-between mb-4 relative z-10">
-            <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, fontWeight: 500 }}>
-              Total $X Points
-            </p>
-            <button className="active:opacity-60 transition-opacity">
-              <Info size={20} style={{ color: "#8e8e93" }} />
-            </button>
-          </div>
-
-          <div className="flex items-baseline gap-2 mb-6 relative z-10">
-            <span style={{ fontSize: "44px", fontWeight: 800, color: "#fff", fontFamily: SFD, letterSpacing: "-0.02em", lineHeight: 1 }}>
-              {integer}
-            </span>
-            <span style={{ fontSize: "24px", fontWeight: 700, color: "#fff", fontFamily: SFD }}>
-              $X
-            </span>
-          </div>
-
-          <div
-            className="relative z-10 rounded-[16px] px-4 py-3.5"
-            style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}
-          >
-            <p style={{ fontSize: "13px", color: "#f59e0b", fontFamily: SF, lineHeight: 1.4 }}>
-              🏆 $X points are used in the weekly leaderboard. Top 3 each week win <b>7 days of xBlum Pro</b>!
-            </p>
-          </div>
-        </div>
-
-        {/* ── Recent Activity ── */}
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both">
-          <div className="flex items-center justify-between px-4 mb-2">
-            <p className="font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
-              Recent Activity
-            </p>
-            {total > 5 && !showAll && (
-              <button onClick={handleViewAll} className="flex items-center gap-1 active:opacity-60 transition-opacity">
-                <History size={14} style={{ color: "#8e8e93" }} />
-                <span style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>View All ({total})</span>
-              </button>
-            )}
-          </div>
-
-          <div className="rounded-[24px] overflow-hidden" style={{ background: "#1c1c1e" }}>
-            {loadingTxns ? (
-              <div className="flex items-center justify-center py-10">
-                <Loader2 className="w-6 h-6 animate-spin text-[#8e8e93]" />
-              </div>
-            ) : transactions.length === 0 ? (
-              <div className="flex flex-col items-center py-10 gap-3 px-4">
-                <History size={32} style={{ color: "#48484a" }} />
-                <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, textAlign: "center" }}>
-                  No transactions yet. Complete missions to earn $X!
-                </p>
-              </div>
-            ) : (
-              (showAll ? transactions : transactions.slice(0, 5)).map((tx, i, arr) => (
-                <div key={i}>
-                  <div className="flex items-center gap-4 px-5 py-4 active:bg-white/5 transition-colors">
-                    <div
-                      className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                      style={{ background: tx.is_out ? "rgba(239,68,68,0.1)" : "rgba(34,197,94,0.1)" }}
-                    >
-                      {tx.is_out
-                        ? <ArrowUpRight size={20} style={{ color: "#ef4444" }} />
-                        : <ArrowDownRight size={20} style={{ color: "#22c55e" }} />
-                      }
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
-                        {tx.description}
-                      </p>
-                      <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
-                        {formatDate(tx.timestamp)}
-                      </p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-[16px] font-semibold" style={{ color: tx.is_out ? "#ef4444" : "#22c55e", fontFamily: SFD, letterSpacing: "-0.01em" }}>
-                        {tx.amount > 0 ? "+" : ""}{tx.amount.toLocaleString()} $X
-                      </p>
-                    </div>
-                  </div>
-                  {i < arr.length - 1 && <div style={{ height: "1px", background: "#2c2c2e", marginLeft: "76px" }} />}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-      </div>
-    </div>
-  )
-}
-
 // ── Leaderboard sub-view ─────────────────────────────────────────────
 const API_BASE_LB = process.env.NEXT_PUBLIC_API_URL ?? ""
 
@@ -379,17 +215,17 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         </p>
 
         <div
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-5 animate-in fade-in slide-in-from-bottom-2 duration-300"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl mb-5 animate-in fade-in slide-in-from-bottom-2 duration-300"
           style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}
         >
           <Trophy className="w-4 h-4 shrink-0" style={{ color: "#f59e0b" }} />
-          <p className="text-xs font-medium" style={{ color: "#f59e0b", fontFamily: SF }}>
+          <p className="text-[13px] font-medium" style={{ color: "#f59e0b", fontFamily: SF }}>
             Top 3 winners receive xBlum Pro for one week
           </p>
         </div>
 
-        {/* Period tabs (ESTILO RESTAURADO) */}
-        <div className="flex rounded-xl p-1 mb-5" style={{ background: "#1c1c1e" }}>
+        {/* Period tabs con estilo de recompensas pero manteniendo funcionalidad visual anterior */}
+        <div className="flex rounded-xl p-1 mb-5" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
           {(["this_week", "last_week", "all_time"] as LeaderboardPeriod[]).map(p => (
             <button
               key={p}
@@ -406,31 +242,31 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
           ))}
         </div>
 
-        {/* My position (ESTILO RESTAURADO) */}
+        {/* My position container con fondo más oscuro y menos borde */}
         <div
           className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-4 animate-in fade-in duration-500"
-          style={{ background: "#1c1c1e" }}
+          style={{ background: "#111", border: "1px solid #1c1c1e" }}
         >
           <div
-            className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0"
+            className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-[14px] text-white shrink-0"
             style={{ background: "linear-gradient(135deg,#3b82f6,#1d4ed8)" }}
           >
             {(currentUser || "ME").replace("@","").slice(0,2).toUpperCase()}
           </div>
           <div className="flex-1">
-            <p className="text-white font-medium text-sm" style={{ fontFamily: SF }}>
+            <p className="text-white font-medium text-[15px]" style={{ fontFamily: SF }}>
               {currentUser || "User"}
             </p>
-            <p className="text-xs" style={{ color: "#8e8e93", fontFamily: SFD }}>
+            <p className="text-[13px] mt-0.5" style={{ color: "#8e8e93", fontFamily: SFD }}>
               {myEntry ? `${formatX(myEntry.tp)} $X` : `${formatX(myBalance)} $X`}
             </p>
           </div>
           {myEntry ? (
-            <span className="text-sm font-semibold" style={{ color: "#f59e0b" }}>#{myEntry.rank}</span>
+            <span className="text-[15px] font-bold" style={{ color: "#f59e0b" }}>#{myEntry.rank}</span>
           ) : (
             <button
               onClick={() => setCurrentView("x-rewards")}
-              className="px-4 py-1.5 rounded-full text-sm font-medium transition-opacity active:opacity-70"
+              className="px-4 py-1.5 rounded-full text-[13px] font-bold transition-opacity active:opacity-70"
               style={{ background: "#3b82f6", color: "#fff", fontFamily: SF }}
             >
               Rewards
@@ -459,7 +295,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
             const medals = ["🥈", "🥇", "🥉"]
             const heights = [56, 76, 42]
             return (
-              <div key={entry.rank} className="flex flex-col items-center gap-1 flex-1">
+              <div key={entry.rank} className="flex flex-col items-center gap-1.5 flex-1">
                 <div
                   className="rounded-full flex items-center justify-center font-bold text-white shrink-0 overflow-hidden"
                   style={{
@@ -475,14 +311,14 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                     : entry.initials}
                 </div>
                 <p
-                  className="text-xs font-medium truncate w-full text-center"
+                  className="text-[13px] font-medium truncate w-full text-center"
                   style={{ color: isFirst ? "#fff" : "#8e8e93", fontFamily: SF, marginBottom: "-2px" }}
                 >
                   {entry.username}
                 </p>
                 <div className="flex items-center justify-center gap-1 mb-1.5 w-full">
                   <p 
-                    className="text-[10px] font-semibold truncate text-center"
+                    className="text-[11px] font-bold truncate text-center"
                     style={{ color: isFirst ? "#f59e0b" : "#8e8e93", fontFamily: SFD }}
                   >
                     {formatX(entry.tp)} $X
@@ -490,7 +326,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                 </div>
                 <div
                   className="w-full rounded-t-xl flex items-center justify-center"
-                  style={{ background: "#1c1c1e", height: `${heights[i]}px` }}
+                  style={{ background: "#111", border: "1px solid #1c1c1e", borderBottom: "none", height: `${heights[i]}px` }}
                 >
                   <span style={{ fontSize: isFirst ? "22px" : "17px" }}>{medals[i]}</span>
                 </div>
@@ -500,13 +336,13 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         </div>
 
         {/* Ranks 4–10 */}
-        <div className="rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both" style={{ background: "#1c1c1e" }}>
+        <div className="rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
           {entries.slice(3).map((entry, i) => (
             <div key={entry.rank}>
-              {i > 0 && <div className="h-px" style={{ background: "#2c2c2e", marginLeft: "60px" }} />}
-              <div className="flex items-center gap-3 px-4 py-3">
+              {i > 0 && <div className="h-px" style={{ background: "#1c1c1e", marginLeft: "68px" }} />}
+              <div className="flex items-center gap-4 px-5 py-3.5">
                 <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0 overflow-hidden"
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-[14px] text-white shrink-0 overflow-hidden"
                   style={{ background: entry.avatarColor }}
                 >
                   {entry.photoUrl
@@ -514,16 +350,16 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
                     : entry.initials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium truncate" style={{ fontFamily: SF }}>
+                  <p className="text-white text-[15px] font-medium truncate" style={{ fontFamily: SF }}>
                     {entry.username}
                   </p>
                   <div className="flex items-center gap-1 mt-0.5">
-                    <p className="text-xs" style={{ color: "#8e8e93", fontFamily: SFD }}>
+                    <p className="text-[13px]" style={{ color: "#8e8e93", fontFamily: SFD }}>
                       {formatX(entry.tp)} $X
                     </p>
                   </div>
                 </div>
-                <span className="text-sm font-semibold shrink-0" style={{ color: "#48484a" }}>
+                <span className="text-[15px] font-bold shrink-0" style={{ color: "#48484a" }}>
                   #{entry.rank}
                 </span>
               </div>
@@ -533,7 +369,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
         </>
         )}
 
-        <p className="text-center text-xs mt-5" style={{ color: "#48484a", fontFamily: SF }}>
+        <p className="text-center text-[13px] mt-6" style={{ color: "#48484a", fontFamily: SF }}>
           Resets every Sunday at 00:00 UTC
         </p>
       </div>
@@ -578,7 +414,7 @@ function Row({
 }
 
 function Divider() {
-  return <div style={{ height: "1px", background: "#2c2c2e", marginLeft: "56px" }} />
+  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />
 }
 
 function Section({ title, children }: { title?: string; children: React.ReactNode }) {
@@ -591,7 +427,7 @@ function Section({ title, children }: { title?: string; children: React.ReactNod
           </p>
         </div>
       )}
-      <div className="rounded-[24px] overflow-hidden" style={{ background: "#1c1c1e" }}>
+      <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
         {children}
       </div>
     </div>
@@ -603,8 +439,8 @@ function LeaderboardBanner({ onLeaderboard }: { onLeaderboard: () => void }) {
   return (
     <button
       onClick={onLeaderboard}
-      className="w-full flex items-center justify-between rounded-[24px] px-5 py-4 active:bg-white/5 transition-colors animate-in fade-in slide-in-from-bottom-4 duration-500"
-      style={{ background: "#1c1c1e" }}
+      className="w-full flex items-center justify-between rounded-2xl px-5 py-4 active:bg-white/5 transition-colors animate-in fade-in slide-in-from-bottom-4 duration-500"
+      style={{ background: "#111", border: "1px solid #1c1c1e" }}
     >
       <div className="text-left flex flex-col gap-1">
         <div className="flex items-center gap-1">
