@@ -281,18 +281,51 @@ export function GroupSettingsView() {
                     </div>
                     {(settings.antispam_action === "mute") && (
                       <div>
-                        <label className="text-[12px] text-[#8e8e93] block mb-1" style={{ fontFamily: SF }}>
-                          Mute duration (seconds) — current: {settings.antispam_mute_sec ?? 120}s ({Math.round((settings.antispam_mute_sec ?? 120) / 60)}m)
+                        <label className="text-[12px] text-[#8e8e93] block mb-1.5" style={{ fontFamily: SF }}>
+                          Mute duration — <span className="text-white font-semibold">{
+                            (() => {
+                              const s = settings.antispam_mute_sec ?? 120
+                              if (s < 3600) return `${Math.round(s / 60)}m`
+                              if (s < 86400) return `${Math.round(s / 3600)}h`
+                              return `${Math.round(s / 86400)}d`
+                            })()
+                          }</span>
                         </label>
-                        <input
-                          type="number"
-                          min={60}
-                          max={86400}
-                          value={settings.antispam_mute_sec ?? 120}
-                          onChange={e => setSettings({...settings, antispam_mute_sec: Number(e.target.value)})}
-                          className="w-full bg-[#1c1c1e] text-white rounded-lg p-2 text-center outline-none"
-                        />
-                        <p className="text-[11px] text-[#636366] mt-1" style={{ fontFamily: SF }}>Min: 60s — Max: 86400s (24h)</p>
+                        {/* Preset buttons */}
+                        <div className="flex gap-2 flex-wrap mb-2">
+                          {[
+                            { label: "2m",  sec: 120   },
+                            { label: "5m",  sec: 300   },
+                            { label: "15m", sec: 900   },
+                            { label: "1h",  sec: 3600  },
+                            { label: "6h",  sec: 21600 },
+                            { label: "24h", sec: 86400 },
+                          ].map(({ label, sec }) => {
+                            const active = (settings.antispam_mute_sec ?? 120) === sec
+                            return (
+                              <button
+                                key={sec}
+                                onClick={() => setSettings({...settings, antispam_mute_sec: sec})}
+                                style={{
+                                  fontFamily: SF,
+                                  background: active ? "#3b82f6" : "#1c1c1e",
+                                  color: active ? "#fff" : "#8e8e93",
+                                  border: active ? "1px solid #3b82f6" : "1px solid #2c2c2e",
+                                  borderRadius: "8px",
+                                  padding: "6px 14px",
+                                  fontSize: "13px",
+                                  fontWeight: active ? 600 : 400,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                {label}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        <p className="text-[11px] text-[#636366]" style={{ fontFamily: SF }}>
+                          Applied as Unix timestamp: <code style={{ color: "#3b82f6" }}>time.time() + {settings.antispam_mute_sec ?? 120}</code>
+                        </p>
                       </div>
                     )}
                   </>
