@@ -119,17 +119,28 @@
   * {
     @apply border-border outline-ring/50;
   }
+  
   body {
     @apply bg-background text-foreground;
+    /* Desactiva selección de texto y menú emergente nativo */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Excepción importante: Permitir que los inputs y textareas funcionen normal */
+  input, textarea {
+    -webkit-user-select: auto !important;
+    user-select: auto !important;
   }
 }
 
 @keyframes twinkle-sutil {
   0%, 100% {
-    opacity: 0.3; /* Parpadeo mínimo */
+    opacity: 0.3;
   }
   50% {
-    opacity: 1; /* Brillo máximo */
+    opacity: 1;
   }
 }
 
