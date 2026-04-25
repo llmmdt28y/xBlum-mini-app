@@ -18,19 +18,40 @@ export function HomeView() {
   const [message, setMessage] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
   const [exploreModal, setExploreModal] = useState<ExploreModalType>(null)
-  const [showAllTopics, setShowAllTopics] = useState(false) // NUEVO: Controla la vista a pantalla completa de Topics
+  const [showAllTopics, setShowAllTopics] = useState(false)
   const [modalInput, setModalInput] = useState("")
   const [sending, setSending] = useState(false)
   const [openingTopic, setOpeningTopic] = useState<ExploreModalType>(null)
 
-  // ── Ocultar flecha nativa de Telegram para mostrar el botón "Close" ──
+  // ── Gestión del Botón Atrás Nativo de Telegram ──
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
-    if (tg?.BackButton) {
+    if (!tg?.BackButton) return
+
+    // Mostrar el botón si hay algún modal o sección abierta
+    if (showAllTopics || exploreModal) {
+      tg.BackButton.show()
+    } else {
       tg.BackButton.hide()
     }
-  }, [])
+
+    const handleBack = () => {
+      if (exploreModal) {
+        // Si estamos en un sub-menú, cerramos el sub-menú (regresamos a AllTopics o a Home)
+        setExploreModal(null)
+        setModalInput("")
+      } else if (showAllTopics) {
+        // Si estamos en AllTopics, cerramos AllTopics (regresamos a Home)
+        setShowAllTopics(false)
+      }
+    }
+
+    tg.BackButton.onClick(handleBack)
+    return () => {
+      tg.BackButton.offClick(handleBack)
+    }
+  }, [showAllTopics, exploreModal])
 
   // Main input bar → sends directly, AI responds in bot chat
   async function handleSend() {
@@ -79,7 +100,6 @@ export function HomeView() {
 
   const showThrottle = isThrottled && selectedModel === "Grok 4.1"
 
-  // ── Datos Centralizados de los Topics ──
   const TOPICS_DATA = [
     { id: "private", name: "Private Mode", desc: "Zero trace conversations", tag: "BETA", action: () => setExploreModal("private"), icon: <Lock className="w-5 h-5 text-amber-500" /> },
     { id: "telegram", name: "Telegram Search", desc: "Find channels, posts & more", action: () => setExploreModal("telegram"), isImage: true, src: "/telegram-icon.png" },
@@ -278,7 +298,7 @@ export function HomeView() {
               </div>
             </div>
 
-            {/* Tarjeta 2: Placeholder / Workflows */}
+            {/* Tarjeta 2: My Tools */}
             <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
               <div className="flex items-center gap-1 mb-4">
                 <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>My Tools</h3>
@@ -293,34 +313,25 @@ export function HomeView() {
 
       </div>
 
-      {/* ── MODAL FULL SCREEN: ALL TOPICS (Estilo Referencia 2) ──────── */}
+      {/* ── MODAL FULL SCREEN: ALL TOPICS (Con Blur y sin Header) ── */}
       {showAllTopics && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-black animate-in slide-in-from-bottom duration-300">
+        <div className="fixed inset-0 z-50 flex flex-col bg-black/65 backdrop-blur-xl animate-in fade-in duration-300">
           
-          {/* Header del Modal */}
-          <div className="flex items-center justify-between px-5 pt-8 pb-4 border-b border-[#1c1c1e]">
-            <h2 className="text-white font-bold text-[28px]" style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}>Explore</h2>
-            <button 
-              onClick={() => setShowAllTopics(false)} 
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-70 transition-opacity"
-            >
-              <X className="w-5 h-5 text-white" />
-            </button>
-          </div>
+          {/* Espaciador superior (Reemplaza al título "Explore" y la línea que estorbaba) */}
+          <div className="pt-16 pb-2" />
 
           {/* Lista completa de Topics */}
-          <div className="flex-1 overflow-y-auto px-4 pt-4 pb-12 space-y-1">
+          <div className="flex-1 overflow-y-auto px-4 pb-12 space-y-1">
             {TOPICS_DATA.map((topic) => (
               <button
                 key={topic.id}
                 onClick={() => {
                   if (!topic.disabled) {
-                    setShowAllTopics(false);
-                    topic.action();
+                    topic.action(); // Abre el sub-modal del topic correspondiente
                   }
                 }}
                 disabled={topic.disabled}
-                className="w-full flex items-center gap-4 px-2 py-4 active:bg-[#111] transition-colors rounded-2xl text-left disabled:opacity-50"
+                className="w-full flex items-center gap-4 px-2 py-4 active:bg-white/5 transition-colors rounded-2xl text-left disabled:opacity-50"
               >
                 <div className="w-[50px] h-[50px] rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ background: "#1c1c1e" }}>
                   {topic.isImage ? (
@@ -334,7 +345,7 @@ export function HomeView() {
                   <div className="flex items-center gap-2">
                     <p className="text-white text-[17px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>{topic.name}</p>
                     {topic.tag && (
-                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${topic.tag === 'BETA' ? 'bg-[#1c1c1e] text-[#8e8e93]' : 'bg-purple-500/20 text-purple-400'}`} style={{ fontFamily: SF }}>
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${topic.tag === 'BETA' ? 'bg-[#1c1c1e] text-[#8e8e93]' : 'bg-amber-500/15 text-amber-500'}`} style={{ fontFamily: SF }}>
                         {topic.tag}
                       </span>
                     )}
@@ -350,24 +361,26 @@ export function HomeView() {
       )}
 
 
-      {/* ── Explore Modals (Sub-menús específicos) ─────────────────── */}
+      {/* ── Sub-modales de Topic (Con botón X restaurado) ────────── */}
       {exploreModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className="fixed inset-0 z-[60] flex items-end justify-center">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
             onClick={() => { setExploreModal(null); setModalInput("") }}
           />
 
           <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
+            
+            {/* Botón X restaurado para los sub-menús */}
             <button
               onClick={() => { setExploreModal(null); setModalInput("") }}
-              className="absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
               style={{ background: "#1c1c1e" }}
             >
               <X className="w-5 h-5 text-white" />
             </button>
 
-            <div className="pt-6 pb-4 overflow-y-auto flex-1">
+            <div className="pt-10 pb-4 overflow-y-auto flex-1">
 
               {/* Private Mode Modal */}
               {exploreModal === "private" && (
@@ -385,7 +398,6 @@ export function HomeView() {
                     </p>
                   </div>
 
-                  {/* Privacy guarantees */}
                   <div className="mx-4 mb-4 bg-amber-500/10 border border-amber-500/20 rounded-[20px] p-4 space-y-2">
                     {[
                       "🚫  No conversation history saved",
@@ -417,7 +429,6 @@ export function HomeView() {
                     ))}
                   </div>
 
-                  {/* Open topic button */}
                   <div className="mx-4 mt-4">
                     <button
                       onClick={() => handleOpenTopic("private")}
@@ -662,7 +673,6 @@ export function HomeView() {
               </div>
             </div>
 
-            {/* Area de resguardo inferior (safe area) */}
             <div style={{ height: "calc(env(safe-area-inset-bottom, 0px) + 12px)", background: "#111" }} />
           </div>
         </div>
