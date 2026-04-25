@@ -224,7 +224,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
           </p>
         </div>
 
-        {/* Period tabs con estilo de recompensas pero manteniendo funcionalidad visual anterior */}
+        {/* Period tabs */}
         <div className="flex rounded-xl p-1 mb-5" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
           {(["this_week", "last_week", "all_time"] as LeaderboardPeriod[]).map(p => (
             <button
@@ -242,7 +242,7 @@ function LeaderboardView({ currentUser, myUserId }: { currentUser: string; myUse
           ))}
         </div>
 
-        {/* My position container con fondo más oscuro y menos borde */}
+        {/* My position container */}
         <div
           className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-4 animate-in fade-in duration-500"
           style={{ background: "#111", border: "1px solid #1c1c1e" }}
@@ -417,17 +417,18 @@ function Divider() {
   return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />
 }
 
+// ── Section modificada para igualar a settings-view ───────────────────
 function Section({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-      {title && (
-        <div className="flex items-center justify-between px-4 mb-2">
-          <p className="font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
-            {title}
-          </p>
-        </div>
-      )}
       <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+        {title && (
+          <div className="flex items-center justify-between px-5 pt-3 pb-1">
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>
+              {title}
+            </p>
+          </div>
+        )}
         {children}
       </div>
     </div>
