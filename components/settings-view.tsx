@@ -35,7 +35,7 @@ const MODELS: {
     name:"GPT-5.4",       
     desc:"Maximum capability for complex tasks",            
     tag:"PRO",     
-    tagColor:"bg-amber-500/15 text-amber-500", // Color ámbar coordinado con xBlum Pro
+    tagColor:"bg-amber-500/15 text-amber-500", 
     tagStyle: "rounded",
     proOnly:true,  
     initial:"4" 
@@ -92,18 +92,19 @@ function Divider() {
   return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />
 }
 
+// Actualizado: El título ahora está dentro del contenedor, azul y con un padding ajustado ("más pegado")
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-      {title && (
-        <div className="flex items-center justify-between px-4 mb-2">
-          <p className="font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
-            {title}
-          </p>
-          {rightAction && <div>{rightAction}</div>}
-        </div>
-      )}
       <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+        {title && (
+          <div className="flex items-center justify-between px-5 pt-3 pb-1">
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>
+              {title}
+            </p>
+            {rightAction && <div>{rightAction}</div>}
+          </div>
+        )}
         {children}
       </div>
     </div>
@@ -200,6 +201,10 @@ export function SettingsView() {
 
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
 
+  // Determinar si Grok 4.1 está activo, tolerando el string "Grok 4" cargado de la caché
+  const isGrok41Active = typeof selectedModel === 'string' && selectedModel.startsWith("Grok 4");
+  const displayModelName = isGrok41Active ? "Grok 4.1" : selectedModel;
+
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
@@ -260,13 +265,14 @@ export function SettingsView() {
       <div className="px-4 pt-6 space-y-4">
         <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
           
-          <div className="px-5 pt-4 pb-1">
+          <div className="px-5 pt-3 pb-1">
             <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>LLM model</p>
           </div>
 
           {MODELS.map((m) => {
             const locked    = m.proOnly && !isPremium
-            const active    = selectedModel === m.name
+            // Lógica ajustada para la palomita
+            const active = m.name === selectedModel || (m.name === "Grok 4.1" && isGrok41Active);
             const throttled = isThrottled && m.name === "Grok 4.1"
             
             return (
@@ -432,7 +438,7 @@ export function SettingsView() {
               </div>
             }
             label="LLM model"
-            sublabel={selectedModel + (isThrottled && selectedModel === "Grok 4.1" ? " · cooling" : "")}
+            sublabel={displayModelName + (isThrottled && isGrok41Active ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
           <Divider />
