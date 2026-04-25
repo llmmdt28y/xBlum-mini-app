@@ -18,6 +18,7 @@ export function HomeView() {
   const [message, setMessage] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
   const [exploreModal, setExploreModal] = useState<ExploreModalType>(null)
+  const [showAllTopics, setShowAllTopics] = useState(false) // NUEVO: Controla la vista a pantalla completa de Topics
   const [modalInput, setModalInput] = useState("")
   const [sending, setSending] = useState(false)
   const [openingTopic, setOpeningTopic] = useState<ExploreModalType>(null)
@@ -73,10 +74,20 @@ export function HomeView() {
   }
 
   function handleAddToChat() {
-    // Función para Telegram - se agregará después
+    // Función para Telegram
   }
 
   const showThrottle = isThrottled && selectedModel === "Grok 4.1"
+
+  // ── Datos Centralizados de los Topics ──
+  const TOPICS_DATA = [
+    { id: "private", name: "Private Mode", desc: "Zero trace conversations", tag: "BETA", action: () => setExploreModal("private"), icon: <Lock className="w-5 h-5 text-amber-500" /> },
+    { id: "telegram", name: "Telegram Search", desc: "Find channels, posts & more", action: () => setExploreModal("telegram"), isImage: true, src: "/telegram-icon.png" },
+    { id: "google", name: "Google Tools", desc: "Mail, Drive, Docs & Sheets", action: () => setExploreModal("google"), isImage: true, src: "/gmail.png", contain: true },
+    { id: "writing", name: "Writing Assistant", desc: "Translate and refine text", action: () => setExploreModal("writing"), icon: <Sparkles className="w-5 h-5 text-blue-400" /> },
+    { id: "coding", name: "Coding & Tech", desc: "Debug and write code", action: () => setExploreModal("coding"), icon: <Code className="w-5 h-5 text-green-400" /> },
+    { id: "ton", name: "TON Wallet", desc: "Manage your crypto assets", action: () => {}, tag: "SOON", disabled: true, isImage: true, src: "/TON-ICON.png" },
+  ] as const;
 
   return (
     <div 
@@ -197,21 +208,14 @@ export function HomeView() {
             height: "96px",
           }}
         >
-          {/* Subtle left glow */}
           <div className="absolute inset-0 pointer-events-none" style={{
             background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 55%)"
           }} />
-
-          {/* Content row */}
           <div className="relative z-10 flex items-center justify-between h-full px-5">
-
-            {/* Left: text + button */}
             <div className="flex flex-col gap-2">
               <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Invite a Friend & Get<br />Free Tokens
               </p>
-
-              {/* Liquid glass button — compact */}
               <div
                 className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden"
                 style={{
@@ -229,149 +233,124 @@ export function HomeView() {
                 <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
               </div>
             </div>
-
-            {/* Right: 3 coins — triangle layout matching reference exactly */}
             <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "96px" }}>
-              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{
-                width: "46px", height: "46px", top: "-10px", right: "4px", opacity: 0.55, transform: "rotate(18deg)", filter: "brightness(0.75)",
-              }} />
-              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{
-                width: "68px", height: "68px", top: "50%", left: "0px", transform: "translateY(-50%) rotate(-18deg)", opacity: 1, filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))",
-              }} />
-              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{
-                width: "44px", height: "44px", bottom: "2px", right: "6px", opacity: 0.6, transform: "rotate(-8deg)", filter: "brightness(0.8)",
-              }} />
+              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "46px", height: "46px", top: "-10px", right: "4px", opacity: 0.55, transform: "rotate(18deg)", filter: "brightness(0.75)" }} />
+              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "68px", height: "68px", top: "50%", left: "0px", transform: "translateY(-50%) rotate(-18deg)", opacity: 1, filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))" }} />
+              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "44px", height: "44px", bottom: "2px", right: "6px", opacity: 0.6, transform: "rotate(-8deg)", filter: "brightness(0.8)" }} />
             </div>
           </div>
         </button>
 
-        {/* ── Explore Section (NUEVO DISEÑO EN LISTA) ───────────────────── */}
-        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both">
-          
-          <div className="flex items-center justify-between px-2 mb-2">
-            <p style={{ fontSize: "13px", fontWeight: 600, color: "#8e8e93", fontFamily: SF }}>
-              Explore Topics
-            </p>
-          </div>
-
-          <div className="rounded-[24px] overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+        {/* ── Explore Section (CARRUSEL HORIZONTAL) ───────────────────── */}
+        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both overflow-x-auto snap-x snap-mandatory pb-4" style={{ scrollbarWidth: "none" }}>
+          <div className="flex gap-3 w-max px-1">
             
-            {/* Private Mode */}
-            <button
-              onClick={() => setExploreModal("private")}
-              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-                <Lock className="w-5 h-5 text-amber-500" />
+            {/* Tarjeta 1: Explore (Compacta) */}
+            <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+              <button onClick={() => setShowAllTopics(true)} className="flex items-center gap-1 mb-4 active:opacity-70 w-fit">
+                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Explore</h3>
+                <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+              </button>
+              
+              <div className="flex flex-col gap-4">
+                {TOPICS_DATA.slice(0, 3).map((topic) => (
+                  <button
+                    key={topic.id}
+                    onClick={topic.action}
+                    disabled={openingTopic === topic.id}
+                    className="w-full flex items-center gap-4 active:opacity-60 transition-opacity text-left disabled:opacity-50"
+                  >
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ background: "#1c1c1e" }}>
+                      {openingTopic === topic.id ? (
+                        <Loader2 className="w-5 h-5 animate-spin text-[#8e8e93]" />
+                      ) : topic.isImage ? (
+                        <img src={topic.src} alt={topic.name} draggable={false} className={`w-full h-full pointer-events-none select-none ${topic.contain ? 'object-contain p-2' : 'object-cover'}`} />
+                      ) : (
+                        topic.icon
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-[16px] font-medium truncate leading-tight" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>{topic.name}</p>
+                      <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>{topic.desc}</p>
+                    </div>
+                  </button>
+                ))}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Private Mode</p>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold" style={{ background: "#1c1c1e", color: "#8e8e93", fontFamily: SF }}>BETA</span>
-                </div>
-                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Zero trace conversations</p>
-              </div>
-              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
-            </button>
+            </div>
 
-            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
-
-            {/* Telegram Search */}
-            <button
-              onClick={() => setExploreModal("telegram")}
-              disabled={openingTopic === "telegram"}
-              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden pointer-events-none select-none" style={{ background: "#1c1c1e" }}>
-                <img src="/telegram-icon.png" alt="Telegram" draggable={false} className="w-10 h-10 object-cover" />
+            {/* Tarjeta 2: Placeholder / Workflows */}
+            <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+              <div className="flex items-center gap-1 mb-4">
+                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>My Tools</h3>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Telegram Search</p>
-                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Find channels, posts & more</p>
+              <div className="flex-1 flex items-center justify-center min-h-[140px]">
+                <p className="text-[#48484a] text-[15px] font-medium" style={{ fontFamily: SF }}>Coming soon...</p>
               </div>
-              {openingTopic === "telegram" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
-            </button>
-
-            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
-
-            {/* Google Tools */}
-            <button
-              onClick={() => setExploreModal("google")}
-              disabled={openingTopic === "google"}
-              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden pointer-events-none select-none" style={{ background: "#1c1c1e" }}>
-                <img src="/gmail.png" alt="Google Tools" draggable={false} className="w-6 h-6 object-contain" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Google Tools</p>
-                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Mail, Drive, Docs & Sheets</p>
-              </div>
-              {openingTopic === "google" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
-            </button>
-
-            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
-
-            {/* Writing Assistant */}
-            <button
-              onClick={() => setExploreModal("writing")}
-              disabled={openingTopic === "writing"}
-              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-                <Sparkles className="w-5 h-5 text-blue-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Writing Assistant</p>
-                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Translate and refine text</p>
-              </div>
-              {openingTopic === "writing" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
-            </button>
-
-            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
-
-            {/* Coding & Tech */}
-            <button
-              onClick={() => setExploreModal("coding")}
-              disabled={openingTopic === "coding"}
-              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-                <Code className="w-5 h-5 text-green-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Coding & Tech</p>
-                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Debug and write code</p>
-              </div>
-              {openingTopic === "coding" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
-            </button>
-
-            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
-
-            {/* TON Wallet (Disabled/Soon) */}
-            <button
-              disabled
-              className="w-full flex items-center gap-4 px-4 py-3.5 transition-colors text-left opacity-50 cursor-not-allowed"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden pointer-events-none select-none" style={{ background: "#1c1c1e" }}>
-                <img src="/TON-ICON.png" alt="TON Wallet" draggable={false} className="w-10 h-10 object-cover" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>TON Wallet</p>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold" style={{ background: "#1c1c1e", color: "#8e8e93", fontFamily: SF }}>SOON</span>
-                </div>
-                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Manage your crypto assets</p>
-              </div>
-              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
-            </button>
+            </div>
 
           </div>
         </div>
 
       </div>
 
-      {/* ── Explore Modals — shown before opening the topic ─────────────────── */}
+      {/* ── MODAL FULL SCREEN: ALL TOPICS (Estilo Referencia 2) ──────── */}
+      {showAllTopics && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-black animate-in slide-in-from-bottom duration-300">
+          
+          {/* Header del Modal */}
+          <div className="flex items-center justify-between px-5 pt-8 pb-4 border-b border-[#1c1c1e]">
+            <h2 className="text-white font-bold text-[28px]" style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}>Explore</h2>
+            <button 
+              onClick={() => setShowAllTopics(false)} 
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-70 transition-opacity"
+            >
+              <X className="w-5 h-5 text-white" />
+            </button>
+          </div>
+
+          {/* Lista completa de Topics */}
+          <div className="flex-1 overflow-y-auto px-4 pt-4 pb-12 space-y-1">
+            {TOPICS_DATA.map((topic) => (
+              <button
+                key={topic.id}
+                onClick={() => {
+                  if (!topic.disabled) {
+                    setShowAllTopics(false);
+                    topic.action();
+                  }
+                }}
+                disabled={topic.disabled}
+                className="w-full flex items-center gap-4 px-2 py-4 active:bg-[#111] transition-colors rounded-2xl text-left disabled:opacity-50"
+              >
+                <div className="w-[50px] h-[50px] rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ background: "#1c1c1e" }}>
+                  {topic.isImage ? (
+                    <img src={topic.src} alt={topic.name} draggable={false} className={`w-full h-full pointer-events-none select-none ${topic.contain ? 'object-contain p-2.5' : 'object-cover'}`} />
+                  ) : (
+                    <div className="scale-110">{topic.icon}</div>
+                  )}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-white text-[17px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>{topic.name}</p>
+                    {topic.tag && (
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${topic.tag === 'BETA' ? 'bg-[#1c1c1e] text-[#8e8e93]' : 'bg-purple-500/20 text-purple-400'}`} style={{ fontFamily: SF }}>
+                        {topic.tag}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[#8e8e93] text-[14px] truncate mt-0.5" style={{ fontFamily: SF }}>{topic.desc}</p>
+                </div>
+                
+                <ChevronRight className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+
+      {/* ── Explore Modals (Sub-menús específicos) ─────────────────── */}
       {exploreModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
           <div
