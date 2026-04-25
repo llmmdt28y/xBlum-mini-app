@@ -256,6 +256,50 @@ export function GroupSettingsView() {
               </div>
             </div>
 
+            {/* Anti-Spam */}
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wider text-[#48484a] mb-2 px-1" style={{ fontFamily: SF }}>🛡 Anti-Spam System</p>
+              <div className="rounded-2xl p-4 space-y-4" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[14px] text-white font-medium" style={{ fontFamily: SF }}>Enable Anti-Spam</span>
+                  <Switch checked={settings.antispam_enabled ?? true} onChange={c => setSettings({...settings, antispam_enabled: c})} />
+                </div>
+                {(settings.antispam_enabled ?? true) && (
+                  <>
+                    <div>
+                      <label className="text-[13px] text-white block mb-1.5" style={{ fontFamily: SF }}>Action on detection</label>
+                      <SegmentedControl
+                        options={[
+                          { label: "Warn", value: "warn" },
+                          { label: "Mute", value: "mute" },
+                          { label: "Captcha", value: "captcha" },
+                          { label: "Ban", value: "ban" },
+                        ]}
+                        selected={settings.antispam_action ?? "captcha"}
+                        onChange={v => setSettings({...settings, antispam_action: v})}
+                      />
+                    </div>
+                    {(settings.antispam_action === "mute") && (
+                      <div>
+                        <label className="text-[12px] text-[#8e8e93] block mb-1" style={{ fontFamily: SF }}>
+                          Mute duration (seconds) — current: {settings.antispam_mute_sec ?? 120}s ({Math.round((settings.antispam_mute_sec ?? 120) / 60)}m)
+                        </label>
+                        <input
+                          type="number"
+                          min={60}
+                          max={86400}
+                          value={settings.antispam_mute_sec ?? 120}
+                          onChange={e => setSettings({...settings, antispam_mute_sec: Number(e.target.value)})}
+                          className="w-full bg-[#1c1c1e] text-white rounded-lg p-2 text-center outline-none"
+                        />
+                        <p className="text-[11px] text-[#636366] mt-1" style={{ fontFamily: SF }}>Min: 60s — Max: 86400s (24h)</p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+
             {/* Auto-Tags */}
             <div>
               <p className="text-[11px] font-medium uppercase tracking-wider text-[#48484a] mb-2 px-1" style={{ fontFamily: SF }}>🏷️ Auto Member Tags</p>
