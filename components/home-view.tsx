@@ -1,10 +1,13 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles } from "lucide-react"
+import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2 } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
+
+const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
+const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
 export function HomeView() {
   const {
@@ -73,7 +76,7 @@ export function HomeView() {
     // Función para Telegram - se agregará después
   }
 
-  const showThrottle = isThrottled && selectedModel === "Grok 4 Mini"
+  const showThrottle = isThrottled && selectedModel === "Grok 4.1"
 
   return (
     <div 
@@ -83,34 +86,36 @@ export function HomeView() {
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
 
         {/* ── Hero Header ─────────────────────────────────────────────── */}
-        <div className="w-full pt-6 pb-2">
-          <p className="text-neutral-500 text-sm font-medium mb-1">{t("poweredBy")} <button onClick={() => setCurrentView("settings")} className="text-neutral-400 hover:text-neutral-300 transition-colors font-semibold">{selectedModel}</button></p>
-          <h1 className="text-4xl font-bold text-white leading-tight tracking-tight">
+        <div className="w-full pt-6 pb-2 animate-in fade-in duration-500">
+          <p className="text-[#8e8e93] text-sm font-medium mb-1" style={{ fontFamily: SF }}>
+            {t("poweredBy")} <button onClick={() => setCurrentView("settings")} className="text-white hover:text-neutral-300 transition-colors font-semibold">{selectedModel}</button>
+          </p>
+          <h1 className="text-[34px] font-bold text-white leading-tight tracking-tight" style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}>
             {t("howCanIHelp")}
           </h1>
         </div>
 
         {/* ── Throttle warning ────────────────────────────────────────── */}
         {showThrottle && (
-          <div className="w-full p-3.5 bg-orange-500/10 border border-orange-500/30 rounded-xl flex items-start gap-3">
+          <div className="w-full p-3.5 bg-orange-500/10 border border-orange-500/30 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
             <AlertTriangle className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <p className="text-sm text-orange-300 font-medium">{t("throttleActive")}</p>
+                <p className="text-[13px] text-orange-300 font-medium" style={{ fontFamily: SF }}>{t("throttleActive")}</p>
                 <div className="flex items-center gap-1 text-orange-400">
                   <Clock className="w-3 h-3" />
-                  <span className="text-xs">{minutesUntilReset} {t("min")}</span>
+                  <span className="text-[11px]" style={{ fontFamily: SFD }}>{minutesUntilReset} {t("min")}</span>
                 </div>
               </div>
-              <p className="text-xs text-neutral-500 mt-0.5">{t("throttleDesc")}</p>
+              <p className="text-[12px] text-orange-200/70 mt-0.5" style={{ fontFamily: SF }}>{t("throttleDesc")}</p>
               <div className="mt-2 flex gap-2">
-                <button onClick={() => setCurrentView("settings")} className="text-xs text-blue-400 underline underline-offset-2">
+                <button onClick={() => setCurrentView("settings")} className="text-[12px] text-blue-400 underline underline-offset-2" style={{ fontFamily: SF }}>
                   {t("changeModel")}
                 </button>
                 {!isPremium && (
                   <>
-                    <span className="text-neutral-600 text-xs">·</span>
-                    <button onClick={() => setCurrentView("premium")} className="text-xs text-amber-400 underline underline-offset-2">
+                    <span className="text-neutral-600 text-[12px]">·</span>
+                    <button onClick={() => setCurrentView("premium")} className="text-[12px] text-amber-400 underline underline-offset-2" style={{ fontFamily: SF }}>
                       {t("upgradePro")}
                     </button>
                   </>
@@ -121,7 +126,7 @@ export function HomeView() {
         )}
 
         {/* ── Input ───────────────────────────────────────────────────── */}
-        <div className="w-full">
+        <div className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500 delay-75 fill-mode-both">
           <div className="relative">
             <input
               ref={inputRef}
@@ -130,8 +135,8 @@ export function HomeView() {
               onChange={e => setMessage(e.target.value)}
               onKeyDown={handleKey}
               placeholder={t("typeMessage")}
-              className="w-full pl-5 pr-14 py-4 rounded-full text-white placeholder:text-[#636366] focus:outline-none transition-all text-sm"
-              style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
+              className="w-full pl-5 pr-14 py-4 rounded-[24px] text-white placeholder:text-[#636366] focus:outline-none transition-all text-[15px]"
+              style={{ background: "#111", border: "1px solid #1c1c1e", fontFamily: SF }}
             />
             <button
               onClick={handleSend}
@@ -142,7 +147,7 @@ export function HomeView() {
                   ? "bg-white text-black active:scale-95"
                   : "text-[#48484a] cursor-not-allowed")
               }
-              style={!(message.trim() && !sending) ? { background: "#2c2c2e" } : {}}
+              style={!(message.trim() && !sending) ? { background: "#1c1c1e" } : {}}
             >
               {sending ? (
                 <span className="w-4 h-4 border-2 border-[#48484a] border-t-neutral-300 rounded-full animate-spin" />
@@ -154,41 +159,41 @@ export function HomeView() {
         </div>
 
         {/* ── Action Buttons ──────────────────────────────────────────── */}
-        <div className="w-full flex flex-nowrap justify-start gap-2">
+        <div className="w-full flex flex-nowrap justify-start gap-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
           <button
             onClick={handleCreateImage}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
-            style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
+            style={{ background: "#111", border: "1px solid #1c1c1e" }}
           >
-            <Image className="w-3.5 h-3.5 shrink-0" style={{ color: "#8e8e93" }} />
-            <span className="text-xs font-medium">{t("createImage")}</span>
+            <Image className="w-4 h-4 shrink-0" style={{ color: "#8e8e93" }} />
+            <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>{t("createImage")}</span>
           </button>
           <button
             onClick={handleGetTokens}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
-            style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
+            style={{ background: "#111", border: "1px solid #1c1c1e" }}
           >
-            <Coins className="w-3.5 h-3.5 shrink-0" style={{ color: "#8e8e93" }} />
-            <span className="text-xs font-medium">{t("getTokens")}</span>
+            <Coins className="w-4 h-4 shrink-0" style={{ color: "#8e8e93" }} />
+            <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>{t("getTokens")}</span>
           </button>
           <button
             onClick={handleAddToChat}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
-            style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
+            style={{ background: "#111", border: "1px solid #1c1c1e" }}
           >
-            <MessageCircle className="w-3.5 h-3.5 shrink-0" style={{ color: "#8e8e93" }} />
-            <span className="text-xs font-medium">{t("addToChat")}</span>
+            <MessageCircle className="w-4 h-4 shrink-0" style={{ color: "#8e8e93" }} />
+            <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>{t("addToChat")}</span>
           </button>
         </div>
 
         {/* ── Referral Banner ─────────────────────────────────────────── */}
         <button
           onClick={() => setCurrentView("referral")}
-          className="w-full relative overflow-hidden active:opacity-80 transition-opacity text-left"
+          className="w-full relative overflow-hidden active:opacity-80 transition-opacity text-left animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both"
           style={{
             background: "#060606",
             border: "1px solid #1e1e1e",
-            borderRadius: "20px",
+            borderRadius: "24px",
             height: "96px",
           }}
         >
@@ -202,7 +207,7 @@ export function HomeView() {
 
             {/* Left: text + button */}
             <div className="flex flex-col gap-2">
-              <p className="text-white font-bold text-[15px] leading-tight">
+              <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Invite a Friend & Get<br />Free Tokens
               </p>
 
@@ -220,142 +225,145 @@ export function HomeView() {
                 <div className="absolute inset-x-2 top-0 h-px" style={{
                   background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)"
                 }} />
-                <span className="text-white text-[10px] font-medium relative z-10 tracking-wide">share invite</span>
-                <span className="text-white text-[10px] relative z-10" style={{ opacity: 0.55 }}>›</span>
+                <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite</span>
+                <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
               </div>
             </div>
 
             {/* Right: 3 coins — triangle layout matching reference exactly */}
             <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "96px" }}>
-
-              {/* TOP-RIGHT — small, partially clipped at top, tilted right */}
               <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{
-                width: "46px", height: "46px",
-                top: "-10px", right: "4px",
-                opacity: 0.55,
-                transform: "rotate(18deg)",
-                filter: "brightness(0.75)",
+                width: "46px", height: "46px", top: "-10px", right: "4px", opacity: 0.55, transform: "rotate(18deg)", filter: "brightness(0.75)",
               }} />
-
-              {/* CENTER-LEFT — largest coin, slightly tilted left, main focal point */}
               <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{
-                width: "68px", height: "68px",
-                top: "50%", left: "0px",
-                transform: "translateY(-50%) rotate(-18deg)",
-                opacity: 1,
-                filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))",
+                width: "68px", height: "68px", top: "50%", left: "0px", transform: "translateY(-50%) rotate(-18deg)", opacity: 1, filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))",
               }} />
-
-              {/* BOTTOM-RIGHT — small, below and right of center, slight tilt */}
               <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{
-                width: "44px", height: "44px",
-                bottom: "2px", right: "6px",
-                opacity: 0.6,
-                transform: "rotate(-8deg)",
-                filter: "brightness(0.8)",
+                width: "44px", height: "44px", bottom: "2px", right: "6px", opacity: 0.6, transform: "rotate(-8deg)", filter: "brightness(0.8)",
               }} />
-
             </div>
           </div>
         </button>
 
-        {/* ── Explore Section ─────────────────────────────────────────── */}
-        <div className="w-full mt-4">
-          <h2 className="text-white font-bold text-lg mb-3">Explore</h2>
-          <div className="grid grid-cols-2 gap-3">
+        {/* ── Explore Section (NUEVO DISEÑO EN LISTA) ───────────────────── */}
+        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both">
+          
+          <div className="flex items-center justify-between px-2 mb-2">
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#8e8e93", fontFamily: SF }}>
+              Explore Topics
+            </p>
+          </div>
 
+          <div className="rounded-[24px] overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+            
             {/* Private Mode */}
             <button
               onClick={() => setExploreModal("private")}
-              className="relative rounded-2xl p-4 text-left active:opacity-70 transition-opacity"
-              style={{ background: "#1c1c1e" }}
+              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left"
             >
-              <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ background: "#2c2c2e", color: "#aeaeb2" }}>
-                beta
-              </span>
-              <div className="w-10 h-10 mb-3 flex items-center justify-center">
-                <Lock className="w-8 h-8 text-amber-500" />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
+                <Lock className="w-5 h-5 text-amber-500" />
               </div>
-              <p className="text-white font-medium text-sm">Private Mode</p>
-              <p className="text-cyan-400 text-xs mt-0.5">Zero trace</p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Private Mode</p>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold" style={{ background: "#1c1c1e", color: "#8e8e93", fontFamily: SF }}>BETA</span>
+                </div>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Zero trace conversations</p>
+              </div>
+              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
             </button>
 
-            {/* TON Wallet */}
-            <button
-              className="relative rounded-2xl p-4 text-left opacity-50 cursor-not-allowed"
-              style={{ background: "#1c1c1e" }}
-            >
-              <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ background: "#2c2c2e", color: "#aeaeb2" }}>
-                soon
-              </span>
-              <div className="w-10 h-10 mb-3 flex items-center justify-center pointer-events-none select-none">
-                <img src="/TON-ICON.png" alt="TON" draggable={false} className="w-8 h-8 pointer-events-none select-none" />
-              </div>
-              <p className="text-white font-medium text-sm">TON Wallet</p>
-            </button>
+            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
 
-            {/* Search on Telegram */}
+            {/* Telegram Search */}
             <button
               onClick={() => setExploreModal("telegram")}
               disabled={openingTopic === "telegram"}
-              className="relative rounded-2xl p-4 text-left active:opacity-70 transition-opacity disabled:opacity-50"
-              style={{ background: "#1c1c1e" }}
+              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
             >
-              {openingTopic === "telegram" && (
-                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-[#48484a] border-t-white rounded-full animate-spin" />
-              )}
-              <div className="w-10 h-10 mb-3 flex items-center justify-center pointer-events-none select-none">
-                <img src="/telegram-icon.png" alt="Telegram" draggable={false} className="w-8 h-8 pointer-events-none select-none" />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden pointer-events-none select-none" style={{ background: "#1c1c1e" }}>
+                <img src="/telegram-icon.png" alt="Telegram" draggable={false} className="w-10 h-10 object-cover" />
               </div>
-              <p className="text-white font-medium text-sm">Search on Telegram</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Telegram Search</p>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Find channels, posts & more</p>
+              </div>
+              {openingTopic === "telegram" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
             </button>
+
+            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
 
             {/* Google Tools */}
             <button
               onClick={() => setExploreModal("google")}
               disabled={openingTopic === "google"}
-              className="relative rounded-2xl p-4 text-left active:opacity-70 transition-opacity disabled:opacity-50"
-              style={{ background: "#1c1c1e" }}
+              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
             >
-              {openingTopic === "google" && (
-                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-[#48484a] border-t-white rounded-full animate-spin" />
-              )}
-              <div className="w-10 h-10 mb-3 flex items-center justify-center pointer-events-none select-none">
-                <img src="/gmail.png" alt="Google" draggable={false} className="w-8 h-8 pointer-events-none select-none" />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden pointer-events-none select-none" style={{ background: "#1c1c1e" }}>
+                <img src="/gmail.png" alt="Google Tools" draggable={false} className="w-6 h-6 object-contain" />
               </div>
-              <p className="text-white font-medium text-sm">Google Tools</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Google Tools</p>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Mail, Drive, Docs & Sheets</p>
+              </div>
+              {openingTopic === "google" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
             </button>
 
-            {/* Writing & Translation */}
+            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
+
+            {/* Writing Assistant */}
             <button
               onClick={() => setExploreModal("writing")}
               disabled={openingTopic === "writing"}
-              className="relative rounded-2xl p-4 text-left active:opacity-70 transition-opacity disabled:opacity-50"
-              style={{ background: "#1c1c1e" }}
+              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
             >
-              {openingTopic === "writing" && (
-                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-[#48484a] border-t-white rounded-full animate-spin" />
-              )}
-              <div className="w-10 h-10 mb-3 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-blue-400" />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
+                <Sparkles className="w-5 h-5 text-blue-400" />
               </div>
-              <p className="text-white font-medium text-sm">Writing Assistant</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Writing Assistant</p>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Translate and refine text</p>
+              </div>
+              {openingTopic === "writing" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
             </button>
+
+            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
 
             {/* Coding & Tech */}
             <button
               onClick={() => setExploreModal("coding")}
               disabled={openingTopic === "coding"}
-              className="relative rounded-2xl p-4 text-left active:opacity-70 transition-opacity disabled:opacity-50"
-              style={{ background: "#1c1c1e" }}
+              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
             >
-              {openingTopic === "coding" && (
-                <span className="absolute top-3 right-3 w-4 h-4 border-2 border-[#48484a] border-t-white rounded-full animate-spin" />
-              )}
-              <div className="w-10 h-10 mb-3 flex items-center justify-center">
-                <Code className="w-8 h-8 text-green-400" />
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
+                <Code className="w-5 h-5 text-green-400" />
               </div>
-              <p className="text-white font-medium text-sm">Coding & Tech</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Coding & Tech</p>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Debug and write code</p>
+              </div>
+              {openingTopic === "coding" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
+            </button>
+
+            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
+
+            {/* TON Wallet (Disabled/Soon) */}
+            <button
+              disabled
+              className="w-full flex items-center gap-4 px-4 py-3.5 transition-colors text-left opacity-50 cursor-not-allowed"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden pointer-events-none select-none" style={{ background: "#1c1c1e" }}>
+                <img src="/TON-ICON.png" alt="TON Wallet" draggable={false} className="w-10 h-10 object-cover" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>TON Wallet</p>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold" style={{ background: "#1c1c1e", color: "#8e8e93", fontFamily: SF }}>SOON</span>
+                </div>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Manage your crypto assets</p>
+              </div>
+              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
             </button>
 
           </div>
@@ -371,11 +379,11 @@ export function HomeView() {
             onClick={() => { setExploreModal(null); setModalInput("") }}
           />
 
-          <div className="relative w-full rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col" style={{ background: "#1c1c1e" }}>
+          <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
             <button
               onClick={() => { setExploreModal(null); setModalInput("") }}
               className="absolute top-4 left-4 w-9 h-9 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
-              style={{ background: "#2c2c2e" }}
+              style={{ background: "#1c1c1e" }}
             >
               <X className="w-5 h-5 text-white" />
             </button>
@@ -390,27 +398,27 @@ export function HomeView() {
                       <Lock className="w-16 h-16 text-amber-500" />
                     </div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h2 className="text-white font-bold text-xl">Private Mode</h2>
-                      <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: "#2c2c2e", color: "#aeaeb2" }}>beta</span>
+                      <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Private Mode</h2>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ background: "#1c1c1e", color: "#8e8e93", fontFamily: SF }}>beta</span>
                     </div>
-                    <p className="text-neutral-500 text-sm text-center px-4">
+                    <p className="text-[#8e8e93] text-[14px] text-center px-4" style={{ fontFamily: SF }}>
                       Opens a dedicated topic where nothing is saved — no history, no memory, no context. Ever.
                     </p>
                   </div>
 
                   {/* Privacy guarantees */}
-                  <div className="mx-4 mb-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 space-y-2">
+                  <div className="mx-4 mb-4 bg-amber-500/10 border border-amber-500/20 rounded-[20px] p-4 space-y-2">
                     {[
                       "🚫  No conversation history saved",
                       "🧠  No memory or profile updates",
                       "👤  No context from past chats",
                       "🔒  Each message treated as the first",
                     ].map((line, i) => (
-                      <p key={i} className="text-amber-300/80 text-xs font-medium">{line}</p>
+                      <p key={i} className="text-amber-500/90 text-[13px] font-medium" style={{ fontFamily: SF }}>{line}</p>
                     ))}
                   </div>
 
-                  <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#2c2c2e" }}>
+                  <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
                     {[
                       { icon: "📄", text: "Review a contract for hidden risks" },
                       { icon: "✉️", text: "Draft a sensitive message" },
@@ -421,11 +429,11 @@ export function HomeView() {
                         key={i}
                         onClick={() => handleQuickSend("private", item.text)}
                         disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:opacity-60 transition-opacity disabled:opacity-50"
-                        style={{ borderBottom: i < 3 ? "1px solid #3a3a3c" : "none" }}
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
+                        style={{ borderBottom: i < 3 ? "1px solid #2c2c2e" : "none" }}
                       >
-                        <span className="text-2xl">{item.icon}</span>
-                        <span className="text-white text-sm text-left">{item.text}</span>
+                        <span className="text-[20px]">{item.icon}</span>
+                        <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
                       </button>
                     ))}
                   </div>
@@ -435,9 +443,10 @@ export function HomeView() {
                     <button
                       onClick={() => handleOpenTopic("private")}
                       disabled={sending}
-                      className="w-full py-3.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold rounded-2xl hover:bg-amber-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
+                      className="w-full py-4 bg-amber-500/20 border border-amber-500/40 text-amber-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+                      style={{ fontFamily: SF, fontSize: "16px" }}
                     >
-                      {sending ? "Opening..." : "🔒 Open Private Topic"}
+                      {sending ? "Opening..." : "Open Private Topic"}
                     </button>
                   </div>
                 </>
@@ -448,12 +457,12 @@ export function HomeView() {
                 <>
                   <div className="flex flex-col items-center px-4 mb-6">
                     <div className="w-20 h-20 mb-4 flex items-center justify-center pointer-events-none select-none">
-                      <img src="/telegram-icon.png" alt="Telegram" draggable={false} className="w-16 h-16 pointer-events-none select-none" />
+                      <img src="/telegram-icon.png" alt="Telegram" draggable={false} className="w-20 h-20 pointer-events-none select-none" />
                     </div>
-                    <h2 className="text-white font-bold text-xl mb-1">Search on Telegram</h2>
-                    <p className="text-neutral-500 text-sm">Opens a dedicated Telegram Search topic</p>
+                    <h2 className="text-white font-bold text-[20px] mb-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Search on Telegram</h2>
+                    <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Opens a dedicated Telegram Search topic</p>
                   </div>
-                  <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#2c2c2e" }}>
+                  <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
                     {[
                       { icon: "🔍", text: "Find channels similar to @unofficialus" },
                       { icon: "📈", text: "How to grow followers on my channel" },
@@ -464,11 +473,11 @@ export function HomeView() {
                         key={i}
                         onClick={() => handleQuickSend("telegram", item.text)}
                         disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:opacity-60 transition-opacity disabled:opacity-50"
-                        style={{ borderBottom: i < 3 ? "1px solid #3a3a3c" : "none" }}
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
+                        style={{ borderBottom: i < 3 ? "1px solid #2c2c2e" : "none" }}
                       >
-                        <span className="text-2xl">{item.icon}</span>
-                        <span className="text-white text-sm text-left">{item.text}</span>
+                        <span className="text-[20px]">{item.icon}</span>
+                        <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
                       </button>
                     ))}
                   </div>
@@ -476,9 +485,10 @@ export function HomeView() {
                     <button
                       onClick={() => handleOpenTopic("telegram")}
                       disabled={sending}
-                      className="w-full py-3.5 bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold rounded-2xl hover:bg-blue-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
+                      className="w-full py-4 bg-blue-500/20 border border-blue-500/40 text-blue-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
+                      style={{ fontFamily: SF, fontSize: "16px" }}
                     >
-                      {sending ? "Opening..." : "✈️ Open Telegram Search Topic"}
+                      {sending ? "Opening..." : "Open Telegram Search"}
                     </button>
                   </div>
                 </>
@@ -489,38 +499,39 @@ export function HomeView() {
                 <>
                   <div className="flex flex-col items-center px-4 mb-6">
                     <div className="w-20 h-20 mb-4 flex items-center justify-center pointer-events-none select-none">
-                      <img src="/gmail.png" alt="Google" draggable={false} className="w-16 h-16 pointer-events-none select-none" />
+                      <img src="/gmail.png" alt="Google" draggable={false} className="w-16 h-16 pointer-events-none select-none object-contain" />
                     </div>
-                    <h2 className="text-white font-bold text-xl mb-1">Google Tools</h2>
-                    <p className="text-neutral-500 text-sm">Opens a dedicated Google Tools topic</p>
+                    <h2 className="text-white font-bold text-[20px] mb-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Google Tools</h2>
+                    <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Opens a dedicated Google Tools topic</p>
                   </div>
-                  <div className="mx-4 mb-3 rounded-2xl p-4" style={{ background: "#2c2c2e" }}>
-                    <div className="flex items-center gap-3 mb-3 pointer-events-none select-none">
-                      <img src="/gmail.png" alt="Gmail" draggable={false} className="w-8 h-8 pointer-events-none select-none" />
+                  <div className="mx-4 mb-4 rounded-[20px] p-4" style={{ background: "#1c1c1e" }}>
+                    <div className="flex items-center gap-3 mb-4 pointer-events-none select-none">
+                      <img src="/gmail.png" alt="Gmail" draggable={false} className="w-8 h-8 pointer-events-none select-none object-contain" />
                       <div>
-                        <p className="text-white font-semibold text-sm">Gmail</p>
-                        <p className="text-xs" style={{ color: "#8e8e93" }}>Read, send & manage emails with AI</p>
+                        <p className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Gmail</p>
+                        <p className="text-[13px]" style={{ color: "#8e8e93", fontFamily: SF }}>Read, send & manage emails with AI</p>
                       </div>
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleQuickSend("google", "Connect my Gmail account")}
                         disabled={sending}
-                        className="flex-1 py-2.5 bg-white text-black text-sm font-bold rounded-xl active:opacity-70 transition-opacity disabled:opacity-50"
+                        className="flex-1 py-3 bg-white text-black text-[14px] font-bold rounded-[16px] active:opacity-70 transition-opacity disabled:opacity-50"
+                        style={{ fontFamily: SF }}
                       >
                         Connect Gmail
                       </button>
                       <button
                         onClick={() => handleQuickSend("google", "Read my latest emails")}
                         disabled={sending}
-                        className="flex-1 py-2.5 text-white text-sm font-medium rounded-xl active:opacity-70 transition-opacity disabled:opacity-50"
-                        style={{ background: "#3a3a3c" }}
+                        className="flex-1 py-3 text-white text-[14px] font-medium rounded-[16px] active:opacity-70 transition-opacity disabled:opacity-50"
+                        style={{ background: "#2c2c2e", fontFamily: SF }}
                       >
                         Read emails
                       </button>
                     </div>
                   </div>
-                  <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#2c2c2e" }}>
+                  <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
                     {[
                       { icon: "✉️", text: "Compose an email for me" },
                       { icon: "📁", text: "Connect Google Drive" },
@@ -531,11 +542,11 @@ export function HomeView() {
                         key={i}
                         onClick={() => handleQuickSend("google", item.text)}
                         disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:opacity-60 transition-opacity disabled:opacity-50"
-                        style={{ borderBottom: i < 3 ? "1px solid #3a3a3c" : "none" }}
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
+                        style={{ borderBottom: i < 3 ? "1px solid #2c2c2e" : "none" }}
                       >
-                        <span className="text-2xl">{item.icon}</span>
-                        <span className="text-white text-sm text-left">{item.text}</span>
+                        <span className="text-[20px]">{item.icon}</span>
+                        <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
                       </button>
                     ))}
                   </div>
@@ -543,9 +554,10 @@ export function HomeView() {
                     <button
                       onClick={() => handleOpenTopic("google")}
                       disabled={sending}
-                      className="w-full py-3.5 bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 font-bold rounded-2xl hover:bg-yellow-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
+                      className="w-full py-4 bg-white/10 border border-white/20 text-white font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
+                      style={{ fontFamily: SF, fontSize: "16px" }}
                     >
-                      {sending ? "Opening..." : "📧 Open Google Tools Topic"}
+                      {sending ? "Opening..." : "Open Google Tools Topic"}
                     </button>
                   </div>
                 </>
@@ -558,10 +570,10 @@ export function HomeView() {
                     <div className="w-20 h-20 mb-4 flex items-center justify-center">
                       <Sparkles className="w-16 h-16 text-blue-400" />
                     </div>
-                    <h2 className="text-white font-bold text-xl mb-1">Writing Assistant</h2>
-                    <p className="text-neutral-500 text-sm">Opens a dedicated Writing topic</p>
+                    <h2 className="text-white font-bold text-[20px] mb-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Writing Assistant</h2>
+                    <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Opens a dedicated Writing topic</p>
                   </div>
-                  <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#2c2c2e" }}>
+                  <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
                     {[
                       { icon: "🌍", text: "Translate naturally to English" },
                       { icon: "✏️", text: "Fix grammar in my message" },
@@ -573,11 +585,11 @@ export function HomeView() {
                         key={i}
                         onClick={() => handleQuickSend("writing", item.text)}
                         disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:opacity-60 transition-opacity disabled:opacity-50"
-                        style={{ borderBottom: i < 4 ? "1px solid #3a3a3c" : "none" }}
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
+                        style={{ borderBottom: i < 4 ? "1px solid #2c2c2e" : "none" }}
                       >
-                        <span className="text-2xl">{item.icon}</span>
-                        <span className="text-white text-sm text-left">{item.text}</span>
+                        <span className="text-[20px]">{item.icon}</span>
+                        <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
                       </button>
                     ))}
                   </div>
@@ -585,9 +597,10 @@ export function HomeView() {
                     <button
                       onClick={() => handleOpenTopic("writing")}
                       disabled={sending}
-                      className="w-full py-3.5 bg-blue-500/20 border border-blue-500/40 text-blue-300 font-bold rounded-2xl hover:bg-blue-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
+                      className="w-full py-4 bg-blue-500/20 border border-blue-500/40 text-blue-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
+                      style={{ fontFamily: SF, fontSize: "16px" }}
                     >
-                      {sending ? "Opening..." : "✍️ Open Writing Topic"}
+                      {sending ? "Opening..." : "Open Writing Topic"}
                     </button>
                   </div>
                 </>
@@ -600,10 +613,10 @@ export function HomeView() {
                     <div className="w-20 h-20 mb-4 flex items-center justify-center">
                       <Code className="w-16 h-16 text-green-400" />
                     </div>
-                    <h2 className="text-white font-bold text-xl mb-1">Coding & Tech</h2>
-                    <p className="text-neutral-500 text-sm">Opens a dedicated Coding topic</p>
+                    <h2 className="text-white font-bold text-[20px] mb-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Coding & Tech</h2>
+                    <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Opens a dedicated Coding topic</p>
                   </div>
-                  <div className="mx-4 rounded-2xl overflow-hidden" style={{ background: "#2c2c2e" }}>
+                  <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
                     {[
                       { icon: "💻", text: "Explain this code to me" },
                       { icon: "🐛", text: "Help me debug this error" },
@@ -615,11 +628,11 @@ export function HomeView() {
                         key={i}
                         onClick={() => handleQuickSend("coding", item.text)}
                         disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:opacity-60 transition-opacity disabled:opacity-50"
-                        style={{ borderBottom: i < 4 ? "1px solid #3a3a3c" : "none" }}
+                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
+                        style={{ borderBottom: i < 4 ? "1px solid #2c2c2e" : "none" }}
                       >
-                        <span className="text-2xl">{item.icon}</span>
-                        <span className="text-white text-sm text-left">{item.text}</span>
+                        <span className="text-[20px]">{item.icon}</span>
+                        <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
                       </button>
                     ))}
                   </div>
@@ -627,9 +640,10 @@ export function HomeView() {
                     <button
                       onClick={() => handleOpenTopic("coding")}
                       disabled={sending}
-                      className="w-full py-3.5 bg-green-500/20 border border-green-500/40 text-green-300 font-bold rounded-2xl hover:bg-green-500/30 active:scale-[0.98] transition-all disabled:opacity-50"
+                      className="w-full py-4 bg-green-500/20 border border-green-500/40 text-green-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
+                      style={{ fontFamily: SF, fontSize: "16px" }}
                     >
-                      {sending ? "Opening..." : "💻 Open Coding Topic"}
+                      {sending ? "Opening..." : "Open Coding Topic"}
                     </button>
                   </div>
                 </>
@@ -638,7 +652,7 @@ export function HomeView() {
             </div>
 
             {/* Ask anything input bar */}
-            <div className="p-4" style={{ borderTop: "1px solid #2c2c2e" }}>
+            <div className="p-4" style={{ borderTop: "1px solid #1c1c1e", background: "#111" }}>
               <div className="relative">
                 <input
                   type="text"
@@ -650,23 +664,27 @@ export function HomeView() {
                     }
                   }}
                   placeholder="Ask anything..."
-                  className="w-full pl-4 pr-12 py-3 rounded-full text-white placeholder:text-[#636366] focus:outline-none text-sm"
-                  style={{ background: "#2c2c2e" }}
+                  className="w-full pl-5 pr-14 py-4 rounded-full text-white placeholder:text-[#636366] focus:outline-none text-[15px] transition-all"
+                  style={{ background: "#1c1c1e", border: "1px solid #2c2c2e", fontFamily: SF }}
                 />
                 <button
                   onClick={() => {
                     if (modalInput.trim() && exploreModal) handleQuickSend(exploreModal, modalInput.trim())
                   }}
                   disabled={sending}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-opacity active:opacity-70"
-                  style={{ background: modalInput.trim() ? "#3a3a3c" : "#2c2c2e", color: modalInput.trim() ? "#fff" : "#636366" }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all"
+                  style={{ 
+                    background: modalInput.trim() ? "#fff" : "#2c2c2e", 
+                    color: modalInput.trim() ? "#000" : "#636366" 
+                  }}
                 >
-                  <ArrowUp className="w-4 h-4" />
+                  <ArrowUp className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            <div className="h-6" style={{ background: "#1c1c1e" }} />
+            {/* Area de resguardo inferior (safe area) */}
+            <div style={{ height: "calc(env(safe-area-inset-bottom, 0px) + 12px)", background: "#111" }} />
           </div>
         </div>
       )}
