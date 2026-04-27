@@ -17,7 +17,6 @@ interface AdController {
 }
 declare global {
   interface Window {
-    // Añadimos tgid a los parámetros aceptados
     Adsgram?: { init: (params: { blockId: string; debug?: boolean; tgid?: string }) => AdController }
   }
 }
@@ -35,14 +34,13 @@ function useAdsgram({
   const adControllerRef = useRef<AdController | undefined>(undefined)
 
   useEffect(() => {
-    // Obtenemos el ID de Telegram para pasarlo a Adsgram
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
     const userId = tg?.initDataUnsafe?.user?.id?.toString()
 
     adControllerRef.current = window.Adsgram?.init({ 
       blockId,
-      tgid: userId // CRÍTICO: Esto conecta al usuario con el webhook
+      tgid: userId 
     })
     
     return () => {
@@ -65,7 +63,7 @@ function useAdsgram({
   }, [onReward, onError])
 }
 
-const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
+const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
 function formatX(n: number) {
@@ -78,9 +76,12 @@ const REWARDS = { INVITE: 1000, CHANNEL: 500, AD: 300, ADD_CHAT: 500, STORY: 500
 
 function RewardBadge({ amount, className = "" }: { amount: number, className?: string }) {
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
-      <span className="text-[#f59e0b] font-bold" style={{ fontFamily: SFD }}>+{formatX(amount)}</span>
-      <img src="/xblum2-icon.png" alt="$X" className="w-3.5 h-3.5 object-contain pointer-events-none select-none" />
+    <div className={`flex items-center gap-1.5 ${className}`}>
+      {/* Hacemos el texto un poco más vibrante */}
+      <span className="text-[#fbbf24] font-bold tracking-tight text-[15px]" style={{ fontFamily: SFD, textShadow: "0 2px 8px rgba(245,158,11,0.2)" }}>
+        +{formatX(amount)}
+      </span>
+      <img src="/xblum2-icon.png" alt="$X" className="w-3.5 h-3.5 object-contain pointer-events-none select-none drop-shadow-md" />
     </div>
   )
 }
@@ -90,9 +91,16 @@ export function StoreView() {
   const ctx = useApp() as any
   const { setCurrentView, referralLink, claimMissionTokens } = ctx
 
-  // Datos de misiones completadas y anuncios vienen de la API (via /api/status)
   const completed: string[] = ctx.completed_missions ?? []
-  const adsToday: number    = ctx.ads_today ?? 0
+  
+  // 🔴 SOLUCIÓN CONTADOR ANUNCIOS: Estado local optimista
+  const serverAdsToday: number = ctx.ads_today ?? 0
+  const [localAdsToday, setLocalAdsToday] = useState(serverAdsToday)
+
+  useEffect(() => {
+    // Sincronizar si el servidor manda un valor nuevo
+    setLocalAdsToday(serverAdsToday)
+  }, [serverAdsToday])
 
   const [pendingTasks, setPendingTasks] = useState<Record<string, "started" | "verifying">>({})
   const [loadingAd, setLoadingAd]       = useState(false)
@@ -105,11 +113,14 @@ export function StoreView() {
   // ── onAdReward: refresca estado después del ad ──
   const onAdReward = useCallback(async () => {
     setLoadingAd(true)
+    
+    // Sumamos +1 instantáneamente para que el usuario vea el cambio ya
+    setLocalAdsToday(prev => prev + 1)
 
     // Esperamos ~1.5s para que el webhook S2S de Adsgram llegue al servidor primero
     await new Promise(r => setTimeout(r, 1500))
 
-    // Refrescamos: actualiza ads_today (contador 0/3), x_points y todo el estado
+    // Refrescamos en segundo plano
     if (ctx.refreshUserData) await ctx.refreshUserData()
 
     tg?.showAlert(`✅ +${REWARDS.AD} $X earned!`)
@@ -132,7 +143,6 @@ export function StoreView() {
   const BOT     = process.env.NEXT_PUBLIC_BOT_USERNAME    ?? "xBlumAI"
   const CHANNEL = process.env.NEXT_PUBLIC_CHANNEL_USERNAME ?? "xBlumAI"
 
-  // Limpiar pending si la misión ya está completada
   useEffect(() => {
     setPendingTasks(prev => {
       const next = { ...prev }
@@ -154,7 +164,7 @@ export function StoreView() {
     }
 
     if (actionType === "ads") {
-      if (adsToday >= 3 || loadingAd) {
+      if (localAdsToday >= 3 || loadingAd) {
         tg?.showAlert("Daily ad limit reached (3/3). Come back tomorrow!")
         return
       }
@@ -204,20 +214,25 @@ export function StoreView() {
     }
   }
 
+  // 🔴 SOLUCIÓN JERARQUÍA: Botones secundarios menos llamativos
   const getButtonUI = (id: string, isDone: boolean, defaultText = "Start") => {
     if (isDone) return { text: "Done", bg: "bg-transparent text-[#636366]", disabled: true }
     const status = pendingTasks[id]
-    if (status === "verifying") return { text: <Loader2 className="w-4 h-4 animate-spin text-black" />, bg: "bg-white", disabled: true }
+    if (status === "verifying") return { text: <Loader2 className="w-4 h-4 animate-spin text-white" />, bg: "bg-[#2c2c2e]", disabled: true }
     if (status === "started")   return { text: "Check", bg: "bg-[#34c759] text-white", disabled: false }
-    if (loadingAd && id === "ads") return { text: <Loader2 className="w-4 h-4 animate-spin text-black" />, bg: "bg-white", disabled: true }
-    return { text: defaultText, bg: "bg-white text-black", disabled: false }
+    if (loadingAd && id === "ads") return { text: <Loader2 className="w-4 h-4 animate-spin text-white" />, bg: "bg-[#2c2c2e]", disabled: true }
+    
+    // Aquí cambiamos el "bg-white text-black" por uno sutil para acciones secundarias
+    return { text: defaultText, bg: "bg-white/10 text-white hover:bg-white/15", disabled: false }
   }
 
   const GridCard = ({ id, title, reward, progress, max, isDone, emoji, actionType }: any) => {
     const btn = getButtonUI(id, isDone, id === "invite" ? "Invite" : "Watch")
     return (
       <div className="flex-1 bg-[#111] border border-[#1c1c1e] rounded-[24px] p-4 relative overflow-hidden flex flex-col h-[150px]">
-        <div className="absolute -bottom-4 -right-4 text-7xl opacity-[0.12] select-none pointer-events-none grayscale">{emoji}</div>
+        {/* Marca de agua / Emoji en la esquina mejorado */}
+        <div className="absolute -bottom-4 -right-4 text-7xl opacity-[0.08] select-none pointer-events-none grayscale">{emoji}</div>
+        
         <div className="relative z-10">
           <p className="text-white font-bold text-[15px] leading-tight" style={{ fontFamily: SFD }}>{title}</p>
           <RewardBadge amount={reward} className="mt-1" />
@@ -232,21 +247,36 @@ export function StoreView() {
     )
   }
 
+  // 🔴 SOLUCIÓN ÍCONOS: Darles el pop de color a cada ícono según su tarea
   const ListItem = ({ id, title, reward, icon: Icon, isDone, actionType }: any) => {
     const btn = getButtonUI(id, isDone)
+    
+    // Mapeo de colores sutiles por ID para darle vida sin salir del dark mode
+    const getIconColors = () => {
+      switch(id) {
+        case 'channel': return 'bg-blue-500/15 text-blue-400'
+        case 'addChat': return 'bg-green-500/15 text-green-400'
+        case 'story': return 'bg-purple-500/15 text-purple-400'
+        case 'shareFriend': return 'bg-pink-500/15 text-pink-400'
+        default: return 'bg-[#1c1c1e] text-white'
+      }
+    }
+    const colors = getIconColors()
+
     return (
       <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e] last:border-0 bg-[#111]">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-            <Icon className="w-5 h-5 text-white" />
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${colors.split(' ')[0]}`}>
+            <Icon className={`w-5 h-5 ${colors.split(' ')[1]}`} />
           </div>
           <div>
-            <p className="text-white font-medium text-sm">{title}</p>
+            <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>{title}</p>
             <RewardBadge amount={reward} className="mt-0.5" />
           </div>
         </div>
         <button onClick={() => handleAction(id, actionType)} disabled={btn.disabled}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 flex items-center justify-center min-w-[72px] ${btn.bg}`}
+          className={`px-4 py-1.5 rounded-full text-[13px] font-bold transition-all active:scale-95 flex items-center justify-center min-w-[72px] ${btn.bg}`}
+          style={{ fontFamily: SF }}
         >{btn.text}</button>
       </div>
     )
@@ -254,39 +284,54 @@ export function StoreView() {
 
   return (
     <div className="flex-1 overflow-y-auto relative" style={{ background: "#000", minHeight: "100vh" }}>
-      <div className="px-5 pb-2" style={{ paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 24px)" }}>
-        <h1 className="text-4xl font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>Earn</h1>
+      {/* 🔴 ANIMACIÓN 1: Título */}
+      <div className="px-5 pb-2 animate-in fade-in duration-500" style={{ paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 24px)" }}>
+        <h1 className="text-[34px] font-bold text-white tracking-tight" style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}>Earn</h1>
       </div>
 
       <div className="px-4 pt-2 pb-28 space-y-6">
+        
+        {/* 🔴 ANIMACIÓN 2: Pro Card mejorada */}
         <button onClick={() => setCurrentView("premium")}
-          className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left"
-          style={{ background: "#060606", border: "1px solid #1e1e1e", borderRadius: "20px", minHeight: "96px" }}
+          className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left animate-in fade-in slide-in-from-bottom-2 duration-500 delay-75 fill-mode-both"
+          style={{ 
+            background: "#060606", 
+            border: "1px solid rgba(245,158,11,0.2)", // Borde más premium
+            borderRadius: "20px", 
+            minHeight: "96px",
+            boxShadow: "0 4px 24px rgba(245,158,11,0.05)" // Glow exterior sutil
+          }}
         >
-          <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 8% 40%, rgba(245,158,11,0.07) 0%, transparent 55%)" }} />
+          {/* Degradado interior más notorio */}
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 10% 30%, rgba(245,158,11,0.12) 0%, transparent 60%)" }} />
           <div className="relative z-10 px-5 py-4 flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
+              <p className="text-white font-bold text-[17px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500" style={{ background: "rgba(245,158,11,0.15)", fontFamily: SF }}>PRO</span>
             </div>
             <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>Upgrade your plan to enjoy full features</p>
-            <div className="flex items-center justify-center mt-2 px-4 py-3 rounded-xl w-full" style={{ background: "#fff" }}>
+            
+            {/* Botón Upgrade sí se queda en blanco (Acción Primaria) */}
+            <div className="flex items-center justify-center mt-2 px-4 py-3 rounded-[14px] w-full" style={{ background: "#fff" }}>
               <span className="text-black font-bold" style={{ fontSize: "14px", fontFamily: SF }}>Upgrade →</span>
             </div>
           </div>
         </button>
 
-        <div className="flex gap-3">
-          <GridCard id="ads" title="Watch Ads" reward={REWARDS.AD} progress={adsToday} max={3} isDone={adsToday >= 3} emoji="👀" actionType="ads" />
+        {/* 🔴 ANIMACIÓN 3: Tarjetas Grid */}
+        <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both">
+          {/* Se usa localAdsToday para que se actualice la vista sin refrescar */}
+          <GridCard id="ads" title="Watch Ads" reward={REWARDS.AD} progress={localAdsToday} max={3} isDone={localAdsToday >= 3} emoji="👀" actionType="ads" />
           <GridCard id="invite" title="Invite Friends" reward={REWARDS.INVITE} isDone={false} emoji="👥" actionType="invite" />
         </div>
 
-        <div>
-          <p className="px-2 mb-3 text-white font-bold text-lg" style={{ fontFamily: SFD }}>Tasks</p>
+        {/* 🔴 ANIMACIÓN 4: Lista de Tareas */}
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both">
+          <p className="px-2 mb-3 text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Tasks</p>
           <div className="rounded-[24px] overflow-hidden border border-[#1c1c1e]" style={{ background: "#111" }}>
             <ListItem id="channel"     title="Join xBlum Channel"    reward={REWARDS.CHANNEL}  icon={Tv}               isDone={completed.includes("channel")}     actionType="channel" />
             <ListItem id="addChat"     title="Add xBlum to Group"    reward={REWARDS.ADD_CHAT} icon={MessageCirclePlus} isDone={completed.includes("addChat")}     actionType="addChat" />
-            <ListItem id="story"       title="Share to Story"         reward={REWARDS.STORY}   icon={Camera}            isDone={completed.includes("story")}       actionType="story" />
+            <ListItem id="story"       title="Share to Story"         reward={REWARDS.STORY}   icon={Camera}           isDone={completed.includes("story")}       actionType="story" />
             <ListItem id="shareFriend" title="Share with 1 Friend"   reward={REWARDS.SHARE}   icon={Forward}           isDone={completed.includes("shareFriend")} actionType="shareFriend" />
           </div>
         </div>
