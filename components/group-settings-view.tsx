@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { ChevronLeft, Save, Loader2, RefreshCw, ShieldAlert, Tag, Activity } from "lucide-react"
+import { ChevronLeft, Save, Loader2, RefreshCw, ShieldAlert, Tag, Activity, CheckCircle, XCircle } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -47,6 +47,8 @@ export function GroupSettingsView() {
   const [activeTab, setActiveTab] = useState<"settings" | "members">("settings")
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveSuccess, setSaveSuccess] = useState(false)
   
   // Settings State
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,18 +103,36 @@ export function GroupSettingsView() {
   const handleSave = async () => {
     if (!settings) return
     setSaving(true)
+    setSaveError(null)
+    setSaveSuccess(false)
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const initData = (window as any).Telegram?.WebApp?.initData || ""
-      await fetch(`${API_BASE}/api/group_settings`, {
+      const res = await fetch(`${API_BASE}/api/group_settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ initData, chat_id: selectedGroupId, ...settings })
       })
+      if (!res.ok) {
+        // Parse server error message if available
+        let detail = `Error ${res.status}`
+        try {
+          const errBody = await res.json()
+          if (errBody?.detail) detail = errBody.detail
+        } catch { /* ignore parse failures */ }
+        throw new Error(detail)
+      }
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(window as any).Telegram?.WebApp?.HapticFeedback?.notificationOccurred("success")
-    } catch (e) {
-      console.error(e)
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to save settings"
+      setSaveError(msg)
+      setTimeout(() => setSaveError(null), 5000)
+      console.error("[GroupSettings] handleSave failed:", e)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(window as any).Telegram?.WebApp?.HapticFeedback?.notificationOccurred("error")
     } finally {
       setSaving(false)
     }
@@ -360,6 +380,22 @@ export function GroupSettingsView() {
               {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
               {saving ? "Saving..." : "Save Settings"}
             </button>
+
+            {/* Save feedback banners */}
+            {saveSuccess && (
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl mt-2 text-[13px] font-medium"
+                style={{ background: "#052e16", color: "#4ade80", border: "1px solid #166534" }}>
+                <CheckCircle className="w-4 h-4 shrink-0" />
+                Settings saved — changes are now active in the group.
+              </div>
+            )}
+            {saveError && (
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl mt-2 text-[13px] font-medium"
+                style={{ background: "#2d0a0a", color: "#f87171", border: "1px solid #7f1d1d" }}>
+                <XCircle className="w-4 h-4 shrink-0" />
+                {saveError}
+              </div>
+            )}
           </div>
         )}
 
