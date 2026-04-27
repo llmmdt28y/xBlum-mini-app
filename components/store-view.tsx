@@ -77,7 +77,6 @@ const REWARDS = { INVITE: 1000, CHANNEL: 500, AD: 300, ADD_CHAT: 500, STORY: 500
 function RewardBadge({ amount, className = "" }: { amount: number, className?: string }) {
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
-      {/* Hacemos el texto un poco más vibrante */}
       <span className="text-[#fbbf24] font-bold tracking-tight text-[15px]" style={{ fontFamily: SFD, textShadow: "0 2px 8px rgba(245,158,11,0.2)" }}>
         +{formatX(amount)}
       </span>
@@ -93,13 +92,14 @@ export function StoreView() {
 
   const completed: string[] = ctx.completed_missions ?? []
   
-  // 🔴 SOLUCIÓN CONTADOR ANUNCIOS: Estado local optimista
+  // ── Lógica de Contador de Anuncios ──
   const serverAdsToday: number = ctx.ads_today ?? 0
   const [localAdsToday, setLocalAdsToday] = useState(serverAdsToday)
 
   useEffect(() => {
-    // Sincronizar si el servidor manda un valor nuevo
-    setLocalAdsToday(serverAdsToday)
+    // Sincronización protegida: Solo aceptamos el valor del servidor si es mayor al local.
+    // Esto evita que el retraso del Webhook (race condition) resetee el contador visual.
+    setLocalAdsToday(prev => (serverAdsToday > prev ? serverAdsToday : prev))
   }, [serverAdsToday])
 
   const [pendingTasks, setPendingTasks] = useState<Record<string, "started" | "verifying">>({})
@@ -110,17 +110,16 @@ export function StoreView() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
 
-  // ── onAdReward: refresca estado después del ad ──
   const onAdReward = useCallback(async () => {
     setLoadingAd(true)
     
-    // Sumamos +1 instantáneamente para que el usuario vea el cambio ya
+    // 1. Actualización optimista inmediata
     setLocalAdsToday(prev => prev + 1)
 
-    // Esperamos ~1.5s para que el webhook S2S de Adsgram llegue al servidor primero
-    await new Promise(r => setTimeout(r, 1500))
+    // 2. Tiempo de cortesía para que el servidor procese el webhook de Adsgram
+    await new Promise(r => setTimeout(r, 2000))
 
-    // Refrescamos en segundo plano
+    // 3. Refrescar datos globales
     if (ctx.refreshUserData) await ctx.refreshUserData()
 
     tg?.showAlert(`✅ +${REWARDS.AD} $X earned!`)
@@ -214,7 +213,6 @@ export function StoreView() {
     }
   }
 
-  // 🔴 SOLUCIÓN JERARQUÍA: Botones secundarios menos llamativos
   const getButtonUI = (id: string, isDone: boolean, defaultText = "Start") => {
     if (isDone) return { text: "Done", bg: "bg-transparent text-[#636366]", disabled: true }
     const status = pendingTasks[id]
@@ -222,7 +220,8 @@ export function StoreView() {
     if (status === "started")   return { text: "Check", bg: "bg-[#34c759] text-white", disabled: false }
     if (loadingAd && id === "ads") return { text: <Loader2 className="w-4 h-4 animate-spin text-white" />, bg: "bg-[#2c2c2e]", disabled: true }
     
-    // Aquí cambiamos el "bg-white text-black" por uno sutil para acciones secundarias
+    // Solo el botón principal (Upgrade) o acciones muy específicas son blanco sólido. 
+    // Para el resto usamos un estilo más sutil.
     return { text: defaultText, bg: "bg-white/10 text-white hover:bg-white/15", disabled: false }
   }
 
@@ -230,7 +229,6 @@ export function StoreView() {
     const btn = getButtonUI(id, isDone, id === "invite" ? "Invite" : "Watch")
     return (
       <div className="flex-1 bg-[#111] border border-[#1c1c1e] rounded-[24px] p-4 relative overflow-hidden flex flex-col h-[150px]">
-        {/* Marca de agua / Emoji en la esquina mejorado */}
         <div className="absolute -bottom-4 -right-4 text-7xl opacity-[0.08] select-none pointer-events-none grayscale">{emoji}</div>
         
         <div className="relative z-10">
@@ -247,11 +245,9 @@ export function StoreView() {
     )
   }
 
-  // 🔴 SOLUCIÓN ÍCONOS: Darles el pop de color a cada ícono según su tarea
   const ListItem = ({ id, title, reward, icon: Icon, isDone, actionType }: any) => {
     const btn = getButtonUI(id, isDone)
     
-    // Mapeo de colores sutiles por ID para darle vida sin salir del dark mode
     const getIconColors = () => {
       switch(id) {
         case 'channel': return 'bg-blue-500/15 text-blue-400'
@@ -284,26 +280,25 @@ export function StoreView() {
 
   return (
     <div className="flex-1 overflow-y-auto relative" style={{ background: "#000", minHeight: "100vh" }}>
-      {/* 🔴 ANIMACIÓN 1: Título */}
+      {/* Título con animación */}
       <div className="px-5 pb-2 animate-in fade-in duration-500" style={{ paddingTop: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 24px)" }}>
         <h1 className="text-[34px] font-bold text-white tracking-tight" style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}>Earn</h1>
       </div>
 
       <div className="px-4 pt-2 pb-28 space-y-6">
         
-        {/* 🔴 ANIMACIÓN 2: Pro Card mejorada */}
+        {/* Tarjeta Pro con Aura Premium y animación */}
         <button onClick={() => setCurrentView("premium")}
           className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left animate-in fade-in slide-in-from-bottom-2 duration-500 delay-75 fill-mode-both"
           style={{ 
             background: "#060606", 
-            border: "1px solid rgba(245,158,11,0.2)", // Borde más premium
-            borderRadius: "20px", 
+            border: "1px solid rgba(245,158,11,0.25)", 
+            borderRadius: "24px", 
             minHeight: "96px",
-            boxShadow: "0 4px 24px rgba(245,158,11,0.05)" // Glow exterior sutil
+            boxShadow: "0 4px 20px rgba(245,158,11,0.05)"
           }}
         >
-          {/* Degradado interior más notorio */}
-          <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 10% 30%, rgba(245,158,11,0.12) 0%, transparent 60%)" }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 10% 30%, rgba(245,158,11,0.1) 0%, transparent 60%)" }} />
           <div className="relative z-10 px-5 py-4 flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <p className="text-white font-bold text-[17px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
@@ -311,21 +306,19 @@ export function StoreView() {
             </div>
             <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>Upgrade your plan to enjoy full features</p>
             
-            {/* Botón Upgrade sí se queda en blanco (Acción Primaria) */}
-            <div className="flex items-center justify-center mt-2 px-4 py-3 rounded-[14px] w-full" style={{ background: "#fff" }}>
+            <div className="flex items-center justify-center mt-2 px-4 py-3 rounded-[16px] w-full" style={{ background: "#fff" }}>
               <span className="text-black font-bold" style={{ fontSize: "14px", fontFamily: SF }}>Upgrade →</span>
             </div>
           </div>
         </button>
 
-        {/* 🔴 ANIMACIÓN 3: Tarjetas Grid */}
+        {/* Tarjetas Grid con animación */}
         <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both">
-          {/* Se usa localAdsToday para que se actualice la vista sin refrescar */}
           <GridCard id="ads" title="Watch Ads" reward={REWARDS.AD} progress={localAdsToday} max={3} isDone={localAdsToday >= 3} emoji="👀" actionType="ads" />
           <GridCard id="invite" title="Invite Friends" reward={REWARDS.INVITE} isDone={false} emoji="👥" actionType="invite" />
         </div>
 
-        {/* 🔴 ANIMACIÓN 4: Lista de Tareas */}
+        {/* Lista de Tareas con animación */}
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both">
           <p className="px-2 mb-3 text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Tasks</p>
           <div className="rounded-[24px] overflow-hidden border border-[#1c1c1e]" style={{ background: "#111" }}>
