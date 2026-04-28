@@ -1,13 +1,39 @@
 "use client"
 
-import { useApp } from "@/lib/app-context"
-import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2 } from "lucide-react"
-import { useState, useRef, useEffect } from "react"
+import { useApp, type ModelName } from "@/lib/app-context"
+import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell, Mail, Send, CalendarDays, RefreshCw } from "lucide-react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+
+// ── Mock Data for Dynamic Banners (Will come from context/api later) ──
+const mockScheduleData = {
+  isConfigured: true, 
+  hasActiveTask: true,
+  currentTask: {
+    id: 1,
+    type: "reminder" as const, // 'reminder', 'email'
+    title: "Review Q4 Report",
+    targetTime: new Date(Date.now() + 1000 * 60 * 60 * 27.5).toISOString(), // 27.5 hours from now
+  }
+}
+
+// ── Helper to format time remaining ──
+function formatTimeRemaining(ms: number) {
+  if (ms <= 0) return "Executing..."
+  const totalSeconds = Math.floor(ms / 1000)
+  const days = Math.floor(totalSeconds / (3600 * 24))
+  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+
+  if (days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`
+  if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`
+  return `${minutes}m ${seconds}s`
+}
 
 export function HomeView() {
   const {
@@ -22,36 +48,53 @@ export function HomeView() {
   const [modalInput, setModalInput] = useState("")
   const [sending, setSending] = useState(false)
   const [openingTopic, setOpeningTopic] = useState<ExploreModalType>(null)
+  
+  // Carousel State
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
+  const carouselRef = useRef<HTMLDivElement>(null)
 
-  // ── Gestión del Botón Atrás Nativo de Telegram ──
+  // Countdown timer state
+  const [timeRemaining, setTimeRemaining] = useState(() => {
+    if (!mockScheduleData.hasActiveTask) return 0
+    return new Date(mockScheduleData.currentTask.targetTime).getTime() - Date.now()
+  })
+
+  // ── Ocultar flecha nativa de Telegram para mostrar el botón "Close" ──
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
-    if (!tg?.BackButton) return
-
-    // Mostrar el botón si hay algún modal o sección abierta
-    if (showAllTopics || exploreModal) {
-      tg.BackButton.show()
-    } else {
+    if (tg?.BackButton) {
       tg.BackButton.hide()
     }
+  }, [])
 
-    const handleBack = () => {
-      if (exploreModal) {
-        // Si estamos en un sub-menú, cerramos el sub-menú (regresamos a AllTopics o a Home)
-        setExploreModal(null)
-        setModalInput("")
-      } else if (showAllTopics) {
-        // Si estamos en AllTopics, cerramos AllTopics (regresamos a Home)
-        setShowAllTopics(false)
+  // ── Countdown Timer Logic ──
+  useEffect(() => {
+    if (!mockScheduleData.hasActiveTask) return
+    const timer = setInterval(() => {
+      const now = Date.now()
+      const target = new Date(mockScheduleData.currentTask.targetTime).getTime()
+      const diff = target - now
+      if (diff <= 0) {
+        setTimeRemaining(0)
+        clearInterval(timer)
+      } else {
+        setTimeRemaining(diff)
       }
-    }
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
-    tg.BackButton.onClick(handleBack)
-    return () => {
-      tg.BackButton.offClick(handleBack)
+  // ── Carousel Scroll Handler ──
+  const handleScroll = useCallback(() => {
+    if (!carouselRef.current) return
+    const width = carouselRef.current.offsetWidth
+    const scrollLeft = carouselRef.current.scrollLeft
+    const index = Math.round(scrollLeft / width)
+    if (index !== currentBannerIndex) {
+      setCurrentBannerIndex(index)
     }
-  }, [showAllTopics, exploreModal])
+  }, [currentBannerIndex])
 
   // Main input bar → sends directly, AI responds in bot chat
   async function handleSend() {
@@ -100,6 +143,75 @@ export function HomeView() {
 
   const showThrottle = isThrottled && selectedModel === "Grok 4.1"
 
+  // ── Render Dynamic Schedule Banner Content ──
+  const scheduleBannerContent = useMemo(() => {
+    // STATE 1: Not entered / Configured (Promotional Ad style)
+    if (!mockScheduleData.isConfigured || !mockScheduleData.hasActiveTask) {
+      return (
+        <div className="relative z-10 flex items-center justify-between h-full px-5">
+          <div className="flex flex-col gap-2">
+            <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+              Automate Tasks,<br />Never Miss a Beat
+            </p>
+            <div
+                className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden mt-0.5"
+                style={{
+                  background: "rgba(255,255,255,0.07)",
+                  backdropFilter: "blur(16px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(16px) saturate(180%)",
+                  border: "1px solid rgba(255,255,255,0.13)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
+                }}
+              >
+                <div className="absolute inset-x-2 top-0 h-px" style={{
+                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)"
+                }} />
+                <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>open schedule</span>
+                <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
+              </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0 pointer-events-none select-none">
+              <Clock className="w-16 h-16 text-[#f59e0b]/40" style={{ filter: "drop-shadow(0 0 10px rgba(245,158,11,0.2))" }} />
+          </div>
+        </div>
+      )
+    }
+
+    // STATE 2: Active Task (Status + Countdown style)
+    const task = mockScheduleData.currentTask;
+    const taskTypeInfo = task.type === 'reminder' 
+      ? { icon: <Bell className="w-5 h-5 text-amber-400" />, color: "#f59e0b" }
+      : { icon: <Mail className="w-5 h-5 text-red-400" />, color: "#ef4444" };
+
+    return (
+        <div className="relative z-10 flex items-center justify-between h-full px-5">
+            <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.03)" }}>
+                    {taskTypeInfo.icon}
+                </div>
+                <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                    <p className="text-white text-[15px] font-medium truncate leading-snug" style={{ fontFamily: SF }}>
+                        {task.title}
+                    </p>
+                    <div className="flex items-center gap-2.5">
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none uppercase tracking-wide`} style={{ background: `${taskTypeInfo.color}15`, color: taskTypeInfo.color, fontFamily: SF }}>
+                            PENDING
+                        </span>
+                        {task.type === 'reminder' && <RefreshCw className="w-3.5 h-3.5 text-[#636366]" />}
+                    </div>
+                </div>
+            </div>
+            
+            <div className="flex flex-col items-end gap-1.5 text-right shrink-0">
+                <p className="text-[12px] text-[#8e8e93]" style={{ fontFamily: SF }}>Next task in</p>
+                <p className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                    {formatTimeRemaining(timeRemaining)}
+                </p>
+            </div>
+        </div>
+    )
+  }, [timeRemaining, t])
+
   const TOPICS_DATA = [
     { id: "private", name: "Private Mode", desc: "Zero trace conversations", tag: "BETA", action: () => setExploreModal("private"), icon: <Lock className="w-5 h-5 text-amber-500" /> },
     { id: "telegram", name: "Telegram Search", desc: "Find channels, posts & more", action: () => setExploreModal("telegram"), isImage: true, src: "/telegram-icon.png" },
@@ -111,7 +223,7 @@ export function HomeView() {
 
   return (
     <div 
-      className="flex-1 flex flex-col items-center px-4 pb-28 bg-black"
+      className="flex-1 flex flex-col items-center px-4 pb-28 bg-black select-none"
       style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)" }}
     >
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
@@ -217,170 +329,229 @@ export function HomeView() {
           </button>
         </div>
 
-        {/* ── Referral Banner ─────────────────────────────────────────── */}
-        <button
-          onClick={() => setCurrentView("referral")}
-          className="w-full relative overflow-hidden active:opacity-80 transition-opacity text-left animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both"
-          style={{
-            background: "#060606",
-            border: "1px solid #1e1e1e",
-            borderRadius: "24px",
-            height: "96px",
-          }}
-        >
-          <div className="absolute inset-0 pointer-events-none" style={{
-            background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 55%)"
-          }} />
-          <div className="relative z-10 flex items-center justify-between h-full px-5">
-            <div className="flex flex-col gap-2">
-              <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-                Invite a Friend & Get<br />Free Tokens
-              </p>
-              <div
-                className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden"
+        {/* ── Swiper Banners (Carousel) ─────────────────────────────────── */}
+        <div className="w-full flex flex-col gap-2.5 items-center animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both">
+          
+          <div 
+            ref={carouselRef}
+            onScroll={handleScroll}
+            className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {/* ── Schedule Banner (FIRST POSITION) ── */}
+            <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px] pr-2">
+                <button
+                onClick={() => setCurrentView("schedule")}
+                className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left"
                 style={{
-                  background: "rgba(255,255,255,0.07)",
-                  backdropFilter: "blur(16px) saturate(180%)",
-                  WebkitBackdropFilter: "blur(16px) saturate(180%)",
-                  border: "1px solid rgba(255,255,255,0.13)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
+                    background: "#060606",
+                    border: "1px solid #1e1e1e",
+                    borderRadius: "24px",
+                    height: "96px",
                 }}
-              >
-                <div className="absolute inset-x-2 top-0 h-px" style={{
-                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)"
-                }} />
-                <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite</span>
-                <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
-              </div>
-            </div>
-            <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "96px" }}>
-              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "46px", height: "46px", top: "-10px", right: "4px", opacity: 0.55, transform: "rotate(18deg)", filter: "brightness(0.75)" }} />
-              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "68px", height: "68px", top: "50%", left: "0px", transform: "translateY(-50%) rotate(-18deg)", opacity: 1, filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))" }} />
-              <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "44px", height: "44px", bottom: "2px", right: "6px", opacity: 0.6, transform: "rotate(-8deg)", filter: "brightness(0.8)" }} />
-            </div>
-          </div>
-        </button>
+                >
+                <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 8% 40%, ${mockScheduleData.hasActiveTask ? '#f59e0b15' : '#3b82f615'} 0%, transparent 65%)` }} />
+                <div className="absolute pointer-events-none" style={{ width: "90px", height: "90px", borderRadius: "50%", top: "-30px", right: "-20px", background: `radial-gradient(circle, ${mockScheduleData.hasActiveTask ? '#f59e0b15' : '#3b82f615'} 0%, transparent 70%)` }} />
+                
+                {scheduleBannerContent}
 
-        {/* ── Explore Section (CARRUSEL HORIZONTAL) ───────────────────── */}
-        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both overflow-x-auto snap-x snap-mandatory pb-4" style={{ scrollbarWidth: "none" }}>
-          <div className="flex gap-3 w-max px-1">
+                </button>
+            </div>
+
+            {/* ── Referral Banner (SECOND POSITION) ── */}
+            <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px]">
+                <button
+                onClick={() => setCurrentView("referral")}
+                className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left"
+                style={{
+                    background: "#060606",
+                    border: "1px solid #1e1e1e",
+                    borderRadius: "24px",
+                    height: "96px",
+                }}
+                >
+                    <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 55%)" }} />
+                    <div className="relative z-10 flex items-center justify-between h-full px-5">
+                        <div className="flex flex-col gap-2">
+                        <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Invite a Friend & Get<br />Free Tokens</p>
+                        <div
+                            className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden"
+                            style={{
+                            background: "rgba(255,255,255,0.07)",
+                            backdropFilter: "blur(16px) saturate(180%)",
+                            WebkitBackdropFilter: "blur(16px) saturate(180%)",
+                            border: "1px solid rgba(255,255,255,0.13)",
+                            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
+                            }}
+                        >
+                            <div className="absolute inset-x-2 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)" }} />
+                            <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite</span>
+                            <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
+                        </div>
+                        </div>
+                        <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "96px" }}>
+                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "46px", height: "46px", top: "-10px", right: "4px", opacity: 0.55, transform: "rotate(18deg)", filter: "brightness(0.75)" }} />
+                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "68px", height: "68px", top: "50%", left: "0px", transform: "translateY(-50%) rotate(-18deg)", opacity: 1, filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))" }} />
+                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "44px", height: "44px", bottom: "2px", right: "6px", opacity: 0.6, transform: "rotate(-8deg)", filter: "brightness(0.8)" }} />
+                        </div>
+                    </div>
+                </button>
+            </div>
             
-            {/* Tarjeta 1: Explore (Compacta) */}
-            <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-              <button onClick={() => setShowAllTopics(true)} className="flex items-center gap-1 mb-4 active:opacity-70 w-fit">
-                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Explore</h3>
-                <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
-              </button>
-              
-              <div className="flex flex-col gap-4">
-                {TOPICS_DATA.slice(0, 3).map((topic) => (
-                  <button
-                    key={topic.id}
-                    onClick={topic.action}
-                    disabled={openingTopic === topic.id}
-                    className="w-full flex items-center gap-4 active:opacity-60 transition-opacity text-left disabled:opacity-50"
-                  >
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ background: "#1c1c1e" }}>
-                      {openingTopic === topic.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-[#8e8e93]" />
-                      ) : topic.isImage ? (
-                        <img src={topic.src} alt={topic.name} draggable={false} className={`w-full h-full pointer-events-none select-none ${topic.contain ? 'object-contain p-2' : 'object-cover'}`} />
-                      ) : (
-                        topic.icon
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-[16px] font-medium truncate leading-tight" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>{topic.name}</p>
-                      <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>{topic.desc}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+          </div>
 
-            {/* Tarjeta 2: My Tools */}
-            <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-              <div className="flex items-center gap-1 mb-4">
-                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>My Tools</h3>
+          {/* ── Pagination Dots Indicators (•) ── */}
+          <div className="flex items-center gap-1.5 mt-0.5">
+            {[0, 1].map(index => (
+                <div key={index} className={`w-1.5 h-1.5 rounded-full transition-colors ${currentBannerIndex === index ? 'bg-white' : 'bg-[#2c2c2e]'}`} />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Explore Section ─────────────────────────────────────────── */}
+        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both">
+          
+          <div className="flex items-center justify-between px-2 mb-2">
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#8e8e93", fontFamily: SF }}>
+              Explore Topics
+            </p>
+          </div>
+
+          <div className="rounded-[24px] overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+            
+            {/* Private Mode */}
+            <button
+              onClick={() => setExploreModal("private")}
+              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
+                <Lock className="w-5 h-5 text-amber-500" />
               </div>
-              <div className="flex-1 flex items-center justify-center min-h-[140px]">
-                <p className="text-[#48484a] text-[15px] font-medium" style={{ fontFamily: SF }}>Coming soon...</p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Private Mode</p>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold" style={{ background: "#1c1c1e", color: "#8e8e93", fontFamily: SF }}>BETA</span>
+                </div>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Zero trace conversations</p>
               </div>
-            </div>
+              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
+            </button>
+
+            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
+
+            {/* Telegram Search */}
+            <button
+              onClick={() => setExploreModal("telegram")}
+              disabled={openingTopic === "telegram"}
+              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden pointer-events-none select-none" style={{ background: "#1c1c1e" }}>
+                <img src="/telegram-icon.png" alt="Telegram" draggable={false} className="w-10 h-10 object-cover" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Telegram Search</p>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Find channels, posts & more</p>
+              </div>
+              {openingTopic === "telegram" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
+            </button>
+
+            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
+
+            {/* Google Tools */}
+            <button
+              onClick={() => setExploreModal("google")}
+              disabled={openingTopic === "google"}
+              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden pointer-events-none select-none" style={{ background: "#1c1c1e" }}>
+                <img src="/gmail.png" alt="Google Tools" draggable={false} className="w-6 h-6 object-contain" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Google Tools</p>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Mail, Drive, Docs & Sheets</p>
+              </div>
+              {openingTopic === "google" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
+            </button>
+
+            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
+
+            {/* Writing Assistant */}
+            <button
+              onClick={() => setExploreModal("writing")}
+              disabled={openingTopic === "writing"}
+              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
+                <Sparkles className="w-5 h-5 text-blue-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Writing Assistant</p>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Translate and refine text</p>
+              </div>
+              {openingTopic === "writing" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
+            </button>
+
+            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
+
+            {/* Coding & Tech */}
+            <button
+              onClick={() => setExploreModal("coding")}
+              disabled={openingTopic === "coding"}
+              className="w-full flex items-center gap-4 px-4 py-3.5 active:bg-white/5 transition-colors text-left disabled:opacity-50"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
+                <Code className="w-5 h-5 text-green-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>Coding & Tech</p>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Debug and write code</p>
+              </div>
+              {openingTopic === "coding" ? <Loader2 className="w-4 h-4 shrink-0 animate-spin text-[#8e8e93]" /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
+            </button>
+
+            <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "72px" }} />
+
+            {/* TON Wallet (Disabled/Soon) */}
+            <button
+              disabled
+              className="w-full flex items-center gap-4 px-4 py-3.5 transition-colors text-left opacity-50 cursor-not-allowed"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden pointer-events-none select-none" style={{ background: "#1c1c1e" }}>
+                <img src="/TON-ICON.png" alt="TON Wallet" draggable={false} className="w-10 h-10 object-cover" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>TON Wallet</p>
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold" style={{ background: "#1c1c1e", color: "#8e8e93", fontFamily: SF }}>SOON</span>
+                </div>
+                <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>Manage your crypto assets</p>
+              </div>
+              <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
+            </button>
 
           </div>
         </div>
 
       </div>
 
-      {/* ── MODAL FULL SCREEN: ALL TOPICS (Con Blur y sin Header) ── */}
-      {showAllTopics && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-black/65 backdrop-blur-xl animate-in fade-in duration-300">
-          
-          {/* Espaciador superior (Reemplaza al título "Explore" y la línea que estorbaba) */}
-          <div className="pt-16 pb-2" />
-
-          {/* Lista completa de Topics */}
-          <div className="flex-1 overflow-y-auto px-4 pb-12 space-y-1">
-            {TOPICS_DATA.map((topic) => (
-              <button
-                key={topic.id}
-                onClick={() => {
-                  if (!topic.disabled) {
-                    topic.action(); // Abre el sub-modal del topic correspondiente
-                  }
-                }}
-                disabled={topic.disabled}
-                className="w-full flex items-center gap-4 px-2 py-4 active:bg-white/5 transition-colors rounded-2xl text-left disabled:opacity-50"
-              >
-                <div className="w-[50px] h-[50px] rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ background: "#1c1c1e" }}>
-                  {topic.isImage ? (
-                    <img src={topic.src} alt={topic.name} draggable={false} className={`w-full h-full pointer-events-none select-none ${topic.contain ? 'object-contain p-2.5' : 'object-cover'}`} />
-                  ) : (
-                    <div className="scale-110">{topic.icon}</div>
-                  )}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-white text-[17px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>{topic.name}</p>
-                    {topic.tag && (
-                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${topic.tag === 'BETA' ? 'bg-[#1c1c1e] text-[#8e8e93]' : 'bg-amber-500/15 text-amber-500'}`} style={{ fontFamily: SF }}>
-                        {topic.tag}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[#8e8e93] text-[14px] truncate mt-0.5" style={{ fontFamily: SF }}>{topic.desc}</p>
-                </div>
-                
-                <ChevronRight className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-
-      {/* ── Sub-modales de Topic (Con botón X restaurado) ────────── */}
+      {/* ── Explore Modals — shown before opening the topic ─────────────────── */}
       {exploreModal && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => { setExploreModal(null); setModalInput("") }}
           />
 
           <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
-            
-            {/* Botón X restaurado para los sub-menús */}
             <button
               onClick={() => { setExploreModal(null); setModalInput("") }}
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
+              className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
               style={{ background: "#1c1c1e" }}
             >
               <X className="w-5 h-5 text-white" />
             </button>
 
-            <div className="pt-10 pb-4 overflow-y-auto flex-1">
+            <div className="pt-8 pb-4 overflow-y-auto flex-1">
 
               {/* Private Mode Modal */}
               {exploreModal === "private" && (
@@ -398,6 +569,7 @@ export function HomeView() {
                     </p>
                   </div>
 
+                  {/* Privacy guarantees */}
                   <div className="mx-4 mb-4 bg-amber-500/10 border border-amber-500/20 rounded-[20px] p-4 space-y-2">
                     {[
                       "🚫  No conversation history saved",
@@ -429,6 +601,7 @@ export function HomeView() {
                     ))}
                   </div>
 
+                  {/* Open topic button */}
                   <div className="mx-4 mt-4">
                     <button
                       onClick={() => handleOpenTopic("private")}
