@@ -1,7 +1,7 @@
 "use client"
 
-import { useApp, type ModelName } from "@/lib/app-context"
-import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell, Mail, Send, CalendarDays, RefreshCw } from "lucide-react"
+import { useApp } from "@/lib/app-context"
+import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell, Mail, Send, RefreshCw } from "lucide-react"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
@@ -9,13 +9,13 @@ type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Mock Data for Dynamic Banners (Will come from context/api later) ──
+// ── Mock Data for Dynamic Banners ──
 const mockScheduleData = {
   isConfigured: true, 
   hasActiveTask: true,
   currentTask: {
     id: 1,
-    type: "reminder" as const, // 'reminder', 'email'
+    type: "reminder" as const, // 'reminder' | 'email'
     title: "Review Q4 Report",
     targetTime: new Date(Date.now() + 1000 * 60 * 60 * 27.5).toISOString(), // 27.5 hours from now
   }
@@ -44,7 +44,6 @@ export function HomeView() {
   const [message, setMessage] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
   const [exploreModal, setExploreModal] = useState<ExploreModalType>(null)
-  const [showAllTopics, setShowAllTopics] = useState(false)
   const [modalInput, setModalInput] = useState("")
   const [sending, setSending] = useState(false)
   const [openingTopic, setOpeningTopic] = useState<ExploreModalType>(null)
@@ -63,10 +62,26 @@ export function HomeView() {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
-    if (tg?.BackButton) {
+    if (!tg?.BackButton) return
+
+    if (exploreModal) {
+      tg.BackButton.show()
+    } else {
       tg.BackButton.hide()
     }
-  }, [])
+
+    const handleBack = () => {
+      if (exploreModal) {
+        setExploreModal(null)
+        setModalInput("")
+      }
+    }
+
+    tg.BackButton.onClick(handleBack)
+    return () => {
+      tg.BackButton.offClick(handleBack)
+    }
+  }, [exploreModal])
 
   // ── Countdown Timer Logic ──
   useEffect(() => {
@@ -96,7 +111,6 @@ export function HomeView() {
     }
   }, [currentBannerIndex])
 
-  // Main input bar → sends directly, AI responds in bot chat
   async function handleSend() {
     const text = message.trim()
     if (!text || sending) return
@@ -106,7 +120,6 @@ export function HomeView() {
     setSending(false)
   }
 
-  // Modal quick-send buttons → opens the corresponding topic + sends message inside it
   async function handleQuickSend(topicKey: ExploreModalType, text: string) {
     if (sending || !topicKey) return
     setExploreModal(null)
@@ -116,7 +129,6 @@ export function HomeView() {
     setSending(false)
   }
 
-  // Explore card tap → opens/creates the topic (no first message)
   async function handleOpenTopic(topicKey: ExploreModalType) {
     if (openingTopic || !topicKey) return
     setOpeningTopic(topicKey)
@@ -128,24 +140,10 @@ export function HomeView() {
     if (e.key === "Enter" && !e.shiftKey) handleSend()
   }
 
-  function handleCreateImage() {
-    setMessage("Create an image of ")
-    inputRef.current?.focus()
-  }
-
-  function handleGetTokens() {
-    setCurrentView("store")
-  }
-
-  function handleAddToChat() {
-    // Función para Telegram
-  }
-
   const showThrottle = isThrottled && selectedModel === "Grok 4.1"
 
   // ── Render Dynamic Schedule Banner Content ──
   const scheduleBannerContent = useMemo(() => {
-    // STATE 1: Not entered / Configured (Promotional Ad style)
     if (!mockScheduleData.isConfigured || !mockScheduleData.hasActiveTask) {
       return (
         <div className="relative z-10 flex items-center justify-between h-full px-5">
@@ -177,7 +175,6 @@ export function HomeView() {
       )
     }
 
-    // STATE 2: Active Task (Status + Countdown style)
     const task = mockScheduleData.currentTask;
     const taskTypeInfo = task.type === 'reminder' 
       ? { icon: <Bell className="w-5 h-5 text-amber-400" />, color: "#f59e0b" }
@@ -186,40 +183,38 @@ export function HomeView() {
     return (
         <div className="relative z-10 flex items-center justify-between h-full px-5">
             <div className="flex items-center gap-4 flex-1">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.03)" }}>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
                     {taskTypeInfo.icon}
                 </div>
                 <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                    <p className="text-white text-[15px] font-medium truncate leading-snug" style={{ fontFamily: SF }}>
+                    <p className="text-white text-[15px] font-bold truncate leading-snug" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
                         {task.title}
                     </p>
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2">
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none uppercase tracking-wide`} style={{ background: `${taskTypeInfo.color}15`, color: taskTypeInfo.color, fontFamily: SF }}>
                             PENDING
                         </span>
-                        {task.type === 'reminder' && <RefreshCw className="w-3.5 h-3.5 text-[#636366]" />}
+                        {task.type === 'reminder' && <RefreshCw className="w-3 h-3 text-[#636366]" />}
                     </div>
                 </div>
             </div>
             
             <div className="flex flex-col items-end gap-1.5 text-right shrink-0">
                 <p className="text-[12px] text-[#8e8e93]" style={{ fontFamily: SF }}>Next task in</p>
-                <p className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                <p 
+                  className="text-white font-bold text-[18px]" 
+                  style={{ 
+                    fontFamily: SFD, 
+                    letterSpacing: "-0.01em",
+                    fontVariantNumeric: "tabular-nums" // 🔥 Esto evita que el texto tiemble al cambiar los segundos
+                  }}
+                >
                     {formatTimeRemaining(timeRemaining)}
                 </p>
             </div>
         </div>
     )
   }, [timeRemaining, t])
-
-  const TOPICS_DATA = [
-    { id: "private", name: "Private Mode", desc: "Zero trace conversations", tag: "BETA", action: () => setExploreModal("private"), icon: <Lock className="w-5 h-5 text-amber-500" /> },
-    { id: "telegram", name: "Telegram Search", desc: "Find channels, posts & more", action: () => setExploreModal("telegram"), isImage: true, src: "/telegram-icon.png" },
-    { id: "google", name: "Google Tools", desc: "Mail, Drive, Docs & Sheets", action: () => setExploreModal("google"), isImage: true, src: "/gmail.png", contain: true },
-    { id: "writing", name: "Writing Assistant", desc: "Translate and refine text", action: () => setExploreModal("writing"), icon: <Sparkles className="w-5 h-5 text-blue-400" /> },
-    { id: "coding", name: "Coding & Tech", desc: "Debug and write code", action: () => setExploreModal("coding"), icon: <Code className="w-5 h-5 text-green-400" /> },
-    { id: "ton", name: "TON Wallet", desc: "Manage your crypto assets", action: () => {}, tag: "SOON", disabled: true, isImage: true, src: "/TON-ICON.png" },
-  ] as const;
 
   return (
     <div 
@@ -384,9 +379,7 @@ export function HomeView() {
                             boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
                             }}
                         >
-                            <div className="absolute inset-x-2 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)" }} />
-                            <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite</span>
-                            <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
+                            <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite ›</span>
                         </div>
                         </div>
                         <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "96px" }}>
@@ -408,7 +401,7 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* ── Explore Section ─────────────────────────────────────────── */}
+        {/* ── Explore Section (VERTICAL LIST RESTAURADA) ───────────────────── */}
         <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both">
           
           <div className="flex items-center justify-between px-2 mb-2">
@@ -551,7 +544,7 @@ export function HomeView() {
               <X className="w-5 h-5 text-white" />
             </button>
 
-            <div className="pt-8 pb-4 overflow-y-auto flex-1">
+            <div className="pt-10 pb-4 overflow-y-auto flex-1">
 
               {/* Private Mode Modal */}
               {exploreModal === "private" && (
@@ -569,7 +562,6 @@ export function HomeView() {
                     </p>
                   </div>
 
-                  {/* Privacy guarantees */}
                   <div className="mx-4 mb-4 bg-amber-500/10 border border-amber-500/20 rounded-[20px] p-4 space-y-2">
                     {[
                       "🚫  No conversation history saved",
@@ -601,7 +593,6 @@ export function HomeView() {
                     ))}
                   </div>
 
-                  {/* Open topic button */}
                   <div className="mx-4 mt-4">
                     <button
                       onClick={() => handleOpenTopic("private")}
@@ -853,3 +844,4 @@ export function HomeView() {
     </div>
   )
 }
+
