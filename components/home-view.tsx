@@ -15,9 +15,9 @@ const mockScheduleData = {
   hasActiveTask: true,
   currentTask: {
     id: 1,
-    type: "reminder" as const, // 'reminder' | 'email'
+    type: "reminder" as const,
     title: "Review Q4 Report",
-    targetTime: new Date(Date.now() + 1000 * 60 * 60 * 27.5).toISOString(), // 27.5 hours from now
+    targetTime: new Date(Date.now() + 1000 * 60 * 60 * 27.5).toISOString(),
   }
 }
 
@@ -140,6 +140,20 @@ export function HomeView() {
     if (e.key === "Enter" && !e.shiftKey) handleSend()
   }
 
+  // ── Funciones restauradas para los botones de acción ──
+  function handleCreateImage() {
+    setMessage("Create an image of ")
+    inputRef.current?.focus()
+  }
+
+  function handleGetTokens() {
+    setCurrentView("store")
+  }
+
+  function handleAddToChat() {
+    // Función para Telegram
+  }
+
   const showThrottle = isThrottled && selectedModel === "Grok 4.1"
 
   // ── Render Dynamic Schedule Banner Content ──
@@ -206,7 +220,7 @@ export function HomeView() {
                   style={{ 
                     fontFamily: SFD, 
                     letterSpacing: "-0.01em",
-                    fontVariantNumeric: "tabular-nums" // 🔥 Esto evita que el texto tiemble al cambiar los segundos
+                    fontVariantNumeric: "tabular-nums" 
                   }}
                 >
                     {formatTimeRemaining(timeRemaining)}
@@ -379,7 +393,9 @@ export function HomeView() {
                             boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
                             }}
                         >
-                            <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite ›</span>
+                            <div className="absolute inset-x-2 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)" }} />
+                            <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite</span>
+                            <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
                         </div>
                         </div>
                         <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "96px" }}>
@@ -401,7 +417,7 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* ── Explore Section (VERTICAL LIST RESTAURADA) ───────────────────── */}
+        {/* ── Explore Section ─────────────────────────────────────────── */}
         <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both">
           
           <div className="flex items-center justify-between px-2 mb-2">
@@ -529,16 +545,16 @@ export function HomeView() {
 
       {/* ── Explore Modals — shown before opening the topic ─────────────────── */}
       {exploreModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className="fixed inset-0 z-[60] flex items-end justify-center">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
             onClick={() => { setExploreModal(null); setModalInput("") }}
           />
 
           <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
             <button
               onClick={() => { setExploreModal(null); setModalInput("") }}
-              className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
               style={{ background: "#1c1c1e" }}
             >
               <X className="w-5 h-5 text-white" />
@@ -844,4 +860,3 @@ export function HomeView() {
     </div>
   )
 }
-
