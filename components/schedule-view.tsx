@@ -6,7 +6,8 @@ import {
   CalendarDays, Bell, Send, Clock, ChevronRight, Lock, 
   Plus, Loader2, Pencil, Search, X, Trash2, Moon, TrendingUp, Sparkles, 
   CheckSquare, Mail, Type, AlignLeft, AtSign, Folder, ThumbsUp, ThumbsDown,
-  Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Coffee
+  Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Coffee, Globe,
+  BookOpen, Music, Car, Plane, Wallet, LineChart, PieChart, Activity
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -14,8 +15,9 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 
 // ── Tipos ──
 type NavTab = "tasks" | "edit" | "search" | "create"
+type ScheduleType = "email" | "drive" | "reminder" | "telegram_channel" | "custom" | "suggested" | null
 
-// ── Icon Dictionary ──
+// ── Icon Dictionary (Extendido con Crypto) ──
 const ICON_MAP: Record<string, React.ReactNode> = {
     CalendarDays: <CalendarDays className="w-5 h-5" />,
     Clock: <Clock className="w-5 h-5" />,
@@ -28,26 +30,46 @@ const ICON_MAP: Record<string, React.ReactNode> = {
     Utensils: <Utensils className="w-5 h-5" />,
     MessageSquare: <MessageSquare className="w-5 h-5" />,
     Send: <Send className="w-5 h-5" />,
-    Coffee: <Coffee className="w-5 h-5" />
+    Coffee: <Coffee className="w-5 h-5" />,
+    BookOpen: <BookOpen className="w-5 h-5" />,
+    Music: <Music className="w-5 h-5" />,
+    Car: <Car className="w-5 h-5" />,
+    Plane: <Plane className="w-5 h-5" />,
+    Wallet: <Wallet className="w-5 h-5" />,
+    LineChart: <LineChart className="w-5 h-5" />,
+    PieChart: <PieChart className="w-5 h-5" />,
+    Activity: <Activity className="w-5 h-5" />
 }
 
-// ── Event Types para el Wheel Picker ──
-const EVENT_TYPES = [
-    "Custom Event", 
-    "Personal Reminder", 
-    "Schedule Email", 
-    "Drive Upload", 
-    "Workout / Gym", 
-    "Deep Work", 
-    "Meal Time", 
-    "Send Message"
+const THEME_COLORS = [
+    { name: "Blue", hex: "#3b82f6" },
+    { name: "Emerald", hex: "#10b981" },
+    { name: "Violet", hex: "#8b5cf6" },
+    { name: "Amber", hex: "#f59e0b" },
+    { name: "Rose", hex: "#f43f5e" },
 ]
 
-// ── Sugerencias (Réplica exacta de la lista) ──
+const TIMEZONES = [
+    "New York (GMT-5)", "London (GMT+0)", "Madrid (GMT+1)", 
+    "Mexico City (GMT-6)", "Tokyo (GMT+9)", "Dubai (GMT+4)",
+    "Sydney (GMT+9)", "Paris (GMT+1)", "Los Angeles (GMT-8)",
+    "Bogota (GMT-5)", "Buenos Aires (GMT-3)", "Moscow (GMT+3)",
+    "Mumbai (GMT+5:30)", "Bangkok (GMT+7)"
+]
+
+// ── Event Types (Incluye los nuevos On-Chain/Crypto) ──
+const EVENT_TYPES = [
+    "Custom Event", "Personal Reminder", "Schedule Email", 
+    "Price Alerts", "Wallet Actions", "Automated Reports", // NUEVOS 🚀
+    "Drive Upload", "Workout / Gym", "Deep Work", 
+    "Meal Time", "Send Message"
+]
+
+// ── Sugerencias Compactas ──
 const SUGGESTIONS = [
-    { id: "sug_run", title: "Outdoor run", time: "1:30 – 2 PM", icon: <TrendingUp className="w-[18px] h-[18px] text-[#22c55e]" />, bg: "bg-[#22c55e]/20" },
-    { id: "sug_email", title: "Apply to YC", time: "2:30 – 3:30 PM", icon: <CheckSquare className="w-[18px] h-[18px] text-[#3b82f6]" />, bg: "bg-[#3b82f6]/20" },
-    { id: "sug_tg", title: "Order vitamin D", time: "7 – 7:30 PM", icon: <CheckSquare className="w-[18px] h-[18px] text-[#a855f7]" />, bg: "bg-[#a855f7]/20" },
+    { id: "sug_run", title: "Outdoor\nrun", time: "1:30 – 2 PM", icon: <TrendingUp className="w-5 h-5 text-white" />, bg: "bg-[#22c55e]" },
+    { id: "sug_email", title: "Review\nEmails", time: "2:30 – 3:30 PM", icon: <Mail className="w-5 h-5 text-white" />, bg: "bg-[#3b82f6]" },
+    { id: "sug_tg", title: "Check\nChannels", time: "7 – 7:30 PM", icon: <CheckSquare className="w-5 h-5 text-white" />, bg: "bg-[#a855f7]" },
 ]
 
 // ── Scroll Wheel Picker Component ──
@@ -68,7 +90,7 @@ function WheelPicker({ items, value, onChange, suffix = "" }: { items: string[],
         <div 
             ref={containerRef}
             onScroll={handleScroll}
-            className="h-[120px] w-full overflow-y-auto snap-y snap-mandatory no-scrollbar flex flex-col items-center"
+            className="h-[120px] w-full overflow-y-auto snap-y snap-mandatory no-scrollbar flex flex-col items-center wheel-mask"
             style={{ scrollBehavior: "smooth" }}
         >
             <div style={{ minHeight: `${itemHeight}px` }} className="w-full shrink-0" />
@@ -77,7 +99,7 @@ function WheelPicker({ items, value, onChange, suffix = "" }: { items: string[],
                 return (
                     <div 
                         key={i} 
-                        className={`h-[40px] shrink-0 w-full flex items-center justify-center snap-center transition-all ${isSelected ? 'text-white text-[20px] font-bold' : 'text-[#636366] text-[18px] font-medium'}`}
+                        className={`h-[40px] shrink-0 w-full flex items-center justify-center snap-center transition-all duration-200 ${isSelected ? 'text-white text-[20px] font-bold' : 'text-[#636366] text-[18px] font-medium'}`}
                         style={{ fontFamily: SFD }}
                     >
                         {item}{suffix && isSelected ? <span className="text-[14px] ml-1 text-[#8e8e93]">{suffix}</span> : ""}
@@ -92,25 +114,36 @@ function WheelPicker({ items, value, onChange, suffix = "" }: { items: string[],
 export function ScheduleView() {
     const { setCurrentView } = useApp()
     
-    // Inicia vacío para mostrar Suggestions, cuando se agregue uno cambiará a Active Events
+    // Lista de Tareas
     const [tasks, setTasks] = useState<any[]>([]) 
     const [selectedDate, setSelectedDate] = useState<string | "All">("All")
     const [activeNavTab, setActiveNavTab] = useState<NavTab>("tasks")
     const [isEditingMode, setIsEditingMode] = useState(false)
     
-    // Modal de Creación
+    // Modales y Pickers
+    const [showTZPicker, setShowTZPicker] = useState(true) 
     const [configModalOpen, setConfigModalOpen] = useState(false)
+    const [activePicker, setActivePicker] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
 
     // Form states
-    const [activePicker, setActivePicker] = useState<string | null>(null) // "type", "time", "date", "reminder", "icon"
-    
+    const [tz, setTz] = useState("Mexico City (GMT-6)")
     const [eventType, setEventType] = useState("Custom Event")
     const [taskIcon, setTaskIcon] = useState("CalendarDays")
+    const [taskColor, setTaskColor] = useState("#3b82f6")
     const [taskTitle, setTaskTitle] = useState("")
     const [taskDesc, setTaskDesc] = useState("")
     const [taskEmailRec, setTaskEmailRec] = useState("")
+    const [isPriority, setIsPriority] = useState(false)
     
+    // Crypto Form States
+    const [cryptoAsset, setCryptoAsset] = useState("TON")
+    const [cryptoCondition, setCryptoCondition] = useState("Rises above")
+    const [cryptoTarget, setCryptoTarget] = useState("")
+    const [walletAction, setWalletAction] = useState("Notify if I receive")
+    const [walletAmount, setWalletAmount] = useState("5")
+    const [reportType, setReportType] = useState("Weekly Summary")
+
     const [selHour, setSelHour] = useState("08")
     const [selMin, setSelMin] = useState("00")
     const [selMonth, setSelMonth] = useState("Sep")
@@ -127,31 +160,31 @@ export function ScheduleView() {
 
     // ── Update fields dynamically based on Event Type ──
     useEffect(() => {
-        if(eventType === "Workout / Gym") { setTaskIcon("Dumbbell"); setTaskTitle("Workout") }
-        else if(eventType === "Deep Work") { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session") }
-        else if(eventType === "Meal Time") { setTaskIcon("Utensils"); setTaskTitle("Lunch Break") }
-        else if(eventType === "Schedule Email") { setTaskIcon("Mail"); setTaskTitle("Send Email") }
-        else if(eventType === "Send Message") { setTaskIcon("MessageSquare"); setTaskTitle("Send Message") }
-        else if(eventType === "Drive Upload") { setTaskIcon("Folder"); setTaskTitle("Backup to Drive") }
-        else if(eventType === "Personal Reminder") { setTaskIcon("Bell"); setTaskTitle("Reminder") }
-        else { setTaskIcon("CalendarDays"); setTaskTitle("") }
+        if(eventType === "Workout / Gym") { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); setTaskColor("#10b981") }
+        else if(eventType === "Deep Work") { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); setTaskColor("#8b5cf6") }
+        else if(eventType === "Meal Time") { setTaskIcon("Utensils"); setTaskTitle("Lunch Break"); setTaskColor("#f59e0b") }
+        else if(eventType === "Schedule Email") { setTaskIcon("Mail"); setTaskTitle("Send Email"); setTaskColor("#f43f5e") }
+        else if(eventType === "Send Message") { setTaskIcon("MessageSquare"); setTaskTitle("Send Message"); setTaskColor("#3b82f6") }
+        else if(eventType === "Drive Upload") { setTaskIcon("Folder"); setTaskTitle("Backup to Drive"); setTaskColor("#10b981") }
+        else if(eventType === "Personal Reminder") { setTaskIcon("Bell"); setTaskTitle("Reminder"); setTaskColor("#f59e0b") }
+        else if(eventType === "Price Alerts") { setTaskIcon("LineChart"); setTaskTitle("Price Alert"); setTaskColor("#10b981") }
+        else if(eventType === "Wallet Actions") { setTaskIcon("Wallet"); setTaskTitle("Wallet Alert"); setTaskColor("#f59e0b") }
+        else if(eventType === "Automated Reports") { setTaskIcon("PieChart"); setTaskTitle("Weekly Summary"); setTaskColor("#8b5cf6") }
+        else { setTaskIcon("CalendarDays"); setTaskTitle(""); setTaskColor("#3b82f6") }
     }, [eventType])
 
     // ── Lógica del Calendario Superior ──
     const calendarDays = useMemo(() => {
         const arr = []
         const today = new Date()
-        const startOfWeek = new Date(today)
-        startOfWeek.setDate(today.getDate() - (today.getDay() || 7) + 1)
-
         for (let i = 0; i < 7; i++) {
-            const d = new Date(startOfWeek)
-            d.setDate(startOfWeek.getDate() + i)
+            const d = new Date(today)
+            d.setDate(today.getDate() + i)
             arr.push({
                 full: d.toDateString(),
                 label: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
                 num: d.getDate().toString(),
-                isToday: d.toDateString() === today.toDateString()
+                isToday: i === 0
             })
         }
         return arr
@@ -161,27 +194,38 @@ export function ScheduleView() {
     const yearStr = new Date().getFullYear().toString()
 
     const filteredTasks = useMemo(() => {
-        if (selectedDate === "All") return tasks
-        return tasks.filter(t => t.date === selectedDate)
+        if (selectedDate === "All") return tasks.filter(t => !t.isPriority) 
+        return tasks.filter(t => t.date === selectedDate && !t.isPriority)
     }, [tasks, selectedDate])
+
+    const priorityTasks = useMemo(() => tasks.filter(t => t.isPriority).slice(0, 2), [tasks])
 
     // ── Botón Atrás Telegram ──
     useEffect(() => {
         const tg = (window as any).Telegram?.WebApp
         if (!tg?.BackButton) return
         
-        if (isEditingMode || configModalOpen) tg.BackButton.show()
+        if (isEditingMode || configModalOpen || activePicker || showTZPicker) tg.BackButton.show()
         else tg.BackButton.hide()
 
         const handleBack = () => {
-            if (activePicker) setActivePicker(null)
-            else if (configModalOpen) setConfigModalOpen(false)
-            else if (isEditingMode) { setIsEditingMode(false); setActiveNavTab("tasks") }
-            else { setCurrentView("home"); tg.BackButton.hide() }
+            if (showTZPicker) {
+                setShowTZPicker(false)
+                setCurrentView("home")
+                tg.BackButton.hide()
+            } else if (activePicker) {
+                setActivePicker(null)
+            } else if (configModalOpen) {
+                setConfigModalOpen(false)
+            } else if (isEditingMode) {
+                setIsEditingMode(false); setActiveNavTab("tasks")
+            } else {
+                setCurrentView("home"); tg.BackButton.hide()
+            }
         }
         tg.BackButton.onClick(handleBack)
         return () => tg.BackButton.offClick(handleBack)
-    }, [isEditingMode, configModalOpen, activePicker, setCurrentView])
+    }, [isEditingMode, configModalOpen, activePicker, showTZPicker, setCurrentView])
 
     function handleNavTabClick(tab: NavTab) {
         if (tab === "search") return; 
@@ -190,6 +234,9 @@ export function ScheduleView() {
             setActiveNavTab(isEditingMode ? "tasks" : "edit")
         } else if (tab === "create") {
             setIsEditingMode(false) 
+            setTaskTitle("")
+            setTaskDesc("")
+            setEventType("Custom Event")
             setConfigModalOpen(true)
             setActiveNavTab("create")
         } else {
@@ -204,6 +251,12 @@ export function ScheduleView() {
         else setActivePicker(picker)
     }
 
+    function openSuggested(title: string) {
+        setTaskTitle(title.replace('\n', ' '))
+        setEventType("Custom Event")
+        setConfigModalOpen(true)
+    }
+
     function handleSaveConfig() {
         setLoading(true)
         setTimeout(() => {
@@ -213,26 +266,31 @@ export function ScheduleView() {
                 time: `${selHour}:${selMin} ${parseInt(selHour) >= 12 ? 'PM' : 'AM'}`,
                 date: selectedDate === "All" ? new Date().toDateString() : selectedDate,
                 iconName: taskIcon,
+                color: taskColor,
+                isPriority: isPriority,
                 status: "ACTIVE"
             }, ...prev])
             setConfigModalOpen(false)
             setActivePicker(null)
+            setTaskTitle("")
+            setTaskDesc("")
+            setIsPriority(false)
             setLoading(false)
             setActiveNavTab("tasks")
         }, 600)
     }
 
     return (
-        <div className="flex-1 flex flex-col min-h-screen bg-[#111111] text-white select-none overflow-hidden relative">
+        <div className="flex-1 flex flex-col min-h-screen bg-[#000000] text-white select-none overflow-hidden relative">
             <style>{`
                 @keyframes jiggle { 0% { transform: rotate(-1deg); } 50% { transform: rotate(1deg); } 100% { transform: rotate(-1deg); } }
                 .jiggle-card { animation: jiggle 0.3s ease-in-out infinite; }
                 .no-scrollbar::-webkit-scrollbar { display: none; }
-                .wheel-mask { mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%); }
+                .wheel-mask { mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%); }
             `}</style>
 
-            <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('/landscape.jpg')", filter: "blur(60px)" }} />
-            <div className="absolute inset-0 z-1 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(17,17,17,0.4) 0%, rgba(17,17,17,1) 100%)" }} />
+            <div className="absolute inset-0 z-0 bg-cover bg-center opacity-30" style={{ backgroundImage: "url('/landscape.jpg')", filter: "blur(50px)" }} />
+            <div className="absolute inset-0 z-1 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.95) 100%)" }} />
 
             <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar">
                 
@@ -244,7 +302,6 @@ export function ScheduleView() {
 
                 {/* ── Calendar (M a S) ── */}
                 <div className="flex justify-between items-center px-6 mt-8">
-                    {/* ALL Button */}
                     <button 
                         onClick={() => setSelectedDate("All")}
                         className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate === "All" ? "bg-white text-black" : "bg-[#1c1c1e] text-[#8e8e93]"}`}
@@ -290,15 +347,33 @@ export function ScheduleView() {
                 </div>
 
                 {/* ── Highlights ── */}
-                <div className="mt-6 flex flex-col items-center gap-3">
-                    <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e]">
-                        <Moon className="w-4 h-4 text-[#f59e0b]" />
-                        <span className="text-[#f59e0b] text-[14px] font-medium" style={{ fontFamily: SF }}>Morning grogginess <span className="opacity-60 font-normal">15m left</span></span>
-                    </div>
-                    <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e]">
-                        <TrendingUp className="w-4 h-4 text-[#22c55e]" />
-                        <span className="text-[#22c55e] text-[14px] font-medium" style={{ fontFamily: SF }}>Alertness rise <span className="opacity-60 font-normal">in 45m</span></span>
-                    </div>
+                <div className="mt-6 flex flex-col items-center gap-3 px-5">
+                    {priorityTasks.length > 0 ? (
+                        priorityTasks.map(t => (
+                            <div key={t.id} className={`flex items-center gap-3 bg-[#1c1c1e]/60 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/5 animate-in zoom-in-95 w-fit ${isEditingMode ? 'jiggle-card' : ''}`} style={{ boxShadow: `0 0 20px ${t.color}15` }}>
+                                <div style={{ color: t.color }}>{ICON_MAP[t.iconName] || <CalendarDays className="w-4 h-4" />}</div>
+                                <span className="text-[14px] font-medium" style={{ color: t.color, fontFamily: SF }}>
+                                    {t.title} <span className="opacity-60 font-normal ml-1">at {t.time}</span>
+                                </span>
+                                {isEditingMode && (
+                                    <button onClick={() => setTasks(tasks.filter(task => task.id !== t.id))} className="ml-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center active:scale-90 transition-transform">
+                                        <X className="w-3 h-3 text-white" />
+                                    </button>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <>
+                            <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e]">
+                                <Moon className="w-4 h-4 text-[#f59e0b]" />
+                                <span className="text-[#f59e0b] text-[14px] font-medium" style={{ fontFamily: SF }}>Morning grogginess <span className="opacity-60 font-normal">15m left</span></span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e]">
+                                <TrendingUp className="w-4 h-4 text-[#22c55e]" />
+                                <span className="text-[#22c55e] text-[14px] font-medium" style={{ fontFamily: SF }}>Alertness rise <span className="opacity-60 font-normal">in 45m</span></span>
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 {/* ── Dynamic Replace: Suggested vs Active Tasks ── */}
@@ -316,20 +391,22 @@ export function ScheduleView() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-2">
+                            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-5 px-5">
                                 {SUGGESTIONS.map((sug, idx) => (
                                     <button 
                                         key={idx} 
-                                        onClick={() => { setEventType("Custom Event"); setTaskTitle(sug.title.replace('\n',' ')); setConfigModalOpen(true); }}
-                                        className="flex items-center justify-between w-full p-4 bg-[#1c1c1e] rounded-[20px] active:scale-[0.98] transition-transform text-left"
+                                        onClick={() => openSuggested(sug.title)}
+                                        className="shrink-0 w-[115px] h-[110px] flex flex-col justify-between p-3.5 bg-[#111] border border-[#1c1c1e] rounded-[24px] active:scale-[0.96] transition-transform text-left"
                                     >
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-9 h-9 rounded-full ${sug.bg} flex items-center justify-center`}>
+                                        <div className="flex items-start justify-between w-full">
+                                            <div className={`w-9 h-9 rounded-full ${sug.bg} flex items-center justify-center shadow-lg`}>
                                                 {sug.icon}
                                             </div>
-                                            <span className="text-white text-[16px] font-medium whitespace-pre-line leading-tight" style={{ fontFamily: SF }}>{sug.title}</span>
+                                            <div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center">
+                                                <Plus className="w-4 h-4 text-white" />
+                                            </div>
                                         </div>
-                                        <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{sug.time}</span>
+                                        <span className="text-white text-[14px] font-medium leading-tight whitespace-pre-line" style={{ fontFamily: SF }}>{sug.title}</span>
                                     </button>
                                 ))}
                             </div>
@@ -348,21 +425,34 @@ export function ScheduleView() {
                             ) : (
                                 filteredTasks.map(task => (
                                     <div key={task.id} className={`relative ${isEditingMode ? 'jiggle-card' : ''}`}>
-                                        <div className="bg-[#1c1c1e] rounded-[24px] p-5 flex items-center justify-between shadow-lg">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center">
-                                                    {ICON_MAP[task.iconName] || <CalendarDays className="w-5 h-5 text-white" />}
+                                        
+                                        {/* ── Diseño de Tarjeta Restaurado ── */}
+                                        <div className="bg-[#111] border border-[#1c1c1e] rounded-[32px] p-6 shadow-lg">
+                                            <div className="flex items-center justify-between mb-5">
+                                                <h3 className="text-white text-[22px] font-bold tracking-tight truncate pr-2" style={{ fontFamily: SFD }}>{task.title}</h3>
+                                                <span className="shrink-0 px-3 py-1.5 rounded-[10px] text-[11px] font-bold uppercase tracking-wider" style={{ background: `${task.color || '#3b82f6'}20`, color: task.color || '#3b82f6', fontFamily: SF }}>
+                                                    {task.status}
+                                                </span>
+                                            </div>
+                                            
+                                            <div className="flex flex-wrap gap-2.5">
+                                                <div className="flex items-center gap-2 px-3.5 py-2 bg-[#1c1c1e] rounded-[14px]">
+                                                    <div style={{ color: task.color || '#8e8e93' }}>
+                                                        {ICON_MAP[task.iconName] || <CalendarDays className="w-4 h-4" />}
+                                                    </div>
+                                                    <span className="text-white text-[13px] font-medium" style={{ fontFamily: SF }}>{task.iconName || "Event"}</span>
                                                 </div>
-                                                <div>
-                                                    <h3 className="text-white text-[17px] font-bold" style={{ fontFamily: SFD }}>{task.title}</h3>
-                                                    <p className="text-[#8e8e93] text-[13px] mt-0.5">{task.time}</p>
+                                                <div className="flex items-center gap-2 px-3.5 py-2 bg-[#1c1c1e] rounded-[14px]">
+                                                    <Clock className="w-4 h-4 text-[#8e8e93]" />
+                                                    <span className="text-white text-[13px] font-medium" style={{ fontFamily: SF }}>{task.time}</span>
                                                 </div>
                                             </div>
                                         </div>
+
                                         {isEditingMode && (
                                             <button 
                                                 onClick={() => setTasks(tasks.filter(t => t.id !== task.id))}
-                                                className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-xl border-2 border-black active:scale-90 transition-transform z-10"
+                                                className="absolute -top-2 -right-2 w-9 h-9 bg-red-500 rounded-full flex items-center justify-center shadow-xl border-4 border-black active:scale-90 transition-transform z-10"
                                             >
                                                 <Trash2 className="w-4 h-4 text-white" />
                                             </button>
@@ -372,7 +462,63 @@ export function ScheduleView() {
                             )}
                         </div>
                     )}
+
                 </div>
+
+                {/* ── TON Live Chart & Tracker Card (Nueva) ── */}
+                <div className="px-5 mt-6 mb-10">
+                    <div className="bg-[#111] border border-[#1c1c1e] rounded-[32px] p-6 shadow-2xl relative overflow-hidden">
+                        {/* Glow background */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#0098EA] rounded-full blur-[80px] opacity-10 pointer-events-none" />
+                        
+                        <div className="flex justify-between items-start mb-6 relative z-10">
+                            <div className="flex gap-3 items-center">
+                                <div className="w-12 h-12 bg-[#0098EA] rounded-full flex items-center justify-center shadow-lg">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2L2 12L12 22L22 12L12 2Z" fill="white"/>
+                                        <path d="M12 8L7 12L12 16L17 12L12 8Z" fill="#0098EA"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-white text-[20px] font-bold leading-none" style={{ fontFamily: SFD }}>TON <span className="text-[#8e8e93] text-[14px] font-medium ml-1">The Open Network</span></h3>
+                                    <p className="text-white text-[24px] font-bold tracking-tight mt-1 leading-none">$6.42 <span className="text-[#22c55e] text-[14px] font-medium ml-1">+2.4%</span></p>
+                                </div>
+                            </div>
+                            <button className="bg-[#1c1c1e] text-white px-3 py-1.5 rounded-[12px] text-[11px] font-bold tracking-wider uppercase border border-[#2c2c2e]">
+                                EQC...wvs
+                            </button>
+                        </div>
+
+                        {/* Minimal Line Chart */}
+                        <div className="h-24 w-full relative z-10 -mx-1 mb-2">
+                            <svg viewBox="0 0 100 40" className="w-full h-full preserve-3d" preserveAspectRatio="none">
+                                <path d="M0,40 L0,35 L20,36 L40,32 L60,34 L80,10 L100,5 L100,40 Z" fill="url(#gradChart)" opacity="0.2"/>
+                                <path d="M0,35 L20,36 L40,32 L60,34 L80,10 L100,5" fill="none" stroke="#22c55e" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" />
+                                <defs>
+                                    <linearGradient id="gradChart" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#22c55e" stopOpacity="1" />
+                                        <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+
+                        <div className="flex flex-col gap-3 relative z-10">
+                            <div className="flex gap-3">
+                                <button onClick={() => { setEventType("Price Alerts"); setConfigModalOpen(true); }} className="flex-1 py-3.5 bg-[#1c1c1e] border border-[#2c2c2e] text-white font-medium rounded-[20px] text-[14px] active:scale-95 transition-transform flex items-center justify-center gap-2">
+                                    <TrendingUp className="w-4 h-4 text-[#22c55e]" /> Price Alerts
+                                </button>
+                                <button onClick={() => { setEventType("Automated Reports"); setConfigModalOpen(true); }} className="flex-1 py-3.5 bg-[#1c1c1e] border border-[#2c2c2e] text-white font-medium rounded-[20px] text-[14px] active:scale-95 transition-transform flex items-center justify-center gap-2">
+                                    <PieChart className="w-4 h-4 text-[#a855f7]" /> Reports
+                                </button>
+                            </div>
+                            <button className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-95 transition-transform text-[16px]">
+                                Connect Wallet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             {/* ── Liquid Bottom NavBar ── */}
@@ -396,146 +542,182 @@ export function ScheduleView() {
                 </div>
             </div>
 
+            {/* ── MODAL: Time Zone Picker (Inicial) ── */}
+            {showTZPicker && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="w-[85%] bg-[#1c1c1e] rounded-[32px] p-6 border border-white/10 shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        <Globe className="w-12 h-12 text-blue-500 mx-auto mb-4" />
+                        <h3 className="text-center text-2xl font-bold mb-2" style={{ fontFamily: SFD }}>Set Time Zone</h3>
+                        <p className="text-center text-[#8e8e93] text-[15px] mb-6" style={{ fontFamily: SF }}>AI needs your local time to sync tasks properly.</p>
+                        
+                        <div className="bg-black/40 rounded-[24px] p-2 mb-6 border border-[#2c2c2e]">
+                            <WheelPicker items={TIMEZONES} value={tz} onChange={setTz} />
+                        </div>
+                        
+                        <button onClick={() => setShowTZPicker(false)} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-95 transition-transform text-[16px]">
+                            Confirm Zone
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* ── MODAL: PANEL DE CONFIGURACIÓN ÚNICO ── */}
             {configModalOpen && (
-                <div className="fixed inset-0 z-[60] flex items-end justify-center animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-[60] flex items-end justify-center animate-in fade-in duration-200">
                     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => { setConfigModalOpen(false); setActivePicker(null); }} />
-                    <div className="relative w-full rounded-t-[32px] p-6 animate-in slide-in-from-bottom duration-400 max-h-[90vh] flex flex-col bg-[#111] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+                    <div className="relative w-full rounded-t-[32px] p-6 animate-in slide-in-from-bottom duration-300 bg-[#111] max-h-[90vh] flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+                        <div className="w-12 h-1.5 bg-[#333] rounded-full mx-auto mb-4 shrink-0" />
                         
-                        <div className="flex items-center justify-between mb-4 pt-1">
-                            <h3 className="text-white font-bold text-[26px] tracking-tight" style={{ fontFamily: SFD }}>
-                                Setup Event
-                            </h3>
-                            <button onClick={() => { setConfigModalOpen(false); setActivePicker(null); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70">
-                                <X className="w-5 h-5 text-[#8e8e93]" />
-                            </button>
-                        </div>
+                        <div className="overflow-y-auto no-scrollbar pb-10 space-y-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-2xl font-bold tracking-tight" style={{ fontFamily: SFD }}>New Event</h3>
+                                <button onClick={() => { setConfigModalOpen(false); setActivePicker(null); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70">
+                                    <X className="w-5 h-5 text-[#8e8e93]" />
+                                </button>
+                            </div>
+                            
+                            <div className="bg-[#1c1c1e] rounded-[28px] divide-y divide-white/5 overflow-hidden">
+                                
+                                {/* Type Picker */}
+                                <div className="flex flex-col">
+                                    <button onClick={() => togglePicker("type")} className="flex justify-between w-full p-4 items-center active:bg-[#2c2c2e] transition-colors">
+                                        <span className="font-medium text-white">Type</span><span className="text-blue-500">{eventType}</span>
+                                    </button>
+                                    {activePicker === "type" && (
+                                        <div className="bg-black/20 p-2 origin-top animate-in zoom-in-95 slide-in-from-top-2 fade-in duration-200 ease-out">
+                                            <WheelPicker items={EVENT_TYPES} value={eventType} onChange={setEventType} />
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* ── CONDICIONALES DE CRYPTO Y WALLET ── */}
+                                {eventType === "Price Alerts" && (
+                                    <>
+                                        <div className="flex flex-col">
+                                            <button onClick={() => togglePicker("cryptoAsset")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] transition-colors">
+                                                <span className="font-medium text-white">Asset</span><span className="text-blue-500">{cryptoAsset}</span>
+                                            </button>
+                                            {activePicker === "cryptoAsset" && <div className="bg-black/20 p-2 origin-top animate-in zoom-in-95 slide-in-from-top-2 fade-in duration-200 ease-out"><WheelPicker items={["TON", "NOT", "DOGS", "USDT"]} value={cryptoAsset} onChange={setCryptoAsset} /></div>}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <button onClick={() => togglePicker("cryptoCondition")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] transition-colors">
+                                                <span className="font-medium text-white">Condition</span><span className="text-blue-500 truncate max-w-[150px]">{cryptoCondition}</span>
+                                            </button>
+                                            {activePicker === "cryptoCondition" && <div className="bg-black/20 p-2 origin-top animate-in zoom-in-95 slide-in-from-top-2 fade-in duration-200 ease-out"><WheelPicker items={["Rises above", "Drops below", "Drops > 8% in 24h", "Rises > 5% in 1h"]} value={cryptoCondition} onChange={setCryptoCondition} /></div>}
+                                        </div>
+                                        <div className="flex justify-between w-full p-4 items-center">
+                                            <span className="font-medium text-white">Target Price</span>
+                                            <input type="number" value={cryptoTarget} onChange={e => setCryptoTarget(e.target.value)} className="bg-transparent text-right text-blue-500 outline-none w-1/2 font-medium" placeholder="$0.00" />
+                                        </div>
+                                    </>
+                                )}
 
-                        <div className="overflow-y-auto flex-1 no-scrollbar pb-8 space-y-4">
-                            <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner">
-                                <div className="flex flex-col divide-y divide-[#2c2c2e]">
-                                    
-                                    {/* ── Type Event Picker ── */}
-                                    <div className="flex flex-col">
-                                        <button onClick={() => togglePicker("type")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <Sparkles className="w-[20px] h-[20px] text-[#8e8e93]" />
-                                                <span className="text-white text-[16px] font-medium">Type</span>
-                                            </div>
-                                            <span className="text-[#8e8e93] text-[16px]">{eventType}</span>
-                                        </button>
-                                        {activePicker === "type" && (
-                                            <div className="flex items-center justify-center py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
-                                                <WheelPicker items={EVENT_TYPES} value={eventType} onChange={setEventType} />
+                                {eventType === "Wallet Actions" && (
+                                    <>
+                                        <div className="flex flex-col">
+                                            <button onClick={() => togglePicker("walletAction")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] transition-colors">
+                                                <span className="font-medium text-white">Rule</span><span className="text-blue-500 truncate max-w-[150px]">{walletAction}</span>
+                                            </button>
+                                            {activePicker === "walletAction" && <div className="bg-black/20 p-2 origin-top animate-in zoom-in-95 slide-in-from-top-2 fade-in duration-200 ease-out"><WheelPicker items={["Notify if I receive", "Notify if I spend", "Any Jetton Receive", "NFT Transfer"]} value={walletAction} onChange={setWalletAction} /></div>}
+                                        </div>
+                                        {(walletAction === "Notify if I receive" || walletAction === "Notify if I spend") && (
+                                            <div className="flex flex-col">
+                                                <button onClick={() => togglePicker("walletAmount")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] transition-colors">
+                                                    <span className="font-medium text-white">Amount Threshold</span><span className="text-blue-500">&gt; {walletAmount} TON</span>
+                                                </button>
+                                                {activePicker === "walletAmount" && <div className="bg-black/20 p-2 origin-top animate-in zoom-in-95 slide-in-from-top-2 fade-in duration-200 ease-out"><WheelPicker items={["1", "2", "5", "10", "20", "50", "100", "500"]} value={walletAmount} onChange={setWalletAmount} suffix="TON" /></div>}
                                             </div>
                                         )}
-                                    </div>
+                                    </>
+                                )}
 
-                                    {/* ── Icon & Title Row ── */}
+                                {eventType === "Automated Reports" && (
                                     <div className="flex flex-col">
-                                        <div className="flex items-center justify-between w-full p-4 border-b border-[#2c2c2e]">
+                                        <button onClick={() => togglePicker("reportType")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] transition-colors">
+                                            <span className="font-medium text-white">Report Frequency</span><span className="text-blue-500">{reportType}</span>
+                                        </button>
+                                        {activePicker === "reportType" && <div className="bg-black/20 p-2 origin-top animate-in zoom-in-95 slide-in-from-top-2 fade-in duration-200 ease-out"><WheelPicker items={["Weekly Summary", "Monthly Summary", "Daily Recap"]} value={reportType} onChange={setReportType} /></div>}
+                                        <div className="p-4 bg-[#111] text-[13px] text-[#8e8e93] leading-relaxed">
+                                            Report includes: <br/>• TON received / spent<br/>• Top Jettons overview<br/>• Total transaction count<br/>• Approx. portfolio value
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Title & Icon (Para eventos normales) */}
+                                {eventType !== "Price Alerts" && eventType !== "Wallet Actions" && eventType !== "Automated Reports" && (
+                                    <div className="flex flex-col">
+                                        <div className="flex justify-between w-full p-4 items-center">
                                             <button onClick={() => togglePicker("icon")} className="flex items-center gap-3 active:opacity-70">
                                                 <div className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center">
-                                                    {ICON_MAP[taskIcon] || <CalendarDays className="w-4 h-4 text-white" />}
+                                                    <div style={{ color: taskColor }}>{ICON_MAP[taskIcon] || <CalendarDays className="w-4 h-4" />}</div>
                                                 </div>
-                                                <span className="text-white text-[16px] font-medium">Title</span>
+                                                <span className="font-medium text-white">Title</span>
                                             </button>
-                                            <input type="text" placeholder="Add" value={taskTitle} onChange={e=>setTaskTitle(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" />
+                                            <input value={taskTitle} onChange={e => setTaskTitle(e.target.value)} className="bg-transparent text-right text-blue-500 outline-none w-1/2 font-medium" placeholder="Add title..." />
                                         </div>
                                         {activePicker === "icon" && (
-                                            <div className="grid grid-cols-6 gap-3 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
+                                            <div className="grid grid-cols-6 gap-3 py-4 px-4 bg-[#0a0a0a] rounded-[20px] m-2 origin-top animate-in zoom-in-95 slide-in-from-top-2 fade-in duration-200 ease-out">
                                                 {Object.keys(ICON_MAP).map(key => (
-                                                    <button key={key} onClick={() => { setTaskIcon(key); setActivePicker(null); }} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${taskIcon === key ? 'bg-blue-500 text-white' : 'bg-[#2c2c2e] text-[#8e8e93]'}`}>
-                                                        {ICON_MAP[key]}
+                                                    <button key={key} onClick={() => { setTaskIcon(key); setActivePicker(null); }} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${taskIcon === key ? 'bg-[#333]' : 'bg-transparent text-[#8e8e93]'}`}>
+                                                        <div style={{ color: taskIcon === key ? taskColor : undefined }}>{ICON_MAP[key]}</div>
                                                     </button>
                                                 ))}
                                             </div>
                                         )}
                                     </div>
+                                )}
 
-                                    {/* ── Time Row ── */}
-                                    <div className="flex flex-col">
-                                        <button onClick={() => togglePicker("time")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <Clock className="w-[20px] h-[20px] text-[#8e8e93]" />
-                                                <span className="text-white text-[16px] font-medium">Time</span>
-                                            </div>
-                                            <span className="text-[#8e8e93] text-[16px]">{selHour}:{selMin}</span>
-                                        </button>
-                                        {activePicker === "time" && (
-                                            <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
-                                                <WheelPicker items={hours} value={selHour} onChange={setSelHour} suffix="h" />
-                                                <span className="text-xl font-bold text-[#636366]">:</span>
-                                                <WheelPicker items={mins} value={selMin} onChange={setSelMin} suffix="m" />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* ── Calendar Row ── */}
-                                    <div className="flex flex-col">
-                                        <button onClick={() => togglePicker("calendar")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <CalendarDays className="w-[20px] h-[20px] text-[#8e8e93]" />
-                                                <span className="text-white text-[16px] font-medium">Calendar</span>
-                                            </div>
-                                            <span className="text-[#8e8e93] text-[16px]">{selMonth} {selDayNum}</span>
-                                        </button>
-                                        {activePicker === "calendar" && (
-                                            <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
-                                                <WheelPicker items={months} value={selMonth} onChange={setSelMonth} />
-                                                <WheelPicker items={days} value={selDayNum} onChange={setSelDayNum} />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* ── Dynamic Config Rows ── */}
-                                    {eventType === "Schedule Email" && (
-                                        <div className="flex items-center justify-between w-full p-4">
-                                            <div className="flex items-center gap-3"><AtSign className="w-[20px] h-[20px] text-[#8e8e93]" /><span className="text-white text-[16px] font-medium">Recipient</span></div>
-                                            <input type="email" placeholder="client@ex.com" value={taskEmailRec} onChange={e=>setTaskEmailRec(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" />
+                                {/* Time Picker */}
+                                <div className="flex flex-col">
+                                    <button onClick={() => togglePicker("time")} className="flex justify-between w-full p-4 items-center active:bg-[#2c2c2e] transition-colors">
+                                        <span className="font-medium text-white">Time</span><span className="text-blue-500">{selHour}:{selMin}</span>
+                                    </button>
+                                    {activePicker === "time" && (
+                                        <div className="flex gap-4 p-4 bg-black/20 origin-top animate-in zoom-in-95 slide-in-from-top-2 fade-in duration-200 ease-out">
+                                            <WheelPicker items={hours} value={selHour} onChange={setSelHour} suffix="h" />
+                                            <WheelPicker items={mins} value={selMin} onChange={setSelMin} suffix="m" />
                                         </div>
                                     )}
+                                </div>
 
-                                    {/* ── Reminders Row ── */}
-                                    <div className="flex flex-col">
-                                        <button onClick={() => togglePicker("reminder")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <Bell className="w-[20px] h-[20px] text-[#8e8e93]" />
-                                                <span className="text-white text-[16px] font-medium">Reminders</span>
-                                            </div>
-                                            <span className="text-[#8e8e93] text-[16px]">{selRemMin}m {selRemSec}s</span>
-                                        </button>
-                                        {activePicker === "reminder" && (
-                                            <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
-                                                <WheelPicker items={mins} value={selRemMin} onChange={setSelRemMin} suffix="m" />
-                                                <WheelPicker items={secs} value={selRemSec} onChange={setSelRemSec} suffix="s" />
-                                            </div>
-                                        )}
-                                    </div>
+                                {/* Priority Toggle */}
+                                <div className="flex justify-between w-full p-4 items-center">
+                                    <span className="font-medium text-white">Set Priority</span>
+                                    <button onClick={() => setIsPriority(!isPriority)} className={`w-12 h-6 rounded-full relative transition-all ${isPriority ? 'bg-blue-500' : 'bg-[#333]'}`}>
+                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isPriority ? 'left-7' : 'left-1'}`} />
+                                    </button>
+                                </div>
+
+                                {/* Color Theme Picker */}
+                                <div className="flex flex-col">
+                                    <button onClick={() => togglePicker("color")} className="flex justify-between w-full p-4 items-center active:bg-[#2c2c2e] transition-colors">
+                                        <span className="font-medium text-white">Theme Color</span>
+                                        <div className="w-5 h-5 rounded-full" style={{ background: taskColor }} />
+                                    </button>
+                                    {activePicker === "color" && (
+                                        <div className="flex justify-around p-4 bg-black/20 origin-top animate-in zoom-in-95 slide-in-from-top-2 fade-in duration-200 ease-out">
+                                            {THEME_COLORS.map(c => (
+                                                <button key={c.hex} onClick={() => { setTaskColor(c.hex); setActivePicker(null); }} className={`w-10 h-10 rounded-full border-4 transition-all ${taskColor === c.hex ? 'border-white scale-110' : 'border-transparent'}`} style={{ background: c.hex }} />
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-
-                            {/* ── Description (Textarea expandible) ── */}
+                            
+                            {/* Textarea para descripción */}
                             <div className="bg-[#1c1c1e] rounded-[28px] p-4 flex flex-col gap-2">
-                                <div className="flex items-center gap-3 pl-2">
-                                    <AlignLeft className="w-[20px] h-[20px] text-[#8e8e93]" />
-                                    <span className="text-white text-[16px] font-medium">Description</span>
-                                </div>
+                                <span className="text-white text-[16px] font-medium pl-1">Description</span>
                                 <textarea 
                                     rows={3}
                                     placeholder="Optional notes or details..."
                                     value={taskDesc}
                                     onChange={e=>setTaskDesc(e.target.value)}
-                                    className="w-full bg-transparent text-white placeholder:text-[#636366] resize-none focus:outline-none p-2 text-[15px] leading-relaxed"
+                                    className="w-full bg-transparent text-white placeholder:text-[#636366] resize-none focus:outline-none p-1 text-[15px] leading-relaxed"
                                     style={{ fontFamily: SF }}
                                 />
                             </div>
 
-                            <div className="mt-4 pb-4">
-                                <button onClick={handleSaveConfig} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px]">
-                                    Save Schedule
-                                </button>
-                            </div>
+                            <button onClick={handleSaveConfig} className="w-full py-4 bg-white text-black font-bold rounded-2xl mt-4 active:scale-95 transition-all text-[16px]">Save Schedule</button>
                         </div>
                     </div>
                 </div>
