@@ -57,19 +57,19 @@ const TIMEZONES = [
     "Mumbai (GMT+5:30)", "Bangkok (GMT+7)"
 ]
 
-// ── Event Types (Incluye los nuevos On-Chain/Crypto) ──
+// ── Event Types (Incluye On-Chain/Crypto) ──
 const EVENT_TYPES = [
     "Custom Event", "Personal Reminder", "Schedule Email", 
-    "Price Alerts", "Wallet Actions", "Automated Reports", // NUEVOS 🚀
+    "Price Alerts", "Wallet Actions", "Automated Reports", 
     "Drive Upload", "Workout / Gym", "Deep Work", 
     "Meal Time", "Send Message"
 ]
 
-// ── Sugerencias Compactas ──
+// ── Sugerencias en Formato Píldora (Réplica de Highlights) ──
 const SUGGESTIONS = [
-    { id: "sug_run", title: "Outdoor\nrun", time: "1:30 – 2 PM", icon: <TrendingUp className="w-5 h-5 text-white" />, bg: "bg-[#22c55e]" },
-    { id: "sug_email", title: "Review\nEmails", time: "2:30 – 3:30 PM", icon: <Mail className="w-5 h-5 text-white" />, bg: "bg-[#3b82f6]" },
-    { id: "sug_tg", title: "Check\nChannels", time: "7 – 7:30 PM", icon: <CheckSquare className="w-5 h-5 text-white" />, bg: "bg-[#a855f7]" },
+    { id: "sug_run", title: "Outdoor run", time: "1:30 – 2 PM", details: "3 miles target", icon: <TrendingUp className="w-4 h-4 text-[#22c55e]" />, color: "#22c55e" },
+    { id: "sug_email", title: "Review Emails", time: "2:30 – 3:30 PM", details: "Inbox zero goal", icon: <Mail className="w-4 h-4 text-[#3b82f6]" />, color: "#3b82f6" },
+    { id: "sug_tg", title: "Check Channels", time: "7 – 7:30 PM", details: "Engagement stats", icon: <CheckSquare className="w-4 h-4 text-[#a855f7]" />, color: "#a855f7" },
 ]
 
 // ── Scroll Wheel Picker Component ──
@@ -251,12 +251,6 @@ export function ScheduleView() {
         else setActivePicker(picker)
     }
 
-    function openSuggested(title: string) {
-        setTaskTitle(title.replace('\n', ' '))
-        setEventType("Custom Event")
-        setConfigModalOpen(true)
-    }
-
     function handleSaveConfig() {
         setLoading(true)
         setTimeout(() => {
@@ -302,6 +296,7 @@ export function ScheduleView() {
 
                 {/* ── Calendar (M a S) ── */}
                 <div className="flex justify-between items-center px-6 mt-8">
+                    {/* ALL Button */}
                     <button 
                         onClick={() => setSelectedDate("All")}
                         className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate === "All" ? "bg-white text-black" : "bg-[#1c1c1e] text-[#8e8e93]"}`}
@@ -356,7 +351,7 @@ export function ScheduleView() {
                                     {t.title} <span className="opacity-60 font-normal ml-1">at {t.time}</span>
                                 </span>
                                 {isEditingMode && (
-                                    <button onClick={() => setTasks(tasks.filter(task => task.id !== t.id))} className="ml-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center active:scale-90 transition-transform">
+                                    <button onClick={() => setTasks(tasks.filter(task => task.id !== t.id))} className="ml-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center active:scale-90 transition-transform">
                                         <X className="w-3 h-3 text-white" />
                                     </button>
                                 )}
@@ -379,34 +374,31 @@ export function ScheduleView() {
                 {/* ── Dynamic Replace: Suggested vs Active Tasks ── */}
                 <div className="px-5 mt-10">
                     {tasks.length === 0 ? (
-                        <div className="animate-in fade-in duration-500">
-                            <div className="flex items-center justify-between mb-4 px-1">
-                                <div className="flex items-center gap-2">
-                                    <Sparkles className="w-4 h-4 text-[#8e8e93]" />
-                                    <span className="text-[#8e8e93] text-[13px] font-bold tracking-widest uppercase" style={{ fontFamily: SF }}>Suggested</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><ThumbsUp className="w-3.5 h-3.5 text-[#8e8e93]" /></div>
-                                    <div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><ThumbsDown className="w-3.5 h-3.5 text-[#8e8e93]" /></div>
-                                </div>
+                        <div className="animate-in fade-in duration-500 flex flex-col items-center">
+                            <div className="flex items-center gap-2 mb-5">
+                                <Sparkles className="w-4 h-4 text-[#8e8e93]" />
+                                <span className="text-[#8e8e93] text-[13px] font-bold tracking-widest uppercase" style={{ fontFamily: SF }}>Suggested</span>
                             </div>
 
-                            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-5 px-5">
+                            <div className="flex flex-col items-center gap-3 w-full">
                                 {SUGGESTIONS.map((sug, idx) => (
                                     <button 
                                         key={idx} 
-                                        onClick={() => openSuggested(sug.title)}
-                                        className="shrink-0 w-[115px] h-[110px] flex flex-col justify-between p-3.5 bg-[#111] border border-[#1c1c1e] rounded-[24px] active:scale-[0.96] transition-transform text-left"
+                                        onClick={() => { setEventType("Custom Event"); setTaskTitle(sug.title); setConfigModalOpen(true); }}
+                                        className="flex items-center justify-between w-full max-w-[320px] bg-[#1c1c1e] px-4 py-3.5 rounded-full border border-[#2c2c2e] active:scale-[0.98] transition-transform"
                                     >
-                                        <div className="flex items-start justify-between w-full">
-                                            <div className={`w-9 h-9 rounded-full ${sug.bg} flex items-center justify-center shadow-lg`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-full bg-black/40 flex items-center justify-center" style={{ border: `1px solid ${sug.color}40` }}>
                                                 {sug.icon}
                                             </div>
-                                            <div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center">
-                                                <Plus className="w-4 h-4 text-white" />
+                                            <div className="flex flex-col items-start leading-tight">
+                                                <span className="text-[15px] font-medium" style={{ color: sug.color, fontFamily: SF }}>{sug.title}</span>
+                                                <span className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>{sug.details} • {sug.time}</span>
                                             </div>
                                         </div>
-                                        <span className="text-white text-[14px] font-medium leading-tight whitespace-pre-line" style={{ fontFamily: SF }}>{sug.title}</span>
+                                        <div className="w-7 h-7 rounded-full bg-black/40 flex items-center justify-center mr-1">
+                                            <Plus className="w-4 h-4 text-white/70" />
+                                        </div>
                                     </button>
                                 ))}
                             </div>
@@ -426,7 +418,7 @@ export function ScheduleView() {
                                 filteredTasks.map(task => (
                                     <div key={task.id} className={`relative ${isEditingMode ? 'jiggle-card' : ''}`}>
                                         
-                                        {/* ── Diseño de Tarjeta Restaurado ── */}
+                                        {/* ── Diseño de Tarjeta Grande ── */}
                                         <div className="bg-[#111] border border-[#1c1c1e] rounded-[32px] p-6 shadow-lg">
                                             <div className="flex items-center justify-between mb-5">
                                                 <h3 className="text-white text-[22px] font-bold tracking-tight truncate pr-2" style={{ fontFamily: SFD }}>{task.title}</h3>
@@ -436,12 +428,14 @@ export function ScheduleView() {
                                             </div>
                                             
                                             <div className="flex flex-wrap gap-2.5">
+                                                {/* Icon Tag */}
                                                 <div className="flex items-center gap-2 px-3.5 py-2 bg-[#1c1c1e] rounded-[14px]">
                                                     <div style={{ color: task.color || '#8e8e93' }}>
                                                         {ICON_MAP[task.iconName] || <CalendarDays className="w-4 h-4" />}
                                                     </div>
                                                     <span className="text-white text-[13px] font-medium" style={{ fontFamily: SF }}>{task.iconName || "Event"}</span>
                                                 </div>
+                                                {/* Time Tag */}
                                                 <div className="flex items-center gap-2 px-3.5 py-2 bg-[#1c1c1e] rounded-[14px]">
                                                     <Clock className="w-4 h-4 text-[#8e8e93]" />
                                                     <span className="text-white text-[13px] font-medium" style={{ fontFamily: SF }}>{task.time}</span>
@@ -462,22 +456,19 @@ export function ScheduleView() {
                             )}
                         </div>
                     )}
-
                 </div>
 
-                {/* ── TON Live Chart & Tracker Card (Nueva) ── */}
-                <div className="px-5 mt-6 mb-10">
+                {/* ── TON Live Chart & Tracker Card ── */}
+                <div className="px-5 mt-8 mb-10">
                     <div className="bg-[#111] border border-[#1c1c1e] rounded-[32px] p-6 shadow-2xl relative overflow-hidden">
                         {/* Glow background */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-[#0098EA] rounded-full blur-[80px] opacity-10 pointer-events-none" />
                         
                         <div className="flex justify-between items-start mb-6 relative z-10">
                             <div className="flex gap-3 items-center">
-                                <div className="w-12 h-12 bg-[#0098EA] rounded-full flex items-center justify-center shadow-lg">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 2L2 12L12 22L22 12L12 2Z" fill="white"/>
-                                        <path d="M12 8L7 12L12 16L17 12L12 8Z" fill="#0098EA"/>
-                                    </svg>
+                                <div className="w-12 h-12 rounded-full overflow-hidden border border-[#2c2c2e] bg-[#1c1c1e] flex items-center justify-center shadow-lg">
+                                    {/* Requiere que subas la imagen a /public/TON-ICON.png */}
+                                    <img src="/TON-ICON.png" alt="TON" className="w-full h-full object-cover" />
                                 </div>
                                 <div>
                                     <h3 className="text-white text-[20px] font-bold leading-none" style={{ fontFamily: SFD }}>TON <span className="text-[#8e8e93] text-[14px] font-medium ml-1">The Open Network</span></h3>
