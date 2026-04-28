@@ -11,6 +11,7 @@ import { ProfileView } from "@/components/profile-view"
 import { XRewardsView } from "@/components/x-rewards-view" 
 import { AnalyticsView } from "@/components/analytics-view"
 import { GroupSettingsView } from "@/components/group-settings-view"
+import { ScheduleView } from "@/components/schedule-view" // <-- AÑADIDO
 import { useEffect, useState } from "react"
 import { Home, Coins, Activity, CircleUser, Loader2 } from "lucide-react"
 
@@ -38,7 +39,7 @@ function NavBar() {
   const tabs: Tab[] = [
     { id: "home",      label: "Home",      icon: Home },
     { id: "store",     label: "Store",     icon: Coins },
-    { id: "analytics", label: "Analytics", icon: Activity }, // Habilitado quitando disabled: true
+    { id: "analytics", label: "Analytics", icon: Activity },
     { id: "profile",   label: "Profile",   icon: CircleUser },
   ]
 
@@ -125,24 +126,20 @@ function AppContent() {
   const { currentView, isLoading } = useApp()
   const showNav = ["home", "store", "analytics", "profile"].includes(currentView)
 
-  // Estados para la transición de carga
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
   const [fadeLoading, setFadeLoading] = useState(false)
 
-  // ── Soportes de Telegram: Fullscreen Real & Ready ──
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
     if (tg) {
-      tg.ready()    // Avisa a Telegram que la app está montada
-      
-      // Nueva API de Telegram (8.0+) para el modo Fullscreen verdadero
+      tg.ready()    
       try {
         if (tg.requestFullscreen) {
           tg.requestFullscreen()
         } else {
-          tg.expand() // Fallback para usuarios con Telegram desactualizado
+          tg.expand()
         }
       } catch (e) {
         tg.expand()
@@ -150,7 +147,6 @@ function AppContent() {
     }
   }, [])
 
-  // ── Lógica Inteligente para Precargar Imágenes ──
   useEffect(() => {
     const checkImages = () => {
       const images = Array.from(document.images)
@@ -169,17 +165,13 @@ function AppContent() {
         if (img.complete) {
           checkDone()
         } else {
-          // Escuchamos a que la imagen se descargue o falle para no trabar la app
           img.addEventListener('load', checkDone, { once: true })
           img.addEventListener('error', checkDone, { once: true }) 
         }
       })
     }
 
-    // Le damos a React 50ms para que inyecte las <img> en el DOM y las encuentre
     const timer = setTimeout(checkImages, 50)
-    
-    // Timeout de seguridad: Si el internet es muy lento, forzamos quitar la carga a los 3 segundos
     const fallback = setTimeout(() => setImagesLoaded(true), 3000) 
 
     return () => {
@@ -188,13 +180,9 @@ function AppContent() {
     }
   }, [currentView])
 
-  // ── Control de Transición de Pantalla de Carga ──
   useEffect(() => {
-    // Solo quitamos la carga si el servidor ya respondió (isLoading=false) Y las imágenes descargaron
     if (!isLoading && imagesLoaded) {
-      setFadeLoading(true) // Inicia el desvanecimiento CSS (opacity-0)
-      
-      // Esperamos que termine la animación (400ms) para destruir el div y liberar recursos
+      setFadeLoading(true) 
       const t = setTimeout(() => setShowLoading(false), 400) 
       return () => clearTimeout(t)
     }
@@ -202,7 +190,6 @@ function AppContent() {
 
   return (
     <>
-      {/* ── Pantalla de Carga Flotante ── */}
       {showLoading && (
         <div 
           className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${fadeLoading ? "opacity-0" : "opacity-100"}`}
@@ -211,10 +198,6 @@ function AppContent() {
         </div>
       )}
 
-      {/* ── Contenido Principal ── 
-          Renderizamos esto SIEMPRE (incluso bajo la pantalla negra) para 
-          que el navegador descubra los links de las imágenes y empiece a descargarlas.
-      */}
       <div 
         className="bg-black flex flex-col relative" 
         style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
@@ -228,6 +211,7 @@ function AppContent() {
         {currentView === "x-rewards" && <XRewardsView />}
         {currentView === "analytics" && <AnalyticsView />}
         {currentView === "group-settings" && <GroupSettingsView />}
+        {currentView === "schedule"  && <ScheduleView />} {/* <-- AÑADIDO */}
         
         {showNav && <NavBar />}
       </div>
