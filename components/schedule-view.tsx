@@ -17,7 +17,7 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 type NavTab = "tasks" | "edit" | "search" | "create"
 type ScheduleType = "email" | "drive" | "reminder" | "telegram_channel" | "custom" | "suggested" | null
 
-// ── Icon Dictionary Extendida ──
+// ── Icon Dictionary (Extendido) ──
 const ICON_MAP: Record<string, React.ReactNode> = {
     CalendarDays: <CalendarDays className="w-5 h-5" />,
     Clock: <Clock className="w-5 h-5" />,
@@ -37,7 +37,6 @@ const ICON_MAP: Record<string, React.ReactNode> = {
     Plane: <Plane className="w-5 h-5" />
 }
 
-// ── Colores de Temas ──
 const THEME_COLORS = [
     { name: "Blue", hex: "#3b82f6" },
     { name: "Emerald", hex: "#10b981" },
@@ -46,42 +45,26 @@ const THEME_COLORS = [
     { name: "Rose", hex: "#f43f5e" },
 ]
 
-// ── Zonas Horarias Extendidas ──
 const TIMEZONES = [
-    "Los Angeles (GMT-8)",
-    "Mexico City (GMT-6)",
-    "Bogota / Lima (GMT-5)",
-    "New York (GMT-5)",
-    "Caracas (GMT-4)",
-    "Buenos Aires (GMT-3)",
-    "Sao Paulo (GMT-3)",
-    "London (GMT+0)",
-    "Madrid / Paris (GMT+1)",
-    "Moscow (GMT+3)",
-    "Dubai (GMT+4)",
-    "Mumbai (GMT+5:30)",
-    "Bangkok (GMT+7)",
-    "Tokyo (GMT+9)",
-    "Sydney (GMT+10)"
+    "New York (GMT-5)", "London (GMT+0)", "Madrid (GMT+1)", 
+    "Mexico City (GMT-6)", "Tokyo (GMT+9)", "Dubai (GMT+4)",
+    "Sydney (GMT+9)", "Paris (GMT+1)", "Los Angeles (GMT-8)",
+    "Bogota (GMT-5)", "Buenos Aires (GMT-3)", "Moscow (GMT+3)",
+    "Mumbai (GMT+5:30)", "Bangkok (GMT+7)"
 ]
 
 // ── Event Types para el Wheel Picker ──
 const EVENT_TYPES = [
-    "Custom Event", 
-    "Personal Reminder", 
-    "Schedule Email", 
-    "Drive Upload", 
-    "Workout / Gym", 
-    "Deep Work", 
-    "Meal Time", 
-    "Send Message"
+    "Custom Event", "Personal Reminder", "Schedule Email", 
+    "Drive Upload", "Workout / Gym", "Deep Work", 
+    "Meal Time", "Send Message", "Travel / Commute", "Study / Read"
 ]
 
-// ── Sugerencias (Réplica exacta de la lista) ──
+// ── Sugerencias Compactas ──
 const SUGGESTIONS = [
-    { id: "sug_run", title: "Outdoor run", time: "1:30 – 2 PM", icon: <TrendingUp className="w-[18px] h-[18px] text-[#22c55e]" />, bg: "bg-[#22c55e]/20" },
-    { id: "sug_email", title: "Apply to YC", time: "2:30 – 3:30 PM", icon: <CheckSquare className="w-[18px] h-[18px] text-[#3b82f6]" />, bg: "bg-[#3b82f6]/20" },
-    { id: "sug_tg", title: "Order vitamin D", time: "7 – 7:30 PM", icon: <CheckSquare className="w-[18px] h-[18px] text-[#a855f7]" />, bg: "bg-[#a855f7]/20" },
+    { id: "sug_run", title: "Outdoor\nrun", time: "1:30 – 2 PM", icon: <TrendingUp className="w-5 h-5 text-white" />, bg: "bg-[#22c55e]" },
+    { id: "sug_email", title: "Review\nEmails", time: "2:30 – 3:30 PM", icon: <Mail className="w-5 h-5 text-white" />, bg: "bg-[#3b82f6]" },
+    { id: "sug_tg", title: "Check\nChannels", time: "7 – 7:30 PM", icon: <CheckSquare className="w-5 h-5 text-white" />, bg: "bg-[#a855f7]" },
 ]
 
 // ── Scroll Wheel Picker Component ──
@@ -126,32 +109,41 @@ function WheelPicker({ items, value, onChange, suffix = "" }: { items: string[],
 export function ScheduleView() {
     const { setCurrentView } = useApp()
     
+    // Lista de Tareas (inicia vacía para mostrar "Suggested")
     const [tasks, setTasks] = useState<any[]>([]) 
     const [selectedDate, setSelectedDate] = useState<string | "All">("All")
     const [activeNavTab, setActiveNavTab] = useState<NavTab>("tasks")
     const [isEditingMode, setIsEditingMode] = useState(false)
     
     // Modales y Pickers
-    const [showTZPicker, setShowTZPicker] = useState(true) // Inicia mostrando zona horaria
+    const [showTZPicker, setShowTZPicker] = useState(true) 
     const [configModalOpen, setConfigModalOpen] = useState(false)
-    const [activePicker, setActivePicker] = useState<string | null>(null) // "type", "time", "date", "reminder", "icon", "color"
+    const [activePicker, setActivePicker] = useState<string | null>(null) // Controla qué sub-sección está desplegada
     const [loading, setLoading] = useState(false)
 
     // Form states
     const [tz, setTz] = useState("Mexico City (GMT-6)")
     const [eventType, setEventType] = useState("Custom Event")
     const [taskIcon, setTaskIcon] = useState("CalendarDays")
-    const [taskColor, setTaskColor] = useState("#3b82f6") // Default blue
+    const [taskColor, setTaskColor] = useState("#3b82f6")
     const [taskTitle, setTaskTitle] = useState("")
     const [taskDesc, setTaskDesc] = useState("")
+    const [taskEmailRec, setTaskEmailRec] = useState("")
     const [isPriority, setIsPriority] = useState(false)
     
     const [selHour, setSelHour] = useState("08")
     const [selMin, setSelMin] = useState("00")
+    const [selMonth, setSelMonth] = useState("Sep")
+    const [selDayNum, setSelDayNum] = useState("23")
+    const [selRemMin, setSelRemMin] = useState("10")
+    const [selRemSec, setSelRemSec] = useState("00")
 
     // Generators
     const hours = Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0'))
     const mins = Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0'))
+    const secs = Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0'))
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    const days = Array.from({length: 31}, (_, i) => (i + 1).toString())
 
     // ── Update fields dynamically based on Event Type ──
     useEffect(() => {
@@ -162,14 +154,16 @@ export function ScheduleView() {
         else if(eventType === "Send Message") { setTaskIcon("MessageSquare"); setTaskTitle("Send Message"); setTaskColor("#3b82f6") }
         else if(eventType === "Drive Upload") { setTaskIcon("Folder"); setTaskTitle("Backup to Drive"); setTaskColor("#10b981") }
         else if(eventType === "Personal Reminder") { setTaskIcon("Bell"); setTaskTitle("Reminder"); setTaskColor("#f59e0b") }
+        else if(eventType === "Travel / Commute") { setTaskIcon("Car"); setTaskTitle("Commute"); setTaskColor("#8b5cf6") }
+        else if(eventType === "Study / Read") { setTaskIcon("BookOpen"); setTaskTitle("Study Time"); setTaskColor("#3b82f6") }
         else { setTaskIcon("CalendarDays"); setTaskTitle(""); setTaskColor("#3b82f6") }
     }, [eventType])
 
-    // ── Lógica del Calendario Superior (Empieza HOY) ──
+    // ── Lógica del Calendario Superior ──
     const calendarDays = useMemo(() => {
         const arr = []
         const today = new Date()
-
+        
         for (let i = 0; i < 7; i++) {
             const d = new Date(today)
             d.setDate(today.getDate() + i)
@@ -177,7 +171,7 @@ export function ScheduleView() {
                 full: d.toDateString(),
                 label: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
                 num: d.getDate().toString(),
-                isToday: i === 0 // El índice 0 siempre es hoy
+                isToday: i === 0
             })
         }
         return arr
@@ -186,41 +180,37 @@ export function ScheduleView() {
     const monthStr = new Date().toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
     const yearStr = new Date().getFullYear().toString()
 
-    // ── Filtros y Prioridades ──
     const filteredTasks = useMemo(() => {
-        // Excluimos las prioritarias de la lista general para que no se dupliquen
-        if (selectedDate === "All") return tasks.filter(t => !t.isPriority)
+        if (selectedDate === "All") return tasks.filter(t => !t.isPriority) // Evitar duplicar las prioritarias abajo
         return tasks.filter(t => t.date === selectedDate && !t.isPriority)
     }, [tasks, selectedDate])
 
-    const priorityTasks = useMemo(() => {
-        return tasks.filter(t => t.isPriority).slice(0, 2)
-    }, [tasks])
+    const priorityTasks = useMemo(() => tasks.filter(t => t.isPriority).slice(0, 2), [tasks])
 
-    // ── Botón Atrás Telegram (Soporte Nativo) ──
+    // ── Botón Atrás Telegram (Soporte Nativo de Capas) ──
     useEffect(() => {
         const tg = (window as any).Telegram?.WebApp
         if (!tg?.BackButton) return
         
-        // Mostrar back button si hay algún modal o selector abierto
-        if (isEditingMode || configModalOpen || activePicker || showTZPicker) tg.BackButton.show()
+        // Muestra el botón si hay algo abierto por encima de la vista principal o si está en modo edición
+        if (isEditingMode || configModalOpen || showTZPicker) tg.BackButton.show()
         else tg.BackButton.hide()
 
         const handleBack = () => {
             if (showTZPicker) {
+                // Si el usuario da atrás en la selección de zona horaria, se va al home
                 setShowTZPicker(false)
                 setCurrentView("home")
                 tg.BackButton.hide()
             } else if (activePicker) {
+                // Cierra la opción desplegable (animación fluida de regreso)
                 setActivePicker(null)
             } else if (configModalOpen) {
                 setConfigModalOpen(false)
-            } else if (isEditingMode) { 
-                setIsEditingMode(false); 
-                setActiveNavTab("tasks") 
-            } else { 
-                setCurrentView("home"); 
-                tg.BackButton.hide() 
+            } else if (isEditingMode) {
+                setIsEditingMode(false); setActiveNavTab("tasks")
+            } else {
+                setCurrentView("home"); tg.BackButton.hide()
             }
         }
         tg.BackButton.onClick(handleBack)
@@ -234,11 +224,11 @@ export function ScheduleView() {
             setActiveNavTab(isEditingMode ? "tasks" : "edit")
         } else if (tab === "create") {
             setIsEditingMode(false) 
-            setConfigModalOpen(true)
-            setActiveNavTab("create")
             setTaskTitle("")
             setTaskDesc("")
-            setIsPriority(false)
+            setEventType("Custom Event")
+            setConfigModalOpen(true)
+            setActiveNavTab("create")
         } else {
             setIsEditingMode(false)
             setConfigModalOpen(false)
@@ -249,6 +239,12 @@ export function ScheduleView() {
     function togglePicker(picker: string) {
         if (activePicker === picker) setActivePicker(null)
         else setActivePicker(picker)
+    }
+
+    function openSuggested(title: string) {
+        setTaskTitle(title.replace('\n', ' '))
+        setEventType("Custom Event")
+        setConfigModalOpen(true)
     }
 
     function handleSaveConfig() {
@@ -266,6 +262,9 @@ export function ScheduleView() {
             }, ...prev])
             setConfigModalOpen(false)
             setActivePicker(null)
+            setTaskTitle("")
+            setTaskDesc("")
+            setIsPriority(false)
             setLoading(false)
             setActiveNavTab("tasks")
         }, 600)
@@ -280,8 +279,8 @@ export function ScheduleView() {
                 .wheel-mask { mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%); }
             `}</style>
 
-            <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('/landscape.jpg')", filter: "blur(60px)" }} />
-            <div className="absolute inset-0 z-1 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(17,17,17,0.4) 0%, rgba(17,17,17,1) 100%)" }} />
+            <div className="absolute inset-0 z-0 bg-cover bg-center opacity-30" style={{ backgroundImage: "url('/landscape.jpg')", filter: "blur(50px)" }} />
+            <div className="absolute inset-0 z-1 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.95) 100%)" }} />
 
             <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar">
                 
@@ -291,8 +290,9 @@ export function ScheduleView() {
                     <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{ fontFamily: SFD }}>{yearStr}</span>
                 </div>
 
-                {/* ── Calendar (Starts from Today) ── */}
+                {/* ── Calendar (M a S) ── */}
                 <div className="flex justify-between items-center px-6 mt-8">
+                    {/* ALL Button */}
                     <button 
                         onClick={() => setSelectedDate("All")}
                         className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate === "All" ? "bg-white text-black" : "bg-[#1c1c1e] text-[#8e8e93]"}`}
@@ -341,13 +341,13 @@ export function ScheduleView() {
                 <div className="mt-6 flex flex-col items-center gap-3 px-5">
                     {priorityTasks.length > 0 ? (
                         priorityTasks.map(t => (
-                            <div key={t.id} className={`flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e] ${isEditingMode ? 'jiggle-card' : ''}`}>
+                            <div key={t.id} className={`flex items-center gap-3 bg-[#1c1c1e]/60 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/5 animate-in zoom-in-95 w-fit ${isEditingMode ? 'jiggle-card' : ''}`} style={{ boxShadow: `0 0 20px ${t.color}15` }}>
                                 <div style={{ color: t.color }}>{ICON_MAP[t.iconName] || <CalendarDays className="w-4 h-4" />}</div>
-                                <span className="text-[14px] font-medium" style={{ color: t.color, fontFamily: SF }}>
-                                    {t.title} <span className="opacity-60 font-normal ml-1">at {t.time}</span>
+                                <span className="text-[14px] font-medium" style={{ color: t.color }}>
+                                    {t.title} <span className="opacity-60 font-normal">at {t.time}</span>
                                 </span>
                                 {isEditingMode && (
-                                    <button onClick={() => setTasks(tasks.filter(task => task.id !== t.id))} className="ml-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">
+                                    <button onClick={() => setTasks(tasks.filter(task => task.id !== t.id))} className="ml-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center active:scale-90 transition-transform">
                                         <X className="w-3 h-3 text-white" />
                                     </button>
                                 )}
@@ -382,20 +382,22 @@ export function ScheduleView() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-2">
+                            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-5 px-5">
                                 {SUGGESTIONS.map((sug, idx) => (
                                     <button 
                                         key={idx} 
-                                        onClick={() => { setEventType("Custom Event"); setTaskTitle(sug.title); setConfigModalOpen(true); }}
-                                        className="flex items-center justify-between w-full p-4 bg-[#1c1c1e] rounded-[20px] active:scale-[0.98] transition-transform text-left"
+                                        onClick={() => openSuggested(sug.title)}
+                                        className="shrink-0 w-[115px] h-[110px] flex flex-col justify-between p-3.5 bg-[#111] border border-[#1c1c1e] rounded-[24px] active:scale-[0.96] transition-transform text-left"
                                     >
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-9 h-9 rounded-full ${sug.bg} flex items-center justify-center`}>
+                                        <div className="flex items-start justify-between w-full">
+                                            <div className={`w-9 h-9 rounded-full ${sug.bg} flex items-center justify-center shadow-lg`}>
                                                 {sug.icon}
                                             </div>
-                                            <span className="text-white text-[16px] font-medium whitespace-pre-line leading-tight" style={{ fontFamily: SF }}>{sug.title}</span>
+                                            <div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center">
+                                                <Plus className="w-4 h-4 text-white" />
+                                            </div>
                                         </div>
-                                        <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{sug.time}</span>
+                                        <span className="text-white text-[14px] font-medium leading-tight whitespace-pre-line" style={{ fontFamily: SF }}>{sug.title}</span>
                                     </button>
                                 ))}
                             </div>
@@ -415,22 +417,29 @@ export function ScheduleView() {
                                 filteredTasks.map(task => (
                                     <div key={task.id} className={`relative ${isEditingMode ? 'jiggle-card' : ''}`}>
                                         
-                                        {/* ── Diseño Unificado de Tarjeta (Como las Highlights) ── */}
-                                        <div className="bg-[#1c1c1e] border border-[#2c2c2e] rounded-[28px] p-5 flex items-center justify-between shadow-lg">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-11 h-11 rounded-full flex items-center justify-center bg-[#000]/40" style={{ border: `1px solid ${task.color}30` }}>
-                                                    <div style={{ color: task.color }}>
-                                                        {ICON_MAP[task.iconName] || <CalendarDays className="w-5 h-5" />}
+                                        {/* ── Diseño de Tarjeta Restaurado ── */}
+                                        <div className="bg-[#111] border border-[#1c1c1e] rounded-[32px] p-6 shadow-lg">
+                                            <div className="flex items-center justify-between mb-5">
+                                                <h3 className="text-white text-[22px] font-bold tracking-tight truncate pr-2" style={{ fontFamily: SFD }}>{task.title}</h3>
+                                                <span className="shrink-0 px-3 py-1.5 rounded-[10px] text-[11px] font-bold uppercase tracking-wider" style={{ background: `${task.color || '#3b82f6'}20`, color: task.color || '#3b82f6', fontFamily: SF }}>
+                                                    {task.status}
+                                                </span>
+                                            </div>
+                                            
+                                            <div className="flex flex-wrap gap-2.5">
+                                                {/* Icon Tag */}
+                                                <div className="flex items-center gap-2 px-3.5 py-2 bg-[#1c1c1e] rounded-[14px]">
+                                                    <div style={{ color: task.color || '#8e8e93' }}>
+                                                        {ICON_MAP[task.iconName] || <CalendarDays className="w-4 h-4" />}
                                                     </div>
+                                                    <span className="text-white text-[13px] font-medium" style={{ fontFamily: SF }}>{task.iconName || "Event"}</span>
                                                 </div>
-                                                <div>
-                                                    <h3 className="text-white text-[17px] font-bold" style={{ fontFamily: SFD }}>{task.title}</h3>
-                                                    <p className="text-[#8e8e93] text-[13px] mt-0.5">{task.time}</p>
+                                                {/* Time Tag */}
+                                                <div className="flex items-center gap-2 px-3.5 py-2 bg-[#1c1c1e] rounded-[14px]">
+                                                    <Clock className="w-4 h-4 text-[#8e8e93]" />
+                                                    <span className="text-white text-[13px] font-medium" style={{ fontFamily: SF }}>{task.time}</span>
                                                 </div>
                                             </div>
-                                            <span className="bg-blue-500/15 text-blue-500 px-3 py-1 rounded-[10px] text-[10px] font-black tracking-wider uppercase">
-                                                {task.status}
-                                            </span>
                                         </div>
 
                                         {isEditingMode && (
@@ -499,9 +508,7 @@ export function ScheduleView() {
                         <div className="overflow-y-auto no-scrollbar pb-10 space-y-4">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-2xl font-bold tracking-tight" style={{ fontFamily: SFD }}>New Event</h3>
-                                <button onClick={() => { setConfigModalOpen(false); setActivePicker(null); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70">
-                                    <X className="w-5 h-5 text-[#8e8e93]" />
-                                </button>
+                                <button onClick={() => { setConfigModalOpen(false); setActivePicker(null); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70"><X className="w-5 h-5 text-[#8e8e93]" /></button>
                             </div>
                             
                             <div className="bg-[#1c1c1e] rounded-[28px] divide-y divide-white/5 overflow-hidden">
