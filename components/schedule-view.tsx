@@ -17,26 +17,27 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 type NavTab = "tasks" | "edit" | "search" | "create"
 type ScheduleType = "email" | "drive" | "reminder" | "telegram_channel" | "custom" | "suggested" | null
 
-// ── Icon Dictionary ──
+// ── Icon Dictionary Extendida ──
 const ICON_MAP: Record<string, React.ReactNode> = {
-    CalendarDays: <CalendarDays className="w-4 h-4" />,
-    Clock: <Clock className="w-4 h-4" />,
-    Bell: <Bell className="w-4 h-4" />,
-    Mail: <Mail className="w-4 h-4" />,
-    Folder: <Folder className="w-4 h-4" />,
-    Dumbbell: <Dumbbell className="w-4 h-4" />,
-    Briefcase: <Briefcase className="w-4 h-4" />,
-    Laptop: <Laptop className="w-4 h-4" />,
-    Utensils: <Utensils className="w-4 h-4" />,
-    MessageSquare: <MessageSquare className="w-4 h-4" />,
-    Send: <Send className="w-4 h-4" />,
-    Coffee: <Coffee className="w-4 h-4" />,
-    BookOpen: <BookOpen className="w-4 h-4" />,
-    Music: <Music className="w-4 h-4" />,
-    Car: <Car className="w-4 h-4" />,
-    Plane: <Plane className="w-4 h-4" />
+    CalendarDays: <CalendarDays className="w-5 h-5" />,
+    Clock: <Clock className="w-5 h-5" />,
+    Bell: <Bell className="w-5 h-5" />,
+    Mail: <Mail className="w-5 h-5" />,
+    Folder: <Folder className="w-5 h-5" />,
+    Dumbbell: <Dumbbell className="w-5 h-5" />,
+    Briefcase: <Briefcase className="w-5 h-5" />,
+    Laptop: <Laptop className="w-5 h-5" />,
+    Utensils: <Utensils className="w-5 h-5" />,
+    MessageSquare: <MessageSquare className="w-5 h-5" />,
+    Send: <Send className="w-5 h-5" />,
+    Coffee: <Coffee className="w-5 h-5" />,
+    BookOpen: <BookOpen className="w-5 h-5" />,
+    Music: <Music className="w-5 h-5" />,
+    Car: <Car className="w-5 h-5" />,
+    Plane: <Plane className="w-5 h-5" />
 }
 
+// ── Colores de Temas ──
 const THEME_COLORS = [
     { name: "Blue", hex: "#3b82f6" },
     { name: "Emerald", hex: "#10b981" },
@@ -66,16 +67,21 @@ const TIMEZONES = [
 
 // ── Event Types para el Wheel Picker ──
 const EVENT_TYPES = [
-    "Custom Event", "Personal Reminder", "Schedule Email", 
-    "Drive Upload", "Workout / Gym", "Deep Work", 
-    "Meal Time", "Send Message", "Travel / Commute", "Study / Read"
+    "Custom Event", 
+    "Personal Reminder", 
+    "Schedule Email", 
+    "Drive Upload", 
+    "Workout / Gym", 
+    "Deep Work", 
+    "Meal Time", 
+    "Send Message"
 ]
 
-// ── Sugerencias Compactas ──
+// ── Sugerencias (Réplica exacta de la lista) ──
 const SUGGESTIONS = [
-    { id: "sug_run", title: "Outdoor\nrun", time: "1:30 – 2 PM", icon: <TrendingUp className="w-5 h-5 text-white" />, bg: "bg-[#22c55e]" },
-    { id: "sug_email", title: "Review\nEmails", time: "2:30 – 3:30 PM", icon: <Mail className="w-5 h-5 text-white" />, bg: "bg-[#3b82f6]" },
-    { id: "sug_tg", title: "Check\nChannels", time: "7 – 7:30 PM", icon: <CheckSquare className="w-5 h-5 text-white" />, bg: "bg-[#a855f7]" },
+    { id: "sug_run", title: "Outdoor run", time: "1:30 – 2 PM", icon: <TrendingUp className="w-[18px] h-[18px] text-[#22c55e]" />, bg: "bg-[#22c55e]/20" },
+    { id: "sug_email", title: "Apply to YC", time: "2:30 – 3:30 PM", icon: <CheckSquare className="w-[18px] h-[18px] text-[#3b82f6]" />, bg: "bg-[#3b82f6]/20" },
+    { id: "sug_tg", title: "Order vitamin D", time: "7 – 7:30 PM", icon: <CheckSquare className="w-[18px] h-[18px] text-[#a855f7]" />, bg: "bg-[#a855f7]/20" },
 ]
 
 // ── Scroll Wheel Picker Component ──
@@ -105,7 +111,7 @@ function WheelPicker({ items, value, onChange, suffix = "" }: { items: string[],
                 return (
                     <div 
                         key={i} 
-                        className={`h-[40px] shrink-0 w-full flex items-center justify-center snap-center transition-all ${isSelected ? 'text-white text-[20px] font-bold' : 'text-[#636366] text-[18px] font-medium'}`}
+                        className={`h-[40px] shrink-0 w-full flex items-center justify-center snap-center transition-all duration-200 ${isSelected ? 'text-white text-[20px] font-bold' : 'text-[#636366] text-[18px] font-medium'}`}
                         style={{ fontFamily: SFD }}
                     >
                         {item}{suffix && isSelected ? <span className="text-[14px] ml-1 text-[#8e8e93]">{suffix}</span> : ""}
@@ -126,35 +132,28 @@ export function ScheduleView() {
     const [isEditingMode, setIsEditingMode] = useState(false)
     
     // Modales y Pickers
-    const [showTZPicker, setShowTZPicker] = useState(true) 
+    const [showTZPicker, setShowTZPicker] = useState(true) // Inicia mostrando zona horaria
     const [configModalOpen, setConfigModalOpen] = useState(false)
-    const [activePicker, setActivePicker] = useState<string | null>(null)
+    const [activePicker, setActivePicker] = useState<string | null>(null) // "type", "time", "date", "reminder", "icon", "color"
     const [loading, setLoading] = useState(false)
 
     // Form states
     const [tz, setTz] = useState("Mexico City (GMT-6)")
     const [eventType, setEventType] = useState("Custom Event")
     const [taskIcon, setTaskIcon] = useState("CalendarDays")
-    const [taskColor, setTaskColor] = useState("#3b82f6")
+    const [taskColor, setTaskColor] = useState("#3b82f6") // Default blue
     const [taskTitle, setTaskTitle] = useState("")
     const [taskDesc, setTaskDesc] = useState("")
-    const [taskEmailRec, setTaskEmailRec] = useState("")
     const [isPriority, setIsPriority] = useState(false)
     
     const [selHour, setSelHour] = useState("08")
     const [selMin, setSelMin] = useState("00")
-    const [selMonth, setSelMonth] = useState("Sep")
-    const [selDayNum, setSelDayNum] = useState("23")
-    const [selRemMin, setSelRemMin] = useState("10")
-    const [selRemSec, setSelRemSec] = useState("00")
 
+    // Generators
     const hours = Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0'))
     const mins = Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0'))
-    const secs = Array.from({length: 60}, (_, i) => i.toString().padStart(2, '0'))
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    const days = Array.from({length: 31}, (_, i) => (i + 1).toString())
 
-    // Update fields dynamically based on Event Type
+    // ── Update fields dynamically based on Event Type ──
     useEffect(() => {
         if(eventType === "Workout / Gym") { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); setTaskColor("#10b981") }
         else if(eventType === "Deep Work") { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); setTaskColor("#8b5cf6") }
@@ -163,27 +162,22 @@ export function ScheduleView() {
         else if(eventType === "Send Message") { setTaskIcon("MessageSquare"); setTaskTitle("Send Message"); setTaskColor("#3b82f6") }
         else if(eventType === "Drive Upload") { setTaskIcon("Folder"); setTaskTitle("Backup to Drive"); setTaskColor("#10b981") }
         else if(eventType === "Personal Reminder") { setTaskIcon("Bell"); setTaskTitle("Reminder"); setTaskColor("#f59e0b") }
-        else if(eventType === "Travel / Commute") { setTaskIcon("Car"); setTaskTitle("Commute"); setTaskColor("#8b5cf6") }
-        else if(eventType === "Study / Read") { setTaskIcon("BookOpen"); setTaskTitle("Study Time"); setTaskColor("#3b82f6") }
         else { setTaskIcon("CalendarDays"); setTaskTitle(""); setTaskColor("#3b82f6") }
     }, [eventType])
 
-    // Lógica del Calendario Superior
+    // ── Lógica del Calendario Superior (Empieza HOY) ──
     const calendarDays = useMemo(() => {
         const arr = []
         const today = new Date()
-        const currentDayOfWeek = today.getDay() || 7 
-        const startOfWeek = new Date(today)
-        startOfWeek.setDate(today.getDate() - currentDayOfWeek + 1)
 
         for (let i = 0; i < 7; i++) {
-            const d = new Date(startOfWeek)
-            d.setDate(startOfWeek.getDate() + i)
+            const d = new Date(today)
+            d.setDate(today.getDate() + i)
             arr.push({
                 full: d.toDateString(),
                 label: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
                 num: d.getDate().toString(),
-                isToday: d.toDateString() === today.toDateString()
+                isToday: i === 0 // El índice 0 siempre es hoy
             })
         }
         return arr
@@ -192,33 +186,41 @@ export function ScheduleView() {
     const monthStr = new Date().toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
     const yearStr = new Date().getFullYear().toString()
 
+    // ── Filtros y Prioridades ──
     const filteredTasks = useMemo(() => {
+        // Excluimos las prioritarias de la lista general para que no se dupliquen
         if (selectedDate === "All") return tasks.filter(t => !t.isPriority)
         return tasks.filter(t => t.date === selectedDate && !t.isPriority)
     }, [tasks, selectedDate])
 
-    const priorityTasks = useMemo(() => tasks.filter(t => t.isPriority).slice(0, 2), [tasks])
+    const priorityTasks = useMemo(() => {
+        return tasks.filter(t => t.isPriority).slice(0, 2)
+    }, [tasks])
 
-    // ── Botón Atrás Telegram (Integración Perfecta) ──
+    // ── Botón Atrás Telegram (Soporte Nativo) ──
     useEffect(() => {
         const tg = (window as any).Telegram?.WebApp
         if (!tg?.BackButton) return
         
-        // Siempre mostrar el botón en esta vista, ya que es una sub-vista del Home
-        tg.BackButton.show()
+        // Mostrar back button si hay algún modal o selector abierto
+        if (isEditingMode || configModalOpen || activePicker || showTZPicker) tg.BackButton.show()
+        else tg.BackButton.hide()
 
         const handleBack = () => {
             if (showTZPicker) {
-                setCurrentView("home"); tg.BackButton.hide()
+                setShowTZPicker(false)
+                setCurrentView("home")
+                tg.BackButton.hide()
             } else if (activePicker) {
                 setActivePicker(null)
             } else if (configModalOpen) {
                 setConfigModalOpen(false)
-            } else if (isEditingMode) {
-                setIsEditingMode(false); setActiveNavTab("tasks")
-            } else {
-                // Si no hay modales abiertos, regresar al Home
-                setCurrentView("home"); tg.BackButton.hide()
+            } else if (isEditingMode) { 
+                setIsEditingMode(false); 
+                setActiveNavTab("tasks") 
+            } else { 
+                setCurrentView("home"); 
+                tg.BackButton.hide() 
             }
         }
         tg.BackButton.onClick(handleBack)
@@ -232,11 +234,11 @@ export function ScheduleView() {
             setActiveNavTab(isEditingMode ? "tasks" : "edit")
         } else if (tab === "create") {
             setIsEditingMode(false) 
-            setTaskTitle("")
-            setTaskDesc("")
-            setEventType("Custom Event")
             setConfigModalOpen(true)
             setActiveNavTab("create")
+            setTaskTitle("")
+            setTaskDesc("")
+            setIsPriority(false)
         } else {
             setIsEditingMode(false)
             setConfigModalOpen(false)
@@ -247,12 +249,6 @@ export function ScheduleView() {
     function togglePicker(picker: string) {
         if (activePicker === picker) setActivePicker(null)
         else setActivePicker(picker)
-    }
-
-    function openSuggested(title: string) {
-        setTaskTitle(title.replace('\n', ' '))
-        setEventType("Custom Event")
-        setConfigModalOpen(true)
     }
 
     function handleSaveConfig() {
@@ -270,9 +266,6 @@ export function ScheduleView() {
             }, ...prev])
             setConfigModalOpen(false)
             setActivePicker(null)
-            setTaskTitle("")
-            setTaskDesc("")
-            setIsPriority(false)
             setLoading(false)
             setActiveNavTab("tasks")
         }, 600)
@@ -287,18 +280,18 @@ export function ScheduleView() {
                 .wheel-mask { mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%); }
             `}</style>
 
-            <div className="absolute inset-0 z-0 bg-cover bg-center opacity-30" style={{ backgroundImage: "url('/landscape.jpg')", filter: "blur(50px)" }} />
-            <div className="absolute inset-0 z-1 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.95) 100%)" }} />
+            <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('/landscape.jpg')", filter: "blur(60px)" }} />
+            <div className="absolute inset-0 z-1 pointer-events-none" style={{ background: "linear-gradient(to bottom, rgba(17,17,17,0.4) 0%, rgba(17,17,17,1) 100%)" }} />
 
             <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar">
                 
-                {/* Top Header */}
+                {/* ── Top Header ── */}
                 <div className="pt-10 flex justify-center items-end gap-1">
                     <span className="text-white text-[22px] font-bold" style={{ fontFamily: SFD }}>{monthStr}</span>
                     <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{ fontFamily: SFD }}>{yearStr}</span>
                 </div>
 
-                {/* Calendar */}
+                {/* ── Calendar (Starts from Today) ── */}
                 <div className="flex justify-between items-center px-6 mt-8">
                     <button 
                         onClick={() => setSelectedDate("All")}
@@ -329,7 +322,7 @@ export function ScheduleView() {
                     })}
                 </div>
 
-                {/* Stats */}
+                {/* ── Stats ── */}
                 <div className="mt-10 flex flex-col items-center">
                     <p className="text-[#8e8e93] text-[14px] font-bold tracking-widest uppercase mb-3" style={{ fontFamily: SF }}>Schedule</p>
                     <div className="flex items-center gap-6 text-[26px] font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>
@@ -344,17 +337,17 @@ export function ScheduleView() {
                     </div>
                 </div>
 
-                {/* Highlights */}
+                {/* ── Highlights / Priority Tasks ── */}
                 <div className="mt-6 flex flex-col items-center gap-3 px-5">
                     {priorityTasks.length > 0 ? (
                         priorityTasks.map(t => (
-                            <div key={t.id} className={`flex items-center gap-3 bg-[#1c1c1e]/60 backdrop-blur-md px-5 py-2.5 rounded-full border border-white/5 animate-in zoom-in-95 w-fit ${isEditingMode ? 'jiggle-card' : ''}`} style={{ boxShadow: `0 0 20px ${t.color}15` }}>
+                            <div key={t.id} className={`flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e] ${isEditingMode ? 'jiggle-card' : ''}`}>
                                 <div style={{ color: t.color }}>{ICON_MAP[t.iconName] || <CalendarDays className="w-4 h-4" />}</div>
-                                <span className="text-[14px] font-medium" style={{ color: t.color }}>
-                                    {t.title} <span className="opacity-60 font-normal">at {t.time}</span>
+                                <span className="text-[14px] font-medium" style={{ color: t.color, fontFamily: SF }}>
+                                    {t.title} <span className="opacity-60 font-normal ml-1">at {t.time}</span>
                                 </span>
                                 {isEditingMode && (
-                                    <button onClick={() => setTasks(tasks.filter(task => task.id !== t.id))} className="ml-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center active:scale-90 transition-transform">
+                                    <button onClick={() => setTasks(tasks.filter(task => task.id !== t.id))} className="ml-2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">
                                         <X className="w-3 h-3 text-white" />
                                     </button>
                                 )}
@@ -374,7 +367,7 @@ export function ScheduleView() {
                     )}
                 </div>
 
-                {/* Suggested vs Active Tasks */}
+                {/* ── Dynamic Replace: Suggested vs Active Tasks ── */}
                 <div className="px-5 mt-10">
                     {tasks.length === 0 ? (
                         <div className="animate-in fade-in duration-500">
@@ -389,22 +382,20 @@ export function ScheduleView() {
                                 </div>
                             </div>
 
-                            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-5 px-5">
+                            <div className="flex flex-col gap-2">
                                 {SUGGESTIONS.map((sug, idx) => (
                                     <button 
                                         key={idx} 
-                                        onClick={() => openSuggested(sug.title)}
-                                        className="shrink-0 w-[115px] h-[110px] flex flex-col justify-between p-3.5 bg-[#111] border border-[#1c1c1e] rounded-[24px] active:scale-[0.96] transition-transform text-left"
+                                        onClick={() => { setEventType("Custom Event"); setTaskTitle(sug.title); setConfigModalOpen(true); }}
+                                        className="flex items-center justify-between w-full p-4 bg-[#1c1c1e] rounded-[20px] active:scale-[0.98] transition-transform text-left"
                                     >
-                                        <div className="flex items-start justify-between w-full">
-                                            <div className={`w-9 h-9 rounded-full ${sug.bg} flex items-center justify-center shadow-lg`}>
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-9 h-9 rounded-full ${sug.bg} flex items-center justify-center`}>
                                                 {sug.icon}
                                             </div>
-                                            <div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center">
-                                                <Plus className="w-4 h-4 text-white" />
-                                            </div>
+                                            <span className="text-white text-[16px] font-medium whitespace-pre-line leading-tight" style={{ fontFamily: SF }}>{sug.title}</span>
                                         </div>
-                                        <span className="text-white text-[14px] font-medium leading-tight whitespace-pre-line" style={{ fontFamily: SF }}>{sug.title}</span>
+                                        <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{sug.time}</span>
                                     </button>
                                 ))}
                             </div>
@@ -424,29 +415,22 @@ export function ScheduleView() {
                                 filteredTasks.map(task => (
                                     <div key={task.id} className={`relative ${isEditingMode ? 'jiggle-card' : ''}`}>
                                         
-                                        {/* ── Diseño de Tarjeta Restaurado ── */}
-                                        <div className="bg-[#111] border border-[#1c1c1e] rounded-[32px] p-6 shadow-lg">
-                                            <div className="flex items-center justify-between mb-5">
-                                                <h3 className="text-white text-[22px] font-bold tracking-tight truncate pr-2" style={{ fontFamily: SFD }}>{task.title}</h3>
-                                                <span className="shrink-0 px-3 py-1.5 rounded-[10px] text-[11px] font-bold uppercase tracking-wider" style={{ background: `${task.color || '#3b82f6'}20`, color: task.color || '#3b82f6', fontFamily: SF }}>
-                                                    {task.status}
-                                                </span>
-                                            </div>
-                                            
-                                            <div className="flex flex-wrap gap-2.5">
-                                                {/* Icon Tag */}
-                                                <div className="flex items-center gap-2 px-3.5 py-2 bg-[#1c1c1e] rounded-[14px]">
-                                                    <div style={{ color: task.color || '#8e8e93' }}>
-                                                        {ICON_MAP[task.iconName] || <CalendarDays className="w-4 h-4" />}
+                                        {/* ── Diseño Unificado de Tarjeta (Como las Highlights) ── */}
+                                        <div className="bg-[#1c1c1e] border border-[#2c2c2e] rounded-[28px] p-5 flex items-center justify-between shadow-lg">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-11 h-11 rounded-full flex items-center justify-center bg-[#000]/40" style={{ border: `1px solid ${task.color}30` }}>
+                                                    <div style={{ color: task.color }}>
+                                                        {ICON_MAP[task.iconName] || <CalendarDays className="w-5 h-5" />}
                                                     </div>
-                                                    <span className="text-white text-[13px] font-medium" style={{ fontFamily: SF }}>{task.iconName || "Event"}</span>
                                                 </div>
-                                                {/* Time Tag */}
-                                                <div className="flex items-center gap-2 px-3.5 py-2 bg-[#1c1c1e] rounded-[14px]">
-                                                    <Clock className="w-4 h-4 text-[#8e8e93]" />
-                                                    <span className="text-white text-[13px] font-medium" style={{ fontFamily: SF }}>{task.time}</span>
+                                                <div>
+                                                    <h3 className="text-white text-[17px] font-bold" style={{ fontFamily: SFD }}>{task.title}</h3>
+                                                    <p className="text-[#8e8e93] text-[13px] mt-0.5">{task.time}</p>
                                                 </div>
                                             </div>
+                                            <span className="bg-blue-500/15 text-blue-500 px-3 py-1 rounded-[10px] text-[10px] font-black tracking-wider uppercase">
+                                                {task.status}
+                                            </span>
                                         </div>
 
                                         {isEditingMode && (
@@ -465,7 +449,7 @@ export function ScheduleView() {
                 </div>
             </div>
 
-            {/* Bottom NavBar */}
+            {/* ── Liquid Bottom NavBar ── */}
             <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-center pointer-events-none" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 16px)" }}>
                 <div className="pointer-events-auto flex items-center p-1.5 gap-1 bg-[#0f0f0f]/85 backdrop-blur-3xl border border-white/10 rounded-full shadow-2xl">
                     <button disabled className="w-14 h-14 rounded-full flex items-center justify-center opacity-30 cursor-not-allowed">
@@ -486,7 +470,7 @@ export function ScheduleView() {
                 </div>
             </div>
 
-            {/* TZ Initial Picker */}
+            {/* ── MODAL: Time Zone Picker (Inicial) ── */}
             {showTZPicker && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
                     <div className="w-[85%] bg-[#1c1c1e] rounded-[32px] p-6 border border-white/10 shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
@@ -505,16 +489,19 @@ export function ScheduleView() {
                 </div>
             )}
 
-            {/* Config Modal */}
+            {/* ── MODAL: PANEL DE CONFIGURACIÓN ÚNICO ── */}
             {configModalOpen && (
                 <div className="fixed inset-0 z-[60] flex items-end justify-center animate-in fade-in duration-200">
                     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => { setConfigModalOpen(false); setActivePicker(null); }} />
                     <div className="relative w-full rounded-t-[32px] p-6 animate-in slide-in-from-bottom duration-300 bg-[#111] max-h-[90vh] flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
                         <div className="w-12 h-1.5 bg-[#333] rounded-full mx-auto mb-4 shrink-0" />
+                        
                         <div className="overflow-y-auto no-scrollbar pb-10 space-y-4">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-2xl font-bold tracking-tight" style={{ fontFamily: SFD }}>New Event</h3>
-                                <button onClick={() => { setConfigModalOpen(false); setActivePicker(null); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70"><X className="w-5 h-5 text-[#8e8e93]" /></button>
+                                <button onClick={() => { setConfigModalOpen(false); setActivePicker(null); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70">
+                                    <X className="w-5 h-5 text-[#8e8e93]" />
+                                </button>
                             </div>
                             
                             <div className="bg-[#1c1c1e] rounded-[28px] divide-y divide-white/5 overflow-hidden">
@@ -536,7 +523,7 @@ export function ScheduleView() {
                                     <div className="flex justify-between w-full p-4 items-center">
                                         <button onClick={() => togglePicker("icon")} className="flex items-center gap-3 active:opacity-70">
                                             <div className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center">
-                                                {ICON_MAP[taskIcon] || <CalendarDays className="w-4 h-4 text-white" />}
+                                                <div style={{ color: taskColor }}>{ICON_MAP[taskIcon] || <CalendarDays className="w-4 h-4" />}</div>
                                             </div>
                                             <span className="font-medium text-white">Title</span>
                                         </button>
@@ -545,8 +532,8 @@ export function ScheduleView() {
                                     {activePicker === "icon" && (
                                         <div className="grid grid-cols-6 gap-3 py-4 px-4 bg-[#0a0a0a] rounded-[20px] m-2 origin-top animate-in zoom-in-95 slide-in-from-top-2 fade-in duration-200 ease-out">
                                             {Object.keys(ICON_MAP).map(key => (
-                                                <button key={key} onClick={() => { setTaskIcon(key); setActivePicker(null); }} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${taskIcon === key ? 'bg-blue-500 text-white' : 'bg-[#2c2c2e] text-[#8e8e93]'}`}>
-                                                    {ICON_MAP[key]}
+                                                <button key={key} onClick={() => { setTaskIcon(key); setActivePicker(null); }} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${taskIcon === key ? 'bg-[#333]' : 'bg-transparent text-[#8e8e93]'}`}>
+                                                    <div style={{ color: taskIcon === key ? taskColor : undefined }}>{ICON_MAP[key]}</div>
                                                 </button>
                                             ))}
                                         </div>
@@ -589,7 +576,7 @@ export function ScheduleView() {
                                     )}
                                 </div>
                             </div>
-
+                            
                             {/* Textarea para descripción */}
                             <div className="bg-[#1c1c1e] rounded-[28px] p-4 flex flex-col gap-2">
                                 <span className="text-white text-[16px] font-medium pl-1">Description</span>
@@ -606,6 +593,12 @@ export function ScheduleView() {
                             <button onClick={handleSaveConfig} className="w-full py-4 bg-white text-black font-bold rounded-2xl mt-4 active:scale-95 transition-all text-[16px]">Save Schedule</button>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {loading && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <Loader2 className="w-8 h-8 animate-spin text-white" />
                 </div>
             )}
         </div>
