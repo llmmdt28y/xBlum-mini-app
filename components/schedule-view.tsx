@@ -129,11 +129,10 @@ export function ScheduleView() {
   const [expandedIds,   setExpandedIds]   = useState<Record<string,boolean>>({})
   const [configModalOpen,setConfigModalOpen]=useState(false)
   
-  // States para Onboarding Avanzado
+  // States para Onboarding
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const onboardingScrollRef = useRef<HTMLDivElement>(null)
-  const requestRef = useRef<number>()
   
   const [showTZModal,    setShowTZModal]    = useState(false)
   const [selectedTZ,     setSelectedTZ]     = useState(TIMEZONES[0])
@@ -164,66 +163,40 @@ export function ScheduleView() {
     setToast({msg,type}); setTimeout(()=>setToast(null),3500)
   },[])
 
-  // ── FÍSICA DE COVERFLOW (CORREGIDA - SIN APLASTAMIENTO DE TEXTO) ──
-  const updateCards = useCallback(() => {
-    if (!onboardingScrollRef.current) return;
-    const container = onboardingScrollRef.current;
-    const scrollLeft = container.scrollLeft;
-    const cardWidth = 280 + 16; // width (280) + gap (16)
-    
-    const index = Math.round(scrollLeft / cardWidth);
-    if (index !== activeIndex && index >= 0 && index < ONBOARDING_CARDS_DATA.length) {
-      setActiveIndex(index);
-    }
-
-    const cards = container.querySelectorAll('.onboarding-card');
-    
-    cards.forEach((card, i) => {
-      const htmlCard = card as HTMLElement;
-      const normalizedDistance = (i * cardWidth - scrollLeft) / cardWidth;
-      const absVal = Math.abs(normalizedDistance);
-      const clampedAbs = Math.min(absVal, 2); 
-      
-      // ESCALA UNIFORME: Ya no usamos rotateY para no distorsionar las letras. 
-      // Se achica en tamaño 2D, de forma plana.
-      const scale = Math.max(0.85, 1 - clampedAbs * 0.15); 
-      // ACERCAMIENTO HORIZONTAL: Jalamos las tarjetas laterales hacia el centro para que se asomen un poco.
-      const translateX = normalizedDistance * -140; 
-      
-      const opacity = Math.max(0.4, 1 - clampedAbs * 0.6);
-      const zIndex = 100 - Math.round(clampedAbs * 10);
-
-      // SOLO TRANSFORMACIÓN 2D: Evita por completo la perspectiva que aplasta los textos
-      htmlCard.style.transform = `translate3d(${translateX}px, 0, 0) scale(${scale})`;
-      htmlCard.style.opacity = opacity.toString();
-      htmlCard.style.zIndex = zIndex.toString();
-    });
-  }, [activeIndex]);
-
-  const handleOnboardingScroll = useCallback(() => {
-    if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    requestRef.current = requestAnimationFrame(updateCards);
-  }, [updateCards]);
-
-  // ── Init Check ──────────────────────────────────────────────
+  // ── INIT CHECK Y CENTRADO DE ONBOARDING ──
   useEffect(() => {
     const onboarded = localStorage.getItem("xblum_onboarded")
     const savedTZ = localStorage.getItem("xblum_tz_set")
     
     if (!onboarded) {
       setShowOnboarding(true)
+      // Centra suavemente en la tarjeta del medio al cargar la app
       setTimeout(() => {
         if(onboardingScrollRef.current) {
-          const cardWidth = 280 + 16
-          onboardingScrollRef.current.scrollLeft = cardWidth * 1 
-          // Forzar la animación inicial para que las tarjetas tomen posición inmediatamente
-          requestAnimationFrame(() => updateCards());
+          const cardWidth = 280 + 16 // Ancho de la tarjeta (280px) + gap (16px)
+          onboardingScrollRef.current.scrollTo({
+            left: cardWidth * 1,
+            behavior: 'smooth'
+          });
         }
-      }, 50)
+      }, 100)
     } else if (!savedTZ) {
       setShowTZModal(true)
     }
-  }, [updateCards])
+  }, [])
+
+  // ── LÓGICA DE SCROLL ESTABLE (SIN BUGS) ──
+  const handleOnboardingScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const scrollLeft = container.scrollLeft;
+    const cardWidth = 280 + 16; // 280px de tarjeta + gap-4 (16px)
+    
+    // Simplemente determinamos qué tarjeta está más cerca del centro
+    const index = Math.round(scrollLeft / cardWidth);
+    if (index !== activeIndex && index >= 0 && index < ONBOARDING_CARDS_DATA.length) {
+      setActiveIndex(index);
+    }
+  }, [activeIndex]);
 
   function handleStartOnboarding() {
     localStorage.setItem("xblum_onboarded", "true")
@@ -293,7 +266,6 @@ export function ScheduleView() {
   const showViewAllButton = currentList.length>3
   const displayedList   = viewAll ? currentList : currentList.slice(0,3)
 
-  // ── Botón Nativo de Telegram ─────────────────────────────────
   useEffect(()=>{
     const tg=(window as any).Telegram?.WebApp
     if(!tg?.BackButton) return
@@ -421,14 +393,6 @@ export function ScheduleView() {
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .wheel-mask { mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 70%,transparent 100%); -webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 70%,transparent 100%); }
         .fade-out-bottom { mask-image:linear-gradient(to bottom,black 40%,transparent 100%); opacity:0.8; pointer-events:none; }
-        
-        /* * FIX CRÍTICO APLICADO AQUÍ: 
-         * Se eliminó el "transition: transform" que chocaba con el JS al hacer scroll y causaba el temblor (bug).
-         * Ya no usamos rotateY para no aplastar el texto (se maneja puramente en 2D desde JS).
-         */
-        .onboarding-card { 
-          will-change: transform, opacity; 
-        }
       `}</style>
 
       {toast&&<Toast msg={toast.msg} type={toast.type}/>}
@@ -448,20 +412,26 @@ export function ScheduleView() {
             <div ref={onboardingScrollRef} 
                  onScroll={handleOnboardingScroll}
                  className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory px-[calc(50vw-148px)] no-scrollbar pb-10 pt-4" 
-                 style={{ WebkitOverflowScrolling: 'touch' }}>
+                 style={{ scrollBehavior: 'auto', WebkitOverflowScrolling: 'touch' }}>
               
-              {ONBOARDING_CARDS_DATA.map((card) => {
+              {ONBOARDING_CARDS_DATA.map((card, i) => {
                 const Icon = card.icon;
+                const isActive = i === activeIndex;
+
                 return (
                   <div key={card.id} 
-                       className="onboarding-card shrink-0 w-[280px] h-[380px] snap-center rounded-[36px] p-8 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden" 
-                       style={{ background: card.cardGradient }}>
+                       className="shrink-0 w-[280px] h-[380px] snap-center rounded-[36px] p-8 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden transition-all duration-300 ease-out" 
+                       style={{ 
+                         background: card.cardGradient,
+                         transform: isActive ? 'scale(1)' : 'scale(0.85)',
+                         opacity: isActive ? 1 : 0.5,
+                       }}>
                     
                     <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "120px 120px" }} />
                     
-                    <div className="relative flex items-center justify-center mb-8 w-[140px] h-[140px]">
-                      <div className="absolute inset-0 rounded-full border border-white/5 bg-white/5" />
-                      <div className="absolute inset-4 rounded-full border border-white/10 bg-white/10" />
+                    {/* Contenedor del Icono con UN SOLO anillo */}
+                    <div className="relative flex items-center justify-center mb-8 w-[110px] h-[110px]">
+                      <div className="absolute inset-0 rounded-full border border-white/10 bg-white/5" />
                       
                       <div className="w-[72px] h-[72px] rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md relative z-10 border border-white/30 shadow-lg">
                         <div className="relative">
