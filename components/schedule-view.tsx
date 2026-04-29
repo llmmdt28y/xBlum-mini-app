@@ -16,46 +16,48 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 type NavTab = "tasks" | "edit" | "search" | "create"
 type ListViewTab = "events" | "reminders"
 
-const ICON_MAP: Record<string, React.ReactNode> = {
-    CalendarDays: <CalendarDays className="w-4 h-4" />,
-    Clock: <Clock className="w-4 h-4" />,
-    Bell: <Bell className="w-4 h-4" />,
-    Mail: <Mail className="w-4 h-4" />,
-    Folder: <Folder className="w-4 h-4" />,
-    Dumbbell: <Dumbbell className="w-4 h-4" />,
-    Briefcase: <Briefcase className="w-4 h-4" />,
-    Laptop: <Laptop className="w-4 h-4" />,
-    Utensils: <Utensils className="w-4 h-4" />,
-    MessageSquare: <MessageSquare className="w-4 h-4" />,
-    Send: <Send className="w-4 h-4" />,
-    Coffee: <Coffee className="w-4 h-4" />,
-    Droplets: <Droplets className="w-4 h-4" />,
-    Pill: <Pill className="w-4 h-4" />,
-    Activity: <Activity className="w-4 h-4" />
+// ── Diccionarios de Íconos y Colores ──
+const ICONS: Record<string, React.ElementType> = {
+    CalendarDays, Clock, Bell, Mail, Folder, Dumbbell, Briefcase, 
+    Laptop, Utensils, MessageSquare, Send, Coffee, Droplets, Pill, 
+    Activity, TrendingUp, CheckSquare
+}
+
+const ICON_COLORS: Record<string, string> = {
+    CalendarDays: "#3b82f6", // Blue
+    Clock: "#f97316",        // Orange
+    Bell: "#f43f5e",         // Rose
+    Mail: "#0ea5e9",         // Sky
+    Folder: "#eab308",       // Yellow
+    Dumbbell: "#a855f7",     // Purple
+    Briefcase: "#d97706",    // Amber
+    Laptop: "#94a3b8",       // Slate
+    Utensils: "#ec4899",     // Pink
+    MessageSquare: "#22c55e",// Green
+    Send: "#14b8a6",         // Teal
+    Coffee: "#b45309",       // Brown
+    Droplets: "#38bdf8",     // Light Blue
+    Pill: "#fb7185",         // Light Rose
+    Activity: "#10b981",     // Emerald
+    TrendingUp: "#22c55e",   // Green
+    CheckSquare: "#3b82f6"   // Blue
 }
 
 const EVENT_OPTIONS = [
-    "Custom Event", 
-    "Schedule Email", 
-    "Drive Upload", 
-    "Workout / Gym", 
-    "Deep Work", 
-    "Meal Time", 
-    "Send Message"
+    "Custom Event", "Schedule Email", "Drive Upload", "Workout / Gym", 
+    "Deep Work", "Meal Time", "Send Message"
 ]
 
 const REMINDER_OPTIONS = [
-    "Personal Reminder",
-    "Drink Water",
-    "Stand Up / Stretch",
-    "Take Medication",
-    "Custom Reminder"
+    "Personal Reminder", "Drink Water", "Stand Up / Stretch", 
+    "Take Medication", "Custom Reminder"
 ]
 
+// Sugerencias adaptadas al nuevo formato de color directo
 const SUGGESTIONS = [
-    { id: "sug_run", title: "Outdoor run", time: "1:30 – 2 PM", icon: <TrendingUp className="w-[16px] h-[16px] text-[#22c55e]" />, bg: "bg-[#22c55e]/20", type: "event" },
-    { id: "sug_email", title: "Apply to YC", time: "2:30 – 3:30 PM", icon: <CheckSquare className="w-[16px] h-[16px] text-[#3b82f6]" />, bg: "bg-[#3b82f6]/20", type: "event" },
-    { id: "sug_tg", title: "Order vitamin D", time: "7 – 7:30 PM", icon: <CheckSquare className="w-[16px] h-[16px] text-[#a855f7]" />, bg: "bg-[#a855f7]/20", type: "reminder" },
+    { id: "sug_run", title: "Outdoor run", time: "1:30 – 2 PM", iconName: "TrendingUp", color: "#22c55e", type: "event" },
+    { id: "sug_email", title: "Apply to YC", time: "2:30 – 3:30 PM", iconName: "CheckSquare", color: "#3b82f6", type: "event" },
+    { id: "sug_tg", title: "Order vitamin D", time: "7 – 7:30 PM", iconName: "Pill", color: "#fb7185", type: "reminder" },
 ]
 
 function WheelPicker({ items, value, onChange, suffix = "" }: { items: string[], value: string, onChange: (v: string) => void, suffix?: string }) {
@@ -66,27 +68,16 @@ function WheelPicker({ items, value, onChange, suffix = "" }: { items: string[],
         if (!containerRef.current) return
         const scrollY = containerRef.current.scrollTop
         const index = Math.round(scrollY / itemHeight)
-        if (items[index] && items[index] !== value) {
-            onChange(items[index])
-        }
+        if (items[index] && items[index] !== value) onChange(items[index])
     }
 
     return (
-        <div 
-            ref={containerRef}
-            onScroll={handleScroll}
-            className="h-[120px] w-full overflow-y-auto snap-y snap-mandatory no-scrollbar flex flex-col items-center"
-            style={{ scrollBehavior: "smooth" }}
-        >
+        <div ref={containerRef} onScroll={handleScroll} className="h-[120px] w-full overflow-y-auto snap-y snap-mandatory no-scrollbar flex flex-col items-center" style={{ scrollBehavior: "smooth" }}>
             <div style={{ minHeight: `${itemHeight}px` }} className="w-full shrink-0" />
             {items.map((item, i) => {
                 const isSelected = item === value
                 return (
-                    <div 
-                        key={i} 
-                        className={`h-[40px] shrink-0 w-full flex items-center justify-center snap-center transition-all ${isSelected ? 'text-white text-[20px] font-bold' : 'text-[#636366] text-[18px] font-medium'}`}
-                        style={{ fontFamily: SFD }}
-                    >
+                    <div key={i} className={`h-[40px] shrink-0 w-full flex items-center justify-center snap-center transition-all ${isSelected ? 'text-white text-[20px] font-bold' : 'text-[#636366] text-[18px] font-medium'}`} style={{ fontFamily: SFD }}>
                         {item}{suffix && isSelected ? <span className="text-[14px] ml-1 text-[#8e8e93]">{suffix}</span> : ""}
                     </div>
                 )
@@ -103,6 +94,7 @@ export function ScheduleView() {
     const [selectedDate, setSelectedDate] = useState<string | "All">("All")
     const [activeNavTab, setActiveNavTab] = useState<NavTab>("tasks")
     const [listView, setListView] = useState<ListViewTab>("events") 
+    const [viewAll, setViewAll] = useState(false) // Estado para expandir la lista
     const [isEditingMode, setIsEditingMode] = useState(false)
     const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({})
     
@@ -132,25 +124,23 @@ export function ScheduleView() {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     const days = Array.from({length: 31}, (_, i) => (i + 1).toString())
 
+    // Efecto para reiniciar View All al cambiar de pestaña
+    useEffect(() => { setViewAll(false) }, [listView])
+
     useEffect(() => {
         setExtraConfig("")
         setAttachments(0)
         
-        // Eventos
         if(eventType === "Workout / Gym") { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); setExtraConfig("Upper Body") }
         else if(eventType === "Deep Work") { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); setExtraConfig("DND Mode") }
         else if(eventType === "Meal Time") { setTaskIcon("Utensils"); setTaskTitle("Lunch Break"); setExtraConfig("High Protein") }
         else if(eventType === "Schedule Email") { setTaskIcon("Mail"); setTaskTitle("Send Email") }
         else if(eventType === "Send Message") { setTaskIcon("MessageSquare"); setTaskTitle("Send Message") }
         else if(eventType === "Drive Upload") { setTaskIcon("Folder"); setTaskTitle("Backup to Drive") }
-        
-        // Recordatorios
         else if(eventType === "Drink Water") { setTaskIcon("Droplets"); setTaskTitle("Drink Water") }
         else if(eventType === "Stand Up / Stretch") { setTaskIcon("Activity"); setTaskTitle("Stretch Legs") }
         else if(eventType === "Take Medication") { setTaskIcon("Pill"); setTaskTitle("Medication") }
         else if(eventType === "Personal Reminder" || eventType === "Custom Reminder") { setTaskIcon("Bell"); setTaskTitle("Reminder") }
-        
-        // Default
         else { setTaskIcon("CalendarDays"); setTaskTitle("") }
     }, [eventType])
 
@@ -177,6 +167,10 @@ export function ScheduleView() {
 
     const activeEvents = filteredTasks.filter(t => t.isEvent)
     const activeReminders = filteredTasks.filter(t => !t.isEvent)
+
+    const currentList = listView === "events" ? activeEvents : activeReminders
+    const showViewAllButton = currentList.length > 3
+    const displayedList = viewAll ? currentList : currentList.slice(0, 3)
 
     useEffect(() => {
         const tg = (window as any).Telegram?.WebApp
@@ -232,6 +226,7 @@ export function ScheduleView() {
                 time: `${selHour}:${selMin} ${parseInt(selHour) >= 12 ? 'PM' : 'AM'}`,
                 date: selectedDate === "All" ? new Date().toDateString() : selectedDate,
                 iconName: taskIcon,
+                color: ICON_COLORS[taskIcon] || "#ffffff",
                 description: taskDesc,
                 email: taskEmailRec,
                 filesCount: attachments,
@@ -246,20 +241,20 @@ export function ScheduleView() {
         }, 600)
     }
 
-    const TaskCard = ({ item, isSuggestion = false }: { item: any, isSuggestion?: boolean }) => {
+    const TaskCard = ({ item, isSuggestion = false, isLastAndFaded = false }: { item: any, isSuggestion?: boolean, isLastAndFaded?: boolean }) => {
         const isExpanded = expandedIds[item.id]
+        const TheIcon = ICONS[item.iconName] || CalendarDays
         
         return (
             <div className={`relative w-full ${isEditingMode && !isSuggestion ? 'jiggle-card' : ''}`}>
-                <div className={`bg-[#1c1c1e] border border-[#2c2c2e] px-4 py-3 flex flex-col transition-all duration-200 ${isExpanded && !isSuggestion ? 'rounded-[24px]' : 'rounded-full'}`}>
+                <div className={`bg-[#1c1c1e] border border-[#2c2c2e] px-5 py-3.5 flex flex-col transition-all duration-200 ${isExpanded && !isSuggestion ? 'rounded-[24px]' : 'rounded-full'} ${isLastAndFaded ? 'fade-out-bottom' : ''}`}>
                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center ${isSuggestion ? item.bg : 'bg-[#2c2c2e]'}`}>
-                                {isSuggestion ? item.icon : (ICON_MAP[item.iconName] || <CalendarDays className="w-4 h-4 text-white" />)}
-                            </div>
+                        <div className="flex items-center gap-3.5">
+                            {/* Ícono sin fondo circular, adopta color directo */}
+                            <TheIcon className="w-5 h-5" style={{ color: item.color }} />
                             <div className="flex flex-col">
-                                <span className="text-white text-[16px] font-medium leading-tight" style={{ fontFamily: SFD }}>{item.title}</span>
-                                <span className="text-[#8e8e93] text-[13px]" style={{ fontFamily: SF }}>{item.time}</span>
+                                <span className="text-[16px] font-bold leading-tight" style={{ fontFamily: SFD, color: item.color }}>{item.title}</span>
+                                <span className="text-[#8e8e93] text-[13px] mt-0.5" style={{ fontFamily: SF }}>{item.time}</span>
                             </div>
                         </div>
                         <button 
@@ -280,7 +275,6 @@ export function ScheduleView() {
                         </button>
                     </div>
 
-                    {/* VISTA EXPANDIDA CON TÍTULOS */}
                     {isExpanded && !isSuggestion && (
                         <div className="mt-4 pt-4 border-t border-[#2c2c2e] flex flex-col gap-5 animate-in fade-in slide-in-from-top-2 duration-200 pb-1 px-1">
                             {item.description && (
@@ -289,7 +283,6 @@ export function ScheduleView() {
                                     <p className="text-[#e4e4e7] text-[14px] leading-relaxed" style={{ fontFamily: SF }}>{item.description}</p>
                                 </div>
                             )}
-                            
                             {item.email && (
                                 <div className="flex flex-col gap-1.5">
                                     <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>Email Recipient</span>
@@ -299,7 +292,6 @@ export function ScheduleView() {
                                     </div>
                                 </div>
                             )}
-                            
                             {item.filesCount > 0 && (
                                 <div className="flex flex-col gap-1.5">
                                     <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>Attachments</span>
@@ -309,7 +301,6 @@ export function ScheduleView() {
                                     </div>
                                 </div>
                             )}
-                            
                             {item.extra && (
                                 <div className="flex flex-col gap-1.5">
                                     <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>Configuration / Tag</span>
@@ -319,7 +310,6 @@ export function ScheduleView() {
                                     </div>
                                 </div>
                             )}
-                            
                             {!item.description && !item.email && item.filesCount === 0 && !item.extra && (
                                 <div className="py-2 text-center">
                                     <span className="text-[#636366] text-[13px] italic" style={{ fontFamily: SF }}>No additional details</span>
@@ -344,6 +334,7 @@ export function ScheduleView() {
                 .jiggle-card { animation: jiggle 0.3s ease-in-out infinite; }
                 .no-scrollbar::-webkit-scrollbar { display: none; }
                 .wheel-mask { mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%); }
+                .fade-out-bottom { mask-image: linear-gradient(to bottom, black 40%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%); opacity: 0.8; pointer-events: none; }
             `}</style>
 
             <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20" style={{ backgroundImage: "url('/landscape.jpg')", filter: "blur(60px)" }} />
@@ -424,41 +415,45 @@ export function ScheduleView() {
                     ) : (
                         <div className="flex flex-col animate-in fade-in duration-500">
                             
-                            {/* Toggle Principal */}
-                            <div className="flex bg-[#1c1c1e] p-1 rounded-full w-[260px] mx-auto mb-6 border border-[#2c2c2e]">
-                                <button
-                                    onClick={() => setListView("events")}
-                                    className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${listView === "events" ? "bg-white text-black shadow-sm" : "text-[#8e8e93] hover:text-white"}`}
-                                    style={{ fontFamily: SF }}
-                                >
-                                    Events
-                                </button>
-                                <button
-                                    onClick={() => setListView("reminders")}
-                                    className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${listView === "reminders" ? "bg-white text-black shadow-sm" : "text-[#8e8e93] hover:text-white"}`}
-                                    style={{ fontFamily: SF }}
-                                >
-                                    Reminders
-                                </button>
+                            {/* Panel Toggle y View All */}
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex bg-[#1c1c1e] p-1 rounded-full w-[220px] border border-[#2c2c2e]">
+                                    <button
+                                        onClick={() => setListView("events")}
+                                        className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${listView === "events" ? "bg-white text-black shadow-sm" : "text-[#8e8e93] hover:text-white"}`}
+                                        style={{ fontFamily: SF }}
+                                    >
+                                        Events
+                                    </button>
+                                    <button
+                                        onClick={() => setListView("reminders")}
+                                        className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${listView === "reminders" ? "bg-white text-black shadow-sm" : "text-[#8e8e93] hover:text-white"}`}
+                                        style={{ fontFamily: SF }}
+                                    >
+                                        Reminders
+                                    </button>
+                                </div>
+                                {showViewAllButton && (
+                                    <button 
+                                        onClick={() => setViewAll(!viewAll)} 
+                                        className="text-[#3b82f6] text-[14px] font-medium px-2 py-1 active:opacity-70 transition-opacity"
+                                    >
+                                        {viewAll ? "Collapse" : "View All"}
+                                    </button>
+                                )}
                             </div>
 
                             <div className="flex flex-col gap-3">
-                                {listView === "events" ? (
-                                    activeEvents.length === 0 ? (
-                                        <div className="py-6 text-center">
-                                            <p className="text-[#636366] text-sm font-medium" style={{ fontFamily: SF }}>No events scheduled</p>
-                                        </div>
-                                    ) : (
-                                        activeEvents.map(task => <TaskCard key={task.id} item={task} />)
-                                    )
+                                {currentList.length === 0 ? (
+                                    <div className="py-6 text-center">
+                                        <p className="text-[#636366] text-sm font-medium" style={{ fontFamily: SF }}>No {listView} scheduled</p>
+                                    </div>
                                 ) : (
-                                    activeReminders.length === 0 ? (
-                                        <div className="py-6 text-center">
-                                            <p className="text-[#636366] text-sm font-medium" style={{ fontFamily: SF }}>No active reminders</p>
-                                        </div>
-                                    ) : (
-                                        activeReminders.map(task => <TaskCard key={task.id} item={task} />)
-                                    )
+                                    displayedList.map((task, idx) => {
+                                        const isLastItem = idx === displayedList.length - 1;
+                                        const shouldFade = isLastItem && !viewAll && showViewAllButton;
+                                        return <TaskCard key={task.id} item={task} isLastAndFaded={shouldFade} />
+                                    })
                                 )}
                             </div>
 
@@ -503,7 +498,6 @@ export function ScheduleView() {
                             </button>
                         </div>
 
-                        {/* TOGGLE EN EL MODAL: Event / Reminder */}
                         <div className="flex bg-[#1c1c1e] p-1 rounded-full w-full mb-5 border border-[#2c2c2e]">
                             <button
                                 onClick={() => { setCreationMode("events"); setEventType(EVENT_OPTIONS[0]); setActivePicker(null); }}
@@ -543,20 +537,31 @@ export function ScheduleView() {
                                     <div className="flex flex-col">
                                         <div className="flex items-center justify-between w-full p-4 border-b border-[#2c2c2e]">
                                             <button onClick={() => togglePicker("icon")} className="flex items-center gap-3 active:opacity-70">
-                                                <div className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center">
-                                                    {ICON_MAP[taskIcon] || <CalendarDays className="w-4 h-4 text-white" />}
-                                                </div>
-                                                <span className="text-white text-[16px] font-medium">Title</span>
+                                                {/* Mostrar el ícono seleccionado con su color correspondiente */}
+                                                {(() => {
+                                                    const SelectedIcon = ICONS[taskIcon] || CalendarDays;
+                                                    return <SelectedIcon className="w-5 h-5" style={{ color: ICON_COLORS[taskIcon] || "#ffffff" }} />
+                                                })()}
+                                                <span className="text-white text-[16px] font-medium">Title & Icon</span>
                                             </button>
                                             <input type="text" placeholder="Add" value={taskTitle} onChange={e=>setTaskTitle(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" />
                                         </div>
                                         {activePicker === "icon" && (
-                                            <div className="grid grid-cols-6 gap-3 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
-                                                {Object.keys(ICON_MAP).map(key => (
-                                                    <button key={key} onClick={() => { setTaskIcon(key); setActivePicker(null); }} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${taskIcon === key ? 'bg-blue-500 text-white' : 'bg-[#2c2c2e] text-[#8e8e93]'}`}>
-                                                        {ICON_MAP[key]}
-                                                    </button>
-                                                ))}
+                                            <div className="grid grid-cols-6 gap-4 py-5 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
+                                                {Object.keys(ICONS).map(key => {
+                                                    const IconComponent = ICONS[key];
+                                                    const isSelected = taskIcon === key;
+                                                    return (
+                                                        <button 
+                                                            key={key} 
+                                                            onClick={() => { setTaskIcon(key); setActivePicker(null); }} 
+                                                            className={`flex flex-col items-center justify-center transition-all ${isSelected ? 'scale-110' : 'opacity-70 hover:opacity-100'}`}
+                                                        >
+                                                            <IconComponent className="w-6 h-6" style={{ color: ICON_COLORS[key] }} />
+                                                            {isSelected && <div className="w-1.5 h-1.5 rounded-full mt-2" style={{ backgroundColor: ICON_COLORS[key] }} />}
+                                                        </button>
+                                                    )
+                                                })}
                                             </div>
                                         )}
                                     </div>
