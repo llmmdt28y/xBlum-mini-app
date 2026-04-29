@@ -297,7 +297,13 @@ export function ScheduleView() {
   }
   function buildFireAt(){
     const now=new Date(); const mi=months.indexOf(selMonth)
-    const dt=new Date(Date.UTC(now.getFullYear(),mi,parseInt(selDayNum),parseInt(selHour),parseInt(selMin),0))
+    let year=now.getFullYear()
+    let dt=new Date(Date.UTC(year,mi,parseInt(selDayNum),parseInt(selHour),parseInt(selMin),0))
+    // If the constructed date is in the past, advance to next year
+    if(dt.getTime() <= now.getTime()) {
+      year += 1
+      dt = new Date(Date.UTC(year,mi,parseInt(selDayNum),parseInt(selHour),parseInt(selMin),0))
+    }
     return dt.toISOString()
   }
   function formatFireAt(iso:string){ try{ const dt=new Date(iso); return dt.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true}) }catch{return iso} }
