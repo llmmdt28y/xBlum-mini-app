@@ -6,7 +6,8 @@ import {
   CalendarDays, Bell, Send, Clock, ChevronRight, Lock, 
   Plus, Loader2, Pencil, Search, X, Trash2, Moon, TrendingUp, Sparkles, 
   CheckSquare, Mail, Type, AlignLeft, AtSign, Folder, ThumbsUp, ThumbsDown,
-  Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Coffee, ChevronDown, ChevronUp, Paperclip
+  Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Coffee, ChevronDown, ChevronUp, Paperclip,
+  Droplets, Pill, Activity
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -27,18 +28,28 @@ const ICON_MAP: Record<string, React.ReactNode> = {
     Utensils: <Utensils className="w-4 h-4" />,
     MessageSquare: <MessageSquare className="w-4 h-4" />,
     Send: <Send className="w-4 h-4" />,
-    Coffee: <Coffee className="w-4 h-4" />
+    Coffee: <Coffee className="w-4 h-4" />,
+    Droplets: <Droplets className="w-4 h-4" />,
+    Pill: <Pill className="w-4 h-4" />,
+    Activity: <Activity className="w-4 h-4" />
 }
 
-const EVENT_TYPES = [
+const EVENT_OPTIONS = [
     "Custom Event", 
-    "Personal Reminder", 
     "Schedule Email", 
     "Drive Upload", 
     "Workout / Gym", 
     "Deep Work", 
     "Meal Time", 
     "Send Message"
+]
+
+const REMINDER_OPTIONS = [
+    "Personal Reminder",
+    "Drink Water",
+    "Stand Up / Stretch",
+    "Take Medication",
+    "Custom Reminder"
 ]
 
 const SUGGESTIONS = [
@@ -91,7 +102,7 @@ export function ScheduleView() {
     const [tasks, setTasks] = useState<any[]>([]) 
     const [selectedDate, setSelectedDate] = useState<string | "All">("All")
     const [activeNavTab, setActiveNavTab] = useState<NavTab>("tasks")
-    const [listView, setListView] = useState<ListViewTab>("events") // Toggle entre Events y Reminders
+    const [listView, setListView] = useState<ListViewTab>("events") 
     const [isEditingMode, setIsEditingMode] = useState(false)
     const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({})
     
@@ -99,6 +110,7 @@ export function ScheduleView() {
     const [loading, setLoading] = useState(false)
     const [activePicker, setActivePicker] = useState<string | null>(null)
     
+    const [creationMode, setCreationMode] = useState<ListViewTab>("events")
     const [eventType, setEventType] = useState("Custom Event")
     const [taskIcon, setTaskIcon] = useState("CalendarDays")
     const [taskTitle, setTaskTitle] = useState("")
@@ -123,13 +135,22 @@ export function ScheduleView() {
     useEffect(() => {
         setExtraConfig("")
         setAttachments(0)
+        
+        // Eventos
         if(eventType === "Workout / Gym") { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); setExtraConfig("Upper Body") }
         else if(eventType === "Deep Work") { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); setExtraConfig("DND Mode") }
         else if(eventType === "Meal Time") { setTaskIcon("Utensils"); setTaskTitle("Lunch Break"); setExtraConfig("High Protein") }
         else if(eventType === "Schedule Email") { setTaskIcon("Mail"); setTaskTitle("Send Email") }
         else if(eventType === "Send Message") { setTaskIcon("MessageSquare"); setTaskTitle("Send Message") }
         else if(eventType === "Drive Upload") { setTaskIcon("Folder"); setTaskTitle("Backup to Drive") }
-        else if(eventType === "Personal Reminder") { setTaskIcon("Bell"); setTaskTitle("Reminder") }
+        
+        // Recordatorios
+        else if(eventType === "Drink Water") { setTaskIcon("Droplets"); setTaskTitle("Drink Water") }
+        else if(eventType === "Stand Up / Stretch") { setTaskIcon("Activity"); setTaskTitle("Stretch Legs") }
+        else if(eventType === "Take Medication") { setTaskIcon("Pill"); setTaskTitle("Medication") }
+        else if(eventType === "Personal Reminder" || eventType === "Custom Reminder") { setTaskIcon("Bell"); setTaskTitle("Reminder") }
+        
+        // Default
         else { setTaskIcon("CalendarDays"); setTaskTitle("") }
     }, [eventType])
 
@@ -180,6 +201,8 @@ export function ScheduleView() {
             setActiveNavTab(isEditingMode ? "tasks" : "edit")
         } else if (tab === "create") {
             setIsEditingMode(false) 
+            setCreationMode("events")
+            setEventType(EVENT_OPTIONS[0])
             setConfigModalOpen(true)
             setActiveNavTab("create")
         } else {
@@ -201,7 +224,7 @@ export function ScheduleView() {
     function handleSaveConfig() {
         setLoading(true)
         setTimeout(() => {
-            const isEvent = eventType !== "Personal Reminder";
+            const isEvent = creationMode === "events";
             setTasks(prev => [{
                 id: Date.now(),
                 title: taskTitle || eventType,
@@ -218,53 +241,95 @@ export function ScheduleView() {
             setConfigModalOpen(false)
             setActivePicker(null)
             setLoading(false)
-            setListView(isEvent ? "events" : "reminders") // Auto switch al tab de lo que creaste
+            setListView(isEvent ? "events" : "reminders") 
             setActiveNavTab("tasks")
         }, 600)
     }
 
-    // Píldora de Tarea adaptada al estilo de los Highlights
     const TaskCard = ({ item, isSuggestion = false }: { item: any, isSuggestion?: boolean }) => {
         const isExpanded = expandedIds[item.id]
         
         return (
             <div className={`relative w-full ${isEditingMode && !isSuggestion ? 'jiggle-card' : ''}`}>
-                <div className={`bg-[#1c1c1e] border border-[#2c2c2e] px-4 py-2.5 flex flex-col transition-all duration-200 ${isExpanded && !isSuggestion ? 'rounded-[24px]' : 'rounded-full'}`}>
+                <div className={`bg-[#1c1c1e] border border-[#2c2c2e] px-4 py-3 flex flex-col transition-all duration-200 ${isExpanded && !isSuggestion ? 'rounded-[24px]' : 'rounded-full'}`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isSuggestion ? item.bg : 'bg-[#2c2c2e]'}`}>
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center ${isSuggestion ? item.bg : 'bg-[#2c2c2e]'}`}>
                                 {isSuggestion ? item.icon : (ICON_MAP[item.iconName] || <CalendarDays className="w-4 h-4 text-white" />)}
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-white text-[15px] font-medium leading-tight" style={{ fontFamily: SFD }}>{item.title}</span>
-                                <span className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>{item.time}</span>
+                                <span className="text-white text-[16px] font-medium leading-tight" style={{ fontFamily: SFD }}>{item.title}</span>
+                                <span className="text-[#8e8e93] text-[13px]" style={{ fontFamily: SF }}>{item.time}</span>
                             </div>
                         </div>
-                        <button onClick={() => isSuggestion ? (setEventType(item.type === 'reminder' ? "Personal Reminder" : "Custom Event"), setTaskTitle(item.title.replace('\n',' ')), setConfigModalOpen(true)) : toggleExpand(item.id)} className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 transition-transform">
+                        <button 
+                            onClick={() => {
+                                if (isSuggestion) {
+                                    const mode = item.type === 'reminder' ? 'reminders' : 'events';
+                                    setCreationMode(mode);
+                                    setEventType(mode === 'reminders' ? "Personal Reminder" : "Custom Event");
+                                    setTaskTitle(item.title.replace('\n',' '));
+                                    setConfigModalOpen(true);
+                                } else {
+                                    toggleExpand(item.id);
+                                }
+                            }} 
+                            className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 transition-transform"
+                        >
                             {isSuggestion ? <Plus className="w-4 h-4 text-[#8e8e93]" /> : (isExpanded ? <ChevronUp className="w-4 h-4 text-[#8e8e93]" /> : <ChevronDown className="w-4 h-4 text-[#8e8e93]" />)}
                         </button>
                     </div>
 
+                    {/* VISTA EXPANDIDA CON TÍTULOS */}
                     {isExpanded && !isSuggestion && (
-                        <div className="mt-3 pt-3 border-t border-[#2c2c2e] flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-200 mb-1">
+                        <div className="mt-4 pt-4 border-t border-[#2c2c2e] flex flex-col gap-5 animate-in fade-in slide-in-from-top-2 duration-200 pb-1 px-1">
                             {item.description && (
-                                <p className="text-[#a1a1aa] text-[13px]" style={{ fontFamily: SF }}>{item.description}</p>
-                            )}
-                            {(item.email || item.filesCount > 0 || item.extra) && (
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                    {item.email && <div className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-full text-[11px] text-[#e4e4e7]"><AtSign className="w-3 h-3 text-[#8e8e93]" />{item.email}</div>}
-                                    {item.filesCount > 0 && <div className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-full text-[11px] text-[#e4e4e7]"><Paperclip className="w-3 h-3 text-[#8e8e93]" />{item.filesCount} attached</div>}
-                                    {item.extra && <div className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-full text-[11px] text-[#e4e4e7]"><Sparkles className="w-3 h-3 text-[#8e8e93]" />{item.extra}</div>}
+                                <div className="flex flex-col gap-1.5">
+                                    <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>Description</span>
+                                    <p className="text-[#e4e4e7] text-[14px] leading-relaxed" style={{ fontFamily: SF }}>{item.description}</p>
                                 </div>
                             )}
+                            
+                            {item.email && (
+                                <div className="flex flex-col gap-1.5">
+                                    <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>Email Recipient</span>
+                                    <div className="flex items-center gap-2 bg-[#2c2c2e]/50 w-fit px-3 py-1.5 rounded-lg text-[13px] text-[#e4e4e7] border border-[#2c2c2e]">
+                                        <AtSign className="w-3.5 h-3.5 text-[#8e8e93]" />
+                                        {item.email}
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {item.filesCount > 0 && (
+                                <div className="flex flex-col gap-1.5">
+                                    <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>Attachments</span>
+                                    <div className="flex items-center gap-2 bg-[#2c2c2e]/50 w-fit px-3 py-1.5 rounded-lg text-[13px] text-[#e4e4e7] border border-[#2c2c2e]">
+                                        <Paperclip className="w-3.5 h-3.5 text-[#8e8e93]" />
+                                        {item.filesCount} attached files
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {item.extra && (
+                                <div className="flex flex-col gap-1.5">
+                                    <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>Configuration / Tag</span>
+                                    <div className="flex items-center gap-2 bg-[#2c2c2e]/50 w-fit px-3 py-1.5 rounded-lg text-[13px] text-[#e4e4e7] border border-[#2c2c2e]">
+                                        <Sparkles className="w-3.5 h-3.5 text-[#8e8e93]" />
+                                        {item.extra}
+                                    </div>
+                                </div>
+                            )}
+                            
                             {!item.description && !item.email && item.filesCount === 0 && !item.extra && (
-                                <span className="text-[#636366] text-[12px] italic">No additional details</span>
+                                <div className="py-2 text-center">
+                                    <span className="text-[#636366] text-[13px] italic" style={{ fontFamily: SF }}>No additional details</span>
+                                </div>
                             )}
                         </div>
                     )}
                 </div>
                 {isEditingMode && !isSuggestion && (
-                    <button onClick={() => setTasks(tasks.filter(t => t.id !== item.id))} className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 rounded-full flex items-center justify-center shadow-xl border-2 border-black active:scale-90 transition-transform z-10">
+                    <button onClick={() => setTasks(tasks.filter(t => t.id !== item.id))} className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-xl border-2 border-black active:scale-90 transition-transform z-10">
                         <Trash2 className="w-[14px] h-[14px] text-white" />
                     </button>
                 )}
@@ -326,7 +391,6 @@ export function ScheduleView() {
                     </div>
                 </div>
 
-                {/* Highlights Originales */}
                 <div className="mt-6 flex flex-col items-center gap-3">
                     <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e]">
                         <Moon className="w-4 h-4 text-[#f59e0b]" />
@@ -360,7 +424,7 @@ export function ScheduleView() {
                     ) : (
                         <div className="flex flex-col animate-in fade-in duration-500">
                             
-                            {/* Toggle Píldora: Events / Reminders */}
+                            {/* Toggle Principal */}
                             <div className="flex bg-[#1c1c1e] p-1 rounded-full w-[260px] mx-auto mb-6 border border-[#2c2c2e]">
                                 <button
                                     onClick={() => setListView("events")}
@@ -378,7 +442,6 @@ export function ScheduleView() {
                                 </button>
                             </div>
 
-                            {/* Contenedor dinámico según el tab seleccionado */}
                             <div className="flex flex-col gap-3">
                                 {listView === "events" ? (
                                     activeEvents.length === 0 ? (
@@ -425,18 +488,36 @@ export function ScheduleView() {
                 </div>
             </div>
 
-            {/* ── MODAL ── */}
+            {/* ── MODAL DE CREACIÓN ── */}
             {configModalOpen && (
                 <div className="fixed inset-0 z-[60] flex items-end justify-center animate-in fade-in duration-300">
                     <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => { setConfigModalOpen(false); setActivePicker(null); }} />
                     <div className="relative w-full rounded-t-[32px] p-6 animate-in slide-in-from-bottom duration-400 max-h-[90vh] flex flex-col bg-[#111] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
                         
                         <div className="flex items-center justify-between mb-4 pt-1">
-                            <h3 className="text-white font-bold text-[26px] tracking-tight" style={{ fontFamily: SFD }}>
-                                Setup Event
+                            <h3 className="text-white font-bold text-[24px] tracking-tight" style={{ fontFamily: SFD }}>
+                                Create New
                             </h3>
                             <button onClick={() => { setConfigModalOpen(false); setActivePicker(null); }} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70">
                                 <X className="w-5 h-5 text-[#8e8e93]" />
+                            </button>
+                        </div>
+
+                        {/* TOGGLE EN EL MODAL: Event / Reminder */}
+                        <div className="flex bg-[#1c1c1e] p-1 rounded-full w-full mb-5 border border-[#2c2c2e]">
+                            <button
+                                onClick={() => { setCreationMode("events"); setEventType(EVENT_OPTIONS[0]); setActivePicker(null); }}
+                                className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode === "events" ? "bg-white text-black shadow-sm" : "text-[#8e8e93] hover:text-white"}`}
+                                style={{ fontFamily: SF }}
+                            >
+                                Event
+                            </button>
+                            <button
+                                onClick={() => { setCreationMode("reminders"); setEventType(REMINDER_OPTIONS[0]); setActivePicker(null); }}
+                                className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode === "reminders" ? "bg-white text-black shadow-sm" : "text-[#8e8e93] hover:text-white"}`}
+                                style={{ fontFamily: SF }}
+                            >
+                                Reminder
                             </button>
                         </div>
 
@@ -454,7 +535,7 @@ export function ScheduleView() {
                                         </button>
                                         {activePicker === "type" && (
                                             <div className="flex items-center justify-center py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
-                                                <WheelPicker items={EVENT_TYPES} value={eventType} onChange={setEventType} />
+                                                <WheelPicker items={creationMode === "events" ? EVENT_OPTIONS : REMINDER_OPTIONS} value={eventType} onChange={setEventType} />
                                             </div>
                                         )}
                                     </div>
@@ -527,7 +608,7 @@ export function ScheduleView() {
                                         <button onClick={() => togglePicker("reminder")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                                             <div className="flex items-center gap-3">
                                                 <Bell className="w-[20px] h-[20px] text-[#8e8e93]" />
-                                                <span className="text-white text-[16px] font-medium">Reminders</span>
+                                                <span className="text-white text-[16px] font-medium">Alerts</span>
                                             </div>
                                             <span className="text-[#8e8e93] text-[16px]">{selRemMin}m {selRemSec}s</span>
                                         </button>
@@ -558,7 +639,7 @@ export function ScheduleView() {
 
                             <div className="mt-4 pb-4">
                                 <button onClick={handleSaveConfig} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px]">
-                                    Save Schedule
+                                    Save {creationMode === "events" ? "Event" : "Reminder"}
                                 </button>
                             </div>
                         </div>
