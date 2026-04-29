@@ -7,7 +7,7 @@ import {
   Plus, Loader2, Pencil, Search, X, Trash2, Moon, TrendingUp, Sparkles, 
   CheckSquare, Mail, Type, AlignLeft, AtSign, Folder, ThumbsUp, ThumbsDown,
   Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Coffee, ChevronDown, ChevronUp, Paperclip,
-  Droplets, Pill, Activity, Link as LinkIcon, RefreshCcw, CheckCircle2, AlertCircle, Globe, Zap
+  Droplets, Pill, Activity, Link as LinkIcon, RefreshCcw, CheckCircle2, AlertCircle, Globe, Zap, ChevronsRight
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -129,6 +129,7 @@ export function ScheduleView() {
   const [expandedIds,   setExpandedIds]   = useState<Record<string,boolean>>({})
   const [configModalOpen,setConfigModalOpen]=useState(false)
   
+  // States para Onboarding Avanzado
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const onboardingScrollRef = useRef<HTMLDivElement>(null)
@@ -163,28 +164,12 @@ export function ScheduleView() {
     setToast({msg,type}); setTimeout(()=>setToast(null),3500)
   },[])
 
-  useEffect(() => {
-    const onboarded = localStorage.getItem("xblum_onboarded")
-    const savedTZ = localStorage.getItem("xblum_tz_set")
-    
-    if (!onboarded) {
-      setShowOnboarding(true)
-      setTimeout(() => {
-        if(onboardingScrollRef.current) {
-          const cardWidth = 280 + 16
-          onboardingScrollRef.current.scrollLeft = cardWidth * 1 
-        }
-      }, 50)
-    } else if (!savedTZ) {
-      setShowTZModal(true)
-    }
-  }, [])
-
+  // ── FÍSICA DE COVERFLOW (CORREGIDA - SIN APLASTAMIENTO DE TEXTO) ──
   const updateCards = useCallback(() => {
     if (!onboardingScrollRef.current) return;
     const container = onboardingScrollRef.current;
     const scrollLeft = container.scrollLeft;
-    const cardWidth = 280 + 16;
+    const cardWidth = 280 + 16; // width (280) + gap (16)
     
     const index = Math.round(scrollLeft / cardWidth);
     if (index !== activeIndex && index >= 0 && index < ONBOARDING_CARDS_DATA.length) {
@@ -195,28 +180,21 @@ export function ScheduleView() {
     
     cards.forEach((card, i) => {
       const htmlCard = card as HTMLElement;
-      const innerCard = htmlCard.querySelector('.onboarding-card-inner') as HTMLElement;
       const normalizedDistance = (i * cardWidth - scrollLeft) / cardWidth;
       const absVal = Math.abs(normalizedDistance);
       const clampedAbs = Math.min(absVal, 2); 
       
-      // Aplicamos transformaciones sin transición CSS para que no haya lag (jitter)
-      const rotateY = normalizedDistance * -55; 
-      const translateZ = clampedAbs * -180; 
-      const translateX = normalizedDistance * -110; 
+      // ESCALA UNIFORME: Ya no usamos rotateY para no distorsionar las letras. 
+      // Se achica en tamaño 2D, de forma plana.
+      const scale = Math.max(0.85, 1 - clampedAbs * 0.15); 
+      // ACERCAMIENTO HORIZONTAL: Jalamos las tarjetas laterales hacia el centro para que se asomen un poco.
+      const translateX = normalizedDistance * -140; 
       
-      const opacity = Math.max(0.6, 1 - clampedAbs * 0.4);
+      const opacity = Math.max(0.4, 1 - clampedAbs * 0.6);
       const zIndex = 100 - Math.round(clampedAbs * 10);
 
-      // Mantenemos la relación de aspecto del contenido escalándolo inversamente en X
-      const textScaleX = Math.max(0.9, 1 - clampedAbs * 0.1); 
-
-      htmlCard.style.transform = `translate3d(${translateX}px, 0, ${translateZ}px) rotateY(${rotateY}deg)`;
-      
-      if (innerCard) {
-        innerCard.style.transform = `scaleX(${textScaleX})`;
-      }
-      
+      // SOLO TRANSFORMACIÓN 2D: Evita por completo la perspectiva que aplasta los textos
+      htmlCard.style.transform = `translate3d(${translateX}px, 0, 0) scale(${scale})`;
       htmlCard.style.opacity = opacity.toString();
       htmlCard.style.zIndex = zIndex.toString();
     });
@@ -226,6 +204,26 @@ export function ScheduleView() {
     if (requestRef.current) cancelAnimationFrame(requestRef.current);
     requestRef.current = requestAnimationFrame(updateCards);
   }, [updateCards]);
+
+  // ── Init Check ──────────────────────────────────────────────
+  useEffect(() => {
+    const onboarded = localStorage.getItem("xblum_onboarded")
+    const savedTZ = localStorage.getItem("xblum_tz_set")
+    
+    if (!onboarded) {
+      setShowOnboarding(true)
+      setTimeout(() => {
+        if(onboardingScrollRef.current) {
+          const cardWidth = 280 + 16
+          onboardingScrollRef.current.scrollLeft = cardWidth * 1 
+          // Forzar la animación inicial para que las tarjetas tomen posición inmediatamente
+          requestAnimationFrame(() => updateCards());
+        }
+      }, 50)
+    } else if (!savedTZ) {
+      setShowTZModal(true)
+    }
+  }, [updateCards])
 
   function handleStartOnboarding() {
     localStorage.setItem("xblum_onboarded", "true")
@@ -295,6 +293,7 @@ export function ScheduleView() {
   const showViewAllButton = currentList.length>3
   const displayedList   = viewAll ? currentList : currentList.slice(0,3)
 
+  // ── Botón Nativo de Telegram ─────────────────────────────────
   useEffect(()=>{
     const tg=(window as any).Telegram?.WebApp
     if(!tg?.BackButton) return
@@ -423,18 +422,12 @@ export function ScheduleView() {
         .wheel-mask { mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 70%,transparent 100%); -webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 70%,transparent 100%); }
         .fade-out-bottom { mask-image:linear-gradient(to bottom,black 40%,transparent 100%); opacity:0.8; pointer-events:none; }
         
-        .onboarding-container { perspective: 1000px; transform-style: preserve-3d; }
-        
-        /* Aseguramos transformaciones suaves sin temblores */
+        /* * FIX CRÍTICO APLICADO AQUÍ: 
+         * Se eliminó el "transition: transform" que chocaba con el JS al hacer scroll y causaba el temblor (bug).
+         * Ya no usamos rotateY para no aplastar el texto (se maneja puramente en 2D desde JS).
+         */
         .onboarding-card { 
           will-change: transform, opacity; 
-          transform-origin: center center -180px; /* Corregimos punto de origen 3D */
-          backface-visibility: hidden; /* Mejora rendimiento */
-        }
-        
-        .onboarding-card-inner {
-          will-change: transform;
-          transform-origin: center center;
         }
       `}</style>
 
@@ -447,40 +440,41 @@ export function ScheduleView() {
           <div className="absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none" 
                style={{ background: ONBOARDING_CARDS_DATA[activeIndex].bgGradient, opacity: 1 }} />
           
-          <div className="flex flex-col items-center flex-1 pt-12 pb-8 relative z-10 onboarding-container">
+          <div className="flex flex-col items-center flex-1 pt-12 pb-8 relative z-10">
             <div className="mb-6 opacity-90 h-10 flex items-center justify-center">
               <img src="/xblum-logo.png" alt="xBlum Logo" className="h-full object-contain" onError={(e)=>(e.currentTarget.style.display='none')}/>
             </div>
 
-            {/* Eliminamos scroll smooth aquí, lo maneja requestAnimationFrame */}
             <div ref={onboardingScrollRef} 
                  onScroll={handleOnboardingScroll}
-                 className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory px-[calc(50vw-140px)] no-scrollbar pb-10 pt-4" 
-                 style={{ WebkitOverflowScrolling: 'touch', scrollBehavior: 'auto' }}>
+                 className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory px-[calc(50vw-148px)] no-scrollbar pb-10 pt-4" 
+                 style={{ WebkitOverflowScrolling: 'touch' }}>
               
               {ONBOARDING_CARDS_DATA.map((card) => {
                 const Icon = card.icon;
                 return (
                   <div key={card.id} 
-                       className="onboarding-card shrink-0 w-[280px] h-[360px] snap-center rounded-[36px] p-8 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden" 
+                       className="onboarding-card shrink-0 w-[280px] h-[380px] snap-center rounded-[36px] p-8 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden" 
                        style={{ background: card.cardGradient }}>
                     
-                    {/* Contenedor interno para aplicar contra-escala y arreglar textos aplastados */}
-                    <div className="onboarding-card-inner w-full h-full flex flex-col items-center justify-center">
-                      <div className="absolute inset-0 bg-white/5 opacity-40 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "120px 120px" }} />
+                    <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "120px 120px" }} />
+                    
+                    <div className="relative flex items-center justify-center mb-8 w-[140px] h-[140px]">
+                      <div className="absolute inset-0 rounded-full border border-white/5 bg-white/5" />
+                      <div className="absolute inset-4 rounded-full border border-white/10 bg-white/10" />
                       
-                      <div className="w-[72px] h-[72px] rounded-full bg-white/15 flex items-center justify-center mb-8 backdrop-blur-lg relative z-10 border border-white/20 shadow-inner">
+                      <div className="w-[72px] h-[72px] rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md relative z-10 border border-white/30 shadow-lg">
                         <div className="relative">
-                          <Icon className="w-9 h-9" style={{color: card.color}} />
+                          <Icon className="w-9 h-9" style={{color: card.color}} strokeWidth={2.5} />
                           {card.isReminder && <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full border-2 border-[#a21caf]" />}
                         </div>
                       </div>
-                      
-                      <h3 className="text-white font-bold text-[24px] mb-3.5 relative z-10 tracking-tight" style={{fontFamily:SFD}}>{card.title}</h3>
-                      <p className="text-white/85 text-[15px] leading-relaxed relative z-10 px-2" style={{fontFamily:SF}}>
-                        {card.desc}
-                      </p>
                     </div>
+                    
+                    <h3 className="text-white font-bold text-[24px] mb-3.5 relative z-10 tracking-tight" style={{fontFamily:SFD}}>{card.title}</h3>
+                    <p className="text-white/90 text-[15px] leading-relaxed relative z-10 px-2" style={{fontFamily:SF}}>
+                      {card.desc}
+                    </p>
                   </div>
                 )
               })}
@@ -493,19 +487,19 @@ export function ScheduleView() {
             </div>
 
             <div className="flex flex-col items-center text-center mt-auto px-7 w-full max-w-sm relative z-10">
-              <h1 className="text-white font-bold text-[29px] leading-[1.15] mb-2.5" style={{fontFamily:SFD, letterSpacing: "-0.03em"}}>
+              <h1 className="text-white font-bold text-[28px] leading-[1.2] mb-3" style={{fontFamily:SFD, letterSpacing: "-0.03em"}}>
                 Smart scheduling,<br/>reimagined for you
               </h1>
-              <p className="text-[#8e8e93] text-[15.5px] mb-8" style={{fontFamily:SF}}>
+              <p className="text-[#8e8e93] text-[15px] mb-8" style={{fontFamily:SF}}>
                 Join <span className="text-white font-medium">xBlum Assistant</span>
               </p>
 
               <button 
                 onClick={handleStartOnboarding}
-                className="w-full bg-white text-black py-4.5 rounded-[24px] font-bold text-[17px] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-lg"
+                className="w-full bg-white text-black py-4 rounded-[28px] font-bold text-[17px] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-lg"
                 style={{fontFamily:SF}}
               >
-                Let's Get Started <ChevronsRight className="w-5 h-5"/>
+                Let's Get Started <span className="text-[19px] tracking-[-0.15em] ml-1 opacity-80" style={{fontFamily:SFD}}>›››</span>
               </button>
             </div>
           </div>
