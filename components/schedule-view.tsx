@@ -7,7 +7,7 @@ import {
   Plus, Loader2, Pencil, Search, X, Trash2, Moon, TrendingUp, Sparkles, 
   CheckSquare, Mail, Type, AlignLeft, AtSign, Folder, ThumbsUp, ThumbsDown,
   Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Coffee, ChevronDown, ChevronUp, Paperclip,
-  Droplets, Pill, Activity
+  Droplets, Pill, Activity, Link as LinkIcon, RefreshCcw
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -53,7 +53,6 @@ const REMINDER_OPTIONS = [
     "Take Medication", "Custom Reminder"
 ]
 
-// Sugerencias adaptadas al nuevo formato de color directo
 const SUGGESTIONS = [
     { id: "sug_run", title: "Outdoor run", time: "1:30 – 2 PM", iconName: "TrendingUp", color: "#22c55e", type: "event" },
     { id: "sug_email", title: "Apply to YC", time: "2:30 – 3:30 PM", iconName: "CheckSquare", color: "#3b82f6", type: "event" },
@@ -94,7 +93,7 @@ export function ScheduleView() {
     const [selectedDate, setSelectedDate] = useState<string | "All">("All")
     const [activeNavTab, setActiveNavTab] = useState<NavTab>("tasks")
     const [listView, setListView] = useState<ListViewTab>("events") 
-    const [viewAll, setViewAll] = useState(false) // Estado para expandir la lista
+    const [viewAll, setViewAll] = useState(false) 
     const [isEditingMode, setIsEditingMode] = useState(false)
     const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({})
     
@@ -108,7 +107,7 @@ export function ScheduleView() {
     const [taskTitle, setTaskTitle] = useState("")
     const [taskDesc, setTaskDesc] = useState("")
     const [taskEmailRec, setTaskEmailRec] = useState("")
-    const [attachments, setAttachments] = useState<number>(0)
+    const [attachedFiles, setAttachedFiles] = useState<{name: string, size: number}[]>([]) // File Info
     const [extraConfig, setExtraConfig] = useState("")
     
     const [selHour, setSelHour] = useState("08")
@@ -124,13 +123,15 @@ export function ScheduleView() {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     const days = Array.from({length: 31}, (_, i) => (i + 1).toString())
 
-    // Efecto para reiniciar View All al cambiar de pestaña
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
     useEffect(() => { setViewAll(false) }, [listView])
 
     useEffect(() => {
         setExtraConfig("")
-        setAttachments(0)
+        setAttachedFiles([])
         
+        // Defaults by Type
         if(eventType === "Workout / Gym") { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); setExtraConfig("Upper Body") }
         else if(eventType === "Deep Work") { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); setExtraConfig("DND Mode") }
         else if(eventType === "Meal Time") { setTaskIcon("Utensils"); setTaskTitle("Lunch Break"); setExtraConfig("High Protein") }
@@ -139,7 +140,8 @@ export function ScheduleView() {
         else if(eventType === "Drive Upload") { setTaskIcon("Folder"); setTaskTitle("Backup to Drive") }
         else if(eventType === "Drink Water") { setTaskIcon("Droplets"); setTaskTitle("Drink Water") }
         else if(eventType === "Stand Up / Stretch") { setTaskIcon("Activity"); setTaskTitle("Stretch Legs") }
-        else if(eventType === "Take Medication") { setTaskIcon("Pill"); setTaskTitle("Medication") }
+        else if(eventType === "Take Medication") { setTaskIcon("Pill"); setTaskTitle("Medication"); setExtraConfig("Every 8h") }
+        else if(eventType === "Custom Event") { setTaskIcon("CalendarDays"); setTaskTitle(""); setExtraConfig("https://meet.google.com/...") }
         else if(eventType === "Personal Reminder" || eventType === "Custom Reminder") { setTaskIcon("Bell"); setTaskTitle("Reminder") }
         else { setTaskIcon("CalendarDays"); setTaskTitle("") }
     }, [eventType])
@@ -215,6 +217,19 @@ export function ScheduleView() {
         setExpandedIds(prev => ({ ...prev, [id]: !prev[id] }))
     }
 
+    // ── File Upload Handler (Telegram WebApp Native integration) ──
+    function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        if (!e.target.files) return;
+        const newFiles = Array.from(e.target.files).slice(0, 5 - attachedFiles.length);
+        const mappedFiles = newFiles.map(f => ({ name: f.name, size: f.size }));
+        setAttachedFiles(prev => [...prev, ...mappedFiles].slice(0, 5));
+    }
+
+    function triggerFileSelect() {
+        if (attachedFiles.length >= 5) return;
+        fileInputRef.current?.click();
+    }
+
     function handleSaveConfig() {
         setLoading(true)
         setTimeout(() => {
@@ -229,7 +244,7 @@ export function ScheduleView() {
                 color: ICON_COLORS[taskIcon] || "#ffffff",
                 description: taskDesc,
                 email: taskEmailRec,
-                filesCount: attachments,
+                files: attachedFiles,
                 extra: extraConfig,
                 status: "ACTIVE"
             }, ...prev])
@@ -250,8 +265,7 @@ export function ScheduleView() {
                 <div className={`bg-[#1c1c1e] border border-[#2c2c2e] px-5 py-3.5 flex flex-col transition-all duration-200 ${isExpanded && !isSuggestion ? 'rounded-[24px]' : 'rounded-full'} ${isLastAndFaded ? 'fade-out-bottom' : ''}`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3.5">
-                            {/* Ícono sin fondo circular, adopta color directo */}
-                            <TheIcon className="w-5 h-5" style={{ color: item.color }} />
+                            <TheIcon className="w-5 h-5 shrink-0" style={{ color: item.color }} />
                             <div className="flex flex-col">
                                 <span className="text-[16px] font-bold leading-tight" style={{ fontFamily: SFD, color: item.color }}>{item.title}</span>
                                 <span className="text-[#8e8e93] text-[13px] mt-0.5" style={{ fontFamily: SF }}>{item.time}</span>
@@ -269,7 +283,7 @@ export function ScheduleView() {
                                     toggleExpand(item.id);
                                 }
                             }} 
-                            className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 transition-transform"
+                            className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center shrink-0 active:scale-95 transition-transform"
                         >
                             {isSuggestion ? <Plus className="w-4 h-4 text-[#8e8e93]" /> : (isExpanded ? <ChevronUp className="w-4 h-4 text-[#8e8e93]" /> : <ChevronDown className="w-4 h-4 text-[#8e8e93]" />)}
                         </button>
@@ -292,25 +306,29 @@ export function ScheduleView() {
                                     </div>
                                 </div>
                             )}
-                            {item.filesCount > 0 && (
+                            {item.files?.length > 0 && (
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>Attachments</span>
-                                    <div className="flex items-center gap-2 bg-[#2c2c2e]/50 w-fit px-3 py-1.5 rounded-lg text-[13px] text-[#e4e4e7] border border-[#2c2c2e]">
-                                        <Paperclip className="w-3.5 h-3.5 text-[#8e8e93]" />
-                                        {item.filesCount} attached files
+                                    <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>Attachments ({item.files.length})</span>
+                                    <div className="flex flex-col gap-1">
+                                        {item.files.map((f: any, i: number) => (
+                                            <div key={i} className="flex items-center gap-2 bg-[#2c2c2e]/50 w-full px-3 py-1.5 rounded-lg text-[13px] text-[#e4e4e7] border border-[#2c2c2e] overflow-hidden">
+                                                <Paperclip className="w-3.5 h-3.5 text-[#8e8e93] shrink-0" />
+                                                <span className="truncate">{f.name}</span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             )}
                             {item.extra && (
                                 <div className="flex flex-col gap-1.5">
-                                    <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>Configuration / Tag</span>
-                                    <div className="flex items-center gap-2 bg-[#2c2c2e]/50 w-fit px-3 py-1.5 rounded-lg text-[13px] text-[#e4e4e7] border border-[#2c2c2e]">
-                                        <Sparkles className="w-3.5 h-3.5 text-[#8e8e93]" />
-                                        {item.extra}
+                                    <span className="text-[#636366] text-[11px] font-bold uppercase tracking-wider" style={{ fontFamily: SF }}>{item.iconName === 'CalendarDays' ? 'Link' : (item.iconName === 'Pill' ? 'Frequency' : 'Configuration')}</span>
+                                    <div className="flex items-center gap-2 bg-[#2c2c2e]/50 w-fit max-w-full px-3 py-1.5 rounded-lg text-[13px] text-[#e4e4e7] border border-[#2c2c2e] overflow-hidden">
+                                        {item.iconName === 'CalendarDays' ? <LinkIcon className="w-3.5 h-3.5 text-[#8e8e93] shrink-0" /> : (item.iconName === 'Pill' ? <RefreshCcw className="w-3.5 h-3.5 text-[#8e8e93] shrink-0" /> : <Sparkles className="w-3.5 h-3.5 text-[#8e8e93] shrink-0" />)}
+                                        <span className="truncate">{item.extra}</span>
                                     </div>
                                 </div>
                             )}
-                            {!item.description && !item.email && item.filesCount === 0 && !item.extra && (
+                            {!item.description && !item.email && (!item.files || item.files.length === 0) && !item.extra && (
                                 <div className="py-2 text-center">
                                     <span className="text-[#636366] text-[13px] italic" style={{ fontFamily: SF }}>No additional details</span>
                                 </div>
@@ -415,7 +433,6 @@ export function ScheduleView() {
                     ) : (
                         <div className="flex flex-col animate-in fade-in duration-500">
                             
-                            {/* Panel Toggle y View All */}
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex bg-[#1c1c1e] p-1 rounded-full w-[220px] border border-[#2c2c2e]">
                                     <button
@@ -519,6 +536,7 @@ export function ScheduleView() {
                             <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner">
                                 <div className="flex flex-col divide-y divide-[#2c2c2e]">
                                     
+                                    {/* Type */}
                                     <div className="flex flex-col">
                                         <button onClick={() => togglePicker("type")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                                             <div className="flex items-center gap-3">
@@ -534,17 +552,17 @@ export function ScheduleView() {
                                         )}
                                     </div>
 
+                                    {/* Title & Icon */}
                                     <div className="flex flex-col">
                                         <div className="flex items-center justify-between w-full p-4 border-b border-[#2c2c2e]">
                                             <button onClick={() => togglePicker("icon")} className="flex items-center gap-3 active:opacity-70">
-                                                {/* Mostrar el ícono seleccionado con su color correspondiente */}
                                                 {(() => {
                                                     const SelectedIcon = ICONS[taskIcon] || CalendarDays;
                                                     return <SelectedIcon className="w-5 h-5" style={{ color: ICON_COLORS[taskIcon] || "#ffffff" }} />
                                                 })()}
                                                 <span className="text-white text-[16px] font-medium">Title & Icon</span>
                                             </button>
-                                            <input type="text" placeholder="Add" value={taskTitle} onChange={e=>setTaskTitle(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" />
+                                            <input type="text" placeholder="Add title..." value={taskTitle} onChange={e=>setTaskTitle(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" />
                                         </div>
                                         {activePicker === "icon" && (
                                             <div className="grid grid-cols-6 gap-4 py-5 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
@@ -566,6 +584,7 @@ export function ScheduleView() {
                                         )}
                                     </div>
 
+                                    {/* Time */}
                                     <div className="flex flex-col">
                                         <button onClick={() => togglePicker("time")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                                             <div className="flex items-center gap-3">
@@ -583,6 +602,8 @@ export function ScheduleView() {
                                         )}
                                     </div>
 
+                                    {/* Event/Reminder Specific Configurations */}
+                                    
                                     {(eventType === "Schedule Email" || eventType === "Drive Upload") && (
                                         <>
                                             {eventType === "Schedule Email" && (
@@ -591,17 +612,50 @@ export function ScheduleView() {
                                                     <input type="email" placeholder="client@ex.com" value={taskEmailRec} onChange={e=>setTaskEmailRec(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" />
                                                 </div>
                                             )}
-                                            <div className="flex items-center justify-between w-full p-4">
-                                                <div className="flex items-center gap-3"><Paperclip className="w-[20px] h-[20px] text-[#8e8e93]" /><span className="text-white text-[16px] font-medium">Attachments</span></div>
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-[#8e8e93] text-[14px]">{attachments} / 5</span>
-                                                    <button onClick={() => setAttachments(Math.min(5, attachments + 1))} className="bg-[#2c2c2e] text-white px-3 py-1.5 rounded-full text-[13px] font-medium active:scale-95 transition-transform">+ Add File</button>
-                                                    {attachments > 0 && <button onClick={() => setAttachments(0)} className="text-red-400 px-2 py-1.5 text-[13px]">Clear</button>}
+                                            
+                                            {/* File Uploader via Native File System */}
+                                            <div className="flex flex-col w-full p-4">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="flex items-center gap-3"><Paperclip className="w-[20px] h-[20px] text-[#8e8e93]" /><span className="text-white text-[16px] font-medium">Attachments</span></div>
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-[#8e8e93] text-[14px]">{attachedFiles.length} / 5</span>
+                                                        <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
+                                                        <button onClick={triggerFileSelect} disabled={attachedFiles.length >= 5} className="bg-[#2c2c2e] text-white px-3 py-1.5 rounded-full text-[13px] font-medium active:scale-95 transition-transform disabled:opacity-50">+ Add</button>
+                                                        {attachedFiles.length > 0 && <button onClick={() => setAttachedFiles([])} className="text-red-400 px-2 py-1.5 text-[13px]">Clear</button>}
+                                                    </div>
                                                 </div>
+                                                {/* Mini list of attached files */}
+                                                {attachedFiles.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2 mt-2">
+                                                        {attachedFiles.map((f, i) => (
+                                                            <div key={i} className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-md text-[11px] text-[#e4e4e7] max-w-full">
+                                                                <span className="truncate max-w-[120px]">{f.name}</span>
+                                                                <button onClick={() => setAttachedFiles(prev => prev.filter((_, idx) => idx !== i))}><X className="w-3 h-3 text-[#8e8e93] hover:text-red-400" /></button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
                                         </>
                                     )}
 
+                                    {/* Config for Custom Events (Links) */}
+                                    {eventType === "Custom Event" && (
+                                        <div className="flex items-center justify-between w-full p-4">
+                                            <div className="flex items-center gap-3"><LinkIcon className="w-[20px] h-[20px] text-[#8e8e93]" /><span className="text-white text-[16px] font-medium">Meeting URL</span></div>
+                                            <input type="text" placeholder="https://..." value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" />
+                                        </div>
+                                    )}
+
+                                    {/* Config for Routine Reminders (Frequency) */}
+                                    {eventType === "Take Medication" && (
+                                        <div className="flex items-center justify-between w-full p-4">
+                                            <div className="flex items-center gap-3"><RefreshCcw className="w-[20px] h-[20px] text-[#8e8e93]" /><span className="text-white text-[16px] font-medium">Frequency</span></div>
+                                            <input type="text" placeholder="e.g. Every 8h" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" />
+                                        </div>
+                                    )}
+
+                                    {/* General Tag/Config */}
                                     {(eventType === "Workout / Gym" || eventType === "Deep Work" || eventType === "Meal Time") && (
                                         <div className="flex items-center justify-between w-full p-4">
                                             <div className="flex items-center gap-3"><Type className="w-[20px] h-[20px] text-[#8e8e93]" /><span className="text-white text-[16px] font-medium">Config / Tag</span></div>
@@ -609,11 +663,12 @@ export function ScheduleView() {
                                         </div>
                                     )}
 
+                                    {/* Alert / Reminder Time offset */}
                                     <div className="flex flex-col">
                                         <button onClick={() => togglePicker("reminder")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                                             <div className="flex items-center gap-3">
                                                 <Bell className="w-[20px] h-[20px] text-[#8e8e93]" />
-                                                <span className="text-white text-[16px] font-medium">Alerts</span>
+                                                <span className="text-white text-[16px] font-medium">Alert Offset</span>
                                             </div>
                                             <span className="text-[#8e8e93] text-[16px]">{selRemMin}m {selRemSec}s</span>
                                         </button>
