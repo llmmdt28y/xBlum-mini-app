@@ -13,20 +13,21 @@ const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
 type NavTab = "tasks" | "edit" | "search" | "create"
+type ListViewTab = "events" | "reminders"
 
 const ICON_MAP: Record<string, React.ReactNode> = {
-    CalendarDays: <CalendarDays className="w-5 h-5" />,
-    Clock: <Clock className="w-5 h-5" />,
-    Bell: <Bell className="w-5 h-5" />,
-    Mail: <Mail className="w-5 h-5" />,
-    Folder: <Folder className="w-5 h-5" />,
-    Dumbbell: <Dumbbell className="w-5 h-5" />,
-    Briefcase: <Briefcase className="w-5 h-5" />,
-    Laptop: <Laptop className="w-5 h-5" />,
-    Utensils: <Utensils className="w-5 h-5" />,
-    MessageSquare: <MessageSquare className="w-5 h-5" />,
-    Send: <Send className="w-5 h-5" />,
-    Coffee: <Coffee className="w-5 h-5" />
+    CalendarDays: <CalendarDays className="w-4 h-4" />,
+    Clock: <Clock className="w-4 h-4" />,
+    Bell: <Bell className="w-4 h-4" />,
+    Mail: <Mail className="w-4 h-4" />,
+    Folder: <Folder className="w-4 h-4" />,
+    Dumbbell: <Dumbbell className="w-4 h-4" />,
+    Briefcase: <Briefcase className="w-4 h-4" />,
+    Laptop: <Laptop className="w-4 h-4" />,
+    Utensils: <Utensils className="w-4 h-4" />,
+    MessageSquare: <MessageSquare className="w-4 h-4" />,
+    Send: <Send className="w-4 h-4" />,
+    Coffee: <Coffee className="w-4 h-4" />
 }
 
 const EVENT_TYPES = [
@@ -41,9 +42,9 @@ const EVENT_TYPES = [
 ]
 
 const SUGGESTIONS = [
-    { id: "sug_run", title: "Outdoor run", time: "1:30 – 2 PM", icon: <TrendingUp className="w-[18px] h-[18px] text-[#22c55e]" />, bg: "bg-[#22c55e]/20", type: "event" },
-    { id: "sug_email", title: "Apply to YC", time: "2:30 – 3:30 PM", icon: <CheckSquare className="w-[18px] h-[18px] text-[#3b82f6]" />, bg: "bg-[#3b82f6]/20", type: "event" },
-    { id: "sug_tg", title: "Order vitamin D", time: "7 – 7:30 PM", icon: <CheckSquare className="w-[18px] h-[18px] text-[#a855f7]" />, bg: "bg-[#a855f7]/20", type: "reminder" },
+    { id: "sug_run", title: "Outdoor run", time: "1:30 – 2 PM", icon: <TrendingUp className="w-[16px] h-[16px] text-[#22c55e]" />, bg: "bg-[#22c55e]/20", type: "event" },
+    { id: "sug_email", title: "Apply to YC", time: "2:30 – 3:30 PM", icon: <CheckSquare className="w-[16px] h-[16px] text-[#3b82f6]" />, bg: "bg-[#3b82f6]/20", type: "event" },
+    { id: "sug_tg", title: "Order vitamin D", time: "7 – 7:30 PM", icon: <CheckSquare className="w-[16px] h-[16px] text-[#a855f7]" />, bg: "bg-[#a855f7]/20", type: "reminder" },
 ]
 
 function WheelPicker({ items, value, onChange, suffix = "" }: { items: string[], value: string, onChange: (v: string) => void, suffix?: string }) {
@@ -90,6 +91,7 @@ export function ScheduleView() {
     const [tasks, setTasks] = useState<any[]>([]) 
     const [selectedDate, setSelectedDate] = useState<string | "All">("All")
     const [activeNavTab, setActiveNavTab] = useState<NavTab>("tasks")
+    const [listView, setListView] = useState<ListViewTab>("events") // Toggle entre Events y Reminders
     const [isEditingMode, setIsEditingMode] = useState(false)
     const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({})
     
@@ -199,10 +201,11 @@ export function ScheduleView() {
     function handleSaveConfig() {
         setLoading(true)
         setTimeout(() => {
+            const isEvent = eventType !== "Personal Reminder";
             setTasks(prev => [{
                 id: Date.now(),
                 title: taskTitle || eventType,
-                isEvent: eventType !== "Personal Reminder",
+                isEvent: isEvent,
                 time: `${selHour}:${selMin} ${parseInt(selHour) >= 12 ? 'PM' : 'AM'}`,
                 date: selectedDate === "All" ? new Date().toDateString() : selectedDate,
                 iconName: taskIcon,
@@ -215,54 +218,54 @@ export function ScheduleView() {
             setConfigModalOpen(false)
             setActivePicker(null)
             setLoading(false)
+            setListView(isEvent ? "events" : "reminders") // Auto switch al tab de lo que creaste
             setActiveNavTab("tasks")
         }, 600)
     }
 
-    // Componente reutilizable para las tarjetas homologadas
+    // Píldora de Tarea adaptada al estilo de los Highlights
     const TaskCard = ({ item, isSuggestion = false }: { item: any, isSuggestion?: boolean }) => {
         const isExpanded = expandedIds[item.id]
         
         return (
             <div className={`relative w-full ${isEditingMode && !isSuggestion ? 'jiggle-card' : ''}`}>
-                <div className="bg-[#1c1c1e] rounded-[24px] border border-[#2c2c2e] p-4 flex flex-col transition-all">
+                <div className={`bg-[#1c1c1e] border border-[#2c2c2e] px-4 py-2.5 flex flex-col transition-all duration-200 ${isExpanded && !isSuggestion ? 'rounded-[24px]' : 'rounded-full'}`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSuggestion ? item.bg : 'bg-[#2c2c2e]'}`}>
-                                {isSuggestion ? item.icon : (ICON_MAP[item.iconName] || <CalendarDays className="w-5 h-5 text-white" />)}
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isSuggestion ? item.bg : 'bg-[#2c2c2e]'}`}>
+                                {isSuggestion ? item.icon : (ICON_MAP[item.iconName] || <CalendarDays className="w-4 h-4 text-white" />)}
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-white text-[16px] font-bold leading-tight" style={{ fontFamily: SFD }}>{item.title}</span>
-                                <span className="text-[#8e8e93] text-[13px]" style={{ fontFamily: SF }}>{item.time}</span>
+                                <span className="text-white text-[15px] font-medium leading-tight" style={{ fontFamily: SFD }}>{item.title}</span>
+                                <span className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>{item.time}</span>
                             </div>
                         </div>
-                        <button onClick={() => isSuggestion ? (setEventType(item.type === 'reminder' ? "Personal Reminder" : "Custom Event"), setTaskTitle(item.title.replace('\n',' ')), setConfigModalOpen(true)) : toggleExpand(item.id)} className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 transition-transform">
+                        <button onClick={() => isSuggestion ? (setEventType(item.type === 'reminder' ? "Personal Reminder" : "Custom Event"), setTaskTitle(item.title.replace('\n',' ')), setConfigModalOpen(true)) : toggleExpand(item.id)} className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 transition-transform">
                             {isSuggestion ? <Plus className="w-4 h-4 text-[#8e8e93]" /> : (isExpanded ? <ChevronUp className="w-4 h-4 text-[#8e8e93]" /> : <ChevronDown className="w-4 h-4 text-[#8e8e93]" />)}
                         </button>
                     </div>
 
-                    {/* Apartado Compactado de Información */}
                     {isExpanded && !isSuggestion && (
-                        <div className="mt-4 pt-3 border-t border-[#2c2c2e] flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="mt-3 pt-3 border-t border-[#2c2c2e] flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-200 mb-1">
                             {item.description && (
-                                <p className="text-[#a1a1aa] text-[14px]" style={{ fontFamily: SF }}>{item.description}</p>
+                                <p className="text-[#a1a1aa] text-[13px]" style={{ fontFamily: SF }}>{item.description}</p>
                             )}
                             {(item.email || item.filesCount > 0 || item.extra) && (
                                 <div className="flex flex-wrap gap-2 mt-1">
-                                    {item.email && <div className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-md text-[12px] text-[#e4e4e7]"><AtSign className="w-3 h-3 text-[#8e8e93]" />{item.email}</div>}
-                                    {item.filesCount > 0 && <div className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-md text-[12px] text-[#e4e4e7]"><Paperclip className="w-3 h-3 text-[#8e8e93]" />{item.filesCount} attached</div>}
-                                    {item.extra && <div className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-md text-[12px] text-[#e4e4e7]"><Sparkles className="w-3 h-3 text-[#8e8e93]" />{item.extra}</div>}
+                                    {item.email && <div className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-full text-[11px] text-[#e4e4e7]"><AtSign className="w-3 h-3 text-[#8e8e93]" />{item.email}</div>}
+                                    {item.filesCount > 0 && <div className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-full text-[11px] text-[#e4e4e7]"><Paperclip className="w-3 h-3 text-[#8e8e93]" />{item.filesCount} attached</div>}
+                                    {item.extra && <div className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-full text-[11px] text-[#e4e4e7]"><Sparkles className="w-3 h-3 text-[#8e8e93]" />{item.extra}</div>}
                                 </div>
                             )}
                             {!item.description && !item.email && item.filesCount === 0 && !item.extra && (
-                                <span className="text-[#636366] text-[13px] italic">No additional details</span>
+                                <span className="text-[#636366] text-[12px] italic">No additional details</span>
                             )}
                         </div>
                     )}
                 </div>
                 {isEditingMode && !isSuggestion && (
-                    <button onClick={() => setTasks(tasks.filter(t => t.id !== item.id))} className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-xl border-2 border-black active:scale-90 transition-transform z-10">
-                        <Trash2 className="w-4 h-4 text-white" />
+                    <button onClick={() => setTasks(tasks.filter(t => t.id !== item.id))} className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 rounded-full flex items-center justify-center shadow-xl border-2 border-black active:scale-90 transition-transform z-10">
+                        <Trash2 className="w-[14px] h-[14px] text-white" />
                     </button>
                 )}
             </div>
@@ -323,19 +326,19 @@ export function ScheduleView() {
                     </div>
                 </div>
 
-                <div className="mt-6 flex flex-col items-center gap-3 px-5 w-full">
-                    <div className="flex items-center justify-center w-full gap-2 bg-[#1c1c1e] px-4 py-3 rounded-[24px] border border-[#2c2c2e]">
+                {/* Highlights Originales */}
+                <div className="mt-6 flex flex-col items-center gap-3">
+                    <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e]">
                         <Moon className="w-4 h-4 text-[#f59e0b]" />
                         <span className="text-[#f59e0b] text-[14px] font-medium" style={{ fontFamily: SF }}>Morning grogginess <span className="opacity-60 font-normal">15m left</span></span>
                     </div>
-                    <div className="flex items-center justify-center w-full gap-2 bg-[#1c1c1e] px-4 py-3 rounded-[24px] border border-[#2c2c2e]">
+                    <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e]">
                         <TrendingUp className="w-4 h-4 text-[#22c55e]" />
                         <span className="text-[#22c55e] text-[14px] font-medium" style={{ fontFamily: SF }}>Alertness rise <span className="opacity-60 font-normal">in 45m</span></span>
                     </div>
                 </div>
 
-                {/* ── Vista Dinámica: Sugerencias vs Eventos/Recordatorios ── */}
-                <div className="px-5 mt-8 pb-10">
+                <div className="px-5 mt-10 pb-10">
                     {filteredTasks.length === 0 ? (
                         <div className="animate-in fade-in duration-500">
                             <div className="flex items-center justify-between mb-4 px-1">
@@ -355,40 +358,44 @@ export function ScheduleView() {
                             </div>
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+                        <div className="flex flex-col animate-in fade-in duration-500">
                             
-                            {/* EVENTOS */}
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-2 mb-1 px-1">
-                                    <CalendarDays className="w-4 h-4 text-blue-500" />
-                                    <span className="text-[#8e8e93] text-[13px] font-bold tracking-widest uppercase" style={{ fontFamily: SF }}>Active Events</span>
-                                </div>
-                                {activeEvents.length === 0 ? (
-                                    <div className="p-4 text-center bg-[#1c1c1e]/50 rounded-[24px] border border-dashed border-[#2c2c2e]">
-                                        <p className="text-[#636366] text-sm font-medium">No events scheduled</p>
-                                    </div>
-                                ) : (
-                                    activeEvents.map(task => <TaskCard key={task.id} item={task} />)
-                                )}
+                            {/* Toggle Píldora: Events / Reminders */}
+                            <div className="flex bg-[#1c1c1e] p-1 rounded-full w-[260px] mx-auto mb-6 border border-[#2c2c2e]">
+                                <button
+                                    onClick={() => setListView("events")}
+                                    className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${listView === "events" ? "bg-white text-black shadow-sm" : "text-[#8e8e93] hover:text-white"}`}
+                                    style={{ fontFamily: SF }}
+                                >
+                                    Events
+                                </button>
+                                <button
+                                    onClick={() => setListView("reminders")}
+                                    className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${listView === "reminders" ? "bg-white text-black shadow-sm" : "text-[#8e8e93] hover:text-white"}`}
+                                    style={{ fontFamily: SF }}
+                                >
+                                    Reminders
+                                </button>
                             </div>
 
-                            {/* BARRA SEPARADORA BLANCA */}
-                            <div className="w-full flex justify-center py-2">
-                                <div className="w-3/4 h-[3px] bg-white rounded-full opacity-90 shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
-                            </div>
-
-                            {/* RECORDATORIOS */}
+                            {/* Contenedor dinámico según el tab seleccionado */}
                             <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-2 mb-1 px-1">
-                                    <Bell className="w-4 h-4 text-rose-500" />
-                                    <span className="text-[#8e8e93] text-[13px] font-bold tracking-widest uppercase" style={{ fontFamily: SF }}>Reminders</span>
-                                </div>
-                                {activeReminders.length === 0 ? (
-                                    <div className="p-4 text-center bg-[#1c1c1e]/50 rounded-[24px] border border-dashed border-[#2c2c2e]">
-                                        <p className="text-[#636366] text-sm font-medium">No active reminders</p>
-                                    </div>
+                                {listView === "events" ? (
+                                    activeEvents.length === 0 ? (
+                                        <div className="py-6 text-center">
+                                            <p className="text-[#636366] text-sm font-medium" style={{ fontFamily: SF }}>No events scheduled</p>
+                                        </div>
+                                    ) : (
+                                        activeEvents.map(task => <TaskCard key={task.id} item={task} />)
+                                    )
                                 ) : (
-                                    activeReminders.map(task => <TaskCard key={task.id} item={task} />)
+                                    activeReminders.length === 0 ? (
+                                        <div className="py-6 text-center">
+                                            <p className="text-[#636366] text-sm font-medium" style={{ fontFamily: SF }}>No active reminders</p>
+                                        </div>
+                                    ) : (
+                                        activeReminders.map(task => <TaskCard key={task.id} item={task} />)
+                                    )
                                 )}
                             </div>
 
@@ -490,7 +497,6 @@ export function ScheduleView() {
                                         )}
                                     </div>
 
-                                    {/* ── Acciones Extra Dinámicas ── */}
                                     {(eventType === "Schedule Email" || eventType === "Drive Upload") && (
                                         <>
                                             {eventType === "Schedule Email" && (
