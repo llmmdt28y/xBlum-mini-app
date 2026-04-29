@@ -296,15 +296,56 @@ export function ScheduleView() {
     setAttachedFiles(p=>[...p,...nf].slice(0,5))
   }
   function buildFireAt(){
-    const now=new Date(); const mi=months.indexOf(selMonth)
-    let year=now.getFullYear()
-    let dt=new Date(Date.UTC(year,mi,parseInt(selDayNum),parseInt(selHour),parseInt(selMin),0))
-    // If the constructed date is in the past, advance to next year
-    if(dt.getTime() <= now.getTime()) {
-      year += 1
-      dt = new Date(Date.UTC(year,mi,parseInt(selDayNum),parseInt(selHour),parseInt(selMin),0))
+    // Read the timezone the user configured during onboarding
+    const userTZ = localStorage.getItem("xblum_tz_set") || Intl.DateTimeFormat().resolvedOptions().timeZone
+
+    const mi      = months.indexOf(selMonth)
+    const dayNum  = parseInt(selDayNum, 10)
+    const hour    = parseInt(selHour, 10)
+    const min     = parseInt(selMin, 10)
+
+    // Determine year: if the selected month/day is already past this year, use next year
+    const now       = new Date()
+    let year        = now.getFullYear()
+    const candidate = new Date(year, mi, dayNum, hour, min, 0)
+    if (candidate < now) year += 1
+
+    // Build an ISO-like string in the user's local timezone and convert to UTC
+    // Using Intl to find the UTC offset for the target datetime in the user's TZ
+    const localStr  = `${year}-${String(mi+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}T${String(hour).padStart(2,'0')}:${String(min).padStart(2,'0')}:00`
+    // Parse as local wall-clock time in userTZ then emit as UTC ISO
+    try {
+      // Create a Date by interpreting the local string in the target timezone
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: userTZ,
+        year:"numeric", month:"2-digit", day:"2-digit",
+        hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false,
+      }).formatToParts(new Date(localStr))
+      // We need the INVERSE: local → UTC. Use the offset trick.
+      // Format a reference UTC time in userTZ to compute the offset.
+      const ref     = new Date(localStr + "Z") // treat as UTC temporarily
+      const tzStr   = new Intl.DateTimeFormat("en-US",{timeZone:userTZ,hour:"numeric",minute:"numeric",hour12:false,timeZoneName:"shortOffset"}).format(ref)
+      // Reliable cross-browser approach: iterate offset to find the correct UTC instant
+      // whose wall-clock in userTZ equals our target.
+      const target  = Date.UTC(year, mi, dayNum, hour, min, 0)
+      const probe   = new Date(target)
+      const probeLocal = new Intl.DateTimeFormat("en-US",{
+        timeZone:userTZ, year:"numeric",month:"2-digit",day:"2-digit",
+        hour:"2-digit",minute:"2-digit",hour12:false
+      }).format(probe)
+      // probeLocal is "MM/DD/YYYY, HH:MM" — parse it
+      const [datePart, timePart] = probeLocal.split(", ")
+      const [pm, pd, py] = datePart.split("/").map(Number)
+      const [ph, pmin]   = timePart.split(":").map(Number)
+      // Compute offset: how many ms probe's local display differs from target local
+      const probeAsLocal = Date.UTC(py, pm-1, pd, ph, pmin, 0)
+      const offsetMs     = target - probeAsLocal  // UTC = local + offsetMs... approx
+      const utcMs        = target + offsetMs
+      return new Date(utcMs).toISOString()
+    } catch {
+      // Fallback: assume UTC
+      return new Date(Date.UTC(year, mi, dayNum, hour, min, 0)).toISOString()
     }
-    return dt.toISOString()
   }
   function formatFireAt(iso:string){ try{ const dt=new Date(iso); return dt.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true}) }catch{return iso} }
 
