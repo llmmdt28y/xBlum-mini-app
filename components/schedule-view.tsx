@@ -7,7 +7,7 @@ import {
   Plus, Loader2, Pencil, Search, X, Trash2, Moon, TrendingUp, Sparkles, 
   CheckSquare, Mail, Type, AlignLeft, AtSign, Folder, ThumbsUp, ThumbsDown,
   Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Coffee, ChevronDown, ChevronUp, Paperclip,
-  Droplets, Pill, Activity, Link as LinkIcon, RefreshCcw, CheckCircle2, AlertCircle, Globe, ChevronsRight, Zap
+  Droplets, Pill, Activity, Link as LinkIcon, RefreshCcw, CheckCircle2, AlertCircle, Globe, Zap
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -62,21 +62,21 @@ const TIMEZONES = [
 const ONBOARDING_CARDS_DATA = [
   { 
     id: 1, title: "Smart Events", icon: CalendarDays, color: "#ffffff",
-    bgGradient: "radial-gradient(circle at center, rgba(59,130,246,0.35) 0%, rgba(5,5,5,0) 70%)",
-    cardGradient: "linear-gradient(135deg, #1e3a8a, #3b82f6)",
-    desc: "Schedule events seamlessly and keep your agenda organized."
+    bgGradient: "radial-gradient(circle at center, rgba(30,58,138,0.4) 0%, rgba(5,5,5,0) 70%)",
+    cardGradient: "linear-gradient(145deg, #2563eb, #1e3a8a)",
+    desc: "Schedule events seamlessly and keep your entire agenda perfectly organized."
   },
   { 
     id: 2, title: "Reminders", icon: Bell, color: "#ffffff", isReminder: true,
-    bgGradient: "radial-gradient(circle at center, rgba(217,70,239,0.35) 0%, rgba(5,5,5,0) 70%)",
-    cardGradient: "linear-gradient(135deg, #701a75, #d946ef)",
-    desc: "Automatic reminders keep everyone on track. Less stress."
+    bgGradient: "radial-gradient(circle at center, rgba(131,24,67,0.4) 0%, rgba(5,5,5,0) 70%)",
+    cardGradient: "linear-gradient(145deg, #d946ef, #701a75)",
+    desc: "Automatic reminders keep everyone on track. Less stress, more focus on your goals."
   },
   { 
     id: 3, title: "Automations", icon: Zap, color: "#ffffff",
-    bgGradient: "radial-gradient(circle at center, rgba(34,197,94,0.35) 0%, rgba(5,5,5,0) 70%)",
-    cardGradient: "linear-gradient(135deg, #14532d, #22c55e)",
-    desc: "Trigger emails, messages, and uploads automatically."
+    bgGradient: "radial-gradient(circle at center, rgba(20,83,45,0.4) 0%, rgba(5,5,5,0) 70%)",
+    cardGradient: "linear-gradient(145deg, #22c55e, #14532d)",
+    desc: "Trigger emails, messages, and drive uploads automatically right from your schedule."
   }
 ]
 
@@ -129,10 +129,10 @@ export function ScheduleView() {
   const [expandedIds,   setExpandedIds]   = useState<Record<string,boolean>>({})
   const [configModalOpen,setConfigModalOpen]=useState(false)
   
-  // States para Onboarding Avanzado
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const onboardingScrollRef = useRef<HTMLDivElement>(null)
+  const requestRef = useRef<number>()
   
   const [showTZModal,    setShowTZModal]    = useState(false)
   const [selectedTZ,     setSelectedTZ]     = useState(TIMEZONES[0])
@@ -163,7 +163,6 @@ export function ScheduleView() {
     setToast({msg,type}); setTimeout(()=>setToast(null),3500)
   },[])
 
-  // ── Init Check ──────────────────────────────────────────────
   useEffect(() => {
     const onboarded = localStorage.getItem("xblum_onboarded")
     const savedTZ = localStorage.getItem("xblum_tz_set")
@@ -172,8 +171,7 @@ export function ScheduleView() {
       setShowOnboarding(true)
       setTimeout(() => {
         if(onboardingScrollRef.current) {
-          // Centra la tarjeta 2 (Reminders) al cargar
-          const cardWidth = 280 + 16 // w-[280px] + gap
+          const cardWidth = 280 + 16
           onboardingScrollRef.current.scrollLeft = cardWidth * 1 
         }
       }, 50)
@@ -182,43 +180,52 @@ export function ScheduleView() {
     }
   }, [])
 
-  // ── FÍSICA EXACTA DE COVERFLOW ────────────────────────────────
-  const handleOnboardingScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const container = e.currentTarget
-    const scrollLeft = container.scrollLeft
-    const cardWidth = 280 + 16 // Tarjetas más anchas (280px) + gap
+  const updateCards = useCallback(() => {
+    if (!onboardingScrollRef.current) return;
+    const container = onboardingScrollRef.current;
+    const scrollLeft = container.scrollLeft;
+    const cardWidth = 280 + 16;
     
-    // Calcular índice activo
-    const index = Math.round(scrollLeft / cardWidth)
+    const index = Math.round(scrollLeft / cardWidth);
     if (index !== activeIndex && index >= 0 && index < ONBOARDING_CARDS_DATA.length) {
-      setActiveIndex(index)
+      setActiveIndex(index);
     }
 
-    const cards = container.querySelectorAll('.onboarding-card')
-
+    const cards = container.querySelectorAll('.onboarding-card');
+    
     cards.forEach((card, i) => {
-      const htmlCard = card as HTMLElement
-      // Distancia normalizada donde 0 es centro, 1 es una tarjeta a la derecha, -1 a la izquierda
-      const normalizedDistance = (i * cardWidth - scrollLeft) / cardWidth
-      const absVal = Math.abs(normalizedDistance)
+      const htmlCard = card as HTMLElement;
+      const innerCard = htmlCard.querySelector('.onboarding-card-inner') as HTMLElement;
+      const normalizedDistance = (i * cardWidth - scrollLeft) / cardWidth;
+      const absVal = Math.abs(normalizedDistance);
+      const clampedAbs = Math.min(absVal, 2); 
       
-      // Ajustes matemáticos para replicar la imagen:
-      const scale = Math.max(0.9, 1 - absVal * 0.1) // Solo se reduce al 90%
-      const rotateY = normalizedDistance * -55 // Inclinación fuerte de 55 grados
-      const translateZ = absVal * -120 // Empuja 120px hacia atrás
+      // Aplicamos transformaciones sin transición CSS para que no haya lag (jitter)
+      const rotateY = normalizedDistance * -55; 
+      const translateZ = clampedAbs * -180; 
+      const translateX = normalizedDistance * -110; 
       
-      // EL SECRETO DEL SOLAPAMIENTO: Mueve fuertemente las laterales hacia el centro
-      const translateX = normalizedDistance * -110 
-      
-      const opacity = Math.max(0.6, 1 - absVal * 0.4) // No se apagan por completo
-      const zIndex = 100 - Math.round(absVal * 10)
+      const opacity = Math.max(0.6, 1 - clampedAbs * 0.4);
+      const zIndex = 100 - Math.round(clampedAbs * 10);
 
-      htmlCard.style.transform = `translate3d(${translateX}px, 0, ${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`
-      htmlCard.style.opacity = opacity.toString()
-      htmlCard.style.zIndex = zIndex.toString()
-    })
+      // Mantenemos la relación de aspecto del contenido escalándolo inversamente en X
+      const textScaleX = Math.max(0.9, 1 - clampedAbs * 0.1); 
 
-  }, [activeIndex])
+      htmlCard.style.transform = `translate3d(${translateX}px, 0, ${translateZ}px) rotateY(${rotateY}deg)`;
+      
+      if (innerCard) {
+        innerCard.style.transform = `scaleX(${textScaleX})`;
+      }
+      
+      htmlCard.style.opacity = opacity.toString();
+      htmlCard.style.zIndex = zIndex.toString();
+    });
+  }, [activeIndex]);
+
+  const handleOnboardingScroll = useCallback(() => {
+    if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    requestRef.current = requestAnimationFrame(updateCards);
+  }, [updateCards]);
 
   function handleStartOnboarding() {
     localStorage.setItem("xblum_onboarded", "true")
@@ -288,7 +295,6 @@ export function ScheduleView() {
   const showViewAllButton = currentList.length>3
   const displayedList   = viewAll ? currentList : currentList.slice(0,3)
 
-  // ── Botón Nativo de Telegram ─────────────────────────────────
   useEffect(()=>{
     const tg=(window as any).Telegram?.WebApp
     if(!tg?.BackButton) return
@@ -417,19 +423,24 @@ export function ScheduleView() {
         .wheel-mask { mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 70%,transparent 100%); -webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 70%,transparent 100%); }
         .fade-out-bottom { mask-image:linear-gradient(to bottom,black 40%,transparent 100%); opacity:0.8; pointer-events:none; }
         
-        /* Perspectiva 3D */
         .onboarding-container { perspective: 1000px; transform-style: preserve-3d; }
         
-        /* Transición de las tarjetas: Más suave y fluida (ease-out de 0.25s) */
+        /* Aseguramos transformaciones suaves sin temblores */
         .onboarding-card { 
           will-change: transform, opacity; 
-          transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.25s ease-out; 
+          transform-origin: center center -180px; /* Corregimos punto de origen 3D */
+          backface-visibility: hidden; /* Mejora rendimiento */
+        }
+        
+        .onboarding-card-inner {
+          will-change: transform;
+          transform-origin: center center;
         }
       `}</style>
 
       {toast&&<Toast msg={toast.msg} type={toast.type}/>}
 
-      {/* ── ONBOARDING AVANZADO (CARÁTULA 3D) ────────────────────── */}
+      {/* ── ONBOARDING AVANZADO ────────────────────── */}
       {showOnboarding && (
         <div className="fixed inset-0 z-[200] flex flex-col bg-[#050505] animate-in fade-in duration-500 overflow-hidden">
           
@@ -441,10 +452,11 @@ export function ScheduleView() {
               <img src="/xblum-logo.png" alt="xBlum Logo" className="h-full object-contain" onError={(e)=>(e.currentTarget.style.display='none')}/>
             </div>
 
+            {/* Eliminamos scroll smooth aquí, lo maneja requestAnimationFrame */}
             <div ref={onboardingScrollRef} 
                  onScroll={handleOnboardingScroll}
                  className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory px-[calc(50vw-140px)] no-scrollbar pb-10 pt-4" 
-                 style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
+                 style={{ WebkitOverflowScrolling: 'touch', scrollBehavior: 'auto' }}>
               
               {ONBOARDING_CARDS_DATA.map((card) => {
                 const Icon = card.icon;
@@ -453,19 +465,22 @@ export function ScheduleView() {
                        className="onboarding-card shrink-0 w-[280px] h-[360px] snap-center rounded-[36px] p-8 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden" 
                        style={{ background: card.cardGradient }}>
                     
-                    <div className="absolute inset-0 bg-white/5 opacity-40 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "120px 120px" }} />
-                    
-                    <div className="w-[72px] h-[72px] rounded-full bg-white/15 flex items-center justify-center mb-8 backdrop-blur-lg relative z-10 border border-white/20 shadow-inner">
-                      <div className="relative">
-                        <Icon className="w-9 h-9" style={{color: card.color}} />
-                        {card.isReminder && <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full border-2 border-[#a21caf]" />}
+                    {/* Contenedor interno para aplicar contra-escala y arreglar textos aplastados */}
+                    <div className="onboarding-card-inner w-full h-full flex flex-col items-center justify-center">
+                      <div className="absolute inset-0 bg-white/5 opacity-40 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "120px 120px" }} />
+                      
+                      <div className="w-[72px] h-[72px] rounded-full bg-white/15 flex items-center justify-center mb-8 backdrop-blur-lg relative z-10 border border-white/20 shadow-inner">
+                        <div className="relative">
+                          <Icon className="w-9 h-9" style={{color: card.color}} />
+                          {card.isReminder && <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full border-2 border-[#a21caf]" />}
+                        </div>
                       </div>
+                      
+                      <h3 className="text-white font-bold text-[24px] mb-3.5 relative z-10 tracking-tight" style={{fontFamily:SFD}}>{card.title}</h3>
+                      <p className="text-white/85 text-[15px] leading-relaxed relative z-10 px-2" style={{fontFamily:SF}}>
+                        {card.desc}
+                      </p>
                     </div>
-                    
-                    <h3 className="text-white font-bold text-[24px] mb-3.5 relative z-10 tracking-tight" style={{fontFamily:SFD}}>{card.title}</h3>
-                    <p className="text-white/85 text-[15px] leading-relaxed relative z-10 px-2" style={{fontFamily:SF}}>
-                      {card.desc}
-                    </p>
                   </div>
                 )
               })}
@@ -513,12 +528,8 @@ export function ScheduleView() {
         </div>
       )}
 
-      {/* ── RESTO DE LA VISTA (CONTENIDO PRINCIPAL) ──────────────── */}
-      <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20" style={{backgroundImage:"url('/landscape.jpg')",filter:"blur(60px)"}}/>
-      <div className="absolute inset-0 z-1 pointer-events-none" style={{background:"linear-gradient(to bottom,rgba(17,17,17,0.4) 0%,rgba(17,17,17,1) 100%)"}}/>
-
+      {/* Header Fecha */}
       <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar">
-        {/* Header Fecha */}
         <div className="pt-10 flex justify-center items-end gap-1">
           <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
           <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
@@ -635,7 +646,6 @@ export function ScheduleView() {
             <div className="overflow-y-auto flex-1 no-scrollbar pb-8 space-y-4">
               <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner border border-[#2c2c2e]">
                 <div className="flex flex-col divide-y divide-[#2c2c2e]">
-                  {/* Type */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("type")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3"><Sparkles className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Type</span></div>
@@ -644,7 +654,6 @@ export function ScheduleView() {
                     {activePicker==="type"&&<div className="flex items-center justify-center py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask"><WheelPicker items={creationMode==="events"?EVENT_OPTIONS:REMINDER_OPTIONS} value={eventType} onChange={setEventType}/></div>}
                   </div>
                   
-                  {/* Title & Icon */}
                   <div className="flex flex-col">
                     <div className="flex items-center justify-between w-full p-4 border-b border-[#2c2c2e]">
                       <button onClick={()=>togglePicker("icon")} className="flex items-center gap-3 active:opacity-70">
@@ -663,7 +672,6 @@ export function ScheduleView() {
                     </div>}
                   </div>
 
-                  {/* Date */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("date")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3"><CalendarDays className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Date</span></div>
@@ -675,7 +683,6 @@ export function ScheduleView() {
                     </div>}
                   </div>
 
-                  {/* Time */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("time")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3"><Clock className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Time</span></div>
@@ -688,7 +695,6 @@ export function ScheduleView() {
                     </div>}
                   </div>
 
-                  {/* Schedule Email fields */}
                   {eventType==="Schedule Email"&&<>
                     <div className="flex items-center justify-between w-full p-4">
                       <div className="flex items-center gap-3"><AtSign className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Recipient</span></div>
@@ -709,7 +715,6 @@ export function ScheduleView() {
                     <div className="flex items-center gap-2 mx-4 mb-3 px-3 py-2 rounded-xl bg-[#0ea5e9]/10 border border-[#0ea5e9]/20"><Mail className="w-3.5 h-3.5 text-[#0ea5e9] shrink-0"/><span className="text-[#0ea5e9] text-[11px]" style={{fontFamily:SF}}>Sent via Composio Gmail at scheduled time</span></div>
                   </>}
 
-                  {/* Drive Upload fields */}
                   {eventType==="Drive Upload"&&<>
                     <div className="flex items-center justify-between w-full p-4">
                       <div className="flex items-center gap-3"><Folder className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Drive Folder</span></div>
@@ -730,16 +735,12 @@ export function ScheduleView() {
                     <div className="flex items-center gap-2 mx-4 mb-3 px-3 py-2 rounded-xl bg-[#eab308]/10 border border-[#eab308]/20"><Folder className="w-3.5 h-3.5 text-[#eab308] shrink-0"/><span className="text-[#eab308] text-[11px]" style={{fontFamily:SF}}>Folder created in Google Drive via Composio</span></div>
                   </>}
 
-                  {/* Custom Event link */}
                   {eventType==="Custom Event"&&<div className="flex items-center justify-between w-full p-4"><div className="flex items-center gap-3"><LinkIcon className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Meeting URL</span></div><input type="text" placeholder="https://..." value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white"/></div>}
                   
-                  {/* Medication frequency */}
                   {eventType==="Take Medication"&&<div className="flex items-center justify-between w-full p-4"><div className="flex items-center gap-3"><RefreshCcw className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Frequency</span></div><input type="text" placeholder="Every 8h" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white"/></div>}
                   
-                  {/* General tag */}
                   {(eventType==="Workout / Gym"||eventType==="Deep Work"||eventType==="Meal Time")&&<div className="flex items-center justify-between w-full p-4"><div className="flex items-center gap-3"><Type className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Config / Tag</span></div><input type="text" placeholder="e.g. Chest Day" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white"/></div>}
                   
-                  {/* Alert offset */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("reminder")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3"><Bell className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Alert Offset</span></div>
@@ -750,7 +751,6 @@ export function ScheduleView() {
                 </div>
               </div>
 
-              {/* Description */}
               <div className="bg-[#1c1c1e] rounded-[28px] p-4 flex flex-col gap-2 border border-[#2c2c2e]">
                 <div className="flex items-center gap-3 pl-2"><AlignLeft className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Description</span></div>
                 <textarea rows={3} placeholder="Optional notes or details..." value={taskDesc} onChange={e=>setTaskDesc(e.target.value)} className="w-full bg-transparent text-white placeholder:text-[#636366] resize-none focus:outline-none p-2 text-[15px] leading-relaxed" style={{fontFamily:SF}}/>
