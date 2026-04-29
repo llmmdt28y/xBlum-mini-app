@@ -53,13 +53,32 @@ const ICON_COLORS: Record<string, string> = {
 const EVENT_OPTIONS    = ["Custom Event","Schedule Email","Drive Upload","Workout / Gym","Deep Work","Meal Time","Send Message"]
 const REMINDER_OPTIONS = ["Personal Reminder","Drink Water","Stand Up / Stretch","Take Medication","Custom Reminder"]
 
-// Se añade un valor por defecto que obliga al usuario a elegir
 const TIMEZONES = [
   "--- Select a Time Zone ---",
-  "America/Los_Angeles", "America/Mazatlan", "America/Mexico_City", "America/New_York",
-  "America/Bogota", "America/Sao_Paulo", "America/Argentina/Buenos_Aires",
-  "Europe/London", "Europe/Madrid", "Europe/Paris", "Europe/Berlin",
-  "Asia/Dubai", "Asia/Kolkata", "Asia/Bangkok", "Asia/Tokyo", "Australia/Sydney"
+  "America/Los_Angeles", "America/Mexico_City", "America/Bogota", "America/Sao_Paulo", "America/Argentina/Buenos_Aires",
+  "Europe/London", "Europe/Madrid", "Europe/Paris", "Asia/Dubai", "Asia/Tokyo", "Australia/Sydney"
+]
+
+// Datos Onboarding con colores de fondo degradados específicos (radial)
+const ONBOARDING_CARDS_DATA = [
+  { 
+    id: 1, title: "Smart Events", icon: CalendarDays, color: "#ffffff",
+    bgGradient: "radial-gradient(circle at center, rgba(59,130,246,0.35) 0%, rgba(5,5,5,0) 70%)",
+    cardGradient: "linear-gradient(135deg, #1e3a8a, #3b82f6)",
+    desc: "Schedule events seamlessly and keep your agenda organized."
+  },
+  { 
+    id: 2, title: "Reminders", icon: Bell, color: "#ffffff", isReminder: true,
+    bgGradient: "radial-gradient(circle at center, rgba(217,70,239,0.35) 0%, rgba(5,5,5,0) 70%)",
+    cardGradient: "linear-gradient(135deg, #701a75, #d946ef)",
+    desc: "Automatic reminders keep everyone on track. Less stress."
+  },
+  { 
+    id: 3, title: "Automations", icon: Zap, color: "#ffffff",
+    bgGradient: "radial-gradient(circle at center, rgba(34,197,94,0.35) 0%, rgba(5,5,5,0) 70%)",
+    cardGradient: "linear-gradient(135deg, #14532d, #22c55e)",
+    desc: "Trigger emails, messages, and uploads automatically."
+  }
 ]
 
 const SUGGESTIONS = [
@@ -111,8 +130,11 @@ export function ScheduleView() {
   const [expandedIds,   setExpandedIds]   = useState<Record<string,boolean>>({})
   const [configModalOpen,setConfigModalOpen]=useState(false)
   
-  // States para Onboarding y TimeZone
+  // States para Onboarding Avanzado
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const onboardingScrollRef = useRef<HTMLDivElement>(null)
+  
   const [showTZModal,    setShowTZModal]    = useState(false)
   const [selectedTZ,     setSelectedTZ]     = useState(TIMEZONES[0])
 
@@ -142,17 +164,60 @@ export function ScheduleView() {
     setToast({msg,type}); setTimeout(()=>setToast(null),3500)
   },[])
 
-  // ── Init Check for Onboarding & TimeZone ────────────────────
+  // ── Init Check ──────────────────────────────────────────────
   useEffect(() => {
     const onboarded = localStorage.getItem("xblum_onboarded")
     const savedTZ = localStorage.getItem("xblum_tz_set")
     
     if (!onboarded) {
       setShowOnboarding(true)
+      setTimeout(() => {
+        if(onboardingScrollRef.current) {
+          const cardWidth = 260 + 16
+          onboardingScrollRef.current.scrollLeft = cardWidth * 0.5
+        }
+      }, 100)
     } else if (!savedTZ) {
       setShowTZModal(true)
     }
   }, [])
+
+  // Lógica de Scroll Onboarding para detectar índice activo y aplicar efecto 3D
+  const handleOnboardingScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget
+    const scrollLeft = container.scrollLeft
+    const cardWidth = 260 + 16
+    const index = Math.round(scrollLeft / cardWidth)
+    
+    if (index !== activeIndex && index >= 0 && index < ONBOARDING_CARDS_DATA.length) {
+      setActiveIndex(index)
+    }
+
+    const cards = container.querySelectorAll('.onboarding-card')
+    const containerCenterX = container.offsetWidth / 2
+
+    cards.forEach((card, i) => {
+      const htmlCard = card as HTMLElement
+      const cardRect = htmlCard.getBoundingClientRect()
+      const containerRect = container.getBoundingClientRect()
+      const cardCenterX = cardRect.left + cardRect.width / 2
+      const distanceFromCenter = cardCenterX - (containerRect.left + containerCenterX)
+      
+      const normalizedDistance = distanceFromCenter / (container.offsetWidth / 2)
+      
+      const absVal = Math.abs(normalizedDistance)
+      const scale = 1 - absVal * 0.15
+      const rotateY = normalizedDistance * -35
+      const translateZ = absVal * -100
+      const opacity = 1 - absVal * 0.4
+      const zIndex = 100 - Math.round(absVal * 10)
+
+      htmlCard.style.transform = `scale(${scale}) rotateY(${rotateY}deg) translateZ(${translateZ}px)`
+      htmlCard.style.opacity = opacity.toString()
+      htmlCard.style.zIndex = zIndex.toString()
+    })
+
+  }, [activeIndex])
 
   function handleStartOnboarding() {
     localStorage.setItem("xblum_onboarded", "true")
@@ -163,7 +228,7 @@ export function ScheduleView() {
   }
 
   function handleSaveTZ() {
-    if (selectedTZ === TIMEZONES[0]) return // Valida que se haya seleccionado algo real
+    if (selectedTZ === TIMEZONES[0]) return
     localStorage.setItem("xblum_tz_set", selectedTZ)
     setShowTZModal(false)
     showToast("Time Zone synced successfully 🌍", "success")
@@ -227,26 +292,14 @@ export function ScheduleView() {
   useEffect(()=>{
     const tg=(window as any).Telegram?.WebApp
     if(!tg?.BackButton) return
-
     tg.BackButton.show()
-
     const handleBack=()=>{
-      // Si está en onboarding o TZ, regresa al HomeView inmediatamente
-      if (showOnboarding || showTZModal) {
-         setCurrentView("home")
-         tg.BackButton.hide()
-      } else if (activePicker) {
-         setActivePicker(null)
-      } else if (configModalOpen) {
-         setConfigModalOpen(false)
-      } else if (isEditingMode) { 
-         setIsEditingMode(false); setActiveNavTab("tasks") 
-      } else { 
-         setCurrentView("home")
-         tg.BackButton.hide() 
-      }
+      if (showOnboarding || showTZModal) { setCurrentView("home"); tg.BackButton.hide() } 
+      else if (activePicker) setActivePicker(null)
+      else if (configModalOpen) setConfigModalOpen(false)
+      else if (isEditingMode){ setIsEditingMode(false); setActiveNavTab("tasks") } 
+      else { setCurrentView("home"); tg.BackButton.hide() }
     }
-
     tg.BackButton.onClick(handleBack)
     return ()=>tg.BackButton.offClick(handleBack)
   },[isEditingMode, configModalOpen, activePicker, setCurrentView, showOnboarding, showTZModal])
@@ -257,6 +310,7 @@ export function ScheduleView() {
     else if(tab==="create"){ setIsEditingMode(false); setCreationMode("events"); setEventType(EVENT_OPTIONS[0]); setConfigModalOpen(true); setActiveNavTab("create") }
     else { setIsEditingMode(false); setConfigModalOpen(false); setActiveNavTab(tab) }
   }
+
   function togglePicker(p:string){ setActivePicker(ap=>ap===p?null:p) }
   function toggleExpand(id:string|number){ setExpandedIds(p=>({...p,[id]:!p[id]})) }
   function handleFileUpload(e:React.ChangeEvent<HTMLInputElement>){
@@ -361,79 +415,80 @@ export function ScheduleView() {
         .jiggle-card { animation: jiggle 0.3s ease-in-out infinite; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .wheel-mask { mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 70%,transparent 100%); -webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 70%,transparent 100%); }
-        .fade-out-bottom { mask-image:linear-gradient(to bottom,black 40%,transparent 100%); -webkit-mask-image:linear-gradient(to bottom,black 40%,transparent 100%); opacity:0.8; pointer-events:none; }
+        .fade-out-bottom { mask-image:linear-gradient(to bottom,black 40%,transparent 100%); opacity:0.8; pointer-events:none; }
+        /* Perspectiva para efecto 3D */
+        .onboarding-container { perspective: 1200px; transform-style: preserve-3d; }
+        .onboarding-card { will-change: transform, opacity; transition: transform 0.1s ease-out, opacity 0.1s ease-out; }
       `}</style>
 
       {toast&&<Toast msg={toast.msg} type={toast.type}/>}
 
-      {/* ── ONBOARDING (CARÁTULA) ─────────────────────────────────── */}
+      {/* ── ONBOARDING AVANZADO (CARÁTULA 3D) ────────────────────── */}
       {showOnboarding && (
-        <div className="fixed inset-0 z-[200] flex flex-col bg-[#050505] animate-in fade-in duration-500">
-          <div className="flex flex-col items-center flex-1 pt-12 pb-8">
-            {/* Logo o Icono superior */}
-            <div className="mb-8 opacity-90">
-              <Sparkles className="w-10 h-10 text-white" />
+        <div className="fixed inset-0 z-[200] flex flex-col bg-[#050505] animate-in fade-in duration-500 overflow-hidden">
+          
+          {/* Fondo Degradado Dinámico (radial central expandido) */}
+          <div className="absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none" 
+               style={{ background: ONBOARDING_CARDS_DATA[activeIndex].bgGradient, opacity: 1 }} />
+          
+          <div className="flex flex-col items-center flex-1 pt-12 pb-8 relative z-10 onboarding-container">
+            {/* Tu Logo Subido */}
+            <div className="mb-6 opacity-90 h-10 flex items-center justify-center">
+              <img src="/xblum-logo.png" alt="xBlum Logo" className="h-full object-contain" onError={(e)=>(e.currentTarget.style.display='none')}/>
             </div>
 
-            {/* Carrusel de Cartas */}
-            <div className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory px-[calc(50vw-130px)] no-scrollbar pb-6" style={{ scrollBehavior: 'smooth' }}>
+            {/* Carrusel 3D Coverflow */}
+            <div ref={onboardingScrollRef} 
+                 onScroll={handleOnboardingScroll}
+                 className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory px-[calc(50vw-130px)] no-scrollbar pb-10 pt-4" 
+                 style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
               
-              {/* Card 1: Events */}
-              <div className="shrink-0 w-[260px] h-[340px] snap-center rounded-[32px] p-6 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden" 
-                   style={{ background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)' }}>
-                <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "100px 100px" }} />
-                <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mb-6 backdrop-blur-md relative z-10 border border-white/30">
-                  <CalendarDays className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-white font-bold text-[22px] mb-3 relative z-10" style={{fontFamily:SFD}}>Smart Events</h3>
-                <p className="text-white/80 text-[14px] leading-relaxed relative z-10" style={{fontFamily:SF}}>
-                  Schedule events seamlessly and keep your entire agenda perfectly organized in one place.
-                </p>
-              </div>
-
-              {/* Card 2: Reminders (Center focus as in your image) */}
-              <div className="shrink-0 w-[260px] h-[340px] snap-center rounded-[32px] p-6 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden"
-                   style={{ background: 'linear-gradient(135deg, #701a75, #d946ef)' }}>
-                <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "100px 100px" }} />
-                <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mb-6 backdrop-blur-md relative z-10 border border-white/30">
-                  <div className="relative">
-                    <Bell className="w-8 h-8 text-white" />
-                    <div className="absolute top-0 right-0 w-3 h-3 bg-white rounded-full border-2 border-[#a21caf]" />
+              {ONBOARDING_CARDS_DATA.map((card, i) => {
+                const Icon = card.icon;
+                return (
+                  <div key={card.id} 
+                       className="onboarding-card shrink-0 w-[260px] h-[350px] snap-center rounded-[32px] p-7 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden" 
+                       style={{ background: card.cardGradient }}>
+                    
+                    {/* Textura ruido sutil */}
+                    <div className="absolute inset-0 bg-white/5 opacity-40 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "120px 120px" }} />
+                    
+                    {/* Icono con Blur de fondo */}
+                    <div className="w-16 h-16 rounded-full bg-white/15 flex items-center justify-center mb-7 backdrop-blur-lg relative z-10 border border-white/20 shadow-inner">
+                      <div className="relative">
+                        <Icon className="w-8 h-8" style={{color: card.color}} />
+                        {card.isReminder && <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-white rounded-full border-2 border-[#a21caf]" />}
+                      </div>
+                    </div>
+                    
+                    <h3 className="text-white font-bold text-[23px] mb-3.5 relative z-10 tracking-tight" style={{fontFamily:SFD}}>{card.title}</h3>
+                    <p className="text-white/85 text-[14.5px] leading-relaxed relative z-10 px-1" style={{fontFamily:SF}}>
+                      {card.desc}
+                    </p>
                   </div>
-                </div>
-                <h3 className="text-white font-bold text-[22px] mb-3 relative z-10" style={{fontFamily:SFD}}>Reminders</h3>
-                <p className="text-white/90 text-[14px] leading-relaxed relative z-10" style={{fontFamily:SF}}>
-                  Automatic reminders keep everyone on track. Less stress, more focus on your goals.
-                </p>
-              </div>
+                )
+              })}
+            </div>
 
-              {/* Card 3: Automations */}
-              <div className="shrink-0 w-[260px] h-[340px] snap-center rounded-[32px] p-6 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden"
-                   style={{ background: 'linear-gradient(135deg, #14532d, #22c55e)' }}>
-                <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "100px 100px" }} />
-                <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mb-6 backdrop-blur-md relative z-10 border border-white/30">
-                  <Zap className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-white font-bold text-[22px] mb-3 relative z-10" style={{fontFamily:SFD}}>Automations</h3>
-                <p className="text-white/80 text-[14px] leading-relaxed relative z-10" style={{fontFamily:SF}}>
-                  Trigger emails, messages, and drive uploads automatically right from your schedule.
-                </p>
-              </div>
-
+            {/* Indicadores (Dots) */}
+            <div className="flex gap-2.5 mb-10">
+              {ONBOARDING_CARDS_DATA.map((_, i) => (
+                <div key={i} className={`h-2 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-7 bg-white' : 'w-2 bg-white/30'}`} />
+              ))}
             </div>
 
             {/* Copy & Button Inferior */}
-            <div className="flex flex-col items-center text-center mt-auto px-6 w-full max-w-sm">
-              <h1 className="text-white font-bold text-[28px] leading-tight mb-2" style={{fontFamily:SFD, letterSpacing: "-0.02em"}}>
+            <div className="flex flex-col items-center text-center mt-auto px-7 w-full max-w-sm relative z-10">
+              <h1 className="text-white font-bold text-[29px] leading-[1.15] mb-2.5" style={{fontFamily:SFD, letterSpacing: "-0.03em"}}>
                 Smart scheduling,<br/>reimagined for you
               </h1>
-              <p className="text-[#8e8e93] text-[15px] mb-8" style={{fontFamily:SF}}>
+              <p className="text-[#8e8e93] text-[15.5px] mb-8" style={{fontFamily:SF}}>
                 Join <span className="text-white font-medium">xBlum Assistant</span>
               </p>
 
               <button 
                 onClick={handleStartOnboarding}
-                className="w-full bg-white text-black py-4 rounded-full font-bold text-[17px] active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+                className="w-full bg-white text-black py-4 rounded-full font-bold text-[17px] active:scale-[0.97] transition-all flex items-center justify-center gap-2 shadow-lg"
                 style={{fontFamily:SF}}
               >
                 Let's Get Started <ChevronsRight className="w-5 h-5"/>
@@ -443,49 +498,34 @@ export function ScheduleView() {
         </div>
       )}
 
-      {/* ── TIME ZONE MODAL (Solo si no tiene zona horaria) ───────── */}
+      {/* ── TIME ZONE MODAL ────────────────────────────────────── */}
       {!showOnboarding && showTZModal && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
-          <div className="relative w-full rounded-t-[32px] p-6 animate-in slide-in-from-bottom duration-400 max-h-[90vh] flex flex-col bg-[#111] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#2c2c2e]">
+          <div className="relative w-full rounded-t-[32px] p-6 max-h-[90vh] flex flex-col bg-[#111] border-t border-[#2c2c2e]">
             <div className="flex flex-col items-center justify-center mb-6 pt-2">
-              <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-4">
-                <Globe className="w-8 h-8 text-blue-500" />
-              </div>
+              <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-4"><Globe className="w-8 h-8 text-blue-500" /></div>
               <h3 className="text-white font-bold text-[24px] tracking-tight text-center" style={{fontFamily:SFD}}>Set Time Zone</h3>
-              <p className="text-[#8e8e93] text-[15px] text-center mt-2" style={{fontFamily:SF}}>
-                Select your current region to ensure <br/> schedules fire exactly when you need them.
-              </p>
+              <p className="text-[#8e8e93] text-[15px] text-center mt-2" style={{fontFamily:SF}}>Select your region to ensure schedules<br/> fire exactly when you need them.</p>
             </div>
-
-            <div className="bg-[#1c1c1e] rounded-[24px] overflow-hidden mb-6 h-[160px] relative wheel-mask border border-[#2c2c2e]">
-              <WheelPicker items={TIMEZONES} value={selectedTZ} onChange={setSelectedTZ} />
-            </div>
-
-            <div className="pb-4">
-              <button 
-                onClick={handleSaveTZ} 
-                disabled={selectedTZ === TIMEZONES[0]}
-                className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] flex items-center justify-center gap-2 disabled:opacity-50 disabled:active:scale-100"
-                style={{fontFamily:SF}}
-              >
-                Confirm & Continue
-              </button>
-            </div>
+            <div className="bg-[#1c1c1e] rounded-[24px] overflow-hidden mb-6 h-[160px] relative wheel-mask border border-[#2c2c2e]"><WheelPicker items={TIMEZONES} value={selectedTZ} onChange={setSelectedTZ} /></div>
+            <div className="pb-4"><button onClick={handleSaveTZ} disabled={selectedTZ === TIMEZONES[0]} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] flex items-center justify-center gap-2 disabled:opacity-50 disabled:active:scale-100">Confirm & Continue</button></div>
           </div>
         </div>
       )}
 
-
+      {/* ── RESTO DE LA VISTA (CONTENIDO PRINCIPAL) ──────────────── */}
       <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20" style={{backgroundImage:"url('/landscape.jpg')",filter:"blur(60px)"}}/>
       <div className="absolute inset-0 z-1 pointer-events-none" style={{background:"linear-gradient(to bottom,rgba(17,17,17,0.4) 0%,rgba(17,17,17,1) 100%)"}}/>
 
       <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar">
+        {/* Header Fecha */}
         <div className="pt-10 flex justify-center items-end gap-1">
           <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
           <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
         </div>
 
+        {/* Calendario Semanal */}
         <div className="flex justify-between items-center px-6 mt-8">
           <button onClick={()=>setSelectedDate("All")} className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate==="All"?"bg-white text-black":"bg-[#1c1c1e] text-[#8e8e93]"}`}>
             <span className="text-[14px] font-bold" style={{fontFamily:SF}}>All</span>
@@ -506,6 +546,7 @@ export function ScheduleView() {
           })}
         </div>
 
+        {/* Resumen Schedule */}
         <div className="mt-10 flex flex-col items-center">
           <p className="text-[#8e8e93] text-[14px] font-bold tracking-widest uppercase mb-3" style={{fontFamily:SF}}>Schedule</p>
           <div className="flex items-center gap-6 text-[26px] font-bold text-white tracking-tight" style={{fontFamily:SFD}}>
@@ -514,28 +555,26 @@ export function ScheduleView() {
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col items-center gap-3">
-          <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e]">
+        {/* Sugerencias Biométricas */}
+        <div className="mt-6 flex flex-col items-center gap-3 px-5">
+          <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2.5 rounded-full border border-[#2c2c2e] w-full max-w-sm justify-center">
             <Moon className="w-4 h-4 text-[#f59e0b]"/>
             <span className="text-[#f59e0b] text-[14px] font-medium" style={{fontFamily:SF}}>Morning grogginess <span className="opacity-60 font-normal">15m left</span></span>
           </div>
-          <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e]">
+          <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2.5 rounded-full border border-[#2c2c2e] w-full max-w-sm justify-center">
             <TrendingUp className="w-4 h-4 text-[#22c55e]"/>
             <span className="text-[#22c55e] text-[14px] font-medium" style={{fontFamily:SF}}>Alertness rise <span className="opacity-60 font-normal">in 45m</span></span>
           </div>
         </div>
 
+        {/* Lista de Tareas */}
         <div className="px-5 mt-10 pb-10">
           {loadingItems ? (
             <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-[#8e8e93]"/></div>
           ) : filteredTasks.length===0 ? (
             <div className="animate-in fade-in duration-500">
-              <div className="flex items-center justify-between mb-4 px-1">
+               <div className="flex items-center justify-between mb-4 px-1">
                 <div className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-[#8e8e93]"/><span className="text-[#8e8e93] text-[13px] font-bold tracking-widest uppercase" style={{fontFamily:SF}}>Suggested</span></div>
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><ThumbsUp className="w-3.5 h-3.5 text-[#8e8e93]"/></div>
-                  <div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><ThumbsDown className="w-3.5 h-3.5 text-[#8e8e93]"/></div>
-                </div>
               </div>
               <div className="flex flex-col gap-3">{SUGGESTIONS.map((sug,idx)=><TaskCard key={idx} item={sug} isSuggestion={true}/>)}</div>
             </div>
@@ -543,15 +582,13 @@ export function ScheduleView() {
             <div className="flex flex-col animate-in fade-in duration-500">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex bg-[#1c1c1e] p-1 rounded-full w-[220px] border border-[#2c2c2e]">
-                  <button onClick={()=>setListView("events")} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${listView==="events"?"bg-white text-black shadow-sm":"text-[#8e8e93] hover:text-white"}`} style={{fontFamily:SF}}>Events</button>
-                  <button onClick={()=>setListView("reminders")} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${listView==="reminders"?"bg-white text-black shadow-sm":"text-[#8e8e93] hover:text-white"}`} style={{fontFamily:SF}}>Reminders</button>
+                  <button onClick={()=>setListView("events")} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${listView==="events"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>Events</button>
+                  <button onClick={()=>setListView("reminders")} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${listView==="reminders"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>Reminders</button>
                 </div>
                 {showViewAllButton&&<button onClick={()=>setViewAll(!viewAll)} className="text-[#3b82f6] text-[14px] font-medium px-2 py-1 active:opacity-70 transition-opacity">{viewAll?"Collapse":"View All"}</button>}
               </div>
               <div className="flex flex-col gap-3">
-                {currentList.length===0 ? (
-                  <div className="py-6 text-center"><p className="text-[#636366] text-sm font-medium" style={{fontFamily:SF}}>No {listView} scheduled</p></div>
-                ) : displayedList.map((task,idx)=>{
+                {displayedList.map((task,idx)=>{
                   const isLast=idx===displayedList.length-1
                   return <TaskCard key={task.id} item={task} isLastAndFaded={isLast&&!viewAll&&showViewAllButton}/>
                 })}
@@ -561,7 +598,7 @@ export function ScheduleView() {
         </div>
       </div>
 
-      {/* NavBar */}
+      {/* NavBar Inferior Fija */}
       <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-center pointer-events-none" style={{paddingBottom:"calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 16px)"}}>
         <div className="pointer-events-auto flex items-center p-1.5 gap-1 bg-[#0f0f0f]/85 backdrop-blur-3xl border border-white/10 rounded-full shadow-2xl">
           <button disabled className="w-14 h-14 rounded-full flex items-center justify-center opacity-30 cursor-not-allowed"><Search className="w-6 h-6 text-[#8e8e93]"/></button>
@@ -580,19 +617,22 @@ export function ScheduleView() {
         </div>
       </div>
 
-      {/* Creation Modal */}
+      {/* ── MODAL DE CREACIÓN / CONFIGURACIÓN ──────────────────── */}
       {configModalOpen&&(
         <div className="fixed inset-0 z-[60] flex items-end justify-center animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={()=>{setConfigModalOpen(false);setActivePicker(null)}}/>
           <div className="relative w-full rounded-t-[32px] p-6 animate-in slide-in-from-bottom duration-400 max-h-[90vh] flex flex-col bg-[#111] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#2c2c2e]">
+            
             <div className="flex items-center justify-between mb-4 pt-1">
               <h3 className="text-white font-bold text-[24px] tracking-tight" style={{fontFamily:SFD}}>Create New</h3>
               <button onClick={()=>{setConfigModalOpen(false);setActivePicker(null)}} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70"><X className="w-5 h-5 text-[#8e8e93]"/></button>
             </div>
+            
             <div className="flex bg-[#1c1c1e] p-1 rounded-full w-full mb-5 border border-[#2c2c2e]">
               <button onClick={()=>{setCreationMode("events");setEventType(EVENT_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="events"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>Event</button>
               <button onClick={()=>{setCreationMode("reminders");setEventType(REMINDER_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="reminders"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>Reminder</button>
             </div>
+            
             <div className="overflow-y-auto flex-1 no-scrollbar pb-8 space-y-4">
               <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner border border-[#2c2c2e]">
                 <div className="flex flex-col divide-y divide-[#2c2c2e]">
@@ -604,6 +644,7 @@ export function ScheduleView() {
                     </button>
                     {activePicker==="type"&&<div className="flex items-center justify-center py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask"><WheelPicker items={creationMode==="events"?EVENT_OPTIONS:REMINDER_OPTIONS} value={eventType} onChange={setEventType}/></div>}
                   </div>
+                  
                   {/* Title & Icon */}
                   <div className="flex flex-col">
                     <div className="flex items-center justify-between w-full p-4 border-b border-[#2c2c2e]">
@@ -622,6 +663,7 @@ export function ScheduleView() {
                       )})}
                     </div>}
                   </div>
+
                   {/* Date */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("date")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
@@ -633,6 +675,7 @@ export function ScheduleView() {
                       <WheelPicker items={days}   value={selDayNum} onChange={setSelDayNum}/>
                     </div>}
                   </div>
+
                   {/* Time */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("time")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
@@ -645,6 +688,7 @@ export function ScheduleView() {
                       <WheelPicker items={mins}  value={selMin}  onChange={setSelMin}  suffix="m"/>
                     </div>}
                   </div>
+
                   {/* Schedule Email fields */}
                   {eventType==="Schedule Email"&&<>
                     <div className="flex items-center justify-between w-full p-4">
@@ -665,6 +709,7 @@ export function ScheduleView() {
                     </div>
                     <div className="flex items-center gap-2 mx-4 mb-3 px-3 py-2 rounded-xl bg-[#0ea5e9]/10 border border-[#0ea5e9]/20"><Mail className="w-3.5 h-3.5 text-[#0ea5e9] shrink-0"/><span className="text-[#0ea5e9] text-[11px]" style={{fontFamily:SF}}>Sent via Composio Gmail at scheduled time</span></div>
                   </>}
+
                   {/* Drive Upload fields */}
                   {eventType==="Drive Upload"&&<>
                     <div className="flex items-center justify-between w-full p-4">
@@ -685,12 +730,16 @@ export function ScheduleView() {
                     </div>
                     <div className="flex items-center gap-2 mx-4 mb-3 px-3 py-2 rounded-xl bg-[#eab308]/10 border border-[#eab308]/20"><Folder className="w-3.5 h-3.5 text-[#eab308] shrink-0"/><span className="text-[#eab308] text-[11px]" style={{fontFamily:SF}}>Folder created in Google Drive via Composio</span></div>
                   </>}
+
                   {/* Custom Event link */}
                   {eventType==="Custom Event"&&<div className="flex items-center justify-between w-full p-4"><div className="flex items-center gap-3"><LinkIcon className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Meeting URL</span></div><input type="text" placeholder="https://..." value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white"/></div>}
+                  
                   {/* Medication frequency */}
                   {eventType==="Take Medication"&&<div className="flex items-center justify-between w-full p-4"><div className="flex items-center gap-3"><RefreshCcw className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Frequency</span></div><input type="text" placeholder="Every 8h" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white"/></div>}
+                  
                   {/* General tag */}
                   {(eventType==="Workout / Gym"||eventType==="Deep Work"||eventType==="Meal Time")&&<div className="flex items-center justify-between w-full p-4"><div className="flex items-center gap-3"><Type className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Config / Tag</span></div><input type="text" placeholder="e.g. Chest Day" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white"/></div>}
+                  
                   {/* Alert offset */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("reminder")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
@@ -701,11 +750,13 @@ export function ScheduleView() {
                   </div>
                 </div>
               </div>
+
               {/* Description */}
               <div className="bg-[#1c1c1e] rounded-[28px] p-4 flex flex-col gap-2 border border-[#2c2c2e]">
                 <div className="flex items-center gap-3 pl-2"><AlignLeft className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Description</span></div>
                 <textarea rows={3} placeholder="Optional notes or details..." value={taskDesc} onChange={e=>setTaskDesc(e.target.value)} className="w-full bg-transparent text-white placeholder:text-[#636366] resize-none focus:outline-none p-2 text-[15px] leading-relaxed" style={{fontFamily:SF}}/>
               </div>
+
               <div className="mt-4 pb-4">
                 <button onClick={handleSaveConfig} disabled={loading} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-60 flex items-center justify-center gap-2">
                   {loading&&<Loader2 className="w-5 h-5 animate-spin"/>}
