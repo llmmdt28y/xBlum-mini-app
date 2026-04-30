@@ -1,7 +1,7 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell } from "lucide-react"
+import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, CalendarDays } from "lucide-react"
 import { useState, useRef, useEffect, useCallback } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
@@ -146,16 +146,7 @@ export function HomeView() {
       className="flex-1 flex flex-col items-center px-4 pb-28 bg-black select-none"
       style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)" }}
     >
-      {/* ── Keyframes Globales ── */}
       <style>{`
-        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
-        @keyframes spin-slow-reverse { 100% { transform: rotate(-360deg); } }
-        @keyframes pulse-glow { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
-        
-        .star-1 { animation: spin-slow 12s linear infinite, pulse-glow 4s ease-in-out infinite; }
-        .star-2 { animation: spin-slow-reverse 10s linear infinite, pulse-glow 3s ease-in-out infinite 1s; }
-        .star-3 { animation: spin-slow 14s linear infinite, pulse-glow 5s ease-in-out infinite 0.5s; }
-        
         .snap-always { scroll-snap-stop: always; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>
@@ -271,33 +262,43 @@ export function HomeView() {
             onScroll={handleScroll}
             className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto no-scrollbar"
           >
-            {/* ── Schedule Banner Dinámico (NUEVO DISEÑO PREMIUM) ── */}
+            {/* ── Schedule Banner Dinámico (DISEÑO PREMIUM ONBOARDING) ── */}
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px] pr-2">
                 <div
                   onClick={() => setCurrentView("schedule")}
-                  className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-all text-left cursor-pointer flex items-center px-5 gap-5"
+                  className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-all text-left cursor-pointer flex items-center px-4 gap-4 shadow-xl"
                   style={{
-                      background: "#0a0a0a", // Fondo base un pelín más claro para contraste
-                      border: "1px solid #1c1c1e",
+                      background: "linear-gradient(145deg, #1a1a1c, #080808)",
+                      border: "1px solid rgba(255,255,255,0.08)",
                       borderRadius: "24px",
                       height: "105px",
                   }}
                 >
-                  {/* Degradado de Fondo Dinámico */}
+                  {/* Luz radial dinámica de fondo */}
                   <div 
-                    className="absolute inset-0 pointer-events-none transition-colors duration-700" 
-                    style={{ background: `radial-gradient(ellipse at 85% 50%, ${activeScheduleColor}25 0%, transparent 65%)` }} 
+                    className="absolute inset-0 pointer-events-none transition-colors duration-700 opacity-40 mix-blend-screen" 
+                    style={{ background: `radial-gradient(circle at 15% 50%, ${activeScheduleColor} 0%, transparent 60%)` }} 
                   />
+                  
+                  {/* Textura de ruido suave (estilo onboarding) */}
+                  <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "100px 100px" }} />
 
-                  {/* Icono de Campana Limpio (Sin contenedor) */}
-                  <div className="relative z-10 flex items-center justify-center shrink-0 ml-1">
-                    <Bell className="w-[34px] h-[34px] text-white" strokeWidth={1.5} />
-                    <div className="absolute top-[2px] right-[2px] w-3 h-3 rounded-full bg-[#ef4444] border-2 border-[#0a0a0a]"></div>
+                  {/* Icono Premium Glassmorphism */}
+                  <div className="relative z-10 w-[60px] h-[60px] rounded-full flex items-center justify-center shrink-0 ml-1" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.15)" }}>
+                    <div className="absolute inset-0 rounded-full border border-white/5 bg-white/5" />
+                    <CalendarDays className="w-7 h-7 text-white drop-shadow-lg relative z-10" strokeWidth={1.5} />
+                    {/* Punto rojo indicador de notificaciones */}
+                    <div className="absolute top-[2px] right-[2px] w-3.5 h-3.5 rounded-full bg-[#f43f5e] border-[2px] border-[#1a1a1c] shadow-sm z-20"></div>
                   </div>
 
                   {/* Textos y Cápsulas */}
-                  <div className="relative z-10 flex flex-col flex-1 min-w-0 pr-16 justify-center mt-1">
-                    <h3 className="text-white font-semibold text-[17px] leading-tight mb-1.5" style={{ fontFamily: SFD }}>Schedules</h3>
+                  <div className="relative z-10 flex flex-col flex-1 min-w-0 pr-2 justify-center mt-0.5">
+                    <div className="flex items-center justify-between mb-1.5">
+                        <h3 className="text-white font-bold text-[19px] leading-tight tracking-tight" style={{ fontFamily: SFD }}>Schedules</h3>
+                        <div className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                            <ChevronRight className="w-4 h-4 text-white/50" />
+                        </div>
+                    </div>
                     
                     {/* Contenedor Deslizable - Altura exacta para snap 1 a 1 */}
                     <div 
@@ -311,31 +312,21 @@ export function HomeView() {
                           <div key={item.id} className="h-[32px] snap-center snap-always flex items-center shrink-0">
                             <button
                               onClick={() => setCurrentView("schedule")}
-                              className="flex items-center gap-2 px-3 py-1 rounded-full border max-w-full active:scale-95 transition-all"
+                              className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-[12px] max-w-full active:scale-95 transition-all shadow-sm"
                               style={{ 
-                                background: `${item.color}15`, 
-                                borderColor: `${item.color}30`,
+                                background: `rgba(0,0,0,0.4)`, 
+                                border: `1px solid rgba(255,255,255,0.08)`,
                               }}
                             >
-                               <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                               <span className="text-[12px] font-medium truncate" style={{ color: item.color, fontFamily: SF }}>
-                                 {item.time} • {item.title}
+                               <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color, boxShadow: `0 0 8px ${item.color}` }} />
+                               <span className="text-[13px] font-medium truncate text-white/90" style={{ fontFamily: SF }}>
+                                 {item.time} <span className="opacity-30 mx-1">•</span> {item.title}
                                </span>
                             </button>
                           </div>
                         ))}
                       </div>
                     </div>
-                  </div>
-
-                  {/* Estrellas Agrupadas Estilo Constelación */}
-                  <div className="absolute right-0 top-0 bottom-0 w-[110px] pointer-events-none select-none overflow-hidden">
-                    {/* Estrella Principal */}
-                    <img src="/star-icon.png" alt="" className="star-1 absolute top-[18px] right-[16px] w-[54px] h-[54px] opacity-90 transition-all duration-700" style={{ filter: `drop-shadow(0 0 16px ${activeScheduleColor}90)` }}/>
-                    {/* Estrella Secundaria */}
-                    <img src="/star-icon.png" alt="" className="star-2 absolute top-[12px] right-[72px] w-[26px] h-[26px] opacity-70 transition-all duration-700" style={{ filter: `drop-shadow(0 0 10px ${activeScheduleColor}70)` }}/>
-                    {/* Estrella Terciaria */}
-                    <img src="/star-icon.png" alt="" className="star-3 absolute bottom-[18px] right-[58px] w-[32px] h-[32px] opacity-80 transition-all duration-700" style={{ filter: `drop-shadow(0 0 12px ${activeScheduleColor}80)` }}/>
                   </div>
 
                 </div>
@@ -347,7 +338,7 @@ export function HomeView() {
                 onClick={() => setCurrentView("referral")}
                 className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left"
                 style={{
-                    background: "#0a0a0a",
+                    background: "#060606",
                     border: "1px solid #1c1c1e",
                     borderRadius: "24px",
                     height: "105px",
