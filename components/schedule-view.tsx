@@ -453,7 +453,6 @@ export function ScheduleView() {
     } catch(e:any){ showToast(`Error: ${e.message}`,"error") }
   }
 
-  // Nuevo TaskCard Refactorizado
   const TaskCard = ({item,isSuggestion=false, listType="reminder"}:{item:any;isSuggestion?:boolean; listType?:"reminder"|"task"})=>{
     const isExpanded=expandedIds[item.id]
     const TheIcon=ICONS[item.icon_name||item.iconName]||CalendarDays
@@ -464,7 +463,7 @@ export function ScheduleView() {
        try {
           const dt = new Date(item.fire_at);
           if (dt.toDateString() === new Date().toDateString()) {
-             displayTime = dt.toLocaleTimeString("en-US",{hour:"numeric", hour12:true}).replace(" ", ""); // ej: 11AM
+             displayTime = dt.toLocaleTimeString("en-US",{hour:"numeric", hour12:true}).replace(" ", "");
           } else {
              displayTime = dt.toLocaleDateString("en-US",{month:"short", day:"numeric"});
           }
@@ -486,7 +485,6 @@ export function ScheduleView() {
                 </>
               ) : (
                 <div className="w-5 h-5 rounded-full border-2 border-[#3a3a3c] flex items-center justify-center shrink-0">
-                   {/* Espacio para checkbox futuro */}
                 </div>
               )}
               <span className="text-[15px] font-medium text-white truncate" style={{fontFamily:SF}}>{item.title}</span>
