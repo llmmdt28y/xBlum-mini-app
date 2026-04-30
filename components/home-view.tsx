@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, CalendarDays } from "lucide-react"
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
 
@@ -334,7 +334,7 @@ export function HomeView() {
             onScroll={handleScroll}
             className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto no-scrollbar"
           >
-            {/* ── Schedule Banner Dinámico ── */}
+            {/* ── Schedule Banner Dinámico (DISEÑO PREMIUM ONBOARDING) ── */}
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px] pr-2">
                 <div
                   onClick={() => setCurrentView("schedule")}
@@ -352,14 +352,14 @@ export function HomeView() {
                     style={{ background: `radial-gradient(circle at 15% 50%, ${activeScheduleColor} 0%, transparent 60%)` }} 
                   />
                   
-                  {/* Textura de ruido suave */}
+                  {/* Textura de ruido suave (estilo onboarding) */}
                   <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "100px 100px" }} />
 
                   {/* Icono Premium Glassmorphism */}
                   <div className="relative z-10 w-[60px] h-[60px] rounded-full flex items-center justify-center shrink-0 ml-1" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.15)" }}>
                     <div className="absolute inset-0 rounded-full border border-white/5 bg-white/5" />
                     <CalendarDays className="w-7 h-7 text-white drop-shadow-lg relative z-10" strokeWidth={1.5} />
-                    {/* Punto rojo indicador si hay notificaciones reales */}
+                    {/* Punto rojo indicador de notificaciones */}
                     {hasNotifications && (
                       <div className="absolute top-[2px] right-[2px] w-3.5 h-3.5 rounded-full bg-[#f43f5e] border-[2px] border-[#1a1a1c] shadow-sm z-20"></div>
                     )}
@@ -369,7 +369,7 @@ export function HomeView() {
                   <div className="relative z-10 flex flex-col flex-1 min-w-0 pr-2 justify-center mt-0.5">
                     <div className="flex items-center justify-between mb-1.5">
                         <h3 className="text-white font-bold text-[19px] leading-tight tracking-tight" style={{ fontFamily: SFD }}>Schedules</h3>
-                        <div className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
                             <ChevronRight className="w-4 h-4 text-white/50" />
                         </div>
                     </div>
