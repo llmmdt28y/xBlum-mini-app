@@ -1,7 +1,7 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell, Mail, Send, RefreshCw } from "lucide-react"
+import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell, Mail, Send, RefreshCw, CalendarDays, MoreVertical, Play } from "lucide-react"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
@@ -9,30 +9,50 @@ type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Mock Data for Dynamic Banners ──
-const mockScheduleData = {
-  isConfigured: true, 
-  hasActiveTask: true,
-  currentTask: {
+// ── Mock Data Expandida para el Slider de Tareas ──
+const mockScheduleTasks = [
+  {
     id: 1,
-    type: "reminder" as const, // 'reminder' | 'email'
+    type: "reminder" as const,
     title: "Review Q4 Report",
-    targetTime: new Date(Date.now() + 1000 * 60 * 60 * 27.5).toISOString(), // 27.5 hours from now
+    targetTime: new Date(Date.now() + 1000 * 60 * 45).toISOString(), // 45 mins
+    icon: Bell,
+    color: "#f59e0b",
+    bg: "rgba(245, 158, 11, 0.15)"
+  },
+  {
+    id: 2,
+    type: "event" as const,
+    title: "Team Sync Meeting",
+    targetTime: new Date(Date.now() + 1000 * 60 * 60 * 2.5).toISOString(), // 2.5 hours
+    icon: CalendarDays,
+    color: "#3b82f6",
+    bg: "rgba(59, 130, 246, 0.15)"
+  },
+  {
+    id: 3,
+    type: "email" as const,
+    title: "Send Pitch Deck",
+    targetTime: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(), // 24 hours
+    icon: Mail,
+    color: "#ef4444",
+    bg: "rgba(239, 68, 68, 0.15)"
   }
-}
+]
 
-// ── Helper to format time remaining ──
-function formatTimeRemaining(ms: number) {
-  if (ms <= 0) return "Executing..."
-  const totalSeconds = Math.floor(ms / 1000)
-  const days = Math.floor(totalSeconds / (3600 * 24))
-  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
+// ── Helper de tiempo dinámico ──
+function getRelativeTime(targetIso: string, nowMs: number) {
+  const diff = new Date(targetIso).getTime() - nowMs
+  if (diff <= 0) return "Executing..."
+  const totalSeconds = Math.floor(diff / 1000)
+  const d = Math.floor(totalSeconds / (3600 * 24))
+  const h = Math.floor((totalSeconds % (3600 * 24)) / 3600)
+  const m = Math.floor((totalSeconds % 3600) / 60)
+  const s = totalSeconds % 60
 
-  if (days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`
-  if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`
-  return `${minutes}m ${seconds}s`
+  if (d > 0) return `in ${d}d ${h}h`
+  if (h > 0) return `in ${h}h ${m}m`
+  return `in ${m}m ${s}s`
 }
 
 export function HomeView() {
@@ -53,19 +73,19 @@ export function HomeView() {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
 
-  // Countdown timer state
-  const [timeRemaining, setTimeRemaining] = useState(() => {
-    if (!mockScheduleData.hasActiveTask) return 0
-    return new Date(mockScheduleData.currentTask.targetTime).getTime() - Date.now()
-  })
+  // Live Time State for Live Countdowns
+  const [now, setNow] = useState(Date.now())
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   // ── Gestión del Botón Atrás Nativo de Telegram ──
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
 
-    // Mostrar el botón si hay algún modal o sección abierta
     if (showAllTopics || exploreModal) {
       tg.BackButton.show()
     } else {
@@ -82,27 +102,8 @@ export function HomeView() {
     }
 
     tg.BackButton.onClick(handleBack)
-    return () => {
-      tg.BackButton.offClick(handleBack)
-    }
+    return () => tg.BackButton.offClick(handleBack)
   }, [showAllTopics, exploreModal])
-
-  // ── Countdown Timer Logic ──
-  useEffect(() => {
-    if (!mockScheduleData.hasActiveTask) return
-    const timer = setInterval(() => {
-      const now = Date.now()
-      const target = new Date(mockScheduleData.currentTask.targetTime).getTime()
-      const diff = target - now
-      if (diff <= 0) {
-        setTimeRemaining(0)
-        clearInterval(timer)
-      } else {
-        setTimeRemaining(diff)
-      }
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   // ── Carousel Scroll Handler ──
   const handleScroll = useCallback(() => {
@@ -168,85 +169,13 @@ export function HomeView() {
     { id: "ton", name: "TON Wallet", desc: "Manage your crypto assets", action: () => {}, tag: "SOON", disabled: true, isImage: true, src: "/TON-ICON.png" },
   ] as const;
 
-  // ── Render Dynamic Schedule Banner Content ──
-  const scheduleBannerContent = useMemo(() => {
-    if (!mockScheduleData.isConfigured || !mockScheduleData.hasActiveTask) {
-      return (
-        <div className="relative z-10 flex items-center justify-between h-full px-5">
-          <div className="flex flex-col gap-2">
-            <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-              Automate Tasks,<br />Never Miss a Beat
-            </p>
-            <div
-                className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden mt-0.5"
-                style={{
-                  background: "rgba(255,255,255,0.07)",
-                  backdropFilter: "blur(16px) saturate(180%)",
-                  WebkitBackdropFilter: "blur(16px) saturate(180%)",
-                  border: "1px solid rgba(255,255,255,0.13)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
-                }}
-              >
-                <div className="absolute inset-x-2 top-0 h-px" style={{
-                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)"
-                }} />
-                <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>open schedule</span>
-                <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
-              </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0 pointer-events-none select-none">
-              <Clock className="w-16 h-16 text-[#f59e0b]/40" style={{ filter: "drop-shadow(0 0 10px rgba(245,158,11,0.2))" }} />
-          </div>
-        </div>
-      )
-    }
-
-    const task = mockScheduleData.currentTask;
-    const taskTypeInfo = task.type === 'reminder' 
-      ? { icon: <Bell className="w-5 h-5 text-amber-400" />, color: "#f59e0b" }
-      : { icon: <Mail className="w-5 h-5 text-red-400" />, color: "#ef4444" };
-
-    return (
-        <div className="relative z-10 flex items-center justify-between h-full px-5">
-            <div className="flex items-center gap-4 flex-1">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                    {taskTypeInfo.icon}
-                </div>
-                <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                    <p className="text-white text-[15px] font-bold truncate leading-snug" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-                        {task.title}
-                    </p>
-                    <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none uppercase tracking-wide`} style={{ background: `${taskTypeInfo.color}15`, color: taskTypeInfo.color, fontFamily: SF }}>
-                            PENDING
-                        </span>
-                        {task.type === 'reminder' && <RefreshCw className="w-3 h-3 text-[#636366]" />}
-                    </div>
-                </div>
-            </div>
-            
-            <div className="flex flex-col items-end gap-1.5 text-right shrink-0">
-                <p className="text-[12px] text-[#8e8e93]" style={{ fontFamily: SF }}>Next task in</p>
-                <p 
-                  className="text-white font-bold text-[18px]" 
-                  style={{ 
-                    fontFamily: SFD, 
-                    letterSpacing: "-0.01em",
-                    fontVariantNumeric: "tabular-nums" 
-                  }}
-                >
-                    {formatTimeRemaining(timeRemaining)}
-                </p>
-            </div>
-        </div>
-    )
-  }, [timeRemaining, t])
-
   return (
     <div 
-      className="flex-1 flex flex-col items-center px-4 pb-28 bg-black select-none"
+      className="flex-1 flex flex-col items-center px-4 pb-28 bg-black select-none overflow-y-auto no-scrollbar"
       style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)" }}
     >
+      <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
+      
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
 
         {/* ── Hero Header ─────────────────────────────────────────────── */}
@@ -324,27 +253,15 @@ export function HomeView() {
 
         {/* ── Action Buttons ──────────────────────────────────────────── */}
         <div className="w-full flex flex-nowrap justify-start gap-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-          <button
-            onClick={handleCreateImage}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
-            style={{ background: "#111", border: "1px solid #1c1c1e" }}
-          >
+          <button onClick={handleCreateImage} className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
             <Image className="w-4 h-4 shrink-0" style={{ color: "#8e8e93" }} />
             <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>{t("createImage")}</span>
           </button>
-          <button
-            onClick={handleGetTokens}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
-            style={{ background: "#111", border: "1px solid #1c1c1e" }}
-          >
+          <button onClick={handleGetTokens} className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
             <Coins className="w-4 h-4 shrink-0" style={{ color: "#8e8e93" }} />
             <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>{t("getTokens")}</span>
           </button>
-          <button
-            onClick={handleAddToChat}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
-            style={{ background: "#111", border: "1px solid #1c1c1e" }}
-          >
+          <button onClick={handleAddToChat} className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
             <MessageCircle className="w-4 h-4 shrink-0" style={{ color: "#8e8e93" }} />
             <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>{t("addToChat")}</span>
           </button>
@@ -353,87 +270,125 @@ export function HomeView() {
         {/* ── Swiper Banners (Carousel) ─────────────────────────────────── */}
         <div className="w-full flex flex-col gap-2.5 items-center animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both">
           
-          <div 
-            ref={carouselRef}
-            onScroll={handleScroll}
-            className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {/* ── Schedule Banner (FIRST POSITION) ── */}
+          <div ref={carouselRef} onScroll={handleScroll} className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+            
+            {/* ── Premium Schedule Banner (FIRST POSITION) ── */}
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px] pr-2">
                 <button
-                onClick={() => setCurrentView("schedule")}
-                className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left"
-                style={{
-                    background: "#060606",
-                    border: "1px solid #1e1e1e",
-                    borderRadius: "24px",
-                    height: "96px",
-                }}
+                  onClick={() => setCurrentView("schedule")}
+                  className="w-full shrink-0 relative overflow-hidden active:scale-[0.98] transition-all text-left group"
+                  style={{
+                      background: "linear-gradient(145deg, #111111 0%, #0a0a0a 100%)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: "28px",
+                      height: "100px",
+                      boxShadow: "0 10px 40px -10px rgba(0,0,0,0.5)"
+                  }}
                 >
-                <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 8% 40%, ${mockScheduleData.hasActiveTask ? '#f59e0b15' : '#3b82f615'} 0%, transparent 65%)` }} />
-                <div className="absolute pointer-events-none" style={{ width: "90px", height: "90px", borderRadius: "50%", top: "-30px", right: "-20px", background: `radial-gradient(circle, ${mockScheduleData.hasActiveTask ? '#f59e0b15' : '#3b82f615'} 0%, transparent 70%)` }} />
-                
-                {scheduleBannerContent}
-
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 80% 0%, rgba(59,130,246,0.15) 0%, transparent 60%)` }} />
+                  
+                  <div className="relative z-10 flex items-center justify-between h-full px-6">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-blue-400" />
+                        <span className="text-[#8e8e93] text-[12px] font-bold tracking-widest uppercase" style={{ fontFamily: SF }}>Automation</span>
+                      </div>
+                      <p className="text-white font-bold text-[19px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                        {mockScheduleTasks.length > 0 ? `${mockScheduleTasks.length} Active Tasks` : "Set up your schedule"}
+                      </p>
+                    </div>
+                    
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white/5 border border-white/10 group-active:bg-white/10 transition-colors backdrop-blur-md">
+                      <ChevronRight className="w-6 h-6 text-white/70" />
+                    </div>
+                  </div>
                 </button>
             </div>
 
             {/* ── Referral Banner (SECOND POSITION) ── */}
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px]">
                 <button
-                onClick={() => setCurrentView("referral")}
-                className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left"
-                style={{
-                    background: "#060606",
-                    border: "1px solid #1e1e1e",
-                    borderRadius: "24px",
-                    height: "96px",
-                }}
+                  onClick={() => setCurrentView("referral")}
+                  className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left"
+                  style={{ background: "#060606", border: "1px solid #1e1e1e", borderRadius: "28px", height: "100px" }}
                 >
                     <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 55%)" }} />
                     <div className="relative z-10 flex items-center justify-between h-full px-5">
                         <div className="flex flex-col gap-2">
-                        <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Invite a Friend & Get<br />Free Tokens</p>
-                        <div
-                            className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden"
-                            style={{
-                            background: "rgba(255,255,255,0.07)",
-                            backdropFilter: "blur(16px) saturate(180%)",
-                            WebkitBackdropFilter: "blur(16px) saturate(180%)",
-                            border: "1px solid rgba(255,255,255,0.13)",
-                            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
-                            }}
-                        >
-                            <div className="absolute inset-x-2 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)" }} />
-                            <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite</span>
-                            <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
-                        </div>
+                          <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Invite a Friend & Get<br />Free Tokens</p>
+                          <div className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden" style={{ background: "rgba(255,255,255,0.07)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.13)" }}>
+                              <span className="text-white text-[11px] font-medium relative z-10" style={{ fontFamily: SF }}>share invite</span>
+                              <span className="text-white text-[11px] relative z-10 opacity-55">›</span>
+                          </div>
                         </div>
                         <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "96px" }}>
-                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "46px", height: "46px", top: "-10px", right: "4px", opacity: 0.55, transform: "rotate(18deg)", filter: "brightness(0.75)" }} />
-                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "68px", height: "68px", top: "50%", left: "0px", transform: "translateY(-50%) rotate(-18deg)", opacity: 1, filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))" }} />
-                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "44px", height: "44px", bottom: "2px", right: "6px", opacity: 0.6, transform: "rotate(-8deg)", filter: "brightness(0.8)" }} />
+                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "68px", height: "68px", top: "50%", left: "0px", transform: "translateY(-50%) rotate(-18deg)", filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))" }} />
                         </div>
                     </div>
                 </button>
             </div>
-            
           </div>
 
-          {/* ── Pagination Dots Indicators (•) ── */}
-          <div className="flex items-center gap-1.5 mt-0.5">
+          {/* ── Pagination Dots ── */}
+          <div className="flex items-center gap-1.5 mt-1">
             {[0, 1].map(index => (
                 <div key={index} className={`w-1.5 h-1.5 rounded-full transition-colors ${currentBannerIndex === index ? 'bg-white' : 'bg-[#2c2c2e]'}`} />
             ))}
           </div>
         </div>
 
+        {/* ── PREMIUM CAPSULE: Quick Actions (Vertical Scroll) ── */}
+        {mockScheduleTasks.length > 0 && (
+          <div className="w-full animate-in fade-in slide-in-from-bottom-6 duration-500 delay-200 fill-mode-both mt-1">
+            <div className="bg-[#111] border border-[#2c2c2e] rounded-[32px] overflow-hidden flex flex-col shadow-2xl relative">
+              
+              {/* Header de la Cápsula */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#1c1c1e] bg-white/[0.02]">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#8e8e93]" />
+                  <span className="text-white font-bold text-[15px]" style={{ fontFamily: SFD }}>Up Next</span>
+                </div>
+                <span className="text-[#636366] text-[12px] font-medium px-2 py-0.5 bg-[#1c1c1e] rounded-full">Swipe list</span>
+              </div>
+
+              {/* Contenedor Deslizable */}
+              <div className="w-full max-h-[170px] overflow-y-auto no-scrollbar snap-y snap-mandatory p-2 space-y-1" style={{ scrollBehavior: 'smooth' }}>
+                {mockScheduleTasks.map((task) => {
+                  const Icon = task.icon
+                  return (
+                    <div key={task.id} className="snap-center w-full bg-[#161618] rounded-[24px] p-3.5 flex items-center justify-between border border-transparent hover:border-[#2c2c2e] transition-colors">
+                      <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: task.bg }}>
+                          <Icon className="w-5 h-5" style={{ color: task.color }} />
+                        </div>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <p className="text-white text-[15px] font-bold truncate" style={{ fontFamily: SFD }}>{task.title}</p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: task.color }} />
+                            <p className="text-[#8e8e93] text-[12px] font-medium" style={{ fontFamily: SF }}>{getRelativeTime(task.targetTime, now)}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 pl-2 shrink-0">
+                        <button className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-white active:scale-95 transition-transform">
+                          <Play className="w-3.5 h-3.5 ml-0.5" />
+                        </button>
+                        <button className="w-8 h-8 rounded-full bg-transparent flex items-center justify-center text-[#8e8e93] active:bg-[#2c2c2e] transition-colors">
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── Explore Section (CARRUSEL HORIZONTAL) ───────────────────── */}
-        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both overflow-x-auto snap-x snap-mandatory pb-4" style={{ scrollbarWidth: "none" }}>
+        <div className="w-full mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 fill-mode-both overflow-x-auto snap-x snap-mandatory pb-4" style={{ scrollbarWidth: "none" }}>
           <div className="flex gap-3 w-max px-1">
             
-            {/* Tarjeta 1: Explore (Compacta) */}
             <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
               <button onClick={() => setShowAllTopics(true)} className="flex items-center gap-1 mb-4 active:opacity-70 w-fit">
                 <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Explore</h3>
@@ -466,7 +421,6 @@ export function HomeView() {
               </div>
             </div>
 
-            {/* Tarjeta 2: My Tools */}
             <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
               <div className="flex items-center gap-1 mb-4">
                 <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>My Tools</h3>
@@ -481,23 +435,15 @@ export function HomeView() {
 
       </div>
 
-      {/* ── MODAL FULL SCREEN: ALL TOPICS (Con Blur y sin Header) ── */}
+      {/* ── MODAL FULL SCREEN: ALL TOPICS ── */}
       {showAllTopics && (
         <div className="fixed inset-0 z-50 flex flex-col bg-black/65 backdrop-blur-xl animate-in fade-in duration-300">
-          
-          {/* Espaciador superior (Reemplaza al título "Explore" y la línea que estorbaba) */}
           <div className="pt-16 pb-2" />
-
-          {/* Lista completa de Topics */}
-          <div className="flex-1 overflow-y-auto px-4 pb-12 space-y-1">
+          <div className="flex-1 overflow-y-auto px-4 pb-12 space-y-1 no-scrollbar">
             {TOPICS_DATA.map((topic) => (
               <button
                 key={topic.id}
-                onClick={() => {
-                  if (!topic.disabled) {
-                    topic.action(); // Abre el sub-modal del topic correspondiente
-                  }
-                }}
+                onClick={() => { if (!topic.disabled) topic.action() }}
                 disabled={topic.disabled}
                 className="w-full flex items-center gap-4 px-2 py-4 active:bg-white/5 transition-colors rounded-2xl text-left disabled:opacity-50"
               >
@@ -508,7 +454,6 @@ export function HomeView() {
                     <div className="scale-110">{topic.icon}</div>
                   )}
                 </div>
-                
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-white text-[17px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>{topic.name}</p>
@@ -520,7 +465,6 @@ export function HomeView() {
                   </div>
                   <p className="text-[#8e8e93] text-[14px] truncate mt-0.5" style={{ fontFamily: SF }}>{topic.desc}</p>
                 </div>
-                
                 <ChevronRight className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />
               </button>
             ))}
@@ -528,7 +472,7 @@ export function HomeView() {
         </div>
       )}
 
-      {/* ── Sub-modales de Topic (Con botón X restaurado) ────────── */}
+      {/* ── Sub-modales de Topic ────────── */}
       {exploreModal && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center">
           <div
@@ -538,7 +482,6 @@ export function HomeView() {
 
           <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
             
-            {/* Botón X restaurado para los sub-menús */}
             <button
               onClick={() => { setExploreModal(null); setModalInput("") }}
               className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
@@ -547,9 +490,8 @@ export function HomeView() {
               <X className="w-5 h-5 text-white" />
             </button>
 
-            <div className="pt-10 pb-4 overflow-y-auto flex-1">
+            <div className="pt-10 pb-4 overflow-y-auto flex-1 no-scrollbar">
 
-              {/* Private Mode Modal */}
               {exploreModal === "private" && (
                 <>
                   <div className="flex flex-col items-center px-4 mb-6">
@@ -566,12 +508,7 @@ export function HomeView() {
                   </div>
 
                   <div className="mx-4 mb-4 bg-amber-500/10 border border-amber-500/20 rounded-[20px] p-4 space-y-2">
-                    {[
-                      "🚫  No conversation history saved",
-                      "🧠  No memory or profile updates",
-                      "👤  No context from past chats",
-                      "🔒  Each message treated as the first",
-                    ].map((line, i) => (
+                    {["🚫  No conversation history saved", "🧠  No memory or profile updates", "👤  No context from past chats", "🔒  Each message treated as the first"].map((line, i) => (
                       <p key={i} className="text-amber-500/90 text-[13px] font-medium" style={{ fontFamily: SF }}>{line}</p>
                     ))}
                   </div>
@@ -609,7 +546,6 @@ export function HomeView() {
                 </>
               )}
 
-              {/* Telegram Search Modal */}
               {exploreModal === "telegram" && (
                 <>
                   <div className="flex flex-col items-center px-4 mb-6">
@@ -651,7 +587,6 @@ export function HomeView() {
                 </>
               )}
 
-              {/* Google Tools Modal */}
               {exploreModal === "google" && (
                 <>
                   <div className="flex flex-col items-center px-4 mb-6">
@@ -670,22 +605,8 @@ export function HomeView() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => handleQuickSend("google", "Connect my Gmail account")}
-                        disabled={sending}
-                        className="flex-1 py-3 bg-white text-black text-[14px] font-bold rounded-[16px] active:opacity-70 transition-opacity disabled:opacity-50"
-                        style={{ fontFamily: SF }}
-                      >
-                        Connect Gmail
-                      </button>
-                      <button
-                        onClick={() => handleQuickSend("google", "Read my latest emails")}
-                        disabled={sending}
-                        className="flex-1 py-3 text-white text-[14px] font-medium rounded-[16px] active:opacity-70 transition-opacity disabled:opacity-50"
-                        style={{ background: "#2c2c2e", fontFamily: SF }}
-                      >
-                        Read emails
-                      </button>
+                      <button onClick={() => handleQuickSend("google", "Connect my Gmail account")} disabled={sending} className="flex-1 py-3 bg-white text-black text-[14px] font-bold rounded-[16px] active:opacity-70 transition-opacity disabled:opacity-50" style={{ fontFamily: SF }}>Connect Gmail</button>
+                      <button onClick={() => handleQuickSend("google", "Read my latest emails")} disabled={sending} className="flex-1 py-3 text-white text-[14px] font-medium rounded-[16px] active:opacity-70 transition-opacity disabled:opacity-50" style={{ background: "#2c2c2e", fontFamily: SF }}>Read emails</button>
                     </div>
                   </div>
                   <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
@@ -695,32 +616,20 @@ export function HomeView() {
                       { icon: "📝", text: "Connect Google Docs" },
                       { icon: "📊", text: "Connect Google Sheets" },
                     ].map((item, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleQuickSend("google", item.text)}
-                        disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
-                        style={{ borderBottom: i < 3 ? "1px solid #2c2c2e" : "none" }}
-                      >
+                      <button key={i} onClick={() => handleQuickSend("google", item.text)} disabled={sending} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left" style={{ borderBottom: i < 3 ? "1px solid #2c2c2e" : "none" }}>
                         <span className="text-[20px]">{item.icon}</span>
                         <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
                       </button>
                     ))}
                   </div>
                   <div className="mx-4 mt-4">
-                    <button
-                      onClick={() => handleOpenTopic("google")}
-                      disabled={sending}
-                      className="w-full py-4 bg-white/10 border border-white/20 text-white font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
-                      style={{ fontFamily: SF, fontSize: "16px" }}
-                    >
+                    <button onClick={() => handleOpenTopic("google")} disabled={sending} className="w-full py-4 bg-white/10 border border-white/20 text-white font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50" style={{ fontFamily: SF, fontSize: "16px" }}>
                       {sending ? "Opening..." : "Open Google Tools Topic"}
                     </button>
                   </div>
                 </>
               )}
 
-              {/* Writing Assistant Modal */}
               {exploreModal === "writing" && (
                 <>
                   <div className="flex flex-col items-center px-4 mb-6">
@@ -738,32 +647,20 @@ export function HomeView() {
                       { icon: "💬", text: "Polite English phrases for business" },
                       { icon: "✨", text: "Rewrite this text more fluently" },
                     ].map((item, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleQuickSend("writing", item.text)}
-                        disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
-                        style={{ borderBottom: i < 4 ? "1px solid #2c2c2e" : "none" }}
-                      >
+                      <button key={i} onClick={() => handleQuickSend("writing", item.text)} disabled={sending} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left" style={{ borderBottom: i < 4 ? "1px solid #2c2c2e" : "none" }}>
                         <span className="text-[20px]">{item.icon}</span>
                         <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
                       </button>
                     ))}
                   </div>
                   <div className="mx-4 mt-4">
-                    <button
-                      onClick={() => handleOpenTopic("writing")}
-                      disabled={sending}
-                      className="w-full py-4 bg-blue-500/20 border border-blue-500/40 text-blue-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
-                      style={{ fontFamily: SF, fontSize: "16px" }}
-                    >
+                    <button onClick={() => handleOpenTopic("writing")} disabled={sending} className="w-full py-4 bg-blue-500/20 border border-blue-500/40 text-blue-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50" style={{ fontFamily: SF, fontSize: "16px" }}>
                       {sending ? "Opening..." : "Open Writing Topic"}
                     </button>
                   </div>
                 </>
               )}
 
-              {/* Coding & Tech Modal */}
               {exploreModal === "coding" && (
                 <>
                   <div className="flex flex-col items-center px-4 mb-6">
@@ -781,25 +678,14 @@ export function HomeView() {
                       { icon: "📱", text: "Create a simple app structure" },
                       { icon: "🔧", text: "Best practices for this technology" },
                     ].map((item, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleQuickSend("coding", item.text)}
-                        disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
-                        style={{ borderBottom: i < 4 ? "1px solid #2c2c2e" : "none" }}
-                      >
+                      <button key={i} onClick={() => handleQuickSend("coding", item.text)} disabled={sending} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left" style={{ borderBottom: i < 4 ? "1px solid #2c2c2e" : "none" }}>
                         <span className="text-[20px]">{item.icon}</span>
                         <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
                       </button>
                     ))}
                   </div>
                   <div className="mx-4 mt-4">
-                    <button
-                      onClick={() => handleOpenTopic("coding")}
-                      disabled={sending}
-                      className="w-full py-4 bg-green-500/20 border border-green-500/40 text-green-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
-                      style={{ fontFamily: SF, fontSize: "16px" }}
-                    >
+                    <button onClick={() => handleOpenTopic("coding")} disabled={sending} className="w-full py-4 bg-green-500/20 border border-green-500/40 text-green-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50" style={{ fontFamily: SF, fontSize: "16px" }}>
                       {sending ? "Opening..." : "Open Coding Topic"}
                     </button>
                   </div>
@@ -830,10 +716,7 @@ export function HomeView() {
                   }}
                   disabled={sending}
                   className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all"
-                  style={{ 
-                    background: modalInput.trim() ? "#fff" : "#2c2c2e", 
-                    color: modalInput.trim() ? "#000" : "#636366" 
-                  }}
+                  style={{ background: modalInput.trim() ? "#fff" : "#2c2c2e", color: modalInput.trim() ? "#000" : "#636366" }}
                 >
                   <ArrowUp className="w-5 h-5" />
                 </button>
