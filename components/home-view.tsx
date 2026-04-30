@@ -9,13 +9,44 @@ type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Datos Mock para las cápsulas del Schedule ──
-const SCHEDULE_MOCK_ITEMS = [
-  { id: 1, title: "Review Q4 Report", color: "#f59e0b", time: "In 30m" },
-  { id: 2, title: "Meeting with Client", color: "#3b82f6", time: "2:00 PM" },
-  { id: 3, title: "Workout Session", color: "#10b981", time: "6:00 PM" },
-  { id: 4, title: "Read Project Brief", color: "#a855f7", time: "9:00 PM" },
-]
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
+
+const ICON_COLORS: Record<string, string> = {
+  CalendarDays:"#3b82f6", Clock:"#f97316", Bell:"#f43f5e", Mail:"#0ea5e9", Folder:"#eab308",
+  Dumbbell:"#a855f7", Briefcase:"#d97706", Laptop:"#94a3b8", Utensils:"#ec4899",
+  MessageSquare:"#22c55e", Send:"#14b8a6", Coffee:"#b45309", Droplets:"#38bdf8",
+  Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b"
+}
+
+function getTg() { return (window as any).Telegram?.WebApp }
+
+// Helper para formatear la fecha a un formato corto (ej: "In 30m" o "2:00 PM")
+function formatTimeRelative(fireAt: string) {
+  if (!fireAt) return "Anytime"
+  try {
+    const d = new Date(fireAt)
+    const now = new Date()
+    const diffMs = d.getTime() - now.getTime()
+    
+    if (diffMs < 0) return "Past"
+    
+    const diffMins = Math.floor(diffMs / 60000)
+    if (diffMins < 60) return `In ${diffMins}m`
+    
+    const diffHours = Math.floor(diffMins / 60)
+    if (diffHours < 24 && d.getDate() === now.getDate()) {
+        return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }).replace(" ", "")
+    }
+    
+    if (diffHours < 48 && d.getDate() === now.getDate() + 1) {
+        return `Tmrw, ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }).replace(" ", "")}`
+    }
+    
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+  } catch {
+    return "Scheduled"
+  }
+}
 
 export function HomeView() {
   const {
@@ -35,8 +66,39 @@ export function HomeView() {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
 
-  // Schedule Dynamic Banner State
-  const [activeScheduleColor, setActiveScheduleColor] = useState(SCHEDULE_MOCK_ITEMS[0].color)
+  // Schedule API Data State
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [scheduleItems, setScheduleItems] = useState<any[]>([])
+  const [loadingSchedules, setLoadingSchedules] = useState(true)
+  const [activeScheduleIndex, setActiveScheduleIndex] = useState(0)
+
+  // ── Fetch Schedules ──
+  const fetchSchedules = useCallback(async () => {
+    setLoadingSchedules(true)
+    try {
+      const tg = getTg()
+      const initData = tg?.initData ?? ""
+      const res = await fetch(`${API_BASE}/api/schedule_list`, { headers: { "x-init-data": initData } })
+      if (res.ok) {
+        const d = await res.json()
+        if (d.success && Array.isArray(d.items)) {
+          const now = new Date().getTime()
+          const upcoming = d.items
+            .filter((t: any) => new Date(t.fire_at).getTime() > now - 60000) // Filtrar tareas pasadas
+            .sort((a: any, b: any) => new Date(a.fire_at).getTime() - new Date(b.fire_at).getTime()) // Ordenar por próximos
+          setScheduleItems(upcoming)
+        }
+      }
+    } catch (e) {
+      console.error("[HomeView] fetch schedules error:", e)
+    } finally {
+      setLoadingSchedules(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchSchedules()
+  }, [fetchSchedules])
 
   // ── Gestión del Botón Atrás Nativo de Telegram ──
   useEffect(() => {
@@ -76,17 +138,27 @@ export function HomeView() {
     }
   }, [currentBannerIndex])
 
+  // Preparamos los items a mostrar (con placeholders si está cargando o vacío)
+  const displayItems = useMemo(() => {
+    if (loadingSchedules) return [{ id: 'loading', title: 'Syncing schedule...', color: '#636366', fire_at: '' }]
+    if (scheduleItems.length === 0) return [{ id: 'empty', title: 'No upcoming events', color: '#8e8e93', fire_at: '' }]
+    return scheduleItems
+  }, [scheduleItems, loadingSchedules])
+
   const handleScheduleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget
-    // La altura del contenedor es exactamente 32px para hacer match con el snap
     const index = Math.min(
-      SCHEDULE_MOCK_ITEMS.length - 1,
-      Math.max(0, Math.round(el.scrollTop / 32))
+      displayItems.length - 1,
+      Math.max(0, Math.round(el.scrollTop / 32)) // 32px es la altura de cada cápsula
     )
-    if (SCHEDULE_MOCK_ITEMS[index] && SCHEDULE_MOCK_ITEMS[index].color !== activeScheduleColor) {
-      setActiveScheduleColor(SCHEDULE_MOCK_ITEMS[index].color)
+    if (index !== activeScheduleIndex) {
+      setActiveScheduleIndex(index)
     }
-  }, [activeScheduleColor])
+  }, [displayItems.length, activeScheduleIndex])
+
+  const activeItem = displayItems[activeScheduleIndex] || displayItems[0]
+  const activeScheduleColor = activeItem?.color || ICON_COLORS[activeItem?.icon_name] || "#3b82f6"
+  const hasNotifications = scheduleItems.length > 0
 
   async function handleSend() {
     const text = message.trim()
@@ -262,7 +334,7 @@ export function HomeView() {
             onScroll={handleScroll}
             className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto no-scrollbar"
           >
-            {/* ── Schedule Banner Dinámico (DISEÑO PREMIUM ONBOARDING) ── */}
+            {/* ── Schedule Banner Dinámico ── */}
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px] pr-2">
                 <div
                   onClick={() => setCurrentView("schedule")}
@@ -280,22 +352,24 @@ export function HomeView() {
                     style={{ background: `radial-gradient(circle at 15% 50%, ${activeScheduleColor} 0%, transparent 60%)` }} 
                   />
                   
-                  {/* Textura de ruido suave (estilo onboarding) */}
+                  {/* Textura de ruido suave */}
                   <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "100px 100px" }} />
 
                   {/* Icono Premium Glassmorphism */}
                   <div className="relative z-10 w-[60px] h-[60px] rounded-full flex items-center justify-center shrink-0 ml-1" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.15)" }}>
                     <div className="absolute inset-0 rounded-full border border-white/5 bg-white/5" />
                     <CalendarDays className="w-7 h-7 text-white drop-shadow-lg relative z-10" strokeWidth={1.5} />
-                    {/* Punto rojo indicador de notificaciones */}
-                    <div className="absolute top-[2px] right-[2px] w-3.5 h-3.5 rounded-full bg-[#f43f5e] border-[2px] border-[#1a1a1c] shadow-sm z-20"></div>
+                    {/* Punto rojo indicador si hay notificaciones reales */}
+                    {hasNotifications && (
+                      <div className="absolute top-[2px] right-[2px] w-3.5 h-3.5 rounded-full bg-[#f43f5e] border-[2px] border-[#1a1a1c] shadow-sm z-20"></div>
+                    )}
                   </div>
 
                   {/* Textos y Cápsulas */}
                   <div className="relative z-10 flex flex-col flex-1 min-w-0 pr-2 justify-center mt-0.5">
                     <div className="flex items-center justify-between mb-1.5">
                         <h3 className="text-white font-bold text-[19px] leading-tight tracking-tight" style={{ fontFamily: SFD }}>Schedules</h3>
-                        <div className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                        <div className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
                             <ChevronRight className="w-4 h-4 text-white/50" />
                         </div>
                     </div>
@@ -308,23 +382,44 @@ export function HomeView() {
                       style={{ scrollBehavior: 'smooth' }}
                     >
                       <div className="flex flex-col">
-                        {SCHEDULE_MOCK_ITEMS.map((item) => (
-                          <div key={item.id} className="h-[32px] snap-center snap-always flex items-center shrink-0">
-                            <button
-                              onClick={() => setCurrentView("schedule")}
-                              className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-[12px] max-w-full active:scale-95 transition-all shadow-sm"
-                              style={{ 
-                                background: `rgba(0,0,0,0.4)`, 
-                                border: `1px solid rgba(255,255,255,0.08)`,
+                        {displayItems.map((item, idx) => {
+                          const isActive = idx === activeScheduleIndex;
+                          const itemColor = item.color || ICON_COLORS[item.icon_name] || "#3b82f6";
+                          const timeStr = item.fire_at ? formatTimeRelative(item.fire_at) : (item.id === 'loading' ? 'Loading' : 'Relax');
+
+                          return (
+                            <div 
+                              key={item.id} 
+                              className="h-[32px] snap-center snap-always flex items-center shrink-0 transition-all duration-300 ease-out"
+                              style={{
+                                transform: isActive ? 'scale(1) translateX(0)' : 'scale(0.85) translateX(-4%)',
+                                opacity: isActive ? 1 : 0.35,
+                                transformOrigin: 'left center'
                               }}
                             >
-                               <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color, boxShadow: `0 0 8px ${item.color}` }} />
-                               <span className="text-[13px] font-medium truncate text-white/90" style={{ fontFamily: SF }}>
-                                 {item.time} <span className="opacity-30 mx-1">•</span> {item.title}
-                               </span>
-                            </button>
-                          </div>
-                        ))}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCurrentView("schedule");
+                                }}
+                                className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-[12px] max-w-full shadow-sm active:scale-95 transition-transform"
+                                style={{ 
+                                  background: `rgba(0,0,0,0.4)`, 
+                                  border: `1px solid rgba(255,255,255,0.08)`,
+                                }}
+                              >
+                                {item.id === 'loading' ? (
+                                  <Loader2 className="w-2.5 h-2.5 animate-spin shrink-0" style={{ color: itemColor }} />
+                                ) : (
+                                  <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: itemColor, boxShadow: `0 0 8px ${itemColor}` }} />
+                                )}
+                                <span className="text-[13px] font-medium truncate text-white/90" style={{ fontFamily: SF }}>
+                                  {timeStr} <span className="opacity-30 mx-1">•</span> {item.title}
+                                </span>
+                              </button>
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   </div>
