@@ -34,9 +34,11 @@ async function apiPost(endpoint: string, body: Record<string, unknown>) {
 }
 
 interface ScheduleItem {
-  id: number; title: string; event_type: string; icon_name: string; color: string
+  id: number;
+  title: string; event_type: string; icon_name: string; color: string
   description: string; extra: string; email_to: string; files: {name:string;size:number}[]
-  is_event: boolean; fire_at: string; alert_offset_min: number; status: string
+  is_event: boolean;
+  fire_at: string; alert_offset_min: number; status: string
 }
 
 const ICONS: Record<string, React.ElementType> = {
@@ -55,94 +57,72 @@ const REMINDER_OPTIONS = ["Personal Reminder","Drink Water","Stand Up / Stretch"
 
 // Timezone registry: { label shown to user, value stored in localStorage }
 const TZ_LIST: { label: string; value: string; offset: string }[] = [
-  // UTC-12 to UTC-8
   { label: "Baker Island",          value: "Etc/GMT+12",                  offset: "UTC−12" },
   { label: "Samoa",                 value: "Pacific/Pago_Pago",           offset: "UTC−11" },
   { label: "Hawaii",                value: "Pacific/Honolulu",            offset: "UTC−10" },
   { label: "Alaska",                value: "America/Anchorage",           offset: "UTC−9"  },
   { label: "Los Angeles / PDT",     value: "America/Los_Angeles",         offset: "UTC−8"  },
   { label: "Vancouver",             value: "America/Vancouver",           offset: "UTC−8"  },
-  // UTC-7
   { label: "Denver / MDT",          value: "America/Denver",              offset: "UTC−7"  },
   { label: "Phoenix",               value: "America/Phoenix",             offset: "UTC−7"  },
-  // UTC-6
   { label: "Mexico City / CDT",     value: "America/Mexico_City",         offset: "UTC−6"  },
   { label: "Chicago",               value: "America/Chicago",             offset: "UTC−6"  },
   { label: "Guatemala",             value: "America/Guatemala",           offset: "UTC−6"  },
-  // UTC-5
   { label: "New York / EDT",        value: "America/New_York",            offset: "UTC−5"  },
   { label: "Toronto",               value: "America/Toronto",             offset: "UTC−5"  },
   { label: "Bogotá",                value: "America/Bogota",              offset: "UTC−5"  },
   { label: "Lima",                  value: "America/Lima",                offset: "UTC−5"  },
   { label: "Havana",                value: "America/Havana",              offset: "UTC−5"  },
-  // UTC-4
   { label: "Santiago",              value: "America/Santiago",            offset: "UTC−4"  },
   { label: "Caracas",               value: "America/Caracas",             offset: "UTC−4"  },
   { label: "La Paz",                value: "America/La_Paz",              offset: "UTC−4"  },
   { label: "Halifax",               value: "America/Halifax",             offset: "UTC−4"  },
-  // UTC-3
   { label: "São Paulo / Brasília",  value: "America/Sao_Paulo",           offset: "UTC−3"  },
   { label: "Buenos Aires",          value: "America/Argentina/Buenos_Aires", offset: "UTC−3" },
   { label: "Montevideo",            value: "America/Montevideo",          offset: "UTC−3"  },
-  // UTC-2
-  { label: "South Georgia",        value: "Atlantic/South_Georgia",      offset: "UTC−2"  },
-  // UTC-1
+  { label: "South Georgia",         value: "Atlantic/South_Georgia",      offset: "UTC−2"  },
   { label: "Azores",                value: "Atlantic/Azores",             offset: "UTC−1"  },
-  // UTC+0
   { label: "London / GMT",          value: "Europe/London",               offset: "UTC+0"  },
   { label: "Lisbon",                value: "Europe/Lisbon",               offset: "UTC+0"  },
   { label: "Reykjavik",             value: "Atlantic/Reykjavik",          offset: "UTC+0"  },
   { label: "Dakar",                 value: "Africa/Dakar",                offset: "UTC+0"  },
-  // UTC+1
   { label: "Madrid / CET",          value: "Europe/Madrid",               offset: "UTC+1"  },
   { label: "Paris",                 value: "Europe/Paris",                offset: "UTC+1"  },
   { label: "Berlin",                value: "Europe/Berlin",               offset: "UTC+1"  },
   { label: "Rome",                  value: "Europe/Rome",                 offset: "UTC+1"  },
   { label: "Lagos",                 value: "Africa/Lagos",                offset: "UTC+1"  },
   { label: "Casablanca",            value: "Africa/Casablanca",           offset: "UTC+1"  },
-  // UTC+2
   { label: "Cairo / EET",           value: "Africa/Cairo",                offset: "UTC+2"  },
   { label: "Athens",                value: "Europe/Athens",               offset: "UTC+2"  },
   { label: "Helsinki",              value: "Europe/Helsinki",             offset: "UTC+2"  },
   { label: "Johannesburg",          value: "Africa/Johannesburg",         offset: "UTC+2"  },
   { label: "Kiev",                  value: "Europe/Kiev",                 offset: "UTC+2"  },
-  // UTC+3
   { label: "Moscow / MSK",          value: "Europe/Moscow",               offset: "UTC+3"  },
   { label: "Istanbul",              value: "Europe/Istanbul",             offset: "UTC+3"  },
   { label: "Riyadh",                value: "Asia/Riyadh",                 offset: "UTC+3"  },
   { label: "Nairobi",               value: "Africa/Nairobi",              offset: "UTC+3"  },
   { label: "Baghdad",               value: "Asia/Baghdad",                offset: "UTC+3"  },
-  // UTC+3:30
   { label: "Tehran",                value: "Asia/Tehran",                 offset: "UTC+3:30" },
-  // UTC+4
   { label: "Dubai / GST",           value: "Asia/Dubai",                  offset: "UTC+4"  },
   { label: "Baku",                  value: "Asia/Baku",                   offset: "UTC+4"  },
   { label: "Tbilisi",               value: "Asia/Tbilisi",                offset: "UTC+4"  },
   { label: "Muscat",                value: "Asia/Muscat",                 offset: "UTC+4"  },
-  // UTC+4:30
   { label: "Kabul",                 value: "Asia/Kabul",                  offset: "UTC+4:30" },
-  // UTC+5
   { label: "Karachi / PKT",         value: "Asia/Karachi",                offset: "UTC+5"  },
   { label: "Tashkent",              value: "Asia/Tashkent",               offset: "UTC+5"  },
   { label: "Yekaterinburg",         value: "Asia/Yekaterinburg",          offset: "UTC+5"  },
-  // UTC+5:30
   { label: "Mumbai / IST",          value: "Asia/Kolkata",                offset: "UTC+5:30" },
   { label: "New Delhi",             value: "Asia/Kolkata",                offset: "UTC+5:30" },
   { label: "Colombo",               value: "Asia/Colombo",                offset: "UTC+5:30" },
-  // UTC+5:45
   { label: "Kathmandu",             value: "Asia/Kathmandu",              offset: "UTC+5:45" },
-  // UTC+6
   { label: "Dhaka / BST",           value: "Asia/Dhaka",                  offset: "UTC+6"  },
   { label: "Almaty",                value: "Asia/Almaty",                 offset: "UTC+6"  },
   { label: "Bishkek",               value: "Asia/Bishkek",                offset: "UTC+6"  },
-  // UTC+6:30
   { label: "Yangon / MMT",          value: "Asia/Rangoon",                offset: "UTC+6:30" },
-  // UTC+7
   { label: "Bangkok / ICT",         value: "Asia/Bangkok",                offset: "UTC+7"  },
   { label: "Jakarta",               value: "Asia/Jakarta",                offset: "UTC+7"  },
   { label: "Hanoi",                 value: "Asia/Ho_Chi_Minh",            offset: "UTC+7"  },
   { label: "Novosibirsk",           value: "Asia/Novosibirsk",            offset: "UTC+7"  },
-  // UTC+8
   { label: "Beijing / CST",         value: "Asia/Shanghai",               offset: "UTC+8"  },
   { label: "Singapore",             value: "Asia/Singapore",              offset: "UTC+8"  },
   { label: "Kuala Lumpur",          value: "Asia/Kuala_Lumpur",           offset: "UTC+8"  },
@@ -150,26 +130,19 @@ const TZ_LIST: { label: string; value: string; offset: string }[] = [
   { label: "Perth",                 value: "Australia/Perth",             offset: "UTC+8"  },
   { label: "Hong Kong",             value: "Asia/Hong_Kong",              offset: "UTC+8"  },
   { label: "Taipei",                value: "Asia/Taipei",                 offset: "UTC+8"  },
-  // UTC+8:45
   { label: "Eucla",                 value: "Australia/Eucla",             offset: "UTC+8:45" },
-  // UTC+9
   { label: "Tokyo / JST",           value: "Asia/Tokyo",                  offset: "UTC+9"  },
   { label: "Seoul",                 value: "Asia/Seoul",                  offset: "UTC+9"  },
   { label: "Yakutsk",               value: "Asia/Yakutsk",                offset: "UTC+9"  },
-  // UTC+9:30
   { label: "Adelaide",              value: "Australia/Adelaide",          offset: "UTC+9:30" },
   { label: "Darwin",                value: "Australia/Darwin",            offset: "UTC+9:30" },
-  // UTC+10
   { label: "Sydney / AEST",         value: "Australia/Sydney",            offset: "UTC+10" },
   { label: "Brisbane",              value: "Australia/Brisbane",          offset: "UTC+10" },
   { label: "Vladivostok",           value: "Asia/Vladivostok",            offset: "UTC+10" },
-  // UTC+11
   { label: "Noumea",                value: "Pacific/Noumea",              offset: "UTC+11" },
   { label: "Honiara",               value: "Pacific/Guadalcanal",         offset: "UTC+11" },
-  // UTC+12
   { label: "Auckland / NZST",       value: "Pacific/Auckland",            offset: "UTC+12" },
   { label: "Fiji",                  value: "Pacific/Fiji",                offset: "UTC+12" },
-  // UTC+13
   { label: "Nuku\'alofa",           value: "Pacific/Tongatapu",           offset: "UTC+13" },
   { label: "Apia",                  value: "Pacific/Apia",                offset: "UTC+13" },
 ]
@@ -233,17 +206,10 @@ function WheelPicker({ items, value, onChange, suffix="" }: {items:string[];valu
 }
 
 // ── TZPickerModal ─────────────────────────────────────────────────────────────
-function TZPickerModal({
-  onSave, onConfirm, selectedTZ
-}: {
-  onSave: (tz: string) => void
-  onConfirm: () => void
-  selectedTZ: string
-}) {
+function TZPickerModal({ onSave, onConfirm, selectedTZ }: { onSave: (tz: string) => void; onConfirm: () => void; selectedTZ: string }) {
   const [query, setQuery]     = useState("")
   const [picked, setPicked]   = useState(selectedTZ || "")
 
-  // Auto-detect browser timezone on mount
   useEffect(() => {
     if (!picked) {
       const detected = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -252,19 +218,13 @@ function TZPickerModal({
     }
   }, [])
 
-  // Group by offset for section headers
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
     return q
-      ? TZ_LIST.filter(t =>
-          t.label.toLowerCase().includes(q) ||
-          t.offset.toLowerCase().includes(q) ||
-          t.value.toLowerCase().includes(q)
-        )
+      ? TZ_LIST.filter(t => t.label.toLowerCase().includes(q) || t.offset.toLowerCase().includes(q) || t.value.toLowerCase().includes(q))
       : TZ_LIST
   }, [query])
 
-  // Group filtered list by offset
   const grouped = useMemo(() => {
     const map = new Map<string, typeof TZ_LIST>()
     for (const tz of filtered) {
@@ -281,19 +241,15 @@ function TZPickerModal({
       <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
       <div className="relative w-full rounded-t-[32px] flex flex-col bg-[#111] border-t border-[#2c2c2e]" style={{maxHeight:"92vh"}}>
 
-        {/* Header */}
         <div className="flex flex-col items-center pt-5 pb-3 px-6">
           <div className="w-10 h-1 rounded-full bg-[#3c3c3e] mb-5" />
           <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center mb-3">
             <Globe className="w-7 h-7 text-blue-500" />
           </div>
           <h3 className="text-white font-bold text-[22px] tracking-tight" style={{fontFamily:SFD}}>Set Time Zone</h3>
-          <p className="text-[#8e8e93] text-[14px] text-center mt-1" style={{fontFamily:SF}}>
-            Schedules fire exactly when you need them.
-          </p>
+          <p className="text-[#8e8e93] text-[14px] text-center mt-1" style={{fontFamily:SF}}>Schedules fire exactly when you need them.</p>
         </div>
 
-        {/* Auto-detect pill */}
         <div className="px-6 mb-3">
           <button
             onClick={() => {
@@ -313,75 +269,38 @@ function TZPickerModal({
           </button>
         </div>
 
-        {/* Search */}
         <div className="px-6 mb-3">
           <div className="flex items-center gap-2 bg-[#1c1c1e] rounded-[14px] px-4 py-2.5 border border-[#2c2c2e]">
             <Search className="w-4 h-4 text-[#636366] shrink-0" />
-            <input
-              type="text"
-              placeholder="Search city or UTC offset…"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              className="bg-transparent text-white text-[15px] flex-1 outline-none placeholder-[#636366]"
-              style={{fontFamily:SF}}
-            />
-            {query && (
-              <button onClick={() => setQuery("")}>
-                <X className="w-4 h-4 text-[#636366]" />
-              </button>
-            )}
+            <input type="text" placeholder="Search city or UTC offset…" value={query} onChange={e => setQuery(e.target.value)} className="bg-transparent text-white text-[15px] flex-1 outline-none placeholder-[#636366]" style={{fontFamily:SF}}/>
+            {query && (<button onClick={() => setQuery("")}><X className="w-4 h-4 text-[#636366]" /></button>)}
           </div>
         </div>
 
-        {/* Selected pill */}
         {pickedEntry && (
           <div className="px-6 mb-2">
             <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10 rounded-[12px] border border-blue-500/20">
               <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-              <span className="text-blue-300 text-[13px] font-medium" style={{fontFamily:SF}}>
-                {pickedEntry.label}
-              </span>
-              <span className="text-blue-400/60 text-[12px] ml-auto" style={{fontFamily:SF}}>
-                {pickedEntry.offset}
-              </span>
+              <span className="text-blue-300 text-[13px] font-medium" style={{fontFamily:SF}}>{pickedEntry.label}</span>
+              <span className="text-blue-400/60 text-[12px] ml-auto" style={{fontFamily:SF}}>{pickedEntry.offset}</span>
             </div>
           </div>
         )}
 
-        {/* Scrollable list */}
         <div className="flex-1 overflow-y-auto px-6 pb-2 no-scrollbar">
           {grouped.map(([offset, tzs]) => (
             <div key={offset} className="mb-1">
-              {/* Section header */}
               <div className="flex items-center gap-2 py-2 sticky top-0 bg-[#111] z-10">
-                <span className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest" style={{fontFamily:SF}}>
-                  {offset}
-                </span>
+                <span className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest" style={{fontFamily:SF}}>{offset}</span>
                 <div className="flex-1 h-px bg-[#2c2c2e]" />
               </div>
-              {/* Rows */}
               {tzs.map(tz => {
                 const isSelected = picked === tz.value
                 return (
-                  <button
-                    key={tz.value + tz.label}
-                    onClick={() => { setPicked(tz.value); onSave(tz.value) }}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-[14px] mb-1 transition-all active:scale-[0.98] ${
-                      isSelected
-                        ? "bg-blue-500/15 border border-blue-500/30"
-                        : "bg-[#1c1c1e] border border-transparent"
-                    }`}
-                  >
-                    <span
-                      className={`text-[15px] font-medium ${isSelected ? "text-blue-300" : "text-white"}`}
-                      style={{fontFamily:SF}}
-                    >
-                      {tz.label}
-                    </span>
+                  <button key={tz.value + tz.label} onClick={() => { setPicked(tz.value); onSave(tz.value) }} className={`w-full flex items-center justify-between px-4 py-3 rounded-[14px] mb-1 transition-all active:scale-[0.98] ${isSelected ? "bg-blue-500/15 border border-blue-500/30" : "bg-[#1c1c1e] border border-transparent"}`}>
+                    <span className={`text-[15px] font-medium ${isSelected ? "text-blue-300" : "text-white"}`} style={{fontFamily:SF}}>{tz.label}</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[#636366] text-[13px]" style={{fontFamily:SF}}>
-                        {tz.offset}
-                      </span>
+                      <span className="text-[#636366] text-[13px]" style={{fontFamily:SF}}>{tz.offset}</span>
                       {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-400" />}
                     </div>
                   </button>
@@ -397,14 +316,8 @@ function TZPickerModal({
           )}
         </div>
 
-        {/* Confirm button */}
         <div className="px-6 pt-3 pb-8 border-t border-[#1c1c1e]">
-          <button
-            onClick={onConfirm}
-            disabled={!picked}
-            className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-40 disabled:active:scale-100"
-            style={{fontFamily:SF}}
-          >
+          <button onClick={onConfirm} disabled={!picked} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-40 disabled:active:scale-100" style={{fontFamily:SF}}>
             Confirm & Continue
           </button>
         </div>
@@ -444,7 +357,7 @@ export function ScheduleView() {
   const [taskEmailRec,  setTaskEmailRec]  = useState("")
   const [attachedFiles, setAttachedFiles] = useState<{name:string;size:number}[]>([])
   const [extraConfig,   setExtraConfig]   = useState("")
-  // Initialize to now+5min so "set reminder in 3min" flow works intuitively
+
   const _initNow = useMemo(() => {
     const d = new Date(Date.now() + 5 * 60 * 1000)
     return {
@@ -469,21 +382,16 @@ export function ScheduleView() {
     setToast({msg,type}); setTimeout(()=>setToast(null),3500)
   },[])
 
-  // ── INIT CHECK Y CENTRADO DE ONBOARDING ──
   useEffect(() => {
     const onboarded = localStorage.getItem("xblum_onboarded")
     const savedTZ = localStorage.getItem("xblum_tz_set")
     
     if (!onboarded) {
       setShowOnboarding(true)
-      // Centra suavemente en la tarjeta del medio al cargar la app
       setTimeout(() => {
         if(onboardingScrollRef.current) {
-          const cardWidth = 280 + 16 // Ancho de la tarjeta (280px) + gap (16px)
-          onboardingScrollRef.current.scrollTo({
-            left: cardWidth * 1,
-            behavior: 'smooth'
-          });
+          const cardWidth = 280 + 16
+          onboardingScrollRef.current.scrollTo({ left: cardWidth * 1, behavior: 'smooth' })
         }
       }, 100)
     } else if (!savedTZ) {
@@ -491,13 +399,10 @@ export function ScheduleView() {
     }
   }, [])
 
-  // ── LÓGICA DE SCROLL ESTABLE (SIN BUGS) ──
   const handleOnboardingScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const container = e.currentTarget;
     const scrollLeft = container.scrollLeft;
-    const cardWidth = 280 + 16; // 280px de tarjeta + gap-4 (16px)
-    
-    // Simplemente determinamos qué tarjeta está más cerca del centro
+    const cardWidth = 280 + 16;
     const index = Math.round(scrollLeft / cardWidth);
     if (index !== activeIndex && index >= 0 && index < ONBOARDING_CARDS_DATA.length) {
       setActiveIndex(index);
@@ -532,18 +437,19 @@ export function ScheduleView() {
   useEffect(()=>{ fetchItems() },[fetchItems])
   useEffect(()=>{ setViewAll(false) },[listView])
 
+  // Reset Extras and Attachments correctly
   useEffect(()=>{
     setExtraConfig(""); setAttachedFiles([])
-    if(eventType==="Workout / Gym")          { setTaskIcon("Dumbbell");      setTaskTitle("Workout");           setExtraConfig("Upper Body") }
-    else if(eventType==="Deep Work")          { setTaskIcon("Laptop");        setTaskTitle("Deep Work Session"); setExtraConfig("DND Mode") }
-    else if(eventType==="Meal Time")          { setTaskIcon("Utensils");      setTaskTitle("Lunch Break");       setExtraConfig("High Protein") }
-    else if(eventType==="Schedule Email")     { setTaskIcon("Mail");          setTaskTitle("Send Email") }
+    if(eventType==="Workout / Gym")          { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); }
+    else if(eventType==="Deep Work")          { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); }
+    else if(eventType==="Meal Time")          { setTaskIcon("Utensils"); setTaskTitle("Lunch Break"); }
+    else if(eventType==="Schedule Email")     { setTaskIcon("Mail"); setTaskTitle("Send Email") }
     else if(eventType==="Send Message")       { setTaskIcon("MessageSquare"); setTaskTitle("Send Message") }
-    else if(eventType==="Drive Upload")       { setTaskIcon("Folder");        setTaskTitle("Backup to Drive") }
-    else if(eventType==="Drink Water")        { setTaskIcon("Droplets");      setTaskTitle("Drink Water") }
-    else if(eventType==="Stand Up / Stretch") { setTaskIcon("Activity");      setTaskTitle("Stretch Legs") }
-    else if(eventType==="Take Medication")    { setTaskIcon("Pill");          setTaskTitle("Medication");        setExtraConfig("Every 8h") }
-    else if(eventType==="Custom Event")       { setTaskIcon("CalendarDays");  setTaskTitle("");                  setExtraConfig("https://meet.google.com/...") }
+    else if(eventType==="Drive Upload")       { setTaskIcon("Folder"); setTaskTitle("Backup to Drive") }
+    else if(eventType==="Drink Water")        { setTaskIcon("Droplets"); setTaskTitle("Drink Water") }
+    else if(eventType==="Stand Up / Stretch") { setTaskIcon("Activity"); setTaskTitle("Stretch Legs") }
+    else if(eventType==="Take Medication")    { setTaskIcon("Pill"); setTaskTitle("Medication"); }
+    else if(eventType==="Custom Event")       { setTaskIcon("CalendarDays");  setTaskTitle(""); }
     else if(eventType==="Personal Reminder"||eventType==="Custom Reminder"){ setTaskIcon("Bell"); setTaskTitle("Reminder") }
     else { setTaskIcon("CalendarDays"); setTaskTitle("") }
   },[eventType])
@@ -601,41 +507,34 @@ export function ScheduleView() {
     const nf=Array.from(e.target.files).slice(0,5-attachedFiles.length).map(f=>({name:f.name,size:f.size}))
     setAttachedFiles(p=>[...p,...nf].slice(0,5))
   }
+
   function buildFireAt(){
-    // The browser's native Date constructor interprets "YYYY-MM-DDTHH:MM:SS"
-    // WITHOUT a timezone suffix as LOCAL time — this is the correct behavior we want.
-    // The user picked hour/min in their local clock; Date() converts to UTC internally.
     const mi     = months.indexOf(selMonth)
     const now    = new Date()
     let   year   = now.getFullYear()
     const dayNum = parseInt(selDayNum, 10)
     const hour   = parseInt(selHour, 10)
     const min    = parseInt(selMin, 10)
-
-    // Construct as local time (no Z suffix → browser uses local TZ offset automatically)
     const pad = (n: number) => n.toString().padStart(2, "0")
     const localStr = `${year}-${pad(mi+1)}-${pad(dayNum)}T${pad(hour)}:${pad(min)}:00`
-    let fireDate   = new Date(localStr)   // ← local → UTC handled by browser natively
+    let fireDate = new Date(localStr)
 
-    // If already in the past, try same time tomorrow (handles midnight-rollover edge case)
     if (fireDate.getTime() <= Date.now()) {
       fireDate = new Date(fireDate.getTime() + 24 * 60 * 60 * 1000)
     }
-
-    // Hard safety cap: never more than 8 days out (scheduler only shows 1 week)
     const maxFuture = new Date(Date.now() + 8 * 24 * 60 * 60 * 1000)
     if (fireDate > maxFuture) {
-      console.warn("[buildFireAt] Clamped to 8-day cap:", fireDate.toISOString())
       fireDate = maxFuture
     }
-
-    return fireDate.toISOString()  // always UTC ISO-8601
+    return fireDate.toISOString() 
   }
+
   function formatFireAt(iso:string){ try{ const dt=new Date(iso); return dt.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true}) }catch{return iso} }
 
   async function handleSaveConfig(){
     setLoading(true)
-    const tg=getTg(); const chatId=tg?.initDataUnsafe?.user?.id
+    const tg=getTg();
+    const chatId=tg?.initDataUnsafe?.user?.id
     try {
       const data=await apiPost("/api/schedule_create",{
         title:taskTitle||eventType, event_type:eventType, icon_name:taskIcon,
@@ -645,8 +544,10 @@ export function ScheduleView() {
       })
       if(data.success){
         showToast("Saved! Telegram will notify you 🔔","success")
-        await fetchItems(); setConfigModalOpen(false); setActivePicker(null)
-        setListView(creationMode==="events"?"events":"reminders"); setActiveNavTab("tasks")
+        await fetchItems();
+        setConfigModalOpen(false); setActivePicker(null)
+        setListView(creationMode==="events"?"events":"reminders");
+        setActiveNavTab("tasks")
       } else { showToast(data.message||"Could not save. Try again.","error") }
     } catch(e:any){ showToast(`Error: ${e.message}`,"error") }
     finally{ setLoading(false) }
@@ -731,39 +632,20 @@ export function ScheduleView() {
       {/* ── ONBOARDING AVANZADO ────────────────────── */}
       {showOnboarding && (
         <div className="fixed inset-0 z-[200] flex flex-col bg-[#050505] animate-in fade-in duration-500 overflow-hidden">
-          
-          <div className="absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none" 
-               style={{ background: ONBOARDING_CARDS_DATA[activeIndex].bgGradient, opacity: 1 }} />
-          
+          <div className="absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none" style={{ background: ONBOARDING_CARDS_DATA[activeIndex].bgGradient, opacity: 1 }} />
           <div className="flex flex-col items-center flex-1 pt-12 pb-8 relative z-10">
             <div className="mb-6 opacity-90 h-10 flex items-center justify-center">
               <img src="/xblum-logo.png" alt="xBlum Logo" className="h-full object-contain" onError={(e)=>(e.currentTarget.style.display='none')}/>
             </div>
-
-            <div ref={onboardingScrollRef} 
-                 onScroll={handleOnboardingScroll}
-                 className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory px-[calc(50vw-148px)] no-scrollbar pb-10 pt-4" 
-                 style={{ scrollBehavior: 'auto', WebkitOverflowScrolling: 'touch' }}>
-              
+            <div ref={onboardingScrollRef} onScroll={handleOnboardingScroll} className="w-full flex gap-4 overflow-x-auto snap-x snap-mandatory px-[calc(50vw-148px)] no-scrollbar pb-10 pt-4" style={{ scrollBehavior: 'auto', WebkitOverflowScrolling: 'touch' }}>
               {ONBOARDING_CARDS_DATA.map((card, i) => {
                 const Icon = card.icon;
                 const isActive = i === activeIndex;
-
                 return (
-                  <div key={card.id} 
-                       className="shrink-0 w-[280px] h-[380px] snap-center rounded-[36px] p-8 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden transition-all duration-300 ease-out" 
-                       style={{ 
-                         background: card.cardGradient,
-                         transform: isActive ? 'scale(1)' : 'scale(0.85)',
-                         opacity: isActive ? 1 : 0.5,
-                       }}>
-                    
+                  <div key={card.id} className="shrink-0 w-[280px] h-[380px] snap-center rounded-[36px] p-8 flex flex-col items-center justify-center text-center shadow-2xl relative overflow-hidden transition-all duration-300 ease-out" style={{ background: card.cardGradient, transform: isActive ? 'scale(1)' : 'scale(0.85)', opacity: isActive ? 1 : 0.5 }}>
                     <div className="absolute inset-0 bg-white/5 opacity-50 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "120px 120px" }} />
-                    
-                    {/* Contenedor del Icono con UN SOLO anillo */}
                     <div className="relative flex items-center justify-center mb-8 w-[110px] h-[110px]">
                       <div className="absolute inset-0 rounded-full border border-white/10 bg-white/5" />
-                      
                       <div className="w-[72px] h-[72px] rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md relative z-10 border border-white/30 shadow-lg">
                         <div className="relative">
                           <Icon className="w-9 h-9" style={{color: card.color}} strokeWidth={2.5} />
@@ -771,35 +653,19 @@ export function ScheduleView() {
                         </div>
                       </div>
                     </div>
-                    
                     <h3 className="text-white font-bold text-[24px] mb-3.5 relative z-10 tracking-tight" style={{fontFamily:SFD}}>{card.title}</h3>
-                    <p className="text-white/90 text-[15px] leading-relaxed relative z-10 px-2" style={{fontFamily:SF}}>
-                      {card.desc}
-                    </p>
+                    <p className="text-white/90 text-[15px] leading-relaxed relative z-10 px-2" style={{fontFamily:SF}}>{card.desc}</p>
                   </div>
                 )
               })}
             </div>
-
             <div className="flex gap-2.5 mb-10">
-              {ONBOARDING_CARDS_DATA.map((_, i) => (
-                <div key={i} className={`h-2 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-7 bg-white' : 'w-2 bg-white/30'}`} />
-              ))}
+              {ONBOARDING_CARDS_DATA.map((_, i) => (<div key={i} className={`h-2 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-7 bg-white' : 'w-2 bg-white/30'}`} />))}
             </div>
-
             <div className="flex flex-col items-center text-center mt-auto px-7 w-full max-w-sm relative z-10">
-              <h1 className="text-white font-bold text-[28px] leading-[1.2] mb-3" style={{fontFamily:SFD, letterSpacing: "-0.03em"}}>
-                Smart scheduling,<br/>reimagined for you
-              </h1>
-              <p className="text-[#8e8e93] text-[15px] mb-8" style={{fontFamily:SF}}>
-                Join <span className="text-white font-medium">xBlum Assistant</span>
-              </p>
-
-              <button 
-                onClick={handleStartOnboarding}
-                className="w-full bg-white text-black py-4 rounded-[28px] font-bold text-[17px] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-lg"
-                style={{fontFamily:SF}}
-              >
+              <h1 className="text-white font-bold text-[28px] leading-[1.2] mb-3" style={{fontFamily:SFD, letterSpacing: "-0.03em"}}>Smart scheduling,<br/>reimagined for you</h1>
+              <p className="text-[#8e8e93] text-[15px] mb-8" style={{fontFamily:SF}}>Join <span className="text-white font-medium">xBlum Assistant</span></p>
+              <button onClick={handleStartOnboarding} className="w-full bg-white text-black py-4 rounded-[28px] font-bold text-[17px] active:scale-[0.97] transition-all flex items-center justify-center gap-1.5 shadow-lg" style={{fontFamily:SF}}>
                 Let's Get Started <span className="text-[19px] tracking-[-0.15em] ml-1 opacity-80" style={{fontFamily:SFD}}>›››</span>
               </button>
             </div>
@@ -816,7 +682,6 @@ export function ScheduleView() {
         />
       )}
 
-      {/* Header Fecha */}
       <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar">
         <div className="pt-10 flex justify-center items-end gap-1">
           <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
@@ -853,15 +718,15 @@ export function ScheduleView() {
           </div>
         </div>
 
-        {/* Sugerencias Biométricas */}
-        <div className="mt-6 flex flex-col items-center gap-3 px-5">
-          <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2.5 rounded-full border border-[#2c2c2e] w-full max-w-sm justify-center">
+        {/* Sugerencias Biométricas - Más chicos y el primero más grande */}
+        <div className="mt-6 flex flex-col items-center gap-2.5 px-5">
+          <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e] w-[280px] justify-center">
             <Moon className="w-4 h-4 text-[#f59e0b]"/>
-            <span className="text-[#f59e0b] text-[14px] font-medium" style={{fontFamily:SF}}>Morning grogginess <span className="opacity-60 font-normal">15m left</span></span>
+            <span className="text-[#f59e0b] text-[13px] font-medium" style={{fontFamily:SF}}>Morning grogginess <span className="opacity-60 font-normal">15m left</span></span>
           </div>
-          <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2.5 rounded-full border border-[#2c2c2e] w-full max-w-sm justify-center">
-            <TrendingUp className="w-4 h-4 text-[#22c55e]"/>
-            <span className="text-[#22c55e] text-[14px] font-medium" style={{fontFamily:SF}}>Alertness rise <span className="opacity-60 font-normal">in 45m</span></span>
+          <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-1.5 rounded-full border border-[#2c2c2e] w-[240px] justify-center">
+            <TrendingUp className="w-3.5 h-3.5 text-[#22c55e]"/>
+            <span className="text-[#22c55e] text-[12px] font-medium" style={{fontFamily:SF}}>Alertness rise <span className="opacity-60 font-normal">in 45m</span></span>
           </div>
         </div>
 
@@ -915,13 +780,12 @@ export function ScheduleView() {
         </div>
       </div>
 
-      {/* ── MODAL DE CREACIÓN / CONFIGURACIÓN ──────────────────── */}
+      {/* ── MODAL DE CREACIÓN ESTILO SETTINGS (LISTA UNIFICADA) ──────────────────── */}
       {configModalOpen&&(
         <div className="fixed inset-0 z-[60] flex items-end justify-center animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={()=>{setConfigModalOpen(false);setActivePicker(null)}}/>
           <div className="relative w-full rounded-t-[32px] animate-in slide-in-from-bottom duration-400 max-h-[92vh] flex flex-col bg-[#111] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#2c2c2e]">
 
-            {/* Drag handle + header */}
             <div className="flex flex-col px-6 pt-4 pb-3 shrink-0">
               <div className="w-10 h-1 rounded-full bg-[#3c3c3e] self-center mb-4"/>
               <div className="flex items-center justify-between">
@@ -929,7 +793,6 @@ export function ScheduleView() {
                 <button onClick={()=>{setConfigModalOpen(false);setActivePicker(null)}} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70"><X className="w-5 h-5 text-[#8e8e93]"/></button>
               </div>
 
-              {/* Event / Reminder toggle */}
               <div className="flex bg-[#1c1c1e] p-1 rounded-full w-full mt-4 border border-[#2c2c2e]">
                 <button onClick={()=>{setCreationMode("events");setEventType(EVENT_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="events"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>📅 Event</button>
                 <button onClick={()=>{setCreationMode("reminders");setEventType(REMINDER_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="reminders"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>🔔 Reminder</button>
@@ -938,237 +801,177 @@ export function ScheduleView() {
 
             <div className="overflow-y-auto flex-1 no-scrollbar px-6 pb-8 space-y-4">
 
-              {/* ── TYPE chips (replaces WheelPicker) ── */}
-              <div className="bg-[#1c1c1e] rounded-[24px] p-4 border border-[#2c2c2e]">
-                <p className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest mb-3" style={{fontFamily:SF}}>Type</p>
-                <div className="flex flex-wrap gap-2">
-                  {(creationMode==="events"?EVENT_OPTIONS:REMINDER_OPTIONS).map(opt=>(
-                    <button key={opt} onClick={()=>setEventType(opt)}
-                      className={`px-3 py-1.5 rounded-full text-[13px] font-medium transition-all border ${eventType===opt?"bg-white text-black border-white":"bg-[#2c2c2e] text-[#8e8e93] border-[#3c3c3e] active:opacity-70"}`}
-                      style={{fontFamily:SF}}
-                    >{opt}</button>
-                  ))}
-                </div>
-              </div>
+              {/* CONTENEDOR UNIFICADO ACORDEÓN */}
+              <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner">
+                <div className="flex flex-col divide-y divide-[#2c2c2e]">
+                  
+                  {/* Type */}
+                  <div className="flex flex-col">
+                    <button onClick={()=>togglePicker("type")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Sparkles className="w-[20px] h-[20px] text-[#8e8e93]"/>
+                        <span className="text-white text-[16px] font-medium">Type</span>
+                      </div>
+                      <span className="text-[#8e8e93] text-[16px] truncate max-w-[150px]">{eventType}</span>
+                    </button>
+                    {activePicker==="type"&&(
+                      <div className="flex items-center justify-center py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
+                        <WheelPicker items={creationMode==="events"?EVENT_OPTIONS:REMINDER_OPTIONS} value={eventType} onChange={setEventType}/>
+                      </div>
+                    )}
+                  </div>
 
-              {/* ── TITLE + ICON ── */}
-              <div className="bg-[#1c1c1e] rounded-[24px] p-4 border border-[#2c2c2e]">
-                <p className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest mb-3" style={{fontFamily:SF}}>Title & Icon</p>
-                <div className="flex items-center gap-3 mb-3">
-                  {(()=>{const I=ICONS[taskIcon]||CalendarDays;return <I className="w-5 h-5 shrink-0" style={{color:ICON_COLORS[taskIcon]||"#ffffff"}}/>})()}
-                  <input
-                    type="text" placeholder="Add a title…" value={taskTitle}
-                    onChange={e=>setTaskTitle(e.target.value)}
-                    className="bg-transparent text-white flex-1 focus:outline-none text-[16px] placeholder-[#636366]"
-                    style={{fontFamily:SF}}
-                  />
-                </div>
-                <button onClick={()=>togglePicker("icon")} className="text-[#3b82f6] text-[13px] font-medium active:opacity-70" style={{fontFamily:SF}}>
-                  {activePicker==="icon" ? "Hide icons ▲" : "Change icon ▼"}
-                </button>
-                {activePicker==="icon"&&(
-                  <div className="grid grid-cols-6 gap-4 pt-4 animate-in fade-in zoom-in-95">
-                    {Object.keys(ICONS).map(key=>{const IC=ICONS[key];const sel=taskIcon===key;return(
-                      <button key={key} onClick={()=>{setTaskIcon(key);setActivePicker(null)}} className={`flex flex-col items-center justify-center transition-all ${sel?"scale-110":"opacity-60"}`}>
-                        <IC className="w-6 h-6" style={{color:ICON_COLORS[key]}}/>
-                        {sel&&<div className="w-1.5 h-1.5 rounded-full mt-1.5" style={{backgroundColor:ICON_COLORS[key]}}/>}
+                  {/* Title & Icon */}
+                  <div className="flex flex-col">
+                    <div className="flex items-center justify-between w-full p-4">
+                      <button onClick={()=>togglePicker("icon")} className="flex items-center gap-3 active:opacity-70 transition-opacity">
+                        {(()=>{const I=ICONS[taskIcon]||CalendarDays;return <I className="w-5 h-5 shrink-0" style={{color:ICON_COLORS[taskIcon]||"#ffffff"}}/>})()}
+                        <span className="text-white text-[16px] font-medium whitespace-nowrap">Title & Icon</span>
                       </button>
-                    )})}
+                      <input type="text" placeholder="Add title…" value={taskTitle} onChange={e=>setTaskTitle(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-full ml-4 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                    </div>
+                    {activePicker==="icon"&&(
+                      <div className="grid grid-cols-6 gap-4 py-5 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
+                        {Object.keys(ICONS).map(key=>{const IC=ICONS[key];const sel=taskIcon===key;return(
+                          <button key={key} onClick={()=>{setTaskIcon(key);setActivePicker(null)}} className={`flex flex-col items-center justify-center transition-all ${sel?"scale-110":"opacity-70 hover:opacity-100"}`}>
+                            <IC className="w-6 h-6" style={{color:ICON_COLORS[key]}}/>
+                            {sel&&<div className="w-1.5 h-1.5 rounded-full mt-2" style={{backgroundColor:ICON_COLORS[key]}}/>}
+                          </button>
+                        )})}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* ── WHEN: date + time + quick shortcuts ── */}
-              <div className="bg-[#1c1c1e] rounded-[24px] p-4 border border-[#2c2c2e]">
-                <p className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest mb-3" style={{fontFamily:SF}}>When</p>
+                  {/* Date */}
+                  <div className="flex flex-col">
+                    <button onClick={()=>togglePicker("date")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
+                      <div className="flex items-center gap-3">
+                        <CalendarDays className="w-[20px] h-[20px] text-[#8e8e93]"/>
+                        <span className="text-white text-[16px] font-medium">Date</span>
+                      </div>
+                      <span className="text-[#8e8e93] text-[16px]">{selMonth} {selDayNum}</span>
+                    </button>
+                    {activePicker==="date"&&(
+                      <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
+                        <WheelPicker items={months} value={selMonth} onChange={setSelMonth}/>
+                        <WheelPicker items={days} value={selDayNum} onChange={setSelDayNum}/>
+                      </div>
+                    )}
+                  </div>
 
-                {/* Quick shortcuts */}
-                <div className="flex gap-2 mb-4 flex-wrap">
-                  {[
-                    {label:"In 15m", mins:15}, {label:"In 30m", mins:30},
-                    {label:"In 1h",  mins:60}, {label:"In 2h",  mins:120},
-                    {label:"Tomorrow 9am", mins:0, isTomorrow:true},
-                  ].map(s=>(
-                    <button key={s.label}
-                      onClick={()=>{
-                        const d = s.isTomorrow
-                          ? new Date(new Date().setHours(24+9,0,0,0))
-                          : new Date(Date.now() + s.mins * 60000)
-                        setSelMonth(months[d.getMonth()])
-                        setSelDayNum(d.getDate().toString())
-                        setSelHour(d.getHours().toString().padStart(2,"0"))
-                        setSelMin(d.getMinutes().toString().padStart(2,"0"))
-                        setActivePicker(null)
-                      }}
-                      className="px-3 py-1.5 rounded-full text-[13px] font-medium bg-[#2c2c2e] text-[#8e8e93] border border-[#3c3c3e] active:bg-[#3c3c3e] transition-colors"
-                      style={{fontFamily:SF}}
-                    >{s.label}</button>
-                  ))}
-                </div>
+                  {/* Time */}
+                  <div className="flex flex-col">
+                    <button onClick={()=>togglePicker("time")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Clock className="w-[20px] h-[20px] text-[#8e8e93]"/>
+                        <span className="text-white text-[16px] font-medium">Time</span>
+                      </div>
+                      <span className="text-[#8e8e93] text-[16px]">{parseInt(selHour)===0?"12":parseInt(selHour)>12?(parseInt(selHour)-12).toString():parseInt(selHour).toString()}:{selMin} {parseInt(selHour)>=12?"PM":"AM"}</span>
+                    </button>
+                    {activePicker==="time"&&(
+                      <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
+                        <WheelPicker items={hours} value={selHour} onChange={setSelHour} suffix="h"/>
+                        <span className="text-xl font-bold text-[#636366]">:</span>
+                        <WheelPicker items={mins} value={selMin} onChange={setSelMin} suffix="m"/>
+                      </div>
+                    )}
+                  </div>
 
-                {/* Date row */}
-                <div className="flex flex-col mb-2">
-                  <button onClick={()=>togglePicker("date")} className="flex items-center justify-between w-full py-3 px-1 active:opacity-70 transition-opacity">
-                    <div className="flex items-center gap-3">
-                      <CalendarDays className="w-[18px] h-[18px] text-[#8e8e93]"/>
-                      <span className="text-white text-[15px] font-medium" style={{fontFamily:SF}}>Date</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[#8e8e93] text-[15px]" style={{fontFamily:SF}}>
-                        {selMonth} {selDayNum}
-                        {selMonth===months[new Date().getMonth()]&&parseInt(selDayNum)===new Date().getDate()&&
-                          <span className="text-[#3b82f6] ml-1.5 text-[12px] font-semibold">Today</span>}
-                        {selMonth===months[new Date().getMonth()]&&parseInt(selDayNum)===new Date().getDate()+1&&
-                          <span className="text-[#f59e0b] ml-1.5 text-[12px] font-semibold">Tomorrow</span>}
-                      </span>
-                      <ChevronDown className={`w-4 h-4 text-[#636366] transition-transform ${activePicker==="date"?"rotate-180":""}`}/>
-                    </div>
-                  </button>
-                  {activePicker==="date"&&(
-                    <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[16px] mt-1 animate-in fade-in zoom-in-95 wheel-mask">
-                      <WheelPicker items={months} value={selMonth} onChange={setSelMonth}/>
-                      <WheelPicker items={days}   value={selDayNum} onChange={setSelDayNum}/>
+                  {/* Dynamic Fields */}
+                  {eventType==="Schedule Email"&&(
+                    <>
+                      <div className="flex flex-col w-full p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3"><AtSign className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Recipient</span></div>
+                          <input type="email" placeholder="client@ex.com" value={taskEmailRec} onChange={e=>setTaskEmailRec(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                        </div>
+                      </div>
+                      <div className="flex flex-col w-full p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-3"><Paperclip className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Attachments</span></div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-[#8e8e93] text-[14px]">{attachedFiles.length} / 5</span>
+                            <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden"/>
+                            <button onClick={()=>fileInputRef.current?.click()} disabled={attachedFiles.length>=5} className="bg-[#2c2c2e] text-white px-3 py-1.5 rounded-full text-[13px] font-medium active:scale-95 disabled:opacity-50">+ Add</button>
+                            {attachedFiles.length>0&&<button onClick={()=>setAttachedFiles([])} className="text-red-400 px-2 py-1.5 text-[13px]">Clear</button>}
+                          </div>
+                        </div>
+                        {attachedFiles.length>0&&<div className="flex flex-wrap gap-2 mt-2">{attachedFiles.map((f,i)=><div key={i} className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-md text-[11px] text-[#e4e4e7]"><span className="truncate max-w-[120px]">{f.name}</span><button onClick={()=>setAttachedFiles(p=>p.filter((_,j)=>j!==i))}><X className="w-3 h-3 text-[#8e8e93]"/></button></div>)}</div>}
+                      </div>
+                    </>
+                  )}
+
+                  {eventType==="Drive Upload"&&(
+                    <div className="flex flex-col w-full p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3"><Folder className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Drive Folder</span></div>
+                        <input type="text" placeholder="Folder name..." value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                      </div>
+                      <div className="flex items-center justify-between mb-2 pt-3 border-t border-[#2c2c2e]">
+                        <div className="flex items-center gap-3"><Paperclip className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Files</span></div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[#8e8e93] text-[14px]">{attachedFiles.length} / 5</span>
+                          <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden"/>
+                          <button onClick={()=>fileInputRef.current?.click()} disabled={attachedFiles.length>=5} className="bg-[#2c2c2e] text-white px-3 py-1.5 rounded-full text-[13px] font-medium active:scale-95 disabled:opacity-50">+ Add</button>
+                          {attachedFiles.length>0&&<button onClick={()=>setAttachedFiles([])} className="text-red-400 px-2 py-1.5 text-[13px]">Clear</button>}
+                        </div>
+                      </div>
+                      {attachedFiles.length>0&&<div className="flex flex-wrap gap-2 mt-2">{attachedFiles.map((f,i)=><div key={i} className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-md text-[11px] text-[#e4e4e7]"><span className="truncate max-w-[120px]">{f.name}</span><button onClick={()=>setAttachedFiles(p=>p.filter((_,j)=>j!==i))}><X className="w-3 h-3 text-[#8e8e93]"/></button></div>)}</div>}
                     </div>
                   )}
-                </div>
 
-                {/* Time row */}
-                <div className="flex flex-col">
-                  <button onClick={()=>togglePicker("time")} className="flex items-center justify-between w-full py-3 px-1 active:opacity-70 transition-opacity border-t border-[#2c2c2e]">
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-[18px] h-[18px] text-[#8e8e93]"/>
-                      <span className="text-white text-[15px] font-medium" style={{fontFamily:SF}}>Time</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[#8e8e93] text-[15px]" style={{fontFamily:SF}}>
-                        {parseInt(selHour)===0?"12":parseInt(selHour)>12?(parseInt(selHour)-12).toString():parseInt(selHour).toString()}:{selMin} {parseInt(selHour)>=12?"PM":"AM"}
-                      </span>
-                      <ChevronDown className={`w-4 h-4 text-[#636366] transition-transform ${activePicker==="time"?"rotate-180":""}`}/>
-                    </div>
-                  </button>
-                  {activePicker==="time"&&(
-                    <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[16px] mt-1 animate-in fade-in zoom-in-95 wheel-mask">
-                      <WheelPicker items={hours} value={selHour} onChange={setSelHour} suffix="h"/>
-                      <span className="text-xl font-bold text-[#636366]">:</span>
-                      <WheelPicker items={mins}  value={selMin}  onChange={setSelMin}  suffix="m"/>
+                  {eventType==="Custom Event"&&(
+                    <div className="flex items-center justify-between w-full p-4">
+                      <div className="flex items-center gap-3"><LinkIcon className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">URL</span></div>
+                      <input type="text" placeholder="Optional meeting link..." value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
                     </div>
                   )}
-                </div>
 
-                {/* Live preview of notify time */}
-                {(()=>{
-                  const offset = parseInt(selRemMin)||0
-                  const mi = months.indexOf(selMonth)
-                  const pad = (n:number) => n.toString().padStart(2,"0")
-                  const fireDate = new Date(`${new Date().getFullYear()}-${pad(mi+1)}-${pad(parseInt(selDayNum))}T${selHour}:${selMin}:00`)
-                  const notifyDate = new Date(fireDate.getTime() - offset*60000)
-                  const isValid = notifyDate > new Date()
-                  const diffMin = Math.round((notifyDate.getTime() - Date.now()) / 60000)
-                  const label = diffMin < 60 ? `${diffMin}m` : `${Math.floor(diffMin/60)}h ${diffMin%60}m`
-                  return (
-                    <div className={`mt-3 flex items-center gap-2 px-3 py-2.5 rounded-[12px] border ${isValid?"bg-emerald-500/8 border-emerald-500/20":"bg-red-500/8 border-red-500/20"}`}>
-                      {isValid
-                        ? <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0"/>
-                        : <AlertCircle  className="w-4 h-4 text-red-400 shrink-0"/>}
-                      <span className={`text-[13px] font-medium ${isValid?"text-emerald-300":"text-red-300"}`} style={{fontFamily:SF}}>
-                        {isValid
-                          ? `Alert fires in ${label} · ${notifyDate.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true})}`
-                          : "Selected time is in the past — pick a future time"}
-                      </span>
+                  {eventType==="Take Medication"&&(
+                    <div className="flex items-center justify-between w-full p-4">
+                      <div className="flex items-center gap-3"><RefreshCcw className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Frequency</span></div>
+                      <input type="text" placeholder="e.g. Every 8 hours" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
                     </div>
-                  )
-                })()}
-              </div>
+                  )}
 
-              {/* ── ALERT OFFSET — quick chips ── */}
-              <div className="bg-[#1c1c1e] rounded-[24px] p-4 border border-[#2c2c2e]">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest" style={{fontFamily:SF}}>Notify me before</p>
-                  <span className="text-white text-[13px] font-semibold" style={{fontFamily:SF}}>{selRemMin === "0" ? "At event time" : `${selRemMin} min before`}</span>
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                  {["0","1","3","5","10","15","30"].map(m=>(
-                    <button key={m}
-                      onClick={()=>setSelRemMin(m)}
-                      className={`px-3 py-1.5 rounded-full text-[13px] font-medium border transition-all ${selRemMin===m?"bg-white text-black border-white":"bg-[#2c2c2e] text-[#8e8e93] border-[#3c3c3e] active:opacity-70"}`}
-                      style={{fontFamily:SF}}
-                    >{m==="0"?"At time":`${m}m`}</button>
-                  ))}
+                  {(eventType==="Workout / Gym"||eventType==="Deep Work"||eventType==="Meal Time")&&(
+                    <div className="flex items-center justify-between w-full p-4">
+                      <div className="flex items-center gap-3"><Type className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Tag</span></div>
+                      <input type="text" placeholder={eventType==="Workout / Gym"?"e.g. Chest Day":eventType==="Deep Work"?"e.g. Sprint planning":"e.g. Lunch"} value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                    </div>
+                  )}
+
+                  {/* Reminders / Alert Offset */}
+                  <div className="flex flex-col">
+                    <button onClick={()=>togglePicker("reminder")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Bell className="w-[20px] h-[20px] text-[#8e8e93]"/>
+                        <span className="text-white text-[16px] font-medium">Alert Offset</span>
+                      </div>
+                      <span className="text-[#8e8e93] text-[16px]">{selRemMin}m {selRemSec}s</span>
+                    </button>
+                    {activePicker==="reminder"&&(
+                      <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
+                        <WheelPicker items={mins} value={selRemMin} onChange={setSelRemMin} suffix="m"/>
+                        <WheelPicker items={secs} value={selRemSec} onChange={setSelRemSec} suffix="s"/>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               </div>
-
-              {/* ── EXTRA FIELDS by type ── */}
-              {eventType==="Schedule Email"&&(
-                <div className="bg-[#1c1c1e] rounded-[24px] p-4 border border-[#2c2c2e] space-y-3">
-                  <p className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest" style={{fontFamily:SF}}>Email Config</p>
-                  <div className="flex items-center gap-3">
-                    <AtSign className="w-[18px] h-[18px] text-[#8e8e93] shrink-0"/>
-                    <input type="email" placeholder="Recipient email…" value={taskEmailRec} onChange={e=>setTaskEmailRec(e.target.value)} className="bg-transparent text-white flex-1 focus:outline-none text-[15px] placeholder-[#636366]" style={{fontFamily:SF}}/>
-                  </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-[#2c2c2e]">
-                    <div className="flex items-center gap-3">
-                      <Paperclip className="w-[18px] h-[18px] text-[#8e8e93]"/>
-                      <span className="text-white text-[15px]" style={{fontFamily:SF}}>Attachments <span className="text-[#636366]">{attachedFiles.length}/5</span></span>
-                    </div>
-                    <div className="flex gap-2">
-                      <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden"/>
-                      <button onClick={()=>fileInputRef.current?.click()} disabled={attachedFiles.length>=5} className="bg-[#2c2c2e] text-white px-3 py-1.5 rounded-full text-[13px] font-medium active:scale-95 disabled:opacity-50">+ Add</button>
-                      {attachedFiles.length>0&&<button onClick={()=>setAttachedFiles([])} className="text-red-400 px-2 py-1.5 text-[13px]">Clear</button>}
-                    </div>
-                  </div>
-                  {attachedFiles.length>0&&<div className="flex flex-wrap gap-2">{attachedFiles.map((f,i)=><div key={i} className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-md text-[11px] text-[#e4e4e7]"><span className="truncate max-w-[120px]">{f.name}</span><button onClick={()=>setAttachedFiles(p=>p.filter((_,j)=>j!==i))}><X className="w-3 h-3 text-[#8e8e93]"/></button></div>)}</div>}
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#0ea5e9]/10 border border-[#0ea5e9]/20"><Mail className="w-3.5 h-3.5 text-[#0ea5e9] shrink-0"/><span className="text-[#0ea5e9] text-[11px]" style={{fontFamily:SF}}>Sent via Composio Gmail at scheduled time</span></div>
-                </div>
-              )}
-              {eventType==="Drive Upload"&&(
-                <div className="bg-[#1c1c1e] rounded-[24px] p-4 border border-[#2c2c2e] space-y-3">
-                  <p className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest" style={{fontFamily:SF}}>Drive Config</p>
-                  <div className="flex items-center gap-3">
-                    <Folder className="w-[18px] h-[18px] text-[#8e8e93] shrink-0"/>
-                    <input type="text" placeholder="Drive folder name…" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-white flex-1 focus:outline-none text-[15px] placeholder-[#636366]" style={{fontFamily:SF}}/>
-                  </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-[#2c2c2e]">
-                    <div className="flex items-center gap-3">
-                      <Paperclip className="w-[18px] h-[18px] text-[#8e8e93]"/>
-                      <span className="text-white text-[15px]" style={{fontFamily:SF}}>Files <span className="text-[#636366]">{attachedFiles.length}/5</span></span>
-                    </div>
-                    <div className="flex gap-2">
-                      <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden"/>
-                      <button onClick={()=>fileInputRef.current?.click()} disabled={attachedFiles.length>=5} className="bg-[#2c2c2e] text-white px-3 py-1.5 rounded-full text-[13px] font-medium active:scale-95 disabled:opacity-50">+ Add</button>
-                      {attachedFiles.length>0&&<button onClick={()=>setAttachedFiles([])} className="text-red-400 px-2 py-1.5 text-[13px]">Clear</button>}
-                    </div>
-                  </div>
-                  {attachedFiles.length>0&&<div className="flex flex-wrap gap-2">{attachedFiles.map((f,i)=><div key={i} className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-md text-[11px] text-[#e4e4e7]"><span className="truncate max-w-[120px]">{f.name}</span><button onClick={()=>setAttachedFiles(p=>p.filter((_,j)=>j!==i))}><X className="w-3 h-3 text-[#8e8e93]"/></button></div>)}</div>}
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#eab308]/10 border border-[#eab308]/20"><Folder className="w-3.5 h-3.5 text-[#eab308] shrink-0"/><span className="text-[#eab308] text-[11px]" style={{fontFamily:SF}}>Folder created in Google Drive via Composio</span></div>
-                </div>
-              )}
-              {eventType==="Custom Event"&&(
-                <div className="bg-[#1c1c1e] rounded-[24px] p-4 border border-[#2c2c2e]">
-                  <p className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest mb-3" style={{fontFamily:SF}}>Meeting URL</p>
-                  <div className="flex items-center gap-3"><LinkIcon className="w-[18px] h-[18px] text-[#8e8e93] shrink-0"/><input type="text" placeholder="https://meet.google.com/…" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-white flex-1 focus:outline-none text-[15px] placeholder-[#636366]" style={{fontFamily:SF}}/></div>
-                </div>
-              )}
-              {eventType==="Take Medication"&&(
-                <div className="bg-[#1c1c1e] rounded-[24px] p-4 border border-[#2c2c2e]">
-                  <p className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest mb-3" style={{fontFamily:SF}}>Frequency</p>
-                  <div className="flex items-center gap-3"><RefreshCcw className="w-[18px] h-[18px] text-[#8e8e93] shrink-0"/><input type="text" placeholder="e.g. Every 8 hours" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-white flex-1 focus:outline-none text-[15px] placeholder-[#636366]" style={{fontFamily:SF}}/></div>
-                </div>
-              )}
-              {(eventType==="Workout / Gym"||eventType==="Deep Work"||eventType==="Meal Time")&&(
-                <div className="bg-[#1c1c1e] rounded-[24px] p-4 border border-[#2c2c2e]">
-                  <p className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest mb-3" style={{fontFamily:SF}}>Tag / Notes</p>
-                  <div className="flex items-center gap-3"><Type className="w-[18px] h-[18px] text-[#8e8e93] shrink-0"/><input type="text" placeholder={eventType==="Workout / Gym"?"e.g. Chest Day":eventType==="Deep Work"?"e.g. Sprint planning":"e.g. Lunch"} value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-white flex-1 focus:outline-none text-[15px] placeholder-[#636366]" style={{fontFamily:SF}}/></div>
-                </div>
-              )}
 
               {/* ── DESCRIPTION ── */}
-              <div className="bg-[#1c1c1e] rounded-[24px] p-4 border border-[#2c2c2e]">
-                <p className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest mb-3" style={{fontFamily:SF}}>Notes</p>
-                <textarea rows={3} placeholder="Optional notes or details…" value={taskDesc} onChange={e=>setTaskDesc(e.target.value)} className="w-full bg-transparent text-white placeholder:text-[#636366] resize-none focus:outline-none text-[15px] leading-relaxed" style={{fontFamily:SF}}/>
+              <div className="bg-[#1c1c1e] rounded-[28px] p-4 flex flex-col gap-2">
+                <div className="flex items-center gap-3 pl-2">
+                  <AlignLeft className="w-[20px] h-[20px] text-[#8e8e93]"/>
+                  <span className="text-white text-[16px] font-medium">Notes</span>
+                </div>
+                <textarea rows={3} placeholder="Optional notes or details…" value={taskDesc} onChange={e=>setTaskDesc(e.target.value)} className="w-full bg-transparent text-white placeholder:text-[#636366] resize-none focus:outline-none p-2 text-[15px] leading-relaxed" style={{fontFamily:SF}}/>
               </div>
 
               {/* ── SAVE ── */}
-              <div className="pb-6">
+              <div className="pb-6 pt-2">
                 <button onClick={handleSaveConfig} disabled={loading} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-60 flex items-center justify-center gap-2">
                   {loading&&<Loader2 className="w-5 h-5 animate-spin"/>}
                   {loading ? "Saving…" : `Save ${creationMode==="events"?"Event":"Reminder"}`}
