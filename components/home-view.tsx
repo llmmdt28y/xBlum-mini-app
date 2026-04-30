@@ -1,15 +1,15 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell, Mail, Send, RefreshCw, CalendarDays, MoreVertical, Play } from "lucide-react"
-import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell, Mail, CalendarDays, Plus } from "lucide-react"
+import { useState, useRef, useEffect, useCallback } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Mock Data Expandida para el Slider de Tareas ──
+// ── Mock Data Dinámica para el Banner ──
 const mockScheduleTasks = [
   {
     id: 1,
@@ -18,41 +18,35 @@ const mockScheduleTasks = [
     targetTime: new Date(Date.now() + 1000 * 60 * 45).toISOString(), // 45 mins
     icon: Bell,
     color: "#f59e0b",
-    bg: "rgba(245, 158, 11, 0.15)"
   },
   {
     id: 2,
     type: "event" as const,
-    title: "Team Sync Meeting",
+    title: "Team Sync",
     targetTime: new Date(Date.now() + 1000 * 60 * 60 * 2.5).toISOString(), // 2.5 hours
     icon: CalendarDays,
     color: "#3b82f6",
-    bg: "rgba(59, 130, 246, 0.15)"
   },
   {
     id: 3,
     type: "email" as const,
-    title: "Send Pitch Deck",
+    title: "Send Pitch",
     targetTime: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(), // 24 hours
     icon: Mail,
     color: "#ef4444",
-    bg: "rgba(239, 68, 68, 0.15)"
   }
 ]
 
-// ── Helper de tiempo dinámico ──
-function getRelativeTime(targetIso: string, nowMs: number) {
-  const diff = new Date(targetIso).getTime() - nowMs
-  if (diff <= 0) return "Executing..."
-  const totalSeconds = Math.floor(diff / 1000)
-  const d = Math.floor(totalSeconds / (3600 * 24))
-  const h = Math.floor((totalSeconds % (3600 * 24)) / 3600)
-  const m = Math.floor((totalSeconds % 3600) / 60)
-  const s = totalSeconds % 60
+// ── Helper para el Countdown Dinámico de la Derecha ──
+function formatMiniCountdown(ms: number) {
+  if (ms <= 0) return "Now"
+  const totalSeconds = Math.floor(ms / 1000)
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
 
-  if (d > 0) return `in ${d}d ${h}h`
-  if (h > 0) return `in ${h}h ${m}m`
-  return `in ${m}m ${s}s`
+  if (hours > 0) return `${hours}h ${minutes}m`
+  return `${minutes}m ${seconds.toString().padStart(2, '0')}s`
 }
 
 export function HomeView() {
@@ -73,13 +67,22 @@ export function HomeView() {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
 
-  // Live Time State for Live Countdowns
-  const [now, setNow] = useState(Date.now())
+  // Countdown Timer State
+  const activeTask = mockScheduleTasks.length > 0 ? mockScheduleTasks[0] : null
+  const [timeRemaining, setTimeRemaining] = useState(() => {
+    if (!activeTask) return 0
+    return new Date(activeTask.targetTime).getTime() - Date.now()
+  })
 
+  // Timer Interval
   useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000)
+    if (!activeTask) return
+    const timer = setInterval(() => {
+      const diff = new Date(activeTask.targetTime).getTime() - Date.now()
+      setTimeRemaining(Math.max(0, diff))
+    }, 1000)
     return () => clearInterval(timer)
-  }, [])
+  }, [activeTask])
 
   // ── Gestión del Botón Atrás Nativo de Telegram ──
   useEffect(() => {
@@ -174,7 +177,10 @@ export function HomeView() {
       className="flex-1 flex flex-col items-center px-4 pb-28 bg-black select-none overflow-y-auto no-scrollbar"
       style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)" }}
     >
-      <style>{`.no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .mask-right { mask-image: linear-gradient(to right, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%); }
+      `}</style>
       
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
 
@@ -272,45 +278,75 @@ export function HomeView() {
           
           <div ref={carouselRef} onScroll={handleScroll} className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto" style={{ scrollbarWidth: "none" }}>
             
-            {/* ── Premium Schedule Banner (FIRST POSITION) ── */}
-            <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px] pr-2">
+            {/* ── PREMIUM SCHEDULE BANNER (Diseño Completamente Nuevo) ── */}
+            <div className="flex shrink-0 w-full max-w-md snap-center rounded-[28px] pr-2">
                 <button
                   onClick={() => setCurrentView("schedule")}
-                  className="w-full shrink-0 relative overflow-hidden active:scale-[0.98] transition-all text-left group"
-                  style={{
-                      background: "linear-gradient(145deg, #111111 0%, #0a0a0a 100%)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      borderRadius: "28px",
-                      height: "100px",
-                      boxShadow: "0 10px 40px -10px rgba(0,0,0,0.5)"
-                  }}
+                  className="w-full shrink-0 relative overflow-hidden active:scale-[0.98] transition-all text-left rounded-[28px] border border-[#1e1e1e] bg-[#000000] h-[110px]"
                 >
-                  <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 80% 0%, rgba(59,130,246,0.15) 0%, transparent 60%)` }} />
+                  {/* Gradiente Radial desde el centro que termina en negro (#000000) a los lados */}
+                  <div 
+                    className="absolute inset-0 pointer-events-none" 
+                    style={{ background: activeTask ? `radial-gradient(ellipse at center, ${activeTask.color}35 0%, #000000 85%)` : `radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, #000000 85%)` }} 
+                  />
                   
-                  <div className="relative z-10 flex items-center justify-between h-full px-6">
-                    <div className="flex flex-col gap-1.5">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-blue-400" />
-                        <span className="text-[#8e8e93] text-[12px] font-bold tracking-widest uppercase" style={{ fontFamily: SF }}>Automation</span>
+                  {activeTask ? (
+                    <div className="relative z-10 flex items-center justify-between h-full px-5 gap-3 w-full">
+                      {/* Izquierda: Ícono Grande Notificación */}
+                      <div className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 shadow-2xl relative" style={{ backgroundColor: `${activeTask.color}20`, border: `1px solid ${activeTask.color}50` }}>
+                        <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ backgroundColor: activeTask.color }} />
+                        <activeTask.icon className="w-7 h-7" style={{ color: activeTask.color }} />
                       </div>
-                      <p className="text-white font-bold text-[19px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-                        {mockScheduleTasks.length > 0 ? `${mockScheduleTasks.length} Active Tasks` : "Set up your schedule"}
-                      </p>
+
+                      {/* Centro: Título + Mini Cápsulas Redondas (Estilo Morning Grogginess) */}
+                      <div className="flex flex-col justify-center flex-1 min-w-0 py-1">
+                        <p className="text-white font-bold text-[15px] leading-tight mb-2 truncate" style={{ fontFamily: SFD }}>Up Next</p>
+                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mask-right pr-4">
+                            {mockScheduleTasks.map(task => (
+                              <div key={task.id} className="flex items-center gap-1.5 bg-[#1c1c1e] px-3 py-1.5 rounded-full border border-[#2c2c2e] shrink-0">
+                                  <task.icon className="w-3.5 h-3.5" style={{ color: task.color }} />
+                                  <span className="text-white text-[12px] font-medium whitespace-nowrap" style={{ fontFamily: SF }}>{task.title}</span>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* Derecha: Countdown */}
+                      <div className="flex flex-col items-end shrink-0 pl-1">
+                        <span className="text-white/60 text-[10px] uppercase font-bold tracking-widest mb-1" style={{ fontFamily: SF }}>Starts In</span>
+                        <span className="text-white font-bold text-[18px] tabular-nums leading-none" style={{ fontFamily: SFD }}>
+                            {formatMiniCountdown(timeRemaining)}
+                        </span>
+                        <div className="mt-1.5 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: activeTask.color }} />
+                            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: activeTask.color, fontFamily: SF }}>Live</span>
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white/5 border border-white/10 group-active:bg-white/10 transition-colors backdrop-blur-md">
-                      <ChevronRight className="w-6 h-6 text-white/70" />
+                  ) : (
+                    /* ── Estado Vacío (Sin Tareas) ── */
+                    <div className="relative z-10 flex items-center justify-between h-full px-5 gap-4">
+                      <div className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 bg-white/5 border border-white/10">
+                          <CalendarDays className="w-7 h-7 text-white/50" />
+                      </div>
+                      <div className="flex flex-col justify-center flex-1 min-w-0">
+                          <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>Your day is clear</p>
+                          <p className="text-[#8e8e93] text-[13px] mt-1" style={{ fontFamily: SF }}>Tap to schedule an event</p>
+                      </div>
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 text-white shrink-0">
+                          <Plus className="w-5 h-5" />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </button>
             </div>
 
             {/* ── Referral Banner (SECOND POSITION) ── */}
-            <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px]">
+            <div className="flex shrink-0 w-full max-w-md snap-center rounded-[28px]">
                 <button
                   onClick={() => setCurrentView("referral")}
                   className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left"
-                  style={{ background: "#060606", border: "1px solid #1e1e1e", borderRadius: "28px", height: "100px" }}
+                  style={{ background: "#060606", border: "1px solid #1e1e1e", borderRadius: "28px", height: "110px" }}
                 >
                     <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 55%)" }} />
                     <div className="relative z-10 flex items-center justify-between h-full px-5">
@@ -336,54 +372,6 @@ export function HomeView() {
             ))}
           </div>
         </div>
-
-        {/* ── PREMIUM CAPSULE: Quick Actions (Vertical Scroll) ── */}
-        {mockScheduleTasks.length > 0 && (
-          <div className="w-full animate-in fade-in slide-in-from-bottom-6 duration-500 delay-200 fill-mode-both mt-1">
-            <div className="bg-[#111] border border-[#2c2c2e] rounded-[32px] overflow-hidden flex flex-col shadow-2xl relative">
-              
-              {/* Header de la Cápsula */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[#1c1c1e] bg-white/[0.02]">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#8e8e93]" />
-                  <span className="text-white font-bold text-[15px]" style={{ fontFamily: SFD }}>Up Next</span>
-                </div>
-                <span className="text-[#636366] text-[12px] font-medium px-2 py-0.5 bg-[#1c1c1e] rounded-full">Swipe list</span>
-              </div>
-
-              {/* Contenedor Deslizable */}
-              <div className="w-full max-h-[170px] overflow-y-auto no-scrollbar snap-y snap-mandatory p-2 space-y-1" style={{ scrollBehavior: 'smooth' }}>
-                {mockScheduleTasks.map((task) => {
-                  const Icon = task.icon
-                  return (
-                    <div key={task.id} className="snap-center w-full bg-[#161618] rounded-[24px] p-3.5 flex items-center justify-between border border-transparent hover:border-[#2c2c2e] transition-colors">
-                      <div className="flex items-center gap-3.5 flex-1 min-w-0">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: task.bg }}>
-                          <Icon className="w-5 h-5" style={{ color: task.color }} />
-                        </div>
-                        <div className="flex flex-col flex-1 min-w-0">
-                          <p className="text-white text-[15px] font-bold truncate" style={{ fontFamily: SFD }}>{task.title}</p>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: task.color }} />
-                            <p className="text-[#8e8e93] text-[12px] font-medium" style={{ fontFamily: SF }}>{getRelativeTime(task.targetTime, now)}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 pl-2 shrink-0">
-                        <button className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-white active:scale-95 transition-transform">
-                          <Play className="w-3.5 h-3.5 ml-0.5" />
-                        </button>
-                        <button className="w-8 h-8 rounded-full bg-transparent flex items-center justify-center text-[#8e8e93] active:bg-[#2c2c2e] transition-colors">
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* ── Explore Section (CARRUSEL HORIZONTAL) ───────────────────── */}
         <div className="w-full mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 fill-mode-both overflow-x-auto snap-x snap-mandatory pb-4" style={{ scrollbarWidth: "none" }}>
