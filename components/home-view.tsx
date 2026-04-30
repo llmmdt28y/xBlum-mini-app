@@ -9,31 +9,13 @@ type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Mock Data for Dynamic Banners ──
-const mockScheduleData = {
-  isConfigured: true, 
-  hasActiveTask: true,
-  currentTask: {
-    id: 1,
-    type: "reminder" as const, // 'reminder' | 'email'
-    title: "Review Q4 Report",
-    targetTime: new Date(Date.now() + 1000 * 60 * 60 * 27.5).toISOString(), // 27.5 hours from now
-  }
-}
-
-// ── Helper to format time remaining ──
-function formatTimeRemaining(ms: number) {
-  if (ms <= 0) return "Executing..."
-  const totalSeconds = Math.floor(ms / 1000)
-  const days = Math.floor(totalSeconds / (3600 * 24))
-  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
-
-  if (days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`
-  if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`
-  return `${minutes}m ${seconds}s`
-}
+// ── Datos Mock para las cápsulas del Schedule ──
+const SCHEDULE_MOCK_ITEMS = [
+  { id: 1, title: "Review Q4 Report", color: "#f59e0b", time: "In 30m" },
+  { id: 2, title: "Meeting with Client", color: "#3b82f6", time: "2:00 PM" },
+  { id: 3, title: "Workout Session", color: "#10b981", time: "6:00 PM" },
+  { id: 4, title: "Read Project Brief", color: "#a855f7", time: "9:00 PM" },
+]
 
 export function HomeView() {
   const {
@@ -53,11 +35,8 @@ export function HomeView() {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
 
-  // Countdown timer state
-  const [timeRemaining, setTimeRemaining] = useState(() => {
-    if (!mockScheduleData.hasActiveTask) return 0
-    return new Date(mockScheduleData.currentTask.targetTime).getTime() - Date.now()
-  })
+  // Schedule Dynamic Banner State
+  const [activeScheduleColor, setActiveScheduleColor] = useState(SCHEDULE_MOCK_ITEMS[0].color)
 
   // ── Gestión del Botón Atrás Nativo de Telegram ──
   useEffect(() => {
@@ -65,7 +44,6 @@ export function HomeView() {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
 
-    // Mostrar el botón si hay algún modal o sección abierta
     if (showAllTopics || exploreModal) {
       tg.BackButton.show()
     } else {
@@ -87,24 +65,7 @@ export function HomeView() {
     }
   }, [showAllTopics, exploreModal])
 
-  // ── Countdown Timer Logic ──
-  useEffect(() => {
-    if (!mockScheduleData.hasActiveTask) return
-    const timer = setInterval(() => {
-      const now = Date.now()
-      const target = new Date(mockScheduleData.currentTask.targetTime).getTime()
-      const diff = target - now
-      if (diff <= 0) {
-        setTimeRemaining(0)
-        clearInterval(timer)
-      } else {
-        setTimeRemaining(diff)
-      }
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
-
-  // ── Carousel Scroll Handler ──
+  // ── Scroll Handlers ──
   const handleScroll = useCallback(() => {
     if (!carouselRef.current) return
     const width = carouselRef.current.offsetWidth
@@ -114,6 +75,18 @@ export function HomeView() {
       setCurrentBannerIndex(index)
     }
   }, [currentBannerIndex])
+
+  const handleScheduleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget
+    // Altura aproximada de cada elemento (32px de alto + posibles márgenes)
+    const index = Math.min(
+      SCHEDULE_MOCK_ITEMS.length - 1,
+      Math.max(0, Math.round(el.scrollTop / 32))
+    )
+    if (SCHEDULE_MOCK_ITEMS[index] && SCHEDULE_MOCK_ITEMS[index].color !== activeScheduleColor) {
+      setActiveScheduleColor(SCHEDULE_MOCK_ITEMS[index].color)
+    }
+  }, [activeScheduleColor])
 
   async function handleSend() {
     const text = message.trim()
@@ -168,85 +141,23 @@ export function HomeView() {
     { id: "ton", name: "TON Wallet", desc: "Manage your crypto assets", action: () => {}, tag: "SOON", disabled: true, isImage: true, src: "/TON-ICON.png" },
   ] as const;
 
-  // ── Render Dynamic Schedule Banner Content ──
-  const scheduleBannerContent = useMemo(() => {
-    if (!mockScheduleData.isConfigured || !mockScheduleData.hasActiveTask) {
-      return (
-        <div className="relative z-10 flex items-center justify-between h-full px-5">
-          <div className="flex flex-col gap-2">
-            <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-              Automate Tasks,<br />Never Miss a Beat
-            </p>
-            <div
-                className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden mt-0.5"
-                style={{
-                  background: "rgba(255,255,255,0.07)",
-                  backdropFilter: "blur(16px) saturate(180%)",
-                  WebkitBackdropFilter: "blur(16px) saturate(180%)",
-                  border: "1px solid rgba(255,255,255,0.13)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
-                }}
-              >
-                <div className="absolute inset-x-2 top-0 h-px" style={{
-                  background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)"
-                }} />
-                <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>open schedule</span>
-                <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
-              </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0 pointer-events-none select-none">
-              <Clock className="w-16 h-16 text-[#f59e0b]/40" style={{ filter: "drop-shadow(0 0 10px rgba(245,158,11,0.2))" }} />
-          </div>
-        </div>
-      )
-    }
-
-    const task = mockScheduleData.currentTask;
-    const taskTypeInfo = task.type === 'reminder' 
-      ? { icon: <Bell className="w-5 h-5 text-amber-400" />, color: "#f59e0b" }
-      : { icon: <Mail className="w-5 h-5 text-red-400" />, color: "#ef4444" };
-
-    return (
-        <div className="relative z-10 flex items-center justify-between h-full px-5">
-            <div className="flex items-center gap-4 flex-1">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                    {taskTypeInfo.icon}
-                </div>
-                <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                    <p className="text-white text-[15px] font-bold truncate leading-snug" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-                        {task.title}
-                    </p>
-                    <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none uppercase tracking-wide`} style={{ background: `${taskTypeInfo.color}15`, color: taskTypeInfo.color, fontFamily: SF }}>
-                            PENDING
-                        </span>
-                        {task.type === 'reminder' && <RefreshCw className="w-3 h-3 text-[#636366]" />}
-                    </div>
-                </div>
-            </div>
-            
-            <div className="flex flex-col items-end gap-1.5 text-right shrink-0">
-                <p className="text-[12px] text-[#8e8e93]" style={{ fontFamily: SF }}>Next task in</p>
-                <p 
-                  className="text-white font-bold text-[18px]" 
-                  style={{ 
-                    fontFamily: SFD, 
-                    letterSpacing: "-0.01em",
-                    fontVariantNumeric: "tabular-nums" 
-                  }}
-                >
-                    {formatTimeRemaining(timeRemaining)}
-                </p>
-            </div>
-        </div>
-    )
-  }, [timeRemaining, t])
-
   return (
     <div 
       className="flex-1 flex flex-col items-center px-4 pb-28 bg-black select-none"
       style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)" }}
     >
+      {/* Definición de Keyframes para las Estrellas */}
+      <style>{`
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        @keyframes spin-slow-reverse { 100% { transform: rotate(-360deg); } }
+        @keyframes pulse-glow { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.15); } }
+        
+        .star-1 { animation: spin-slow 8s linear infinite, pulse-glow 3s ease-in-out infinite; }
+        .star-2 { animation: spin-slow-reverse 6s linear infinite, pulse-glow 4s ease-in-out infinite 1s; }
+        .star-3 { animation: spin-slow 10s linear infinite, pulse-glow 3.5s ease-in-out infinite 0.5s; }
+        .star-4 { animation: spin-slow-reverse 7s linear infinite, pulse-glow 2.5s ease-in-out infinite 1.5s; }
+      `}</style>
+
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
 
         {/* ── Hero Header ─────────────────────────────────────────────── */}
@@ -359,24 +270,71 @@ export function HomeView() {
             className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto"
             style={{ scrollbarWidth: "none" }}
           >
-            {/* ── Schedule Banner (FIRST POSITION) ── */}
+            {/* ── Schedule Banner Dinámico (NUEVO DISEÑO) ── */}
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px] pr-2">
-                <button
-                onClick={() => setCurrentView("schedule")}
-                className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left"
-                style={{
-                    background: "#060606",
-                    border: "1px solid #1e1e1e",
-                    borderRadius: "24px",
-                    height: "96px",
-                }}
+                <div
+                  onClick={() => setCurrentView("schedule")}
+                  className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-all text-left cursor-pointer flex items-center px-4 gap-4"
+                  style={{
+                      background: "#060606",
+                      border: "1px solid #1e1e1e",
+                      borderRadius: "24px",
+                      height: "100px",
+                  }}
                 >
-                <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 8% 40%, ${mockScheduleData.hasActiveTask ? '#f59e0b15' : '#3b82f615'} 0%, transparent 65%)` }} />
-                <div className="absolute pointer-events-none" style={{ width: "90px", height: "90px", borderRadius: "50%", top: "-30px", right: "-20px", background: `radial-gradient(circle, ${mockScheduleData.hasActiveTask ? '#f59e0b15' : '#3b82f615'} 0%, transparent 70%)` }} />
-                
-                {scheduleBannerContent}
+                  {/* Degradado de Fondo Dinámico */}
+                  <div 
+                    className="absolute inset-0 pointer-events-none transition-colors duration-500" 
+                    style={{ background: `radial-gradient(ellipse at 50% 50%, ${activeScheduleColor}25 0%, transparent 70%)` }} 
+                  />
 
-                </button>
+                  {/* Estrellas Dinámicas */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <img src="/star-icon.png" alt="" className="star-1 absolute top-2 right-4 w-[22px] h-[22px]" style={{ filter: `drop-shadow(0 0 6px ${activeScheduleColor})` }}/>
+                    <img src="/star-icon.png" alt="" className="star-2 absolute top-10 right-14 w-[14px] h-[14px]" style={{ filter: `drop-shadow(0 0 4px ${activeScheduleColor})` }}/>
+                    <img src="/star-icon.png" alt="" className="star-3 absolute bottom-3 right-6 w-[18px] h-[18px]" style={{ filter: `drop-shadow(0 0 5px ${activeScheduleColor})` }}/>
+                    <img src="/star-icon.png" alt="" className="star-4 absolute top-5 right-[85px] w-[10px] h-[10px]" style={{ filter: `drop-shadow(0 0 3px ${activeScheduleColor})` }}/>
+                  </div>
+
+                  {/* Contenido (Icono + Textos) */}
+                  <div className="relative z-10 w-[56px] h-[56px] rounded-full flex items-center justify-center shrink-0 border border-white/5 bg-white/5">
+                    <Bell className="w-7 h-7 text-white" />
+                    <div className="absolute top-0 right-0.5 w-3.5 h-3.5 rounded-full bg-[#ef4444] border-2 border-[#060606]"></div>
+                  </div>
+
+                  <div className="relative z-10 flex flex-col flex-1 min-w-0 pr-16">
+                    <h3 className="text-white font-bold text-[18px] leading-tight mb-1" style={{ fontFamily: SFD }}>Schedules</h3>
+                    
+                    {/* Contenedor Deslizable de Cápsulas */}
+                    <div 
+                      onScroll={handleScheduleScroll}
+                      onClick={(e) => e.stopPropagation()} // Previene que al arrastrar/clicar se cambie de vista inmediatamente si querías deslizar
+                      className="h-[32px] overflow-y-auto snap-y snap-mandatory no-scrollbar w-full"
+                      style={{ scrollBehavior: 'smooth' }}
+                    >
+                      <div className="flex flex-col">
+                        {SCHEDULE_MOCK_ITEMS.map((item) => (
+                          <div key={item.id} className="h-[32px] snap-start flex items-center shrink-0">
+                            <button
+                              onClick={() => setCurrentView("schedule")}
+                              className="flex items-center gap-2 px-3 py-1 rounded-full border max-w-full"
+                              style={{ 
+                                background: `${item.color}15`, 
+                                borderColor: `${item.color}30`,
+                              }}
+                            >
+                               <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                               <span className="text-[13px] font-medium truncate" style={{ color: item.color, fontFamily: SF }}>
+                                 {item.time} • {item.title}
+                               </span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
             </div>
 
             {/* ── Referral Banner (SECOND POSITION) ── */}
@@ -388,7 +346,7 @@ export function HomeView() {
                     background: "#060606",
                     border: "1px solid #1e1e1e",
                     borderRadius: "24px",
-                    height: "96px",
+                    height: "100px",
                 }}
                 >
                     <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 55%)" }} />
@@ -485,17 +443,15 @@ export function HomeView() {
       {showAllTopics && (
         <div className="fixed inset-0 z-50 flex flex-col bg-black/65 backdrop-blur-xl animate-in fade-in duration-300">
           
-          {/* Espaciador superior (Reemplaza al título "Explore" y la línea que estorbaba) */}
           <div className="pt-16 pb-2" />
 
-          {/* Lista completa de Topics */}
           <div className="flex-1 overflow-y-auto px-4 pb-12 space-y-1">
             {TOPICS_DATA.map((topic) => (
               <button
                 key={topic.id}
                 onClick={() => {
                   if (!topic.disabled) {
-                    topic.action(); // Abre el sub-modal del topic correspondiente
+                    topic.action();
                   }
                 }}
                 disabled={topic.disabled}
@@ -528,7 +484,7 @@ export function HomeView() {
         </div>
       )}
 
-      {/* ── Sub-modales de Topic (Con botón X restaurado) ────────── */}
+      {/* ── Sub-modales de Topic ────────── */}
       {exploreModal && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center">
           <div
@@ -538,7 +494,6 @@ export function HomeView() {
 
           <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
             
-            {/* Botón X restaurado para los sub-menús */}
             <button
               onClick={() => { setExploreModal(null); setModalInput("") }}
               className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
