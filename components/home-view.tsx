@@ -1,7 +1,7 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell, Mail, CalendarDays, Plus } from "lucide-react"
+import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell, Mail, CalendarDays, Plus, Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Send, Coffee, Droplets, Pill, Activity, TrendingUp, CheckSquare } from "lucide-react"
 import { useState, useRef, useEffect, useCallback } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
@@ -9,44 +9,21 @@ type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Mock Data Dinámica para el Banner ──
-const mockScheduleTasks = [
-  {
-    id: 1,
-    type: "reminder" as const,
-    title: "Review Q4 Report",
-    targetTime: new Date(Date.now() + 1000 * 60 * 45).toISOString(), // 45 mins
-    icon: Bell,
-    color: "#f59e0b",
-  },
-  {
-    id: 2,
-    type: "event" as const,
-    title: "Team Sync",
-    targetTime: new Date(Date.now() + 1000 * 60 * 60 * 2.5).toISOString(), // 2.5 hours
-    icon: CalendarDays,
-    color: "#3b82f6",
-  },
-  {
-    id: 3,
-    type: "email" as const,
-    title: "Send Pitch",
-    targetTime: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(), // 24 hours
-    icon: Mail,
-    color: "#ef4444",
-  }
-]
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
 
-// ── Helper para el Countdown Dinámico de la Derecha ──
-function formatMiniCountdown(ms: number) {
-  if (ms <= 0) return "Now"
-  const totalSeconds = Math.floor(ms / 1000)
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
+function getTg() { return (window as any).Telegram?.WebApp }
 
-  if (hours > 0) return `${hours}h ${minutes}m`
-  return `${minutes}m ${seconds.toString().padStart(2, '0')}s`
+// ── Diccionarios de Íconos y Colores ──
+const ICONS: Record<string, React.ElementType> = {
+  CalendarDays, Clock, Bell, Mail, Folder, Dumbbell, Briefcase, Laptop, Utensils,
+  MessageSquare, Send, Coffee, Droplets, Pill, Activity, TrendingUp, CheckSquare
+}
+
+const ICON_COLORS: Record<string, string> = {
+  CalendarDays:"#3b82f6", Clock:"#f97316", Bell:"#f43f5e", Mail:"#0ea5e9", Folder:"#eab308",
+  Dumbbell:"#a855f7", Briefcase:"#d97706", Laptop:"#94a3b8", Utensils:"#ec4899",
+  MessageSquare:"#22c55e", Send:"#14b8a6", Coffee:"#b45309", Droplets:"#38bdf8",
+  Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6"
 }
 
 export function HomeView() {
@@ -63,26 +40,40 @@ export function HomeView() {
   const [sending, setSending] = useState(false)
   const [openingTopic, setOpeningTopic] = useState<ExploreModalType>(null)
   
+  // Real Schedule Tasks State
+  const [tasks, setTasks] = useState<any[]>([])
+  const [activeTaskIndex, setActiveTaskIndex] = useState(0)
+  
   // Carousel State
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
 
-  // Countdown Timer State
-  const activeTask = mockScheduleTasks.length > 0 ? mockScheduleTasks[0] : null
-  const [timeRemaining, setTimeRemaining] = useState(() => {
-    if (!activeTask) return 0
-    return new Date(activeTask.targetTime).getTime() - Date.now()
-  })
+  // ── Fetch Real Tasks ──
+  const fetchTasks = useCallback(async () => {
+    try {
+      const tg = getTg()
+      const initData = tg?.initData ?? ""
+      const res = await fetch(`${API_BASE}/api/schedule_list`, {
+        headers: { "x-init-data": initData }
+      })
+      if (res.ok) {
+        const d = await res.json()
+        if (d.success && Array.isArray(d.items)) {
+          const now = Date.now()
+          // Filtrar tareas futuras y ordenarlas por fecha
+          const upcoming = d.items.filter((t: any) => new Date(t.fire_at).getTime() > now)
+          upcoming.sort((a: any, b: any) => new Date(a.fire_at).getTime() - new Date(b.fire_at).getTime())
+          setTasks(upcoming)
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch tasks", e)
+    }
+  }, [])
 
-  // Timer Interval
   useEffect(() => {
-    if (!activeTask) return
-    const timer = setInterval(() => {
-      const diff = new Date(activeTask.targetTime).getTime() - Date.now()
-      setTimeRemaining(Math.max(0, diff))
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [activeTask])
+    fetchTasks()
+  }, [fetchTasks])
 
   // ── Gestión del Botón Atrás Nativo de Telegram ──
   useEffect(() => {
@@ -108,8 +99,8 @@ export function HomeView() {
     return () => tg.BackButton.offClick(handleBack)
   }, [showAllTopics, exploreModal])
 
-  // ── Carousel Scroll Handler ──
-  const handleScroll = useCallback(() => {
+  // ── Scroll Handlers ──
+  const handleBannerScroll = useCallback(() => {
     if (!carouselRef.current) return
     const width = carouselRef.current.offsetWidth
     const scrollLeft = carouselRef.current.scrollLeft
@@ -118,6 +109,14 @@ export function HomeView() {
       setCurrentBannerIndex(index)
     }
   }, [currentBannerIndex])
+
+  const handleTaskScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop
+    const index = Math.round(scrollTop / 32) // 32px es el alto exacto del contenedor de la cápsula
+    if (index !== activeTaskIndex && index >= 0 && index < tasks.length) {
+      setActiveTaskIndex(index)
+    }
+  }
 
   async function handleSend() {
     const text = message.trim()
@@ -172,6 +171,11 @@ export function HomeView() {
     { id: "ton", name: "TON Wallet", desc: "Manage your crypto assets", action: () => {}, tag: "SOON", disabled: true, isImage: true, src: "/TON-ICON.png" },
   ] as const;
 
+  // Renderizador Dinámico del Banner Principal
+  const activeTask = tasks[activeTaskIndex] || null;
+  const taskColor = activeTask ? (activeTask.color || ICON_COLORS[activeTask.icon_name] || "#3b82f6") : "#3b82f6";
+  const TaskIcon = activeTask ? (ICONS[activeTask.icon_name] || CalendarDays) : CalendarDays;
+
   return (
     <div 
       className="flex-1 flex flex-col items-center px-4 pb-28 bg-black select-none overflow-y-auto no-scrollbar"
@@ -180,6 +184,8 @@ export function HomeView() {
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .mask-right { mask-image: linear-gradient(to right, black 80%, transparent 100%); -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%); }
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        .animate-spin-slow { animation: spin-slow 5s linear infinite; }
       `}</style>
       
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
@@ -276,64 +282,86 @@ export function HomeView() {
         {/* ── Swiper Banners (Carousel) ─────────────────────────────────── */}
         <div className="w-full flex flex-col gap-2.5 items-center animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both">
           
-          <div ref={carouselRef} onScroll={handleScroll} className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto" style={{ scrollbarWidth: "none" }}>
+          <div ref={carouselRef} onScroll={handleBannerScroll} className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto" style={{ scrollbarWidth: "none" }}>
             
-            {/* ── PREMIUM SCHEDULE BANNER (Diseño Completamente Nuevo) ── */}
+            {/* ── SCHEDULE BANNER (Rediseño Estrellas + Estilo Onboarding) ── */}
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[28px] pr-2">
                 <button
                   onClick={() => setCurrentView("schedule")}
-                  className="w-full shrink-0 relative overflow-hidden active:scale-[0.98] transition-all text-left rounded-[28px] border border-[#1e1e1e] bg-[#000000] h-[110px]"
+                  className="w-full shrink-0 relative overflow-hidden active:scale-[0.98] transition-all text-left rounded-[28px] h-[110px]"
+                  style={{
+                      background: `linear-gradient(145deg, ${taskColor}30 0%, #050505 85%)`,
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      boxShadow: "0 10px 40px -10px rgba(0,0,0,0.5)"
+                  }}
                 >
-                  {/* Gradiente Radial desde el centro que termina en negro (#000000) a los lados */}
-                  <div 
-                    className="absolute inset-0 pointer-events-none" 
-                    style={{ background: activeTask ? `radial-gradient(ellipse at center, ${activeTask.color}35 0%, #000000 85%)` : `radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, #000000 85%)` }} 
-                  />
+                  {/* Gradiente Radial y Ruido (Estilo Onboarding) */}
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle at center, ${taskColor}45 0%, rgba(5,5,5,0) 70%)` }} />
+                  <div className="absolute inset-0 bg-white/5 opacity-40 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "100px 100px" }} />
                   
-                  {activeTask ? (
-                    <div className="relative z-10 flex items-center justify-between h-full px-5 gap-3 w-full">
-                      {/* Izquierda: Ícono Grande Notificación */}
-                      <div className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 shadow-2xl relative" style={{ backgroundColor: `${activeTask.color}20`, border: `1px solid ${activeTask.color}50` }}>
-                        <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ backgroundColor: activeTask.color }} />
-                        <activeTask.icon className="w-7 h-7" style={{ color: activeTask.color }} />
+                  {tasks.length > 0 ? (
+                    <div className="relative z-10 flex items-center justify-between h-full px-5 gap-4 w-full">
+                      
+                      {/* Izquierda: Ícono Puro */}
+                      <div className="shrink-0 flex items-center justify-center pt-1">
+                        <TaskIcon className="w-[38px] h-[38px]" style={{ color: taskColor, filter: `drop-shadow(0 0 12px ${taskColor}60)` }} strokeWidth={2} />
                       </div>
 
-                      {/* Centro: Título + Mini Cápsulas Redondas (Estilo Morning Grogginess) */}
-                      <div className="flex flex-col justify-center flex-1 min-w-0 py-1">
-                        <p className="text-white font-bold text-[15px] leading-tight mb-2 truncate" style={{ fontFamily: SFD }}>Up Next</p>
-                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar mask-right pr-4">
-                            {mockScheduleTasks.map(task => (
-                              <div key={task.id} className="flex items-center gap-1.5 bg-[#1c1c1e] px-3 py-1.5 rounded-full border border-[#2c2c2e] shrink-0">
-                                  <task.icon className="w-3.5 h-3.5" style={{ color: task.color }} />
-                                  <span className="text-white text-[12px] font-medium whitespace-nowrap" style={{ fontFamily: SF }}>{task.title}</span>
-                              </div>
-                            ))}
+                      {/* Centro: Textos y Slider Vertical de Cápsulas */}
+                      <div className="flex flex-col justify-center flex-1 min-w-0">
+                        <p className="text-white font-bold text-[18px] leading-none mb-2" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Schedules</p>
+                        
+                        {/* Contenedor Slider Vertical */}
+                        <div 
+                           className="h-[32px] w-full overflow-y-auto snap-y snap-mandatory no-scrollbar mask-right pr-2" 
+                           onScroll={handleTaskScroll}
+                           style={{ scrollBehavior: "smooth" }}
+                        >
+                            {tasks.map((task) => {
+                              const TIcon = ICONS[task.icon_name] || CalendarDays;
+                              const TColor = task.color || ICON_COLORS[task.icon_name] || "#ffffff";
+                              return (
+                                <div key={task.id} className="h-[32px] snap-center flex items-center shrink-0">
+                                    {/* Cápsula Estilo Schedule */}
+                                    <div className="flex items-center gap-1.5 bg-[#1c1c1e] px-3.5 py-1.5 rounded-full border border-[#2c2c2e]">
+                                        <TIcon className="w-3.5 h-3.5 shrink-0" style={{ color: TColor }} />
+                                        <span className="text-white text-[13px] font-medium truncate max-w-[120px]" style={{ fontFamily: SF }}>{task.title}</span>
+                                    </div>
+                                </div>
+                              )
+                            })}
                         </div>
                       </div>
 
-                      {/* Derecha: Countdown */}
-                      <div className="flex flex-col items-end shrink-0 pl-1">
-                        <span className="text-white/60 text-[10px] uppercase font-bold tracking-widest mb-1" style={{ fontFamily: SF }}>Starts In</span>
-                        <span className="text-white font-bold text-[18px] tabular-nums leading-none" style={{ fontFamily: SFD }}>
-                            {formatMiniCountdown(timeRemaining)}
-                        </span>
-                        <div className="mt-1.5 flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: activeTask.color }} />
-                            <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: activeTask.color, fontFamily: SF }}>Live</span>
-                        </div>
+                      {/* Derecha: Estrellas Animadas */}
+                      <div className="shrink-0 relative w-14 h-14 mr-1 flex items-center justify-center pointer-events-none select-none">
+                         <div className="absolute inset-0 rounded-full blur-xl opacity-40 animate-pulse" style={{ backgroundColor: taskColor }} />
+                         
+                         {/* Estrella Central */}
+                         <img src="/star-icon.png" draggable={false} className="absolute w-7 h-7 animate-spin-slow" style={{ filter: `drop-shadow(0 0 8px ${taskColor})` }} />
+                         
+                         {/* Estrella Superior Derecha */}
+                         <img src="/star-icon.png" draggable={false} className="absolute w-3.5 h-3.5 top-1 right-1 opacity-90" style={{ animation: "spin 2.5s linear infinite reverse", filter: `drop-shadow(0 0 5px ${taskColor})` }} />
+                         
+                         {/* Estrella Inferior Izquierda */}
+                         <img src="/star-icon.png" draggable={false} className="absolute w-4 h-4 bottom-1.5 left-1 opacity-80" style={{ animation: "spin 3.5s linear infinite", filter: `drop-shadow(0 0 6px ${taskColor})` }} />
+                         
+                         {/* Estrella Superior Izquierda */}
+                         <img src="/star-icon.png" draggable={false} className="absolute w-2.5 h-2.5 top-3 left-0 opacity-70" style={{ animation: "spin 2s linear infinite reverse", filter: `drop-shadow(0 0 3px ${taskColor})` }} />
                       </div>
+
                     </div>
                   ) : (
-                    /* ── Estado Vacío (Sin Tareas) ── */
+                    /* ── Estado Vacío ── */
                     <div className="relative z-10 flex items-center justify-between h-full px-5 gap-4">
-                      <div className="w-14 h-14 rounded-full flex items-center justify-center shrink-0 bg-white/5 border border-white/10">
-                          <CalendarDays className="w-7 h-7 text-white/50" />
+                      <div className="shrink-0 pt-1">
+                          <CalendarDays className="w-10 h-10 text-white/40" strokeWidth={1.5} />
                       </div>
                       <div className="flex flex-col justify-center flex-1 min-w-0">
-                          <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>Your day is clear</p>
-                          <p className="text-[#8e8e93] text-[13px] mt-1" style={{ fontFamily: SF }}>Tap to schedule an event</p>
+                          <p className="text-white font-bold text-[18px] leading-none mb-1.5" style={{ fontFamily: SFD }}>Schedules</p>
+                          <p className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>Tap to create a new task</p>
                       </div>
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 text-white shrink-0">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/10 text-white shrink-0 mr-2">
                           <Plus className="w-5 h-5" />
                       </div>
                     </div>
@@ -374,7 +402,7 @@ export function HomeView() {
         </div>
 
         {/* ── Explore Section (CARRUSEL HORIZONTAL) ───────────────────── */}
-        <div className="w-full mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 fill-mode-both overflow-x-auto snap-x snap-mandatory pb-4" style={{ scrollbarWidth: "none" }}>
+        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 fill-mode-both overflow-x-auto snap-x snap-mandatory pb-4" style={{ scrollbarWidth: "none" }}>
           <div className="flex gap-3 w-max px-1">
             
             <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
