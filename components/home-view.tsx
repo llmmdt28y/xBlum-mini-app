@@ -78,10 +78,10 @@ export function HomeView() {
 
   const handleScheduleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget
-    // Altura aproximada de cada elemento (32px de alto + posibles márgenes)
+    // La altura del contenedor es 34px. Redondeamos para saber qué index está activo.
     const index = Math.min(
       SCHEDULE_MOCK_ITEMS.length - 1,
-      Math.max(0, Math.round(el.scrollTop / 32))
+      Math.max(0, Math.round(el.scrollTop / 34))
     )
     if (SCHEDULE_MOCK_ITEMS[index] && SCHEDULE_MOCK_ITEMS[index].color !== activeScheduleColor) {
       setActiveScheduleColor(SCHEDULE_MOCK_ITEMS[index].color)
@@ -150,12 +150,14 @@ export function HomeView() {
       <style>{`
         @keyframes spin-slow { 100% { transform: rotate(360deg); } }
         @keyframes spin-slow-reverse { 100% { transform: rotate(-360deg); } }
-        @keyframes pulse-glow { 0%, 100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.15); } }
+        @keyframes pulse-glow { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
         
         .star-1 { animation: spin-slow 8s linear infinite, pulse-glow 3s ease-in-out infinite; }
         .star-2 { animation: spin-slow-reverse 6s linear infinite, pulse-glow 4s ease-in-out infinite 1s; }
         .star-3 { animation: spin-slow 10s linear infinite, pulse-glow 3.5s ease-in-out infinite 0.5s; }
         .star-4 { animation: spin-slow-reverse 7s linear infinite, pulse-glow 2.5s ease-in-out infinite 1.5s; }
+        
+        .snap-always { scroll-snap-stop: always; }
       `}</style>
 
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
@@ -274,7 +276,7 @@ export function HomeView() {
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px] pr-2">
                 <div
                   onClick={() => setCurrentView("schedule")}
-                  className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-all text-left cursor-pointer flex items-center px-4 gap-4"
+                  className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-all text-left cursor-pointer flex items-center px-5 gap-5"
                   style={{
                       background: "#060606",
                       border: "1px solid #1e1e1e",
@@ -288,36 +290,36 @@ export function HomeView() {
                     style={{ background: `radial-gradient(ellipse at 50% 50%, ${activeScheduleColor}25 0%, transparent 70%)` }} 
                   />
 
-                  {/* Estrellas Dinámicas */}
-                  <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                    <img src="/star-icon.png" alt="" className="star-1 absolute top-2 right-4 w-[22px] h-[22px]" style={{ filter: `drop-shadow(0 0 6px ${activeScheduleColor})` }}/>
-                    <img src="/star-icon.png" alt="" className="star-2 absolute top-10 right-14 w-[14px] h-[14px]" style={{ filter: `drop-shadow(0 0 4px ${activeScheduleColor})` }}/>
-                    <img src="/star-icon.png" alt="" className="star-3 absolute bottom-3 right-6 w-[18px] h-[18px]" style={{ filter: `drop-shadow(0 0 5px ${activeScheduleColor})` }}/>
-                    <img src="/star-icon.png" alt="" className="star-4 absolute top-5 right-[85px] w-[10px] h-[10px]" style={{ filter: `drop-shadow(0 0 3px ${activeScheduleColor})` }}/>
+                  {/* Estrellas Dinámicas Agrupadas estilo "Coins" */}
+                  <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
+                    <img src="/star-icon.png" alt="" className="star-1 absolute top-[-5px] right-2 w-[48px] h-[48px] opacity-80" style={{ filter: `drop-shadow(0 0 12px ${activeScheduleColor})` }}/>
+                    <img src="/star-icon.png" alt="" className="star-2 absolute top-[35px] right-6 w-[56px] h-[56px]" style={{ filter: `drop-shadow(0 0 16px ${activeScheduleColor})` }}/>
+                    <img src="/star-icon.png" alt="" className="star-3 absolute top-[15px] right-[65px] w-[36px] h-[36px] opacity-90" style={{ filter: `drop-shadow(0 0 8px ${activeScheduleColor})` }}/>
+                    <img src="/star-icon.png" alt="" className="star-4 absolute bottom-[-5px] right-[-10px] w-[42px] h-[42px] opacity-70" style={{ filter: `drop-shadow(0 0 10px ${activeScheduleColor})` }}/>
                   </div>
 
                   {/* Contenido (Icono + Textos) */}
-                  <div className="relative z-10 w-[56px] h-[56px] rounded-full flex items-center justify-center shrink-0 border border-white/5 bg-white/5">
-                    <Bell className="w-7 h-7 text-white" />
-                    <div className="absolute top-0 right-0.5 w-3.5 h-3.5 rounded-full bg-[#ef4444] border-2 border-[#060606]"></div>
+                  <div className="relative z-10 flex items-center justify-center shrink-0">
+                    <Bell className="w-11 h-11 text-white drop-shadow-md" strokeWidth={1.5} />
+                    <div className="absolute top-[2px] right-[6px] w-3 h-3 rounded-full bg-[#ef4444] border-2 border-[#060606] shadow-sm"></div>
                   </div>
 
-                  <div className="relative z-10 flex flex-col flex-1 min-w-0 pr-16">
+                  <div className="relative z-10 flex flex-col flex-1 min-w-0 pr-16 pb-0.5">
                     <h3 className="text-white font-bold text-[18px] leading-tight mb-1" style={{ fontFamily: SFD }}>Schedules</h3>
                     
-                    {/* Contenedor Deslizable de Cápsulas */}
+                    {/* Contenedor Deslizable de Cápsulas de a 1 en 1 */}
                     <div 
                       onScroll={handleScheduleScroll}
-                      onClick={(e) => e.stopPropagation()} // Previene que al arrastrar/clicar se cambie de vista inmediatamente si querías deslizar
-                      className="h-[32px] overflow-y-auto snap-y snap-mandatory no-scrollbar w-full"
+                      onClick={(e) => e.stopPropagation()} // Previene que al deslizar la cápsula te mande de vista
+                      className="h-[34px] overflow-y-auto snap-y snap-mandatory no-scrollbar w-full"
                       style={{ scrollBehavior: 'smooth' }}
                     >
                       <div className="flex flex-col">
                         {SCHEDULE_MOCK_ITEMS.map((item) => (
-                          <div key={item.id} className="h-[32px] snap-start flex items-center shrink-0">
+                          <div key={item.id} className="h-[34px] snap-center snap-always flex items-center shrink-0">
                             <button
                               onClick={() => setCurrentView("schedule")}
-                              className="flex items-center gap-2 px-3 py-1 rounded-full border max-w-full"
+                              className="flex items-center gap-2 px-3 py-1.5 rounded-full border max-w-full active:scale-95 transition-transform"
                               style={{ 
                                 background: `${item.color}15`, 
                                 borderColor: `${item.color}30`,
