@@ -7,7 +7,8 @@ import {
   Plus, Loader2, Pencil, Search, X, Trash2, Moon, TrendingUp, Sparkles, 
   CheckSquare, Mail, Type, AlignLeft, AtSign, Folder, ThumbsUp, ThumbsDown,
   Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Coffee, ChevronDown, ChevronUp, Paperclip,
-  Droplets, Pill, Activity, Link as LinkIcon, RefreshCcw, CheckCircle2, AlertCircle, Globe, Zap
+  Droplets, Pill, Activity, Link as LinkIcon, RefreshCcw, CheckCircle2, AlertCircle, Globe, Zap,
+  Lightbulb, Check
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -41,14 +42,14 @@ interface ScheduleItem {
 
 const ICONS: Record<string, React.ElementType> = {
   CalendarDays, Clock, Bell, Mail, Folder, Dumbbell, Briefcase, Laptop, Utensils,
-  MessageSquare, Send, Coffee, Droplets, Pill, Activity, TrendingUp, CheckSquare
+  MessageSquare, Send, Coffee, Droplets, Pill, Activity, TrendingUp, CheckSquare, Lightbulb
 }
 
 const ICON_COLORS: Record<string, string> = {
   CalendarDays:"#3b82f6", Clock:"#f97316", Bell:"#f43f5e", Mail:"#0ea5e9", Folder:"#eab308",
   Dumbbell:"#a855f7", Briefcase:"#d97706", Laptop:"#94a3b8", Utensils:"#ec4899",
   MessageSquare:"#22c55e", Send:"#14b8a6", Coffee:"#b45309", Droplets:"#38bdf8",
-  Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6"
+  Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b"
 }
 
 const EVENT_OPTIONS    = ["Custom Event","Schedule Email","Drive Upload","Workout / Gym","Deep Work","Meal Time","Send Message"]
@@ -93,9 +94,8 @@ const ONBOARDING_CARDS_DATA = [
 ]
 
 const SUGGESTIONS = [
-  { id:"sug_run",   title:"Outdoor run",     time:"1:30 – 2 PM",    iconName:"TrendingUp",  color:"#22c55e", type:"event" },
-  { id:"sug_email", title:"Apply to YC",     time:"2:30 – 3:30 PM", iconName:"CheckSquare", color:"#3b82f6", type:"event" },
-  { id:"sug_tg",    title:"Order vitamin D", time:"7 – 7:30 PM",    iconName:"Pill",        color:"#fb7185", type:"reminder" },
+  { id:"sug_tg",    title:"Order vitamin D", time:"Today",          iconName:"Lightbulb", color:"#fb7185", type:"reminder" },
+  { id:"sug_email", title:"Read project brief", time:"30 min",      iconName:"Briefcase", color:"#3b82f6", type:"task" },
 ]
 
 const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
@@ -160,7 +160,6 @@ function TZPickerModal({ onSave, onConfirm, selectedTZ, onClose }: { onSave: (tz
         </div>
 
         <div className="flex-1 overflow-y-auto no-scrollbar pb-6 space-y-4">
-          
           <div className="bg-[#1c1c1e] rounded-[24px] p-2 shadow-inner">
             <button
               onClick={() => {
@@ -229,7 +228,6 @@ export function ScheduleView() {
   const { setCurrentView } = useApp()
   const [tasks,         setTasks]         = useState<ScheduleItem[]>([])
   const [loadingItems,  setLoadingItems]  = useState(true)
-  const [selectedDate,  setSelectedDate]  = useState<string|"All">("All")
   const [activeNavTab,  setActiveNavTab]  = useState<NavTab>("tasks")
   const [isEditingMode, setIsEditingMode] = useState(false)
   const [expandedIds,   setExpandedIds]   = useState<Record<string,boolean>>({})
@@ -253,6 +251,9 @@ export function ScheduleView() {
   const [taskEmailRec,  setTaskEmailRec]  = useState("")
   const [attachedFiles, setAttachedFiles] = useState<{name:string;size:number}[]>([])
   const [extraConfig,   setExtraConfig]   = useState("")
+
+  // State to simulate marking tasks as completed
+  const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({})
 
   const _initNow = useMemo(() => {
     const d = new Date(Date.now() + 5 * 60 * 1000)
@@ -352,26 +353,8 @@ export function ScheduleView() {
     else { setTaskIcon("CalendarDays"); setTaskTitle("") }
   },[eventType])
 
-  const calendarDays = useMemo(()=>{
-    const arr=[]; const today=new Date(); const sow=new Date(today)
-    sow.setDate(today.getDate()-(today.getDay()||7)+1)
-    for(let i=0;i<7;i++){
-      const d=new Date(sow); d.setDate(sow.getDate()+i)
-      arr.push({full:d.toDateString(),label:d.toLocaleDateString('en-US',{weekday:'narrow'}),num:d.getDate().toString(),isToday:d.toDateString()===today.toDateString()})
-    }
-    return arr
-  },[])
-
-  const monthStr=new Date().toLocaleDateString('en-US',{month:'short'}).toUpperCase()
-  const yearStr =new Date().getFullYear().toString()
-
-  const filteredTasks=useMemo(()=>{
-    if(selectedDate==="All") return tasks
-    return tasks.filter(t=>{ try{ return new Date(t.fire_at).toDateString()===selectedDate }catch{return false} })
-  },[tasks,selectedDate])
-
-  const activeEvents    = filteredTasks.filter(t=>t.is_event)
-  const activeReminders = filteredTasks.filter(t=>!t.is_event)
+  const activeEvents    = tasks.filter(t=>t.is_event)
+  const activeReminders = tasks.filter(t=>!t.is_event)
 
   useEffect(()=>{
     const tg=(window as any).Telegram?.WebApp
@@ -397,6 +380,11 @@ export function ScheduleView() {
 
   function togglePicker(p:string){ setActivePicker(ap=>ap===p?null:p) }
   function toggleExpand(id:string|number){ setExpandedIds(p=>({...p,[id]:!p[id]})) }
+  function toggleCompleted(id:string|number, e:React.MouseEvent) {
+    e.stopPropagation()
+    setCompletedTasks(prev => ({...prev, [id]: !prev[id]}))
+  }
+
   function handleFileUpload(e:React.ChangeEvent<HTMLInputElement>){
     if(!e.target.files) return
     const nf=Array.from(e.target.files).slice(0,5-attachedFiles.length).map(f=>({name:f.name,size:f.size}))
@@ -455,8 +443,8 @@ export function ScheduleView() {
 
   const TaskCard = ({item,isSuggestion=false, listType="reminder"}:{item:any;isSuggestion?:boolean; listType?:"reminder"|"task"})=>{
     const isExpanded=expandedIds[item.id]
-    const TheIcon=ICONS[item.icon_name||item.iconName]||CalendarDays
     const color=item.color||ICON_COLORS[item.icon_name||item.iconName]||"#3b82f6"
+    const isCompleted = completedTasks[item.id]
     
     let displayTime = "Today"
     if (item.fire_at) {
@@ -469,34 +457,54 @@ export function ScheduleView() {
           }
        } catch {}
     } else if (item.time) {
-       displayTime = item.time.split(" ")[0]; 
+       displayTime = item.time; 
     }
 
+    if (listType === "task") {
+      // DISEÑO ESTILO TASK (Checkbox + Línea Divisoria)
+      return (
+        <div className={`relative w-full border-b border-[#2c2c2e] last:border-0 ${isEditingMode&&!isSuggestion?'jiggle-card':''}`}>
+          <div 
+            className="flex items-center justify-between py-3.5 cursor-pointer" 
+            onClick={(e)=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'events';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Event");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleCompleted(item.id, e) }}
+          >
+            <div className="flex items-center gap-4 flex-1 overflow-hidden">
+              <div className={`w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${isCompleted ? 'bg-[#3a3a3c] border-[#3a3a3c]' : 'border-[#636366]'}`}>
+                 {isCompleted && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3}/>}
+              </div>
+              <span className={`text-[15px] font-medium truncate transition-colors ${isCompleted ? 'text-[#636366] line-through' : 'text-white'}`} style={{fontFamily:SF}}>{item.title}</span>
+            </div>
+            {isEditingMode&&!isSuggestion&&(
+              <button onClick={(e)=>{e.stopPropagation(); handleDelete(item.id)}} className="shrink-0 p-1.5 active:scale-90 transition-transform">
+                <Trash2 className="w-[16px] h-[16px] text-red-500"/>
+              </button>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    // DISEÑO ESTILO REMINDER (Cápsula anidada)
     return (
       <div className={`relative w-full ${isEditingMode&&!isSuggestion?'jiggle-card':''}`}>
-        <div className={`bg-[#242426] px-4 py-3.5 flex flex-col transition-all duration-200 rounded-[16px]`}>
-          <div className="flex items-center justify-between cursor-pointer" onClick={()=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'events';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Event");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleExpand(item.id) }}>
-            
-            <div className="flex items-center gap-3.5 flex-1 overflow-hidden">
-              {listType === "reminder" ? (
-                <>
-                  <span className="text-[#8e8e93] text-[13px] font-medium w-12 shrink-0 truncate" style={{fontFamily:SF}}>{displayTime}</span>
-                  <div className="w-[3px] h-4 rounded-full shrink-0" style={{backgroundColor: color}}/>
-                </>
-              ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-[#3a3a3c] flex items-center justify-center shrink-0">
-                </div>
-              )}
+        <div className="bg-[#2c2c2e] rounded-[16px] px-4 py-3.5 flex flex-col transition-all duration-200 cursor-pointer" onClick={()=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'events';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Event");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleExpand(item.id) }}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 flex-1 overflow-hidden">
+              <span className="text-[#8e8e93] text-[13px] font-medium w-[45px] shrink-0 truncate text-left" style={{fontFamily:SF}}>{displayTime}</span>
+              <div className="w-[3px] h-[16px] rounded-full shrink-0" style={{backgroundColor: color}}/>
               <span className="text-[15px] font-medium text-white truncate" style={{fontFamily:SF}}>{item.title}</span>
             </div>
-
-            <div className="flex items-center gap-3 shrink-0 ml-2">
-               <div className="bg-[#3a3a3c]/60 px-2.5 py-1 rounded-md flex items-center justify-center">
-                  <TheIcon className="w-3.5 h-3.5 text-[#8e8e93]"/>
-               </div>
-            </div>
-
+            
+            {(item.extra || isSuggestion) && (
+              <div className="shrink-0 ml-3">
+                 <div className="bg-[#3a3a3c] px-3 py-1 rounded-full text-[#e4e4e7] text-[12px] font-medium tracking-wide">
+                    {item.extra || "30 min"}
+                 </div>
+              </div>
+            )}
           </div>
+          
+          {/* Detalles expandidos */}
           {isExpanded&&!isSuggestion&&(
             <div className="mt-4 pt-4 border-t border-[#3a3a3c] flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200 pb-1 px-1">
               {item.description&&<div className="flex flex-col gap-1.5"><span className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider" style={{fontFamily:SF}}>Description</span><p className="text-[#e4e4e7] text-[14px] leading-relaxed" style={{fontFamily:SF}}>{item.description}</p></div>}
@@ -525,7 +533,7 @@ export function ScheduleView() {
           )}
         </div>
         {isEditingMode&&!isSuggestion&&(
-          <button onClick={()=>handleDelete(item.id)} className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-xl border-2 border-[#1a1a1c] active:scale-90 transition-transform z-10">
+          <button onClick={(e)=>{e.stopPropagation(); handleDelete(item.id)}} className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center shadow-xl border-2 border-[#1c1c1e] active:scale-90 transition-transform z-10">
             <Trash2 className="w-[14px] h-[14px] text-white"/>
           </button>
         )}
@@ -534,7 +542,7 @@ export function ScheduleView() {
   }
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#111111] text-white select-none overflow-hidden relative">
+    <div className="flex-1 flex flex-col min-h-screen bg-[#000000] text-white select-none overflow-hidden relative">
       <style>{`
         @keyframes jiggle { 0%{transform:rotate(-1deg)} 50%{transform:rotate(1deg)} 100%{transform:rotate(-1deg)} }
         .jiggle-card { animation: jiggle 0.3s ease-in-out infinite; }
@@ -598,84 +606,65 @@ export function ScheduleView() {
         />
       )}
 
-      <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar">
-        <div className="pt-10 flex justify-center items-end gap-1">
-          <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
-          <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
+      <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar pt-6">
+        
+        {/* TEXTO EXACTO DE LA CABECERA (You have...) */}
+        <div className="px-6 mb-8 mt-4">
+          <h1 className="text-[28px] font-medium leading-[1.3] tracking-tight" style={{fontFamily: SFD}}>
+            <span className="text-[#8e8e93]">You have </span>
+            <span className="text-white inline-flex items-center gap-1"><Lightbulb className="w-6 h-6 text-[#f59e0b]" strokeWidth={2.5}/> {activeReminders.length||SUGGESTIONS.filter(s=>s.type==='reminder').length} reminders</span>
+            <br/>
+            <span className="text-[#8e8e93]">and </span>
+            <span className="text-white inline-flex items-center gap-1"><CheckSquare className="w-6 h-6 text-[#3b82f6]" strokeWidth={2.5}/> {activeEvents.length||SUGGESTIONS.filter(s=>s.type==='task').length} tasks</span>
+            <span className="text-[#8e8e93]"> today</span>
+          </h1>
         </div>
 
-        {/* Calendario Semanal */}
-        <div className="flex justify-between items-center px-6 mt-8">
-          <button onClick={()=>setSelectedDate("All")} className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate==="All"?"bg-white text-black":"bg-[#1c1c1e] text-[#8e8e93]"}`}>
-            <span className="text-[14px] font-bold" style={{fontFamily:SF}}>All</span>
-          </button>
-          <div className="w-px h-8 bg-[#2c2c2e] mx-1 shrink-0"/>
-          {calendarDays.map((day,idx)=>{
-            const isSel=selectedDate===day.full
-            let dotClass=""
-            if(isSel) dotClass="bg-blue-500"
-            else if(day.isToday) dotClass="bg-[#ef4444]"
-            return (
-              <button key={idx} onClick={()=>setSelectedDate(day.full)} className={`flex flex-col items-center gap-1.5 relative w-10 transition-all ${isSel?"opacity-100":"opacity-60"}`}>
-                <div className={`w-1.5 h-1.5 rounded-full transition-colors ${dotClass}`} style={{opacity:dotClass?1:0}}/>
-                <span className={`text-[12px] font-medium ${isSel?"text-white":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>{day.label}</span>
-                <span className={`text-[16px] font-bold ${isSel?"text-white":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>{day.num}</span>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Resumen Schedule */}
-        <div className="mt-10 flex flex-col items-center">
-          <p className="text-[#8e8e93] text-[14px] font-bold tracking-widest uppercase mb-3" style={{fontFamily:SF}}>Schedule</p>
-          <div className="flex items-center gap-6 text-[26px] font-bold text-white tracking-tight" style={{fontFamily:SFD}}>
-            <div className="flex items-center gap-2"><CalendarDays className="w-6 h-6 text-[#8e8e93] stroke-[2]"/><span>{activeEvents.length} events</span></div>
-            <div className="flex items-center gap-2"><Bell className="w-6 h-6 text-[#8e8e93] stroke-[2]"/><span>{activeReminders.length} reminders</span></div>
-          </div>
-        </div>
-
-        {/* Sugerencias Biométricas */}
-        <div className="mt-6 flex flex-col items-center gap-2.5 px-5">
-          <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e] w-[280px] justify-center">
-            <Moon className="w-4 h-4 text-[#f59e0b]"/>
-            <span className="text-[#f59e0b] text-[13px] font-medium" style={{fontFamily:SF}}>Morning grogginess <span className="opacity-60 font-normal">15m left</span></span>
-          </div>
-          <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-1.5 rounded-full border border-[#2c2c2e] w-[240px] justify-center">
-            <TrendingUp className="w-3.5 h-3.5 text-[#22c55e]"/>
-            <span className="text-[#22c55e] text-[12px] font-medium" style={{fontFamily:SF}}>Alertness rise <span className="opacity-60 font-normal">in 45m</span></span>
-          </div>
-        </div>
-
-        {/* LISTA PRINCIPAL (REDISENADA) */}
-        <div className="px-5 mt-8 pb-10 flex flex-col gap-6">
+        {/* LISTA PRINCIPAL (REDISENADA ESTILO CAPTURAS) */}
+        <div className="px-5 pb-10 flex flex-col gap-6">
           {loadingItems ? (
             <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-[#8e8e93]"/></div>
-          ) : filteredTasks.length === 0 ? (
-            <div className="animate-in fade-in duration-500">
-               <div className="bg-[#1a1a1c] rounded-[28px] p-5 border border-[#2c2c2e]/50">
-                  <div className="flex justify-between items-start mb-5">
+          ) : tasks.length === 0 ? (
+            <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+               {/* SUGGESTIONS COMO PLACEHOLDERS CON EL NUEVO DISEÑO */}
+               <div className="bg-[#1c1c1e] rounded-[28px] p-5">
+                  <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-white text-[18px] font-bold tracking-tight" style={{fontFamily:SFD}}>Suggestions</h3>
-                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>Kickstart your day</p>
+                      <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Reminders</h3>
+                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have 1 new reminder today</p>
                     </div>
+                    <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
                   <div className="flex flex-col gap-2.5">
-                    {SUGGESTIONS.map((sug,idx)=><TaskCard key={idx} item={sug} isSuggestion={true} listType={sug.type === "reminder" ? "reminder" : "task"}/>)}
+                    {SUGGESTIONS.filter(s=>s.type==='reminder').map((sug,idx)=><TaskCard key={idx} item={sug} isSuggestion={true} listType="reminder"/>)}
+                  </div>
+               </div>
+               
+               <div className="bg-[#1c1c1e] rounded-[28px] p-5">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Daily Tasks</h3>
+                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have 1 task today</p>
+                    </div>
+                    <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
+                  </div>
+                  <div className="flex flex-col">
+                    {SUGGESTIONS.filter(s=>s.type==='task').map((sug,idx)=><TaskCard key={idx} item={sug} isSuggestion={true} listType="task"/>)}
                   </div>
                </div>
             </div>
           ) : (
             <div className="flex flex-col gap-6 animate-in fade-in duration-500">
               
-              {/* REMINDERS BLOCK */}
+              {/* REMINDERS BLOCK (Estilo Cápsulas Anidadas) */}
               {activeReminders.length > 0 && (
-                <div className="bg-[#1a1a1c] rounded-[28px] p-5 border border-[#2c2c2e]/50">
-                  <div className="flex justify-between items-start mb-5">
+                <div className="bg-[#1c1c1e] rounded-[28px] p-5">
+                  <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-white text-[18px] font-bold tracking-tight" style={{fontFamily:SFD}}>Reminders</h3>
+                      <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Reminders</h3>
                       <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeReminders.length} new reminder{activeReminders.length!==1?'s':''} today</p>
                     </div>
-                    <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2">•••</button>
+                    <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
                   <div className="flex flex-col gap-2.5">
                     {activeReminders.map(task => <TaskCard key={task.id} item={task} listType="reminder" />)}
@@ -683,17 +672,17 @@ export function ScheduleView() {
                 </div>
               )}
 
-              {/* DAILY TASKS BLOCK */}
+              {/* DAILY TASKS BLOCK (Estilo Lista de Checks) */}
               {activeEvents.length > 0 && (
-                <div className="bg-[#1a1a1c] rounded-[28px] p-5 border border-[#2c2c2e]/50">
-                  <div className="flex justify-between items-start mb-5">
+                <div className="bg-[#1c1c1e] rounded-[28px] p-5">
+                  <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-white text-[18px] font-bold tracking-tight" style={{fontFamily:SFD}}>Daily Tasks</h3>
+                      <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Daily Tasks</h3>
                       <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeEvents.length} task{activeEvents.length!==1?'s':''} today</p>
                     </div>
-                    <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2">•••</button>
+                    <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
-                  <div className="flex flex-col gap-2.5">
+                  <div className="flex flex-col">
                     {activeEvents.map(task => <TaskCard key={task.id} item={task} listType="task" />)}
                   </div>
                 </div>
