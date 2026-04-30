@@ -7,7 +7,7 @@ import {
   Plus, Loader2, Pencil, Search, X, Trash2, Moon, TrendingUp, Sparkles, 
   CheckSquare, Mail, Type, AlignLeft, AtSign, Folder, ThumbsUp, ThumbsDown,
   Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Coffee, ChevronDown, ChevronUp, Paperclip,
-  Droplets, Pill, Activity, Link as LinkIcon, RefreshCcw, CheckCircle2, AlertCircle, Globe, Zap, ChevronsRight
+  Droplets, Pill, Activity, Link as LinkIcon, RefreshCcw, CheckCircle2, AlertCircle, Globe, Zap
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -34,17 +34,16 @@ async function apiPost(endpoint: string, body: Record<string, unknown>) {
 }
 
 interface ScheduleItem {
-  id: number;
-  title: string; event_type: string; icon_name: string; color: string
+  id: number; title: string; event_type: string; icon_name: string; color: string
   description: string; extra: string; email_to: string; files: {name:string;size:number}[]
-  is_event: boolean;
-  fire_at: string; alert_offset_min: number; status: string
+  is_event: boolean; fire_at: string; alert_offset_min: number; status: string
 }
 
 const ICONS: Record<string, React.ElementType> = {
   CalendarDays, Clock, Bell, Mail, Folder, Dumbbell, Briefcase, Laptop, Utensils,
   MessageSquare, Send, Coffee, Droplets, Pill, Activity, TrendingUp, CheckSquare
 }
+
 const ICON_COLORS: Record<string, string> = {
   CalendarDays:"#3b82f6", Clock:"#f97316", Bell:"#f43f5e", Mail:"#0ea5e9", Folder:"#eab308",
   Dumbbell:"#a855f7", Briefcase:"#d97706", Laptop:"#94a3b8", Utensils:"#ec4899",
@@ -55,96 +54,22 @@ const ICON_COLORS: Record<string, string> = {
 const EVENT_OPTIONS    = ["Custom Event","Schedule Email","Drive Upload","Workout / Gym","Deep Work","Meal Time","Send Message"]
 const REMINDER_OPTIONS = ["Personal Reminder","Drink Water","Stand Up / Stretch","Take Medication","Custom Reminder"]
 
-// Timezone registry: { label shown to user, value stored in localStorage }
+// Lista de Zonas Horarias Simplificada y Limpia
 const TZ_LIST: { label: string; value: string; offset: string }[] = [
-  { label: "Baker Island",          value: "Etc/GMT+12",                  offset: "UTC−12" },
-  { label: "Samoa",                 value: "Pacific/Pago_Pago",           offset: "UTC−11" },
-  { label: "Hawaii",                value: "Pacific/Honolulu",            offset: "UTC−10" },
-  { label: "Alaska",                value: "America/Anchorage",           offset: "UTC−9"  },
-  { label: "Los Angeles / PDT",     value: "America/Los_Angeles",         offset: "UTC−8"  },
-  { label: "Vancouver",             value: "America/Vancouver",           offset: "UTC−8"  },
-  { label: "Denver / MDT",          value: "America/Denver",              offset: "UTC−7"  },
-  { label: "Phoenix",               value: "America/Phoenix",             offset: "UTC−7"  },
-  { label: "Mexico City / CDT",     value: "America/Mexico_City",         offset: "UTC−6"  },
-  { label: "Chicago",               value: "America/Chicago",             offset: "UTC−6"  },
-  { label: "Guatemala",             value: "America/Guatemala",           offset: "UTC−6"  },
-  { label: "New York / EDT",        value: "America/New_York",            offset: "UTC−5"  },
-  { label: "Toronto",               value: "America/Toronto",             offset: "UTC−5"  },
-  { label: "Bogotá",                value: "America/Bogota",              offset: "UTC−5"  },
-  { label: "Lima",                  value: "America/Lima",                offset: "UTC−5"  },
-  { label: "Havana",                value: "America/Havana",              offset: "UTC−5"  },
-  { label: "Santiago",              value: "America/Santiago",            offset: "UTC−4"  },
-  { label: "Caracas",               value: "America/Caracas",             offset: "UTC−4"  },
-  { label: "La Paz",                value: "America/La_Paz",              offset: "UTC−4"  },
-  { label: "Halifax",               value: "America/Halifax",             offset: "UTC−4"  },
-  { label: "São Paulo / Brasília",  value: "America/Sao_Paulo",           offset: "UTC−3"  },
-  { label: "Buenos Aires",          value: "America/Argentina/Buenos_Aires", offset: "UTC−3" },
-  { label: "Montevideo",            value: "America/Montevideo",          offset: "UTC−3"  },
-  { label: "South Georgia",         value: "Atlantic/South_Georgia",      offset: "UTC−2"  },
-  { label: "Azores",                value: "Atlantic/Azores",             offset: "UTC−1"  },
-  { label: "London / GMT",          value: "Europe/London",               offset: "UTC+0"  },
-  { label: "Lisbon",                value: "Europe/Lisbon",               offset: "UTC+0"  },
-  { label: "Reykjavik",             value: "Atlantic/Reykjavik",          offset: "UTC+0"  },
-  { label: "Dakar",                 value: "Africa/Dakar",                offset: "UTC+0"  },
-  { label: "Madrid / CET",          value: "Europe/Madrid",               offset: "UTC+1"  },
-  { label: "Paris",                 value: "Europe/Paris",                offset: "UTC+1"  },
-  { label: "Berlin",                value: "Europe/Berlin",               offset: "UTC+1"  },
-  { label: "Rome",                  value: "Europe/Rome",                 offset: "UTC+1"  },
-  { label: "Lagos",                 value: "Africa/Lagos",                offset: "UTC+1"  },
-  { label: "Casablanca",            value: "Africa/Casablanca",           offset: "UTC+1"  },
-  { label: "Cairo / EET",           value: "Africa/Cairo",                offset: "UTC+2"  },
-  { label: "Athens",                value: "Europe/Athens",               offset: "UTC+2"  },
-  { label: "Helsinki",              value: "Europe/Helsinki",             offset: "UTC+2"  },
-  { label: "Johannesburg",          value: "Africa/Johannesburg",         offset: "UTC+2"  },
-  { label: "Kiev",                  value: "Europe/Kiev",                 offset: "UTC+2"  },
-  { label: "Moscow / MSK",          value: "Europe/Moscow",               offset: "UTC+3"  },
-  { label: "Istanbul",              value: "Europe/Istanbul",             offset: "UTC+3"  },
-  { label: "Riyadh",                value: "Asia/Riyadh",                 offset: "UTC+3"  },
-  { label: "Nairobi",               value: "Africa/Nairobi",              offset: "UTC+3"  },
-  { label: "Baghdad",               value: "Asia/Baghdad",                offset: "UTC+3"  },
-  { label: "Tehran",                value: "Asia/Tehran",                 offset: "UTC+3:30" },
-  { label: "Dubai / GST",           value: "Asia/Dubai",                  offset: "UTC+4"  },
-  { label: "Baku",                  value: "Asia/Baku",                   offset: "UTC+4"  },
-  { label: "Tbilisi",               value: "Asia/Tbilisi",                offset: "UTC+4"  },
-  { label: "Muscat",                value: "Asia/Muscat",                 offset: "UTC+4"  },
-  { label: "Kabul",                 value: "Asia/Kabul",                  offset: "UTC+4:30" },
-  { label: "Karachi / PKT",         value: "Asia/Karachi",                offset: "UTC+5"  },
-  { label: "Tashkent",              value: "Asia/Tashkent",               offset: "UTC+5"  },
-  { label: "Yekaterinburg",         value: "Asia/Yekaterinburg",          offset: "UTC+5"  },
-  { label: "Mumbai / IST",          value: "Asia/Kolkata",                offset: "UTC+5:30" },
-  { label: "New Delhi",             value: "Asia/Kolkata",                offset: "UTC+5:30" },
-  { label: "Colombo",               value: "Asia/Colombo",                offset: "UTC+5:30" },
-  { label: "Kathmandu",             value: "Asia/Kathmandu",              offset: "UTC+5:45" },
-  { label: "Dhaka / BST",           value: "Asia/Dhaka",                  offset: "UTC+6"  },
-  { label: "Almaty",                value: "Asia/Almaty",                 offset: "UTC+6"  },
-  { label: "Bishkek",               value: "Asia/Bishkek",                offset: "UTC+6"  },
-  { label: "Yangon / MMT",          value: "Asia/Rangoon",                offset: "UTC+6:30" },
-  { label: "Bangkok / ICT",         value: "Asia/Bangkok",                offset: "UTC+7"  },
-  { label: "Jakarta",               value: "Asia/Jakarta",                offset: "UTC+7"  },
-  { label: "Hanoi",                 value: "Asia/Ho_Chi_Minh",            offset: "UTC+7"  },
-  { label: "Novosibirsk",           value: "Asia/Novosibirsk",            offset: "UTC+7"  },
-  { label: "Beijing / CST",         value: "Asia/Shanghai",               offset: "UTC+8"  },
-  { label: "Singapore",             value: "Asia/Singapore",              offset: "UTC+8"  },
-  { label: "Kuala Lumpur",          value: "Asia/Kuala_Lumpur",           offset: "UTC+8"  },
-  { label: "Manila",                value: "Asia/Manila",                 offset: "UTC+8"  },
-  { label: "Perth",                 value: "Australia/Perth",             offset: "UTC+8"  },
-  { label: "Hong Kong",             value: "Asia/Hong_Kong",              offset: "UTC+8"  },
-  { label: "Taipei",                value: "Asia/Taipei",                 offset: "UTC+8"  },
-  { label: "Eucla",                 value: "Australia/Eucla",             offset: "UTC+8:45" },
-  { label: "Tokyo / JST",           value: "Asia/Tokyo",                  offset: "UTC+9"  },
-  { label: "Seoul",                 value: "Asia/Seoul",                  offset: "UTC+9"  },
-  { label: "Yakutsk",               value: "Asia/Yakutsk",                offset: "UTC+9"  },
-  { label: "Adelaide",              value: "Australia/Adelaide",          offset: "UTC+9:30" },
-  { label: "Darwin",                value: "Australia/Darwin",            offset: "UTC+9:30" },
-  { label: "Sydney / AEST",         value: "Australia/Sydney",            offset: "UTC+10" },
-  { label: "Brisbane",              value: "Australia/Brisbane",          offset: "UTC+10" },
-  { label: "Vladivostok",           value: "Asia/Vladivostok",            offset: "UTC+10" },
-  { label: "Noumea",                value: "Pacific/Noumea",              offset: "UTC+11" },
-  { label: "Honiara",               value: "Pacific/Guadalcanal",         offset: "UTC+11" },
-  { label: "Auckland / NZST",       value: "Pacific/Auckland",            offset: "UTC+12" },
-  { label: "Fiji",                  value: "Pacific/Fiji",                offset: "UTC+12" },
-  { label: "Nuku\'alofa",           value: "Pacific/Tongatapu",           offset: "UTC+13" },
-  { label: "Apia",                  value: "Pacific/Apia",                offset: "UTC+13" },
+  { label: "Pacific Time (US/Canada)", value: "America/Los_Angeles", offset: "UTC−8" },
+  { label: "Mountain Time (US/Canada)",value: "America/Denver",      offset: "UTC−7" },
+  { label: "Mexico City",              value: "America/Mexico_City", offset: "UTC−6" },
+  { label: "Central Time (US/Canada)", value: "America/Chicago",     offset: "UTC−6" },
+  { label: "Eastern Time (US/Canada)", value: "America/New_York",    offset: "UTC−5" },
+  { label: "Buenos Aires",             value: "America/Argentina/Buenos_Aires", offset: "UTC−3" },
+  { label: "São Paulo",                value: "America/Sao_Paulo",   offset: "UTC−3" },
+  { label: "London / GMT",             value: "Europe/London",       offset: "UTC+0" },
+  { label: "Central Europe",           value: "Europe/Paris",        offset: "UTC+1" },
+  { label: "Dubai / GST",              value: "Asia/Dubai",          offset: "UTC+4" },
+  { label: "India Standard",           value: "Asia/Kolkata",        offset: "UTC+5:30" },
+  { label: "Hong Kong / Beijing",      value: "Asia/Hong_Kong",      offset: "UTC+8" },
+  { label: "Tokyo",                    value: "Asia/Tokyo",          offset: "UTC+9" },
+  { label: "Sydney",                   value: "Australia/Sydney",    offset: "UTC+10" },
 ]
 
 const ONBOARDING_CARDS_DATA = [
@@ -173,6 +98,7 @@ const SUGGESTIONS = [
   { id:"sug_email", title:"Apply to YC",     time:"2:30 – 3:30 PM", iconName:"CheckSquare", color:"#3b82f6", type:"event" },
   { id:"sug_tg",    title:"Order vitamin D", time:"7 – 7:30 PM",    iconName:"Pill",        color:"#fb7185", type:"reminder" },
 ]
+
 const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
 function Toast({ msg, type }: { msg: string; type: "success"|"error" }) {
@@ -205,8 +131,8 @@ function WheelPicker({ items, value, onChange, suffix="" }: {items:string[];valu
   )
 }
 
-// ── TZPickerModal ─────────────────────────────────────────────────────────────
-function TZPickerModal({ onSave, onConfirm, selectedTZ }: { onSave: (tz: string) => void; onConfirm: () => void; selectedTZ: string }) {
+// ── TZPickerModal Rediseñado ──────────────────────────────────────────────────
+function TZPickerModal({ onSave, onConfirm, selectedTZ, onClose }: { onSave: (tz: string) => void; onConfirm: () => void; selectedTZ: string, onClose: () => void }) {
   const [query, setQuery]     = useState("")
   const [picked, setPicked]   = useState(selectedTZ || "")
 
@@ -220,107 +146,85 @@ function TZPickerModal({ onSave, onConfirm, selectedTZ }: { onSave: (tz: string)
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
-    return q
-      ? TZ_LIST.filter(t => t.label.toLowerCase().includes(q) || t.offset.toLowerCase().includes(q) || t.value.toLowerCase().includes(q))
-      : TZ_LIST
+    return q ? TZ_LIST.filter(t => t.label.toLowerCase().includes(q) || t.offset.toLowerCase().includes(q) || t.value.toLowerCase().includes(q)) : TZ_LIST
   }, [query])
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, typeof TZ_LIST>()
-    for (const tz of filtered) {
-      if (!map.has(tz.offset)) map.set(tz.offset, [])
-      map.get(tz.offset)!.push(tz)
-    }
-    return [...map.entries()]
-  }, [filtered])
-
-  const pickedEntry = TZ_LIST.find(t => t.value === picked)
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center animate-in fade-in duration-200">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
-      <div className="relative w-full rounded-t-[32px] flex flex-col bg-[#111] border-t border-[#2c2c2e]" style={{maxHeight:"92vh"}}>
-
-        <div className="flex flex-col items-center pt-5 pb-3 px-6">
-          <div className="w-10 h-1 rounded-full bg-[#3c3c3e] mb-5" />
-          <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center mb-3">
-            <Globe className="w-7 h-7 text-blue-500" />
-          </div>
-          <h3 className="text-white font-bold text-[22px] tracking-tight" style={{fontFamily:SFD}}>Set Time Zone</h3>
-          <p className="text-[#8e8e93] text-[14px] text-center mt-1" style={{fontFamily:SF}}>Schedules fire exactly when you need them.</p>
-        </div>
-
-        <div className="px-6 mb-3">
-          <button
-            onClick={() => {
-              const detected = Intl.DateTimeFormat().resolvedOptions().timeZone
-              const match = TZ_LIST.find(t => t.value === detected)
-              if (match) { setPicked(match.value); onSave(match.value); setQuery("") }
-            }}
-            className="w-full flex items-center justify-between px-4 py-3 rounded-[16px] border border-[#2c2c2e] bg-[#1c1c1e] active:opacity-70 transition-opacity"
-          >
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-yellow-400" />
-              <span className="text-white text-[14px] font-medium" style={{fontFamily:SF}}>Auto-detect my timezone</span>
-            </div>
-            <span className="text-[#8e8e93] text-[13px]" style={{fontFamily:SF}}>
-              {Intl.DateTimeFormat().resolvedOptions().timeZone.split("/").pop()?.replace("_"," ")}
-            </span>
+    <div className="fixed inset-0 z-[100] flex items-end justify-center animate-in fade-in duration-300">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full rounded-t-[32px] p-6 animate-in slide-in-from-bottom duration-400 max-h-[90vh] flex flex-col bg-[#111] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#2c2c2e]">
+        
+        <div className="flex items-center justify-between mb-6 pt-1 shrink-0">
+          <h3 className="text-white font-bold text-[24px] tracking-tight" style={{fontFamily:SFD}}>Time Zone</h3>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70 transition-opacity">
+            <X className="w-5 h-5 text-[#8e8e93]" />
           </button>
         </div>
 
-        <div className="px-6 mb-3">
-          <div className="flex items-center gap-2 bg-[#1c1c1e] rounded-[14px] px-4 py-2.5 border border-[#2c2c2e]">
-            <Search className="w-4 h-4 text-[#636366] shrink-0" />
-            <input type="text" placeholder="Search city or UTC offset…" value={query} onChange={e => setQuery(e.target.value)} className="bg-transparent text-white text-[15px] flex-1 outline-none placeholder-[#636366]" style={{fontFamily:SF}}/>
-            {query && (<button onClick={() => setQuery("")}><X className="w-4 h-4 text-[#636366]" /></button>)}
-          </div>
-        </div>
-
-        {pickedEntry && (
-          <div className="px-6 mb-2">
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-500/10 rounded-[12px] border border-blue-500/20">
-              <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-              <span className="text-blue-300 text-[13px] font-medium" style={{fontFamily:SF}}>{pickedEntry.label}</span>
-              <span className="text-blue-400/60 text-[12px] ml-auto" style={{fontFamily:SF}}>{pickedEntry.offset}</span>
-            </div>
-          </div>
-        )}
-
-        <div className="flex-1 overflow-y-auto px-6 pb-2 no-scrollbar">
-          {grouped.map(([offset, tzs]) => (
-            <div key={offset} className="mb-1">
-              <div className="flex items-center gap-2 py-2 sticky top-0 bg-[#111] z-10">
-                <span className="text-[#636366] text-[11px] font-semibold uppercase tracking-widest" style={{fontFamily:SF}}>{offset}</span>
-                <div className="flex-1 h-px bg-[#2c2c2e]" />
+        <div className="flex-1 overflow-y-auto no-scrollbar pb-6 space-y-4">
+          
+          {/* Auto-detect Block */}
+          <div className="bg-[#1c1c1e] rounded-[24px] p-2 shadow-inner">
+            <button
+              onClick={() => {
+                const detected = Intl.DateTimeFormat().resolvedOptions().timeZone
+                const match = TZ_LIST.find(t => t.value === detected)
+                if (match) { setPicked(match.value); onSave(match.value); setQuery("") }
+              }}
+              className="w-full flex items-center justify-between p-4 active:bg-[#2c2c2e] rounded-xl transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Zap className="w-[20px] h-[20px] text-yellow-400" />
+                <span className="text-white text-[16px] font-medium" style={{fontFamily:SF}}>Auto-detect</span>
               </div>
-              {tzs.map(tz => {
+              <span className="text-[#8e8e93] text-[14px] truncate max-w-[140px]" style={{fontFamily:SF}}>
+                {Intl.DateTimeFormat().resolvedOptions().timeZone.split("/").pop()?.replace("_"," ")}
+              </span>
+            </button>
+          </div>
+
+          {/* Search Input */}
+          <div className="flex items-center gap-3 bg-[#1c1c1e] rounded-full px-5 py-3.5 border border-[#2c2c2e]">
+            <Search className="w-[18px] h-[18px] text-[#636366] shrink-0" />
+            <input type="text" placeholder="Search zone or UTC..." value={query} onChange={e => setQuery(e.target.value)} className="bg-transparent text-white text-[15px] flex-1 outline-none placeholder-[#636366]" style={{fontFamily:SF}}/>
+            {query && <button onClick={() => setQuery("")}><X className="w-4 h-4 text-[#636366]" /></button>}
+          </div>
+
+          {/* TZ List Block */}
+          <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner">
+            <div className="flex flex-col divide-y divide-[#2c2c2e]">
+              {filtered.map(tz => {
                 const isSelected = picked === tz.value
                 return (
-                  <button key={tz.value + tz.label} onClick={() => { setPicked(tz.value); onSave(tz.value) }} className={`w-full flex items-center justify-between px-4 py-3 rounded-[14px] mb-1 transition-all active:scale-[0.98] ${isSelected ? "bg-blue-500/15 border border-blue-500/30" : "bg-[#1c1c1e] border border-transparent"}`}>
-                    <span className={`text-[15px] font-medium ${isSelected ? "text-blue-300" : "text-white"}`} style={{fontFamily:SF}}>{tz.label}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[#636366] text-[13px]" style={{fontFamily:SF}}>{tz.offset}</span>
-                      {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-400" />}
+                  <button 
+                    key={tz.value} 
+                    onClick={() => { setPicked(tz.value); onSave(tz.value) }} 
+                    className="w-full flex items-center justify-between p-4 active:bg-[#2c2c2e] rounded-xl transition-colors"
+                  >
+                    <span className={`text-[16px] font-medium ${isSelected ? "text-blue-400" : "text-white"}`} style={{fontFamily:SF}}>{tz.label}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>{tz.offset}</span>
+                      {isSelected && <CheckCircle2 className="w-[18px] h-[18px] text-blue-400" />}
                     </div>
                   </button>
                 )
               })}
+              {filtered.length === 0 && (
+                <div className="py-10 flex flex-col items-center justify-center text-[#636366]">
+                   <Globe className="w-8 h-8 mb-2 opacity-50"/>
+                   <span style={{fontFamily:SF}}>No zones found</span>
+                </div>
+              )}
             </div>
-          ))}
-          {grouped.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-[#636366]">
-              <Globe className="w-8 h-8 mb-2 opacity-40" />
-              <span className="text-[14px]" style={{fontFamily:SF}}>No results for "{query}"</span>
-            </div>
-          )}
+          </div>
         </div>
 
-        <div className="px-6 pt-3 pb-8 border-t border-[#1c1c1e]">
-          <button onClick={onConfirm} disabled={!picked} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-40 disabled:active:scale-100" style={{fontFamily:SF}}>
-            Confirm & Continue
+        <div className="pt-2 shrink-0">
+          <button onClick={onConfirm} disabled={!picked} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-40" style={{fontFamily:SF}}>
+            Save Time Zone
           </button>
         </div>
+
       </div>
     </div>
   )
@@ -372,14 +276,17 @@ export function ScheduleView() {
   const [selMonth, setSelMonth] = useState(_initNow.mo)
   const [selDayNum,setSelDayNum]= useState(_initNow.day)
   const [selRemMin,setSelRemMin]= useState("10")
+  const [selRemSec,setSelRemSec]= useState("00")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const hours = Array.from({length:24},(_,i)=>i.toString().padStart(2,'0'))
   const mins  = Array.from({length:60},(_,i)=>i.toString().padStart(2,'0'))
+  const secs  = Array.from({length:60},(_,i)=>i.toString().padStart(2,'0'))
   const days  = Array.from({length:31},(_,i)=>(i+1).toString())
 
   const showToast = useCallback((msg:string,type:"success"|"error")=>{
-    setToast({msg,type}); setTimeout(()=>setToast(null),3500)
+    setToast({msg,type});
+    setTimeout(()=>setToast(null),3500)
   },[])
 
   useEffect(() => {
@@ -439,17 +346,18 @@ export function ScheduleView() {
 
   // Reset Extras and Attachments correctly
   useEffect(()=>{
-    setExtraConfig(""); setAttachedFiles([])
+    setExtraConfig("");
+    setAttachedFiles([])
     if(eventType==="Workout / Gym")          { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); }
-    else if(eventType==="Deep Work")          { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); }
-    else if(eventType==="Meal Time")          { setTaskIcon("Utensils"); setTaskTitle("Lunch Break"); }
-    else if(eventType==="Schedule Email")     { setTaskIcon("Mail"); setTaskTitle("Send Email") }
-    else if(eventType==="Send Message")       { setTaskIcon("MessageSquare"); setTaskTitle("Send Message") }
-    else if(eventType==="Drive Upload")       { setTaskIcon("Folder"); setTaskTitle("Backup to Drive") }
-    else if(eventType==="Drink Water")        { setTaskIcon("Droplets"); setTaskTitle("Drink Water") }
-    else if(eventType==="Stand Up / Stretch") { setTaskIcon("Activity"); setTaskTitle("Stretch Legs") }
-    else if(eventType==="Take Medication")    { setTaskIcon("Pill"); setTaskTitle("Medication"); }
-    else if(eventType==="Custom Event")       { setTaskIcon("CalendarDays");  setTaskTitle(""); }
+    else if(eventType==="Deep Work")         { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); }
+    else if(eventType==="Meal Time")         { setTaskIcon("Utensils"); setTaskTitle("Lunch Break"); }
+    else if(eventType==="Schedule Email")    { setTaskIcon("Mail"); setTaskTitle("Send Email") }
+    else if(eventType==="Send Message")      { setTaskIcon("MessageSquare"); setTaskTitle("Send Message") }
+    else if(eventType==="Drive Upload")      { setTaskIcon("Folder"); setTaskTitle("Backup to Drive") }
+    else if(eventType==="Drink Water")       { setTaskIcon("Droplets"); setTaskTitle("Drink Water") }
+    else if(eventType==="Stand Up / Stretch"){ setTaskIcon("Activity"); setTaskTitle("Stretch Legs") }
+    else if(eventType==="Take Medication")   { setTaskIcon("Pill"); setTaskTitle("Medication"); }
+    else if(eventType==="Custom Event")      { setTaskIcon("CalendarDays");  setTaskTitle(""); }
     else if(eventType==="Personal Reminder"||eventType==="Custom Reminder"){ setTaskIcon("Bell"); setTaskTitle("Reminder") }
     else { setTaskIcon("CalendarDays"); setTaskTitle("") }
   },[eventType])
@@ -474,6 +382,7 @@ export function ScheduleView() {
 
   const activeEvents    = filteredTasks.filter(t=>t.is_event)
   const activeReminders = filteredTasks.filter(t=>!t.is_event)
+ 
   const currentList     = listView==="events" ? activeEvents : activeReminders
   const showViewAllButton = currentList.length>3
   const displayedList   = viewAll ? currentList : currentList.slice(0,3)
@@ -515,6 +424,7 @@ export function ScheduleView() {
     const dayNum = parseInt(selDayNum, 10)
     const hour   = parseInt(selHour, 10)
     const min    = parseInt(selMin, 10)
+   
     const pad = (n: number) => n.toString().padStart(2, "0")
     const localStr = `${year}-${pad(mi+1)}-${pad(dayNum)}T${pad(hour)}:${pad(min)}:00`
     let fireDate = new Date(localStr)
@@ -679,6 +589,7 @@ export function ScheduleView() {
           onSave={(tz) => { setSelectedTZ(tz); localStorage.setItem("xblum_tz_set", tz) }}
           onConfirm={handleSaveTZ}
           selectedTZ={selectedTZ}
+          onClose={() => setShowTZModal(false)}
         />
       )}
 
@@ -718,7 +629,7 @@ export function ScheduleView() {
           </div>
         </div>
 
-        {/* Sugerencias Biométricas - Más chicos y el primero más grande */}
+        {/* Sugerencias Biométricas */}
         <div className="mt-6 flex flex-col items-center gap-2.5 px-5">
           <div className="flex items-center gap-2 bg-[#1c1c1e] px-4 py-2 rounded-full border border-[#2c2c2e] w-[280px] justify-center">
             <Moon className="w-4 h-4 text-[#f59e0b]"/>
@@ -804,7 +715,7 @@ export function ScheduleView() {
               {/* CONTENEDOR UNIFICADO ACORDEÓN */}
               <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner">
                 <div className="flex flex-col divide-y divide-[#2c2c2e]">
-                  
+                
                   {/* Type */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("type")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
