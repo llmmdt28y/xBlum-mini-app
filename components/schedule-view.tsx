@@ -228,6 +228,7 @@ export function ScheduleView() {
   const { setCurrentView } = useApp()
   const [tasks,         setTasks]         = useState<ScheduleItem[]>([])
   const [loadingItems,  setLoadingItems]  = useState(true)
+  const [selectedDate,  setSelectedDate]  = useState<string|"All">("All")
   const [activeNavTab,  setActiveNavTab]  = useState<NavTab>("tasks")
   const [isEditingMode, setIsEditingMode] = useState(false)
   const [expandedIds,   setExpandedIds]   = useState<Record<string,boolean>>({})
@@ -252,7 +253,6 @@ export function ScheduleView() {
   const [attachedFiles, setAttachedFiles] = useState<{name:string;size:number}[]>([])
   const [extraConfig,   setExtraConfig]   = useState("")
 
-  // State to simulate marking tasks as completed
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({})
 
   const _initNow = useMemo(() => {
@@ -353,8 +353,27 @@ export function ScheduleView() {
     else { setTaskIcon("CalendarDays"); setTaskTitle("") }
   },[eventType])
 
-  const activeEvents    = tasks.filter(t=>t.is_event)
-  const activeReminders = tasks.filter(t=>!t.is_event)
+  const calendarDays = useMemo(()=>{
+    const arr=[]; const today=new Date(); const sow=new Date(today)
+    sow.setDate(today.getDate()-(today.getDay()||7)+1)
+    for(let i=0;i<7;i++){
+      const d=new Date(sow); d.setDate(sow.getDate()+i)
+      arr.push({full:d.toDateString(),label:d.toLocaleDateString('en-US',{weekday:'narrow'}),num:d.getDate().toString(),isToday:d.toDateString()===today.toDateString()})
+    }
+    return arr
+  },[])
+
+  const monthStr=new Date().toLocaleDateString('en-US',{month:'short'}).toUpperCase()
+  const yearStr =new Date().getFullYear().toString()
+
+  // Funcionalidad del calendario y filtrado restaurados
+  const filteredTasks=useMemo(()=>{
+    if(selectedDate==="All") return tasks
+    return tasks.filter(t=>{ try{ return new Date(t.fire_at).toDateString()===selectedDate }catch{return false} })
+  },[tasks,selectedDate])
+
+  const activeEvents    = filteredTasks.filter(t=>t.is_event)
+  const activeReminders = filteredTasks.filter(t=>!t.is_event)
 
   useEffect(()=>{
     const tg=(window as any).Telegram?.WebApp
@@ -461,7 +480,6 @@ export function ScheduleView() {
     }
 
     if (listType === "task") {
-      // DISEÑO ESTILO TASK (Checkbox + Línea Divisoria)
       return (
         <div className={`relative w-full border-b border-[#2c2c2e] last:border-0 ${isEditingMode&&!isSuggestion?'jiggle-card':''}`}>
           <div 
@@ -484,7 +502,6 @@ export function ScheduleView() {
       )
     }
 
-    // DISEÑO ESTILO REMINDER (Cápsula anidada)
     return (
       <div className={`relative w-full ${isEditingMode&&!isSuggestion?'jiggle-card':''}`}>
         <div className="bg-[#2c2c2e] rounded-[16px] px-4 py-3.5 flex flex-col transition-all duration-200 cursor-pointer" onClick={()=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'events';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Event");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleExpand(item.id) }}>
@@ -504,7 +521,6 @@ export function ScheduleView() {
             )}
           </div>
           
-          {/* Detalles expandidos */}
           {isExpanded&&!isSuggestion&&(
             <div className="mt-4 pt-4 border-t border-[#3a3a3c] flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200 pb-1 px-1">
               {item.description&&<div className="flex flex-col gap-1.5"><span className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider" style={{fontFamily:SF}}>Description</span><p className="text-[#e4e4e7] text-[14px] leading-relaxed" style={{fontFamily:SF}}>{item.description}</p></div>}
@@ -608,49 +624,80 @@ export function ScheduleView() {
 
       <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar pt-6">
         
-        {/* TEXTO EXACTO DE LA CABECERA (You have...) */}
-        <div className="px-6 mb-8 mt-4">
+        {/* Cabecera del Mes/Año del Calendario */}
+        <div className="pt-2 flex justify-center items-end gap-1">
+          <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
+          <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
+        </div>
+
+        {/* Calendario Semanal Interactivo */}
+        <div className="flex justify-between items-center px-6 mt-6">
+          <button onClick={()=>setSelectedDate("All")} className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate==="All"?"bg-white text-black":"bg-[#1c1c1e] text-[#8e8e93]"}`}>
+            <span className="text-[14px] font-bold" style={{fontFamily:SF}}>All</span>
+          </button>
+          <div className="w-px h-8 bg-[#2c2c2e] mx-1 shrink-0"/>
+          {calendarDays.map((day,idx)=>{
+            const isSel=selectedDate===day.full
+            let dotClass=""
+            if(isSel) dotClass="bg-blue-500"
+            else if(day.isToday) dotClass="bg-[#ef4444]"
+            return (
+              <button key={idx} onClick={()=>setSelectedDate(day.full)} className={`flex flex-col items-center gap-1.5 relative w-10 transition-all ${isSel?"opacity-100":"opacity-60"}`}>
+                <div className={`w-1.5 h-1.5 rounded-full transition-colors ${dotClass}`} style={{opacity:dotClass?1:0}}/>
+                <span className={`text-[12px] font-medium ${isSel?"text-white":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>{day.label}</span>
+                <span className={`text-[16px] font-bold ${isSel?"text-white":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>{day.num}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* TEXTO DE CABECERA (You have...) DINAMICO */}
+        <div className="px-6 mb-8 mt-10">
           <h1 className="text-[28px] font-medium leading-[1.3] tracking-tight" style={{fontFamily: SFD}}>
             <span className="text-[#8e8e93]">You have </span>
-            <span className="text-white inline-flex items-center gap-1"><Lightbulb className="w-6 h-6 text-[#f59e0b]" strokeWidth={2.5}/> {activeReminders.length||SUGGESTIONS.filter(s=>s.type==='reminder').length} reminders</span>
+            <span className="text-white inline-flex items-center gap-1"><Lightbulb className="w-6 h-6 text-[#f59e0b]" strokeWidth={2.5}/> {activeReminders.length||(selectedDate === "All" && filteredTasks.length === 0 ? SUGGESTIONS.filter(s=>s.type==='reminder').length : 0)} reminders</span>
             <br/>
             <span className="text-[#8e8e93]">and </span>
-            <span className="text-white inline-flex items-center gap-1"><CheckSquare className="w-6 h-6 text-[#3b82f6]" strokeWidth={2.5}/> {activeEvents.length||SUGGESTIONS.filter(s=>s.type==='task').length} tasks</span>
-            <span className="text-[#8e8e93]"> today</span>
+            <span className="text-white inline-flex items-center gap-1"><CheckSquare className="w-6 h-6 text-[#3b82f6]" strokeWidth={2.5}/> {activeEvents.length||(selectedDate === "All" && filteredTasks.length === 0 ? SUGGESTIONS.filter(s=>s.type==='task').length : 0)} tasks</span>
+            <span className="text-[#8e8e93]">{selectedDate === "All" ? " today" : " on this day"}</span>
           </h1>
         </div>
 
-        {/* LISTA PRINCIPAL (REDISENADA ESTILO CAPTURAS) */}
+        {/* LISTA PRINCIPAL */}
         <div className="px-5 pb-10 flex flex-col gap-6">
           {loadingItems ? (
             <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-[#8e8e93]"/></div>
-          ) : tasks.length === 0 ? (
+          ) : filteredTasks.length === 0 ? (
             <div className="flex flex-col gap-6 animate-in fade-in duration-500">
-               {/* SUGGESTIONS COMO PLACEHOLDERS CON EL NUEVO DISEÑO */}
+               {/* Mostrar Sugerencias si no hay tareas (principalmente en la vista "All") */}
                <div className="bg-[#1c1c1e] rounded-[28px] p-5">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Reminders</h3>
-                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have 1 new reminder today</p>
+                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have no new reminders</p>
                     </div>
                     <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
-                  <div className="flex flex-col gap-2.5">
-                    {SUGGESTIONS.filter(s=>s.type==='reminder').map((sug,idx)=><TaskCard key={idx} item={sug} isSuggestion={true} listType="reminder"/>)}
-                  </div>
+                  {selectedDate === "All" && (
+                    <div className="flex flex-col gap-2.5">
+                      {SUGGESTIONS.filter(s=>s.type==='reminder').map((sug,idx)=><TaskCard key={idx} item={sug} isSuggestion={true} listType="reminder"/>)}
+                    </div>
+                  )}
                </div>
                
                <div className="bg-[#1c1c1e] rounded-[28px] p-5">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Daily Tasks</h3>
-                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have 1 task today</p>
+                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have no tasks</p>
                     </div>
                     <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
-                  <div className="flex flex-col">
-                    {SUGGESTIONS.filter(s=>s.type==='task').map((sug,idx)=><TaskCard key={idx} item={sug} isSuggestion={true} listType="task"/>)}
-                  </div>
+                  {selectedDate === "All" && (
+                    <div className="flex flex-col">
+                      {SUGGESTIONS.filter(s=>s.type==='task').map((sug,idx)=><TaskCard key={idx} item={sug} isSuggestion={true} listType="task"/>)}
+                    </div>
+                  )}
                </div>
             </div>
           ) : (
@@ -662,7 +709,7 @@ export function ScheduleView() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Reminders</h3>
-                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeReminders.length} new reminder{activeReminders.length!==1?'s':''} today</p>
+                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeReminders.length} reminder{activeReminders.length!==1?'s':''} {selectedDate === "All" ? "today" : "on this day"}</p>
                     </div>
                     <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
@@ -678,7 +725,7 @@ export function ScheduleView() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Daily Tasks</h3>
-                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeEvents.length} task{activeEvents.length!==1?'s':''} today</p>
+                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeEvents.length} task{activeEvents.length!==1?'s':''} {selectedDate === "All" ? "today" : "on this day"}</p>
                     </div>
                     <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
