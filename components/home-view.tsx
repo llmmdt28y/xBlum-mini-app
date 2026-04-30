@@ -1,8 +1,8 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell, Mail, Send, RefreshCw } from "lucide-react"
-import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, Bell } from "lucide-react"
+import { useState, useRef, useEffect, useCallback } from "react"
 
 type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
 
@@ -78,10 +78,10 @@ export function HomeView() {
 
   const handleScheduleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget
-    // La altura del contenedor es 34px. Redondeamos para saber qué index está activo.
+    // La altura del contenedor es exactamente 32px para hacer match con el snap
     const index = Math.min(
       SCHEDULE_MOCK_ITEMS.length - 1,
-      Math.max(0, Math.round(el.scrollTop / 34))
+      Math.max(0, Math.round(el.scrollTop / 32))
     )
     if (SCHEDULE_MOCK_ITEMS[index] && SCHEDULE_MOCK_ITEMS[index].color !== activeScheduleColor) {
       setActiveScheduleColor(SCHEDULE_MOCK_ITEMS[index].color)
@@ -146,18 +146,18 @@ export function HomeView() {
       className="flex-1 flex flex-col items-center px-4 pb-28 bg-black select-none"
       style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)" }}
     >
-      {/* Definición de Keyframes para las Estrellas */}
+      {/* ── Keyframes Globales ── */}
       <style>{`
         @keyframes spin-slow { 100% { transform: rotate(360deg); } }
         @keyframes spin-slow-reverse { 100% { transform: rotate(-360deg); } }
-        @keyframes pulse-glow { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
+        @keyframes pulse-glow { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
         
-        .star-1 { animation: spin-slow 8s linear infinite, pulse-glow 3s ease-in-out infinite; }
-        .star-2 { animation: spin-slow-reverse 6s linear infinite, pulse-glow 4s ease-in-out infinite 1s; }
-        .star-3 { animation: spin-slow 10s linear infinite, pulse-glow 3.5s ease-in-out infinite 0.5s; }
-        .star-4 { animation: spin-slow-reverse 7s linear infinite, pulse-glow 2.5s ease-in-out infinite 1.5s; }
+        .star-1 { animation: spin-slow 12s linear infinite, pulse-glow 4s ease-in-out infinite; }
+        .star-2 { animation: spin-slow-reverse 10s linear infinite, pulse-glow 3s ease-in-out infinite 1s; }
+        .star-3 { animation: spin-slow 14s linear infinite, pulse-glow 5s ease-in-out infinite 0.5s; }
         
         .snap-always { scroll-snap-stop: always; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>
 
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
@@ -269,64 +269,56 @@ export function HomeView() {
           <div 
             ref={carouselRef}
             onScroll={handleScroll}
-            className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto"
-            style={{ scrollbarWidth: "none" }}
+            className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto no-scrollbar"
           >
-            {/* ── Schedule Banner Dinámico (NUEVO DISEÑO) ── */}
+            {/* ── Schedule Banner Dinámico (NUEVO DISEÑO PREMIUM) ── */}
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px] pr-2">
                 <div
                   onClick={() => setCurrentView("schedule")}
                   className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-all text-left cursor-pointer flex items-center px-5 gap-5"
                   style={{
-                      background: "#060606",
-                      border: "1px solid #1e1e1e",
+                      background: "#0a0a0a", // Fondo base un pelín más claro para contraste
+                      border: "1px solid #1c1c1e",
                       borderRadius: "24px",
-                      height: "100px",
+                      height: "105px",
                   }}
                 >
                   {/* Degradado de Fondo Dinámico */}
                   <div 
-                    className="absolute inset-0 pointer-events-none transition-colors duration-500" 
-                    style={{ background: `radial-gradient(ellipse at 50% 50%, ${activeScheduleColor}25 0%, transparent 70%)` }} 
+                    className="absolute inset-0 pointer-events-none transition-colors duration-700" 
+                    style={{ background: `radial-gradient(ellipse at 85% 50%, ${activeScheduleColor}25 0%, transparent 65%)` }} 
                   />
 
-                  {/* Estrellas Dinámicas Agrupadas estilo "Coins" */}
-                  <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
-                    <img src="/star-icon.png" alt="" className="star-1 absolute top-[-5px] right-2 w-[48px] h-[48px] opacity-80" style={{ filter: `drop-shadow(0 0 12px ${activeScheduleColor})` }}/>
-                    <img src="/star-icon.png" alt="" className="star-2 absolute top-[35px] right-6 w-[56px] h-[56px]" style={{ filter: `drop-shadow(0 0 16px ${activeScheduleColor})` }}/>
-                    <img src="/star-icon.png" alt="" className="star-3 absolute top-[15px] right-[65px] w-[36px] h-[36px] opacity-90" style={{ filter: `drop-shadow(0 0 8px ${activeScheduleColor})` }}/>
-                    <img src="/star-icon.png" alt="" className="star-4 absolute bottom-[-5px] right-[-10px] w-[42px] h-[42px] opacity-70" style={{ filter: `drop-shadow(0 0 10px ${activeScheduleColor})` }}/>
+                  {/* Icono de Campana Limpio (Sin contenedor) */}
+                  <div className="relative z-10 flex items-center justify-center shrink-0 ml-1">
+                    <Bell className="w-[34px] h-[34px] text-white" strokeWidth={1.5} />
+                    <div className="absolute top-[2px] right-[2px] w-3 h-3 rounded-full bg-[#ef4444] border-2 border-[#0a0a0a]"></div>
                   </div>
 
-                  {/* Contenido (Icono + Textos) */}
-                  <div className="relative z-10 flex items-center justify-center shrink-0">
-                    <Bell className="w-11 h-11 text-white drop-shadow-md" strokeWidth={1.5} />
-                    <div className="absolute top-[2px] right-[6px] w-3 h-3 rounded-full bg-[#ef4444] border-2 border-[#060606] shadow-sm"></div>
-                  </div>
-
-                  <div className="relative z-10 flex flex-col flex-1 min-w-0 pr-16 pb-0.5">
-                    <h3 className="text-white font-bold text-[18px] leading-tight mb-1" style={{ fontFamily: SFD }}>Schedules</h3>
+                  {/* Textos y Cápsulas */}
+                  <div className="relative z-10 flex flex-col flex-1 min-w-0 pr-16 justify-center mt-1">
+                    <h3 className="text-white font-semibold text-[17px] leading-tight mb-1.5" style={{ fontFamily: SFD }}>Schedules</h3>
                     
-                    {/* Contenedor Deslizable de Cápsulas de a 1 en 1 */}
+                    {/* Contenedor Deslizable - Altura exacta para snap 1 a 1 */}
                     <div 
                       onScroll={handleScheduleScroll}
-                      onClick={(e) => e.stopPropagation()} // Previene que al deslizar la cápsula te mande de vista
-                      className="h-[34px] overflow-y-auto snap-y snap-mandatory no-scrollbar w-full"
+                      onClick={(e) => e.stopPropagation()} 
+                      className="h-[32px] overflow-y-auto snap-y snap-mandatory no-scrollbar w-full"
                       style={{ scrollBehavior: 'smooth' }}
                     >
                       <div className="flex flex-col">
                         {SCHEDULE_MOCK_ITEMS.map((item) => (
-                          <div key={item.id} className="h-[34px] snap-center snap-always flex items-center shrink-0">
+                          <div key={item.id} className="h-[32px] snap-center snap-always flex items-center shrink-0">
                             <button
                               onClick={() => setCurrentView("schedule")}
-                              className="flex items-center gap-2 px-3 py-1.5 rounded-full border max-w-full active:scale-95 transition-transform"
+                              className="flex items-center gap-2 px-3 py-1 rounded-full border max-w-full active:scale-95 transition-all"
                               style={{ 
                                 background: `${item.color}15`, 
                                 borderColor: `${item.color}30`,
                               }}
                             >
                                <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                               <span className="text-[13px] font-medium truncate" style={{ color: item.color, fontFamily: SF }}>
+                               <span className="text-[12px] font-medium truncate" style={{ color: item.color, fontFamily: SF }}>
                                  {item.time} • {item.title}
                                </span>
                             </button>
@@ -334,6 +326,16 @@ export function HomeView() {
                         ))}
                       </div>
                     </div>
+                  </div>
+
+                  {/* Estrellas Agrupadas Estilo Constelación */}
+                  <div className="absolute right-0 top-0 bottom-0 w-[110px] pointer-events-none select-none overflow-hidden">
+                    {/* Estrella Principal */}
+                    <img src="/star-icon.png" alt="" className="star-1 absolute top-[18px] right-[16px] w-[54px] h-[54px] opacity-90 transition-all duration-700" style={{ filter: `drop-shadow(0 0 16px ${activeScheduleColor}90)` }}/>
+                    {/* Estrella Secundaria */}
+                    <img src="/star-icon.png" alt="" className="star-2 absolute top-[12px] right-[72px] w-[26px] h-[26px] opacity-70 transition-all duration-700" style={{ filter: `drop-shadow(0 0 10px ${activeScheduleColor}70)` }}/>
+                    {/* Estrella Terciaria */}
+                    <img src="/star-icon.png" alt="" className="star-3 absolute bottom-[18px] right-[58px] w-[32px] h-[32px] opacity-80 transition-all duration-700" style={{ filter: `drop-shadow(0 0 12px ${activeScheduleColor}80)` }}/>
                   </div>
 
                 </div>
@@ -345,35 +347,35 @@ export function HomeView() {
                 onClick={() => setCurrentView("referral")}
                 className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left"
                 style={{
-                    background: "#060606",
-                    border: "1px solid #1e1e1e",
+                    background: "#0a0a0a",
+                    border: "1px solid #1c1c1e",
                     borderRadius: "24px",
-                    height: "100px",
+                    height: "105px",
                 }}
                 >
                     <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 55%)" }} />
                     <div className="relative z-10 flex items-center justify-between h-full px-5">
-                        <div className="flex flex-col gap-2">
-                        <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Invite a Friend & Get<br />Free Tokens</p>
-                        <div
-                            className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden"
-                            style={{
-                            background: "rgba(255,255,255,0.07)",
-                            backdropFilter: "blur(16px) saturate(180%)",
-                            WebkitBackdropFilter: "blur(16px) saturate(180%)",
-                            border: "1px solid rgba(255,255,255,0.13)",
-                            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
-                            }}
-                        >
-                            <div className="absolute inset-x-2 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)" }} />
-                            <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite</span>
-                            <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
+                        <div className="flex flex-col gap-2.5">
+                          <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Invite a Friend & Get<br />Free Tokens</p>
+                          <div
+                              className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden"
+                              style={{
+                              background: "rgba(255,255,255,0.07)",
+                              backdropFilter: "blur(16px) saturate(180%)",
+                              WebkitBackdropFilter: "blur(16px) saturate(180%)",
+                              border: "1px solid rgba(255,255,255,0.13)",
+                              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
+                              }}
+                          >
+                              <div className="absolute inset-x-2 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)" }} />
+                              <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite</span>
+                              <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
+                          </div>
                         </div>
-                        </div>
-                        <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "96px" }}>
-                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "46px", height: "46px", top: "-10px", right: "4px", opacity: 0.55, transform: "rotate(18deg)", filter: "brightness(0.75)" }} />
+                        <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "105px" }}>
+                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "46px", height: "46px", top: "-5px", right: "4px", opacity: 0.55, transform: "rotate(18deg)", filter: "brightness(0.75)" }} />
                             <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "68px", height: "68px", top: "50%", left: "0px", transform: "translateY(-50%) rotate(-18deg)", opacity: 1, filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))" }} />
-                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "44px", height: "44px", bottom: "2px", right: "6px", opacity: 0.6, transform: "rotate(-8deg)", filter: "brightness(0.8)" }} />
+                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "44px", height: "44px", bottom: "4px", right: "6px", opacity: 0.6, transform: "rotate(-8deg)", filter: "brightness(0.8)" }} />
                         </div>
                     </div>
                 </button>
@@ -447,7 +449,7 @@ export function HomeView() {
           
           <div className="pt-16 pb-2" />
 
-          <div className="flex-1 overflow-y-auto px-4 pb-12 space-y-1">
+          <div className="flex-1 overflow-y-auto px-4 pb-12 space-y-1 no-scrollbar">
             {TOPICS_DATA.map((topic) => (
               <button
                 key={topic.id}
@@ -504,7 +506,7 @@ export function HomeView() {
               <X className="w-5 h-5 text-white" />
             </button>
 
-            <div className="pt-10 pb-4 overflow-y-auto flex-1">
+            <div className="pt-10 pb-4 overflow-y-auto flex-1 no-scrollbar">
 
               {/* Private Mode Modal */}
               {exploreModal === "private" && (
