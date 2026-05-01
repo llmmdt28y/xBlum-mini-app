@@ -168,25 +168,6 @@ function TZPickerModal({ onSave, onConfirm, selectedTZ, onClose }: { onSave: (tz
         </div>
 
         <div className="flex-1 overflow-y-auto no-scrollbar pb-6 space-y-4">
-          <div className="bg-[#1c1c1e] rounded-[24px] p-2 shadow-inner">
-            <button
-              onClick={() => {
-                const detected = Intl.DateTimeFormat().resolvedOptions().timeZone
-                const match = TZ_LIST.find(t => t.value === detected)
-                if (match) { setPicked(match.value); onSave(match.value); setQuery("") }
-              }}
-              className="w-full flex items-center justify-between p-4 active:bg-[#2c2c2e] rounded-xl transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <Zap className="w-[20px] h-[20px] text-yellow-400" />
-                <span className="text-white text-[16px] font-medium" style={{fontFamily:SF}}>Auto-detect</span>
-              </div>
-              <span className="text-[#8e8e93] text-[14px] truncate max-w-[140px]" style={{fontFamily:SF}}>
-                {Intl.DateTimeFormat().resolvedOptions().timeZone.split("/").pop()?.replace("_"," ")}
-              </span>
-            </button>
-          </div>
-
           <div className="flex items-center gap-3 bg-[#1c1c1e] rounded-full px-5 py-3.5 border border-[#2c2c2e]">
             <Search className="w-[18px] h-[18px] text-[#636366] shrink-0" />
             <input type="text" placeholder="Search zone or UTC..." value={query} onChange={e => setQuery(e.target.value)} className="bg-transparent text-white text-[15px] flex-1 outline-none placeholder-[#636366]" style={{fontFamily:SF}}/>
