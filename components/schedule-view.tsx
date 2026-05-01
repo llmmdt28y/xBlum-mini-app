@@ -8,7 +8,7 @@ import {
   CheckSquare, Mail, Type, AlignLeft, AtSign, Folder, ThumbsUp, ThumbsDown,
   Dumbbell, Briefcase, Laptop, Utensils, MessageSquare, Coffee, ChevronDown, ChevronUp, Paperclip,
   Droplets, Pill, Activity, Link as LinkIcon, RefreshCcw, CheckCircle2, AlertCircle, Globe, Zap,
-  Lightbulb, Check
+  Lightbulb, Check, Repeat, Pin
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -40,6 +40,10 @@ interface ScheduleItem {
   description: string; extra: string; email_to: string; files: {name:string;size:number}[]
   is_event: boolean;
   fire_at: string; alert_offset_min: number; status: string
+  is_pinned?: boolean;
+  is_high_priority?: boolean;
+  repeat_type?: string;
+  repeat_days?: string[];
 }
 
 const ICONS: Record<string, React.ElementType> = {
@@ -56,6 +60,8 @@ const ICON_COLORS: Record<string, string> = {
 
 const SCHEDULE_OPTIONS = ["Custom Schedule","Schedule Email","Drive Upload","Workout / Gym","Deep Work","Meal Time","Send Message"]
 const REMINDER_OPTIONS = ["Personal Reminder","Drink Water","Stand Up / Stretch","Take Medication","Custom Reminder"]
+const REPEAT_OPTIONS   = ["Does not repeat", "Daily", "Weekly", "Monthly"]
+const WEEK_DAYS        = [{label:'M',val:'Mon'},{label:'T',val:'Tue'},{label:'W',val:'Wed'},{label:'T',val:'Thu'},{label:'F',val:'Fri'},{label:'S',val:'Sat'},{label:'S',val:'Sun'}]
 
 const TZ_LIST: { label: string; value: string; offset: string }[] = [
   { label: "Pacific Time (US/Canada)", value: "America/Los_Angeles", offset: "UTC−8" },
@@ -96,8 +102,8 @@ const ONBOARDING_CARDS_DATA = [
 ]
 
 const SUGGESTIONS = [
-  { id:"sug_tg",    title:"Order vitamin D", time:"Today",          iconName:"Lightbulb", color:"#fb7185", type:"reminder" },
-  { id:"sug_email", title:"Read project brief", time:"30 min",      iconName:"Briefcase", color:"#3b82f6", type:"schedule" },
+  { id:"sug_tg",    title:"Order vitamin D", time:"Today",          iconName:"Lightbulb", color:"#fb7185", type:"reminder", is_suggestion: true },
+  { id:"sug_email", title:"Read project brief", time:"30 min",      iconName:"Briefcase", color:"#3b82f6", type:"schedule", is_suggestion: true },
 ]
 
 const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
@@ -254,6 +260,12 @@ export function ScheduleView() {
   const [taskEmailRec,  setTaskEmailRec]  = useState("")
   const [attachedFiles, setAttachedFiles] = useState<{name:string;size:number}[]>([])
   const [extraConfig,   setExtraConfig]   = useState("")
+  
+  // Nuvos estados de CRON y Prioridad
+  const [selRepeat,     setSelRepeat]     = useState("Does not repeat")
+  const [repeatDays,    setRepeatDays]    = useState<string[]>([])
+  const [isPriority,    setIsPriority]    = useState(false)
+  const [isPinned,      setIsPinned]      = useState(false)
 
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({})
 
@@ -341,6 +353,8 @@ export function ScheduleView() {
   useEffect(()=>{
     setExtraConfig(""); setAttachedFiles([]); 
     setSelRemMin("00"); setSelRemSec("00");
+    setSelRepeat("Does not repeat"); setRepeatDays([]);
+    setIsPriority(false); setIsPinned(false);
     
     if(eventType==="Workout / Gym")          { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); }
     else if(eventType==="Deep Work")         { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); }
@@ -374,8 +388,18 @@ export function ScheduleView() {
     return tasks.filter(t=>{ try{ return new Date(t.fire_at).toDateString()===selectedDate }catch{return false} })
   },[tasks,selectedDate])
 
-  const activeSchedules = filteredTasks.filter(t=>t.is_event)
-  const activeReminders = filteredTasks.filter(t=>!t.is_event)
+  const sortItems = (arr: any[]) => {
+    return [...arr].sort((a, b) => {
+      // 1. Pinned items siempre arriba
+      if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
+      // 2. High priority después
+      if (a.is_high_priority !== b.is_high_priority) return a.is_high_priority ? -1 : 1;
+      return 0;
+    });
+  }
+
+  const activeSchedules = sortItems(filteredTasks.filter(t=>t.is_event))
+  const activeReminders = sortItems(filteredTasks.filter(t=>!t.is_event))
 
   useEffect(()=>{
     const tg=(window as any).Telegram?.WebApp
@@ -443,6 +467,7 @@ export function ScheduleView() {
         color:ICON_COLORS[taskIcon]||"#3b82f6", description:taskDesc, extra:extraConfig,
         email_to:taskEmailRec, files:attachedFiles, is_event:creationMode==="schedules",
         fire_at:buildFireAt(), alert_offset_min:parseInt(selRemMin)||0, chat_id:chatId, thread_id:null,
+        is_pinned: isPinned, is_high_priority: isPriority, repeat_type: selRepeat, repeat_days: repeatDays
       })
       if(data.success){
         showToast("Saved! Telegram will notify you 🔔","success")
@@ -483,17 +508,20 @@ export function ScheduleView() {
       return (
         <div className={`relative w-full border-b border-[#2c2c2e] last:border-0 ${isEditingMode&&!isSuggestion?'jiggle-card':''}`}>
           <div 
-            className="flex items-center justify-between py-3.5 cursor-pointer" 
+            className={`flex items-center justify-between py-3.5 cursor-pointer px-2 rounded-xl transition-all ${item.is_pinned ? 'bg-[#f59e0b]/10' : ''}`}
             onClick={(e)=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'schedules';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Schedule");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleCompleted(item.id, e) }}
           >
             <div className="flex items-center gap-4 flex-1 overflow-hidden">
-              <div className={`w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${isCompleted ? 'bg-[#3a3a3c] border-[#3a3a3c]' : 'border-[#636366]'}`}>
+              <div className={`w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${isCompleted ? 'bg-[#3a3a3c] border-[#3a3a3c]' : (item.is_high_priority ? 'border-red-500' : 'border-[#636366]')}`}>
                  {isCompleted && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3}/>}
               </div>
-              <span className={`text-[15px] font-medium truncate transition-colors ${isCompleted ? 'text-[#636366] line-through' : 'text-white'}`} style={{fontFamily:SF}}>{item.title}</span>
+              <div className="flex items-center gap-2 truncate">
+                <span className={`text-[15px] font-medium truncate transition-colors ${isCompleted ? 'text-[#636366] line-through' : (item.is_high_priority ? 'text-red-400' : 'text-white')}`} style={{fontFamily:SF}}>{item.title}</span>
+                {item.is_pinned && <Pin className="w-3.5 h-3.5 text-yellow-500 shrink-0" fill="currentColor"/>}
+              </div>
             </div>
             {isEditingMode&&!isSuggestion&&(
-              <button onClick={(e)=>{e.stopPropagation(); handleDelete(item.id)}} className="shrink-0 p-1.5 active:scale-90 transition-transform">
+              <button onClick={(e)=>{e.stopPropagation(); handleDelete(item.id)}} className="shrink-0 p-1.5 active:scale-90 transition-transform ml-2">
                 <Trash2 className="w-[16px] h-[16px] text-red-500"/>
               </button>
             )}
@@ -504,12 +532,15 @@ export function ScheduleView() {
 
     return (
       <div className={`relative w-full ${isEditingMode&&!isSuggestion?'jiggle-card':''}`}>
-        <div className="bg-[#2c2c2e] rounded-[16px] px-4 py-3.5 flex flex-col transition-all duration-200 cursor-pointer" onClick={()=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'schedules';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Schedule");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleExpand(item.id) }}>
+        <div className={`bg-[#2c2c2e] rounded-[16px] px-4 py-3.5 flex flex-col transition-all duration-200 cursor-pointer ${item.is_pinned ? 'border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : ''}`} onClick={()=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'schedules';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Schedule");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleExpand(item.id) }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1 overflow-hidden">
-              <span className="text-[#8e8e93] text-[13px] font-medium w-[45px] shrink-0 truncate text-left" style={{fontFamily:SF}}>{displayTime}</span>
-              <div className="w-[3px] h-[16px] rounded-full shrink-0" style={{backgroundColor: color}}/>
-              <span className="text-[15px] font-medium text-white truncate" style={{fontFamily:SF}}>{item.title}</span>
+              <span className={`text-[13px] font-medium w-[45px] shrink-0 truncate text-left ${item.is_high_priority ? 'text-red-400' : 'text-[#8e8e93]'}`} style={{fontFamily:SF}}>{displayTime}</span>
+              <div className="w-[3px] h-[16px] rounded-full shrink-0" style={{backgroundColor: item.is_high_priority ? '#ef4444' : color}}/>
+              <div className="flex items-center gap-2 truncate">
+                <span className="text-[15px] font-medium text-white truncate" style={{fontFamily:SF}}>{item.title}</span>
+                {item.is_pinned && <Pin className="w-3.5 h-3.5 text-yellow-500 shrink-0" fill="currentColor"/>}
+              </div>
             </div>
             
             {(item.extra || isSuggestion) && (
@@ -848,16 +879,35 @@ export function ScheduleView() {
                       </div>
                     )}
                   </div>
-                  
-                  {/* Time Zone */}
+
+                  {/* Repeat (CRON) */}
                   <div className="flex flex-col">
-                    <button onClick={()=>setShowTZModal(true)} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
+                    <button onClick={()=>togglePicker("repeat")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3">
-                        <Globe className="w-[20px] h-[20px] text-[#8e8e93]"/>
-                        <span className="text-white text-[16px] font-medium">Time Zone</span>
+                        <Repeat className="w-[20px] h-[20px] text-[#8e8e93]"/>
+                        <span className="text-white text-[16px] font-medium">Repeat</span>
                       </div>
-                      <span className="text-[#8e8e93] text-[16px] truncate max-w-[120px]">{selectedTZ ? selectedTZ.split('/').pop()?.replace('_', ' ') : 'Select...'}</span>
+                      <span className="text-[#8e8e93] text-[16px] truncate max-w-[120px]">{selRepeat}</span>
                     </button>
+                    {activePicker==="repeat"&&(
+                      <div className="flex flex-col py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
+                        <div className="wheel-mask">
+                          <WheelPicker items={REPEAT_OPTIONS} value={selRepeat} onChange={setSelRepeat}/>
+                        </div>
+                        {selRepeat === "Weekly" && (
+                          <div className="flex justify-center gap-2 mt-4 px-4 pt-4 border-t border-[#1c1c1e]">
+                            {WEEK_DAYS.map(d => {
+                               const isSel = repeatDays.includes(d.val);
+                               return (
+                                 <button key={d.val} onClick={() => setRepeatDays(p => p.includes(d.val) ? p.filter(x=>x!==d.val) : [...p, d.val])} className={`w-9 h-9 flex items-center justify-center rounded-full font-bold text-[13px] transition-all ${isSel ? 'bg-blue-500 text-white shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'bg-[#1c1c1e] text-[#636366]'}`}>
+                                    {d.label}
+                                 </button>
+                               )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Dynamic Fields */}
@@ -924,7 +974,7 @@ export function ScheduleView() {
                     </div>
                   )}
 
-                  {/* Reminders / Alert Offset */}
+                  {/* Alert Offset */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("reminder")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3">
@@ -943,6 +993,29 @@ export function ScheduleView() {
                     )}
                   </div>
 
+                </div>
+              </div>
+
+              {/* ── PRIORITY & PIN ── */}
+              <div className="bg-[#1c1c1e] rounded-[28px] p-2 flex flex-col gap-1">
+                <div className="flex items-center justify-between p-3">
+                  <div className="flex items-center gap-3">
+                     <AlertCircle className={`w-[20px] h-[20px] ${isPriority ? 'text-red-500' : 'text-[#8e8e93]'}`} />
+                     <span className="text-white text-[16px] font-medium">High Priority</span>
+                  </div>
+                  <button onClick={() => setIsPriority(!isPriority)} className={`w-12 h-7 rounded-full transition-colors flex items-center px-1 shrink-0 ${isPriority ? 'bg-red-500' : 'bg-[#3a3a3c]'}`}>
+                    <div className={`w-5 h-5 rounded-full bg-white transition-transform ${isPriority ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+                <div className="w-full h-px bg-[#2c2c2e]"/>
+                <div className="flex items-center justify-between p-3">
+                  <div className="flex items-center gap-3">
+                     <Pin className={`w-[20px] h-[20px] ${isPinned ? 'text-yellow-500' : 'text-[#8e8e93]'}`} />
+                     <span className="text-white text-[16px] font-medium">Pin to Top</span>
+                  </div>
+                  <button onClick={() => setIsPinned(!isPinned)} className={`w-12 h-7 rounded-full transition-colors flex items-center px-1 shrink-0 ${isPinned ? 'bg-yellow-500' : 'bg-[#3a3a3c]'}`}>
+                    <div className={`w-5 h-5 rounded-full bg-white transition-transform ${isPinned ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </button>
                 </div>
               </div>
 
