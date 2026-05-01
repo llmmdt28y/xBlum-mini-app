@@ -270,7 +270,9 @@ export function ScheduleView() {
   const [selMin,   setSelMin]   = useState(_initNow.m)
   const [selMonth, setSelMonth] = useState(_initNow.mo)
   const [selDayNum,setSelDayNum]= useState(_initNow.day)
-  const [selRemMin,setSelRemMin]= useState("10")
+  
+  // Ahora por defecto es 0 minutos, 0 segundos
+  const [selRemMin,setSelRemMin]= useState("00")
   const [selRemSec,setSelRemSec]= useState("00")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -338,7 +340,10 @@ export function ScheduleView() {
   useEffect(()=>{ fetchItems() },[fetchItems])
 
   useEffect(()=>{
-    setExtraConfig(""); setAttachedFiles([])
+    setExtraConfig(""); setAttachedFiles([]); 
+    // Reseteamos el Alert Offset cuando cambian de tipo
+    setSelRemMin("00"); setSelRemSec("00");
+    
     if(eventType==="Workout / Gym")          { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); }
     else if(eventType==="Deep Work")         { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); }
     else if(eventType==="Meal Time")         { setTaskIcon("Utensils"); setTaskTitle("Lunch Break"); }
@@ -936,7 +941,9 @@ export function ScheduleView() {
                         <Bell className="w-[20px] h-[20px] text-[#8e8e93]"/>
                         <span className="text-white text-[16px] font-medium">Alert Offset</span>
                       </div>
-                      <span className="text-[#8e8e93] text-[16px]">{selRemMin}m {selRemSec}s</span>
+                      <span className="text-[#8e8e93] text-[16px]">
+                        {selRemMin === "00" && selRemSec === "00" ? "At time of event" : `${parseInt(selRemMin, 10)}m ${parseInt(selRemSec, 10)}s`}
+                      </span>
                     </button>
                     {activePicker==="reminder"&&(
                       <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
