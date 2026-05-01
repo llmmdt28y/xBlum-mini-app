@@ -17,7 +17,7 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
 
 type NavTab = "tasks" | "edit" | "search" | "create"
-type ListViewTab = "events" | "reminders"
+type ListViewTab = "schedules" | "reminders"
 
 function getTg() { return (window as any).Telegram?.WebApp }
 
@@ -35,9 +35,11 @@ async function apiPost(endpoint: string, body: Record<string, unknown>) {
 }
 
 interface ScheduleItem {
-  id: number; title: string; event_type: string; icon_name: string; color: string
+  id: number;
+  title: string; event_type: string; icon_name: string; color: string
   description: string; extra: string; email_to: string; files: {name:string;size:number}[]
-  is_event: boolean; fire_at: string; alert_offset_min: number; status: string
+  is_event: boolean;
+  fire_at: string; alert_offset_min: number; status: string
 }
 
 const ICONS: Record<string, React.ElementType> = {
@@ -52,7 +54,7 @@ const ICON_COLORS: Record<string, string> = {
   Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b"
 }
 
-const EVENT_OPTIONS    = ["Custom Event","Schedule Email","Drive Upload","Workout / Gym","Deep Work","Meal Time","Send Message"]
+const SCHEDULE_OPTIONS = ["Custom Schedule","Schedule Email","Drive Upload","Workout / Gym","Deep Work","Meal Time","Send Message"]
 const REMINDER_OPTIONS = ["Personal Reminder","Drink Water","Stand Up / Stretch","Take Medication","Custom Reminder"]
 
 const TZ_LIST: { label: string; value: string; offset: string }[] = [
@@ -74,10 +76,10 @@ const TZ_LIST: { label: string; value: string; offset: string }[] = [
 
 const ONBOARDING_CARDS_DATA = [
   { 
-    id: 1, title: "Smart Events", icon: CalendarDays, color: "#ffffff",
+    id: 1, title: "Smart Schedules", icon: CalendarDays, color: "#ffffff",
     bgGradient: "radial-gradient(circle at center, rgba(30,58,138,0.4) 0%, rgba(5,5,5,0) 70%)",
     cardGradient: "linear-gradient(145deg, #2563eb, #1e3a8a)",
-    desc: "Schedule events seamlessly and keep your entire agenda perfectly organized."
+    desc: "Schedule tasks seamlessly and keep your entire agenda perfectly organized."
   },
   { 
     id: 2, title: "Reminders", icon: Bell, color: "#ffffff", isReminder: true,
@@ -95,7 +97,7 @@ const ONBOARDING_CARDS_DATA = [
 
 const SUGGESTIONS = [
   { id:"sug_tg",    title:"Order vitamin D", time:"Today",          iconName:"Lightbulb", color:"#fb7185", type:"reminder" },
-  { id:"sug_email", title:"Read project brief", time:"30 min",      iconName:"Briefcase", color:"#3b82f6", type:"task" },
+  { id:"sug_email", title:"Read project brief", time:"30 min",      iconName:"Briefcase", color:"#3b82f6", type:"schedule" },
 ]
 
 const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
@@ -244,8 +246,8 @@ export function ScheduleView() {
   const [loading,       setLoading]       = useState(false)
   const [activePicker,  setActivePicker]  = useState<string|null>(null)
   const [toast,         setToast]         = useState<{msg:string;type:"success"|"error"}|null>(null)
-  const [creationMode,  setCreationMode]  = useState<ListViewTab>("events")
-  const [eventType,     setEventType]     = useState("Custom Event")
+  const [creationMode,  setCreationMode]  = useState<ListViewTab>("schedules")
+  const [eventType,     setEventType]     = useState("Custom Schedule")
   const [taskIcon,      setTaskIcon]      = useState("CalendarDays")
   const [taskTitle,     setTaskTitle]     = useState("")
   const [taskDesc,      setTaskDesc]      = useState("")
@@ -278,8 +280,7 @@ export function ScheduleView() {
   const days  = Array.from({length:31},(_,i)=>(i+1).toString())
 
   const showToast = useCallback((msg:string,type:"success"|"error")=>{
-    setToast({msg,type});
-    setTimeout(()=>setToast(null),3500)
+    setToast({msg,type}); setTimeout(()=>setToast(null),3500)
   },[])
 
   useEffect(() => {
@@ -337,8 +338,7 @@ export function ScheduleView() {
   useEffect(()=>{ fetchItems() },[fetchItems])
 
   useEffect(()=>{
-    setExtraConfig("");
-    setAttachedFiles([])
+    setExtraConfig(""); setAttachedFiles([])
     if(eventType==="Workout / Gym")          { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); }
     else if(eventType==="Deep Work")         { setTaskIcon("Laptop"); setTaskTitle("Deep Work Session"); }
     else if(eventType==="Meal Time")         { setTaskIcon("Utensils"); setTaskTitle("Lunch Break"); }
@@ -348,7 +348,7 @@ export function ScheduleView() {
     else if(eventType==="Drink Water")       { setTaskIcon("Droplets"); setTaskTitle("Drink Water") }
     else if(eventType==="Stand Up / Stretch"){ setTaskIcon("Activity"); setTaskTitle("Stretch Legs") }
     else if(eventType==="Take Medication")   { setTaskIcon("Pill"); setTaskTitle("Medication"); }
-    else if(eventType==="Custom Event")      { setTaskIcon("CalendarDays");  setTaskTitle(""); }
+    else if(eventType==="Custom Schedule")   { setTaskIcon("CalendarDays");  setTaskTitle(""); }
     else if(eventType==="Personal Reminder"||eventType==="Custom Reminder"){ setTaskIcon("Bell"); setTaskTitle("Reminder") }
     else { setTaskIcon("CalendarDays"); setTaskTitle("") }
   },[eventType])
@@ -366,13 +366,12 @@ export function ScheduleView() {
   const monthStr=new Date().toLocaleDateString('en-US',{month:'short'}).toUpperCase()
   const yearStr =new Date().getFullYear().toString()
 
-  // Funcionalidad del calendario y filtrado restaurados
   const filteredTasks=useMemo(()=>{
     if(selectedDate==="All") return tasks
     return tasks.filter(t=>{ try{ return new Date(t.fire_at).toDateString()===selectedDate }catch{return false} })
   },[tasks,selectedDate])
 
-  const activeEvents    = filteredTasks.filter(t=>t.is_event)
+  const activeSchedules = filteredTasks.filter(t=>t.is_event)
   const activeReminders = filteredTasks.filter(t=>!t.is_event)
 
   useEffect(()=>{
@@ -393,7 +392,7 @@ export function ScheduleView() {
   function handleNavTabClick(tab:NavTab){
     if(tab==="search") return
     if(tab==="edit"){ setIsEditingMode(!isEditingMode); setActiveNavTab(isEditingMode?"tasks":"edit") }
-    else if(tab==="create"){ setIsEditingMode(false); setCreationMode("events"); setEventType(EVENT_OPTIONS[0]); setConfigModalOpen(true); setActiveNavTab("create") }
+    else if(tab==="create"){ setIsEditingMode(false); setCreationMode("schedules"); setEventType(SCHEDULE_OPTIONS[0]); setConfigModalOpen(true); setActiveNavTab("create") }
     else { setIsEditingMode(false); setConfigModalOpen(false); setActiveNavTab(tab) }
   }
 
@@ -434,19 +433,17 @@ export function ScheduleView() {
 
   async function handleSaveConfig(){
     setLoading(true)
-    const tg=getTg();
-    const chatId=tg?.initDataUnsafe?.user?.id
+    const tg=getTg(); const chatId=tg?.initDataUnsafe?.user?.id
     try {
       const data=await apiPost("/api/schedule_create",{
         title:taskTitle||eventType, event_type:eventType, icon_name:taskIcon,
         color:ICON_COLORS[taskIcon]||"#3b82f6", description:taskDesc, extra:extraConfig,
-        email_to:taskEmailRec, files:attachedFiles, is_event:creationMode==="events",
+        email_to:taskEmailRec, files:attachedFiles, is_event:creationMode==="schedules",
         fire_at:buildFireAt(), alert_offset_min:parseInt(selRemMin)||0, chat_id:chatId, thread_id:null,
       })
       if(data.success){
         showToast("Saved! Telegram will notify you 🔔","success")
-        await fetchItems();
-        setConfigModalOpen(false); setActivePicker(null)
+        await fetchItems(); setConfigModalOpen(false); setActivePicker(null)
         setActiveNavTab("tasks")
       } else { showToast(data.message||"Could not save. Try again.","error") }
     } catch(e:any){ showToast(`Error: ${e.message}`,"error") }
@@ -460,7 +457,7 @@ export function ScheduleView() {
     } catch(e:any){ showToast(`Error: ${e.message}`,"error") }
   }
 
-  const TaskCard = ({item,isSuggestion=false, listType="reminder"}:{item:any;isSuggestion?:boolean; listType?:"reminder"|"task"})=>{
+  const TaskCard = ({item,isSuggestion=false, listType="reminder"}:{item:any;isSuggestion?:boolean; listType?:"reminder"|"schedule"})=>{
     const isExpanded=expandedIds[item.id]
     const color=item.color||ICON_COLORS[item.icon_name||item.iconName]||"#3b82f6"
     const isCompleted = completedTasks[item.id]
@@ -476,15 +473,15 @@ export function ScheduleView() {
           }
        } catch {}
     } else if (item.time) {
-       displayTime = item.time; 
+       displayTime = item.time;
     }
 
-    if (listType === "task") {
+    if (listType === "schedule") {
       return (
         <div className={`relative w-full border-b border-[#2c2c2e] last:border-0 ${isEditingMode&&!isSuggestion?'jiggle-card':''}`}>
           <div 
             className="flex items-center justify-between py-3.5 cursor-pointer" 
-            onClick={(e)=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'events';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Event");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleCompleted(item.id, e) }}
+            onClick={(e)=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'schedules';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Schedule");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleCompleted(item.id, e) }}
           >
             <div className="flex items-center gap-4 flex-1 overflow-hidden">
               <div className={`w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${isCompleted ? 'bg-[#3a3a3c] border-[#3a3a3c]' : 'border-[#636366]'}`}>
@@ -504,7 +501,7 @@ export function ScheduleView() {
 
     return (
       <div className={`relative w-full ${isEditingMode&&!isSuggestion?'jiggle-card':''}`}>
-        <div className="bg-[#2c2c2e] rounded-[16px] px-4 py-3.5 flex flex-col transition-all duration-200 cursor-pointer" onClick={()=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'events';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Event");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleExpand(item.id) }}>
+        <div className="bg-[#2c2c2e] rounded-[16px] px-4 py-3.5 flex flex-col transition-all duration-200 cursor-pointer" onClick={()=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'schedules';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Schedule");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleExpand(item.id) }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4 flex-1 overflow-hidden">
               <span className="text-[#8e8e93] text-[13px] font-medium w-[45px] shrink-0 truncate text-left" style={{fontFamily:SF}}>{displayTime}</span>
@@ -653,14 +650,13 @@ export function ScheduleView() {
 
         {/* TEXTO DE CABECERA (You have...) DINAMICO */}
         <div className="px-6 mb-8 mt-10">
-          <h1 className="text-[28px] font-medium leading-[1.3] tracking-tight" style={{fontFamily: SFD}}>
+          <div className="flex flex-wrap items-center gap-x-1.5 text-[28px] font-medium leading-[1.3] tracking-tight" style={{fontFamily: SFD}}>
             <span className="text-[#8e8e93]">You have </span>
-            <span className="text-white inline-flex items-center gap-1"><Lightbulb className="w-6 h-6 text-[#f59e0b]" strokeWidth={2.5}/> {activeReminders.length||(selectedDate === "All" && filteredTasks.length === 0 ? SUGGESTIONS.filter(s=>s.type==='reminder').length : 0)} reminders</span>
-            <br/>
+            <span className="text-white flex items-center gap-1.5"><Lightbulb className="w-6 h-6 text-[#f59e0b]" strokeWidth={2.5}/> {activeReminders.length} reminders</span>
             <span className="text-[#8e8e93]">and </span>
-            <span className="text-white inline-flex items-center gap-1"><CheckSquare className="w-6 h-6 text-[#3b82f6]" strokeWidth={2.5}/> {activeEvents.length||(selectedDate === "All" && filteredTasks.length === 0 ? SUGGESTIONS.filter(s=>s.type==='task').length : 0)} tasks</span>
+            <span className="text-white flex items-center gap-1.5"><CheckSquare className="w-6 h-6 text-[#3b82f6]" strokeWidth={2.5}/> {activeSchedules.length} schedules</span>
             <span className="text-[#8e8e93]">{selectedDate === "All" ? " today" : " on this day"}</span>
-          </h1>
+          </div>
         </div>
 
         {/* LISTA PRINCIPAL */}
@@ -676,7 +672,6 @@ export function ScheduleView() {
                       <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Reminders</h3>
                       <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have no new reminders</p>
                     </div>
-                    <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
                   {selectedDate === "All" && (
                     <div className="flex flex-col gap-2.5">
@@ -688,14 +683,13 @@ export function ScheduleView() {
                <div className="bg-[#1c1c1e] rounded-[28px] p-5">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Daily Tasks</h3>
-                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have no tasks</p>
+                      <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Schedules</h3>
+                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have no schedules</p>
                     </div>
-                    <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
                   {selectedDate === "All" && (
                     <div className="flex flex-col">
-                      {SUGGESTIONS.filter(s=>s.type==='task').map((sug,idx)=><TaskCard key={idx} item={sug} isSuggestion={true} listType="task"/>)}
+                      {SUGGESTIONS.filter(s=>s.type==='schedule').map((sug,idx)=><TaskCard key={idx} item={sug} isSuggestion={true} listType="schedule"/>)}
                     </div>
                   )}
                </div>
@@ -711,7 +705,6 @@ export function ScheduleView() {
                       <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Reminders</h3>
                       <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeReminders.length} reminder{activeReminders.length!==1?'s':''} {selectedDate === "All" ? "today" : "on this day"}</p>
                     </div>
-                    <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
                   <div className="flex flex-col gap-2.5">
                     {activeReminders.map(task => <TaskCard key={task.id} item={task} listType="reminder" />)}
@@ -719,18 +712,17 @@ export function ScheduleView() {
                 </div>
               )}
 
-              {/* DAILY TASKS BLOCK (Estilo Lista de Checks) */}
-              {activeEvents.length > 0 && (
+              {/* SCHEDULES BLOCK (Estilo Lista de Checks) */}
+              {activeSchedules.length > 0 && (
                 <div className="bg-[#1c1c1e] rounded-[28px] p-5">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Daily Tasks</h3>
-                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeEvents.length} task{activeEvents.length!==1?'s':''} {selectedDate === "All" ? "today" : "on this day"}</p>
+                      <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Schedules</h3>
+                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeSchedules.length} schedule{activeSchedules.length!==1?'s':''} {selectedDate === "All" ? "today" : "on this day"}</p>
                     </div>
-                    <button className="text-[#8e8e93] tracking-widest leading-none font-bold pb-2 pt-1">•••</button>
                   </div>
                   <div className="flex flex-col">
-                    {activeEvents.map(task => <TaskCard key={task.id} item={task} listType="task" />)}
+                    {activeSchedules.map(task => <TaskCard key={task.id} item={task} listType="schedule" />)}
                   </div>
                 </div>
               )}
@@ -773,7 +765,7 @@ export function ScheduleView() {
               </div>
 
               <div className="flex bg-[#1c1c1e] p-1 rounded-full w-full mt-4 border border-[#2c2c2e]">
-                <button onClick={()=>{setCreationMode("events");setEventType(EVENT_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="events"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>📅 Event (Task)</button>
+                <button onClick={()=>{setCreationMode("schedules");setEventType(SCHEDULE_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="schedules"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>📅 Schedule</button>
                 <button onClick={()=>{setCreationMode("reminders");setEventType(REMINDER_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="reminders"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>🔔 Reminder</button>
               </div>
             </div>
@@ -793,7 +785,7 @@ export function ScheduleView() {
                     </button>
                     {activePicker==="type"&&(
                       <div className="flex items-center justify-center py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
-                        <WheelPicker items={creationMode==="events"?EVENT_OPTIONS:REMINDER_OPTIONS} value={eventType} onChange={setEventType}/>
+                        <WheelPicker items={creationMode==="schedules"?SCHEDULE_OPTIONS:REMINDER_OPTIONS} value={eventType} onChange={setEventType}/>
                       </div>
                     )}
                   </div>
@@ -897,7 +889,7 @@ export function ScheduleView() {
                     </div>
                   )}
 
-                  {eventType==="Custom Event"&&(
+                  {eventType==="Custom Schedule"&&(
                     <div className="flex items-center justify-between w-full p-4">
                       <div className="flex items-center gap-3"><LinkIcon className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">URL</span></div>
                       <input type="text" placeholder="Optional meeting link..." value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
@@ -951,7 +943,7 @@ export function ScheduleView() {
               <div className="pb-6 pt-2">
                 <button onClick={handleSaveConfig} disabled={loading} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-60 flex items-center justify-center gap-2">
                   {loading&&<Loader2 className="w-5 h-5 animate-spin"/>}
-                  {loading ? "Saving…" : `Save ${creationMode==="events"?"Event":"Reminder"}`}
+                  {loading ? "Saving…" : `Save ${creationMode==="schedules"?"Schedule":"Reminder"}`}
                 </button>
               </div>
             </div>
