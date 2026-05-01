@@ -627,15 +627,14 @@ export function ScheduleView() {
       <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar pt-6">
         
         {/* Cabecera del Mes/Año del Calendario y Zona Horaria */}
-        <div className="pt-2 flex justify-between items-center px-6">
-          <div className="flex items-end gap-1">
-            <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
-            <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
-          </div>
-          <button onClick={() => setShowTZModal(true)} className="flex items-center gap-1.5 bg-[#1c1c1e] px-3 py-1.5 rounded-full border border-[#2c2c2e] active:scale-95 transition-transform">
+        <div className="relative pt-2 flex justify-center items-end gap-1 px-5">
+          <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
+          <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
+          
+          <button onClick={() => setShowTZModal(true)} className="absolute right-5 bottom-0 flex items-center gap-1.5 bg-[#1c1c1e] px-2.5 py-1 rounded-full border border-[#2c2c2e] active:scale-95 transition-transform">
             <Globe className="w-3.5 h-3.5 text-[#8e8e93]"/>
-            <span className="text-[#e4e4e7] text-[12px] font-medium max-w-[80px] truncate" style={{fontFamily:SF}}>
-              {selectedTZ ? selectedTZ.split('/').pop()?.replace('_', ' ') : 'Time Zone'}
+            <span className="text-[#e4e4e7] text-[11px] font-medium max-w-[60px] truncate" style={{fontFamily:SF}}>
+              {selectedTZ ? selectedTZ.split('/').pop()?.replace('_', ' ') : 'TZ'}
             </span>
           </button>
         </div>
