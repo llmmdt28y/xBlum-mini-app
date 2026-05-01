@@ -621,10 +621,18 @@ export function ScheduleView() {
 
       <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar pt-6">
         
-        {/* Cabecera del Mes/Año del Calendario */}
-        <div className="pt-2 flex justify-center items-end gap-1">
-          <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
-          <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
+        {/* Cabecera del Mes/Año del Calendario y Zona Horaria */}
+        <div className="pt-2 flex justify-between items-center px-6">
+          <div className="flex items-end gap-1">
+            <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
+            <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
+          </div>
+          <button onClick={() => setShowTZModal(true)} className="flex items-center gap-1.5 bg-[#1c1c1e] px-3 py-1.5 rounded-full border border-[#2c2c2e] active:scale-95 transition-transform">
+            <Globe className="w-3.5 h-3.5 text-[#8e8e93]"/>
+            <span className="text-[#e4e4e7] text-[12px] font-medium max-w-[80px] truncate" style={{fontFamily:SF}}>
+              {selectedTZ ? selectedTZ.split('/').pop()?.replace('_', ' ') : 'Time Zone'}
+            </span>
+          </button>
         </div>
 
         {/* Calendario Semanal Interactivo */}
@@ -844,6 +852,17 @@ export function ScheduleView() {
                         <WheelPicker items={mins} value={selMin} onChange={setSelMin} suffix="m"/>
                       </div>
                     )}
+                  </div>
+                  
+                  {/* Time Zone */}
+                  <div className="flex flex-col">
+                    <button onClick={()=>setShowTZModal(true)} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Globe className="w-[20px] h-[20px] text-[#8e8e93]"/>
+                        <span className="text-white text-[16px] font-medium">Time Zone</span>
+                      </div>
+                      <span className="text-[#8e8e93] text-[16px] truncate max-w-[120px]">{selectedTZ ? selectedTZ.split('/').pop()?.replace('_', ' ') : 'Select...'}</span>
+                    </button>
                   </div>
 
                   {/* Dynamic Fields */}
