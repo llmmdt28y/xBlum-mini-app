@@ -271,7 +271,6 @@ export function ScheduleView() {
   const [selMonth, setSelMonth] = useState(_initNow.mo)
   const [selDayNum,setSelDayNum]= useState(_initNow.day)
   
-  // Ahora por defecto es 0 minutos, 0 segundos
   const [selRemMin,setSelRemMin]= useState("00")
   const [selRemSec,setSelRemSec]= useState("00")
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -341,7 +340,6 @@ export function ScheduleView() {
 
   useEffect(()=>{
     setExtraConfig(""); setAttachedFiles([]); 
-    // Reseteamos el Alert Offset cuando cambian de tipo
     setSelRemMin("00"); setSelRemSec("00");
     
     if(eventType==="Workout / Gym")          { setTaskIcon("Dumbbell"); setTaskTitle("Workout"); }
@@ -626,18 +624,10 @@ export function ScheduleView() {
 
       <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar pt-6">
         
-        {/* Cabecera del Mes/Año del Calendario y Zona Horaria (Cambiado para no estorbar a Telegram) */}
-        <div className="pt-2 flex flex-col items-center px-5">
-          <div className="flex items-end gap-1">
-            <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
-            <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
-          </div>
-          <button onClick={() => setShowTZModal(true)} className="mt-1.5 flex items-center gap-1.5 bg-[#1c1c1e] px-3 py-1 rounded-full border border-[#2c2c2e] active:scale-95 transition-transform">
-            <Globe className="w-3.5 h-3.5 text-[#8e8e93]"/>
-            <span className="text-[#e4e4e7] text-[11px] font-medium tracking-wide max-w-[120px] truncate" style={{fontFamily:SF}}>
-              {selectedTZ ? selectedTZ.split('/').pop()?.replace('_', ' ') : 'Time Zone'}
-            </span>
-          </button>
+        {/* Cabecera del Mes/Año del Calendario - Restaurada a su posición original */}
+        <div className="pt-2 flex justify-center items-end gap-1">
+          <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
+          <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
         </div>
 
         {/* Calendario Semanal Interactivo */}
