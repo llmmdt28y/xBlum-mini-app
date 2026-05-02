@@ -539,7 +539,7 @@ export function AnalyticsView() {
                             <p className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>
                               {m.msg_count} msgs
                             </p>
-                            <span className="text-[#48484a] text-[10px]">â€¢</span>
+                            <span className="text-[#48484a] text-[10px]">•</span>
                             <p className="text-[#8e8e93] text-[12px]" style={{ fontFamily: SF }}>
                               {m.join_label}
                             </p>
@@ -579,7 +579,7 @@ export function AnalyticsView() {
               value={editingTag.tag}
               onChange={e => setEditingTag({...editingTag, tag: e.target.value})}
               className="w-full bg-[#1c1c1e] text-white px-4 py-3 rounded-xl outline-none border border-[#2c2c2e] focus:border-white transition-colors mb-5"
-              placeholder="e.g. ðŸ‘‘ Legend"
+              placeholder="e.g. 👑 Legend"
               style={{ fontFamily: SF }}
             />
             <div className="flex gap-3">
