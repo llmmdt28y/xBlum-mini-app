@@ -405,7 +405,7 @@ export function ScheduleView() {
     if(eventType==="Workout / Gym")          { setTaskTitle("Workout"); }
     else if(eventType==="Deep Work")         { setTaskTitle("Deep Work Session"); }
     else if(eventType==="Meal Time")         { setTaskTitle("Lunch Break"); }
-    else if(eventType==="Schedule Email")    { setTaskTitle(""); } // Modificado para que el usuario escriba su Asunto
+    else if(eventType==="Schedule Email")    { setTaskTitle(""); }
     else if(eventType==="Send Message")      { setTaskTitle("Send Message") }
     else if(eventType==="Drive Upload")      { setTaskTitle("Backup to Drive") }
     else if(eventType==="Drink Water")       { setTaskTitle("Drink Water") }
@@ -651,13 +651,13 @@ export function ScheduleView() {
     )
   }
 
-  // Componente para manejar Agrupaciones Deslizables en Home Screen
+  // Componente para manejar Agrupaciones Deslizables en Home Screen (Vertical Scrollable)
   const GroupOrSingleCard = ({ group, listType }: { group: ScheduleItem[], listType: "reminder"|"schedule" }) => {
     const [groupExpanded, setGroupExpanded] = useState(false);
     
     if (group.length === 1) {
         return (
-            <div className="w-[85vw] max-w-[320px] shrink-0 snap-center">
+            <div className="w-full shrink-0">
                <TaskCard item={group[0]} isSuggestion={false} listType={listType} />
             </div>
         )
@@ -667,7 +667,7 @@ export function ScheduleView() {
     const CatIcon = ICONS[catIconName] || Sparkles;
     
     return (
-        <div className="w-[85vw] max-w-[320px] shrink-0 snap-center flex flex-col gap-2">
+        <div className="w-full shrink-0 flex flex-col gap-2">
             <div className="bg-[#1c1c1e] border border-[#2c2c2e] rounded-[20px] px-4 py-3.5 flex items-center justify-between cursor-pointer" onClick={() => setGroupExpanded(!groupExpanded)}>
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-[#0a0a0a] flex items-center justify-center border border-[#2c2c2e]">
@@ -697,7 +697,6 @@ export function ScheduleView() {
         @keyframes jiggle { 0%{transform:rotate(-1deg)} 50%{transform:rotate(1deg)} 100%{transform:rotate(-1deg)} }
         .jiggle-card { animation: jiggle 0.3s ease-in-out infinite; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .wheel-mask { mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 70%,transparent 100%); -webkit-mask-image:linear-gradient(to bottom,transparent 0%,black 30%,black 70%,transparent 100%); }
       `}</style>
 
       {toast&&<Toast msg={toast.msg} type={toast.type}/>}
@@ -811,9 +810,9 @@ export function ScheduleView() {
                     </div>
                   </div>
                   {selectedDate === "All" && (
-                    <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-5 px-5 pb-2">
+                    <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto no-scrollbar pb-2">
                       {SUGGESTIONS.filter(s=>s.type==='reminder').map((sug,idx)=>(
-                         <div key={idx} className="w-[85vw] max-w-[320px] shrink-0 snap-center">
+                         <div key={idx} className="w-full shrink-0">
                             <TaskCard item={sug} isSuggestion={true} listType="reminder"/>
                          </div>
                       ))}
@@ -829,9 +828,9 @@ export function ScheduleView() {
                     </div>
                   </div>
                   {selectedDate === "All" && (
-                    <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-5 px-5 pb-2">
+                    <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto no-scrollbar pb-2">
                       {SUGGESTIONS.filter(s=>s.type==='schedule').map((sug,idx)=>(
-                         <div key={idx} className="w-[85vw] max-w-[320px] shrink-0 snap-center">
+                         <div key={idx} className="w-full shrink-0">
                             <TaskCard item={sug} isSuggestion={true} listType="schedule"/>
                          </div>
                       ))}
@@ -842,7 +841,7 @@ export function ScheduleView() {
           ) : (
             <div className="flex flex-col gap-6 animate-in fade-in duration-500">
               
-              {/* REMINDERS BLOCK (Agrupado y Deslizable) */}
+              {/* REMINDERS BLOCK (Agrupado y Vertical) */}
               {activeReminders.length > 0 && (
                 <div className="bg-[#1c1c1e] rounded-[28px] p-5">
                   <div className="flex justify-between items-start mb-4">
@@ -851,7 +850,7 @@ export function ScheduleView() {
                       <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeReminders.length} reminder{activeReminders.length!==1?'s':''} {selectedDate === "All" ? "today" : "on this day"}</p>
                     </div>
                   </div>
-                  <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-5 px-5 pb-2 pt-1">
+                  <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto no-scrollbar pb-2 pt-1">
                     {groupedReminders.map((grp, i) => (
                         <GroupOrSingleCard key={i} group={grp} listType="reminder" />
                     ))}
@@ -859,7 +858,7 @@ export function ScheduleView() {
                 </div>
               )}
 
-              {/* SCHEDULES BLOCK (Agrupado y Deslizable) */}
+              {/* SCHEDULES BLOCK (Agrupado y Vertical) */}
               {activeSchedules.length > 0 && (
                 <div className="bg-[#1c1c1e] rounded-[28px] p-5">
                   <div className="flex justify-between items-start mb-4">
@@ -868,7 +867,7 @@ export function ScheduleView() {
                       <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have {activeSchedules.length} schedule{activeSchedules.length!==1?'s':''} {selectedDate === "All" ? "today" : "on this day"}</p>
                     </div>
                   </div>
-                  <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-5 px-5 pb-2 pt-1">
+                  <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto no-scrollbar pb-2 pt-1">
                     {groupedSchedules.map((grp, i) => (
                         <GroupOrSingleCard key={i} group={grp} listType="schedule" />
                     ))}
@@ -919,7 +918,6 @@ export function ScheduleView() {
               </div>
             </div>
 
-            {/* Scroll Container (pb-32 para keyboard safe, sin salto) */}
             <div className="overflow-y-auto flex-1 no-scrollbar px-6 pb-32 space-y-4" style={{scrollBehavior: 'smooth'}}>
               <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner">
                 <div className="flex flex-col divide-y divide-[#2c2c2e]">
@@ -1025,7 +1023,7 @@ export function ScheduleView() {
                     )}
                   </div>
 
-                  {/* Date (Original WheelPicker con Rediseño) */}
+                  {/* Date (WheelPicker Sólido) */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("date")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3">
@@ -1035,14 +1033,14 @@ export function ScheduleView() {
                       <span className="text-[#8e8e93] text-[16px]">{selMonth} {selDayNum}</span>
                     </button>
                     {activePicker==="date"&&(
-                      <div className="flex items-center justify-center gap-4 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
+                      <div className="flex items-center justify-center gap-6 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
                         <WheelPicker items={months} value={selMonth} onChange={setSelMonth}/>
                         <WheelPicker items={days} value={selDayNum} onChange={setSelDayNum}/>
                       </div>
                     )}
                   </div>
 
-                  {/* Time (Original WheelPicker con Rediseño) */}
+                  {/* Time (WheelPicker Sólido) */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("time")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3">
@@ -1052,7 +1050,7 @@ export function ScheduleView() {
                       <span className="text-[#8e8e93] text-[16px]">{parseInt(selHour)===0?"12":parseInt(selHour)>12?(parseInt(selHour)-12).toString():parseInt(selHour).toString()}:{selMin} {parseInt(selHour)>=12?"PM":"AM"}</span>
                     </button>
                     {activePicker==="time"&&(
-                      <div className="flex items-center justify-center gap-4 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
+                      <div className="flex items-center justify-center gap-6 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
                         <WheelPicker items={hours} value={selHour} onChange={setSelHour} suffix="h"/>
                         <span className="text-xl font-bold text-[#636366]">:</span>
                         <WheelPicker items={mins} value={selMin} onChange={setSelMin} suffix="m"/>
@@ -1071,7 +1069,7 @@ export function ScheduleView() {
                     </button>
                     {activePicker==="repeat"&&(
                       <div className="flex flex-col py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
-                        <div className="wheel-mask px-4">
+                        <div className="px-4">
                            <WheelPicker items={REPEAT_OPTIONS} value={selRepeat} onChange={setSelRepeat}/>
                         </div>
                         {selRepeat === "Weekly" && (
@@ -1171,7 +1169,7 @@ export function ScheduleView() {
                     </div>
                   )}
 
-                  {/* Alert Offset (Original WheelPicker con Rediseño) */}
+                  {/* Alert Offset (WheelPicker Sólido) */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("reminder")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3">
@@ -1183,7 +1181,7 @@ export function ScheduleView() {
                       </span>
                     </button>
                     {activePicker==="reminder"&&(
-                      <div className="flex items-center justify-center gap-4 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
+                      <div className="flex items-center justify-center gap-6 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
                         <WheelPicker items={mins} value={selRemMin} onChange={setSelRemMin} suffix="m"/>
                         <WheelPicker items={secs} value={selRemSec} onChange={setSelRemSec} suffix="s"/>
                       </div>
