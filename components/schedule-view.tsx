@@ -58,8 +58,8 @@ const ICON_COLORS: Record<string, string> = {
   Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b"
 }
 
-const SCHEDULE_OPTIONS = ["Custom Schedule","Schedule Email","Drive Upload","Workout / Gym","Deep Work","Meal Time","Send Message"]
-const REMINDER_OPTIONS = ["Personal Reminder","Drink Water","Stand Up / Stretch","Take Medication","Custom Reminder"]
+const DEFAULT_SCHEDULE_OPTIONS = ["Custom Schedule","Schedule Email","Drive Upload","Workout / Gym","Deep Work","Meal Time","Send Message"]
+const DEFAULT_REMINDER_OPTIONS = ["Personal Reminder","Drink Water","Stand Up / Stretch","Take Medication","Custom Reminder"]
 const REPEAT_OPTIONS   = ["Does not repeat", "Daily", "Weekly", "Monthly"]
 const WEEK_DAYS        = [{label:'M',val:'Mon'},{label:'T',val:'Tue'},{label:'W',val:'Wed'},{label:'T',val:'Thu'},{label:'F',val:'Fri'},{label:'S',val:'Sat'},{label:'S',val:'Sun'}]
 
@@ -213,6 +213,22 @@ function TZPickerModal({ onSave, onConfirm, selectedTZ, onClose }: { onSave: (tz
   )
 }
 
+// Icon Helper for the Type list
+function getTypeIcon(type: string) {
+   if(type==="Workout / Gym") return Dumbbell;
+   if(type==="Deep Work") return Laptop;
+   if(type==="Meal Time") return Utensils;
+   if(type==="Schedule Email") return Mail;
+   if(type==="Send Message") return MessageSquare;
+   if(type==="Drive Upload") return Folder;
+   if(type==="Drink Water") return Droplets;
+   if(type==="Stand Up / Stretch") return Activity;
+   if(type==="Take Medication") return Pill;
+   if(type==="Personal Reminder"||type==="Custom Reminder") return Bell;
+   if(type==="Custom Schedule") return CalendarDays;
+   return Sparkles; 
+}
+
 export function ScheduleView() {
   const { setCurrentView } = useApp()
   const [tasks,         setTasks]         = useState<ScheduleItem[]>([])
@@ -247,6 +263,12 @@ export function ScheduleView() {
   const [repeatDays,    setRepeatDays]    = useState<string[]>([])
   const [isPriority,    setIsPriority]    = useState(false)
   const [isPinned,      setIsPinned]      = useState(false)
+
+  // Custom Categories
+  const [customSchedules, setCustomSchedules] = useState<string[]>([])
+  const [customReminders, setCustomReminders] = useState<string[]>([])
+  const [isAddingCategory, setIsAddingCategory] = useState(false)
+  const [newCategoryName, setNewCategoryName] = useState("")
 
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({})
 
@@ -400,11 +422,15 @@ export function ScheduleView() {
   function handleNavTabClick(tab:NavTab){
     if(tab==="search") return
     if(tab==="edit"){ setIsEditingMode(!isEditingMode); setActiveNavTab(isEditingMode?"tasks":"edit") }
-    else if(tab==="create"){ setIsEditingMode(false); setCreationMode("schedules"); setEventType(SCHEDULE_OPTIONS[0]); setConfigModalOpen(true); setActiveNavTab("create") }
+    else if(tab==="create"){ setIsEditingMode(false); setCreationMode("schedules"); setEventType(DEFAULT_SCHEDULE_OPTIONS[0]); setConfigModalOpen(true); setActiveNavTab("create") }
     else { setIsEditingMode(false); setConfigModalOpen(false); setActiveNavTab(tab) }
   }
 
-  function togglePicker(p:string){ setActivePicker(ap=>ap===p?null:p) }
+  function togglePicker(p:string){ 
+    setActivePicker(ap=>ap===p?null:p);
+    if(p !== "type") setIsAddingCategory(false);
+  }
+  
   function toggleExpand(id:string|number){ setExpandedIds(p=>({...p,[id]:!p[id]})) }
   function toggleCompleted(id:string|number, e:React.MouseEvent) {
     e.stopPropagation()
@@ -465,6 +491,20 @@ export function ScheduleView() {
       if(data.success){ setTasks(p=>p.filter(t=>t.id!==itemId)); showToast("Removed.","success") }
     } catch(e:any){ showToast(`Error: ${e.message}`,"error") }
   }
+
+  const handleAddCategory = () => {
+    if(!newCategoryName.trim()) return;
+    if(creationMode === "schedules") setCustomSchedules(p => [...p, newCategoryName.trim()])
+    else setCustomReminders(p => [...p, newCategoryName.trim()])
+    setEventType(newCategoryName.trim())
+    setNewCategoryName("")
+    setIsAddingCategory(false)
+    setActivePicker(null)
+  }
+
+  const activeOptionsList = creationMode === "schedules" 
+      ? [...DEFAULT_SCHEDULE_OPTIONS, ...customSchedules]
+      : [...DEFAULT_REMINDER_OPTIONS, ...customReminders];
 
   const TaskCard = ({item,isSuggestion=false, listType="reminder"}:{item:any;isSuggestion?:boolean; listType?:"reminder"|"schedule"})=>{
     const isExpanded=expandedIds[item.id]
@@ -780,39 +820,30 @@ export function ScheduleView() {
               </div>
 
               <div className="flex bg-[#1c1c1e] p-1 rounded-full w-full mt-4 border border-[#2c2c2e]">
-                <button onClick={()=>{setCreationMode("schedules");setEventType(SCHEDULE_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="schedules"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>📅 Schedule</button>
-                <button onClick={()=>{setCreationMode("reminders");setEventType(REMINDER_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="reminders"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>🔔 Reminder</button>
+                <button onClick={()=>{setCreationMode("schedules");setEventType(DEFAULT_SCHEDULE_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="schedules"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>📅 Schedule</button>
+                <button onClick={()=>{setCreationMode("reminders");setEventType(DEFAULT_REMINDER_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="reminders"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>🔔 Reminder</button>
               </div>
             </div>
 
-            <div className="overflow-y-auto flex-1 no-scrollbar px-6 pb-8 space-y-4">
+            {/* Agregado padding bottom grande para que el teclado no tape los inputs */}
+            <div className="overflow-y-auto flex-1 no-scrollbar px-6 pb-[40vh] space-y-4" style={{scrollBehavior: 'smooth'}}>
               <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner">
                 <div className="flex flex-col divide-y divide-[#2c2c2e]">
                 
-                  {/* Type */}
+                  {/* Title & Icon - MOVIDO AL PRINCIPIO Y REDISEÑADO */}
                   <div className="flex flex-col">
-                    <button onClick={()=>togglePicker("type")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
-                      <div className="flex items-center gap-3">
-                        <Sparkles className="w-[20px] h-[20px] text-[#8e8e93]"/>
-                        <span className="text-white text-[16px] font-medium">Type</span>
-                      </div>
-                      <span className="text-[#8e8e93] text-[16px] truncate max-w-[150px]">{eventType}</span>
-                    </button>
-                    {activePicker==="type"&&(
-                      <div className="flex items-center justify-center py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
-                        <WheelPicker items={creationMode==="schedules"?SCHEDULE_OPTIONS:REMINDER_OPTIONS} value={eventType} onChange={setEventType}/>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Title & Icon */}
-                  <div className="flex flex-col">
-                    <div className="flex items-center justify-between w-full p-4">
-                      <button onClick={()=>togglePicker("icon")} className="flex items-center gap-3 active:opacity-70 transition-opacity">
-                        {(()=>{const I=ICONS[taskIcon]||CalendarDays;return <I className="w-5 h-5 shrink-0" style={{color:ICON_COLORS[taskIcon]||"#ffffff"}}/>})()}
-                        <span className="text-white text-[16px] font-medium whitespace-nowrap">Title & Icon</span>
+                    <div className="flex items-center gap-3 w-full p-4">
+                      <button onClick={()=>togglePicker("icon")} className="flex items-center justify-center w-[42px] h-[42px] rounded-full bg-[#0a0a0a] border border-[#2c2c2e] active:scale-95 transition-transform shrink-0 shadow-sm">
+                        {(()=>{const I=ICONS[taskIcon]||CalendarDays;return <I className="w-5 h-5" style={{color:ICON_COLORS[taskIcon]||"#ffffff"}}/>})()}
                       </button>
-                      <input type="text" placeholder="Add title…" value={taskTitle} onChange={e=>setTaskTitle(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-full ml-4 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                      <input 
+                        type="text" 
+                        placeholder="Add title…" 
+                        value={taskTitle} 
+                        onChange={e=>setTaskTitle(e.target.value)} 
+                        className="bg-transparent text-left text-white text-[18px] font-medium flex-1 focus:outline-none placeholder-[#636366]" 
+                        style={{fontFamily:SFD}}
+                      />
                     </div>
                     {activePicker==="icon"&&(
                       <div className="grid grid-cols-6 gap-4 py-5 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
@@ -822,6 +853,56 @@ export function ScheduleView() {
                             {sel&&<div className="w-1.5 h-1.5 rounded-full mt-2" style={{backgroundColor:ICON_COLORS[key]}}/>}
                           </button>
                         )})}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Type - REDISEÑADO CON LISTA E ICONOS */}
+                  <div className="flex flex-col">
+                    <button onClick={()=>togglePicker("type")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
+                      <div className="flex items-center gap-3">
+                        {(()=>{
+                          const I = getTypeIcon(eventType);
+                          return <I className="w-[20px] h-[20px] text-[#8e8e93]" />
+                        })()}
+                        <span className="text-white text-[16px] font-medium">Type</span>
+                      </div>
+                      <span className="text-[#8e8e93] text-[16px] truncate max-w-[150px]">{eventType}</span>
+                    </button>
+                    {activePicker==="type" && !isAddingCategory && (
+                      <div className="flex flex-col py-2 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 max-h-[220px] overflow-y-auto no-scrollbar">
+                         {activeOptionsList.map(opt => {
+                           const I = getTypeIcon(opt);
+                           return (
+                             <button key={opt} onClick={() => { setEventType(opt); setActivePicker(null); }} className="flex items-center gap-3 px-4 py-3 active:bg-[#1c1c1e] transition-colors text-left w-full">
+                                <I className="w-[18px] h-[18px] text-[#8e8e93]" />
+                                <span className="text-white text-[15px] font-medium" style={{fontFamily:SF}}>{opt}</span>
+                                {eventType === opt && <Check className="w-4 h-4 text-blue-500 ml-auto" strokeWidth={3}/>}
+                             </button>
+                           )
+                         })}
+                         <div className="h-px bg-[#2c2c2e] mx-4 my-1 shrink-0" />
+                         <button onClick={() => setIsAddingCategory(true)} className="flex items-center gap-3 px-4 py-3 active:bg-[#1c1c1e] transition-colors text-left w-full text-blue-500 shrink-0">
+                             <Plus className="w-[18px] h-[18px]" strokeWidth={2.5}/>
+                             <span className="text-[15px] font-medium" style={{fontFamily:SF}}>Create new category</span>
+                         </button>
+                      </div>
+                    )}
+                    {activePicker==="type" && isAddingCategory && (
+                      <div className="flex flex-col p-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
+                         <span className="text-[#8e8e93] text-[12px] font-medium uppercase tracking-wider mb-2" style={{fontFamily:SF}}>New Category</span>
+                         <input 
+                           autoFocus 
+                           value={newCategoryName} 
+                           onChange={e=>setNewCategoryName(e.target.value)} 
+                           placeholder="Enter category name..." 
+                           className="bg-[#1c1c1e] text-white text-[15px] p-3 rounded-xl outline-none mb-3 border border-[#2c2c2e]" 
+                           style={{fontFamily:SF}}
+                         />
+                         <div className="flex gap-2">
+                           <button onClick={()=>{setIsAddingCategory(false); setNewCategoryName("");}} className="flex-1 py-2.5 bg-[#1c1c1e] rounded-xl text-[#8e8e93] font-medium text-[14px]">Cancel</button>
+                           <button onClick={handleAddCategory} disabled={!newCategoryName.trim()} className="flex-1 py-2.5 bg-blue-500 rounded-xl text-white font-medium text-[14px] disabled:opacity-50">Add Category</button>
+                         </div>
                       </div>
                     )}
                   </div>
@@ -873,7 +954,7 @@ export function ScheduleView() {
                     {activePicker==="repeat"&&(
                       <div className="flex flex-col py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
                         <div className="wheel-mask">
-                          <WheelPicker items={REPEAT_OPTIONS} value={selRepeat} onChange={setSelRepeat}/>
+                           <WheelPicker items={REPEAT_OPTIONS} value={selRepeat} onChange={setSelRepeat}/>
                         </div>
                         {selRepeat === "Weekly" && (
                           <div className="flex justify-center gap-2 mt-4 px-4 pt-4 border-t border-[#1c1c1e]">
@@ -978,7 +1059,7 @@ export function ScheduleView() {
               </div>
 
               {/* ── PRIORITY & PIN ── */}
-              <div className="bg-[#1c1c1e] rounded-[28px] p-2 flex flex-col gap-1">
+              <div className="bg-[#1c1c1e] rounded-[28px] p-2 flex flex-col gap-1 shadow-inner">
                 <div className="flex items-center justify-between p-3">
                   <div className="flex items-center gap-3">
                      <AlertCircle className={`w-[20px] h-[20px] ${isPriority ? 'text-red-500' : 'text-[#8e8e93]'}`} />
@@ -1001,17 +1082,17 @@ export function ScheduleView() {
               </div>
 
               {/* ── DESCRIPTION ── */}
-              <div className="bg-[#1c1c1e] rounded-[28px] p-4 flex flex-col gap-2">
+              <div className="bg-[#1c1c1e] rounded-[28px] p-4 flex flex-col gap-2 shadow-inner">
                 <div className="flex items-center gap-3 pl-2">
                   <AlignLeft className="w-[20px] h-[20px] text-[#8e8e93]"/>
                   <span className="text-white text-[16px] font-medium">Notes</span>
                 </div>
-                <textarea rows={3} placeholder="Optional notes or details…" value={taskDesc} onChange={e=>setTaskDesc(e.target.value)} className="w-full bg-transparent text-white placeholder:text-[#636366] resize-none focus:outline-none p-2 text-[15px] leading-relaxed" style={{fontFamily:SF}}/>
+                <textarea rows={3} placeholder="Optional notes or details…" value={taskDesc} onChange={e=>setTaskDesc(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#2c2c2e] text-white placeholder:text-[#636366] rounded-[20px] resize-none focus:outline-none p-4 text-[15px] leading-relaxed mt-2" style={{fontFamily:SF}}/>
               </div>
 
               {/* ── SAVE ── */}
               <div className="pb-6 pt-2">
-                <button onClick={handleSaveConfig} disabled={loading} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-60 flex items-center justify-center gap-2">
+                <button onClick={handleSaveConfig} disabled={loading} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg">
                   {loading&&<Loader2 className="w-5 h-5 animate-spin"/>}
                   {loading ? "Saving…" : `Save ${creationMode==="schedules"?"Schedule":"Reminder"}`}
                 </button>
