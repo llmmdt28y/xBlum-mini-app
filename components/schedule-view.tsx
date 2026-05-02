@@ -138,17 +138,21 @@ function WheelPicker({ items, value, onChange, suffix="" }: {items:string[];valu
   const ref = useRef<HTMLDivElement>(null)
   const h   = 40
   return (
-    <div ref={ref} onScroll={()=>{ if(!ref.current) return; const i=Math.round(ref.current.scrollTop/h); if(items[i]&&items[i]!==value) onChange(items[i]) }}
-      className="h-[120px] w-full overflow-y-auto snap-y snap-mandatory no-scrollbar flex flex-col items-center" style={{scrollBehavior:"smooth"}}>
-      <div style={{minHeight:`${h}px`}} className="w-full shrink-0"/>
-      {items.map((item,i)=>{
-        const sel=item===value
-        const isPlaceholder = item.startsWith("---")
-        return <div key={i} className={`h-[40px] shrink-0 w-full flex items-center justify-center snap-center transition-all ${sel?'text-white text-[20px] font-bold':'text-[#636366] text-[18px] font-medium'} ${isPlaceholder ? 'opacity-50 text-[16px]' : ''}`} style={{fontFamily:SFD}}>
-          {item}{suffix&&sel&&!isPlaceholder?<span className="text-[14px] ml-1 text-[#8e8e93]">{suffix}</span>:""}
-        </div>
-      })}
-      <div style={{minHeight:`${h}px`}} className="w-full shrink-0"/>
+    <div className="relative h-[120px] w-full flex-1">
+      {/* Highlight bar behind the selected item */}
+      <div className="absolute top-1/2 left-0 right-0 h-[40px] -translate-y-1/2 bg-[#1c1c1e] rounded-xl pointer-events-none" />
+      <div ref={ref} onScroll={()=>{ if(!ref.current) return; const i=Math.round(ref.current.scrollTop/h); if(items[i]&&items[i]!==value) onChange(items[i]) }}
+        className="h-[120px] w-full overflow-y-auto snap-y snap-mandatory no-scrollbar flex flex-col items-center relative z-10" style={{scrollBehavior:"smooth"}}>
+        <div style={{minHeight:`${h}px`}} className="w-full shrink-0"/>
+        {items.map((item,i)=>{
+          const sel=item===value
+          const isPlaceholder = item.startsWith("---")
+          return <div key={i} className={`h-[40px] shrink-0 w-full flex items-center justify-center snap-center transition-all duration-200 ${sel?'text-white text-[18px] font-bold':'text-[#636366] text-[16px] font-medium'} ${isPlaceholder ? 'opacity-50' : ''}`} style={{fontFamily:SFD}}>
+            {item}{suffix&&sel&&!isPlaceholder?<span className="text-[14px] ml-1 text-[#8e8e93] font-medium">{suffix}</span>:""}
+          </div>
+        })}
+        <div style={{minHeight:`${h}px`}} className="w-full shrink-0"/>
+      </div>
     </div>
   )
 }
@@ -401,7 +405,7 @@ export function ScheduleView() {
     if(eventType==="Workout / Gym")          { setTaskTitle("Workout"); }
     else if(eventType==="Deep Work")         { setTaskTitle("Deep Work Session"); }
     else if(eventType==="Meal Time")         { setTaskTitle("Lunch Break"); }
-    else if(eventType==="Schedule Email")    { setTaskTitle("Send Email") }
+    else if(eventType==="Schedule Email")    { setTaskTitle(""); } // Modificado para que el usuario escriba su Asunto
     else if(eventType==="Send Message")      { setTaskTitle("Send Message") }
     else if(eventType==="Drive Upload")      { setTaskTitle("Backup to Drive") }
     else if(eventType==="Drink Water")       { setTaskTitle("Drink Water") }
@@ -928,7 +932,7 @@ export function ScheduleView() {
                       </button>
                       <input 
                         type="text" 
-                        placeholder="Add title…" 
+                        placeholder={eventType === "Schedule Email" ? "Email subject..." : "Add title..."} 
                         value={taskTitle} 
                         onChange={e=>setTaskTitle(e.target.value)} 
                         className="bg-transparent text-left text-white text-[18px] font-medium flex-1 focus:outline-none placeholder-[#636366]" 
@@ -1021,7 +1025,7 @@ export function ScheduleView() {
                     )}
                   </div>
 
-                  {/* Date (Original WheelPicker) */}
+                  {/* Date (Original WheelPicker con Rediseño) */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("date")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3">
@@ -1031,14 +1035,14 @@ export function ScheduleView() {
                       <span className="text-[#8e8e93] text-[16px]">{selMonth} {selDayNum}</span>
                     </button>
                     {activePicker==="date"&&(
-                      <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
+                      <div className="flex items-center justify-center gap-4 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
                         <WheelPicker items={months} value={selMonth} onChange={setSelMonth}/>
                         <WheelPicker items={days} value={selDayNum} onChange={setSelDayNum}/>
                       </div>
                     )}
                   </div>
 
-                  {/* Time (Original WheelPicker) */}
+                  {/* Time (Original WheelPicker con Rediseño) */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("time")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3">
@@ -1048,7 +1052,7 @@ export function ScheduleView() {
                       <span className="text-[#8e8e93] text-[16px]">{parseInt(selHour)===0?"12":parseInt(selHour)>12?(parseInt(selHour)-12).toString():parseInt(selHour).toString()}:{selMin} {parseInt(selHour)>=12?"PM":"AM"}</span>
                     </button>
                     {activePicker==="time"&&(
-                      <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
+                      <div className="flex items-center justify-center gap-4 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
                         <WheelPicker items={hours} value={selHour} onChange={setSelHour} suffix="h"/>
                         <span className="text-xl font-bold text-[#636366]">:</span>
                         <WheelPicker items={mins} value={selMin} onChange={setSelMin} suffix="m"/>
@@ -1067,7 +1071,7 @@ export function ScheduleView() {
                     </button>
                     {activePicker==="repeat"&&(
                       <div className="flex flex-col py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
-                        <div className="wheel-mask">
+                        <div className="wheel-mask px-4">
                            <WheelPicker items={REPEAT_OPTIONS} value={selRepeat} onChange={setSelRepeat}/>
                         </div>
                         {selRepeat === "Weekly" && (
@@ -1095,7 +1099,24 @@ export function ScheduleView() {
                           <input type="email" placeholder="client@ex.com" value={taskEmailRec} onChange={e=>setTaskEmailRec(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
                         </div>
                       </div>
-                      <div className="flex flex-col w-full p-4">
+                      
+                      {/* Email Body Block */}
+                      <div className="flex flex-col w-full p-4 gap-3">
+                        <div className="flex items-center gap-3">
+                          <AlignLeft className="w-[20px] h-[20px] text-[#8e8e93]"/>
+                          <span className="text-white text-[16px] font-medium">Email Body</span>
+                        </div>
+                        <textarea 
+                          rows={8} 
+                          placeholder="Write your email here..." 
+                          value={taskDesc} 
+                          onChange={e=>setTaskDesc(e.target.value)} 
+                          className="w-full bg-[#0a0a0a] border border-[#2c2c2e] text-white placeholder-[#636366] rounded-[20px] resize-none focus:outline-none p-4 text-[15px] leading-relaxed shadow-inner" 
+                          style={{fontFamily:SF}}
+                        />
+                      </div>
+
+                      <div className="flex flex-col w-full p-4 border-t border-[#2c2c2e]">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-3"><Paperclip className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Attachments</span></div>
                           <div className="flex items-center gap-3">
@@ -1150,7 +1171,7 @@ export function ScheduleView() {
                     </div>
                   )}
 
-                  {/* Alert Offset (Original WheelPicker) */}
+                  {/* Alert Offset (Original WheelPicker con Rediseño) */}
                   <div className="flex flex-col">
                     <button onClick={()=>togglePicker("reminder")} className="flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
                       <div className="flex items-center gap-3">
@@ -1162,7 +1183,7 @@ export function ScheduleView() {
                       </span>
                     </button>
                     {activePicker==="reminder"&&(
-                      <div className="flex items-center justify-center gap-6 py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
+                      <div className="flex items-center justify-center gap-4 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 wheel-mask">
                         <WheelPicker items={mins} value={selRemMin} onChange={setSelRemMin} suffix="m"/>
                         <WheelPicker items={secs} value={selRemSec} onChange={setSelRemSec} suffix="s"/>
                       </div>
@@ -1196,13 +1217,15 @@ export function ScheduleView() {
               </div>
 
               {/* ── DESCRIPTION ── */}
-              <div className="bg-[#1c1c1e] rounded-[28px] p-4 flex flex-col gap-2 shadow-inner">
-                <div className="flex items-center gap-3 pl-2">
-                  <AlignLeft className="w-[20px] h-[20px] text-[#8e8e93]"/>
-                  <span className="text-white text-[16px] font-medium">Notes</span>
+              {eventType !== "Schedule Email" && (
+                <div className="bg-[#1c1c1e] rounded-[28px] p-4 flex flex-col gap-2 shadow-inner">
+                  <div className="flex items-center gap-3 pl-2">
+                    <AlignLeft className="w-[20px] h-[20px] text-[#8e8e93]"/>
+                    <span className="text-white text-[16px] font-medium">Notes</span>
+                  </div>
+                  <textarea rows={3} placeholder="Optional notes or details…" value={taskDesc} onChange={e=>setTaskDesc(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#2c2c2e] text-white placeholder:text-[#636366] rounded-[20px] resize-none focus:outline-none p-4 text-[15px] leading-relaxed mt-2" style={{fontFamily:SF}}/>
                 </div>
-                <textarea rows={3} placeholder="Optional notes or details…" value={taskDesc} onChange={e=>setTaskDesc(e.target.value)} className="w-full bg-[#0a0a0a] border border-[#2c2c2e] text-white placeholder:text-[#636366] rounded-[20px] resize-none focus:outline-none p-4 text-[15px] leading-relaxed mt-2" style={{fontFamily:SF}}/>
-              </div>
+              )}
 
               {/* ── SAVE ── */}
               <div className="pb-6 pt-2">
