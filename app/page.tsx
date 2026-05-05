@@ -52,6 +52,7 @@ function NavBar() {
   ]
 
   // Actualiza las vistas principales que muestran la NavBar flotante
+  // NOTA: 'pulse' no está aquí porque se maneja con renderizado condicional en AppContent
   const mainViews = ["home", "store", "analytics", "profile"]
   const activeTab = mainViews.includes(currentView) ? currentView : "home"
 
@@ -134,12 +135,19 @@ function NavBar() {
 function AppContent() {
   const { currentView, isLoading } = useApp()
 
-  // NUEVA LÓGICA: Definimos qué vistas principales muestran la NavBar flotante
-  const mainViewsShowNav = ["home", "analytics", "store", "profile"]
-  // Ocultamos la NavBar si estamos en vistas "profundas" de Pulse (comments, create, image, etc.)
-  const shouldHideNav = currentView === "pulse" || currentView.includes("create") || currentView.includes("reply");
+  // NUEVA LÓGICA DE NAVEGACIÓN INTELIGENTE PARA xBLUM AI PULSE
+  // 1. Definimos las vistas principales que NO son de Pulse
+  const nonPulseMainViewsNav = ["home", "analytics", "store", "profile"]
   
-  const showNav = mainViewsShowNav.includes(currentView) && !shouldHideNav;
+  // 2. Definimos si estamos en la vista PRINCIPAL de Pulse
+  const isPulseMainView = currentView === "pulse";
+
+  // 3. Ocultamos la NavBar si estamos en vistas "profundas" de Pulse (comments, create, image, etc.))
+  // Asegúrate de que las acciones profundas usen nombres de vista como "pulse_create" o "pulse_comment"
+  const shouldHideNav = currentView.includes("create") || currentView.includes("reply") || currentView.includes("comment");
+  
+  // 4. Lógica final: Mostramos si es una vista principal (Pulse o No-Pulse) Y no estamos en sección profunda
+  const showNav = (nonPulseMainViewsNav.includes(currentView) || isPulseMainView) && !shouldHideNav;
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
@@ -218,7 +226,7 @@ function AppContent() {
       >
         {/* Renderizado de Vistas */}
         {currentView === "home" && (<><Header /><HomeView /></>)}
-        {currentView === "pulse" && <PulseView />} {/* Nueva pestaña de Red Social */}
+        {currentView === "pulse" && <PulseView />} {/* Nueva pestaña de Red Social AI */}
         {currentView === "settings"  && <SettingsView />}
         {currentView === "store"     && <StoreView />}
         {currentView === "premium"   && <PremiumView />}
@@ -229,7 +237,7 @@ function AppContent() {
         {currentView === "group-settings" && <GroupSettingsView />}
         {currentView === "schedule"  && <ScheduleView />}
         
-        {/* Renderizado Condicional de la NavBar Flotante */}
+        {/* Renderizado Condicional de la NavBar Flotante Inteligente */}
         {showNav && <NavBar />}
       </div>
     </>
