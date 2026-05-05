@@ -27,6 +27,7 @@ type TgUser = {
 
 function getTgUser(): TgUser | undefined {
   if (typeof window === "undefined") return undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
@@ -52,8 +53,7 @@ function NavBar() {
   ]
 
   // Actualiza las vistas principales que muestran la NavBar flotante
-  // NOTA: 'pulse' no está aquí porque se maneja con renderizado condicional en AppContent
-  const mainViews = ["home", "store", "analytics", "profile"]
+  const mainViews = ["home", "pulse", "store", "analytics", "profile"]
   const activeTab = mainViews.includes(currentView) ? currentView : "home"
 
   function handleTab(id: string) {
@@ -62,7 +62,8 @@ function NavBar() {
 
   return (
     <div
-      className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none"
+      id="main-nav-bar" // <-- AÑADIDO: ID crucial para ocultarlo desde Modales
+      className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none transition-opacity duration-200"
       style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 24px)" }}
     >
       <div
@@ -134,20 +135,7 @@ function NavBar() {
 // ── App shell ──────────────────────────────────────────
 function AppContent() {
   const { currentView, isLoading } = useApp()
-
-  // NUEVA LÓGICA DE NAVEGACIÓN INTELIGENTE PARA xBLUM AI PULSE
-  // 1. Definimos las vistas principales que NO son de Pulse
-  const nonPulseMainViewsNav = ["home", "analytics", "store", "profile"]
-  
-  // 2. Definimos si estamos en la vista PRINCIPAL de Pulse
-  const isPulseMainView = currentView === "pulse";
-
-  // 3. Ocultamos la NavBar si estamos en vistas "profundas" de Pulse (comments, create, image, etc.))
-  // Asegúrate de que las acciones profundas usen nombres de vista como "pulse_create" o "pulse_comment"
-  const shouldHideNav = currentView.includes("create") || currentView.includes("reply") || currentView.includes("comment");
-  
-  // 4. Lógica final: Mostramos si es una vista principal (Pulse o No-Pulse) Y no estamos en sección profunda
-  const showNav = (nonPulseMainViewsNav.includes(currentView) || isPulseMainView) && !shouldHideNav;
+  const showNav = ["home", "pulse", "analytics", "store", "profile"].includes(currentView)
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
@@ -237,7 +225,7 @@ function AppContent() {
         {currentView === "group-settings" && <GroupSettingsView />}
         {currentView === "schedule"  && <ScheduleView />}
         
-        {/* Renderizado Condicional de la NavBar Flotante Inteligente */}
+        {/* Renderizado de la NavBar */}
         {showNav && <NavBar />}
       </div>
     </>
