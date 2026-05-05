@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react"
 import { 
   Heart, MessageCircle, Repeat2, Eye, Bookmark, 
   MoreVertical, Plus, Sparkles, Bot, Loader2, X, Image as ImageIcon, 
-  SendHorizonal, Download, Share2, Maximize2, Minimize2, Upload, Globe
+  SendHorizonal, Download, Share2, Maximize2, Minimize2, Upload, Globe, ArrowLeft
 } from "lucide-react"
 
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -51,7 +51,7 @@ const MOCK_COMMENTS_DATA: { [key: string]: any[] } = {
 }
 
 // ── COMPONENTE POSTCARD REPETIBLE ─────────────────────────────────────
-function PostCard({ post, onOpenImage, onOpenComments, onAskGrok }: { post: any, onOpenImage: (url: string) => void, onOpenComments: (postId: string) => void, onAskGrok: (postId: string) => void }) {
+function PostCard({ post, onOpenImage, onOpenComments, onAskGrok, isDetailView = false }: { post: any, onOpenImage: (url: string) => void, onOpenComments?: (post: any) => void, onAskGrok: (postId: string) => void, isDetailView?: boolean }) {
   const [liked, setLiked] = useState(post.isLiked)
   const [likesCount, setLikesCount] = useState(post.likes)
 
@@ -63,10 +63,10 @@ function PostCard({ post, onOpenImage, onOpenComments, onAskGrok }: { post: any,
 
   return (
     <div 
-      className="mx-4 mb-4 bg-[#0F0F0F] border border-[#1c1c1e] rounded-[24px] overflow-hidden shadow-lg active:scale-[0.98] transition-transform duration-200 cursor-pointer"
-      onClick={() => onOpenComments(post.id)}
+      className={`${isDetailView ? 'bg-black mb-0 border-b border-[#1c1c1e] rounded-none' : 'mx-4 mb-4 bg-[#0F0F0F] border border-[#1c1c1e] rounded-[24px] shadow-lg active:scale-[0.98] cursor-pointer'} overflow-hidden transition-transform duration-200`}
+      onClick={() => onOpenComments && !isDetailView ? onOpenComments(post) : undefined}
     >
-      <div className="p-3.5 flex gap-3">
+      <div className={`p-3.5 flex gap-3 ${isDetailView ? 'px-4' : ''}`}>
         <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
           <img src={post.author.avatar} alt="" className="w-10 h-10 rounded-full border border-[#1c1c1e] object-cover" onError={(e) => e.currentTarget.src = 'https://i.pravatar.cc/150'} />
         </div>
@@ -81,7 +81,7 @@ function PostCard({ post, onOpenImage, onOpenComments, onAskGrok }: { post: any,
             </div>
             <div className="flex items-center gap-1 shrink-0 -mr-1" onClick={(e) => e.stopPropagation()}>
                 <button onClick={() => onAskGrok(post.id)} className="p-1.5 active:opacity-70 transition-opacity bg-[#1c1c1e]/50 rounded-full">
-                    <img src="/grok.png" alt="Ask Grok" className="w-3.5 h-3.5 object-contain" onError={(e) => e.currentTarget.style.display='none'}/>
+                    <img src="/grok.png" alt="Ask Grok" className="w-3.5 h-3.5 object-contain opacity-90" onError={(e) => e.currentTarget.style.display='none'}/>
                 </button>
                 <button className="text-[#8e8e93] active:text-white p-1">
                   <MoreVertical className="w-[18px] h-[18px]" />
@@ -89,7 +89,7 @@ function PostCard({ post, onOpenImage, onOpenComments, onAskGrok }: { post: any,
             </div>
           </div>
 
-          <p className="text-[#e4e4e7] text-[15px] leading-relaxed mb-3 whitespace-pre-wrap">
+          <p className={`text-[#e4e4e7] ${isDetailView ? 'text-[16px]' : 'text-[15px]'} leading-relaxed mb-3 whitespace-pre-wrap`}>
             {post.text}
           </p>
 
@@ -142,13 +142,17 @@ function PostCard({ post, onOpenImage, onOpenComments, onAskGrok }: { post: any,
   )
 }
 
-// ── MODALES PREMIUM COMPLETOS (Create, Image Avanzado, Comments) ──────
+// ── MODALES PREMIUM COMPLETOS ──────────────────────────────────────────
 
-// Modal de Creación de Post (100dvh para Ajuste Perfecto con el Teclado)
+// Modal de Creación de Post (MAGIA: var(--tg-viewport-height) para el teclado)
 function CreatePostModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   if (!isOpen) return null
   return (
-    <div className="fixed inset-0 z-[100] bg-black animate-in fade-in duration-200 flex flex-col h-[100dvh] w-full overflow-hidden">
+    <div 
+      className="fixed top-0 left-0 right-0 z-[100] bg-black animate-in fade-in duration-200 flex flex-col overflow-hidden"
+      // Esta línea es la magia de Telegram: Forza al contenedor a achicarse exactamente cuando el teclado sube
+      style={{ height: "var(--tg-viewport-height, 100vh)" }} 
+    >
       <div 
         className="flex items-center justify-between px-4 pb-3 border-b border-[#1c1c1e] bg-black shrink-0" 
         style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 16px)" }}
@@ -157,32 +161,33 @@ function CreatePostModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => 
         <button className="bg-blue-500 text-white text-[14px] font-bold px-4 py-1.5 rounded-full active:opacity-80 transition-opacity">Post</button>
       </div>
       
+      {/* El flex-1 empuja la barra inferior hacia abajo, pero sin desbordar */}
       <div className="flex-1 p-4 flex gap-3 bg-[#080808] w-full overflow-y-auto">
         <img src="/mi-avatar.jpg" className="w-10 h-10 rounded-full border border-[#1c1c1e] shrink-0 object-cover" onError={(e) => e.currentTarget.src = 'https://i.pravatar.cc/150'}/>
         <textarea placeholder="¿Qué está pasando?" className="flex-1 bg-transparent text-white text-[17px] focus:outline-none resize-none h-full pt-1" autoFocus />
       </div>
       
+      {/* Esta barra siempre se quedará pegada al borde inferior visible (justo sobre el teclado) */}
       <div 
-        className="p-4 border-t border-[#1c1c1e] bg-[#080808] flex gap-5 text-[#8e8e93] w-full shrink-0"
+        className="p-4 border-t border-[#1c1c1e] bg-black flex gap-5 text-blue-500 w-full shrink-0"
         style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 16px)" }}
       >
-        <ImageIcon className="w-6 h-6 active:text-blue-500 transition-colors cursor-pointer" />
-        <Bot className="w-6 h-6 active:text-amber-400 transition-colors cursor-pointer" />
+        <ImageIcon className="w-6 h-6 active:text-white transition-colors cursor-pointer" />
+        <Bot className="w-6 h-6 text-amber-400 active:text-white transition-colors cursor-pointer" />
       </div>
     </div>
   )
 }
 
-// Visor de Imágenes Avanzado (Estilo X con Zoom, Descarga, Compartir)
+// Visor de Imágenes Avanzado (Centrado, sin scroll, con herramientas)
 function FullscreenImageModal({ url, onClose }: { url: string | null, onClose: () => void }) {
   const [zoom, setZoom] = useState(1)
 
   if (!url) return null
 
   return (
-    <div className="fixed inset-0 z-[110] bg-black animate-in fade-in duration-200 flex flex-col h-[100dvh] w-full">
+    <div className="fixed inset-0 z-[110] bg-black animate-in fade-in duration-200 flex flex-col w-full" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
       
-      {/* Botones Superiores (Cerrar, Descargar, Compartir) */}
       <div 
         className="absolute top-0 w-full flex items-center justify-between p-4 z-[120] bg-gradient-to-b from-black/60 to-transparent" 
         style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 16px)" }}
@@ -200,7 +205,6 @@ function FullscreenImageModal({ url, onClose }: { url: string | null, onClose: (
         </div>
       </div>
 
-      {/* Imagen Centrada Automáticamente */}
       <div className="flex-1 w-full h-full flex items-center justify-center overflow-hidden relative" onClick={onClose}>
         <img 
           src={url} 
@@ -213,7 +217,6 @@ function FullscreenImageModal({ url, onClose }: { url: string | null, onClose: (
         />
       </div>
 
-      {/* Controles Inferiores (Zoom y Acciones Estilo X) */}
       <div 
         className="absolute bottom-0 w-full flex flex-col gap-4 z-[120]" 
         style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 24px)" }}
@@ -237,89 +240,110 @@ function FullscreenImageModal({ url, onClose }: { url: string | null, onClose: (
   )
 }
 
-// Modal de Caja de Comentarios (Interactivo con Input inferior sobre teclado)
-function CommentModal({ postId, onClose }: { postId: string | null, onClose: () => void }) {
+// Modal de Caja de Comentarios (PANTALLA COMPLETA ESTILO X - Falla del teclado corregida)
+function CommentModal({ post, onClose }: { post: any | null, onClose: () => void }) {
   const [replyInput, setReplyInput] = useState('')
   const [localComments, setLocalComments] = useState<any[]>([])
 
   useEffect(() => {
-    if (postId && MOCK_COMMENTS_DATA[postId]) {
-      setLocalComments(MOCK_COMMENTS_DATA[postId])
+    if (post && MOCK_COMMENTS_DATA[post.id]) {
+      setLocalComments(MOCK_COMMENTS_DATA[post.id])
     } else {
       setLocalComments([])
     }
-  }, [postId])
+  }, [post])
 
   const handleSendReply = () => {
-    if (!replyInput.trim() || !postId) return
+    if (!replyInput.trim() || !post) return
     const newReply = {
       id: `lr-${Date.now()}`,
       author: { name: "You (Analyst)", avatar: "/mi-avatar.jpg", handle: "@you_ai" },
       text: replyInput.trim(),
       timestamp: "Now"
     }
-    setLocalComments(prev => [...prev, newReply])
+    setLocalComments(prev => [newReply, ...prev]) // Añadir al principio
     setReplyInput('')
   }
 
-  if (!postId) return null
+  if (!post) return null
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/80 flex flex-col justify-end animate-in fade-in duration-200 w-full h-[100dvh]" onClick={onClose}>
+    // Pantalla completa con altura dinámica para el teclado
+    <div 
+      className="fixed top-0 left-0 right-0 z-[100] bg-black flex flex-col animate-in slide-in-from-right duration-200 overflow-hidden" 
+      style={{ height: "var(--tg-viewport-height, 100vh)" }} 
+    >
+      {/* Header Estilo X (Back button) */}
       <div 
-        className="w-full h-[85dvh] bg-[#0F0F0F] rounded-t-[28px] flex flex-col animate-in slide-in-from-bottom duration-300 border-t border-[#2c2c2e] overflow-hidden" 
-        onClick={e => e.stopPropagation()}
+        className="flex items-center justify-between px-4 pb-3 border-b border-[#1c1c1e] bg-black shrink-0 w-full"
+        style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 16px)" }}
       >
-        <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e] shrink-0 w-full">
-          <span className="font-bold text-[18px] text-center w-full" style={{ fontFamily: SFD }}>Reply</span>
-          <button onClick={onClose} className="absolute right-4 p-1 active:bg-[#1c1c1e] rounded-full"><X className="w-6 h-6 text-gray-400"/></button>
+        <div className="flex items-center gap-6">
+            <button onClick={onClose} className="p-1 active:bg-[#1c1c1e] rounded-full transition-colors"><ArrowLeft className="w-6 h-6 text-white"/></button>
+            <span className="font-bold text-[18px] text-white" style={{ fontFamily: SFD }}>Post</span>
         </div>
+      </div>
 
-        <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4 pr-2 w-full">
-            {localComments.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-gray-600 space-y-3">
-                  <MessageCircle className="w-12 h-12" />
-                  <p className="text-center text-sm">Be the first to reply.</p>
-              </div>
-            ) : (
-              localComments.map(reply => (
-                <div key={reply.id} className="flex gap-3 mb-5">
-                  <img src={reply.author.avatar} alt={reply.author.name} className="w-9 h-9 rounded-full object-cover shrink-0" onError={(e) => e.currentTarget.src = 'https://i.pravatar.cc/150'} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <span className="text-white font-bold text-[14px]" style={{ fontFamily: SFD }}>{reply.author.name}</span>
-                      <span className="text-[#8e8e93] text-[13px]">{reply.author.handle} · {reply.timestamp}</span>
-                    </div>
-                    <p className="text-[#e4e4e7] text-[14px] leading-relaxed whitespace-pre-wrap">{reply.text}</p>
-                  </div>
+      {/* Contenido Scrolleable (Post Original + Respuestas) */}
+      <div className="flex-1 overflow-y-auto no-scrollbar w-full bg-[#080808]">
+          {/* Post Original */}
+          <PostCard post={post} onOpenImage={()=>{}} onAskGrok={()=>{}} isDetailView={true} />
+          
+          {/* Línea separadora */}
+          <div className="h-px bg-[#1c1c1e] w-full" />
+
+          {/* Respuestas */}
+          <div className="p-4 space-y-4 pr-2 w-full pb-10">
+              {localComments.length === 0 ? (
+                <div className="flex flex-col items-center justify-center text-gray-600 space-y-3 py-10">
+                    <MessageCircle className="w-10 h-10 opacity-50" />
+                    <p className="text-center text-sm">No replies yet.</p>
                 </div>
-              ))
-            )}
-        </div>
-
-        <div 
-          className="p-3 border-t border-[#1c1c1e] bg-[#0F0F0F] shrink-0 w-full"
-          style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 12px)" }}
-        >
-          <div className="flex items-center gap-3 w-full">
-            <img src="/mi-avatar.jpg" className="w-9 h-9 rounded-full object-cover shrink-0 border border-[#2c2c2e]" onError={(e) => e.currentTarget.src = 'https://i.pravatar.cc/150'} />
-            <input 
-              type="text" 
-              value={replyInput}
-              onChange={e => setReplyInput(e.target.value)}
-              placeholder="Post your reply" 
-              className="flex-1 bg-transparent text-[14px] text-white focus:outline-none placeholder:text-gray-600" 
-              onKeyPress={(e) => e.key === 'Enter' && handleSendReply()}
-              autoFocus
-            />
-            <button 
-              onClick={handleSendReply} 
-              disabled={!replyInput.trim()}
-              className={`px-4 py-1.5 rounded-full font-bold text-sm transition-all duration-200 ${replyInput.trim() ? 'bg-blue-500 text-white active:opacity-80' : 'bg-[#1c1c1e] text-gray-600'}`}
-            >
-              Reply
-            </button>
+              ) : (
+                localComments.map(reply => (
+                  <div key={reply.id} className="flex gap-3 mb-5">
+                    <img src={reply.author.avatar} alt={reply.author.name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-[#1c1c1e]" onError={(e) => e.currentTarget.src = 'https://i.pravatar.cc/150'} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="text-white font-bold text-[15px]" style={{ fontFamily: SFD }}>{reply.author.name}</span>
+                        <span className="text-[#8e8e93] text-[14px]">{reply.author.handle} · {reply.timestamp}</span>
+                      </div>
+                      <p className="text-[#e4e4e7] text-[15px] leading-relaxed whitespace-pre-wrap">{reply.text}</p>
+                      <div className="flex gap-6 mt-3 text-[#8e8e93]">
+                          <button className="flex gap-1 items-center active:text-blue-400"><MessageCircle className="w-4 h-4"/> <span className="text-xs"></span></button>
+                          <button className="flex gap-1 items-center active:text-green-400"><Repeat2 className="w-4 h-4"/> <span className="text-xs"></span></button>
+                          <button className="flex gap-1 items-center active:text-pink-500"><Heart className="w-4 h-4"/> <span className="text-xs"></span></button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
           </div>
+      </div>
+
+      {/* Caja de Input (Siempre pegada al borde inferior/teclado) */}
+      <div 
+        className="p-3 border-t border-[#1c1c1e] bg-black shrink-0 w-full"
+        style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 12px)" }}
+      >
+        <div className="flex items-center gap-3 w-full">
+          <img src="/mi-avatar.jpg" className="w-9 h-9 rounded-full object-cover shrink-0 border border-[#2c2c2e]" onError={(e) => e.currentTarget.src = 'https://i.pravatar.cc/150'} />
+          <input 
+            type="text" 
+            value={replyInput}
+            onChange={e => setReplyInput(e.target.value)}
+            placeholder="Post your reply" 
+            className="flex-1 bg-transparent text-[16px] text-white focus:outline-none placeholder:text-gray-600" 
+            onKeyPress={(e) => e.key === 'Enter' && handleSendReply()}
+            autoFocus
+          />
+          <button 
+            onClick={handleSendReply} 
+            disabled={!replyInput.trim()}
+            className={`px-5 py-1.5 rounded-full font-bold text-sm transition-all duration-200 ${replyInput.trim() ? 'bg-blue-500 text-white active:opacity-80' : 'bg-[#1c1c1e] text-gray-600'}`}
+          >
+            Reply
+          </button>
         </div>
       </div>
     </div>
@@ -333,7 +357,7 @@ export function PulseView() {
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [fullscreenImageUrl, setFullscreenImageUrl] = useState<string | null>(null)
-  const [commentPostId, setCommentPostId] = useState<string | null>(null)
+  const [commentPost, setCommentPost] = useState<any | null>(null)
 
   // Motor de Scroll (Oculta/Muestra Header y FAB)
   const [isScrollingDown, setIsScrollingDown] = useState(false)
@@ -349,10 +373,26 @@ export function PulseView() {
     if (currentY > lastScrollY.current + 15) {
       setIsScrollingDown(true) // Ocultar al bajar
     } else if (currentY < lastScrollY.current - 15) {
-      setIsScrollingDown(false) // Mostrar al subir
+      setIsScrollingDown(false) // Mostrar al subir instantáneamente
     }
     lastScrollY.current = currentY
   }
+
+  // ── TRUCO MAESTRO: Ocultar NavBar Principal de page.tsx ──
+  useEffect(() => {
+    const navBar = document.getElementById("main-nav-bar");
+    if (navBar) {
+      if (createModalOpen || fullscreenImageUrl || commentPost) {
+        navBar.style.opacity = "0"; // Lo hacemos invisible
+        navBar.style.pointerEvents = "none";
+      } else {
+        navBar.style.opacity = "1";
+        // Restore events si no está deshabilitado
+      }
+    }
+    // Limpieza de seguridad
+    return () => { if (navBar) { navBar.style.opacity = "1"; } }
+  }, [createModalOpen, fullscreenImageUrl, commentPost])
 
   const handleAskGrok = (postId: string) => {
     // Logica de Grok
@@ -399,7 +439,7 @@ export function PulseView() {
         </div>
       </div>
 
-      {/* ── FEED LIST (Con padding para evitar solapamiento) ── */}
+      {/* ── FEED LIST ── */}
       <div 
         className="flex-1 overflow-y-auto no-scrollbar w-full" 
         onScroll={handleScroll}
@@ -410,11 +450,11 @@ export function PulseView() {
       >
         {activeTab === "foryou" ? (
             MOCK_POSTS_FORYOU.map(post => (
-                <PostCard key={post.id} post={post} onOpenImage={setFullscreenImageUrl} onOpenComments={setCommentPostId} onAskGrok={handleAskGrok}/>
+                <PostCard key={post.id} post={post} onOpenImage={setFullscreenImageUrl} onOpenComments={setCommentPost} onAskGrok={handleAskGrok}/>
             ))
         ) : (
             MOCK_POSTS_FOLLOWING.map(post => (
-                <PostCard key={post.id} post={post} onOpenImage={setFullscreenImageUrl} onOpenComments={setCommentPostId} onAskGrok={handleAskGrok}/>
+                <PostCard key={post.id} post={post} onOpenImage={setFullscreenImageUrl} onOpenComments={setCommentPost} onAskGrok={handleAskGrok}/>
             ))
         )}
         
@@ -423,10 +463,10 @@ export function PulseView() {
         </div>
       </div>
 
-      {/* ── FAB DINÁMICO (Desaparece al scrollear hacia abajo) ── */}
+      {/* ── FAB DINÁMICO ── */}
       <button 
         onClick={() => setCreateModalOpen(true)}
-        className={`absolute z-40 right-4 w-14 h-14 rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(59,130,246,0.4)] transition-all duration-300 ease-in-out ${isScrollingDown ? 'translate-y-[150px] opacity-0' : 'translate-y-0 opacity-100'}`}
+        className={`absolute z-40 right-4 w-[52px] h-[52px] rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(59,130,246,0.4)] transition-all duration-300 ease-in-out ${isScrollingDown ? 'translate-y-[150px] opacity-0' : 'translate-y-0 opacity-100'}`}
         style={{ 
           background: "#3b82f6", 
           bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 90px)" 
@@ -438,7 +478,7 @@ export function PulseView() {
       {/* ── MODALES ── */}
       <CreatePostModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} />
       <FullscreenImageModal url={fullscreenImageUrl} onClose={() => setFullscreenImageUrl(null)} />
-      <CommentModal postId={commentPostId} onClose={() => setCommentPostId(null)} />
+      <CommentModal post={commentPost} onClose={() => setCommentPost(null)} />
 
     </div>
   )
