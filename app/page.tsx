@@ -14,7 +14,7 @@ import { GroupSettingsView } from "@/components/group-settings-view"
 import { ScheduleView } from "@/components/schedule-view"
 import { PulseView } from "@/components/pulse-view" // Nueva pestaña de Red Social AI
 import { useEffect, useState } from "react"
-import { Home, Globe, Activity, CircleUser, Loader2, Coins } from "lucide-react"
+import { Home, Globe, Activity, CircleUser, Loader2 } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = { 
@@ -43,16 +43,16 @@ function NavBar() {
 
   type Tab = { id: string; label: string; icon: any; disabled?: boolean }
   
-  // Remplazamos 'Store' por 'Pulse' en la barra de navegación principal
+  // Replicando la estética de iconos minimalistas de Telegram/X
   const tabs: Tab[] = [
     { id: "home",      label: "Home",      icon: Home },
-    { id: "pulse",     label: "Pulse",     icon: Globe }, // Nueva pestaña con icono de red global
+    { id: "pulse",     label: "Pulse",     icon: Globe }, // Nuevo Tab "Pulse"
     { id: "analytics", label: "Analytics", icon: Activity },
     { id: "profile",   label: "Profile",   icon: CircleUser },
   ]
 
-  // Definimos las vistas principales que muestran la NavBar
-  const mainViews = ["home", "pulse", "analytics", "profile"]
+  // Actualiza las vistas principales que muestran la NavBar flotante
+  const mainViews = ["home", "store", "analytics", "profile"]
   const activeTab = mainViews.includes(currentView) ? currentView : "home"
 
   function handleTab(id: string) {
@@ -130,10 +130,16 @@ function NavBar() {
   )
 }
 
-// ── App shell ─────────────────────────────────────────────────────────
+// ── App shell ──────────────────────────────────────────
 function AppContent() {
   const { currentView, isLoading } = useApp()
-  const showNav = ["home", "pulse", "analytics", "profile"].includes(currentView)
+
+  // NUEVA LÓGICA: Definimos qué vistas principales muestran la NavBar flotante
+  const mainViewsShowNav = ["home", "analytics", "store", "profile"]
+  // Ocultamos la NavBar si estamos en vistas "profundas" de Pulse (comments, create, image, etc.)
+  const shouldHideNav = currentView === "pulse" || currentView.includes("create") || currentView.includes("reply");
+  
+  const showNav = mainViewsShowNav.includes(currentView) && !shouldHideNav;
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
@@ -212,7 +218,7 @@ function AppContent() {
       >
         {/* Renderizado de Vistas */}
         {currentView === "home" && (<><Header /><HomeView /></>)}
-        {currentView === "pulse" && <PulseView />}
+        {currentView === "pulse" && <PulseView />} {/* Nueva pestaña de Red Social */}
         {currentView === "settings"  && <SettingsView />}
         {currentView === "store"     && <StoreView />}
         {currentView === "premium"   && <PremiumView />}
@@ -223,6 +229,7 @@ function AppContent() {
         {currentView === "group-settings" && <GroupSettingsView />}
         {currentView === "schedule"  && <ScheduleView />}
         
+        {/* Renderizado Condicional de la NavBar Flotante */}
         {showNav && <NavBar />}
       </div>
     </>
