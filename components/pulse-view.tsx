@@ -142,34 +142,34 @@ function PostCard({ post, onOpenImage, onOpenComments, onAskGrok, isDetailView =
   )
 }
 
-// ── MODALES PREMIUM COMPLETOS ──────────────────────────────────────────
+// ── MODALES PREMIUM (Cero fugas de scroll) ──────────────────────────
 
-// Modal de Creación de Post (MAGIA: var(--tg-viewport-height) para el teclado)
+// Modal de Creación de Post (Cero scroll de fondo y alineado al Notch)
 function CreatePostModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
   if (!isOpen) return null
   return (
     <div 
-      className="fixed top-0 left-0 right-0 z-[100] bg-black animate-in fade-in duration-200 flex flex-col overflow-hidden"
-      // Esta línea es la magia de Telegram: Forza al contenedor a achicarse exactamente cuando el teclado sube
-      style={{ height: "var(--tg-viewport-height, 100vh)" }} 
+      className="fixed inset-0 z-[100] bg-black animate-in fade-in duration-200 flex flex-col overflow-hidden"
+      style={{ height: "var(--tg-viewport-height, 100dvh)" }} // El secreto de Telegram para el teclado
     >
+      {/* Cabecera posicionada EXACTAMENTE donde estarían las pestañas For You / Following */}
       <div 
         className="flex items-center justify-between px-4 pb-3 border-b border-[#1c1c1e] bg-black shrink-0" 
-        style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 16px)" }}
+        style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 64px)" }}
       >
         <button onClick={onClose} className="text-white text-[15px] active:opacity-70 transition-opacity">Cancel</button>
         <button className="bg-blue-500 text-white text-[14px] font-bold px-4 py-1.5 rounded-full active:opacity-80 transition-opacity">Post</button>
       </div>
       
-      {/* El flex-1 empuja la barra inferior hacia abajo, pero sin desbordar */}
-      <div className="flex-1 p-4 flex gap-3 bg-[#080808] w-full overflow-y-auto">
+      {/* Caja de texto (overflow-hidden asegura que no se scrollee todo el modal, solo el texto) */}
+      <div className="flex-1 p-4 flex gap-3 bg-[#080808] w-full overflow-hidden">
         <img src="/mi-avatar.jpg" className="w-10 h-10 rounded-full border border-[#1c1c1e] shrink-0 object-cover" onError={(e) => e.currentTarget.src = 'https://i.pravatar.cc/150'}/>
         <textarea placeholder="¿Qué está pasando?" className="flex-1 bg-transparent text-white text-[17px] focus:outline-none resize-none h-full pt-1" autoFocus />
       </div>
       
-      {/* Esta barra siempre se quedará pegada al borde inferior visible (justo sobre el teclado) */}
+      {/* Barra de herramientas siempre anclada al teclado/fondo */}
       <div 
-        className="p-4 border-t border-[#1c1c1e] bg-black flex gap-5 text-blue-500 w-full shrink-0"
+        className="shrink-0 p-4 border-t border-[#1c1c1e] bg-[#080808] flex gap-5 text-blue-500 w-full"
         style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 16px)" }}
       >
         <ImageIcon className="w-6 h-6 active:text-white transition-colors cursor-pointer" />
@@ -179,15 +179,17 @@ function CreatePostModal({ isOpen, onClose }: { isOpen: boolean, onClose: () => 
   )
 }
 
-// Visor de Imágenes Avanzado (Centrado, sin scroll, con herramientas)
+// Visor de Imágenes (Estático, centrado y sin scroll)
 function FullscreenImageModal({ url, onClose }: { url: string | null, onClose: () => void }) {
   const [zoom, setZoom] = useState(1)
 
   if (!url) return null
 
   return (
-    <div className="fixed inset-0 z-[110] bg-black animate-in fade-in duration-200 flex flex-col w-full" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
-      
+    <div 
+      className="fixed inset-0 z-[110] bg-black animate-in fade-in duration-200 flex flex-col overflow-hidden" 
+      style={{ height: "var(--tg-viewport-height, 100dvh)" }}
+    >
       <div 
         className="absolute top-0 w-full flex items-center justify-between p-4 z-[120] bg-gradient-to-b from-black/60 to-transparent" 
         style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 16px)" }}
@@ -240,7 +242,7 @@ function FullscreenImageModal({ url, onClose }: { url: string | null, onClose: (
   )
 }
 
-// Modal de Caja de Comentarios (PANTALLA COMPLETA ESTILO X - Falla del teclado corregida)
+// Modal de Caja de Comentarios (Cero fuga de scroll)
 function CommentModal({ post, onClose }: { post: any | null, onClose: () => void }) {
   const [replyInput, setReplyInput] = useState('')
   const [localComments, setLocalComments] = useState<any[]>([])
@@ -261,21 +263,19 @@ function CommentModal({ post, onClose }: { post: any | null, onClose: () => void
       text: replyInput.trim(),
       timestamp: "Now"
     }
-    setLocalComments(prev => [newReply, ...prev]) // Añadir al principio
+    setLocalComments(prev => [newReply, ...prev])
     setReplyInput('')
   }
 
   if (!post) return null
 
   return (
-    // Pantalla completa con altura dinámica para el teclado
     <div 
-      className="fixed top-0 left-0 right-0 z-[100] bg-black flex flex-col animate-in slide-in-from-right duration-200 overflow-hidden" 
-      style={{ height: "var(--tg-viewport-height, 100vh)" }} 
+      className="fixed inset-0 z-[100] bg-black flex flex-col animate-in slide-in-from-right duration-200 overflow-hidden" 
+      style={{ height: "var(--tg-viewport-height, 100dvh)" }} 
     >
-      {/* Header Estilo X (Back button) */}
       <div 
-        className="flex items-center justify-between px-4 pb-3 border-b border-[#1c1c1e] bg-black shrink-0 w-full"
+        className="shrink-0 flex items-center justify-between px-4 pb-3 border-b border-[#1c1c1e] bg-black w-full"
         style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 16px)" }}
       >
         <div className="flex items-center gap-6">
@@ -284,15 +284,10 @@ function CommentModal({ post, onClose }: { post: any | null, onClose: () => void
         </div>
       </div>
 
-      {/* Contenido Scrolleable (Post Original + Respuestas) */}
       <div className="flex-1 overflow-y-auto no-scrollbar w-full bg-[#080808]">
-          {/* Post Original */}
           <PostCard post={post} onOpenImage={()=>{}} onAskGrok={()=>{}} isDetailView={true} />
-          
-          {/* Línea separadora */}
           <div className="h-px bg-[#1c1c1e] w-full" />
 
-          {/* Respuestas */}
           <div className="p-4 space-y-4 pr-2 w-full pb-10">
               {localComments.length === 0 ? (
                 <div className="flex flex-col items-center justify-center text-gray-600 space-y-3 py-10">
@@ -310,9 +305,9 @@ function CommentModal({ post, onClose }: { post: any | null, onClose: () => void
                       </div>
                       <p className="text-[#e4e4e7] text-[15px] leading-relaxed whitespace-pre-wrap">{reply.text}</p>
                       <div className="flex gap-6 mt-3 text-[#8e8e93]">
-                          <button className="flex gap-1 items-center active:text-blue-400"><MessageCircle className="w-4 h-4"/> <span className="text-xs"></span></button>
-                          <button className="flex gap-1 items-center active:text-green-400"><Repeat2 className="w-4 h-4"/> <span className="text-xs"></span></button>
-                          <button className="flex gap-1 items-center active:text-pink-500"><Heart className="w-4 h-4"/> <span className="text-xs"></span></button>
+                          <button className="flex gap-1 items-center active:text-blue-400"><MessageCircle className="w-4 h-4"/></button>
+                          <button className="flex gap-1 items-center active:text-green-400"><Repeat2 className="w-4 h-4"/></button>
+                          <button className="flex gap-1 items-center active:text-pink-500"><Heart className="w-4 h-4"/></button>
                       </div>
                     </div>
                   </div>
@@ -321,9 +316,8 @@ function CommentModal({ post, onClose }: { post: any | null, onClose: () => void
           </div>
       </div>
 
-      {/* Caja de Input (Siempre pegada al borde inferior/teclado) */}
       <div 
-        className="p-3 border-t border-[#1c1c1e] bg-black shrink-0 w-full"
+        className="shrink-0 p-3 border-t border-[#1c1c1e] bg-black w-full"
         style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 12px)" }}
       >
         <div className="flex items-center gap-3 w-full">
@@ -350,7 +344,7 @@ function CommentModal({ post, onClose }: { post: any | null, onClose: () => void
   )
 }
 
-// ── VISTA PRINCIPAL (PulseView con Motor de Scroll Dinámico Estilo X) ─
+// ── VISTA PRINCIPAL (PulseView FIJO - Previene Scroll Global) ──────────
 export function PulseView() {
   const [activeTab, setActiveTab] = useState<"foryou" | "following">("foryou")
   const { setCurrentView } = useApp()
@@ -359,7 +353,7 @@ export function PulseView() {
   const [fullscreenImageUrl, setFullscreenImageUrl] = useState<string | null>(null)
   const [commentPost, setCommentPost] = useState<any | null>(null)
 
-  // Motor de Scroll (Oculta/Muestra Header y FAB)
+  // Motor de Scroll (Solo afecta a la cabecera y al botón FAB dentro del Feed)
   const [isScrollingDown, setIsScrollingDown] = useState(false)
   const lastScrollY = useRef(0)
 
@@ -371,26 +365,25 @@ export function PulseView() {
       return
     }
     if (currentY > lastScrollY.current + 15) {
-      setIsScrollingDown(true) // Ocultar al bajar
+      setIsScrollingDown(true) 
     } else if (currentY < lastScrollY.current - 15) {
-      setIsScrollingDown(false) // Mostrar al subir instantáneamente
+      setIsScrollingDown(false) 
     }
     lastScrollY.current = currentY
   }
 
-  // ── TRUCO MAESTRO: Ocultar NavBar Principal de page.tsx ──
+  // Desaparecer NavBar global de page.tsx cuando entras a Modales
   useEffect(() => {
     const navBar = document.getElementById("main-nav-bar");
     if (navBar) {
       if (createModalOpen || fullscreenImageUrl || commentPost) {
-        navBar.style.opacity = "0"; // Lo hacemos invisible
+        navBar.style.opacity = "0"; 
         navBar.style.pointerEvents = "none";
       } else {
         navBar.style.opacity = "1";
-        // Restore events si no está deshabilitado
+        navBar.style.pointerEvents = "auto";
       }
     }
-    // Limpieza de seguridad
     return () => { if (navBar) { navBar.style.opacity = "1"; } }
   }, [createModalOpen, fullscreenImageUrl, commentPost])
 
@@ -409,9 +402,13 @@ export function PulseView() {
   }, [setCurrentView])
 
   return (
-    <div className="flex-1 flex flex-col bg-[#000000] text-white overflow-hidden relative animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out h-[100dvh] w-full">
+    // ¡LA CLAVE!: fixed inset-0 y z-30 para adueñarse de la pantalla y no dejar que el fondo scrollee.
+    <div 
+      className="fixed inset-0 z-30 bg-[#000000] text-white overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300 ease-out"
+      style={{ height: "var(--tg-viewport-height, 100dvh)" }}
+    >
       
-      {/* ── HEADER DINÁMICO (Se esconde al hacer scroll hacia abajo) ── */}
+      {/* ── HEADER DINÁMICO (Animación Estilo X) ── */}
       <div 
         className={`absolute top-0 left-0 right-0 z-40 flex flex-col w-full border-b border-[#1c1c1e] bg-black/85 backdrop-blur-xl transition-transform duration-300 ease-in-out ${isScrollingDown ? '-translate-y-full' : 'translate-y-0'}`}
         style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 16px)" }}
@@ -439,12 +436,14 @@ export function PulseView() {
         </div>
       </div>
 
-      {/* ── FEED LIST ── */}
+      {/* ── FEED LIST (Contenedor que SÍ scrollea) ── */}
       <div 
-        className="flex-1 overflow-y-auto no-scrollbar w-full" 
+        className="w-full h-full overflow-y-auto no-scrollbar" 
         onScroll={handleScroll}
         style={{ 
-          paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 120px)", 
+          // Espacio por arriba para que los posts no queden ocultos debajo del Header
+          paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 110px)", 
+          // Espacio por abajo para que el último post se vea por encima de la NavBar global
           paddingBottom: "120px" 
         }}
       >
@@ -463,10 +462,10 @@ export function PulseView() {
         </div>
       </div>
 
-      {/* ── FAB DINÁMICO ── */}
+      {/* ── FAB DINÁMICO (Siempre visible y anclado a la pantalla) ── */}
       <button 
         onClick={() => setCreateModalOpen(true)}
-        className={`absolute z-40 right-4 w-[52px] h-[52px] rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(59,130,246,0.4)] transition-all duration-300 ease-in-out ${isScrollingDown ? 'translate-y-[150px] opacity-0' : 'translate-y-0 opacity-100'}`}
+        className={`absolute z-40 right-4 w-[52px] h-[52px] rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(59,130,246,0.4)] transition-transform duration-300 ease-in-out ${isScrollingDown ? 'translate-y-[150px]' : 'translate-y-0'}`}
         style={{ 
           background: "#3b82f6", 
           bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 90px)" 
@@ -475,7 +474,7 @@ export function PulseView() {
         <Plus className="w-7 h-7 text-white" strokeWidth={2.5} />
       </button>
 
-      {/* ── MODALES ── */}
+      {/* ── MODALES (Nivel superior) ── */}
       <CreatePostModal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} />
       <FullscreenImageModal url={fullscreenImageUrl} onClose={() => setFullscreenImageUrl(null)} />
       <CommentModal post={commentPost} onClose={() => setCommentPost(null)} />
