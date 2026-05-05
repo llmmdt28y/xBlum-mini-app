@@ -11,22 +11,29 @@ import { ProfileView } from "@/components/profile-view"
 import { XRewardsView } from "@/components/x-rewards-view" 
 import { AnalyticsView } from "@/components/analytics-view"
 import { GroupSettingsView } from "@/components/group-settings-view"
-import { ScheduleView } from "@/components/schedule-view" // <-- AÑADIDO
+import { ScheduleView } from "@/components/schedule-view"
+import { PulseView } from "@/components/pulse-view" // Nueva pestaña de Red Social AI
 import { useEffect, useState } from "react"
-import { Home, Coins, Activity, CircleUser, Loader2 } from "lucide-react"
+import { Home, Globe, Activity, CircleUser, Loader2, Coins } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
-type TgUser = { id: number; first_name?: string; last_name?: string; username?: string; photo_url?: string }
+type TgUser = { 
+  id: number; 
+  first_name?: string; 
+  last_name?: string; 
+  username?: string; 
+  photo_url?: string 
+}
+
 function getTgUser(): TgUser | undefined {
   if (typeof window === "undefined") return undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
 // ── Floating Liquid NavBar ────────────────────────────────────────────
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
-  const [photoUrl, setPhotoUrl]   = useState<string | null>(null)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
 
   useEffect(() => {
     const user = getTgUser()
@@ -34,20 +41,22 @@ function NavBar() {
     if (user.photo_url) setPhotoUrl(user.photo_url)
   }, [])
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type Tab = { id: string; label: string; icon: any; disabled?: boolean }
+  
+  // Remplazamos 'Store' por 'Pulse' en la barra de navegación principal
   const tabs: Tab[] = [
     { id: "home",      label: "Home",      icon: Home },
-    { id: "store",     label: "Store",     icon: Coins },
+    { id: "pulse",     label: "Pulse",     icon: Globe }, // Nueva pestaña con icono de red global
     { id: "analytics", label: "Analytics", icon: Activity },
     { id: "profile",   label: "Profile",   icon: CircleUser },
   ]
 
-  const mainViews = ["home", "store", "analytics", "profile"]
+  // Definimos las vistas principales que muestran la NavBar
+  const mainViews = ["home", "pulse", "analytics", "profile"]
   const activeTab = mainViews.includes(currentView) ? currentView : "home"
 
   function handleTab(id: string) {
-    setCurrentView(id as "home" | "store" | "analytics" | "profile")
+    setCurrentView(id as any)
   }
 
   return (
@@ -124,14 +133,13 @@ function NavBar() {
 // ── App shell ─────────────────────────────────────────────────────────
 function AppContent() {
   const { currentView, isLoading } = useApp()
-  const showNav = ["home", "store", "analytics", "profile"].includes(currentView)
+  const showNav = ["home", "pulse", "analytics", "profile"].includes(currentView)
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
   const [fadeLoading, setFadeLoading] = useState(false)
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
     if (tg) {
       tg.ready()    
@@ -202,7 +210,9 @@ function AppContent() {
         className="bg-black flex flex-col relative" 
         style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
       >
+        {/* Renderizado de Vistas */}
         {currentView === "home" && (<><Header /><HomeView /></>)}
+        {currentView === "pulse" && <PulseView />}
         {currentView === "settings"  && <SettingsView />}
         {currentView === "store"     && <StoreView />}
         {currentView === "premium"   && <PremiumView />}
@@ -211,7 +221,7 @@ function AppContent() {
         {currentView === "x-rewards" && <XRewardsView />}
         {currentView === "analytics" && <AnalyticsView />}
         {currentView === "group-settings" && <GroupSettingsView />}
-        {currentView === "schedule"  && <ScheduleView />} {/* <-- AÑADIDO */}
+        {currentView === "schedule"  && <ScheduleView />}
         
         {showNav && <NavBar />}
       </div>
