@@ -2,12 +2,12 @@
 
 import { useApp } from "@/lib/app-context"
 import { useState, useEffect } from "react"
-import { Share, Search, Settings } from "lucide-react"
+import { Search } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── 1. ARTE SVG (Rediseño de fondos y nuevo background de iconos) ──
+// ── 1. ARTE SVG (Rediseño y nuevas formas) ──
 
 const SpiralSVG = () => {
   const dots = Array.from({ length: 140 }).map((_, i) => {
@@ -31,7 +31,6 @@ const StardustSVG = () => {
       y = Math.random() * 100;
       r = Math.sqrt(Math.pow(x - 50, 2) + Math.pow(y - 50, 2));
     } while (r < 28 || r > 46);
-
     const size = Math.random() * 0.8 + 0.3;
     const opacity = Math.random() * 0.8 + 0.2;
     return <circle key={i} cx={x} cy={y} r={size} fill="#ffffff" opacity={opacity} />
@@ -39,31 +38,43 @@ const StardustSVG = () => {
   return <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">{stars}</svg>
 }
 
-// Nuevo background de iconos distribuidos hacia los lados
-const IconBackgroundSVG = () => {
-  const icons = [
-    { x: 10, y: 15, size: 7 }, { x: 90, y: 15, size: 7 },
-    { x: 10, y: 35, size: 6 }, { x: 90, y: 35, size: 6 },
-    { x: 10, y: 55, size: 7 }, { x: 90, y: 55, size: 7 },
-    { x: 10, y: 75, size: 6 }, { x: 90, y: 75, size: 6 },
-    { x: 10, y: 95, size: 7 }, { x: 90, y: 95, size: 7 },
-  ]
-  const iconSet = ["🎁", "💎", "⭐", "💰", "🔥", "⚡"]
-  return (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      {icons.map((pos, i) => (
-        <text key={i} x={pos.x} y={pos.y} fontSize={pos.size} textAnchor="middle" dominantBaseline="central" opacity="0.3" fill="#8e8e93">
-          {iconSet[i % iconSet.length]}
-        </text>
-      ))}
-    </svg>
-  )
+// NUEVO: Iconos abstractos grises distribuidos en los bordes
+const TreasuresSVG = () => {
+  // Diamante, Destello, Rombo, Moneda
+  const shapes = [
+    "M0,-5 L5,0 L0,5 L-5,0 Z", 
+    "M0,-6 Q2,-2 6,0 Q2,2 0,6 Q-2,2 -6,0 Q-2,-2 0,-6 Z",
+    "M-4,-4 L4,-4 L4,4 L-4,4 Z",
+    "M0,-5 A 5 5 0 1 1 0,5 A 5 5 0 1 1 0,-5 Z"
+  ];
+
+  const elements = Array.from({ length: 28 }).map((_, i) => {
+    const angle = (i / 28) * Math.PI * 2;
+    const radius = 36 + Math.random() * 10; // Espacio central vacío garantizado
+    const x = 50 + radius * Math.cos(angle);
+    const y = 50 + radius * Math.sin(angle);
+    const shape = shapes[i % shapes.length];
+    const scale = 0.4 + Math.random() * 0.5;
+    const rotate = Math.random() * 360;
+
+    return (
+      <path
+        key={i}
+        d={shape}
+        fill="#8e8e93" // Gris elegante
+        opacity={0.3 + Math.random() * 0.4}
+        transform={`translate(${x}, ${y}) scale(${scale}) rotate(${rotate})`}
+      />
+    );
+  });
+
+  return <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_4px_rgba(142,142,147,0.3)]">{elements}</svg>
 }
 
 const PhantomSVG = () => (
-  <svg viewBox="0 0 100 100" className="w-[50%] h-[50%] drop-shadow-[0_0_10px_rgba(255,255,255,0.6)]">
-    <path d="M 20 50 C 20 20, 80 20, 80 50 L 80 90 C 75 80, 65 90, 50 80 C 35 90, 25 80, 20 90 Z" fill="none" stroke="#ffffff" strokeWidth="5" strokeLinejoin="round" />
-    <path d="M 40 55 Q 50 65 60 55" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" />
+  <svg viewBox="0 0 100 100" className="w-[55%] h-[55%] drop-shadow-[0_0_12px_rgba(255,255,255,0.7)]">
+    <path d="M 20 50 C 20 20, 80 20, 80 50 L 80 90 C 75 80, 65 90, 50 80 C 35 90, 25 80, 20 90 Z" fill="none" stroke="#ffffff" strokeWidth="6" strokeLinejoin="round" />
+    <path d="M 40 55 Q 50 65 60 55" fill="none" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" />
   </svg>
 )
 
@@ -75,74 +86,66 @@ const CoreSVG = () => (
   </svg>
 )
 
-// Wrapper de Gradiente Sutil para las Auras
 const ArtWrapper = ({ children, glowColor }: { children: React.ReactNode, glowColor: string }) => (
   <div className="w-full h-full relative flex items-center justify-center">
-    <div className="absolute inset-0 opacity-40 mix-blend-screen" style={{ background: `radial-gradient(circle, ${glowColor} 0%, transparent 65%)` }} />
+    <div className="absolute inset-0 opacity-30 mix-blend-screen" style={{ background: `radial-gradient(circle, ${glowColor} 0%, transparent 70%)` }} />
     <div className="relative z-10 w-full h-full flex items-center justify-center">{children}</div>
   </div>
 )
 
 // ── 2. BASE DE DATOS DE ÍTEMS ──
 const NFT_ITEMS = [
-  { id: '1', name: "Spiral", type: "SHADE", rarity: "Epic", price: 15000, issueNumber: "332", stock: 100, art: <ArtWrapper glowColor="rgba(168,85,247,0.15)"><SpiralSVG /></ArtWrapper> },
-  { id: '2', name: "Stardust", type: "SHADE", rarity: "Rare", price: 5000, issueNumber: "12", stock: 500, art: <ArtWrapper glowColor="rgba(59,130,246,0.1)"><StardustSVG /></ArtWrapper> },
-  { id: '3', name: "Gifts", type: "SHADE", rarity: "Epic", price: 20000, issueNumber: "7", stock: 250, art: <ArtWrapper glowColor="rgba(249,115,22,0.1)"><IconBackgroundSVG /></ArtWrapper> },
-  { id: '4', name: "Phantom", type: "GIFT", rarity: "Legendary", price: 45000, issueNumber: "9", stock: 10, art: <PhantomSVG /> },
-  { id: '5', name: "Core", type: "GIFT", rarity: "Mythic", price: 150000, issueNumber: "1", stock: 0, art: <CoreSVG /> }
+  { id: '1', name: "Spiral", type: "SHADE", rarity: "Epic", price: 15000, issueNumber: "332", stock: 100, model: "Aura", symbol: "Core Ring", backdrop: "Void", art: <ArtWrapper glowColor="rgba(168,85,247,0.15)"><SpiralSVG /></ArtWrapper> },
+  { id: '2', name: "Stardust", type: "SHADE", rarity: "Rare", price: 5000, issueNumber: "12", stock: 500, model: "Particle", symbol: "Nebula", backdrop: "Deep Space", art: <ArtWrapper glowColor="rgba(59,130,246,0.1)"><StardustSVG /></ArtWrapper> },
+  { id: '3', name: "Treasures", type: "SHADE", rarity: "Epic", price: 20000, issueNumber: "7", stock: 250, model: "Relic", symbol: "Geo Wealth", backdrop: "Obsidian", art: <ArtWrapper glowColor="rgba(249,115,22,0.1)"><TreasuresSVG /></ArtWrapper> },
+  { id: '4', name: "Phantom", type: "GIFT", rarity: "Legendary", price: 45000, issueNumber: "9", stock: 10, model: "Spirit", symbol: "Ghost Face", backdrop: "Abyss", art: <PhantomSVG /> },
+  { id: '5', name: "Core", type: "GIFT", rarity: "Mythic", price: 150000, issueNumber: "1", stock: 0, model: "Structure", symbol: "Prism", backdrop: "Black", art: <CoreSVG /> }
 ]
 
-// ── 3. VISTA PRINCIPAL (Marketplace + NFT Details) ──
+// ── 3. VISTA PRINCIPAL ──
 export function ShopView() {
   const ctx = useApp() as any
   const { x_points: currentBP, setCurrentView } = ctx
   const [selectedItem, setSelectedItem] = useState<any>(null)
-  const [showDetailPanel, setShowDetailPanel] = useState(false)
 
-  // Control nativo de botón atrás en Telegram
   useEffect(() => {
     const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
     if (!tg?.BackButton) return
     tg.BackButton.show()
 
     const handleBack = () => {
-      if (selectedItem) {
-        setSelectedItem(null)
-        setShowDetailPanel(false)
-      } else {
-        setCurrentView("levels")
-      }
+      if (selectedItem) setSelectedItem(null)
+      else setCurrentView("levels")
     }
 
     tg.BackButton.onClick(handleBack)
-    return () => {
-      tg.BackButton.offClick(handleBack);
-      tg.BackButton.hide()
-    }
+    return () => { tg.BackButton.offClick(handleBack); tg.BackButton.hide() }
   }, [setCurrentView, selectedItem])
 
-  const handleSelectItem = (item: any) => {
-    setSelectedItem(item)
-    setShowDetailPanel(true)
-  }
-
-  // ── PANTALLA PRINCIPAL: GRID MARKETPLACE (Estilo Achievements) ──
   return (
     <div className="flex-1 bg-black min-h-screen relative overflow-x-hidden animate-in fade-in duration-300">
-
-      {/* Header Minimalista (Estilo Achievements) */}
-      <div className="sticky top-0 z-30 flex items-center justify-between w-full bg-black/90 backdrop-blur-xl px-4"
-        style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 12px)" }}>
-        <h2 className="text-[17px] font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>Market</h2>
-        <div className="flex items-center gap-4">
-          <Search size={20} className="text-white opacity-80" />
-          <Settings size={20} className="text-white opacity-80" />
+      
+      {/* HEADER LIMPIO (Sin botones laterales, solo título grande y search bar) */}
+      <div className="w-full pt-[max(env(safe-area-inset-top),20px)] px-4 bg-black">
+        <h1 className="text-[32px] font-bold text-white mt-4 mb-4 tracking-tight" style={{ fontFamily: SFD }}>
+          Market
+        </h1>
+        
+        {/* Search Bar Estilo Telegram */}
+        <div className="w-full bg-[#1c1c1e] rounded-[10px] flex items-center px-3 py-2 mb-6">
+          <Search size={18} className="text-[#8e8e93] mr-2" />
+          <input 
+            type="text" 
+            placeholder="Search In Market" 
+            className="bg-transparent border-none outline-none text-[16px] text-white placeholder-[#8e8e93] w-full"
+            style={{ fontFamily: SF }}
+          />
         </div>
       </div>
 
-      <div className="px-3 pt-3 pb-32">
-        {/* Grid de 2 Columnas (Estilo Achievements) */}
-        <div className="grid grid-cols-2 gap-4">
+      {/* GRID DE 2 COLUMNAS (Estilo Achievements / Market) */}
+      <div className="px-4 pb-12">
+        <div className="grid grid-cols-2 gap-3">
           {NFT_ITEMS.map((item) => {
             const isSoldOut = item.stock === 0
             const priceDisplay = item.price >= 1000 ? `${item.price / 1000}k` : item.price
@@ -150,26 +153,26 @@ export function ShopView() {
             return (
               <button
                 key={item.id}
-                onClick={() => handleSelectItem(item)}
-                className={`bg-[#1c1c1e] rounded-[16px] p-4 flex flex-col aspect-square active:scale-[0.96] transition-transform ${isSoldOut ? 'opacity-40 grayscale' : ''}`}
+                onClick={() => setSelectedItem(item)}
+                className={`bg-[#161616] rounded-[20px] p-3 flex flex-col aspect-[3/4] active:scale-[0.97] transition-transform ${isSoldOut ? 'opacity-50 grayscale' : ''}`}
               >
-                {/* Encabezado de Tarjeta (Compacto) */}
-                <div className="flex items-center justify-between w-full opacity-60">
-                  <span className="text-[10px] font-bold text-[#8e8e93] tracking-widest">{item.type}</span>
-                  <span className="text-[10px] font-bold text-[#8e8e93]">#{item.issueNumber}</span>
+                {/* Header de la tarjeta */}
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-[10px] font-bold text-[#636366] tracking-widest">{item.type}</span>
+                  <span className="text-[10px] font-bold text-[#636366]">#{item.issueNumber}</span>
                 </div>
 
-                {/* Arte Central (Redimensionado) */}
-                <div className="flex-1 w-full flex items-center justify-center pointer-events-none mt-2 mb-2">
-                  <div className="w-[85%] aspect-square flex items-center justify-center">
+                {/* Arte Central */}
+                <div className="flex-1 w-full flex items-center justify-center my-2 relative">
+                  <div className="w-[90%] aspect-square flex items-center justify-center">
                     {item.art}
                   </div>
                 </div>
 
-                {/* Footer de Tarjeta (Compacto) */}
-                <div className="w-full flex flex-col items-center justify-end mt-auto">
-                  <p className="text-white text-[13px] font-semibold tracking-wide" style={{ fontFamily: SFD }}>{item.name}</p>
-                  <p className={`text-[11px] font-medium mt-0.5 ${isSoldOut ? 'text-[#636366]' : 'text-[#3b82f6]'}`} style={{ fontFamily: SF }}>
+                {/* Footer de la tarjeta */}
+                <div className="w-full flex flex-col items-center justify-end pb-1">
+                  <p className="text-white text-[15px] font-semibold tracking-wide" style={{ fontFamily: SFD }}>{item.name}</p>
+                  <p className={`text-[12px] font-bold mt-1 ${isSoldOut ? 'text-[#636366]' : 'text-[#3b82f6]'}`} style={{ fontFamily: SF }}>
                     {isSoldOut ? 'SOLD' : `${priceDisplay} BP`}
                   </p>
                 </div>
@@ -179,52 +182,79 @@ export function ShopView() {
         </div>
       </div>
 
-      {/* ── PANTALLA 2: DETALLE DEL NFT COMPACTO (Estilo Desk Calendar, Bottom Sheet) ── */}
+      {/* ── PANEL DE DETALLE COMPACTO (Estilo "Desk Calendar") ── */}
       {selectedItem && (
-        <div className={`fixed inset-0 bg-black/50 z-40 ${showDetailPanel ? 'block' : 'hidden'}`} onClick={() => setShowDetailPanel(false)}>
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#111] rounded-t-[24px] z-50 animate-in slide-in-from-bottom-full duration-300 border-t border-[#1c1c1e]" onClick={(e) => e.stopPropagation()}>
-            {/* Indicador de arrastre (compacto) */}
-            <div className="w-10 h-1 bg-[#2c2c2e] rounded-full mx-auto mb-4" />
+        <div className="fixed inset-0 z-50 flex justify-center items-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setSelectedItem(null)}>
+          <div 
+            className="w-full bg-[#101010] rounded-t-[24px] flex flex-col px-4 pt-2 pb-6 max-h-[85vh] animate-in slide-in-from-bottom-full duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Indicador de arrastre */}
+            <div className="w-10 h-1.5 bg-[#2c2c2e] rounded-full mx-auto mt-2 mb-6" />
 
-            <div className="flex flex-col items-center pb-8">
-              {/* NFT Card Gigante (Mismo estilo que antes pero en panel) */}
-              <div className="w-[85vw] max-w-[340px] aspect-square bg-[#0a0a0a] rounded-[32px] flex items-center justify-center mb-6">
-                {selectedItem.art}
-              </div>
-
-              {/* Título y Share */}
-              <h1 className="text-[26px] font-bold text-white mb-4 tracking-tight" style={{ fontFamily: SFD }}>
-                {selectedItem.name} <span className="text-[#636366]">#{selectedItem.issueNumber}</span>
-              </h1>
-              <button className="flex items-center gap-2 bg-[#1c1c1e] px-5 py-2.5 rounded-full active:opacity-70 transition-opacity mb-8">
-                <Share size={14} className="text-white" />
-                <span className="text-white font-semibold text-[13px]" style={{ fontFamily: SF }}>Share</span>
-              </button>
-
-              {/* Tabla de Atributos Compacta */}
-              <div className="w-full bg-[#1c1c1e] rounded-[24px] overflow-hidden flex flex-col">
-                <AttributeRow label="Owner:" value="xBlum Market" icon="/xblum-profile.png" />
-                <div className="h-px bg-[#2c2c2e] w-full" />
-                <AttributeRow label="Rarity:" value={selectedItem.rarity} />
-                <div className="h-px bg-[#2c2c2e] w-full" />
-                <AttributeRow label="Type:" value={selectedItem.type === "SHADE" ? "Profile Shade" : "Profile Gift"} />
-                <div className="h-px bg-[#2c2c2e] w-full" />
-                <AttributeRow label="Issued:" value={`${selectedItem.issueNumber} / 25,000`} />
-              </div>
+            {/* Arte Principal Flotante */}
+            <div className="w-[180px] h-[180px] mx-auto flex items-center justify-center mb-4">
+              {selectedItem.art}
             </div>
 
-            {/* Floating Buy Button */}
-            <div className="pt-2 pb-6 bg-[#111]">
-              <button
-                disabled={selectedItem.stock === 0 || currentBP < selectedItem.price}
-                className={`w-full py-[18px] rounded-[18px] text-[16px] font-bold transition-all active:scale-[0.98] ${
-                  selectedItem.stock === 0 ? 'bg-[#1c1c1e] text-[#636366]' : 'bg-[#3b82f6] text-white'
-                  }`}
-                style={{ fontFamily: SFD }}
-              >
-                {selectedItem.stock === 0 ? "Out of Stock" : `Buy for ${selectedItem.price.toLocaleString()} BP`}
-              </button>
+            {/* Títulos Centrales */}
+            <div className="flex flex-col items-center mb-6">
+              <h2 className="text-[22px] font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>
+                {selectedItem.name} <span className="text-[#8e8e93] font-normal">#{selectedItem.issueNumber}</span>
+              </h2>
+              <span className="text-[#8e8e93] text-[14px] mt-1" style={{ fontFamily: SF }}>{selectedItem.type === "SHADE" ? "Profile Shade" : "Profile Gift"}</span>
             </div>
+
+            {/* Tabla de Atributos (Estricta al diseño compacto) */}
+            <div className="w-full bg-[#1c1c1e] rounded-[16px] flex flex-col overflow-hidden mb-6">
+              
+              <TableRow label="owner">
+                <img src="/xblum-profile.png" alt="" className="w-5 h-5 rounded-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                <span className="text-[#4ea8e9] font-medium text-[14px]">xBlum Market</span>
+                <span className="text-[12px]">✨</span>
+              </TableRow>
+              <div className="h-px bg-[#2c2c2e] ml-4" />
+              
+              <TableRow label="model">
+                <span className="text-white text-[14px]">{selectedItem.model}</span>
+                <Tag text={selectedItem.rarity.toLowerCase()} />
+              </TableRow>
+              <div className="h-px bg-[#2c2c2e] ml-4" />
+              
+              <TableRow label="symbol">
+                <span className="text-white text-[14px]">{selectedItem.symbol}</span>
+                <Tag text="0.4%" />
+              </TableRow>
+              <div className="h-px bg-[#2c2c2e] ml-4" />
+              
+              <TableRow label="backdrop">
+                <span className="text-white text-[14px]">{selectedItem.backdrop}</span>
+                <Tag text="0.9%" />
+              </TableRow>
+              <div className="h-px bg-[#2c2c2e] ml-4" />
+              
+              <TableRow label="quantity">
+                <span className="text-white text-[14px]">{selectedItem.issueNumber}/25,000 issued</span>
+              </TableRow>
+              <div className="h-px bg-[#2c2c2e] ml-4" />
+              
+              <TableRow label="value">
+                <span className="text-white text-[14px]">~CA$ {Math.floor(selectedItem.price * 0.05)}</span>
+                <span className="text-[#4ea8e9] text-[13px] font-medium cursor-pointer ml-1">learn more</span>
+              </TableRow>
+
+            </div>
+
+            {/* Botón Flotante Azul */}
+            <button
+              disabled={selectedItem.stock === 0 || currentBP < selectedItem.price}
+              className={`w-full py-3.5 rounded-2xl text-[16px] font-bold transition-all active:scale-[0.98] ${
+                selectedItem.stock === 0 ? 'bg-[#2c2c2e] text-[#636366]' : 'bg-[#2aa1ff] text-white'
+              }`}
+              style={{ fontFamily: SFD }}
+            >
+              {selectedItem.stock === 0 ? "ok" : `Buy for ${selectedItem.price.toLocaleString()}`}
+            </button>
           </div>
         </div>
       )}
@@ -232,24 +262,25 @@ export function ShopView() {
   )
 }
 
-// ── COMPONENTE DE TABLA (Atributos a la izquierda alineados, Compacto) ──
-function AttributeRow({ label, value, icon }: { label: string, value: string, icon?: string }) {
+// ── COMPONENTES DE TABLA AUXILIARES ──
+
+function TableRow({ label, children }: { label: string, children: React.ReactNode }) {
   return (
-    <div className="flex items-center px-4 py-3 text-left w-full">
-      {/* Columna Label Fija */}
-      <span className="text-[#8e8e93] text-[13px] font-medium w-[90px] shrink-0" style={{ fontFamily: SF }}>
+    <div className="flex items-center px-4 py-3 w-full">
+      <span className="text-[#8e8e93] text-[14px] font-bold w-24 shrink-0" style={{ fontFamily: SF }}>
         {label}
       </span>
-
-      {/* Columna Valor (con o sin ícono) */}
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        {icon && (
-          <img src={icon} alt="" className={`w-5 h-5 object-cover ${icon.includes('profile') ? 'rounded-full' : 'rounded-sm'}`} />
-        )}
-        <span className="text-[13px] font-medium text-white truncate" style={{ fontFamily: SF }}>
-          {value}
-        </span>
+      <div className="flex items-center gap-2 flex-1 min-w-0" style={{ fontFamily: SF }}>
+        {children}
       </div>
     </div>
+  )
+}
+
+function Tag({ text }: { text: string }) {
+  return (
+    <span className="bg-[#1c2c3e] text-[#4ea8e9] px-2 py-0.5 rounded-[6px] text-[11px] font-bold tracking-wide">
+      {text}
+    </span>
   )
 }
