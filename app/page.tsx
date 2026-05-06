@@ -12,9 +12,9 @@ import { XRewardsView } from "@/components/x-rewards-view"
 import { AnalyticsView } from "@/components/analytics-view"
 import { GroupSettingsView } from "@/components/group-settings-view"
 import { ScheduleView } from "@/components/schedule-view"
-import { PulseView } from "@/components/pulse-view" // Nueva pestaña de Red Social AI
+import { LevelsView } from "@/components/levels-view" // Nueva vista de niveles
 import { useEffect, useState } from "react"
-import { Home, Globe, Activity, CircleUser, Loader2 } from "lucide-react"
+import { Home, Target, Activity, CircleUser, Loader2 } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = { 
@@ -27,7 +27,6 @@ type TgUser = {
 
 function getTgUser(): TgUser | undefined {
   if (typeof window === "undefined") return undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
@@ -44,16 +43,14 @@ function NavBar() {
 
   type Tab = { id: string; label: string; icon: any; disabled?: boolean }
   
-  // Replicando la estética de iconos minimalistas de Telegram/X
   const tabs: Tab[] = [
     { id: "home",      label: "Home",      icon: Home },
-    { id: "pulse",     label: "Pulse",     icon: Globe }, // Nuevo Tab "Pulse"
+    { id: "levels",    label: "BP Levels", icon: Target }, // Pestaña de niveles central
     { id: "analytics", label: "Analytics", icon: Activity },
     { id: "profile",   label: "Profile",   icon: CircleUser },
   ]
 
-  // Actualiza las vistas principales que muestran la NavBar flotante
-  const mainViews = ["home", "pulse", "store", "analytics", "profile"]
+  const mainViews = ["home", "levels", "store", "analytics", "profile"]
   const activeTab = mainViews.includes(currentView) ? currentView : "home"
 
   function handleTab(id: string) {
@@ -62,7 +59,7 @@ function NavBar() {
 
   return (
     <div
-      id="main-nav-bar" // <-- AÑADIDO: ID crucial para ocultarlo desde Modales
+      id="main-nav-bar"
       className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none transition-opacity duration-200"
       style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 24px)" }}
     >
@@ -135,7 +132,7 @@ function NavBar() {
 // ── App shell ──────────────────────────────────────────
 function AppContent() {
   const { currentView, isLoading } = useApp()
-  const showNav = ["home", "pulse", "analytics", "store", "profile"].includes(currentView)
+  const showNav = ["home", "levels", "analytics", "store", "profile"].includes(currentView)
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
@@ -214,7 +211,7 @@ function AppContent() {
       >
         {/* Renderizado de Vistas */}
         {currentView === "home" && (<><Header /><HomeView /></>)}
-        {currentView === "pulse" && <PulseView />} {/* Nueva pestaña de Red Social AI */}
+        {currentView === "levels" && <LevelsView />} 
         {currentView === "settings"  && <SettingsView />}
         {currentView === "store"     && <StoreView />}
         {currentView === "premium"   && <PremiumView />}
