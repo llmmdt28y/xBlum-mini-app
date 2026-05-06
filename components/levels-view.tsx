@@ -1,8 +1,8 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { useEffect, useState, useCallback, useRef } from "react"
-import { Play, Send, UserPlus, ChevronRight, Loader2, Lock, Check, MessageSquare, Camera, CalendarCheck, Users } from "lucide-react"
+import { useEffect, useState, useCallback, useRef, useMemo } from "react"
+import { Play, Send, UserPlus, ChevronRight, Loader2, Lock, Check, MessageSquare, Camera, CalendarCheck, Users, Sparkles } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -81,6 +81,25 @@ const LEVEL_CONFIG = [
   { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
 ]
 
+// ── Prompts Dinámicos ──
+const DYNAMIC_PROMPTS = [
+  "¿Cómo está el clima hoy?",
+  "¿Qué se celebra hoy?",
+  "Cuéntame un dato curioso sobre la IA.",
+  "¿Cuál es el precio actual del Bitcoin?",
+  "Resúmeme las noticias tecnológicas de hoy.",
+  "Dame una frase motivadora para empezar el día.",
+  "Dime un chiste corto de programadores.",
+  "¿Quién nació un día como hoy en la historia?",
+  "¿Cuál es el santoral de hoy?",
+  "Recomiéndame una película de ciencia ficción.",
+  "¿Qué eventos mundiales importantes hay hoy?",
+  "¿Cómo cerró el mercado de valores ayer?",
+  "¿Qué hay de nuevo en el ecosistema TON hoy?",
+  "Dame un consejo de salud para el trabajo remoto.",
+  "¿Cuál es la palabra del día y su significado?"
+]
+
 // ── Componente Pixel Art ──
 const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: string, size?: number }) => {
   return (
@@ -104,20 +123,28 @@ export function LevelsView() {
     setCurrentView, 
     claimMissionTokens, 
     referralLink, 
-    refreshUserData 
+    refreshUserData,
+    openExploreTopic 
   } = ctx
 
   const completed = completed_missions || []
   const [localAdsToday, setLocalAdsToday] = useState(serverAdsToday || 0)
   const [pendingTasks, setPendingTasks] = useState<Record<string, "started" | "verifying">>({})
   const [loadingAd, setLoadingAd] = useState(false)
+  const [showAllOneTime, setShowAllOneTime] = useState(false)
+
+  // Seleccionar prompt dinámico según el día
+  const dailyPrompt = useMemo(() => {
+    const day = new Date().getDate()
+    return DYNAMIC_PROMPTS[day % DYNAMIC_PROMPTS.length]
+  }, [])
 
   // Sincronizar anuncios
   useEffect(() => {
     setLocalAdsToday((prev: number) => (serverAdsToday > prev ? serverAdsToday : prev))
   }, [serverAdsToday])
 
-  // Limpiar pending tasks si se completaron
+  // Limpiar pending tasks
   useEffect(() => {
     setPendingTasks(prev => {
       const next = { ...prev }
@@ -134,7 +161,6 @@ export function LevelsView() {
 
   // ── Adsgram Logic ──
   const ADSGRAM_BLOCK_ID = process.env.NEXT_PUBLIC_ADSGRAM_BLOCK_ID ?? ""
-  
   const onAdReward = useCallback(async () => {
     setLoadingAd(true)
     setLocalAdsToday((prev: number) => prev + 1)
@@ -154,9 +180,7 @@ export function LevelsView() {
   const BOT     = process.env.NEXT_PUBLIC_BOT_USERNAME ?? "xBlumAI"
   const CHANNEL = process.env.NEXT_PUBLIC_CHANNEL_USERNAME ?? "xBlumAI"
 
-  // ── Función principal de Misiones ──
-  const handleAction = async (id: string, actionType: string, reward: number) => {
-    // 1. Manejo Especial (Ads, Navigation)
+  const handleAction = async (id: string, actionType: string, reward: number, extraData?: any) => {
     if (actionType === "ads") {
       if (localAdsToday >= 3 || loadingAd) {
         tg?.showAlert("Daily ad limit reached (3/3). Come back tomorrow!")
@@ -167,7 +191,11 @@ export function LevelsView() {
     }
 
     if (actionType === "chatAI") {
-      setCurrentView("home")
+      if (extraData?.prompt) {
+        await openExploreTopic(null, extraData.prompt)
+      } else {
+        setCurrentView("home")
+      }
       return
     }
 
@@ -177,11 +205,9 @@ export function LevelsView() {
       return
     }
 
-    // 2. Manejo de Tareas con Verificación (Start -> Check -> Done)
     const taskStatus = pendingTasks[id]
 
     if (!taskStatus) {
-      // Iniciar Tarea
       if (actionType === "channel") tg?.openTelegramLink(`https://t.me/${CHANNEL}`)
       if (actionType === "addChat") tg?.openTelegramLink(`https://t.me/${BOT}?startgroup=true`)
       if (actionType === "story") {
@@ -193,7 +219,6 @@ export function LevelsView() {
       }
       setPendingTasks(prev => ({ ...prev, [id]: "started" }))
     } else if (taskStatus === "started") {
-      // Verificar Tarea
       setPendingTasks(prev => ({ ...prev, [id]: "verifying" }))
       const ok = await claimMissionTokens(actionType, reward)
       if (ok) {
@@ -205,7 +230,6 @@ export function LevelsView() {
     }
   }
 
-  // ── Botón Atrás Nativo ──
   useEffect(() => {
     if (tg?.BackButton) {
       tg.BackButton.show()
@@ -219,7 +243,7 @@ export function LevelsView() {
   }, [setCurrentView, tg])
 
   return (
-    <div className="flex-1 bg-[#060606] min-h-screen relative overflow-x-hidden pb-32 select-none">
+    <div className="flex-1 bg-[#060606] min-h-screen relative overflow-x-hidden pb-32 select-none animate-in fade-in duration-500">
       
       <div className="absolute inset-0 pointer-events-none opacity-40" style={{
         backgroundImage: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px)`,
@@ -233,7 +257,7 @@ export function LevelsView() {
       </div>
 
       {/* Hero */}
-      <div className="flex flex-col items-center mt-12 mb-12 relative z-10">
+      <div className="flex flex-col items-center mt-8 mb-10 relative z-10 animate-in fade-in zoom-in-95 duration-700">
         <div className="relative mb-6">
           <div className="absolute inset-0 blur-[40px] opacity-20 rounded-full" style={{ background: currentLevel.color }} />
           <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} />
@@ -246,8 +270,8 @@ export function LevelsView() {
         </p>
       </div>
 
-      {/* Tarjeta Progreso Principal */}
-      <div className="px-5 mb-10 relative z-10">
+      {/* Tarjeta Progreso */}
+      <div className="px-5 mb-10 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
         <div className="bg-[#141415] rounded-[22px] p-5 shadow-2xl">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2.5">
@@ -269,9 +293,28 @@ export function LevelsView() {
         </div>
       </div>
 
-      {/* ── ONE-TIME TASKS ── */}
-      <div className="relative z-10 px-5 w-full flex flex-col mb-8">
-        <h3 className="text-[18px] font-bold text-white mb-6" style={{ fontFamily: SFD }}>One-Time Tasks</h3>
+      {/* ── ONE-TIME / AI TASKS ── */}
+      <div className="relative z-10 px-5 w-full flex flex-col mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both">
+        <div className="flex items-center justify-between mb-6 px-1">
+          <h3 className="text-[18px] font-bold text-white" style={{ fontFamily: SFD }}>Tasks</h3>
+          <button 
+            onClick={() => setShowAllOneTime(!showAllOneTime)}
+            className="text-[13px] font-bold text-blue-400 active:opacity-60 transition-all"
+            style={{ fontFamily: SF }}
+          >
+            {showAllOneTime ? "Show Less" : "View All"}
+          </button>
+        </div>
+
+        <MissionTimelineCard 
+          id="dailyAI"
+          title="Ask AI Today" 
+          reward={300} 
+          desc={dailyPrompt}
+          icon={<Sparkles size={18} />}
+          isDone={false} // Dynamic prompt siempre disponible para interactuar
+          onClick={() => handleAction("dailyAI", "chatAI", 300, { prompt: dailyPrompt })}
+        />
 
         <MissionTimelineCard 
           id="chatAI"
@@ -295,36 +338,41 @@ export function LevelsView() {
           onClick={() => handleAction("channel", "channel", 1000)}
         />
 
-        <MissionTimelineCard 
-          id="addChat"
-          title="Add xBlum to Group" 
-          reward={1500} 
-          desc="Bring the power of xBlum AI to your community chat."
-          icon={<Users size={18} />}
-          isDone={completed.includes("addChat")}
-          status={pendingTasks["addChat"]}
-          isLocked={!completed.includes("channel")} // Prerrequisito: Unirse al canal primero
-          onClick={() => handleAction("addChat", "addChat", 1500)}
-        />
+        {/* Tareas ocultas bajo View All */}
+        {showAllOneTime && (
+          <div className="animate-in fade-in slide-in-from-top-2 duration-400">
+            <MissionTimelineCard 
+              id="addChat"
+              title="Add xBlum to Group" 
+              reward={1500} 
+              desc="Bring the power of xBlum AI to your community chat."
+              icon={<Users size={18} />}
+              isDone={completed.includes("addChat")}
+              status={pendingTasks["addChat"]}
+              isLocked={!completed.includes("channel")}
+              onClick={() => handleAction("addChat", "addChat", 1500)}
+            />
 
-        <MissionTimelineCard 
-          id="story"
-          title="Share to Story" 
-          reward={500} 
-          desc="Let your Telegram contacts know about xBlum AI."
-          icon={<Camera size={18} />}
-          isDone={completed.includes("story")}
-          status={pendingTasks["story"]}
-          onClick={() => handleAction("story", "story", 500)}
-          isLast={true}
-        />
+            <MissionTimelineCard 
+              id="story"
+              title="Share to Story" 
+              reward={500} 
+              desc="Let your Telegram contacts know about xBlum AI."
+              icon={<Camera size={18} />}
+              isDone={completed.includes("story")}
+              status={pendingTasks["story"]}
+              onClick={() => handleAction("story", "story", 500)}
+              isLast={true}
+            />
+          </div>
+        )}
       </div>
 
       <div className="w-full border-t border-dashed border-[#2c2c2e] mb-8" />
 
       {/* ── DAILY MISSIONS ── */}
-      <div className="relative z-10 px-5 w-full flex flex-col">
-        <h3 className="text-[18px] font-bold text-white mb-6" style={{ fontFamily: SFD }}>Daily Missions</h3>
+      <div className="relative z-10 px-5 w-full flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
+        <h3 className="text-[18px] font-bold text-white mb-6 px-1" style={{ fontFamily: SFD }}>Daily Missions</h3>
 
         <MissionTimelineCard 
           id="dailyCheck"
@@ -355,7 +403,7 @@ export function LevelsView() {
           reward={1000} 
           desc="Invite a friend to the xBlum ecosystem."
           icon={<UserPlus size={18} />}
-          isDone={false} // Siempre se puede invitar
+          isDone={false}
           status={pendingTasks["invite"]}
           onClick={() => handleAction("invite", "invite", 1000)}
           isLast={true}
@@ -365,9 +413,7 @@ export function LevelsView() {
   )
 }
 
-// ── Componente de Tarjeta de Misión Inteligente ──
 function MissionTimelineCard({ id, title, reward, desc, progress, icon, onClick, status, isDone, isLocked, isLast }: any) {
-  
   const loading = status === "verifying"
   const started = status === "started"
 
@@ -381,15 +427,14 @@ function MissionTimelineCard({ id, title, reward, desc, progress, icon, onClick,
     buttonUI = { text: "Checking", bg: "bg-[#2c2c2e] text-white", icon: <Loader2 size={14} className="animate-spin" /> }
   } else if (started) {
     buttonUI = { text: "Check", bg: "bg-white text-black", icon: <Check size={14} /> }
-  } else if (id === "chatAI" || id === "invite" || id === "ads") {
+  } else if (id === "chatAI" || id === "invite" || id === "ads" || id === "dailyAI") {
     buttonUI = { text: "Go", bg: "bg-white text-black", icon: <ChevronRight size={14} /> }
   }
 
   const opacityClass = isLocked || isDone ? "opacity-50" : "opacity-100"
 
   return (
-    <div className={`flex w-full ${opacityClass} transition-opacity duration-300`}>
-      {/* Timeline Vertical Track */}
+    <div className={`flex w-full ${opacityClass} transition-all duration-500`}>
       <div className="w-[28px] flex-shrink-0 flex justify-center relative">
          {!isLast && <div className="absolute top-[28px] bottom-[-24px] w-[2px] bg-[#2c2c2e]" />}
          <div className={`absolute top-[28px] w-[7px] h-[7px] rounded-full z-10 transition-colors shadow-[0_0_8px_rgba(255,255,255,0.1)] 
@@ -397,11 +442,10 @@ function MissionTimelineCard({ id, title, reward, desc, progress, icon, onClick,
          />
       </div>
 
-      {/* Mission Content Card */}
       <button 
         onClick={onClick} 
         disabled={loading || isDone || isLocked} 
-        className="flex-1 bg-[#141415] rounded-[22px] p-5 mb-5 text-left active:scale-[0.98] transition-all"
+        className="flex-1 bg-[#141415] rounded-[22px] p-5 mb-5 text-left active:scale-[0.98] transition-all hover:bg-[#1c1c1e]/50"
       >
          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2.5">
@@ -424,7 +468,7 @@ function MissionTimelineCard({ id, title, reward, desc, progress, icon, onClick,
                {progress || (isDone ? "Completed" : isLocked ? "Locked" : "Pending")}
             </span>
             
-            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${buttonUI.bg}`}>
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${buttonUI.bg} transition-all`}>
                <span className="text-[11px] font-bold uppercase tracking-wide" style={{ fontFamily: SFD }}>{buttonUI.text}</span>
                {buttonUI.icon}
             </div>
