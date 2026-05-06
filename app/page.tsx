@@ -4,7 +4,6 @@ import { AppProvider, useApp } from "@/lib/app-context"
 import { Header } from "@/components/header"
 import { HomeView } from "@/components/home-view"
 import { SettingsView } from "@/components/settings-view"
-import { StoreView } from "@/components/store-view"
 import { PremiumView } from "@/components/premium-view"
 import { ReferralView } from "@/components/referral-view"
 import { ProfileView } from "@/components/profile-view"
@@ -12,7 +11,8 @@ import { XRewardsView } from "@/components/x-rewards-view"
 import { AnalyticsView } from "@/components/analytics-view"
 import { GroupSettingsView } from "@/components/group-settings-view"
 import { ScheduleView } from "@/components/schedule-view"
-import { LevelsView } from "@/components/levels-view" // Nueva vista de niveles
+import { LevelsView } from "@/components/levels-view" 
+import { ShopView } from "@/components/shop-view" 
 import { useEffect, useState } from "react"
 import { Home, Target, Activity, CircleUser, Loader2 } from "lucide-react"
 
@@ -27,6 +27,7 @@ type TgUser = {
 
 function getTgUser(): TgUser | undefined {
   if (typeof window === "undefined") return undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
@@ -45,12 +46,12 @@ function NavBar() {
   
   const tabs: Tab[] = [
     { id: "home",      label: "Home",      icon: Home },
-    { id: "levels",    label: "BP Levels", icon: Target }, // Pestaña de niveles central
+    { id: "levels",    label: "BP Levels", icon: Target }, 
     { id: "analytics", label: "Analytics", icon: Activity },
     { id: "profile",   label: "Profile",   icon: CircleUser },
   ]
 
-  const mainViews = ["home", "levels", "store", "analytics", "profile"]
+  const mainViews = ["home", "levels", "analytics", "profile"]
   const activeTab = mainViews.includes(currentView) ? currentView : "home"
 
   function handleTab(id: string) {
@@ -132,13 +133,14 @@ function NavBar() {
 // ── App shell ──────────────────────────────────────────
 function AppContent() {
   const { currentView, isLoading } = useApp()
-  const showNav = ["home", "levels", "analytics", "store", "profile"].includes(currentView)
+  const showNav = ["home", "levels", "analytics", "profile"].includes(currentView)
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
   const [fadeLoading, setFadeLoading] = useState(false)
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
     if (tg) {
       tg.ready()    
@@ -212,8 +214,8 @@ function AppContent() {
         {/* Renderizado de Vistas */}
         {currentView === "home" && (<><Header /><HomeView /></>)}
         {currentView === "levels" && <LevelsView />} 
+        {currentView === "shop" && <ShopView />} 
         {currentView === "settings"  && <SettingsView />}
-        {currentView === "store"     && <StoreView />}
         {currentView === "premium"   && <PremiumView />}
         {currentView === "referral"  && <ReferralView />}
         {currentView === "profile"   && <ProfileView />}
