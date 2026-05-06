@@ -1,166 +1,197 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { ChevronLeft } from "lucide-react"
+import { useEffect, useState, useCallback } from "react"
+import { Tv, MessageCircle, Share2, ChevronRight, Loader2 } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Icono Pixelado (SVG Dinámico 7x7) ──
-const PixelDiamond = ({ variant, className }: { variant: 'pink' | 'cyan', className?: string }) => {
-  // Colores exactos extraídos de la imagen
-  const colors = variant === 'pink'
-    ? { d: '#4a3e44', p: '#e8a8c1', w: '#ffffff', glow: 'rgba(232, 168, 193, 0.4)' }
-    : { d: '#3e484a', p: '#82c3cd', w: '#ffffff', glow: 'rgba(130, 195, 205, 0.4)' };
+// ── Configuración de los 12 Niveles (Colores y Formas) ──
+const LEVEL_CONFIG = [
+  { lv: 1,  name: "Novice",    bp: 0,       color: "#82c3cd", pixels: [33, 23, 32, 34, 43] }, // Pequeña Cruz
+  { lv: 2,  name: "Explorer",  bp: 1000,    color: "#a8e8a8", pixels: [22, 23, 24, 32, 33, 34, 42, 43, 44] }, // Cuadrado
+  { lv: 3,  name: "Advanced",  bp: 2500,    color: "#e8a8c1", pixels: [30, 21, 31, 41, 12, 22, 32, 42, 52, 03, 13, 23, 33, 43, 53, 63, 14, 24, 34, 44, 54, 25, 35, 45, 36] }, // Rombo (Tu imagen)
+  { lv: 4,  name: "Expert",    bp: 6000,    color: "#ffd9a8", pixels: [21, 31, 41, 12, 52, 13, 53, 14, 54, 25, 35, 45] }, // Hexágono Hueco
+  { lv: 5,  name: "Specialist",bp: 12000,   color: "#a8c1e8", pixels: [30, 21, 41, 12, 32, 52, 03, 33, 63, 14, 34, 54, 25, 45, 36] }, // Estrella de 4 puntas
+  { lv: 6,  name: "Elite",     bp: 25000,   color: "#d1a8e8", pixels: [21, 31, 41, 12, 32, 52, 13, 33, 53, 14, 34, 54, 25, 35, 45] }, // Core con órbita
+  { lv: 7,  name: "Veteran",   bp: 50000,   color: "#e8a8a8", pixels: [00, 60, 11, 51, 22, 42, 33, 24, 44, 15, 55, 06, 66] }, // X de precisión
+  { lv: 8,  name: "Commander", bp: 100000,  color: "#f4f4f4", pixels: [30, 21, 31, 41, 03, 13, 23, 33, 43, 53, 63, 25, 35, 45, 36] }, // Gran Diamante
+  { lv: 9,  name: "Legend",    bp: 250000,  color: "#ffd700", pixels: [30, 11, 51, 02, 32, 62, 13, 53, 04, 34, 64, 15, 55, 36] }, // Átomo AI
+  { lv: 10, name: "Oracle",    bp: 500000,  color: "#00ffcc", pixels: [11, 21, 31, 41, 51, 12, 52, 13, 53, 14, 54, 15, 25, 35, 45, 55] }, // Frame Tech
+  { lv: 11, name: "Visionary", bp: 1000000, color: "#ff007f", pixels: [30, 21, 31, 41, 02, 12, 22, 42, 52, 62, 33, 04, 14, 24, 44, 54, 64, 25, 35, 45, 36] }, // Flor de Datos
+  { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [00, 10, 20, 30, 40, 50, 60, 01, 61, 02, 22, 32, 42, 62, 03, 23, 33, 43, 63, 04, 24, 34, 44, 64, 05, 65, 06, 16, 26, 36, 46, 56, 66] } // Matriz Suprema
+];
 
+// ── Componente de Renderizado Pixel Art ──
+const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: string, size?: number }) => {
   return (
-    <svg viewBox="0 0 7 7" className={className} style={{ filter: `drop-shadow(0 0 10px ${colors.glow})` }}>
-       {/* Fila 0 */}
-       <rect x="3" y="0" width="1" height="1" fill={colors.d} />
-       {/* Fila 1 */}
-       <rect x="2" y="1" width="1" height="1" fill={colors.d} />
-       <rect x="3" y="1" width="1" height="1" fill={colors.p} />
-       <rect x="4" y="1" width="1" height="1" fill={colors.d} />
-       {/* Fila 2 */}
-       <rect x="1" y="2" width="1" height="1" fill={colors.d} />
-       <rect x="2" y="2" width="1" height="1" fill={colors.p} />
-       <rect x="3" y="2" width="1" height="1" fill={colors.w} />
-       <rect x="4" y="2" width="1" height="1" fill={colors.p} />
-       <rect x="5" y="2" width="1" height="1" fill={colors.d} />
-       {/* Fila 3 (Centro) */}
-       <rect x="0" y="3" width="1" height="1" fill={colors.d} />
-       <rect x="1" y="3" width="1" height="1" fill={colors.p} />
-       <rect x="2" y="3" width="1" height="1" fill={colors.w} />
-       <rect x="3" y="3" width="1" height="1" fill={colors.w} />
-       <rect x="4" y="3" width="1" height="1" fill={colors.w} />
-       <rect x="5" y="3" width="1" height="1" fill={colors.p} />
-       <rect x="6" y="3" width="1" height="1" fill={colors.d} />
-       {/* Fila 4 */}
-       <rect x="1" y="4" width="1" height="1" fill={colors.d} />
-       <rect x="2" y="4" width="1" height="1" fill={colors.p} />
-       <rect x="3" y="4" width="1" height="1" fill={colors.w} />
-       <rect x="4" y="4" width="1" height="1" fill={colors.p} />
-       <rect x="5" y="4" width="1" height="1" fill={colors.d} />
-       {/* Fila 5 */}
-       <rect x="2" y="5" width="1" height="1" fill={colors.d} />
-       <rect x="3" y="5" width="1" height="1" fill={colors.p} />
-       <rect x="4" y="5" width="1" height="1" fill={colors.d} />
-       {/* Fila 6 */}
-       <rect x="3" y="6" width="1" height="1" fill={colors.d} />
+    <svg viewBox="0 0 7 7" width={size} height={size} style={{ filter: `drop-shadow(0 0 12px ${color}66)` }}>
+      {pixels.map(pos => {
+        const x = Math.floor(pos / 10);
+        const y = pos % 10;
+        return <rect key={pos} x={x} y={y} width="1" height="1" fill={color} />;
+      })}
+      {/* Puntos blancos de brillo interno en posiciones clave */}
+      <rect x="3" y="3" width="1" height="1" fill="white" opacity="0.4" />
     </svg>
-  )
-}
+  );
+};
 
 export function LevelsView() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { setCurrentView } = useApp() as any;
+  const ctx = useApp() as any;
+  const { x_points: currentBP, ads_today, setCurrentView, claimMissionTokens } = ctx;
+  const [loadingMission, setLoadingMission] = useState<string | null>(null);
+
+  // Determinar Nivel Actual
+  const currentLevel = [...LEVEL_CONFIG].reverse().find(l => currentBP >= l.bp) || LEVEL_CONFIG[0];
+  const nextLevel = LEVEL_CONFIG[currentLevel.lv] || currentLevel;
+  const progressPercent = Math.min(100, (currentBP / nextLevel.bp) * 100);
+
+  // ── Manejo de Flecha Nativa de Telegram ──
+  useEffect(() => {
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg?.BackButton) {
+      tg.BackButton.show();
+      const handleBack = () => setCurrentView("home");
+      tg.BackButton.onClick(handleBack);
+      return () => {
+        tg.BackButton.offClick(handleBack);
+        tg.BackButton.hide();
+      };
+    }
+  }, [setCurrentView]);
+
+  const handleAction = async (id: string, type: string, reward: number) => {
+    setLoadingMission(id);
+    const tg = (window as any).Telegram?.WebApp;
+    
+    if (type === "ads") {
+      setCurrentView("store");
+    } else {
+      const ok = await claimMissionTokens(type, reward);
+      if (ok) tg?.showAlert(`✅ +${reward} BP earned!`);
+      else tg?.showAlert("Mission already completed or not ready.");
+    }
+    setLoadingMission(null);
+  };
 
   return (
-    <div className="flex-1 bg-[#060606] min-h-screen relative overflow-x-hidden font-sans text-white pb-20 select-none">
+    <div className="flex-1 bg-[#060606] min-h-screen relative overflow-x-hidden pb-32 select-none">
       
-      {/* ── Fondo de Estrellas (Stardust Effect) ── */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: `
-          radial-gradient(circle at 15% 20%, rgba(255,255,255,0.12) 1px, transparent 1px),
-          radial-gradient(circle at 85% 40%, rgba(255,255,255,0.12) 1px, transparent 1px),
-          radial-gradient(circle at 45% 70%, rgba(255,255,255,0.12) 1px, transparent 1px),
-          radial-gradient(circle at 25% 85%, rgba(255,255,255,0.15) 1.5px, transparent 1.5px),
-          radial-gradient(circle at 75% 10%, rgba(255,255,255,0.15) 1.5px, transparent 1.5px)
-        `,
-        backgroundSize: `120px 120px`,
+      {/* Fondo Stardust */}
+      <div className="absolute inset-0 pointer-events-none opacity-40" style={{
+        backgroundImage: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+        backgroundSize: '80px 80px'
       }} />
 
-      {/* ── Header ── */}
-      <div className="relative z-10 flex items-center justify-between px-5 pt-[52px] pb-4">
-         <button 
-            onClick={() => setCurrentView('home')} 
-            className="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform"
-         >
-            <ChevronLeft size={22} strokeWidth={2.5} className="text-white pr-0.5" />
-         </button>
-         <span className="text-[16px] font-bold text-white absolute left-1/2 -translate-x-1/2" style={{ fontFamily: SFD }}>
-            Level 3
-         </span>
+      {/* Header Título (Alineado con otras páginas) */}
+      <div 
+        className="sticky top-0 z-30 flex items-center justify-center w-full bg-black/80 backdrop-blur-md border-b border-white/5"
+        style={{ 
+          paddingTop: "var(--tg-safe-area-inset-top, 24px)", 
+          height: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 24px)" 
+        }}
+      >
+        <h2 className="text-[17px] font-bold text-white" style={{ fontFamily: SFD }}>
+          Level {currentLevel.lv}
+        </h2>
       </div>
 
-      {/* ── Hero Section ── */}
-      <div className="relative z-10 flex flex-col items-center mt-12 mb-16">
-         <div className="relative mb-7 flex justify-center items-center">
-            {/* Resplandor trasero */}
-            <div className="absolute w-[60px] h-[60px] bg-[#e8a8c1] blur-[32px] opacity-30 rounded-full" />
-            <PixelDiamond variant="pink" className="w-[90px] h-[90px] relative z-10" />
-         </div>
-         <h1 className="text-[36px] font-bold text-white tracking-tight leading-none mb-3" style={{ fontFamily: SFD }}>
-            Level 3
-         </h1>
-         <p className="text-[12px] font-bold text-[#8e8e93] tracking-[0.18em] uppercase" style={{ fontFamily: SF }}>
-            Advanced
-         </p>
+      {/* Hero: Objeto Pixelado Central */}
+      <div className="flex flex-col items-center mt-12 mb-12">
+        <div className="relative mb-6">
+          <div className="absolute inset-0 blur-[40px] opacity-20 rounded-full" style={{ background: currentLevel.color }} />
+          <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} />
+        </div>
+        <h1 className="text-[36px] font-bold text-white tracking-tight mb-2" style={{ fontFamily: SFD }}>
+          Level {currentLevel.lv}
+        </h1>
+        <p className="text-[12px] font-bold text-[#8e8e93] tracking-[0.2em] uppercase" style={{ fontFamily: SF }}>
+          {currentLevel.name}
+        </p>
       </div>
 
-      {/* ── Tarjetas y Línea de Tiempo ── */}
-      <div className="relative z-10 px-5 w-full flex flex-col gap-[28px]">
-
-         {/* ── Level 3 Card (Current) ── */}
-         <div className="bg-[#141415] rounded-[22px] p-5 w-full">
-            <div className="flex items-center justify-between mb-4">
-               <div className="flex items-center gap-2.5">
-                  <PixelDiamond variant="pink" className="w-[18px] h-[18px]" />
-                  <span className="text-[16px] font-bold text-white" style={{ fontFamily: SFD }}>Level 3</span>
-               </div>
-               <span className="text-[13px] font-bold text-[#d1d1d6]" style={{ fontFamily: SF }}>55/450XP</span>
+      {/* Tarjeta de Progreso Principal */}
+      <div className="px-5 mb-8">
+        <div className="bg-[#141415] border border-[#1c1c1e] rounded-[24px] p-5 shadow-xl">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2.5">
+              <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={18} />
+              <span className="text-[16px] font-bold text-white" style={{ fontFamily: SFD }}>Level {currentLevel.lv}</span>
             </div>
-            
-            {/* Barra de Progreso a Cuadros */}
-            <div className="flex items-center justify-between w-full mb-4 gap-[3px]">
-               {Array.from({ length: 24 }).map((_, i) => (
-                  <div key={i} className={`h-[5px] flex-1 max-w-[8px] rounded-[1px] ${i < 4 ? 'bg-[#ffffff]' : 'bg-[#3a3a3c]'}`} />
-               ))}
-            </div>
-            
-            <p className="text-[13px] text-[#8e8e93] leading-[1.4]" style={{ fontFamily: SF }}>
-              You are proficient in using various AI applications effectively.
-            </p>
-         </div>
+            <span className="text-[14px] font-bold text-[#d1d1d6]" style={{ fontFamily: SFD }}>
+              {currentBP.toLocaleString()}/{nextLevel.bp.toLocaleString()} BP
+            </span>
+          </div>
 
-         {/* ── Separador Horizontal Punteado ── */}
-         <div className="w-full border-t border-dashed border-[#2c2c2e]" />
+          {/* Barra punteada exacto a diseño */}
+          <div className="flex items-center justify-between w-full mb-4 gap-[4px]">
+            {Array.from({ length: 24 }).map((_, i) => (
+              <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white' : 'bg-[#2c2c2e]'}`} />
+            ))}
+          </div>
 
-         {/* ── Level 1 Card (Timeline) ── */}
-         <div className="flex w-full">
-            
-            {/* Timeline Vertical Track */}
-            <div className="w-[28px] flex-shrink-0 flex justify-center relative">
-               {/* Línea vertical sólida */}
-               <div className="absolute top-[32px] bottom-[-40px] w-[2px] bg-[#2c2c2e]" />
-               {/* Punto blanco brillante */}
-               <div className="absolute top-[32px] w-[7px] h-[7px] rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.9)] z-10" />
-            </div>
+          <p className="text-[13px] text-[#8e8e93] leading-relaxed" style={{ fontFamily: SF }}>
+            You are currently at {currentLevel.name} rank. Accumulate more BP to evolve your AI core and unlock exclusive rewards.
+          </p>
+        </div>
+      </div>
 
-            {/* Level 1 Content Card */}
-            <div className="flex-1 bg-[#141415] rounded-[22px] p-5 mb-6">
-               <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2.5">
-                     <PixelDiamond variant="cyan" className="w-[18px] h-[18px]" />
-                     <span className="text-[16px] font-bold text-white" style={{ fontFamily: SFD }}>Level 1</span>
-                  </div>
-                  <span className="text-[13px] font-bold text-[#d1d1d6]" style={{ fontFamily: SF }}>150/150XP</span>
-               </div>
-               
-               {/* Barra de Progreso a Cuadros (Completa) */}
-               <div className="flex items-center justify-between w-full mb-4 gap-[3px]">
-                  {Array.from({ length: 24 }).map((_, i) => (
-                     <div key={i} className="h-[5px] flex-1 max-w-[8px] rounded-[1px] bg-[#ffffff]" />
-                  ))}
-               </div>
-               
-               <p className="text-[13px] text-[#8e8e93] leading-[1.4]" style={{ fontFamily: SF }}>
-                 You understand the basics of AI but is not used to many tools yet
-               </p>
-            </div>
-         </div>
-
+      {/* Sección de Misiones Funcionales */}
+      <div className="px-5 space-y-6">
+        <p className="px-1 text-[18px] font-bold text-white" style={{ fontFamily: SFD }}>Missions</p>
+        
+        <div className="bg-[#141415] border border-[#1c1c1e] rounded-[24px] overflow-hidden">
+          <MissionItem 
+            id="ads" 
+            title="Watch Ads" 
+            reward={300} 
+            progress={`${ads_today || 0}/3`} 
+            icon={<Tv size={20} className="text-blue-400" />}
+            onClick={() => handleAction("ads", "ads", 300)}
+            loading={loadingMission === "ads"}
+          />
+          <div className="h-px bg-white/5 ml-14" />
+          <MissionItem 
+            id="channel" 
+            title="Join xBlum Channel" 
+            reward={500} 
+            icon={<MessageCircle size={20} className="text-green-400" />}
+            onClick={() => handleAction("channel", "channel", 500)}
+            loading={loadingMission === "channel"}
+          />
+          <div className="h-px bg-white/5 ml-14" />
+          <MissionItem 
+            id="invite" 
+            title="Refer 1 Friend" 
+            reward={1000} 
+            icon={<Share2 size={20} className="text-purple-400" />}
+            onClick={() => handleAction("invite", "referral", 1000)}
+            loading={loadingMission === "invite"}
+          />
+        </div>
       </div>
     </div>
-  )
+  );
+}
+
+function MissionItem({ title, reward, progress, icon, onClick, loading }: any) {
+  return (
+    <button onClick={onClick} disabled={loading} className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-all">
+      <div className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center shrink-0">
+          {icon}
+        </div>
+        <div className="text-left">
+          <p className="text-white font-medium text-[15px]" style={{ fontFamily: SF }}>{title}</p>
+          <p className="text-amber-500 font-bold text-[13px]" style={{ fontFamily: SFD }}>+{reward} BP</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        {progress && <span className="text-[#636366] text-[13px] font-bold" style={{ fontFamily: SFD }}>{progress}</span>}
+        {loading ? <Loader2 size={16} className="animate-spin text-white/20" /> : <ChevronRight size={18} className="text-[#48484a]" />}
+      </div>
+    </button>
+  );
 }
