@@ -1,4 +1,4 @@
-[cite_start][cite: 1] "use client"
+"use client"
 
 import { useApp } from "@/lib/app-context"
 import { useState, useEffect } from "react"
@@ -182,9 +182,9 @@ export function ShopView() {
       {/* ── PANTALLA 2: DETALLE DEL NFT COMPACTO (Estilo Desk Calendar, Bottom Sheet) ── */}
       {selectedItem && (
         <div className={`fixed inset-0 bg-black/50 z-40 ${showDetailPanel ? 'block' : 'hidden'}`} onClick={() => setShowDetailPanel(false)}>
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-black rounded-t-[24px] z-50 animate-in slide-in-from-bottom-full duration-300" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#111] rounded-t-[24px] z-50 animate-in slide-in-from-bottom-full duration-300 border-t border-[#1c1c1e]" onClick={(e) => e.stopPropagation()}>
             {/* Indicador de arrastre (compacto) */}
-            <div className="w-10 h-1 bg-[#1c1c1e] rounded-full mx-auto mb-4" />
+            <div className="w-10 h-1 bg-[#2c2c2e] rounded-full mx-auto mb-4" />
 
             <div className="flex flex-col items-center pb-8">
               {/* NFT Card Gigante (Mismo estilo que antes pero en panel) */}
@@ -202,23 +202,23 @@ export function ShopView() {
               </button>
 
               {/* Tabla de Atributos Compacta */}
-              <div className="w-full bg-[#111] rounded-[24px] overflow-hidden flex flex-col">
+              <div className="w-full bg-[#1c1c1e] rounded-[24px] overflow-hidden flex flex-col">
                 <AttributeRow label="Owner:" value="xBlum Market" icon="/xblum-profile.png" />
-                <div className="h-px bg-[#1c1c1e] w-full" />
+                <div className="h-px bg-[#2c2c2e] w-full" />
                 <AttributeRow label="Rarity:" value={selectedItem.rarity} />
-                <div className="h-px bg-[#1c1c1e] w-full" />
+                <div className="h-px bg-[#2c2c2e] w-full" />
                 <AttributeRow label="Type:" value={selectedItem.type === "SHADE" ? "Profile Shade" : "Profile Gift"} />
-                <div className="h-px bg-[#1c1c1e] w-full" />
+                <div className="h-px bg-[#2c2c2e] w-full" />
                 <AttributeRow label="Issued:" value={`${selectedItem.issueNumber} / 25,000`} />
               </div>
             </div>
 
             {/* Floating Buy Button */}
-            <div className="p-4 bg-gradient-to-t from-black via-black to-transparent">
+            <div className="pt-2 pb-6 bg-[#111]">
               <button
                 disabled={selectedItem.stock === 0 || currentBP < selectedItem.price}
                 className={`w-full py-[18px] rounded-[18px] text-[16px] font-bold transition-all active:scale-[0.98] ${
-                  selectedItem.stock === 0 ? 'bg-[#1c1c1e] text-[#636366]' : 'bg-white text-black'
+                  selectedItem.stock === 0 ? 'bg-[#1c1c1e] text-[#636366]' : 'bg-[#3b82f6] text-white'
                   }`}
                 style={{ fontFamily: SFD }}
               >
