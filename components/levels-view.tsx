@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useCallback, useRef, useMemo } from "react"
-import { Play, Send, UserPlus, ChevronRight, Loader2, Lock, Check, MessageSquare, Camera, CalendarCheck, Users, Sparkles } from "lucide-react"
+import { Play, Send, UserPlus, ChevronRight, Loader2, Lock, Check, MessageSquare, Camera, CalendarCheck, Users, Sparkles, Store, Package } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -271,7 +271,7 @@ export function LevelsView() {
       </div>
 
       {/* Tarjeta Progreso */}
-      <div className="px-5 mb-10 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
+      <div className="px-5 mb-6 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
         <div className="bg-[#141415] rounded-[22px] p-5 shadow-2xl">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2.5">
@@ -291,6 +291,31 @@ export function LevelsView() {
             You are currently at {currentLevel.name} rank. Accumulate more BP to evolve your AI core and unlock exclusive rewards.
           </p>
         </div>
+      </div>
+
+      {/* ── Banner: Acceso al Shop ── */}
+      <div className="px-5 mb-10 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 fill-mode-both">
+         <button 
+            onClick={() => setCurrentView("shop")}
+            className="w-full relative overflow-hidden bg-[#111] border border-[#2c2c2e] rounded-[20px] p-4 flex items-center justify-between active:scale-[0.98] transition-transform shadow-lg"
+         >
+            {/* Brillo de fondo */}
+            <div className="absolute inset-0 pointer-events-none opacity-20" style={{ background: "radial-gradient(circle at 10% 50%, rgba(168,85,247,0.5), transparent 70%)" }} />
+            
+            <div className="flex items-center gap-4 relative z-10">
+               <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+                  <Package className="w-6 h-6 text-purple-400" />
+               </div>
+               <div className="text-left">
+                  <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>Marketplace & Drops</p>
+                  <p className="text-[#8e8e93] text-[13px] mt-0.5" style={{ fontFamily: SF }}>Spend BP on exclusive cosmetics</p>
+               </div>
+            </div>
+            
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/10 relative z-10">
+               <ChevronRight className="w-4 h-4 text-white/50" />
+            </div>
+         </button>
       </div>
 
       {/* ── ONE-TIME / AI TASKS ── */}
