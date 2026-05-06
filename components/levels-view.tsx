@@ -2,25 +2,25 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Tv, MessageCircle, Share2, ChevronRight, Loader2 } from "lucide-react"
+import { Play, Send, UserPlus, ChevronRight, Loader2 } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
 // ── Configuración de los 12 Niveles (Corregido para Strict Mode) ──
 const LEVEL_CONFIG = [
-  { lv: 1,  name: "Novice",    bp: 0,       color: "#82c3cd", pixels: [33, 23, 32, 34, 43] }, // Pequeña Cruz
-  { lv: 2,  name: "Explorer",  bp: 1000,    color: "#a8e8a8", pixels: [22, 23, 24, 32, 33, 34, 42, 43, 44] }, // Cuadrado
-  { lv: 3,  name: "Advanced",  bp: 2500,    color: "#e8a8c1", pixels: [30, 21, 31, 41, 12, 22, 32, 42, 52, 3, 13, 23, 33, 43, 53, 63, 14, 24, 34, 44, 54, 25, 35, 45, 36] }, // Rombo
-  { lv: 4,  name: "Expert",    bp: 6000,    color: "#ffd9a8", pixels: [21, 31, 41, 12, 52, 13, 53, 14, 54, 25, 35, 45] }, // Hexágono Hueco
-  { lv: 5,  name: "Specialist",bp: 12000,   color: "#a8c1e8", pixels: [30, 21, 41, 12, 32, 52, 3, 33, 63, 14, 34, 54, 25, 45, 36] }, // Estrella de 4 puntas
-  { lv: 6,  name: "Elite",     bp: 25000,   color: "#d1a8e8", pixels: [21, 31, 41, 12, 32, 52, 13, 33, 53, 14, 34, 54, 25, 35, 45] }, // Core con órbita
-  { lv: 7,  name: "Veteran",   bp: 50000,   color: "#e8a8a8", pixels: [0, 60, 11, 51, 22, 42, 33, 24, 44, 15, 55, 6, 66] }, // X de precisión
-  { lv: 8,  name: "Commander", bp: 100000,  color: "#f4f4f4", pixels: [30, 21, 31, 41, 3, 13, 23, 33, 43, 53, 63, 25, 35, 45, 36] }, // Gran Diamante
-  { lv: 9,  name: "Legend",    bp: 250000,  color: "#ffd700", pixels: [30, 11, 51, 2, 32, 62, 13, 53, 4, 34, 64, 15, 55, 36] }, // Átomo AI
-  { lv: 10, name: "Oracle",    bp: 500000,  color: "#00ffcc", pixels: [11, 21, 31, 41, 51, 12, 52, 13, 53, 14, 54, 15, 25, 35, 45, 55] }, // Frame Tech
-  { lv: 11, name: "Visionary", bp: 1000000, color: "#ff007f", pixels: [30, 21, 31, 41, 2, 12, 22, 42, 52, 62, 33, 4, 14, 24, 44, 54, 64, 25, 35, 45, 36] }, // Flor de Datos
-  { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] } // Matriz Suprema
+  { lv: 1,  name: "Novice",    bp: 0,       color: "#82c3cd", pixels: [33, 23, 32, 34, 43] },
+  { lv: 2,  name: "Explorer",  bp: 1000,    color: "#a8e8a8", pixels: [22, 23, 24, 32, 33, 34, 42, 43, 44] },
+  { lv: 3,  name: "Advanced",  bp: 2500,    color: "#e8a8c1", pixels: [30, 21, 31, 41, 12, 22, 32, 42, 52, 3, 13, 23, 33, 43, 53, 63, 14, 24, 34, 44, 54, 25, 35, 45, 36] },
+  { lv: 4,  name: "Expert",    bp: 6000,    color: "#ffd9a8", pixels: [21, 31, 41, 12, 52, 13, 53, 14, 54, 25, 35, 45] },
+  { lv: 5,  name: "Specialist",bp: 12000,   color: "#a8c1e8", pixels: [30, 21, 41, 12, 32, 52, 3, 33, 63, 14, 34, 54, 25, 45, 36] },
+  { lv: 6,  name: "Elite",     bp: 25000,   color: "#d1a8e8", pixels: [21, 31, 41, 12, 32, 52, 13, 33, 53, 14, 34, 54, 25, 35, 45] },
+  { lv: 7,  name: "Veteran",   bp: 50000,   color: "#e8a8a8", pixels: [0, 60, 11, 51, 22, 42, 33, 24, 44, 15, 55, 6, 66] },
+  { lv: 8,  name: "Commander", bp: 100000,  color: "#f4f4f4", pixels: [30, 21, 31, 41, 3, 13, 23, 33, 43, 53, 63, 25, 35, 45, 36] },
+  { lv: 9,  name: "Legend",    bp: 250000,  color: "#ffd700", pixels: [30, 11, 51, 2, 32, 62, 13, 53, 4, 34, 64, 15, 55, 36] },
+  { lv: 10, name: "Oracle",    bp: 500000,  color: "#00ffcc", pixels: [11, 21, 31, 41, 51, 12, 52, 13, 53, 14, 54, 15, 25, 35, 45, 55] },
+  { lv: 11, name: "Visionary", bp: 1000000, color: "#ff007f", pixels: [30, 21, 31, 41, 2, 12, 22, 42, 52, 62, 33, 4, 14, 24, 44, 54, 64, 25, 35, 45, 36] },
+  { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
 ];
 
 // ── Componente de Renderizado Pixel Art ──
@@ -32,7 +32,6 @@ const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: st
         const y = pos % 10;
         return <rect key={pos} x={x} y={y} width="1" height="1" fill={color} />;
       })}
-      {/* Puntos blancos de brillo interno en posiciones clave */}
       <rect x="3" y="3" width="1" height="1" fill="white" opacity="0.4" />
     </svg>
   );
@@ -114,18 +113,18 @@ export function LevelsView() {
 
       {/* Tarjeta de Progreso Principal */}
       <div className="px-5 mb-8">
-        <div className="bg-[#141415] border border-[#1c1c1e] rounded-[24px] p-5 shadow-xl">
+        <div className="bg-[#141415] rounded-[22px] p-5">
           <div className="flex justify-between items-center mb-4">
             <div className="flex items-center gap-2.5">
               <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={18} />
               <span className="text-[16px] font-bold text-white" style={{ fontFamily: SFD }}>Level {currentLevel.lv}</span>
             </div>
-            <span className="text-[14px] font-bold text-[#d1d1d6]" style={{ fontFamily: SFD }}>
+            <span className="text-[14px] font-bold text-[#d1d1d6]" style={{ fontFamily: SF }}>
               {currentBP.toLocaleString()}/{nextLevel.bp.toLocaleString()} BP
             </span>
           </div>
 
-          {/* Barra punteada exacto a diseño */}
+          {/* Barra punteada exacta al diseño */}
           <div className="flex items-center justify-between w-full mb-4 gap-[4px]">
             {Array.from({ length: 24 }).map((_, i) => (
               <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white' : 'bg-[#2c2c2e]'}`} />
@@ -138,60 +137,86 @@ export function LevelsView() {
         </div>
       </div>
 
-      {/* Sección de Misiones Funcionales */}
-      <div className="px-5 space-y-6">
-        <p className="px-1 text-[18px] font-bold text-white" style={{ fontFamily: SFD }}>Missions</p>
-        
-        <div className="bg-[#141415] border border-[#1c1c1e] rounded-[24px] overflow-hidden">
-          <MissionItem 
-            id="ads" 
-            title="Watch Ads" 
-            reward={300} 
-            progress={`${ads_today || 0}/3`} 
-            icon={<Tv size={20} className="text-blue-400" />}
-            onClick={() => handleAction("ads", "ads", 300)}
-            loading={loadingMission === "ads"}
-          />
-          <div className="h-px bg-white/5 ml-14" />
-          <MissionItem 
-            id="channel" 
-            title="Join xBlum Channel" 
-            reward={500} 
-            icon={<MessageCircle size={20} className="text-green-400" />}
-            onClick={() => handleAction("channel", "channel", 500)}
-            loading={loadingMission === "channel"}
-          />
-          <div className="h-px bg-white/5 ml-14" />
-          <MissionItem 
-            id="invite" 
-            title="Refer 1 Friend" 
-            reward={1000} 
-            icon={<Share2 size={20} className="text-purple-400" />}
-            onClick={() => handleAction("invite", "referral", 1000)}
-            loading={loadingMission === "invite"}
-          />
-        </div>
+      {/* ── Separador Horizontal Punteado ── */}
+      <div className="w-full border-t border-dashed border-[#2c2c2e] mb-6" />
+
+      {/* ── Misiones (Estilo Timeline Integrado) ── */}
+      <div className="relative z-10 px-5 w-full flex flex-col">
+        <h3 className="text-[18px] font-bold text-white mb-6" style={{ fontFamily: SFD }}>Daily Missions</h3>
+
+        <MissionTimelineCard 
+          title="Watch Ads" 
+          reward={300} 
+          desc="Support the project by watching short daily ads and earn points."
+          progress={`${ads_today || 0}/3 Completed`} 
+          icon={<Play size={18} className="text-white" fill="currentColor" />}
+          onClick={() => handleAction("ads", "ads", 300)}
+          loading={loadingMission === "ads"}
+          isLast={false}
+        />
+
+        <MissionTimelineCard 
+          title="Join xBlum Channel" 
+          reward={500} 
+          desc="Stay updated with the latest AI news and feature drops."
+          progress="Pending" 
+          icon={<Send size={18} className="text-white" />}
+          onClick={() => handleAction("channel", "channel", 500)}
+          loading={loadingMission === "channel"}
+          isLast={false}
+        />
+
+        <MissionTimelineCard 
+          title="Refer 1 Friend" 
+          reward={1000} 
+          desc="Invite a friend to the xBlum ecosystem and grow your rank faster."
+          progress="Pending" 
+          icon={<UserPlus size={18} className="text-white" />}
+          onClick={() => handleAction("invite", "referral", 1000)}
+          loading={loadingMission === "invite"}
+          isLast={true}
+        />
+
       </div>
     </div>
   );
 }
 
-function MissionItem({ title, reward, progress, icon, onClick, loading }: any) {
+// ── Componente de Tarjeta de Misión (Mismo Estilo que las Tarjetas de Nivel) ──
+function MissionTimelineCard({ title, reward, desc, progress, icon, onClick, loading, isLast }: any) {
   return (
-    <button onClick={onClick} disabled={loading} className="w-full flex items-center justify-between p-4 active:bg-white/5 transition-all">
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center shrink-0">
-          {icon}
-        </div>
-        <div className="text-left">
-          <p className="text-white font-medium text-[15px]" style={{ fontFamily: SF }}>{title}</p>
-          <p className="text-amber-500 font-bold text-[13px]" style={{ fontFamily: SFD }}>+{reward} BP</p>
-        </div>
+    <div className="flex w-full">
+      {/* Timeline Vertical Track */}
+      <div className="w-[28px] flex-shrink-0 flex justify-center relative">
+         {/* Línea vertical sólida conectora */}
+         {!isLast && <div className="absolute top-[28px] bottom-[-24px] w-[2px] bg-[#2c2c2e]" />}
+         {/* Punto indicador */}
+         <div className={`absolute top-[28px] w-[7px] h-[7px] rounded-full z-10 transition-colors shadow-[0_0_8px_rgba(255,255,255,0.1)] ${loading ? 'bg-white' : 'bg-[#48484a]'}`} />
       </div>
-      <div className="flex items-center gap-2">
-        {progress && <span className="text-[#636366] text-[13px] font-bold" style={{ fontFamily: SFD }}>{progress}</span>}
-        {loading ? <Loader2 size={16} className="animate-spin text-white/20" /> : <ChevronRight size={18} className="text-[#48484a]" />}
-      </div>
-    </button>
+
+      {/* Mission Content Card */}
+      <button onClick={onClick} disabled={loading} className="flex-1 bg-[#141415] rounded-[22px] p-5 mb-5 text-left active:scale-[0.98] transition-all">
+         <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2.5">
+               <div className="opacity-90">
+                  {loading ? <Loader2 size={18} className="animate-spin text-white" /> : icon}
+               </div>
+               <span className="text-[16px] font-bold text-white" style={{ fontFamily: SFD }}>{title}</span>
+            </div>
+            <span className="text-[13px] font-bold text-white" style={{ fontFamily: SF }}>+{reward} BP</span>
+         </div>
+
+         <p className="text-[13px] text-[#8e8e93] leading-[1.4] mb-4" style={{ fontFamily: SF }}>
+           {desc}
+         </p>
+
+         <div className="flex items-center justify-between w-full">
+            <span className="text-[11px] font-bold text-[#636366] uppercase tracking-wider" style={{ fontFamily: SF }}>
+               {progress}
+            </span>
+            {loading ? <Loader2 size={16} className="animate-spin text-[#48484a]" /> : <ChevronRight size={16} className="text-[#48484a]" />}
+         </div>
+      </button>
+    </div>
   );
 }
