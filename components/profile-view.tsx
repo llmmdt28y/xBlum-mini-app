@@ -61,7 +61,7 @@ const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opaci
   </svg>
 )
 
-// Restaurado: Tamaño, opacidad y distribución sutil y elegante.
+// Datos exactos de distribución de corazones para replicar el perfil
 const BACKGROUND_HEARTS = [
   { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
   { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
@@ -93,13 +93,17 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Componente Fila de Información del Modal con Divisor Vertical ──────
+// ── Componente Fila de Información del Modal Compacto con Grid de 3 Columnas ──────
 const ModalInfoRow = ({ label, children, isLast }: any) => (
-  <div className={`grid grid-cols-[100px_1fr] items-center gap-4 py-3.5 px-4 ${!isLast ? 'border-b border-[#2c2c2e]/50' : ''}`}>
-    <span className="text-white font-bold text-[15px] capitalize" style={{ fontFamily: SF }}>{label}</span>
-    <div className="flex items-center gap-4 text-[#e5e5ea] font-normal text-[15px]" style={{ fontFamily: SF }}>
-       {/* Divisor Vertical */}
-       <div className="w-[1px] h-5 bg-[#2c2c2e]" />
+  <div className={`grid grid-cols-[100px_1px_1fr] items-center gap-1.5 py-2 px-4 ${!isLast ? 'border-b border-[#2c2c2e]/50' : ''}`}>
+    {/* Título (Owner, Model, etc.) */}
+    <span className="text-white font-bold text-[14px] capitalize col-span-1" style={{ fontFamily: SF }}>{label}</span>
+    
+    {/* Línea Divisora Vertical */}
+    <div className="w-[1px] h-4 bg-[#2c2c2e]" />
+    
+    {/* Información Alineada */}
+    <div className="flex items-center gap-2 text-[#e5e5ea] font-normal text-[14px] col-span-1" style={{ fontFamily: SF }}>
        <div className="flex-1 text-left">{children}</div>
     </div>
   </div>
@@ -154,17 +158,25 @@ export function ProfileView() {
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
-  // Vista previa específica para el modal de corazones (Vacío en medio)
+  // Vista previa del halo de corazones para el modal (Réplica exacta del perfil)
   const PreviewPixelHeartsModal = (
     <div className="relative w-[180px] h-[180px] flex items-center justify-center overflow-hidden">
-       <div className="absolute inset-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center, black 10%, transparent 70%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 70%)" }}>
-         {BACKGROUND_HEARTS.map((h, i) => (
-             <div key={i} className="absolute left-1/2 top-1/2" style={{ transform: `translate(calc(-50% + ${h.x * 0.7}px), calc(-50% + ${h.y * 0.7}px)) rotate(${h.rot}deg)` }}>
-                <PixelHeartOutline color={h.color} opacity={h.op * 2} size={h.size} />
+       {/* Halo de Corazones (Copia exacta de la lógica del perfil, sin maskImage para más claridad en la preview) */}
+       <div className="absolute inset-0 pointer-events-none z-0">
+          {BACKGROUND_HEARTS.map((h, i) => (
+             <div 
+               key={i} 
+               className="absolute left-1/2 top-1/2" 
+               style={{ transform: `translate(calc(-50% + ${h.x * 0.7}px), calc(-50% + ${h.y * 0.7}px)) rotate(${h.rot}deg)` }}
+             >
+                <PixelHeartOutline color={h.color} opacity={h.op * 3} size={h.size} />
              </div>
-         ))}
+          ))}
        </div>
-       {/* Centro Vacío. Eliminado el círculo y el texto de AVATAR */}
+       {/* Centro Vacío para simular el perfil */}
+       <div className="w-[84px] h-[84px] rounded-full border border-dashed border-[#48484a] bg-[#0a0a0b]/80 flex items-center justify-center z-10">
+         <span className="text-[#8e8e93] text-[10px] font-bold tracking-widest">AVATAR</span>
+       </div>
     </div>
   )
 
@@ -196,7 +208,7 @@ export function ProfileView() {
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
 
-      {/* ── Header Profile ── */}
+      {/* Header Profile ── */}
       <div className="sticky top-0 z-30 flex items-center justify-center w-full" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)", background: "transparent" }}></div>
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden">
@@ -346,7 +358,8 @@ export function ProfileView() {
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-300" onClick={() => setSelectedItem(null)} />
 
-           <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto pb-12">
+           {/* Aumentado pb-32 para crear espacio definitivo para el nav bar */}
+           <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto pb-32">
               
               {/* Header Icon - Reemplazado por X de cierre */}
               <div className="absolute top-5 right-5 active:opacity-60 cursor-pointer" onClick={() => setSelectedItem(null)}>
@@ -368,7 +381,7 @@ export function ProfileView() {
               <div className="px-5 w-full">
                  <div className="bg-[#141415] rounded-[16px] border border-[#1c1c1e] w-full flex flex-col mb-6 overflow-hidden">
                     <ModalInfoRow label="owner">
-                       <div className="flex items-center gap-2">
+                       <div className="flex items-center gap-2 flex-row-reverse">
                           {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full" /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
                           {/* Eliminado emoji de cohete */}
                           <span className="text-[#3b82f6] font-medium">{displayName}</span>
