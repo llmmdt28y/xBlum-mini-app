@@ -26,7 +26,7 @@ const LEVEL_CONFIG = [
 // ── Componente Pixel Art ──────────────────────────────────────────────
 const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: string, size?: number }) => {
   return (
-    <svg viewBox="0 0 7 7" width={size} height={size} style={{ filter: `drop-shadow(0 0 12px ${color}66)` }}>
+    <svg viewBox="0 0 7 7" width={size} height={size} style={{ filter: `drop-shadow(0 0 12px ${color})` }}>
       {pixels.map(pos => {
         const x = Math.floor(pos / 10)
         const y = pos % 10
@@ -62,12 +62,13 @@ export function ProfileView() {
   const [displayName, setDisplayName] = useState("")
   const [username,    setUsername]    = useState("")
   
-  // Estado para desplegar los niveles bloqueados
   const [isLevelsExpanded, setIsLevelsExpanded] = useState(false)
 
   // Determinar Nivel Actual
   const currentLevel = [...LEVEL_CONFIG].reverse().find(l => myBP >= l.bp) || LEVEL_CONFIG[0]
+  const nextLevel = LEVEL_CONFIG[currentLevel.lv] || currentLevel
   const lockedLevels = LEVEL_CONFIG.filter(l => l.lv > currentLevel.lv)
+  const progressPercent = Math.min(100, (myBP / nextLevel.bp) * 100)
 
   useEffect(() => {
     const user = getTgUser()
@@ -77,7 +78,6 @@ export function ProfileView() {
     setDisplayName(full || user.username || "User")
     setUsername(user.username ? "@" + user.username : "")
 
-    // Sincronizar perfil
     const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
     fetch(`${API_BASE}/api/sync_profile`, {
       method: 'POST',
@@ -110,13 +110,13 @@ export function ProfileView() {
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
 
-      {/* ── Header Profile (Sin línea divisoria) ── */}
+      {/* ── Header Profile ── */}
       <div
         className="sticky top-0 z-30 flex items-center justify-center w-full"
         style={{
           paddingTop: "var(--tg-safe-area-inset-top, 24px)",
           height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)",
-          background: "transparent", // Se quitó el fondo blur y la línea para igualar la imagen
+          background: "transparent",
         }}
       >
         <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
@@ -136,8 +136,7 @@ export function ProfileView() {
         </button>
 
         {/* ── Avatar + Name Section ── */}
-        <div className="flex flex-col items-center gap-3 pt-6 animate-in fade-in zoom-in-95 duration-500">
-           {/* Patrón de puntos decorativo simulado detrás (opcional, ajustando al fondo negro) */}
+        <div className="flex flex-col items-center gap-3 pt-4 animate-in fade-in zoom-in-95 duration-500">
            <div
              className="flex items-center justify-center overflow-hidden rounded-full shadow-2xl relative z-10"
              style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}
@@ -152,12 +151,13 @@ export function ProfileView() {
            </div>
 
           <div className="text-center flex flex-col items-center mt-2">
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1.5">
                <p className="text-white font-bold" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD }}>
                  {displayName || "Your Name"}
                </p>
-               {/* Icono de Nivel Conectado al Nombre (Sin bordes, Más grande) */}
-               <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={28} />
+               <div className="flex items-center justify-center mb-0.5">
+                 <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={36} />
+               </div>
             </div>
             <p className="mt-1" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
               {username}
@@ -165,45 +165,55 @@ export function ProfileView() {
           </div>
         </div>
 
-        {/* ── Banner de Progreso / Mensaje (Estilo Not Games) ── */}
-        <div className="w-full rounded-2xl p-4 flex items-center justify-between" style={{ background: "linear-gradient(90deg, #18181b 0%, #09090b 100%)", border: "1px solid #27272a" }}>
-           <p className="text-white font-semibold text-[15px] leading-tight w-2/3" style={{ fontFamily: SFD }}>
-             Keep completing missions to earn BP
-           </p>
-           <div className="w-8 h-8 rounded-full border border-[#3f3f46] flex items-center justify-center shrink-0">
-             <span className="text-white text-xs">⚠️</span>
-           </div>
-        </div>
-
-        {/* ── Levels Section (Acordeón) ── */}
+        {/* ── Levels Section (Acordeón con Barra Compacta) ── */}
         <div className="w-full">
            <button 
              onClick={() => setIsLevelsExpanded(!isLevelsExpanded)}
-             className="w-full flex items-center justify-between py-2 active:opacity-70 transition-opacity"
+             className="w-full flex flex-col gap-3 py-2 active:opacity-70 transition-opacity"
            >
-             <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
-               Level <span className="text-[#8e8e93] text-[16px] ml-1">{currentLevel.lv}</span>
-             </h3>
-             <ChevronDown className={`w-5 h-5 text-[#8e8e93] transition-transform duration-300 ${isLevelsExpanded ? 'rotate-180' : ''}`} />
+             <div className="w-full flex items-center justify-between">
+               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
+                 Level <span className="text-[#8e8e93] text-[16px] ml-1">{currentLevel.lv}</span>
+               </h3>
+               <div className="flex items-center gap-2">
+                 <span className="text-[13px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>
+                   {myBP.toLocaleString()} / {nextLevel.bp.toLocaleString()} BP
+                 </span>
+                 <ChevronDown className={`w-5 h-5 text-[#8e8e93] transition-transform duration-300 ${isLevelsExpanded ? 'rotate-180' : ''}`} />
+               </div>
+             </div>
+             
+             {/* Barra de Progreso Compacta */}
+             <div className="flex items-center justify-between w-full gap-[3px]">
+               {Array.from({ length: 24 }).map((_, i) => (
+                 <div key={i} className={`h-[3px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.4)]' : 'bg-[#2c2c2e]'}`} />
+               ))}
+             </div>
            </button>
 
-           {/* Lista de Niveles Bloqueados */}
+           {/* Lista de Niveles Bloqueados (Máximo 3 con Gradiente) */}
            {isLevelsExpanded && (
-             <div className="mt-4 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                {lockedLevels.map((lvl) => (
-                   <div key={lvl.lv} className="flex items-center justify-between p-4 rounded-[16px]" style={{ background: "#0a0a0a", border: "1px solid #1c1c1e" }}>
-                      <div className="flex items-center gap-4">
-                         <div className="w-10 h-10 flex items-center justify-center grayscale opacity-50">
-                           <PixelObject pixels={lvl.pixels} color={lvl.color} size={24} />
-                         </div>
-                         <div>
-                            <p className="text-[#8e8e93] font-medium text-[15px]" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
-                            <p className="text-[#48484a] text-[13px]" style={{ fontFamily: SFD }}>{lvl.name}</p>
-                         </div>
-                      </div>
-                      <Lock className="w-5 h-5 text-[#2c2c2e]" />
-                   </div>
-                ))}
+             <div className="mt-4 relative animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="flex flex-col gap-3 pb-4">
+                  {lockedLevels.slice(0, 3).map((lvl) => (
+                     <div key={lvl.lv} className="flex items-center justify-between p-4 rounded-[16px]" style={{ background: "#0a0a0a", border: "1px solid #1c1c1e" }}>
+                        <div className="flex items-center gap-4">
+                           <div className="w-10 h-10 flex items-center justify-center grayscale opacity-50">
+                             <PixelObject pixels={lvl.pixels} color={lvl.color} size={24} />
+                           </div>
+                           <div>
+                              <p className="text-[#8e8e93] font-medium text-[15px]" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
+                              <p className="text-[#48484a] text-[13px]" style={{ fontFamily: SFD }}>{lvl.name}</p>
+                           </div>
+                        </div>
+                        <Lock className="w-5 h-5 text-[#2c2c2e]" />
+                     </div>
+                  ))}
+                </div>
+                {/* Gradiente final de la lista */}
+                {lockedLevels.length > 3 && (
+                  <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-black to-transparent pointer-events-none" />
+                )}
              </div>
            )}
         </div>
@@ -218,17 +228,14 @@ export function ProfileView() {
            </div>
            
            <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-2">
-              {/* Logro Desbloqueado */}
               <div 
                 className="w-[84px] h-[96px] bg-[#111111] flex flex-col items-center justify-center shrink-0 relative"
                 style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
               >
-                {/* Patrón simulado como en la imagen */}
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at center, #ffffff 1px, transparent 1px)', backgroundSize: '6px 6px' }}></div>
                 <Hexagon className="w-6 h-6 text-white/50 mb-1 z-10" />
               </div>
               
-              {/* Logros Bloqueados (Vacíos) */}
               {[1, 2, 3, 4].map((i) => (
                  <div 
                    key={i}
@@ -247,7 +254,6 @@ export function ProfileView() {
            </h3>
            
            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-              {/* Tarjeta de Inventario tipo "Not Games" */}
               <div className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] p-4 flex flex-col justify-between shrink-0">
                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e]">
                     <Sparkles className="w-4 h-4 text-[#8e8e93]" />
@@ -258,7 +264,6 @@ export function ProfileView() {
                  </div>
               </div>
 
-              {/* Otra Tarjeta de Inventario (Fondos) */}
               <div className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] p-4 flex flex-col justify-between shrink-0">
                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e]">
                     <div className="w-4 h-4 rounded-full border-2 border-[#8e8e93]"></div>
