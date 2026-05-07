@@ -91,14 +91,12 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Componente Fila de Información (Todo a la izquierda y pegado) ──────
+// ── Fila de Info del Modal (Alineada a la izquierda y compacta) ──────
 const ModalInfoRow = ({ label, children, isLast }: any) => (
   <div className={`flex items-center gap-3 py-3 px-4 ${!isLast ? 'border-b border-[#2c2c2e]/50' : ''}`}>
     <span className="text-[#8e8e93] font-bold text-[14px] capitalize w-[75px] shrink-0" style={{ fontFamily: SF }}>{label}</span>
-    {/* Línea Divisora Vertical */}
     <div className="w-[1px] h-4 bg-[#2c2c2e] shrink-0" />
-    {/* Información pegada a la izquierda tras la línea */}
-    <div className="text-white font-medium text-[14px] flex-1 text-left" style={{ fontFamily: SF }}>
+    <div className="text-white font-medium text-[14px] flex-1 text-left flex items-center" style={{ fontFamily: SF }}>
        {children}
     </div>
   </div>
@@ -115,6 +113,9 @@ export function ProfileView() {
   
   const [isLevelsExpanded, setIsLevelsExpanded] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
+  
+  // ── ESTADO PARA EL FONDO EQUIPADO ──
+  const [equippedBackground, setEquippedBackground] = useState<string | null>(null)
 
   const currentLevel = [...LEVEL_CONFIG].reverse().find(l => myBP >= l.bp) || LEVEL_CONFIG[0]
   const nextLevel = LEVEL_CONFIG[currentLevel.lv] || currentLevel
@@ -144,7 +145,6 @@ export function ProfileView() {
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
-  // Vista previa que utiliza EXACTAMENTE el diseño de corazones del perfil
   const PreviewPixelHeartsModal = (
     <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden">
        <div className="absolute inset-0 pointer-events-none z-0">
@@ -164,26 +164,38 @@ export function ProfileView() {
   const openItemModal = (type: 'hearts' | 'sparkles' | 'achievement') => {
     if (type === 'hearts') {
       setSelectedItem({
+        id: 'hearts',
         name: 'Pixel Hearts', serial: '#94,355', collection: 'Cosmetic Backgrounds',
-        rarity: 'Exclusive', rarityPercent: '0.5%', type: 'Icon Background', typePercent: '0.4%',
-        quantityIssued: 124, quantityMax: 500, reqLevel: 5, reqBP: 12000,
-        isOwned: true, isEquipped: true, preview: PreviewPixelHeartsModal
+        rarity: 'Exclusive (Early Access)', rarityPercent: '0.5%', type: 'Icon Background', typePercent: '0.4%',
+        quantityIssued: 124, quantityMax: 500, reqLevel: 3, reqBP: 2500, // Ajustado a Nivel 3
+        preview: PreviewPixelHeartsModal
       })
     } else if (type === 'sparkles') {
       setSelectedItem({
+        id: 'sparkles',
         name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
         rarity: 'Rare', rarityPercent: '2.5%', type: 'Name Icon', typePercent: '1.2%',
         quantityIssued: 3150, quantityMax: 10000, reqLevel: 8, reqBP: 50000,
-        isOwned: false, isEquipped: false, preview: <Sparkles className="w-24 h-24 text-[#8e8e93]" />
+        preview: <Sparkles className="w-24 h-24 text-[#8e8e93]" />
       })
     } else if (type === 'achievement') {
       setSelectedItem({
+        id: 'achievement',
         name: 'Novice Pioneer', serial: '#00,001', collection: 'Achievements',
         rarity: 'Common', rarityPercent: '50%', type: 'Badge', typePercent: '100%',
         quantityIssued: 85400, quantityMax: 100000, reqLevel: 1, reqBP: 0,
-        isOwned: true, isEquipped: false, preview: <Hexagon className="w-24 h-24 text-white/50" />
+        preview: <Hexagon className="w-24 h-24 text-white/50" />
       })
     }
+  }
+
+  const handleEquipToggle = () => {
+    if (equippedBackground === selectedItem?.id) {
+       setEquippedBackground(null)
+    } else {
+       setEquippedBackground(selectedItem?.id)
+    }
+    setSelectedItem(null)
   }
 
   return (
@@ -199,13 +211,17 @@ export function ProfileView() {
 
         {/* ── Avatar y Fondo Principal ── */}
         <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative">
-           <div className="absolute inset-0 pointer-events-none z-0" style={{ height: '240px', top: '-40px', maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
-              {BACKGROUND_HEARTS.map((h, i) => (
-                 <div key={i} className="absolute left-1/2 top-[40%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                    <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
-                 </div>
-              ))}
-           </div>
+           
+           {equippedBackground === 'hearts' && (
+             <div className="absolute inset-0 pointer-events-none z-0" style={{ height: '240px', top: '-40px', maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
+                {BACKGROUND_HEARTS.map((h, i) => (
+                   <div key={i} className="absolute left-1/2 top-[40%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+                      <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
+                   </div>
+                ))}
+             </div>
+           )}
+
            <div className="relative flex justify-center items-center w-full mb-3 z-10">
                 <div className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
                   {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
@@ -239,7 +255,7 @@ export function ProfileView() {
                   <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.4)]' : 'bg-[#2c2c2e]'}`} />
                 ))}
               </div>
-              <button onClick={() => setIsLevelsExpanded(!isLevelsExpanded)} className="w-full flex items-center justify-center gap-1.5 pt-3 mt-2 active:opacity-70">
+              <button onClick={() => setIsLevelsExpanded(!isLevelsExpanded)} className="w-full flex items-center justify-center gap-1.5 pt-3 mt-2 active:opacity-70 transition-opacity">
                  <span className="text-[13px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>Next levels</span>
                  <ChevronDown className={`w-4 h-4 text-[#8e8e93] transition-transform ${isLevelsExpanded ? 'rotate-180' : ''}`} />
               </button>
@@ -264,14 +280,18 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Logros ── */}
+        {/* ── Achievements ── */}
         <div className="w-full relative z-10">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Achievements <span className="text-[#48484a] text-[16px] ml-1">1</span></h3>
               <ChevronRight className="w-5 h-5 text-[#48484a]" />
            </div>
            <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-2">
-              <button onClick={() => openItemModal('achievement')} className="w-[84px] h-[96px] bg-[#111111] flex flex-col items-center justify-center shrink-0 relative active:scale-95 transition-transform" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}>
+              <button 
+                onClick={() => openItemModal('achievement')}
+                className="w-[84px] h-[96px] bg-[#111111] flex flex-col items-center justify-center shrink-0 relative active:scale-95 transition-transform"
+                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+              >
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at center, #ffffff 1px, transparent 1px)', backgroundSize: '6px 6px' }}></div>
                 <Hexagon className="w-6 h-6 text-white/50 mb-1 z-10" />
               </button>
@@ -281,38 +301,54 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Inventario ── */}
+        {/* ── Inventory ── */}
         <div className="w-full pb-6 relative z-10">
            <h3 className="text-white font-bold text-[18px] mb-4" style={{ fontFamily: SFD }}>Inventory</h3>
            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-              <button onClick={() => openItemModal('hearts')} className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] border border-blue-500/30 p-4 flex flex-col justify-between shrink-0 relative overflow-hidden active:scale-98">
-                 <div className="absolute -top-4 -right-4 w-20 h-20 opacity-10" style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}></div>
-                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-blue-500/50">
+              
+              <button onClick={() => openItemModal('hearts')} className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] border border-[#2c2c2e] p-4 flex flex-col justify-between shrink-0 relative overflow-hidden active:scale-[0.98] transition-transform text-left">
+                 <div className="absolute -top-4 -right-4 w-20 h-20 opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}></div>
+                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-[#2c2c2e]">
                     <PixelHeartOutline color="#ffffff" opacity={0.8} size={10} />
-                    <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-[2px]"><Check className="w-2 h-2 text-white" strokeWidth={4} /></div>
+                    
+                    {equippedBackground === 'hearts' && (
+                       <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-[2px]">
+                          <Check className="w-2 h-2 text-white" strokeWidth={4} />
+                       </div>
+                    )}
+                    {currentLevel.lv < 3 && ( // Ajustado a nivel 3
+                       <div className="absolute -bottom-1 -right-1 bg-[#1c1c1e] rounded-full p-[2px] border border-[#2c2c2e]">
+                          <Lock className="w-2 h-2 text-[#8e8e93]" strokeWidth={3} />
+                       </div>
+                    )}
                  </div>
                  <div className="relative z-10">
                     <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>Icon Backgrounds</p>
-                    <p className="text-blue-400 text-[13px] mt-1 font-medium" style={{ fontFamily: SF }}>Pixel Hearts</p>
+                    <p className={`text-[13px] mt-1 font-medium ${currentLevel.lv >= 3 ? 'text-blue-400' : 'text-[#636366]'}`} style={{ fontFamily: SF }}>Pixel Hearts</p>
                  </div>
               </button>
-              <button onClick={() => openItemModal('sparkles')} className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] p-4 flex flex-col justify-between shrink-0 active:scale-98">
-                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e]"><Sparkles className="w-4 h-4 text-[#8e8e93]" /></div>
+
+              <button onClick={() => openItemModal('sparkles')} className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] p-4 flex flex-col justify-between shrink-0 active:scale-[0.98] transition-transform text-left border border-[#2c2c2e]">
+                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e]">
+                    <Sparkles className="w-4 h-4 text-[#8e8e93]" />
+                 </div>
                  <div>
                     <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>Name Icons</p>
                     <p className="text-[#8e8e93] text-[13px] mt-1" style={{ fontFamily: SF }}>0 items</p>
                  </div>
               </button>
+
            </div>
         </div>
+
       </div>
 
       {/* ── Modal de Detalles ── */}
       {selectedItem && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
-           <div className="absolute inset-0 bg-black/80 animate-in fade-in" onClick={() => setSelectedItem(null)} />
-           <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full max-h-[90vh] overflow-y-auto">
-              <div className="absolute top-5 right-5 active:opacity-60 z-50" onClick={() => setSelectedItem(null)}><X className="w-6 h-6 text-[#8e8e93]" /></div>
+           <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
+           <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto">
+              <div className="absolute top-5 right-5 active:opacity-60 cursor-pointer z-50" onClick={() => setSelectedItem(null)}><X className="w-6 h-6 text-[#8e8e93]" /></div>
               
               <div className="w-full flex justify-center mt-10 mb-2">{selectedItem.preview}</div>
 
@@ -323,33 +359,45 @@ export function ProfileView() {
                  <div className="bg-[#141415] rounded-[16px] border border-[#1c1c1e] w-full flex flex-col mb-8 overflow-hidden">
                     <ModalInfoRow label="owner">
                        <div className="flex items-center gap-2">
-                          <span className="text-[#3b82f6] font-medium">{displayName}</span>
                           {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full" /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
+                          <span className="text-[#3b82f6] font-medium">{displayName}</span>
                        </div>
                     </ModalInfoRow>
                     <ModalInfoRow label="model">
-                       <div className="flex items-center gap-2">
+                       <div className="flex items-center">
                           <span>{selectedItem.collection}</span>
-                          <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] font-bold">{selectedItem.rarityPercent}</span>
+                          <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.rarityPercent}</span>
                        </div>
                     </ModalInfoRow>
                     <ModalInfoRow label="symbol">
-                       <div className="flex items-center gap-2">
+                       <div className="flex items-center">
                           <span>{selectedItem.type}</span>
-                          <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] font-bold">{selectedItem.typePercent}</span>
+                          <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.typePercent}</span>
                        </div>
                     </ModalInfoRow>
-                    <ModalInfoRow label="backdrop">{selectedItem.rarity}</ModalInfoRow>
-                    <ModalInfoRow label="quantity" isLast>{selectedItem.quantityIssued.toLocaleString()}/{selectedItem.quantityMax.toLocaleString()} issued</ModalInfoRow>
+                    <ModalInfoRow label="backdrop">
+                       {selectedItem.rarity}
+                    </ModalInfoRow>
+                    <ModalInfoRow label="quantity" isLast>
+                       {selectedItem.quantityIssued.toLocaleString()}/{selectedItem.quantityMax.toLocaleString()} issued
+                    </ModalInfoRow>
                  </div>
 
-                 {/* Botón con margen inferior grande para Nav Bar */}
                  <div className="w-full mb-[120px]">
-                   {selectedItem.isOwned ? (
-                      <button disabled className="w-full bg-[#1c1c1e] text-[#636366] font-bold text-[17px] rounded-[16px] py-4">{selectedItem.isEquipped ? 'Equipped' : 'Use Background'}</button>
+                   {currentLevel.lv >= selectedItem.reqLevel ? (
+                      equippedBackground === selectedItem.id ? (
+                         <button onClick={handleEquipToggle} className="w-full bg-[#1c1c1e] text-white font-bold text-[17px] rounded-[16px] py-4 border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
+                            Unequip
+                         </button>
+                      ) : (
+                         <button onClick={handleEquipToggle} className="w-full bg-[#3b82f6] active:bg-[#2563eb] transition-colors text-white font-bold text-[17px] rounded-[16px] py-4">
+                            Equip Background
+                         </button>
+                      )
                    ) : (
-                      <button disabled={currentLevel.lv < selectedItem.reqLevel} className="w-full bg-[#3b82f6] text-white font-bold text-[17px] rounded-[16px] py-4 disabled:bg-[#1c1c1e] disabled:text-[#636366]">
-                         {currentLevel.lv >= selectedItem.reqLevel ? 'Claim Item' : `Locked - Level ${selectedItem.reqLevel}`}
+                      <button disabled className="w-full bg-[#1c1c1e] text-[#636366] font-bold text-[17px] rounded-[16px] py-4 flex flex-col items-center justify-center leading-tight">
+                         <span>Locked</span>
+                         <span className="text-[12px] font-normal mt-0.5 text-[#48484a]">Requires Level {selectedItem.reqLevel}</span>
                       </button>
                    )}
                  </div>
