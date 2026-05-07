@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Check, X, ChevronLeft } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -143,7 +143,7 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Fila de Info del Modal ──────
+// ── Fila de Info del Modal (Alineada a la izquierda y compacta) ──────
 const ModalInfoRow = ({ label, children, isLast }: any) => (
   <div className={`flex items-center gap-3 py-3 px-4 ${!isLast ? 'border-b border-[#2c2c2e]/50' : ''}`}>
     <span className="text-[#8e8e93] font-bold text-[14px] capitalize w-[75px] shrink-0" style={{ fontFamily: SF }}>{label}</span>
@@ -384,13 +384,11 @@ export function ProfileView() {
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
                 Achievements <span className="text-[#48484a] text-[16px] ml-1">{unlockedAchKeys.length}</span>
               </h3>
-              {/* Botón Circular con flecha para ir al menú general de logros */}
               <button onClick={() => setIsAchievementsMenuOpen(true)} className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
                 <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
               </button>
            </div>
            
-           {/* Fila única horizontal, items pegados sin gap visibles grandes */}
            <div className="flex items-center gap-[2px] overflow-x-hidden pb-2">
               {profileAchievementSlots.map((_, i) => {
                  const key = unlockedAchKeys[i];
@@ -505,55 +503,56 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS (GRID) ── */}
+      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS (LISTA VERTICAL LÍMPIA) ── */}
       {isAchievementsMenuOpen && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto">
           
-          {/* Header del menú Transparente */}
-          <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-10 pb-5 bg-transparent">
-            {/* Botón Circular Gris */}
-            <button 
-              className="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform" 
-              onClick={() => setIsAchievementsMenuOpen(false)}
-            >
-              <ChevronLeft className="w-6 h-6 text-[#8e8e93]" />
-            </button>
-            <h1 className="text-white text-[18px] font-bold text-center flex-1 pr-10" style={{ fontFamily: SFD }}>
-              Achievements
-            </h1>
+          {/* Header con la X de cierre en la esquina superior derecha */}
+          <div className="absolute top-5 right-5 active:opacity-60 cursor-pointer z-50" onClick={() => setIsAchievementsMenuOpen(false)}>
+            <X className="w-6 h-6 text-[#8e8e93]" />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 p-4">
-            {Object.keys(ACHIEVEMENTS_DB).map((key) => {
-              const ach = ACHIEVEMENTS_DB[key];
-              const isUnlocked = unlockedAchKeys.includes(key);
+          <div className="px-5 pt-12 pb-10 flex flex-col">
+            <h1 className="text-white text-[32px] font-bold mb-10" style={{ fontFamily: SFD }}>
+              Achievements
+            </h1>
 
-              return (
-                <button 
-                  key={key} 
-                  onClick={() => isUnlocked && openItemModal(key)}
-                  className={`aspect-[1/1.1] bg-[#0a0a0a] rounded-[24px] border-[3px] ${isUnlocked ? 'border-[#2c2c2e]' : 'border-[#1c1c1e]'} flex items-center justify-center relative transition-all active:scale-[0.97] p-2`}
-                >
-                   {/* Hexágono Interior que contiene la imagen o slot vacío */}
-                   <div 
-                      className={`w-full h-full flex items-center justify-center relative overflow-hidden ${isUnlocked ? 'bg-transparent' : 'bg-[#111111]'}`}
-                      style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-                   >
-                     {isUnlocked ? (
-                        <img src={ach.img} draggable={false} className="w-[120%] h-[120%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
-                     ) : (
-                        // Slot vacío (Hexágono interior gris oscuro plano)
-                        <div className="w-full h-full bg-[#111111]"></div>
-                     )}
-                   </div>
-                </button>
-              )
-            })}
+            {/* Lista vertical de logros desbloqueados */}
+            <div className="flex flex-col gap-12 items-center">
+              {unlockedAchKeys.map((key) => {
+                const ach = ACHIEVEMENTS_DB[key];
+                return (
+                  <div key={key} className="flex flex-col items-center justify-center text-center w-full">
+                     <button 
+                       onClick={() => openItemModal(key)}
+                       className="active:scale-95 transition-transform"
+                     >
+                       {/* Imagen pura y muy grande, sin contenedores ni bordes */}
+                       <img 
+                          src={ach.img} 
+                          draggable={false} 
+                          className="w-[220px] h-[220px] object-contain pointer-events-none select-none" 
+                          style={{ WebkitTouchCallout: "none" }} 
+                       />
+                     </button>
+                     {/* Textos descriptivos debajo de la imagen */}
+                     <h2 className="text-white font-bold text-[22px] mt-5" style={{ fontFamily: SFD }}>{ach.name}</h2>
+                     <p className="text-[#8e8e93] text-[15px] mt-2.5 max-w-[300px] leading-relaxed" style={{ fontFamily: SF }}>{ach.desc}</p>
+                     <p className="text-[#636366] text-[13px] mt-3 font-semibold tracking-wide uppercase" style={{ fontFamily: SF }}>{ach.date}</p>
+                  </div>
+                )
+              })}
+
+              {/* Mensaje de respaldo si no hay logros */}
+              {unlockedAchKeys.length === 0 && (
+                 <p className="text-[#8e8e93] text-[15px] mt-10" style={{ fontFamily: SF }}>No achievements unlocked yet.</p>
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* ── Bottom Sheet Modal (Detalles Inventario/Logros) - Z-Index subido para superponerse al menú ── */}
+      {/* ── Bottom Sheet Modal (Detalles Inventario/Logros) - Z-Index 110 para evitar superposiciones ── */}
       {selectedItem && (
         <div className="fixed inset-0 z-[110] flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
