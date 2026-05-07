@@ -38,37 +38,40 @@ const StardustSVG = () => {
   return <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">{stars}</svg>
 }
 
-// NUEVO: Iconos abstractos grises distribuidos en los bordes
+// NUEVO: Iconos grises de signo de dólar ($) distribuidos aleatoriamente hacia los lados
 const TreasuresSVG = () => {
-  // Diamante, Destello, Rombo, Moneda
-  const shapes = [
-    "M0,-5 L5,0 L0,5 L-5,0 Z", 
-    "M0,-6 Q2,-2 6,0 Q2,2 0,6 Q-2,2 -6,0 Q-2,-2 0,-6 Z",
-    "M-4,-4 L4,-4 L4,4 L-4,4 Z",
-    "M0,-5 A 5 5 0 1 1 0,5 A 5 5 0 1 1 0,-5 Z"
-  ];
+  // Generar un patrón disperso de iconos de dólar
+  const dollars = Array.from({ length: 25 }).map((_, i) => {
+    let x, y, r;
+    do {
+        x = Math.random() * 100;
+        y = Math.random() * 100;
+        // Distancia desde el centro (50, 50)
+        r = Math.sqrt(Math.pow(x-50, 2) + Math.pow(y-50, 2));
+    } while (r < 30 || r > 50); // Mantener una zona central vacía más grande
 
-  const elements = Array.from({ length: 28 }).map((_, i) => {
-    const angle = (i / 28) * Math.PI * 2;
-    const radius = 36 + Math.random() * 10; // Espacio central vacío garantizado
-    const x = 50 + radius * Math.cos(angle);
-    const y = 50 + radius * Math.sin(angle);
-    const shape = shapes[i % shapes.length];
-    const scale = 0.4 + Math.random() * 0.5;
-    const rotate = Math.random() * 360;
+    const scale = 0.5 + Math.random() * 0.4;
+    const rotate = Math.random() * 30 - 15; // Rotación aleatoria sutil
+    const opacity = 0.2 + Math.random() * 0.2;
 
     return (
-      <path
+      <text
         key={i}
-        d={shape}
+        x={x}
+        y={y}
+        fontSize="12" // Tamaño del texto para el símbolo de dólar
+        textAnchor="middle"
+        dominantBaseline="central"
         fill="#8e8e93" // Gris elegante
-        opacity={0.3 + Math.random() * 0.4}
-        transform={`translate(${x}, ${y}) scale(${scale}) rotate(${rotate})`}
-      />
+        opacity={opacity}
+        transform={`scale(${scale}) rotate(${rotate} ${x} ${y})`}
+      >
+        $
+      </text>
     );
   });
 
-  return <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_4px_rgba(142,142,147,0.3)]">{elements}</svg>
+  return <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_4px_rgba(142,142,147,0.3)]">{dollars}</svg>
 }
 
 const PhantomSVG = () => (
@@ -211,7 +214,6 @@ export function ShopView() {
               <TableRow label="owner">
                 <img src="/xblum-profile.png" alt="" className="w-5 h-5 rounded-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
                 <span className="text-[#4ea8e9] font-medium text-[14px]">xBlum Market</span>
-                <span className="text-[12px]">✨</span>
               </TableRow>
               <div className="h-px bg-[#2c2c2e] ml-4" />
               
@@ -235,12 +237,6 @@ export function ShopView() {
               
               <TableRow label="quantity">
                 <span className="text-white text-[14px]">{selectedItem.issueNumber}/25,000 issued</span>
-              </TableRow>
-              <div className="h-px bg-[#2c2c2e] ml-4" />
-              
-              <TableRow label="value">
-                <span className="text-white text-[14px]">~CA$ {Math.floor(selectedItem.price * 0.05)}</span>
-                <span className="text-[#4ea8e9] text-[13px] font-medium cursor-pointer ml-1">learn more</span>
               </TableRow>
 
             </div>
