@@ -48,28 +48,29 @@ const PixelHeart = ({ color, opacity, size = 20 }: { color: string, opacity: num
   </svg>
 )
 
-// 18 corazones distribuidos orgánicamente alrededor del perfil
+// 18 corazones más dispersos, con más opacidad, llegando a las esquinas y al nombre
 const BACKGROUND_HEARTS = [
   // Lado Izquierdo (9)
-  { x: -125, y: -15, rot: -15, op: 0.15, size: 24, color: "#f43f5e" },
-  { x: -95,  y: -40, rot: -25, op: 0.35, size: 20, color: "#fb7185" },
-  { x: -75,  y: 10,  rot: 10,  op: 0.6,  size: 26, color: "#e11d48" },
-  { x: -110, y: 35,  rot: -5,  op: 0.25, size: 18, color: "#fda4af" },
-  { x: -145, y: 10,  rot: -30, op: 0.1,  size: 22, color: "#be123c" },
-  { x: -55,  y: -50, rot: -10, op: 0.5,  size: 18, color: "#fb7185" },
-  { x: -65,  y: 45,  rot: 20,  op: 0.45, size: 24, color: "#f43f5e" },
-  { x: -95,  y: 65,  rot: 15,  op: 0.2,  size: 16, color: "#fda4af" },
-  { x: -135, y: -45, rot: 5,   op: 0.12, size: 20, color: "#e11d48" },
+  { x: -170, y: -60, rot: -25, op: 0.25, size: 22, color: "#f43f5e" }, // Esquina sup izq
+  { x: -110, y: -45, rot: -15, op: 0.45, size: 18, color: "#fb7185" },
+  { x: -185, y:  10, rot: -40, op: 0.20, size: 20, color: "#e11d48" }, // Extremo izq
+  { x: -135, y: -10, rot:   5, op: 0.35, size: 24, color: "#fda4af" },
+  { x: -85,  y: -15, rot:  15, op: 0.75, size: 26, color: "#be123c" }, // Cerca avatar
+  { x: -65,  y:  35, rot: -10, op: 0.60, size: 20, color: "#fb7185" },
+  { x: -115, y:  45, rot:  25, op: 0.40, size: 18, color: "#f43f5e" },
+  { x: -155, y:  75, rot: -20, op: 0.25, size: 22, color: "#fda4af" }, // Esquina inf izq
+  { x: -75,  y:  85, rot:  10, op: 0.35, size: 16, color: "#e11d48" }, // Llegando al nombre
+
   // Lado Derecho (9)
-  { x: 125, y: -15, rot: 15,  op: 0.15, size: 24, color: "#f43f5e" },
-  { x: 95,  y: -40, rot: 25,  op: 0.35, size: 20, color: "#fb7185" },
-  { x: 75,  y: 10,  rot: -10, op: 0.6,  size: 26, color: "#e11d48" },
-  { x: 110, y: 35,  rot: 5,   op: 0.25, size: 18, color: "#fda4af" },
-  { x: 145, y: 10,  rot: 30,  op: 0.1,  size: 22, color: "#be123c" },
-  { x: 55,  y: -50, rot: 10,  op: 0.5,  size: 18, color: "#fb7185" },
-  { x: 65,  y: 45,  rot: -20, op: 0.45, size: 24, color: "#f43f5e" },
-  { x: 95,  y: 65,  rot: -15, op: 0.2,  size: 16, color: "#fda4af" },
-  { x: 135, y: -45, rot: -5,  op: 0.12, size: 20, color: "#e11d48" },
+  { x: 170, y: -60, rot:  25, op: 0.25, size: 22, color: "#f43f5e" }, // Esquina sup der
+  { x: 110, y: -45, rot:  15, op: 0.45, size: 18, color: "#fb7185" },
+  { x: 185, y:  10, rot:  40, op: 0.20, size: 20, color: "#e11d48" }, // Extremo der
+  { x: 135, y: -10, rot:  -5, op: 0.35, size: 24, color: "#fda4af" },
+  { x: 85,  y: -15, rot: -15, op: 0.75, size: 26, color: "#be123c" }, // Cerca avatar
+  { x: 65,  y:  35, rot:  10, op: 0.60, size: 20, color: "#fb7185" },
+  { x: 115, y:  45, rot: -25, op: 0.40, size: 18, color: "#f43f5e" },
+  { x: 155, y:  75, rot:  20, op: 0.25, size: 22, color: "#fda4af" }, // Esquina inf der
+  { x: 75,  y:  85, rot: -10, op: 0.35, size: 16, color: "#e11d48" }, // Llegando al nombre
 ]
 
 // ── Telegram user helper ─────────────────────────────────────────────
@@ -174,14 +175,14 @@ export function ProfileView() {
         <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500">
            
            {/* Contenedor del Avatar y los Icon Backgrounds */}
-           <div className="relative flex justify-center items-center w-full h-[150px] mb-3">
+           <div className="relative flex justify-center items-center w-full h-[160px] mb-2">
               
-              {/* Capa de Icon Backgrounds con Gradient Fade-out (mask) */}
+              {/* Capa de Icon Backgrounds con Gradient Fade-out (mask) ampliado para mostrar los bordes y el nombre */}
               <div 
                 className="absolute inset-0 pointer-events-none" 
                 style={{ 
-                  maskImage: "radial-gradient(ellipse at center, black 20%, transparent 75%)", 
-                  WebkitMaskImage: "radial-gradient(ellipse at center, black 20%, transparent 75%)" 
+                  maskImage: "radial-gradient(ellipse at center, black 25%, transparent 90%)", 
+                  WebkitMaskImage: "radial-gradient(ellipse at center, black 25%, transparent 90%)" 
                 }}
               >
                  {BACKGROUND_HEARTS.map((h, i) => (
@@ -210,7 +211,7 @@ export function ProfileView() {
               </div>
            </div>
 
-          <div className="text-center flex flex-col items-center">
+          <div className="text-center flex flex-col items-center relative z-10">
             {/* Contenedor del nombre y el icono perfectamente ajustado */}
             <div className="flex items-center justify-center gap-1.5">
                <p className="text-white font-bold" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>
@@ -226,8 +227,8 @@ export function ProfileView() {
           </div>
         </div>
 
-        {/* ── Levels Section (Contenedor Original Adaptado) ── */}
-        <div className="w-full">
+        {/* ── Levels Section ── */}
+        <div className="w-full relative z-10">
            <div className="bg-[#141415] rounded-[22px] p-5 shadow-2xl border border-[#1c1c1e] transition-all duration-300">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2.5">
@@ -278,7 +279,7 @@ export function ProfileView() {
         </div>
 
         {/* ── Achievements Section ── */}
-        <div className="w-full">
+        <div className="w-full relative z-10">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
                 Achievements <span className="text-[#48484a] text-[16px] ml-1">1</span>
@@ -307,16 +308,14 @@ export function ProfileView() {
         </div>
 
         {/* ── Inventory Section ── */}
-        <div className="w-full pb-6">
+        <div className="w-full pb-6 relative z-10">
            <h3 className="text-white font-bold text-[18px] mb-4" style={{ fontFamily: SFD }}>
              Inventory
            </h3>
            
            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
               
-              {/* Tarjeta de Inventario (Fondos de Perfil - Ahora con Pixel Hearts Equipado) */}
               <div className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] border border-blue-500/30 p-4 flex flex-col justify-between shrink-0 relative overflow-hidden">
-                 {/* Mini vista previa de corazones en la tarjeta */}
                  <div className="absolute -top-4 -right-4 w-20 h-20 opacity-20 pointer-events-none" style={{ background: "radial-gradient(circle, #e11d48 0%, transparent 70%)" }}></div>
                  
                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-blue-500/50">
@@ -331,7 +330,6 @@ export function ProfileView() {
                  </div>
               </div>
 
-              {/* Tarjeta de Inventario (Name Icons) */}
               <div className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] p-4 flex flex-col justify-between shrink-0">
                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e]">
                     <Sparkles className="w-4 h-4 text-[#8e8e93]" />
