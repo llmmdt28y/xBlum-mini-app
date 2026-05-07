@@ -62,29 +62,29 @@ const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opaci
   </svg>
 )
 
-// Distribución en anillo, más separados y sutiles (Color blanco con baja opacidad)
+// Distribución en anillo, más separados y sutiles (blanco). Corazones más chicos y opacos.
 const BACKGROUND_HEARTS = [
-  // Anillo interior / Cerca del Avatar
-  { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
-  { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
-  { x: -110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
-  { x:  110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  // Anillo interior / Cerca del Avatar - Más grandes y opacos
+  { x: -90, y: -50, rot: -5, op: 0.80, size: 16, color: "#ffffff" },
+  { x:  90, y: -50, rot:  5, op: 0.80, size: 16, color: "#ffffff" },
+  { x: -110, y: 10, rot:  0, op: 0.85, size: 18, color: "#ffffff" },
+  { x:  110, y: 10, rot:  0, op: 0.85, size: 18, color: "#ffffff" },
   
-  // Anillo exterior / Más dispersos
-  { x: -160, y: -20, rot:  10, op: 0.08, size: 20, color: "#ffffff" },
-  { x:  160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
-  { x: -140, y:  50, rot:  -5, op: 0.12, size: 22, color: "#ffffff" },
-  { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
+  // Anillo exterior / Más dispersos - Un poco más pequeños y menos opacos
+  { x: -160, y: -20, rot:  10, op: 0.65, size: 14, color: "#ffffff" },
+  { x:  160, y: -20, rot: -10, op: 0.65, size: 14, color: "#ffffff" },
+  { x: -140, y:  50, rot:  -5, op: 0.60, size: 14, color: "#ffffff" },
+  { x:  140, y:  50, rot:   5, op: 0.60, size: 14, color: "#ffffff" },
   
-  // Cerca del nombre (Abajo)
-  { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
-  { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
-  { x: -120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
-  { x:  120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  // Cerca del nombre (Abajo) - Más pequeños y menos opacos
+  { x: -75,  y:  80, rot: -15, op: 0.55, size: 12, color: "#ffffff" },
+  { x:  75,  y:  80, rot:  15, op: 0.55, size: 12, color: "#ffffff" },
+  { x: -120, y: 110, rot:   0, op: 0.40, size: 10, color: "#ffffff" },
+  { x:  120, y: 110, rot:   0, op: 0.40, size: 10, color: "#ffffff" },
   
-  // Arriba dispersos
-  { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
-  { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
+  // Arriba dispersos - Tamaño medio, opacidad media
+  { x: -40,  y: -90, rot:  10, op: 0.60, size: 12, color: "#ffffff" },
+  { x:  40,  y: -90, rot: -10, op: 0.60, size: 12, color: "#ffffff" },
 ]
 
 // ── Telegram user helper ─────────────────────────────────────────────
@@ -158,7 +158,7 @@ export function ProfileView() {
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
   return (
-    <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#0a0a0a" }}>
+    <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
 
       {/* ── Header Profile ── */}
       <div
@@ -169,7 +169,7 @@ export function ProfileView() {
           background: "transparent",
         }}
       >
-        {/* Placeholder para título si lo deseas, actualmente invisible para igualar el minimalismo de la imagen */}
+        {/* Placeholder para título si lo deseas */}
       </div>
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden">
@@ -207,11 +207,10 @@ export function ProfileView() {
               ))}
            </div>
 
-           {/* Contenedor del Avatar con Anillo Gradiente */}
+           {/* Contenedor del Avatar (Eliminado el anillo de gradiente) */}
            <div className="relative flex justify-center items-center w-full mb-3 z-10">
-              <div className="p-[3px] rounded-full bg-gradient-to-br from-green-400 to-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)]">
                 <div
-                  className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative"
+                  className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative shadow-lg"
                   style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}
                 >
                   {photoUrl ? (
@@ -222,7 +221,6 @@ export function ProfileView() {
                     </span>
                   )}
                 </div>
-              </div>
            </div>
 
           <div className="text-center flex flex-col items-center relative z-10">
@@ -333,7 +331,8 @@ export function ProfileView() {
                  <div className="absolute -top-4 -right-4 w-20 h-20 opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}></div>
                  
                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-blue-500/50">
-                    <PixelHeartOutline color="#ffffff" opacity={0.6} size={14} />
+                    {/* Actualizado icono de vista previa para reflejar corazones más chicos y visibles */}
+                    <PixelHeartOutline color="#ffffff" opacity={0.8} size={10} />
                     <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-[2px]">
                        <Check className="w-2 h-2 text-white" strokeWidth={4} />
                     </div>
