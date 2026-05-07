@@ -2,12 +2,12 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, Check, ChevronRight, Sparkles, Hexagon } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Configuración de Niveles (Importada de levels-view) ──────────────
+// ── Configuración de Niveles ─────────────────────────────────────────
 const LEVEL_CONFIG = [
   { lv: 1,  name: "Novice",    bp: 0,       color: "#82c3cd", pixels: [33, 23, 32, 34, 43] },
   { lv: 2,  name: "Explorer",  bp: 1000,    color: "#a8e8a8", pixels: [22, 23, 24, 32, 33, 34, 42, 43, 44] },
@@ -51,64 +51,6 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Componentes de UI Básicos ────────────────────────────────────────
-function Row({
-  label, sublabel, right, onClick, leftNode,
-}: {
-  leftNode?: React.ReactNode
-  label: string
-  sublabel?: string
-  right?: React.ReactNode
-  onClick?: () => void
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={!onClick}
-      className={`w-full flex items-center gap-4 px-5 transition-colors ${onClick ? 'active:bg-white/5' : ''}`}
-      style={{ paddingTop: "14px", paddingBottom: "14px" }}
-    >
-      {leftNode && (
-        <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
-          {leftNode}
-        </div>
-      )}
-      <div className="flex-1 text-left">
-        <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-          {label}
-        </p>
-        {sublabel && (
-          <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
-            {sublabel}
-          </p>
-        )}
-      </div>
-      {right ?? (onClick ? <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} /> : null)}
-    </button>
-  )
-}
-
-function Divider() {
-  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />
-}
-
-function Section({ title, children }: { title?: string; children: React.ReactNode }) {
-  return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-      <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-        {title && (
-          <div className="flex items-center justify-between px-5 pt-4 pb-2 bg-[#141415] border-b border-[#1c1c1e]">
-            <p style={{ fontSize: "12px", fontWeight: 700, color: "#8e8e93", fontFamily: SF, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-              {title}
-            </p>
-          </div>
-        )}
-        {children}
-      </div>
-    </div>
-  )
-}
-
 // ── Main ProfileView ──────────────────────────────────────────────────
 export function ProfileView() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -119,11 +61,13 @@ export function ProfileView() {
   const [photoUrl,    setPhotoUrl]    = useState<string | null>(null)
   const [displayName, setDisplayName] = useState("")
   const [username,    setUsername]    = useState("")
+  
+  // Estado para desplegar los niveles bloqueados
+  const [isLevelsExpanded, setIsLevelsExpanded] = useState(false)
 
   // Determinar Nivel Actual
   const currentLevel = [...LEVEL_CONFIG].reverse().find(l => myBP >= l.bp) || LEVEL_CONFIG[0]
-  const nextLevel = LEVEL_CONFIG[currentLevel.lv] || currentLevel
-  const progressPercent = Math.min(100, (myBP / nextLevel.bp) * 100)
+  const lockedLevels = LEVEL_CONFIG.filter(l => l.lv > currentLevel.lv)
 
   useEffect(() => {
     const user = getTgUser()
@@ -145,7 +89,6 @@ export function ProfileView() {
         photo_url: user.photo_url || ""
       })
     }).catch(console.error)
-
   }, [])
 
   useEffect(() => {
@@ -165,18 +108,15 @@ export function ProfileView() {
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
   return (
-    <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#060606" }}>
+    <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
 
-      {/* ── Header Profile ── */}
+      {/* ── Header Profile (Sin línea divisoria) ── */}
       <div
         className="sticky top-0 z-30 flex items-center justify-center w-full"
         style={{
           paddingTop: "var(--tg-safe-area-inset-top, 24px)",
           height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)",
-          background: "rgba(6,6,6,0.92)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
+          background: "transparent", // Se quitó el fondo blur y la línea para igualar la imagen
         }}
       >
         <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
@@ -184,142 +124,152 @@ export function ProfileView() {
         </h2>
       </div>
 
-      <div className="px-5 pt-6 pb-28 space-y-6 relative">
+      <div className="px-5 pt-2 pb-28 space-y-8 relative">
         
         {/* Ícono de Configuración */}
         <button 
           onClick={() => setCurrentView("settings")}
           className="absolute right-5 top-0 active:opacity-60 transition-opacity z-20"
-          style={{ marginTop: "24px" }} 
+          style={{ marginTop: "12px" }} 
         >
           <Settings className="w-[22px] h-[22px] text-white/60 hover:text-white transition-colors" />
         </button>
 
         {/* ── Avatar + Name Section ── */}
-        <div className="flex flex-col items-center gap-4 pt-6 pb-4 animate-in fade-in zoom-in-95 duration-500">
-          
-          {/* Avatar Container (Más grande y con espacio para Icon Background) */}
-          <div className="relative flex items-center justify-center p-1.5 rounded-full" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)" }}>
-             {/* Simulación de Icon Background Equipado */}
-             <div className="absolute inset-0 rounded-full border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)] pointer-events-none" />
-             
-             <div
-               className="flex items-center justify-center overflow-hidden rounded-full shadow-2xl relative z-10"
-               style={{ width: 110, height: 110, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}
-             >
-               {photoUrl ? (
-                 <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" onError={() => setPhotoUrl(null)} />
-               ) : (
-                 <span className="text-white font-bold" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>
-                   {initials || "?"}
-                 </span>
-               )}
-             </div>
-          </div>
+        <div className="flex flex-col items-center gap-3 pt-6 animate-in fade-in zoom-in-95 duration-500">
+           {/* Patrón de puntos decorativo simulado detrás (opcional, ajustando al fondo negro) */}
+           <div
+             className="flex items-center justify-center overflow-hidden rounded-full shadow-2xl relative z-10"
+             style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}
+           >
+             {photoUrl ? (
+               <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" onError={() => setPhotoUrl(null)} />
+             ) : (
+               <span className="text-white font-bold" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>
+                 {initials || "?"}
+               </span>
+             )}
+           </div>
 
-          <div className="text-center flex flex-col items-center">
+          <div className="text-center flex flex-col items-center mt-2">
             <div className="flex items-center justify-center gap-2">
-               <p className="text-white font-bold" style={{ fontSize: "22px", letterSpacing: "-0.01em", fontFamily: SFD }}>
+               <p className="text-white font-bold" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD }}>
                  {displayName || "Your Name"}
                </p>
-               {/* Icono de Nivel Conectado al Nombre */}
-               <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={14} />
-               </div>
+               {/* Icono de Nivel Conectado al Nombre (Sin bordes, Más grande) */}
+               <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={28} />
             </div>
-            
-            <p className="mt-1 flex items-center gap-2 justify-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
-              <span>{username}</span>
-              <span className="w-1 h-1 rounded-full bg-[#48484a]"></span>
-              <span style={{ color: currentLevel.color }}>Level {currentLevel.lv}</span>
+            <p className="mt-1" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+              {username}
             </p>
           </div>
         </div>
 
-        {/* ── Achievements Section ── */}
-        <Section title="Achievements & Progress">
-           {/* Barra de Progreso BP */}
-           <div className="px-5 py-5 border-b border-[#1c1c1e] bg-[#141415]">
-              <div className="flex justify-between items-center mb-3">
-                 <span className="text-[14px] text-white font-medium" style={{ fontFamily: SF }}>Level {currentLevel.lv}</span>
-                 <span className="text-[13px] text-[#8e8e93]" style={{ fontFamily: SFD }}>
-                   {myBP.toLocaleString()} / {nextLevel.bp.toLocaleString()} BP
-                 </span>
-              </div>
-              <div className="flex items-center justify-between w-full gap-[3px]">
-                {Array.from({ length: 20 }).map((_, i) => (
-                  <div key={i} className={`h-[4px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 20) ? 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.5)]' : 'bg-[#2c2c2e]'}`} />
+        {/* ── Banner de Progreso / Mensaje (Estilo Not Games) ── */}
+        <div className="w-full rounded-2xl p-4 flex items-center justify-between" style={{ background: "linear-gradient(90deg, #18181b 0%, #09090b 100%)", border: "1px solid #27272a" }}>
+           <p className="text-white font-semibold text-[15px] leading-tight w-2/3" style={{ fontFamily: SFD }}>
+             Keep completing missions to earn BP
+           </p>
+           <div className="w-8 h-8 rounded-full border border-[#3f3f46] flex items-center justify-center shrink-0">
+             <span className="text-white text-xs">⚠️</span>
+           </div>
+        </div>
+
+        {/* ── Levels Section (Acordeón) ── */}
+        <div className="w-full">
+           <button 
+             onClick={() => setIsLevelsExpanded(!isLevelsExpanded)}
+             className="w-full flex items-center justify-between py-2 active:opacity-70 transition-opacity"
+           >
+             <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
+               Level <span className="text-[#8e8e93] text-[16px] ml-1">{currentLevel.lv}</span>
+             </h3>
+             <ChevronDown className={`w-5 h-5 text-[#8e8e93] transition-transform duration-300 ${isLevelsExpanded ? 'rotate-180' : ''}`} />
+           </button>
+
+           {/* Lista de Niveles Bloqueados */}
+           {isLevelsExpanded && (
+             <div className="mt-4 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                {lockedLevels.map((lvl) => (
+                   <div key={lvl.lv} className="flex items-center justify-between p-4 rounded-[16px]" style={{ background: "#0a0a0a", border: "1px solid #1c1c1e" }}>
+                      <div className="flex items-center gap-4">
+                         <div className="w-10 h-10 flex items-center justify-center grayscale opacity-50">
+                           <PixelObject pixels={lvl.pixels} color={lvl.color} size={24} />
+                         </div>
+                         <div>
+                            <p className="text-[#8e8e93] font-medium text-[15px]" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
+                            <p className="text-[#48484a] text-[13px]" style={{ fontFamily: SFD }}>{lvl.name}</p>
+                         </div>
+                      </div>
+                      <Lock className="w-5 h-5 text-[#2c2c2e]" />
+                   </div>
                 ))}
-              </div>
+             </div>
+           )}
+        </div>
+
+        {/* ── Achievements Section (Hexagonos) ── */}
+        <div className="w-full">
+           <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
+                Achievements <span className="text-[#48484a] text-[16px] ml-1">1</span>
+              </h3>
+              <ChevronRight className="w-5 h-5 text-[#48484a]" />
            </div>
-
-           {/* Lista de Logros */}
-           <Row
-             leftNode={<PixelObject pixels={LEVEL_CONFIG[0].pixels} color={LEVEL_CONFIG[0].color} size={16} />}
-             label="Novice AI"
-             sublabel="Reached Level 1"
-             right={<Check className="w-4 h-4 text-green-500" />}
-           />
-           <Divider />
-           <Row
-             leftNode={<PixelObject pixels={LEVEL_CONFIG[2].pixels} color={LEVEL_CONFIG[2].color} size={16} />}
-             label="Advanced Logic"
-             sublabel="Reach Level 3 to unlock"
-             right={currentLevel.lv >= 3 ? <Check className="w-4 h-4 text-green-500" /> : <Lock className="w-4 h-4 text-[#48484a]" />}
-           />
-           <Divider />
-           <Row
-             leftNode={<PixelObject pixels={LEVEL_CONFIG[4].pixels} color={LEVEL_CONFIG[4].color} size={16} />}
-             label="System Specialist"
-             sublabel="Reach Level 5 to unlock"
-             right={currentLevel.lv >= 5 ? <Check className="w-4 h-4 text-green-500" /> : <Lock className="w-4 h-4 text-[#48484a]" />}
-           />
-        </Section>
-
-        {/* ── Inventory Section ── */}
-        <Section title="Inventory (Cosmetics)">
-           <div className="p-5 flex flex-col gap-6">
+           
+           <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-2">
+              {/* Logro Desbloqueado */}
+              <div 
+                className="w-[84px] h-[96px] bg-[#111111] flex flex-col items-center justify-center shrink-0 relative"
+                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+              >
+                {/* Patrón simulado como en la imagen */}
+                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at center, #ffffff 1px, transparent 1px)', backgroundSize: '6px 6px' }}></div>
+                <Hexagon className="w-6 h-6 text-white/50 mb-1 z-10" />
+              </div>
               
-              {/* Category: Name Icons */}
-              <div>
-                 <p className="text-[13px] text-[#8e8e93] font-medium mb-3" style={{ fontFamily: SF }}>Name Icons</p>
-                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                    {/* Item Equipado */}
-                    <div className="w-[60px] h-[60px] rounded-[14px] bg-[#1a1a1c] border border-blue-500/50 flex flex-col items-center justify-center shrink-0 shadow-[0_0_10px_rgba(59,130,246,0.1)] relative">
-                       <Sparkles className="w-6 h-6 text-blue-400" />
-                       <div className="absolute -bottom-2 bg-blue-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full border border-[#1a1a1c]">EQUIPPED</div>
-                    </div>
-                    {/* Item Bloqueado */}
-                    <div className="w-[60px] h-[60px] rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e] flex flex-col items-center justify-center shrink-0 opacity-60">
-                       <Hexagon className="w-6 h-6 text-[#48484a]" />
-                    </div>
-                    <div className="w-[60px] h-[60px] rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e] flex flex-col items-center justify-center shrink-0 opacity-60">
-                       <Lock className="w-5 h-5 text-[#2c2c2e]" />
-                    </div>
+              {/* Logros Bloqueados (Vacíos) */}
+              {[1, 2, 3, 4].map((i) => (
+                 <div 
+                   key={i}
+                   className="w-[84px] h-[96px] bg-[#0a0a0a] flex items-center justify-center shrink-0"
+                   style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                 >
                  </div>
-              </div>
-
-              {/* Category: Icon Backgrounds */}
-              <div>
-                 <p className="text-[13px] text-[#8e8e93] font-medium mb-3" style={{ fontFamily: SF }}>Icon Backgrounds</p>
-                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                    {/* Item Equipado */}
-                    <div className="w-[60px] h-[60px] rounded-full bg-[#1a1a1c] border-2 border-blue-500/60 flex items-center justify-center shrink-0 shadow-[inset_0_0_10px_rgba(59,130,246,0.2)] relative">
-                       <div className="w-8 h-8 rounded-full bg-[#2c2c2e]" />
-                       <div className="absolute -bottom-1 bg-blue-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full border border-[#1a1a1c] z-10">EQUIPPED</div>
-                    </div>
-                    {/* Items Desbloqueados / Bloqueados */}
-                    <div className="w-[60px] h-[60px] rounded-full bg-[#0a0a0b] border-2 border-purple-500/40 flex items-center justify-center shrink-0">
-                       <div className="w-8 h-8 rounded-full bg-[#1c1c1e]" />
-                    </div>
-                    <div className="w-[60px] h-[60px] rounded-full bg-[#0a0a0b] border border-[#1c1c1e] flex items-center justify-center shrink-0 opacity-50">
-                       <Lock className="w-5 h-5 text-[#2c2c2e]" />
-                    </div>
-                 </div>
-              </div>
-
+              ))}
            </div>
-        </Section>
+        </div>
+
+        {/* ── Inventory Section (Estilo Cuadrado Redondeado) ── */}
+        <div className="w-full pb-6">
+           <h3 className="text-white font-bold text-[18px] mb-4" style={{ fontFamily: SFD }}>
+             Inventory
+           </h3>
+           
+           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+              {/* Tarjeta de Inventario tipo "Not Games" */}
+              <div className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] p-4 flex flex-col justify-between shrink-0">
+                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e]">
+                    <Sparkles className="w-4 h-4 text-[#8e8e93]" />
+                 </div>
+                 <div>
+                    <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>Name Icons</p>
+                    <p className="text-[#8e8e93] text-[13px] mt-1" style={{ fontFamily: SF }}>1 item</p>
+                 </div>
+              </div>
+
+              {/* Otra Tarjeta de Inventario (Fondos) */}
+              <div className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] p-4 flex flex-col justify-between shrink-0">
+                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e]">
+                    <div className="w-4 h-4 rounded-full border-2 border-[#8e8e93]"></div>
+                 </div>
+                 <div>
+                    <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>Backgrounds</p>
+                    <p className="text-[#8e8e93] text-[13px] mt-1" style={{ fontFamily: SF }}>0 items</p>
+                 </div>
+              </div>
+           </div>
+        </div>
 
       </div>
     </div>
