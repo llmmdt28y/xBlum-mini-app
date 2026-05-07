@@ -28,6 +28,8 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
   robot: {
     id: 'robot',
     name: 'First Touch',
+    // ¡NUEVA CATEGORÍA ÉPICA ASIGNADA AQUÍ!
+    category: 'Vanguard', 
     serial: '#01,244',
     collection: 'Achievements',
     rarity: 'Common',
@@ -44,6 +46,7 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
   pepe: {
     id: 'pepe',
     name: 'Early Pepe',
+    category: 'Early Access', 
     serial: '#00,004',
     collection: 'Achievements',
     rarity: 'Exclusive',
@@ -60,6 +63,7 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
   pyramid: { 
     id: 'pyramid',
     name: 'The Architect',
+    category: 'Secrets', 
     serial: '#00,001',
     collection: 'Achievements',
     rarity: 'Mythic',
@@ -195,7 +199,7 @@ export function ProfileView() {
     let newlyFound = null;
     const unlocked = [];
 
-    // Logro 1: Robot (Nivel 1) - Desbloqueado por defecto
+    // Logro 1: Robot (Nivel 1)
     unlocked.push('robot');
     if (!localStorage.getItem('ach_robot_shown')) {
       newlyFound = 'robot';
@@ -216,16 +220,25 @@ export function ProfileView() {
     if (newlyFound) setNewlyUnlocked(newlyFound);
   }, [currentLevel.lv])
 
+  // Manejo robusto del botón Back de Telegram
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
     tg.BackButton.show()
+    
     const handleBack = () => {
-      if(newlyUnlocked) setNewlyUnlocked(null)
-      else if(isAchievementsMenuOpen) setIsAchievementsMenuOpen(false) 
-      else if(selectedItem) setSelectedItem(null)
-      else { setCurrentView("home"); tg.BackButton.hide() }
+      if (newlyUnlocked) {
+        setNewlyUnlocked(null)
+      } else if (selectedItem) {
+        setSelectedItem(null) 
+      } else if (isAchievementsMenuOpen) {
+        setIsAchievementsMenuOpen(false) 
+      } else { 
+        setCurrentView("home");
+        tg.BackButton.hide() 
+      }
     }
+    
     tg.BackButton.onClick(handleBack)
     return () => { tg.BackButton.offClick(handleBack) }
   }, [setCurrentView, selectedItem, newlyUnlocked, isAchievementsMenuOpen])
@@ -295,6 +308,9 @@ export function ProfileView() {
   // Exactamente 4 espacios para la fila horizontal de logros en el perfil principal
   const TOTAL_PROFILE_ACH_SLOTS = 4;
   const profileAchievementSlots = Array.from({ length: TOTAL_PROFILE_ACH_SLOTS });
+
+  // ── OBTENEMOS LAS CATEGORÍAS ÚNICAS DESBLOQUEADAS ──
+  const unlockedCategories = Array.from(new Set(unlockedAchKeys.map(key => ACHIEVEMENTS_DB[key].category)));
 
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
@@ -466,9 +482,7 @@ export function ProfileView() {
           className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300"
           onClick={() => setNewlyUnlocked(null)}
         >
-          <div className="absolute top-5 left-5 text-white flex items-center gap-1 text-[16px] font-medium" style={{ fontFamily: SF }}>
-            <ChevronLeft className="w-6 h-6" /> back
-          </div>
+          {/* Header Superior Limpio - Controlado por Back de Telegram */}
           
           <img 
             src={ACHIEVEMENTS_DB[newlyUnlocked].img} 
@@ -503,51 +517,67 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS (LISTA VERTICAL LÍMPIA) ── */}
+      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS (SISTEMA DE CATEGORÍAS) ── */}
       {isAchievementsMenuOpen && (
-        <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto">
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
           
-          {/* Header con la X de cierre en la esquina superior derecha */}
-          <div className="absolute top-5 right-5 active:opacity-60 cursor-pointer z-50" onClick={() => setIsAchievementsMenuOpen(false)}>
-            <X className="w-6 h-6 text-[#8e8e93]" />
-          </div>
-
-          <div className="px-5 pt-12 pb-10 flex flex-col">
-            <h1 className="text-white text-[32px] font-bold mb-10" style={{ fontFamily: SFD }}>
+          <div className="px-5 pt-8 flex flex-col">
+            {/* Título Principal Limpio - Controlado por Back de Telegram */}
+            <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>
               Achievements
             </h1>
 
-            {/* Lista vertical de logros desbloqueados */}
-            <div className="flex flex-col gap-12 items-center">
-              {unlockedAchKeys.map((key) => {
-                const ach = ACHIEVEMENTS_DB[key];
-                return (
-                  <div key={key} className="flex flex-col items-center justify-center text-center w-full">
-                     <button 
-                       onClick={() => openItemModal(key)}
-                       className="active:scale-95 transition-transform"
-                     >
-                       {/* Imagen pura y muy grande, sin contenedores ni bordes */}
-                       <img 
-                          src={ach.img} 
-                          draggable={false} 
-                          className="w-[220px] h-[220px] object-contain pointer-events-none select-none" 
-                          style={{ WebkitTouchCallout: "none" }} 
-                       />
-                     </button>
-                     {/* Textos descriptivos debajo de la imagen */}
-                     <h2 className="text-white font-bold text-[22px] mt-5" style={{ fontFamily: SFD }}>{ach.name}</h2>
-                     <p className="text-[#8e8e93] text-[15px] mt-2.5 max-w-[300px] leading-relaxed" style={{ fontFamily: SF }}>{ach.desc}</p>
-                     <p className="text-[#636366] text-[13px] mt-3 font-semibold tracking-wide uppercase" style={{ fontFamily: SF }}>{ach.date}</p>
-                  </div>
-                )
-              })}
+            {/* Mapeo Dinámico de Categorías */}
+            {unlockedCategories.length > 0 ? (
+               unlockedCategories.map((category) => {
+                  const categoryKeys = unlockedAchKeys.filter(key => ACHIEVEMENTS_DB[key].category === category);
+                  
+                  return (
+                     <div key={category} className="mb-10 w-full">
+                        {/* Cabecera de la Categoría */}
+                        <div className="flex items-center justify-between mb-6">
+                           <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center">
+                                 <Hexagon className="w-3 h-3 text-[#8e8e93]" />
+                              </div>
+                              <span className="text-white font-bold text-[17px]" style={{ fontFamily: SFD }}>{category}</span>
+                              <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryKeys.length}</span>
+                           </div>
+                           <div className="w-7 h-7 rounded-full bg-[#111111] flex items-center justify-center">
+                              <ChevronDown className="w-4 h-4 text-[#48484a]" />
+                           </div>
+                        </div>
 
-              {/* Mensaje de respaldo si no hay logros */}
-              {unlockedAchKeys.length === 0 && (
-                 <p className="text-[#8e8e93] text-[15px] mt-10" style={{ fontFamily: SF }}>No achievements unlocked yet.</p>
-              )}
-            </div>
+                        {/* Cuadrícula de 2 columnas de esta categoría específica */}
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-8">
+                          {categoryKeys.map((key) => {
+                            const ach = ACHIEVEMENTS_DB[key];
+                            return (
+                              <div key={key} className="flex flex-col items-center text-center w-full">
+                                 <button 
+                                   onClick={() => openItemModal(key)}
+                                   className="active:scale-95 transition-transform flex flex-col items-center w-full"
+                                 >
+                                   <img 
+                                      src={ach.img} 
+                                      draggable={false} 
+                                      className="w-[140px] h-[140px] object-contain pointer-events-none select-none" 
+                                      style={{ WebkitTouchCallout: "none" }} 
+                                   />
+                                 </button>
+                                 <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{ach.name}</h2>
+                                 <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{ach.desc}</p>
+                                 <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{ach.date}</p>
+                              </div>
+                            )
+                          })}
+                        </div>
+                     </div>
+                  )
+               })
+            ) : (
+               <p className="text-[#8e8e93] text-[15px] mt-10 text-center" style={{ fontFamily: SF }}>No achievements unlocked yet.</p>
+            )}
           </div>
         </div>
       )}
@@ -557,9 +587,9 @@ export function ProfileView() {
         <div className="fixed inset-0 z-[110] flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
            <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto">
-              <div className="absolute top-5 right-5 active:opacity-60 cursor-pointer z-50" onClick={() => setSelectedItem(null)}><X className="w-6 h-6 text-[#8e8e93]" /></div>
+              {/* Header Limpio sin X, usando el back nativo */}
               
-              <div className="w-full flex justify-center mt-10 mb-2">{selectedItem.preview}</div>
+              <div className="w-full flex justify-center mt-12 mb-2">{selectedItem.preview}</div>
 
               <h2 className="text-white font-bold text-[24px] mt-2" style={{ fontFamily: SFD }}>{selectedItem.name} <span className="text-[#8e8e93] font-normal">{selectedItem.serial}</span></h2>
               
