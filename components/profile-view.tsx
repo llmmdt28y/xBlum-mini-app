@@ -35,7 +35,7 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     type: 'Welcome Badge',
     typePercent: '100%',
     quantityIssued: 12500,
-    quantityMax: null, // Sin límite máximo
+    quantityMax: null,
     reqLevel: 1,
     img: '/robot-achievement.png',
     desc: 'Complete your first task. The world has answered your touch. A mark of beginning in the xBlum network.',
@@ -197,14 +197,12 @@ export function ProfileView() {
     let newlyFound = null;
     const unlocked = [];
 
-    // Logro 1: Robot (Nivel 1)
     unlocked.push('robot');
     if (!localStorage.getItem('ach_robot_shown')) {
       newlyFound = 'robot';
       localStorage.setItem('ach_robot_shown', 'true');
     }
 
-    // Logro 2: Pepe (Nivel 2)
     if (userLv >= ACHIEVEMENTS_DB.pepe.reqLevel) {
       unlocked.push('pepe');
       if (!newlyFound && !localStorage.getItem('ach_pepe_shown')) {
@@ -224,7 +222,7 @@ export function ProfileView() {
     tg.BackButton.show()
     const handleBack = () => {
       if(newlyUnlocked) setNewlyUnlocked(null)
-      else if(isAchievementsMenuOpen) setIsAchievementsMenuOpen(false) // Cierra menú detalle
+      else if(isAchievementsMenuOpen) setIsAchievementsMenuOpen(false) 
       else if(selectedItem) setSelectedItem(null)
       else { setCurrentView("home"); tg.BackButton.hide() }
     }
@@ -293,6 +291,9 @@ export function ProfileView() {
     }
     setSelectedItem(null)
   }
+
+  const TOTAL_ACHIEVEMENT_SLOTS = 4;
+  const achievementSlots = Array.from({ length: TOTAL_ACHIEVEMENT_SLOTS });
 
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
@@ -376,32 +377,40 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Achievements (Dinamismo y Cuadrícula Wrap) ── */}
+        {/* ── Achievements ── */}
         <div className="w-full relative z-10">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
                 Achievements <span className="text-[#48484a] text-[16px] ml-1">{unlockedAchKeys.length}</span>
               </h3>
-              {/* Al hacer click abre el menú de detalle */}
               <button onClick={() => setIsAchievementsMenuOpen(true)}>
                 <ChevronRight className="w-5 h-5 text-[#48484a]" />
               </button>
            </div>
            
-           {/* Modificado flex scroll horizontal a flex wrap apilado */}
            <div className="flex flex-wrap gap-4 overflow-x-hidden pb-2">
-              {unlockedAchKeys.map((key) => {
-                 const ach = ACHIEVEMENTS_DB[key];
-                 return (
-                   <button 
-                     key={key}
-                     onClick={() => openItemModal(key)}
-                     {/* Iconos más grandes (130x130) y apilados en grid 2 col con flex-wrap */}
-                     className="w-[130px] h-[130px] flex items-center justify-center shrink-0 active:scale-95 transition-transform"
-                   >
-                     <img src={ach.img} draggable={false} alt={ach.name} className="w-full h-full object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
-                   </button>
-                 )
+              {achievementSlots.map((_, i) => {
+                 const key = unlockedAchKeys[i];
+                 if (key) {
+                    const ach = ACHIEVEMENTS_DB[key];
+                    return (
+                      <button 
+                        key={key}
+                        onClick={() => openItemModal(key)}
+                        className="w-[130px] h-[130px] flex items-center justify-center shrink-0 active:scale-95 transition-transform"
+                      >
+                        <img src={ach.img} draggable={false} alt={ach.name} className="w-full h-full object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                      </button>
+                    )
+                 } else {
+                    return (
+                      <div 
+                         key={`empty-${i}`} 
+                         className="w-[130px] h-[130px] bg-[#0a0a0a] flex items-center justify-center shrink-0" 
+                         style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                      ></div>
+                    )
+                 }
               })}
            </div>
         </div>
@@ -491,11 +500,10 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS (Cuadrícula 2 Columnas) ── */}
+      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS ── */}
       {isAchievementsMenuOpen && (
         <div className="fixed inset-0 z-[90] bg-black/95 flex flex-col animate-in fade-in duration-300">
           
-          {/* Header del menú */}
           <div className="sticky top-0 z-10 flex items-center justify-between px-5 pt-8 pb-4 bg-black border-b border-[#1c1c1e]">
             <button 
               className="text-white flex items-center gap-1 text-[16px] font-medium" 
@@ -509,7 +517,6 @@ export function ProfileView() {
             </h1>
           </div>
 
-          {/* Cuadrícula de 2 columnas con TODOS los logros (Desbloqueados/Bloqueados) */}
           <div className="grid grid-cols-2 gap-4 p-4 overflow-y-auto">
             {Object.keys(ACHIEVEMENTS_DB).map((key) => {
               const ach = ACHIEVEMENTS_DB[key];
@@ -518,14 +525,11 @@ export function ProfileView() {
               return (
                 <button 
                   key={key} 
-                  {/* Si está desbloqueado abre el modal de detalles del ítem */}
                   onClick={() => isUnlocked && openItemModal(key)}
-                  {/* Estilos del grid similar a la referencia, escala de grises si bloqueado */}
                   className={`aspect-square bg-[#141415] rounded-[16px] border ${isUnlocked ? 'border-[#2c2c2e]' : 'border-[#1c1c1e]'} flex items-center justify-center relative transition-colors ${!isUnlocked && 'grayscale opacity-50'}`}
                 >
                    <img src={ach.img} draggable={false} className="w-[80px] h-[80px] object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                    
-                   {/* Candado superpuesto si bloqueado */}
                    {!isUnlocked && (
                      <div className="absolute inset-0 flex items-center justify-center">
                        <Lock className="w-8 h-8 text-[#48484a]" />
@@ -549,7 +553,6 @@ export function ProfileView() {
 
               <h2 className="text-white font-bold text-[24px] mt-2" style={{ fontFamily: SFD }}>{selectedItem.name} <span className="text-[#8e8e93] font-normal">{selectedItem.serial}</span></h2>
               
-              {/* Fecha y Descripción Reales */}
               {selectedItem.date && (
                 <p className="text-[#8e8e93] text-[12px] mt-1 tracking-widest uppercase font-bold" style={{ fontFamily: SF }}>OBTAINED: {selectedItem.date}</p>
               )}
@@ -560,7 +563,6 @@ export function ProfileView() {
               <div className="px-5 w-full">
                  <div className="bg-[#141415] rounded-[16px] border border-[#1c1c1e] w-full flex flex-col mb-8 overflow-hidden">
                     <ModalInfoRow label="owner">
-                       {/* Modificado owner a la izquierda con foto y nombre */}
                        <div className="flex items-center justify-start gap-2 w-full">
                           {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
                           <span className="text-[#3b82f6] font-medium">{displayName}</span>
