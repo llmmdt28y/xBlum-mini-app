@@ -7,6 +7,54 @@ import { Search } from "lucide-react"
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
+// ── UTILIDAD: Generador de números pseudoaleatorios con semilla fija ──
+// Esto garantiza que el diseño sea exactamente el mismo en la grilla y en el detalle
+const mulberry32 = (a: number) => {
+  return function() {
+    var t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+const fixedRand = mulberry32(123456); // Semilla fija
+
+// ── DISTRIBUCIÓN "FRAME" ESTÁTICA PARA TREASURES ──
+// Calculamos las posiciones SOLO UNA VEZ. Llenamos los bordes (línea roja) y dejamos el centro vacío.
+const TREASURES_LAYOUT = Array.from({ length: 45 }).map(() => {
+  let x, y;
+  const area = fixedRand();
+  
+  // Distribuimos en 4 zonas para formar el marco rectangular (top, bottom, left, right)
+  if (area < 0.3) {
+    // Top border (Arriba)
+    x = -5 + fixedRand() * 110; 
+    y = -5 + fixedRand() * 25;
+  } else if (area < 0.6) {
+    // Bottom border (Abajo)
+    x = -5 + fixedRand() * 110;
+    y = 75 + fixedRand() * 30;
+  } else if (area < 0.8) {
+    // Left border (Izquierda)
+    x = -5 + fixedRand() * 25;
+    y = 20 + fixedRand() * 60;
+  } else {
+    // Right border (Derecha)
+    x = 80 + fixedRand() * 25;
+    y = 20 + fixedRand() * 60;
+  }
+
+  return {
+    x,
+    y,
+    scale: 0.35 + fixedRand() * 1.1, // Tamaños variados (muy chicos a grandes)
+    rotate: fixedRand() * 360,
+    opacity: 0.15 + fixedRand() * 0.35,
+    type: Math.floor(fixedRand() * 3) // 0: dollar, 1: coin, 2: sparkle
+  };
+});
+
+
 // ── 1. ARTE SVG ──
 
 const SpiralSVG = () => {
@@ -24,70 +72,50 @@ const SpiralSVG = () => {
 }
 
 const StardustSVG = () => {
+  // Aquí usamos la misma técnica para Stardust para que tampoco cambie de posición
+  const stardustRand = mulberry32(888); 
   const stars = Array.from({ length: 70 }).map((_, i) => {
     let x, y, r;
     do {
-      x = Math.random() * 100;
-      y = Math.random() * 100;
+      x = stardustRand() * 100;
+      y = stardustRand() * 100;
       r = Math.sqrt(Math.pow(x - 50, 2) + Math.pow(y - 50, 2));
     } while (r < 28 || r > 46);
-    const size = Math.random() * 0.8 + 0.3;
-    const opacity = Math.random() * 0.8 + 0.2;
+    const size = stardustRand() * 0.8 + 0.3;
+    const opacity = stardustRand() * 0.8 + 0.2;
     return <circle key={i} cx={x} cy={y} r={size} fill="#ffffff" opacity={opacity} />
   })
   return <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">{stars}</svg>
 }
 
-// NUEVO: Iconos distribuidos ampliamente, con tamaños variados y zona central vacía
+// NUEVO: Iconos fijos distribuidos en los márgenes (Forma Rectangular)
 const TreasuresSVG = () => {
-  const elements = Array.from({ length: 40 }).map((_, i) => {
-    let x, y, r;
-    do {
-      // Ampliamos el rango de x e y para que ocupen todas las esquinas (-15 a 115)
-      x = -15 + Math.random() * 130; 
-      y = -15 + Math.random() * 130;
-      r = Math.sqrt(Math.pow(x - 50, 2) + Math.pow(y - 50, 2));
-    } while (r < 32); // MARGEN EN MEDIO: Todo lo que esté a menos de 32 de radio se descarta
-
-    // Tamaños muy variados (desde muy chicos hasta grandes)
-    const scale = 0.3 + Math.random() * 1.3; 
-    const rotate = Math.random() * 360; // Rotación total libre
-    const opacity = 0.1 + Math.random() * 0.35; // Transparencias variadas
-
-    // Paquete de iconos en vectores puros (Dólar, Destello, y un Hexágono/Moneda)
-    const paths = [
-      // Icono 1: Dólar clásico
-      <path key="dollar" d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />,
-      // Icono 2: Dólar enmarcado (moneda)
-      <path key="coin" d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6 M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />,
-      // Icono 3: Destello/Diamante de 4 puntas
-      <path key="sparkle" d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4Z" />
-    ];
-
-    const path = paths[i % paths.length];
-
-    return (
-      <g 
-        key={i} 
-        // Primero nos movemos a x,y; luego escalamos; luego rotamos y centramos el viewBox 24x24 del icono
-        transform={`translate(${x}, ${y}) scale(${scale * 0.25}) rotate(${rotate}) translate(-12, -12)`}
-        stroke="#8e8e93" // Color gris
-        strokeWidth="1.5" 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-        fill="none" // Sin fondo
-        opacity={opacity}
-      >
-        {path}
-      </g>
-    );
-  });
+  const paths = [
+    // 0: Dólar clásico
+    <path key="dollar" d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />,
+    // 1: Dólar enmarcado (moneda)
+    <path key="coin" d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6 M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />,
+    // 2: Destello/Diamante de 4 puntas
+    <path key="sparkle" d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4Z" />
+  ];
 
   return (
-    // SVG completamente transparente (sin fondos negros añadidos) para que se fusione con el fondo nativo
     <svg viewBox="0 0 100 100" className="w-full h-full overflow-hidden">
       <g className="drop-shadow-[0_0_3px_rgba(142,142,147,0.3)]">
-        {elements}
+        {TREASURES_LAYOUT.map((item, i) => (
+          <g 
+            key={i} 
+            transform={`translate(${item.x}, ${item.y}) scale(${item.scale * 0.25}) rotate(${item.rotate}) translate(-12, -12)`}
+            stroke="#8e8e93" 
+            strokeWidth="1.5" 
+            strokeLinecap="round" 
+            strokeLinejoin="round" 
+            fill="none" 
+            opacity={item.opacity}
+          >
+            {paths[item.type]}
+          </g>
+        ))}
       </g>
     </svg>
   );
@@ -214,7 +242,7 @@ export function ShopView() {
             {/* Indicador de arrastre */}
             <div className="w-10 h-1.5 bg-[#2c2c2e] rounded-full mx-auto mt-2 mb-6" />
 
-            {/* Arte Principal Flotante (Llamando al mismo objeto SVG dinámico) */}
+            {/* Arte Principal Flotante */}
             <div className="w-[180px] h-[180px] mx-auto flex items-center justify-center mb-4 relative rounded-[16px] overflow-hidden">
               {selectedItem.art}
             </div>
@@ -230,7 +258,6 @@ export function ShopView() {
             {/* Tabla de Atributos */}
             <div className="w-full bg-[#1c1c1e] rounded-[16px] flex flex-col overflow-hidden mb-6">
               
-              {/* Fila Owner modificada: Imagen circular y sin estrella */}
               <TableRow label="owner">
                 <img src="/xblum-profile.png" alt="" className="w-5 h-5 rounded-full object-cover shrink-0" onError={(e) => (e.currentTarget.style.display = 'none')} />
                 <span className="text-[#4ea8e9] font-medium text-[14px]">xBlum Market</span>
