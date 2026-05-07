@@ -151,71 +151,75 @@ export function ProfileView() {
            </div>
 
           <div className="text-center flex flex-col items-center mt-2">
-            <div className="flex items-center justify-center gap-1.5">
-               <p className="text-white font-bold" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD }}>
+            {/* Contenedor del nombre y el icono perfectamente ajustado */}
+            <div className="flex items-center justify-center gap-1">
+               <p className="text-white font-bold" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>
                  {displayName || "Your Name"}
                </p>
-               <div className="flex items-center justify-center mb-0.5">
-                 <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={36} />
+               <div className="flex items-center justify-center shrink-0">
+                 <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={32} />
                </div>
             </div>
-            <p className="mt-1" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+            <p className="mt-1.5" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
               {username}
             </p>
           </div>
         </div>
 
-        {/* ── Levels Section (Acordeón con Barra Compacta) ── */}
+        {/* ── Levels Section (Contenedor Original Adaptado) ── */}
         <div className="w-full">
-           <button 
-             onClick={() => setIsLevelsExpanded(!isLevelsExpanded)}
-             className="w-full flex flex-col gap-3 py-2 active:opacity-70 transition-opacity"
-           >
-             <div className="w-full flex items-center justify-between">
-               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
-                 Level <span className="text-[#8e8e93] text-[16px] ml-1">{currentLevel.lv}</span>
-               </h3>
-               <div className="flex items-center gap-2">
-                 <span className="text-[13px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>
-                   {myBP.toLocaleString()} / {nextLevel.bp.toLocaleString()} BP
-                 </span>
-                 <ChevronDown className={`w-5 h-5 text-[#8e8e93] transition-transform duration-300 ${isLevelsExpanded ? 'rotate-180' : ''}`} />
-               </div>
-             </div>
-             
-             {/* Barra de Progreso Compacta */}
-             <div className="flex items-center justify-between w-full gap-[3px]">
-               {Array.from({ length: 24 }).map((_, i) => (
-                 <div key={i} className={`h-[3px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.4)]' : 'bg-[#2c2c2e]'}`} />
-               ))}
-             </div>
-           </button>
-
-           {/* Lista de Niveles Bloqueados (Máximo 3 con Gradiente) */}
-           {isLevelsExpanded && (
-             <div className="mt-4 relative animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className="flex flex-col gap-3 pb-4">
-                  {lockedLevels.slice(0, 3).map((lvl) => (
-                     <div key={lvl.lv} className="flex items-center justify-between p-4 rounded-[16px]" style={{ background: "#0a0a0a", border: "1px solid #1c1c1e" }}>
-                        <div className="flex items-center gap-4">
-                           <div className="w-10 h-10 flex items-center justify-center grayscale opacity-50">
-                             <PixelObject pixels={lvl.pixels} color={lvl.color} size={24} />
-                           </div>
-                           <div>
-                              <p className="text-[#8e8e93] font-medium text-[15px]" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
-                              <p className="text-[#48484a] text-[13px]" style={{ fontFamily: SFD }}>{lvl.name}</p>
-                           </div>
-                        </div>
-                        <Lock className="w-5 h-5 text-[#2c2c2e]" />
-                     </div>
-                  ))}
+           <div className="bg-[#141415] rounded-[22px] p-5 shadow-2xl border border-[#1c1c1e] transition-all duration-300">
+              {/* Cabecera del contenedor original */}
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2.5">
+                  <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={18} />
+                  <span className="text-[16px] font-bold text-white" style={{ fontFamily: SFD }}>Level {currentLevel.lv}</span>
                 </div>
-                {/* Gradiente final de la lista */}
-                {lockedLevels.length > 3 && (
-                  <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-black to-transparent pointer-events-none" />
-                )}
-             </div>
-           )}
+                <span className="text-[14px] font-bold text-[#d1d1d6]" style={{ fontFamily: SF }}>
+                  {myBP.toLocaleString()}/{nextLevel.bp.toLocaleString()} BP
+                </span>
+              </div>
+              
+              {/* Barra de progreso original (h-5px) */}
+              <div className="flex items-center justify-between w-full mb-2 gap-[4px]">
+                {Array.from({ length: 24 }).map((_, i) => (
+                  <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.4)]' : 'bg-[#2c2c2e]'}`} />
+                ))}
+              </div>
+
+              {/* Botón para expandir los próximos niveles */}
+              <button 
+                 onClick={() => setIsLevelsExpanded(!isLevelsExpanded)}
+                 className="w-full flex items-center justify-center gap-1.5 pt-3 mt-2 active:opacity-70 transition-opacity"
+              >
+                 <span className="text-[13px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>Next levels</span>
+                 <ChevronDown className={`w-4 h-4 text-[#8e8e93] transition-transform duration-300 ${isLevelsExpanded ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Lista de próximos 3 Niveles Bloqueados */}
+              {isLevelsExpanded && (
+                <div className="mt-4 flex flex-col gap-2 relative animate-in fade-in slide-in-from-top-2 duration-300">
+                   {lockedLevels.slice(0, 3).map((lvl) => (
+                      <div key={lvl.lv} className="flex items-center justify-between p-3 rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e]">
+                         <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 flex items-center justify-center grayscale opacity-50 shrink-0">
+                              <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
+                            </div>
+                            <div>
+                               <p className="text-[#8e8e93] font-medium text-[14px] leading-none mb-1" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
+                               <p className="text-[#48484a] text-[12px] leading-none" style={{ fontFamily: SFD }}>{lvl.name}</p>
+                            </div>
+                         </div>
+                         <Lock className="w-4 h-4 text-[#2c2c2e]" />
+                      </div>
+                   ))}
+                   {/* Capa de gradiente inferior para transición suave */}
+                   {lockedLevels.length > 3 && (
+                     <div className="absolute bottom-0 left-0 right-0 h-[40px] bg-gradient-to-t from-[#141415] to-transparent pointer-events-none rounded-b-[14px]" />
+                   )}
+                </div>
+              )}
+           </div>
         </div>
 
         {/* ── Achievements Section (Hexagonos) ── */}
