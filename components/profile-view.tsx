@@ -35,11 +35,11 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     type: 'Welcome Badge',
     typePercent: '100%',
     quantityIssued: 12500,
-    quantityMax: 12500,
+    quantityMax: null, // Sin límite máximo
     reqLevel: 1,
     img: '/robot-achievement.png',
-    desc: 'Complete your first task. The world has answered your touch.',
-    date: "May '26"
+    desc: 'Complete your first task. The world has answered your touch. A mark of beginning in the xBlum network.',
+    date: "MAY 7, 2026"
   },
   pepe: {
     id: 'pepe',
@@ -50,12 +50,12 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     rarityPercent: '0.1%',
     type: 'Early Access',
     typePercent: '0.1%',
-    quantityIssued: 15,
+    quantityIssued: 4,
     quantityMax: 15,
     reqLevel: 2,
     img: '/pepe-achievement.png',
-    desc: 'Assigned to the first 15 users who reached Level 2 in early access.',
-    date: "May '26"
+    desc: 'Assigned to the first 15 users who reached Level 2 on the platform during the Early Access phase. Your early belief is forever recognized.',
+    date: "MAY 7, 2026"
   },
   pyramid: { 
     id: 'pyramid',
@@ -70,8 +70,8 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     quantityMax: 10,
     reqLevel: 99, 
     img: '/pyramid-achievement.png',
-    desc: 'Uncovered the deepest secrets of the platform.',
-    date: "May '26"
+    desc: 'You have uncovered the deepest secrets of the platform. A truly mythic accomplishment reserved for the top elite.',
+    date: "MAY 7, 2026"
   }
 }
 
@@ -253,6 +253,8 @@ export function ProfileView() {
         name: 'Pixel Hearts', serial: '#94,355', collection: 'Cosmetic Backgrounds',
         rarity: 'Exclusive (Early Access)', rarityPercent: '0.5%', type: 'Icon Background', typePercent: '0.4%',
         quantityIssued: 124, quantityMax: 500, reqLevel: 3, reqBP: 2500,
+        desc: 'A premium pixel heart aura that surrounds your avatar, reserved for early supporters.',
+        date: "MAY 7, 2026",
         preview: PreviewPixelHeartsModal
       })
     } else if (type === 'sparkles') {
@@ -261,6 +263,8 @@ export function ProfileView() {
         name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
         rarity: 'Rare', rarityPercent: '2.5%', type: 'Name Icon', typePercent: '1.2%',
         quantityIssued: 3150, quantityMax: 10000, reqLevel: 8, reqBP: 50000,
+        desc: 'A sparkling icon that appears next to your username to signify your high rank.',
+        date: "MAY 7, 2026",
         preview: <Sparkles className="w-24 h-24 text-[#8e8e93]" />
       })
     } else if (ACHIEVEMENTS_DB[type]) {
@@ -270,6 +274,8 @@ export function ProfileView() {
         name: ach.name, serial: ach.serial, collection: ach.collection,
         rarity: ach.rarity, rarityPercent: ach.rarityPercent, type: ach.type, typePercent: ach.typePercent,
         quantityIssued: ach.quantityIssued, quantityMax: ach.quantityMax, reqLevel: ach.reqLevel,
+        desc: ach.desc,
+        date: ach.date,
         preview: <img src={ach.img} draggable={false} className="w-[150px] h-[150px] object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} alt={ach.name} />
       })
     }
@@ -283,6 +289,10 @@ export function ProfileView() {
     }
     setSelectedItem(null)
   }
+
+  // Calculamos 4 slots fijos para los achievements
+  const TOTAL_ACHIEVEMENT_SLOTS = 4;
+  const achievementSlots = Array.from({ length: TOTAL_ACHIEVEMENT_SLOTS });
 
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
@@ -366,7 +376,7 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Achievements (Dinámicos y Encajados) ── */}
+        {/* ── Achievements (Apilación en Grid) ── */}
         <div className="w-full relative z-10">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
@@ -374,18 +384,30 @@ export function ProfileView() {
               </h3>
               <ChevronRight className="w-5 h-5 text-[#48484a]" />
            </div>
+           
            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-              {unlockedAchKeys.map((key) => {
-                 const ach = ACHIEVEMENTS_DB[key];
-                 return (
-                   <button 
-                     key={key}
-                     onClick={() => openItemModal(key)}
-                     className="w-[84px] h-[84px] flex items-center justify-center shrink-0 active:scale-95 transition-transform"
-                   >
-                     <img src={ach.img} draggable={false} alt={ach.name} className="w-full h-full object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
-                   </button>
-                 )
+              {achievementSlots.map((_, i) => {
+                 const key = unlockedAchKeys[i];
+                 if (key) {
+                    const ach = ACHIEVEMENTS_DB[key];
+                    return (
+                      <button 
+                        key={key}
+                        onClick={() => openItemModal(key)}
+                        className="w-[110px] h-[110px] flex items-center justify-center shrink-0 active:scale-95 transition-transform"
+                      >
+                        <img src={ach.img} draggable={false} alt={ach.name} className="w-full h-full object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                      </button>
+                    )
+                 } else {
+                    return (
+                      <div 
+                         key={`empty-${i}`} 
+                         className="w-[110px] h-[110px] bg-[#0a0a0a] flex items-center justify-center shrink-0" 
+                         style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                      ></div>
+                    )
+                 }
               })}
            </div>
         </div>
@@ -485,14 +507,21 @@ export function ProfileView() {
               <div className="w-full flex justify-center mt-10 mb-2">{selectedItem.preview}</div>
 
               <h2 className="text-white font-bold text-[24px] mt-2" style={{ fontFamily: SFD }}>{selectedItem.name} <span className="text-[#8e8e93] font-normal">{selectedItem.serial}</span></h2>
-              <p className="text-[#8e8e93] text-[15px] mb-8" style={{ fontFamily: SF }}>{selectedItem.collection}</p>
+              
+              {/* Fecha y Descripción Reales Añadidas */}
+              {selectedItem.date && (
+                <p className="text-[#8e8e93] text-[12px] mt-1 tracking-widest uppercase font-bold" style={{ fontFamily: SF }}>OBTAINED: {selectedItem.date}</p>
+              )}
+              {selectedItem.desc && (
+                <p className="text-[#8e8e93] text-[14px] mt-3 mb-6 px-6 text-center leading-relaxed" style={{ fontFamily: SF }}>{selectedItem.desc}</p>
+              )}
 
               <div className="px-5 w-full">
                  <div className="bg-[#141415] rounded-[16px] border border-[#1c1c1e] w-full flex flex-col mb-8 overflow-hidden">
                     <ModalInfoRow label="owner">
-                       <div className="flex items-center justify-end gap-2 w-full">
-                          <span className="text-[#3b82f6] font-medium">{displayName}</span>
+                       <div className="flex items-center justify-start gap-2 w-full">
                           {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
+                          <span className="text-[#3b82f6] font-medium">{displayName}</span>
                        </div>
                     </ModalInfoRow>
                     <ModalInfoRow label="model">
@@ -511,7 +540,10 @@ export function ProfileView() {
                        {selectedItem.rarity}
                     </ModalInfoRow>
                     <ModalInfoRow label="quantity" isLast>
-                       {selectedItem.quantityIssued.toLocaleString()}/{selectedItem.quantityMax.toLocaleString()} issued
+                       {selectedItem.quantityMax 
+                         ? `${selectedItem.quantityIssued.toLocaleString()}/${selectedItem.quantityMax.toLocaleString()} issued`
+                         : `${selectedItem.quantityIssued.toLocaleString()} issued`
+                       }
                     </ModalInfoRow>
                  </div>
 
