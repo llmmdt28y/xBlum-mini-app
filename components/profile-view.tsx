@@ -37,40 +37,54 @@ const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: st
   )
 }
 
-// ── Componente Pixel Heart (Icon Background) ──────────────────────────
-const PixelHeart = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
-    <rect x="2" y="2" width="2" height="2" fill={color}/>
-    <rect x="7" y="2" width="2" height="2" fill={color}/>
-    <rect x="1" y="4" width="9" height="2" fill={color}/>
-    <rect x="2" y="6" width="7" height="2" fill={color}/>
-    <rect x="4" y="8" width="3" height="2" fill={color}/>
+// ── Componente Pixel Heart Outline (Icon Background) ──────────────────
+const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 11 11" fill={color} xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
+    {/* Borde del corazón en estilo píxel */}
+    <rect x="2" y="1" width="2" height="1" />
+    <rect x="7" y="1" width="2" height="1" />
+    <rect x="1" y="2" width="1" height="1" />
+    <rect x="4" y="2" width="1" height="1" />
+    <rect x="6" y="2" width="1" height="1" />
+    <rect x="9" y="2" width="1" height="1" />
+    <rect x="0" y="3" width="1" height="3" />
+    <rect x="5" y="3" width="1" height="1" />
+    <rect x="10" y="3" width="1" height="3" />
+    <rect x="1" y="6" width="1" height="1" />
+    <rect x="9" y="6" width="1" height="1" />
+    <rect x="2" y="7" width="1" height="1" />
+    <rect x="8" y="7" width="1" height="1" />
+    <rect x="3" y="8" width="1" height="1" />
+    <rect x="7" y="8" width="1" height="1" />
+    <rect x="4" y="9" width="1" height="1" />
+    <rect x="6" y="9" width="1" height="1" />
+    <rect x="5" y="10" width="1" height="1" />
   </svg>
 )
 
-// 18 corazones más dispersos, con más opacidad, llegando a las esquinas y al nombre
+// Distribución en anillo, más separados y sutiles (Color blanco con baja opacidad)
 const BACKGROUND_HEARTS = [
-  // Lado Izquierdo (9)
-  { x: -170, y: -60, rot: -25, op: 0.25, size: 22, color: "#f43f5e" }, // Esquina sup izq
-  { x: -110, y: -45, rot: -15, op: 0.45, size: 18, color: "#fb7185" },
-  { x: -185, y:  10, rot: -40, op: 0.20, size: 20, color: "#e11d48" }, // Extremo izq
-  { x: -135, y: -10, rot:   5, op: 0.35, size: 24, color: "#fda4af" },
-  { x: -85,  y: -15, rot:  15, op: 0.75, size: 26, color: "#be123c" }, // Cerca avatar
-  { x: -65,  y:  35, rot: -10, op: 0.60, size: 20, color: "#fb7185" },
-  { x: -115, y:  45, rot:  25, op: 0.40, size: 18, color: "#f43f5e" },
-  { x: -155, y:  75, rot: -20, op: 0.25, size: 22, color: "#fda4af" }, // Esquina inf izq
-  { x: -75,  y:  85, rot:  10, op: 0.35, size: 16, color: "#e11d48" }, // Llegando al nombre
-
-  // Lado Derecho (9)
-  { x: 170, y: -60, rot:  25, op: 0.25, size: 22, color: "#f43f5e" }, // Esquina sup der
-  { x: 110, y: -45, rot:  15, op: 0.45, size: 18, color: "#fb7185" },
-  { x: 185, y:  10, rot:  40, op: 0.20, size: 20, color: "#e11d48" }, // Extremo der
-  { x: 135, y: -10, rot:  -5, op: 0.35, size: 24, color: "#fda4af" },
-  { x: 85,  y: -15, rot: -15, op: 0.75, size: 26, color: "#be123c" }, // Cerca avatar
-  { x: 65,  y:  35, rot:  10, op: 0.60, size: 20, color: "#fb7185" },
-  { x: 115, y:  45, rot: -25, op: 0.40, size: 18, color: "#f43f5e" },
-  { x: 155, y:  75, rot:  20, op: 0.25, size: 22, color: "#fda4af" }, // Esquina inf der
-  { x: 75,  y:  85, rot: -10, op: 0.35, size: 16, color: "#e11d48" }, // Llegando al nombre
+  // Anillo interior / Cerca del Avatar
+  { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
+  { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
+  { x: -110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x:  110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  
+  // Anillo exterior / Más dispersos
+  { x: -160, y: -20, rot:  10, op: 0.08, size: 20, color: "#ffffff" },
+  { x:  160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
+  { x: -140, y:  50, rot:  -5, op: 0.12, size: 22, color: "#ffffff" },
+  { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
+  
+  // Cerca del nombre (Abajo)
+  { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
+  { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
+  { x: -120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  { x:  120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  
+  // Arriba dispersos
+  { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
+  { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
 ]
 
 // ── Telegram user helper ─────────────────────────────────────────────
@@ -144,7 +158,7 @@ export function ProfileView() {
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
   return (
-    <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
+    <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#0a0a0a" }}>
 
       {/* ── Header Profile ── */}
       <div
@@ -155,9 +169,7 @@ export function ProfileView() {
           background: "transparent",
         }}
       >
-        <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
-          Profile
-        </h2>
+        {/* Placeholder para título si lo deseas, actualmente invisible para igualar el minimalismo de la imagen */}
       </div>
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden">
@@ -172,47 +184,48 @@ export function ProfileView() {
         </button>
 
         {/* ── Avatar + Icon Backgrounds + Name Section ── */}
-        <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500">
+        <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative">
            
-           {/* Contenedor del Avatar y los Icon Backgrounds */}
-           <div className="relative flex justify-center items-center w-full h-[160px] mb-2">
-              
-              {/* Capa de Icon Backgrounds con Gradient Fade-out (mask) ampliado para mostrar los bordes y el nombre */}
-              <div 
-                className="absolute inset-0 pointer-events-none" 
-                style={{ 
-                  maskImage: "radial-gradient(ellipse at center, black 25%, transparent 90%)", 
-                  WebkitMaskImage: "radial-gradient(ellipse at center, black 25%, transparent 90%)" 
-                }}
-              >
-                 {BACKGROUND_HEARTS.map((h, i) => (
-                    <div 
-                      key={i} 
-                      className="absolute left-1/2 top-1/2" 
-                      style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
-                    >
-                       <PixelHeart color={h.color} opacity={h.op} size={h.size} />
-                    </div>
-                 ))}
-              </div>
+           {/* Capa de Icon Backgrounds con Gradient Fade-out Amplio */}
+           <div 
+             className="absolute inset-0 pointer-events-none z-0" 
+             style={{ 
+               height: '240px', // Altura suficiente para que los corazones lleguen abajo
+               top: '-40px',
+               maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", 
+               WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" 
+             }}
+           >
+              {BACKGROUND_HEARTS.map((h, i) => (
+                 <div 
+                   key={i} 
+                   className="absolute left-1/2 top-[40%]" // Centrado relativo al avatar
+                   style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+                 >
+                    <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
+                 </div>
+              ))}
+           </div>
 
-              {/* Avatar Central */}
-              <div
-                className="flex items-center justify-center overflow-hidden rounded-full shadow-2xl relative z-10"
-                style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)", border: "2px solid rgba(255,255,255,0.05)" }}
-              >
-                {photoUrl ? (
-                  <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" onError={() => setPhotoUrl(null)} />
-                ) : (
-                  <span className="text-white font-bold" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>
-                    {initials || "?"}
-                  </span>
-                )}
+           {/* Contenedor del Avatar con Anillo Gradiente */}
+           <div className="relative flex justify-center items-center w-full mb-3 z-10">
+              <div className="p-[3px] rounded-full bg-gradient-to-br from-green-400 to-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+                <div
+                  className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative"
+                  style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}
+                >
+                  {photoUrl ? (
+                    <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" onError={() => setPhotoUrl(null)} />
+                  ) : (
+                    <span className="text-white font-bold" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>
+                      {initials || "?"}
+                    </span>
+                  )}
+                </div>
               </div>
            </div>
 
           <div className="text-center flex flex-col items-center relative z-10">
-            {/* Contenedor del nombre y el icono perfectamente ajustado */}
             <div className="flex items-center justify-center gap-1.5">
                <p className="text-white font-bold" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>
                  {displayName || "Your Name"}
@@ -221,15 +234,15 @@ export function ProfileView() {
                  <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={32} />
                </div>
             </div>
-            <p className="mt-1" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+            <p className="mt-1.5" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
               {username}
             </p>
           </div>
         </div>
 
         {/* ── Levels Section ── */}
-        <div className="w-full relative z-10">
-           <div className="bg-[#141415] rounded-[22px] p-5 shadow-2xl border border-[#1c1c1e] transition-all duration-300">
+        <div className="w-full relative z-10 mt-6">
+           <div className="bg-[#141415] rounded-[22px] p-5 border border-[#1c1c1e] transition-all duration-300">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2.5">
                   <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={18} />
@@ -315,11 +328,12 @@ export function ProfileView() {
            
            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
               
+              {/* Tarjeta de Inventario (Fondos de Perfil) */}
               <div className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] border border-blue-500/30 p-4 flex flex-col justify-between shrink-0 relative overflow-hidden">
-                 <div className="absolute -top-4 -right-4 w-20 h-20 opacity-20 pointer-events-none" style={{ background: "radial-gradient(circle, #e11d48 0%, transparent 70%)" }}></div>
+                 <div className="absolute -top-4 -right-4 w-20 h-20 opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}></div>
                  
                  <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-blue-500/50">
-                    <PixelHeart color="#e11d48" opacity={1} size={14} />
+                    <PixelHeartOutline color="#ffffff" opacity={0.6} size={14} />
                     <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-[2px]">
                        <Check className="w-2 h-2 text-white" strokeWidth={4} />
                     </div>
