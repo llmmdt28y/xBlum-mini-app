@@ -2,25 +2,25 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Check, X, ChevronLeft } from "lucide-react"
 
-const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
+const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
 // ── Configuración de Niveles ─────────────────────────────────────────
 const LEVEL_CONFIG = [
-  { lv: 1, name: "Novice", bp: 0, color: "#82c3cd", pixels: [33, 23, 32, 34, 43] },
-  { lv: 2, name: "Explorer", bp: 1000, color: "#a8e8a8", pixels: [22, 23, 24, 32, 33, 34, 42, 43, 44] },
-  { lv: 3, name: "Advanced", bp: 2500, color: "#e8a8c1", pixels: [30, 21, 31, 41, 12, 22, 32, 42, 52, 3, 13, 23, 33, 43, 53, 63, 14, 24, 34, 44, 54, 25, 35, 45, 36] },
-  { lv: 4, name: "Expert", bp: 6000, color: "#ffd9a8", pixels: [21, 31, 41, 12, 52, 13, 53, 14, 54, 25, 35, 45] },
-  { lv: 5, name: "Specialist", bp: 12000, color: "#a8c1e8", pixels: [30, 21, 41, 12, 32, 52, 3, 33, 63, 14, 34, 54, 25, 45, 36] },
-  { lv: 6, name: "Elite", bp: 25000, color: "#d1a8e8", pixels: [21, 31, 41, 12, 32, 52, 13, 33, 53, 14, 34, 54, 25, 35, 45] },
-  { lv: 7, name: "Veteran", bp: 50000, color: "#e8a8a8", pixels: [0, 60, 11, 51, 22, 42, 33, 24, 44, 15, 55, 6, 66] },
-  { lv: 8, name: "Commander", bp: 100000, color: "#f4f4f4", pixels: [30, 21, 31, 41, 3, 13, 23, 33, 43, 53, 63, 25, 35, 45, 36] },
-  { lv: 9, name: "Legend", bp: 250000, color: "#ffd700", pixels: [30, 11, 51, 2, 32, 62, 13, 53, 4, 34, 64, 15, 55, 36] },
-  { lv: 10, name: "Oracle", bp: 500000, color: "#00ffcc", pixels: [11, 21, 31, 41, 51, 12, 52, 13, 53, 14, 54, 15, 25, 35, 45, 55] },
+  { lv: 1,  name: "Novice",    bp: 0,       color: "#82c3cd", pixels: [33, 23, 32, 34, 43] },
+  { lv: 2,  name: "Explorer",  bp: 1000,    color: "#a8e8a8", pixels: [22, 23, 24, 32, 33, 34, 42, 43, 44] },
+  { lv: 3,  name: "Advanced",  bp: 2500,    color: "#e8a8c1", pixels: [30, 21, 31, 41, 12, 22, 32, 42, 52, 3, 13, 23, 33, 43, 53, 63, 14, 24, 34, 44, 54, 25, 35, 45, 36] },
+  { lv: 4,  name: "Expert",    bp: 6000,    color: "#ffd9a8", pixels: [21, 31, 41, 12, 52, 13, 53, 14, 54, 25, 35, 45] },
+  { lv: 5,  name: "Specialist",bp: 12000,   color: "#a8c1e8", pixels: [30, 21, 41, 12, 32, 52, 3, 33, 63, 14, 34, 54, 25, 45, 36] },
+  { lv: 6,  name: "Elite",     bp: 25000,   color: "#d1a8e8", pixels: [21, 31, 41, 12, 32, 52, 13, 33, 53, 14, 34, 54, 25, 35, 45] },
+  { lv: 7,  name: "Veteran",   bp: 50000,   color: "#e8a8a8", pixels: [0, 60, 11, 51, 22, 42, 33, 24, 44, 15, 55, 6, 66] },
+  { lv: 8,  name: "Commander", bp: 100000,  color: "#f4f4f4", pixels: [30, 21, 31, 41, 3, 13, 23, 33, 43, 53, 63, 25, 35, 45, 36] },
+  { lv: 9,  name: "Legend",    bp: 250000,  color: "#ffd700", pixels: [30, 11, 51, 2, 32, 62, 13, 53, 4, 34, 64, 15, 55, 36] },
+  { lv: 10, name: "Oracle",    bp: 500000,  color: "#00ffcc", pixels: [11, 21, 31, 41, 51, 12, 52, 13, 53, 14, 54, 15, 25, 35, 45, 55] },
   { lv: 11, name: "Visionary", bp: 1000000, color: "#ff007f", pixels: [30, 21, 31, 41, 2, 12, 22, 42, 52, 62, 33, 4, 14, 24, 44, 54, 64, 25, 35, 45, 36] },
-  { lv: 12, name: "Apex AI", bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
+  { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
 ]
 
 // ── Base de Datos de Logros ──────────────────────────────────────────
@@ -35,7 +35,7 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     type: 'Welcome Badge',
     typePercent: '100%',
     quantityIssued: 12500,
-    quantityMax: null,
+    quantityMax: null, 
     reqLevel: 1,
     img: '/robot-achievement.png',
     desc: 'Complete your first task. The world has answered your touch. A mark of beginning in the xBlum network.',
@@ -57,7 +57,7 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     desc: 'Assigned to the first 15 users who reached Level 2 on the platform during the Early Access phase. Your early belief is forever recognized.',
     date: "MAY 7, 2026"
   },
-  pyramid: {
+  pyramid: { 
     id: 'pyramid',
     name: 'The Architect',
     serial: '#00,001',
@@ -68,7 +68,7 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     typePercent: '0.01%',
     quantityIssued: 1,
     quantityMax: 10,
-    reqLevel: 99,
+    reqLevel: 99, 
     img: '/pyramid-achievement.png',
     desc: 'You have uncovered the deepest secrets of the platform. A truly mythic accomplishment reserved for the top elite.',
     date: "MAY 7, 2026"
@@ -115,19 +115,19 @@ const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opaci
 
 const BACKGROUND_HEARTS = [
   { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
-  { x: 90, y: -50, rot: 5, op: 0.15, size: 24, color: "#ffffff" },
-  { x: -110, y: 10, rot: 0, op: 0.20, size: 28, color: "#ffffff" },
-  { x: 110, y: 10, rot: 0, op: 0.20, size: 28, color: "#ffffff" },
-  { x: -160, y: -20, rot: 10, op: 0.08, size: 20, color: "#ffffff" },
-  { x: 160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
-  { x: -140, y: 50, rot: -5, op: 0.12, size: 22, color: "#ffffff" },
-  { x: 140, y: 50, rot: 5, op: 0.12, size: 22, color: "#ffffff" },
-  { x: -75, y: 80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
-  { x: 75, y: 80, rot: 15, op: 0.10, size: 18, color: "#ffffff" },
-  { x: -120, y: 110, rot: 0, op: 0.06, size: 16, color: "#ffffff" },
-  { x: 120, y: 110, rot: 0, op: 0.06, size: 16, color: "#ffffff" },
-  { x: -40, y: -90, rot: 10, op: 0.08, size: 18, color: "#ffffff" },
-  { x: 40, y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
+  { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
+  { x: -110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x:  110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x: -160, y: -20, rot:  10, op: 0.08, size: 20, color: "#ffffff" },
+  { x:  160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
+  { x: -140, y:  50, rot:  -5, op: 0.12, size: 22, color: "#ffffff" },
+  { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
+  { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
+  { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
+  { x: -120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  { x:  120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
+  { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
 ]
 
 type TgUser = {
@@ -143,13 +143,13 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Fila de Info del Modal (Alineada a la izquierda y compacta) ──────
+// ── Fila de Info del Modal ──────
 const ModalInfoRow = ({ label, children, isLast }: any) => (
   <div className={`flex items-center gap-3 py-3 px-4 ${!isLast ? 'border-b border-[#2c2c2e]/50' : ''}`}>
     <span className="text-[#8e8e93] font-bold text-[14px] capitalize w-[75px] shrink-0" style={{ fontFamily: SF }}>{label}</span>
     <div className="w-[1px] h-4 bg-[#2c2c2e] shrink-0" />
     <div className="text-white font-medium text-[14px] flex-1 text-left flex items-center" style={{ fontFamily: SF }}>
-      {children}
+       {children}
     </div>
   </div>
 )
@@ -159,13 +159,13 @@ export function ProfileView() {
   const { setCurrentView } = ctx
   const myBP = ctx.x_points ?? ctx.tokens ?? 0
 
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  const [photoUrl,    setPhotoUrl]    = useState<string | null>(null)
   const [displayName, setDisplayName] = useState("")
-  const [username, setUsername] = useState("")
-
+  const [username,    setUsername]    = useState("")
+  
   const [isLevelsExpanded, setIsLevelsExpanded] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
-
+  
   const [equippedBackground, setEquippedBackground] = useState<string | null>(null)
 
   // ── ESTADOS DE LOGROS (ACHIEVEMENTS) ──
@@ -191,16 +191,18 @@ export function ProfileView() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const userLv = currentLevel.lv;
-
+    
     let newlyFound = null;
     const unlocked = [];
 
+    // Logro 1: Robot (Nivel 1) - Desbloqueado por defecto
     unlocked.push('robot');
     if (!localStorage.getItem('ach_robot_shown')) {
       newlyFound = 'robot';
       localStorage.setItem('ach_robot_shown', 'true');
     }
 
+    // Logro 2: Pepe (Nivel 2)
     if (userLv >= ACHIEVEMENTS_DB.pepe.reqLevel) {
       unlocked.push('pepe');
       if (!newlyFound && !localStorage.getItem('ach_pepe_shown')) {
@@ -210,7 +212,7 @@ export function ProfileView() {
     }
 
     setUnlockedAchKeys(unlocked);
-
+    
     if (newlyFound) setNewlyUnlocked(newlyFound);
   }, [currentLevel.lv])
 
@@ -219,9 +221,9 @@ export function ProfileView() {
     if (!tg?.BackButton) return
     tg.BackButton.show()
     const handleBack = () => {
-      if (newlyUnlocked) setNewlyUnlocked(null)
-      else if (isAchievementsMenuOpen) setIsAchievementsMenuOpen(false)
-      else if (selectedItem) setSelectedItem(null)
+      if(newlyUnlocked) setNewlyUnlocked(null)
+      else if(isAchievementsMenuOpen) setIsAchievementsMenuOpen(false) 
+      else if(selectedItem) setSelectedItem(null)
       else { setCurrentView("home"); tg.BackButton.hide() }
     }
     tg.BackButton.onClick(handleBack)
@@ -232,17 +234,17 @@ export function ProfileView() {
 
   const PreviewPixelHeartsModal = (
     <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none z-0">
-        {BACKGROUND_HEARTS.map((h, i) => (
-          <div
-            key={i}
-            className="absolute left-1/2 top-1/2"
-            style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
-          >
-            <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
-          </div>
-        ))}
-      </div>
+       <div className="absolute inset-0 pointer-events-none z-0">
+          {BACKGROUND_HEARTS.map((h, i) => (
+             <div 
+               key={i} 
+               className="absolute left-1/2 top-1/2" 
+               style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+             >
+                <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
+             </div>
+          ))}
+       </div>
     </div>
   )
 
@@ -283,13 +285,14 @@ export function ProfileView() {
 
   const handleEquipToggle = () => {
     if (equippedBackground === selectedItem?.id) {
-      setEquippedBackground(null)
+       setEquippedBackground(null)
     } else {
-      setEquippedBackground(selectedItem?.id)
+       setEquippedBackground(selectedItem?.id)
     }
     setSelectedItem(null)
   }
 
+  // Exactamente 4 espacios para la fila horizontal de logros en el perfil principal
   const TOTAL_PROFILE_ACH_SLOTS = 4;
   const profileAchievementSlots = Array.from({ length: TOTAL_PROFILE_ACH_SLOTS });
 
@@ -299,35 +302,35 @@ export function ProfileView() {
       <div className="sticky top-0 z-30 flex items-center justify-center w-full" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)", background: "transparent" }}></div>
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden">
-
+        
         <button onClick={() => setCurrentView("settings")} className="absolute right-5 top-0 active:opacity-60 transition-opacity z-20" style={{ marginTop: "12px" }}>
           <Settings className="w-[22px] h-[22px] text-white/60 hover:text-white transition-colors" />
         </button>
 
         {/* ── Avatar y Fondo Principal ── */}
         <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative">
+           
+           {equippedBackground === 'hearts' && (
+             <div className="absolute inset-0 pointer-events-none z-0" style={{ height: '240px', top: '-40px', maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
+                {BACKGROUND_HEARTS.map((h, i) => (
+                   <div key={i} className="absolute left-1/2 top-[40%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+                      <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
+                   </div>
+                ))}
+             </div>
+           )}
 
-          {equippedBackground === 'hearts' && (
-            <div className="absolute inset-0 pointer-events-none z-0" style={{ height: '240px', top: '-40px', maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
-              {BACKGROUND_HEARTS.map((h, i) => (
-                <div key={i} className="absolute left-1/2 top-[40%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                  <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
+           <div className="relative flex justify-center items-center w-full mb-3 z-10">
+                <div className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
+                  {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                 </div>
-              ))}
-            </div>
-          )}
-
-          <div className="relative flex justify-center items-center w-full mb-3 z-10">
-            <div className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
-              {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
-            </div>
-          </div>
+           </div>
           <div className="text-center flex flex-col items-center relative z-10">
             <div className="flex items-center justify-center gap-1.5">
-              <p className="text-white font-bold" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>{displayName || "Your Name"}</p>
-              <div className="flex items-center justify-center shrink-0">
-                <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={32} />
-              </div>
+               <p className="text-white font-bold" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>{displayName || "Your Name"}</p>
+               <div className="flex items-center justify-center shrink-0">
+                 <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={32} />
+               </div>
             </div>
             <p className="mt-1.5" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>{username}</p>
           </div>
@@ -335,157 +338,159 @@ export function ProfileView() {
 
         {/* ── Niveles ── */}
         <div className="w-full relative z-10 mt-6">
-          <div className="bg-[#141415] rounded-[22px] p-5 border border-[#1c1c1e]">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2.5">
-                <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={18} />
-                <span className="text-[16px] font-bold text-white" style={{ fontFamily: SFD }}>Level {currentLevel.lv}</span>
+           <div className="bg-[#141415] rounded-[22px] p-5 border border-[#1c1c1e]">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2.5">
+                  <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={18} />
+                  <span className="text-[16px] font-bold text-white" style={{ fontFamily: SFD }}>Level {currentLevel.lv}</span>
+                </div>
+                <span className="text-[14px] font-bold text-[#d1d1d6]" style={{ fontFamily: SF }}>
+                  {myBP.toLocaleString()}/{nextLevel.bp.toLocaleString()} BP
+                </span>
               </div>
-              <span className="text-[14px] font-bold text-[#d1d1d6]" style={{ fontFamily: SF }}>
-                {myBP.toLocaleString()}/{nextLevel.bp.toLocaleString()} BP
-              </span>
-            </div>
-            <div className="flex items-center justify-between w-full mb-2 gap-[4px]">
-              {Array.from({ length: 24 }).map((_, i) => (
-                <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.4)]' : 'bg-[#2c2c2e]'}`} />
-              ))}
-            </div>
-            <button onClick={() => setIsLevelsExpanded(!isLevelsExpanded)} className="w-full flex items-center justify-center gap-1.5 pt-3 mt-2 active:opacity-70 transition-opacity">
-              <span className="text-[13px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>Next levels</span>
-              <ChevronDown className={`w-4 h-4 text-[#8e8e93] transition-transform ${isLevelsExpanded ? 'rotate-180' : ''}`} />
-            </button>
-            {isLevelsExpanded && (
-              <div className="mt-4 flex flex-col gap-2 animate-in slide-in-from-top-2">
-                {lockedLevels.slice(0, 3).map((lvl) => (
-                  <div key={lvl.lv} className="flex items-center justify-between p-3 rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 flex items-center justify-center grayscale opacity-50 shrink-0">
-                        <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
-                      </div>
-                      <div>
-                        <p className="text-[#8e8e93] font-medium text-[14px] leading-none mb-1" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
-                        <p className="text-[#48484a] text-[12px] leading-none" style={{ fontFamily: SFD }}>{lvl.name}</p>
-                      </div>
-                    </div>
-                    <Lock className="w-4 h-4 text-[#2c2c2e]" />
-                  </div>
+              <div className="flex items-center justify-between w-full mb-2 gap-[4px]">
+                {Array.from({ length: 24 }).map((_, i) => (
+                  <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.4)]' : 'bg-[#2c2c2e]'}`} />
                 ))}
               </div>
-            )}
-          </div>
+              <button onClick={() => setIsLevelsExpanded(!isLevelsExpanded)} className="w-full flex items-center justify-center gap-1.5 pt-3 mt-2 active:opacity-70 transition-opacity">
+                 <span className="text-[13px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>Next levels</span>
+                 <ChevronDown className={`w-4 h-4 text-[#8e8e93] transition-transform ${isLevelsExpanded ? 'rotate-180' : ''}`} />
+              </button>
+              {isLevelsExpanded && (
+                <div className="mt-4 flex flex-col gap-2 animate-in slide-in-from-top-2">
+                   {lockedLevels.slice(0, 3).map((lvl) => (
+                      <div key={lvl.lv} className="flex items-center justify-between p-3 rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e]">
+                         <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 flex items-center justify-center grayscale opacity-50 shrink-0">
+                              <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
+                            </div>
+                            <div>
+                               <p className="text-[#8e8e93] font-medium text-[14px] leading-none mb-1" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
+                               <p className="text-[#48484a] text-[12px] leading-none" style={{ fontFamily: SFD }}>{lvl.name}</p>
+                            </div>
+                         </div>
+                         <Lock className="w-4 h-4 text-[#2c2c2e]" />
+                      </div>
+                   ))}
+                </div>
+              )}
+           </div>
         </div>
 
-        {/* ── Achievements ── */}
+        {/* ── Achievements (Fila Única Horizontal Exacta) ── */}
         <div className="w-full relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
-              Achievements <span className="text-[#48484a] text-[16px] ml-1">{unlockedAchKeys.length}</span>
-            </h3>
-            <button onClick={() => setIsAchievementsMenuOpen(true)} className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
-              <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-[2px] overflow-x-hidden pb-2">
-            {profileAchievementSlots.map((_, i) => {
-              const key = unlockedAchKeys[i];
-              if (key) {
-                const ach = ACHIEVEMENTS_DB[key];
-                return (
-                  <button
-                    key={key}
-                    onClick={() => openItemModal(key)}
-                    className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent"
-                    style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-                  >
-                    <img src={ach.img} draggable={false} alt={ach.name} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
-                  </button>
-                )
-              } else {
-                return (
-                  <div
-                    key={`empty-${i}`}
-                    className="w-[82px] h-[94px] shrink-0 flex items-center justify-center relative bg-[#111111]"
-                    style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-                  >
-                  </div>
-                )
-              }
-            })}
-          </div>
+           <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
+                Achievements <span className="text-[#48484a] text-[16px] ml-1">{unlockedAchKeys.length}</span>
+              </h3>
+              {/* Botón Circular con flecha para ir al menú general de logros */}
+              <button onClick={() => setIsAchievementsMenuOpen(true)} className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
+                <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
+              </button>
+           </div>
+           
+           {/* Fila única horizontal, items pegados sin gap visibles grandes */}
+           <div className="flex items-center gap-[2px] overflow-x-hidden pb-2">
+              {profileAchievementSlots.map((_, i) => {
+                 const key = unlockedAchKeys[i];
+                 if (key) {
+                    const ach = ACHIEVEMENTS_DB[key];
+                    return (
+                      <button 
+                        key={key}
+                        onClick={() => openItemModal(key)}
+                        className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent"
+                        style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                      >
+                        <img src={ach.img} draggable={false} alt={ach.name} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                      </button>
+                    )
+                 } else {
+                    return (
+                      <div 
+                         key={`empty-${i}`} 
+                         className="w-[82px] h-[94px] shrink-0 flex items-center justify-center relative bg-[#111111]"
+                         style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                      >
+                      </div>
+                    )
+                 }
+              })}
+           </div>
         </div>
 
         {/* ── Inventory ── */}
         <div className="w-full pb-6 relative z-10">
-          <h3 className="text-white font-bold text-[18px] mb-4" style={{ fontFamily: SFD }}>Inventory</h3>
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+           <h3 className="text-white font-bold text-[18px] mb-4" style={{ fontFamily: SFD }}>Inventory</h3>
+           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+              
+              <button onClick={() => openItemModal('hearts')} className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] border border-[#2c2c2e] p-4 flex flex-col justify-between shrink-0 relative overflow-hidden active:scale-[0.98] transition-transform text-left">
+                 <div className="absolute -top-4 -right-4 w-20 h-20 opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}></div>
+                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-[#2c2c2e]">
+                    <PixelHeartOutline color="#ffffff" opacity={0.8} size={10} />
+                    
+                    {equippedBackground === 'hearts' && (
+                       <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-[2px]">
+                          <Check className="w-2 h-2 text-white" strokeWidth={4} />
+                       </div>
+                    )}
+                    {currentLevel.lv < 3 && ( 
+                       <div className="absolute -bottom-1 -right-1 bg-[#1c1c1e] rounded-full p-[2px] border border-[#2c2c2e]">
+                          <Lock className="w-2 h-2 text-[#8e8e93]" strokeWidth={3} />
+                       </div>
+                    )}
+                 </div>
+                 <div className="relative z-10">
+                    <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>Icon Backgrounds</p>
+                    <p className={`text-[13px] mt-1 font-medium ${currentLevel.lv >= 3 ? 'text-blue-400' : 'text-[#636366]'}`} style={{ fontFamily: SF }}>Pixel Hearts</p>
+                 </div>
+              </button>
 
-            <button onClick={() => openItemModal('hearts')} className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] border border-[#2c2c2e] p-4 flex flex-col justify-between shrink-0 relative overflow-hidden active:scale-[0.98] transition-transform text-left">
-              <div className="absolute -top-4 -right-4 w-20 h-20 opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}></div>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-[#2c2c2e]">
-                <PixelHeartOutline color="#ffffff" opacity={0.8} size={10} />
+              <button onClick={() => openItemModal('sparkles')} className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] p-4 flex flex-col justify-between shrink-0 active:scale-[0.98] transition-transform text-left border border-[#2c2c2e]">
+                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e]">
+                    <Sparkles className="w-4 h-4 text-[#8e8e93]" />
+                 </div>
+                 <div>
+                    <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>Name Icons</p>
+                    <p className="text-[#8e8e93] text-[13px] mt-1" style={{ fontFamily: SF }}>0 items</p>
+                 </div>
+              </button>
 
-                {equippedBackground === 'hearts' && (
-                  <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-[2px]">
-                    <Check className="w-2 h-2 text-white" strokeWidth={4} />
-                  </div>
-                )}
-                {currentLevel.lv < 3 && (
-                  <div className="absolute -bottom-1 -right-1 bg-[#1c1c1e] rounded-full p-[2px] border border-[#2c2c2e]">
-                    <Lock className="w-2 h-2 text-[#8e8e93]" strokeWidth={3} />
-                  </div>
-                )}
-              </div>
-              <div className="relative z-10">
-                <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>Icon Backgrounds</p>
-                <p className={`text-[13px] mt-1 font-medium ${currentLevel.lv >= 3 ? 'text-blue-400' : 'text-[#636366]'}`} style={{ fontFamily: SF }}>Pixel Hearts</p>
-              </div>
-            </button>
-
-            <button onClick={() => openItemModal('sparkles')} className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] p-4 flex flex-col justify-between shrink-0 active:scale-[0.98] transition-transform text-left border border-[#2c2c2e]">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e]">
-                <Sparkles className="w-4 h-4 text-[#8e8e93]" />
-              </div>
-              <div>
-                <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>Name Icons</p>
-                <p className="text-[#8e8e93] text-[13px] mt-1" style={{ fontFamily: SF }}>0 items</p>
-              </div>
-            </button>
-
-          </div>
+           </div>
         </div>
 
       </div>
 
       {/* ── MODAL FULLSCREEN: NUEVO LOGRO DESBLOQUEADO (Animación Shake) ── */}
       {newlyUnlocked && ACHIEVEMENTS_DB[newlyUnlocked] && (
-        <div
+        <div 
           className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300"
           onClick={() => setNewlyUnlocked(null)}
         >
           <div className="absolute top-5 left-5 text-white flex items-center gap-1 text-[16px] font-medium" style={{ fontFamily: SF }}>
             <ChevronLeft className="w-6 h-6" /> back
           </div>
-
-          <img
-            src={ACHIEVEMENTS_DB[newlyUnlocked].img}
-            alt={ACHIEVEMENTS_DB[newlyUnlocked].name}
+          
+          <img 
+            src={ACHIEVEMENTS_DB[newlyUnlocked].img} 
+            alt={ACHIEVEMENTS_DB[newlyUnlocked].name} 
             draggable={false}
-            className="w-[200px] h-[200px] object-contain achievement-shake-animation pointer-events-none select-none"
+            className="w-[200px] h-[200px] object-contain achievement-shake-animation pointer-events-none select-none" 
             style={{ WebkitTouchCallout: "none" }}
           />
-
+          
           <h1 className="text-white text-[28px] font-bold mt-6 text-center" style={{ fontFamily: SFD }}>
-            {ACHIEVEMENTS_DB[newlyUnlocked].name}
+             {ACHIEVEMENTS_DB[newlyUnlocked].name}
           </h1>
           <p className="text-[#8e8e93] text-[13px] font-bold mt-1 tracking-widest uppercase" style={{ fontFamily: SF }}>
-            OBTAINED: {ACHIEVEMENTS_DB[newlyUnlocked].date}
+             OBTAINED: {ACHIEVEMENTS_DB[newlyUnlocked].date}
           </p>
           <p className="text-[#8e8e93] text-center text-[15px] mt-6 max-w-[280px] leading-relaxed" style={{ fontFamily: SF }}>
-            {ACHIEVEMENTS_DB[newlyUnlocked].desc}
+             {ACHIEVEMENTS_DB[newlyUnlocked].desc}
           </p>
 
-          <style dangerouslySetInnerHTML={{ __html: `
+          <style dangerouslySetInnerHTML={{__html: `
             @keyframes achievementShake {
               0%, 100% { transform: translateX(0); }
               20% { transform: translateX(-8px) rotate(-4deg); }
@@ -496,7 +501,7 @@ export function ProfileView() {
             .achievement-shake-animation {
               animation: achievementShake 0.6s ease-in-out forwards;
             }
-          ` }} />
+          `}} />
         </div>
       )}
 
@@ -526,9 +531,7 @@ export function ProfileView() {
               return (
                 <button 
                   key={key} 
-                  {/* Si está desbloqueado abre el modal de detalles del ítem */}
                   onClick={() => isUnlocked && openItemModal(key)}
-                  {/* Casilla Rectangular con borde grueso, gris si bloqueado */}
                   className={`aspect-[1/1.1] bg-[#0a0a0a] rounded-[24px] border-[3px] ${isUnlocked ? 'border-[#2c2c2e]' : 'border-[#1c1c1e]'} flex items-center justify-center relative transition-all active:scale-[0.97] p-2`}
                 >
                    {/* Hexágono Interior que contiene la imagen o slot vacío */}
