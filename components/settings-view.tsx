@@ -8,6 +8,7 @@ const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
 const MODEL_LOGO: Record<string, string> = {
+  "Grok 4.3":      "/grok.png",
   "Grok 4.1":      "/grok.png",
   "GPT-5.4":       "/gpt.png",
   "GPT-5.2":       "/gpt.png",
@@ -22,6 +23,15 @@ const MODELS: {
   initial: string;
   tagStyle?: string;
 }[] = [
+  { 
+    name:"Grok 4.3",      
+    desc:"Latest capabilities with advanced intelligence",         
+    tag:"New", 
+    tagColor:"bg-white text-[#111]", 
+    tagStyle: "rounded-md", 
+    proOnly:false, 
+    initial:"G" 
+  },
   { 
     name:"Grok 4.1",      
     desc:"Advanced reasoning and deep analysis",         
@@ -44,7 +54,7 @@ const MODELS: {
     name:"GPT-5.2",       
     desc:"Fast and reliable for everyday use",                
     tag:null,      
-    tagColor:"",                                  
+    tagColor:"",                  
     proOnly:false, 
     initial:"2" 
   },
@@ -83,6 +93,7 @@ function Row({ label, sublabel, right, onClick, leftNode, danger }: {
           </p>
         )}
       </div>
+     
       {right ?? (danger ? <div /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />)}
     </button>
   )
@@ -148,7 +159,8 @@ function ModelLogo({ name, active, locked }: { name: string; active: boolean; lo
     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-[#1c1c1e]`} style={{ background: "#111" }}>
       <img src={MODEL_LOGO[name] || "/grok.png"} alt={name} className="w-6 h-6 object-contain pointer-events-none select-none" {...imageProps}
         onError={e => {
-          const el = e.currentTarget; el.style.display = "none"
+          const el = e.currentTarget;
+          el.style.display = "none"
           const p = el.parentElement
           if (p) {
             p.style.background = "#1c1c1e"
@@ -188,10 +200,10 @@ export function SettingsView() {
     submitFeedback,
   } = useApp()
 
-  const [page, setPage]           = useState<"main"|"model"|"lang"|"prefs">("main")
+  const [page, setPage] = useState<"main"|"model"|"lang"|"prefs">("main")
   const [tempPrefs, setTempPrefs] = useState(userPreferences)
   const [improveModel, setImproveModel] = useState(false)
-  const [saving, setSaving]       = useState("")
+  const [saving, setSaving] = useState("")
   const [showReportModal, setShowReportModal] = useState(false)
   const [reportType, setReportType] = useState("General feedback")
   const [reportDescription, setReportDescription] = useState("")
@@ -201,9 +213,11 @@ export function SettingsView() {
 
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
 
-  // Determinar si Grok 4.1 está activo, tolerando el string "Grok 4" cargado de la caché
-  const isGrok41Active = typeof selectedModel === 'string' && selectedModel.startsWith("Grok 4");
-  const displayModelName = isGrok41Active ? "Grok 4.1" : selectedModel;
+  // Determinar si Grok 4.3 o Grok 4.1 están activos
+  const isGrok43Active = typeof selectedModel === 'string' && selectedModel === "Grok 4.3";
+  const isGrok41Active = typeof selectedModel === 'string' && (selectedModel === "Grok 4.1" || (selectedModel.startsWith("Grok 4") && selectedModel !== "Grok 4.3"));
+  
+  const displayModelName = isGrok43Active ? "Grok 4.3" : (isGrok41Active ? "Grok 4.1" : selectedModel);
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -270,25 +284,34 @@ export function SettingsView() {
           </div>
 
           {MODELS.map((m) => {
-            const locked    = m.proOnly && !isPremium
+            const locked = m.proOnly && !isPremium
+            
             // Lógica ajustada para la palomita
-            const active = m.name === selectedModel || (m.name === "Grok 4.1" && isGrok41Active);
-            const throttled = isThrottled && m.name === "Grok 4.1"
+            const active = m.name === selectedModel || 
+                           (m.name === "Grok 4.1" && isGrok41Active) || 
+                           (m.name === "Grok 4.3" && isGrok43Active);
+            
+            // Lógica visual del límite para Grok 4.3
+            const throttledGrok41 = isThrottled && m.name === "Grok 4.1";
+            const limitedGrok43 = isThrottled && m.name === "Grok 4.3"; // Utiliza tu logica real aquí para disparar el límite visual
+
+            const isDisabled = locked || saving === "model" || limitedGrok43;
             
             return (
               <button 
                 key={m.name} 
-                disabled={locked || saving === "model"}
-                onClick={() => !locked && selectModel(m.name)}
+                disabled={isDisabled}
+                onClick={() => !locked && !limitedGrok43 && selectModel(m.name)}
                 className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
-                style={{ opacity: locked ? 0.5 : 1 }}
+                style={{ opacity: locked || limitedGrok43 ? 0.5 : 1 }}
               >
                 <div className="flex items-center gap-4 flex-1">
                   <ModelLogo name={m.name} active={active} locked={locked} />
                   <div className="flex-1 text-left">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
                       <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>{m.name}</p>
-                      {m.tag && !locked && (
+                      
+                      {m.tag && !locked && !limitedGrok43 && (
                         <span className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || 'rounded'} ${m.tagColor}`} style={{ fontFamily: SF }}>
                           {m.tag}
                         </span>
@@ -298,7 +321,16 @@ export function SettingsView() {
                           PRO
                         </span>
                       )}
-                      {throttled && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500" style={{ fontFamily: SF }}>cooling {minutesUntilReset}min</span>}
+                      {limitedGrok43 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]" style={{ fontFamily: SF }}>
+                          limit reached • until {minutesUntilReset}m
+                        </span>
+                      )}
+                      {throttledGrok41 && !limitedGrok43 && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500" style={{ fontFamily: SF }}>
+                          cooling {minutesUntilReset}min
+                        </span>
+                      )}
                     </div>
                     <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
                   </div>
@@ -307,7 +339,7 @@ export function SettingsView() {
                 <div className="shrink-0 flex items-center justify-center w-6 h-6">
                   {saving === "model" && active ? (
                     <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8e8e93" }} />
-                  ) : active && !locked ? (
+                  ) : active && !isDisabled ? (
                     <Check className="w-5 h-5" style={{ color: "#3b82f6" }} strokeWidth={2.5} />
                   ) : null}
                 </div>
