@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -22,6 +22,58 @@ const LEVEL_CONFIG = [
   { lv: 11, name: "Visionary", bp: 1000000, color: "#ff007f", pixels: [30, 21, 31, 41, 2, 12, 22, 42, 52, 62, 33, 4, 14, 24, 44, 54, 64, 25, 35, 45, 36] },
   { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
 ]
+
+// ── Base de Datos de Logros ──────────────────────────────────────────
+const ACHIEVEMENTS_DB: Record<string, any> = {
+  robot: {
+    id: 'robot',
+    name: 'First Touch',
+    serial: '#01,244',
+    collection: 'Achievements',
+    rarity: 'Common',
+    rarityPercent: '100%',
+    type: 'Welcome Badge',
+    typePercent: '100%',
+    quantityIssued: 12500,
+    quantityMax: 12500,
+    reqLevel: 1,
+    img: '/robot-achievement.png',
+    desc: 'Complete your first task. The world has answered your touch.',
+    date: "May '26"
+  },
+  pepe: {
+    id: 'pepe',
+    name: 'Early Pepe',
+    serial: '#00,004',
+    collection: 'Achievements',
+    rarity: 'Exclusive',
+    rarityPercent: '0.1%',
+    type: 'Early Access',
+    typePercent: '0.1%',
+    quantityIssued: 15,
+    quantityMax: 15,
+    reqLevel: 2,
+    img: '/pepe-achievement.png',
+    desc: 'Assigned to the first 15 users who reached Level 2 in early access.',
+    date: "May '26"
+  },
+  pyramid: { 
+    id: 'pyramid',
+    name: 'The Architect',
+    serial: '#00,001',
+    collection: 'Achievements',
+    rarity: 'Mythic',
+    rarityPercent: '0.01%',
+    type: 'Secret',
+    typePercent: '0.01%',
+    quantityIssued: 1,
+    quantityMax: 10,
+    reqLevel: 99, 
+    img: '/pyramid-achievement.png',
+    desc: 'Uncovered the deepest secrets of the platform.',
+    date: "May '26"
+  }
+}
 
 // ── Componente Pixel Art (Nivel) ──────────────────────────────────────
 const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: string, size?: number }) => {
@@ -114,8 +166,11 @@ export function ProfileView() {
   const [isLevelsExpanded, setIsLevelsExpanded] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
   
-  // ── ESTADO PARA EL FONDO EQUIPADO ──
   const [equippedBackground, setEquippedBackground] = useState<string | null>(null)
+
+  // ── ESTADOS DE LOGROS (ACHIEVEMENTS) ──
+  const [unlockedAchKeys, setUnlockedAchKeys] = useState<string[]>([])
+  const [newlyUnlocked, setNewlyUnlocked] = useState<string | null>(null)
 
   const currentLevel = [...LEVEL_CONFIG].reverse().find(l => myBP >= l.bp) || LEVEL_CONFIG[0]
   const nextLevel = LEVEL_CONFIG[currentLevel.lv] || currentLevel
@@ -131,17 +186,47 @@ export function ProfileView() {
     setUsername(user.username ? "@" + user.username : "")
   }, [])
 
+  // Lógica para Desbloquear Logros Automáticamente
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const userLv = currentLevel.lv;
+    
+    let newlyFound = null;
+    const unlocked = [];
+
+    // Logro 1: Robot (Nivel 1)
+    unlocked.push('robot');
+    if (!localStorage.getItem('ach_robot_shown')) {
+      newlyFound = 'robot';
+      localStorage.setItem('ach_robot_shown', 'true');
+    }
+
+    // Logro 2: Pepe (Nivel 2)
+    if (userLv >= ACHIEVEMENTS_DB.pepe.reqLevel) {
+      unlocked.push('pepe');
+      if (!newlyFound && !localStorage.getItem('ach_pepe_shown')) {
+        newlyFound = 'pepe';
+        localStorage.setItem('ach_pepe_shown', 'true');
+      }
+    }
+
+    setUnlockedAchKeys(unlocked);
+    
+    if (newlyFound) setNewlyUnlocked(newlyFound);
+  }, [currentLevel.lv])
+
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
     tg.BackButton.show()
     const handleBack = () => {
-      if(selectedItem) setSelectedItem(null)
+      if(newlyUnlocked) setNewlyUnlocked(null)
+      else if(selectedItem) setSelectedItem(null)
       else { setCurrentView("home"); tg.BackButton.hide() }
     }
     tg.BackButton.onClick(handleBack)
     return () => { tg.BackButton.offClick(handleBack) }
-  }, [setCurrentView, selectedItem])
+  }, [setCurrentView, selectedItem, newlyUnlocked])
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
@@ -161,13 +246,13 @@ export function ProfileView() {
     </div>
   )
 
-  const openItemModal = (type: 'hearts' | 'sparkles' | 'achievement') => {
+  const openItemModal = (type: string) => {
     if (type === 'hearts') {
       setSelectedItem({
         id: 'hearts',
         name: 'Pixel Hearts', serial: '#94,355', collection: 'Cosmetic Backgrounds',
         rarity: 'Exclusive (Early Access)', rarityPercent: '0.5%', type: 'Icon Background', typePercent: '0.4%',
-        quantityIssued: 124, quantityMax: 500, reqLevel: 3, reqBP: 2500, // Ajustado a Nivel 3
+        quantityIssued: 124, quantityMax: 500, reqLevel: 3, reqBP: 2500,
         preview: PreviewPixelHeartsModal
       })
     } else if (type === 'sparkles') {
@@ -178,13 +263,14 @@ export function ProfileView() {
         quantityIssued: 3150, quantityMax: 10000, reqLevel: 8, reqBP: 50000,
         preview: <Sparkles className="w-24 h-24 text-[#8e8e93]" />
       })
-    } else if (type === 'achievement') {
+    } else if (ACHIEVEMENTS_DB[type]) {
+      const ach = ACHIEVEMENTS_DB[type];
       setSelectedItem({
-        id: 'achievement',
-        name: 'Novice Pioneer', serial: '#00,001', collection: 'Achievements',
-        rarity: 'Common', rarityPercent: '50%', type: 'Badge', typePercent: '100%',
-        quantityIssued: 85400, quantityMax: 100000, reqLevel: 1, reqBP: 0,
-        preview: <Hexagon className="w-24 h-24 text-white/50" />
+        id: ach.id,
+        name: ach.name, serial: ach.serial, collection: ach.collection,
+        rarity: ach.rarity, rarityPercent: ach.rarityPercent, type: ach.type, typePercent: ach.typePercent,
+        quantityIssued: ach.quantityIssued, quantityMax: ach.quantityMax, reqLevel: ach.reqLevel,
+        preview: <img src={ach.img} draggable={false} className="w-[150px] h-[150px] object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} alt={ach.name} />
       })
     }
   }
@@ -224,7 +310,7 @@ export function ProfileView() {
 
            <div className="relative flex justify-center items-center w-full mb-3 z-10">
                 <div className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
-                  {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
+                  {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                 </div>
            </div>
           <div className="text-center flex flex-col items-center relative z-10">
@@ -280,24 +366,27 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Achievements ── */}
+        {/* ── Achievements (Dinámicos y Encajados) ── */}
         <div className="w-full relative z-10">
            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Achievements <span className="text-[#48484a] text-[16px] ml-1">1</span></h3>
+              <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
+                Achievements <span className="text-[#48484a] text-[16px] ml-1">{unlockedAchKeys.length}</span>
+              </h3>
               <ChevronRight className="w-5 h-5 text-[#48484a]" />
            </div>
-           <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-2">
-              <button 
-                onClick={() => openItemModal('achievement')}
-                className="w-[84px] h-[96px] bg-[#111111] flex flex-col items-center justify-center shrink-0 relative active:scale-95 transition-transform"
-                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-              >
-                <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at center, #ffffff 1px, transparent 1px)', backgroundSize: '6px 6px' }}></div>
-                <Hexagon className="w-6 h-6 text-white/50 mb-1 z-10" />
-              </button>
-              {[1, 2, 3, 4].map((i) => (
-                 <div key={i} className="w-[84px] h-[96px] bg-[#0a0a0a] flex items-center justify-center shrink-0" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}></div>
-              ))}
+           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+              {unlockedAchKeys.map((key) => {
+                 const ach = ACHIEVEMENTS_DB[key];
+                 return (
+                   <button 
+                     key={key}
+                     onClick={() => openItemModal(key)}
+                     className="w-[84px] h-[84px] flex items-center justify-center shrink-0 active:scale-95 transition-transform"
+                   >
+                     <img src={ach.img} draggable={false} alt={ach.name} className="w-full h-full object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                   </button>
+                 )
+              })}
            </div>
         </div>
 
@@ -316,7 +405,7 @@ export function ProfileView() {
                           <Check className="w-2 h-2 text-white" strokeWidth={4} />
                        </div>
                     )}
-                    {currentLevel.lv < 3 && ( // Ajustado a nivel 3
+                    {currentLevel.lv < 3 && ( 
                        <div className="absolute -bottom-1 -right-1 bg-[#1c1c1e] rounded-full p-[2px] border border-[#2c2c2e]">
                           <Lock className="w-2 h-2 text-[#8e8e93]" strokeWidth={3} />
                        </div>
@@ -343,7 +432,50 @@ export function ProfileView() {
 
       </div>
 
-      {/* ── Modal de Detalles ── */}
+      {/* ── MODAL FULLSCREEN: NUEVO LOGRO DESBLOQUEADO (Animación) ── */}
+      {newlyUnlocked && ACHIEVEMENTS_DB[newlyUnlocked] && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300"
+          onClick={() => setNewlyUnlocked(null)}
+        >
+          <div className="absolute top-5 left-5 text-white flex items-center gap-1 text-[16px] font-medium" style={{ fontFamily: SF }}>
+            <ChevronLeft className="w-6 h-6" /> back
+          </div>
+          
+          <img 
+            src={ACHIEVEMENTS_DB[newlyUnlocked].img} 
+            alt={ACHIEVEMENTS_DB[newlyUnlocked].name} 
+            draggable={false}
+            className="w-[200px] h-[200px] object-contain achievement-shake-animation pointer-events-none select-none" 
+            style={{ WebkitTouchCallout: "none" }}
+          />
+          
+          <h1 className="text-white text-[28px] font-bold mt-6 text-center" style={{ fontFamily: SFD }}>
+             {ACHIEVEMENTS_DB[newlyUnlocked].name}
+          </h1>
+          <p className="text-[#8e8e93] text-[13px] font-bold mt-1 tracking-widest uppercase" style={{ fontFamily: SF }}>
+             {ACHIEVEMENTS_DB[newlyUnlocked].date}
+          </p>
+          <p className="text-[#8e8e93] text-center text-[15px] mt-6 max-w-[280px] leading-relaxed" style={{ fontFamily: SF }}>
+             {ACHIEVEMENTS_DB[newlyUnlocked].desc}
+          </p>
+
+          <style dangerouslySetInnerHTML={{__html: `
+            @keyframes achievementShake {
+              0%, 100% { transform: translateX(0); }
+              20% { transform: translateX(-8px) rotate(-4deg); }
+              40% { transform: translateX(8px) rotate(4deg); }
+              60% { transform: translateX(-8px) rotate(-4deg); }
+              80% { transform: translateX(8px) rotate(4deg); }
+            }
+            .achievement-shake-animation {
+              animation: achievementShake 0.6s ease-in-out forwards;
+            }
+          `}} />
+        </div>
+      )}
+
+      {/* ── Bottom Sheet Modal (Detalles Inventario/Logros) ── */}
       {selectedItem && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
@@ -358,9 +490,9 @@ export function ProfileView() {
               <div className="px-5 w-full">
                  <div className="bg-[#141415] rounded-[16px] border border-[#1c1c1e] w-full flex flex-col mb-8 overflow-hidden">
                     <ModalInfoRow label="owner">
-                       <div className="flex items-center gap-2">
-                          {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full" /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
+                       <div className="flex items-center justify-end gap-2 w-full">
                           <span className="text-[#3b82f6] font-medium">{displayName}</span>
+                          {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
                        </div>
                     </ModalInfoRow>
                     <ModalInfoRow label="model">
@@ -385,13 +517,19 @@ export function ProfileView() {
 
                  <div className="w-full mb-[120px]">
                    {currentLevel.lv >= selectedItem.reqLevel ? (
-                      equippedBackground === selectedItem.id ? (
-                         <button onClick={handleEquipToggle} className="w-full bg-[#1c1c1e] text-white font-bold text-[17px] rounded-[16px] py-4 border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
-                            Unequip
-                         </button>
+                      selectedItem.id === 'hearts' ? (
+                        equippedBackground === selectedItem.id ? (
+                           <button onClick={handleEquipToggle} className="w-full bg-[#1c1c1e] text-white font-bold text-[17px] rounded-[16px] py-4 border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
+                              Unequip
+                           </button>
+                        ) : (
+                           <button onClick={handleEquipToggle} className="w-full bg-[#3b82f6] active:bg-[#2563eb] transition-colors text-white font-bold text-[17px] rounded-[16px] py-4">
+                              Equip Background
+                           </button>
+                        )
                       ) : (
-                         <button onClick={handleEquipToggle} className="w-full bg-[#3b82f6] active:bg-[#2563eb] transition-colors text-white font-bold text-[17px] rounded-[16px] py-4">
-                            Equip Background
+                         <button disabled className="w-full bg-[#1c1c1e] text-[#636366] font-bold text-[17px] rounded-[16px] py-4">
+                            Owned
                          </button>
                       )
                    ) : (
