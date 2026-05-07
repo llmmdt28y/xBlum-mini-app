@@ -38,36 +38,57 @@ const StardustSVG = () => {
   return <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">{stars}</svg>
 }
 
-// NUEVO: Patrón de Mosaico estilo "Papel Tapiz" / Marca de agua (Tresbolillo, Inclinado, Cobertura Total)
+// NUEVO: Iconos distribuidos ampliamente, con tamaños variados y zona central vacía
 const TreasuresSVG = () => {
-  return (
-    <svg viewBox="0 0 100 100" className="w-full h-full">
-      <defs>
-        {/* Patrón en cuadrícula con rotación y desplazamiento (tresbolillo) */}
-        <pattern id="watermark-pattern" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse" patternTransform="rotate(-25)">
-          {/* Usando paths puros para calidad visual impecable. Iconos elegantes en gris oscuro */}
-          <g stroke="#8e8e93" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" opacity="0.12">
-            
-            {/* Icono 1: Dólar ($) */}
-            <g transform="translate(6, 6) scale(0.6)">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </g>
-            
-            {/* Icono 2: Diamante (Variedad visual, centrado en el espacio restante del patrón) */}
-            <g transform="translate(24, 24) scale(0.55)">
-              <path d="M6 3h12l4 6-10 13L2 9Z" />
-              <path d="M11 3v6M13 3v6M2 9h20M6 3l-4 6M18 3l4 6" />
-            </g>
+  const elements = Array.from({ length: 40 }).map((_, i) => {
+    let x, y, r;
+    do {
+      // Ampliamos el rango de x e y para que ocupen todas las esquinas (-15 a 115)
+      x = -15 + Math.random() * 130; 
+      y = -15 + Math.random() * 130;
+      r = Math.sqrt(Math.pow(x - 50, 2) + Math.pow(y - 50, 2));
+    } while (r < 32); // MARGEN EN MEDIO: Todo lo que esté a menos de 32 de radio se descarta
 
-          </g>
-        </pattern>
-      </defs>
-      
-      {/* Fondo sólido negro base */}
-      <rect width="100" height="100" fill="#000000" />
-      
-      {/* Rectángulo que dibuja el patrón repitiéndose al infinito */}
-      <rect width="100" height="100" fill="url(#watermark-pattern)" />
+    // Tamaños muy variados (desde muy chicos hasta grandes)
+    const scale = 0.3 + Math.random() * 1.3; 
+    const rotate = Math.random() * 360; // Rotación total libre
+    const opacity = 0.1 + Math.random() * 0.35; // Transparencias variadas
+
+    // Paquete de iconos en vectores puros (Dólar, Destello, y un Hexágono/Moneda)
+    const paths = [
+      // Icono 1: Dólar clásico
+      <path key="dollar" d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />,
+      // Icono 2: Dólar enmarcado (moneda)
+      <path key="coin" d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6 M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />,
+      // Icono 3: Destello/Diamante de 4 puntas
+      <path key="sparkle" d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4Z" />
+    ];
+
+    const path = paths[i % paths.length];
+
+    return (
+      <g 
+        key={i} 
+        // Primero nos movemos a x,y; luego escalamos; luego rotamos y centramos el viewBox 24x24 del icono
+        transform={`translate(${x}, ${y}) scale(${scale * 0.25}) rotate(${rotate}) translate(-12, -12)`}
+        stroke="#8e8e93" // Color gris
+        strokeWidth="1.5" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        fill="none" // Sin fondo
+        opacity={opacity}
+      >
+        {path}
+      </g>
+    );
+  });
+
+  return (
+    // SVG completamente transparente (sin fondos negros añadidos) para que se fusione con el fondo nativo
+    <svg viewBox="0 0 100 100" className="w-full h-full overflow-hidden">
+      <g className="drop-shadow-[0_0_3px_rgba(142,142,147,0.3)]">
+        {elements}
+      </g>
     </svg>
   );
 }
@@ -98,7 +119,7 @@ const ArtWrapper = ({ children, glowColor }: { children: React.ReactNode, glowCo
 const NFT_ITEMS = [
   { id: '1', name: "Spiral", type: "SHADE", rarity: "Epic", price: 15000, issueNumber: "332", stock: 100, model: "Aura", symbol: "Core Ring", backdrop: "Void", art: <ArtWrapper glowColor="rgba(168,85,247,0.15)"><SpiralSVG /></ArtWrapper> },
   { id: '2', name: "Stardust", type: "SHADE", rarity: "Rare", price: 5000, issueNumber: "12", stock: 500, model: "Particle", symbol: "Nebula", backdrop: "Deep Space", art: <ArtWrapper glowColor="rgba(59,130,246,0.1)"><StardustSVG /></ArtWrapper> },
-  { id: '3', name: "Treasures", type: "SHADE", rarity: "Epic", price: 20000, issueNumber: "7", stock: 250, model: "Relic", symbol: "Geo Wealth", backdrop: "Obsidian", art: <TreasuresSVG /> },
+  { id: '3', name: "Treasures", type: "SHADE", rarity: "Epic", price: 20000, issueNumber: "7", stock: 250, model: "Relic", symbol: "Wealth", backdrop: "Grey Matrix", art: <TreasuresSVG /> },
   { id: '4', name: "Phantom", type: "GIFT", rarity: "Legendary", price: 45000, issueNumber: "9", stock: 10, model: "Spirit", symbol: "Ghost Face", backdrop: "Abyss", art: <PhantomSVG /> },
   { id: '5', name: "Core", type: "GIFT", rarity: "Mythic", price: 150000, issueNumber: "1", stock: 0, model: "Structure", symbol: "Prism", backdrop: "Black", art: <CoreSVG /> }
 ]
@@ -163,7 +184,7 @@ export function ShopView() {
                   <span className="text-[10px] font-bold text-[#636366]">#{item.issueNumber}</span>
                 </div>
 
-                {/* Arte Central - El mismo componente se renderiza aquí y escala perfectamente */}
+                {/* Arte Central */}
                 <div className="flex-1 w-full flex items-center justify-center my-2 relative rounded-[12px] overflow-hidden">
                   <div className="w-[90%] aspect-square flex items-center justify-center rounded-[12px] overflow-hidden">
                     {item.art}
@@ -193,7 +214,7 @@ export function ShopView() {
             {/* Indicador de arrastre */}
             <div className="w-10 h-1.5 bg-[#2c2c2e] rounded-full mx-auto mt-2 mb-6" />
 
-            {/* Arte Principal Flotante (Llamando exactamente al mismo objeto `item.art`) */}
+            {/* Arte Principal Flotante (Llamando al mismo objeto SVG dinámico) */}
             <div className="w-[180px] h-[180px] mx-auto flex items-center justify-center mb-4 relative rounded-[16px] overflow-hidden">
               {selectedItem.art}
             </div>
@@ -237,8 +258,6 @@ export function ShopView() {
               <TableRow label="quantity">
                 <span className="text-white text-[14px]">{selectedItem.issueNumber}/25,000 issued</span>
               </TableRow>
-
-              {/* Fila Value completamente eliminada según instrucciones */}
 
             </div>
 
