@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, MoreVertical } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -93,12 +93,14 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Componente Fila de Información del Modal ─────────────────────────
+// ── Componente Fila de Información del Modal con Divisor Vertical ──────
 const ModalInfoRow = ({ label, children, isLast }: any) => (
-  <div className={`flex items-center py-3.5 px-4 ${!isLast ? 'border-b border-[#2c2c2e]/50' : ''}`}>
-    <span className="text-white font-bold text-[15px] w-[110px] capitalize" style={{ fontFamily: SF }}>{label}</span>
-    <div className="text-[#e5e5ea] font-normal text-[15px] flex-1 flex items-center justify-end md:justify-start" style={{ fontFamily: SF }}>
-      {children}
+  <div className={`grid grid-cols-[100px_1fr] items-center gap-4 py-3.5 px-4 ${!isLast ? 'border-b border-[#2c2c2e]/50' : ''}`}>
+    <span className="text-white font-bold text-[15px] capitalize" style={{ fontFamily: SF }}>{label}</span>
+    <div className="flex items-center gap-4 text-[#e5e5ea] font-normal text-[15px]" style={{ fontFamily: SF }}>
+       {/* Divisor Vertical */}
+       <div className="w-[1px] h-5 bg-[#2c2c2e]" />
+       <div className="flex-1 text-left">{children}</div>
     </div>
   </div>
 )
@@ -152,7 +154,7 @@ export function ProfileView() {
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
-  // Vista previa específica para el modal de corazones
+  // Vista previa específica para el modal de corazones (Vacío en medio)
   const PreviewPixelHeartsModal = (
     <div className="relative w-[180px] h-[180px] flex items-center justify-center overflow-hidden">
        <div className="absolute inset-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center, black 10%, transparent 70%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 70%)" }}>
@@ -162,10 +164,7 @@ export function ProfileView() {
              </div>
          ))}
        </div>
-       {/* Espacio Vacío del Avatar */}
-       <div className="w-[84px] h-[84px] rounded-full border border-dashed border-[#48484a] bg-[#0a0a0b]/80 flex items-center justify-center z-10">
-         <span className="text-[#8e8e93] text-[10px] font-bold tracking-widest">AVATAR</span>
-       </div>
+       {/* Centro Vacío. Eliminado el círculo y el texto de AVATAR */}
     </div>
   )
 
@@ -347,11 +346,11 @@ export function ProfileView() {
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-300" onClick={() => setSelectedItem(null)} />
 
-           <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto pb-6">
+           <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto pb-12">
               
-              {/* Header Icon */}
+              {/* Header Icon - Reemplazado por X de cierre */}
               <div className="absolute top-5 right-5 active:opacity-60 cursor-pointer" onClick={() => setSelectedItem(null)}>
-                 <MoreVertical className="w-6 h-6 text-[#8e8e93]" />
+                 <X className="w-6 h-6 text-[#8e8e93]" />
               </div>
 
               {/* Preview */}
@@ -371,7 +370,8 @@ export function ProfileView() {
                     <ModalInfoRow label="owner">
                        <div className="flex items-center gap-2">
                           {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full" /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
-                          <span className="text-[#3b82f6] font-medium">{displayName} 🚀</span>
+                          {/* Eliminado emoji de cohete */}
+                          <span className="text-[#3b82f6] font-medium">{displayName}</span>
                        </div>
                     </ModalInfoRow>
                     <ModalInfoRow label="model">
