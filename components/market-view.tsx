@@ -39,7 +39,7 @@ const MARKET_BOXES = [
   }
 ]
 
-// ── Paquetes de Estrellas (Basado en la imagen de referencia) ──
+// ── Paquetes de Estrellas ──
 const STAR_PACKAGES = [
   { stars: "100", price: "$2.49", stacked: false },
   { stars: "250", price: "$5.89", stacked: false },
@@ -105,13 +105,12 @@ export function MarketView() {
 
   // ── Manejador del Input de Estrellas ──
   const handleStarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, '') // Solo números
+    const val = e.target.value.replace(/\D/g, '') 
     if (val === '') {
       setStarInput('')
       return
     }
     const num = parseInt(val, 10)
-    // Limita a 150,000 máximo como solicitaste
     if (num > 150000) {
       setStarInput('150000')
     } else {
@@ -120,159 +119,162 @@ export function MarketView() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300 bg-[#000000] pb-32">
-      <style>{animationStyles}</style>
-      
-      {/* ── Header Principal ── */}
-      <div className="sticky top-0 z-40 flex items-center justify-between px-5 pt-14 pb-4 bg-black">
-         <div className="flex items-center gap-2">
-            <Store className="w-[22px] h-[22px] text-[#3b82f6]" strokeWidth={2.5} />
-            <h1 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>
-               xBlum Market
-            </h1>
-         </div>
-      </div>
-
-      {/* ── Caja de Saldo Flotante ── */}
-      <div className="fixed top-[85px] right-5 z-40 bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 transition-all">
-         <img 
-            src="/telegram-star-icon.png" 
-            alt="Stars" 
-            draggable={false}
-            className="w-[18px] h-[18px] object-contain pointer-events-none select-none" 
-            style={{ WebkitTouchCallout: "none" }}
-         />
-         <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>{myStars}</span>
-         <button 
-            onClick={() => setIsTopUpOpen(true)}
-            className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 transition-transform ml-1"
-         >
-            <Plus className="w-4 h-4 text-[#a78bfa]" strokeWidth={3} />
-         </button>
-      </div>
-
-      <div className="flex flex-col relative overflow-x-hidden pt-4">
+    <>
+      {/* ── CONTENEDOR PRINCIPAL ── */}
+      <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300 bg-[#000000] pb-32">
+        <style>{animationStyles}</style>
         
-        {/* ── 5 Tarjetas Superpuestas Sincronizadas ── */}
-        <div className="w-full h-[180px] relative flex justify-center items-center overflow-hidden">
-            <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] shadow-lg opacity-40">
-                <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
-            </div>
-            <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] translate-x-[130px] rotate-[15deg] flex items-center justify-center border border-[#1c1c1e] shadow-lg opacity-40">
-                <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
-            </div>
-            <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] -translate-x-[70px] rotate-[-8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
-                <span className="text-white/50 font-bold text-6xl drop-shadow-md" style={{ fontFamily: SFD }}>?</span>
-            </div>
-            <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] translate-x-[70px] rotate-[8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
-                <span className="text-white/50 font-bold text-6xl drop-shadow-md" style={{ fontFamily: SFD }}>?</span>
-            </div>
-            <div className="relative z-30 w-[140px] h-[140px] bg-[#141415] rounded-[32px] flex items-center justify-center border border-[#3a3a3c] shadow-[0_20px_40px_rgba(0,0,0,0.8)]">
-                <span className="text-white/80 font-bold text-7xl drop-shadow-lg" style={{ fontFamily: SFD }}>?</span>
-            </div>
+        {/* Header Principal */}
+        <div className="sticky top-0 z-40 flex items-center justify-between px-5 pt-14 pb-4 bg-black">
+           <div className="flex items-center gap-2">
+              <Store className="w-[22px] h-[22px] text-[#3b82f6]" strokeWidth={2.5} />
+              <h1 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>
+                 xBlum Market
+              </h1>
+           </div>
         </div>
 
-        {/* ── Título y Botones Links ── */}
-        <div className="w-full flex flex-col items-center mt-6">
-            <h2 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>xBlum Presale</h2>
-            <div className="flex gap-3 mt-4">
-                <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 rounded-full text-[#3b82f6] font-semibold text-[13px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
-                    Play <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
-                </button>
-                <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 rounded-full text-[#3b82f6] font-semibold text-[13px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
-                    Telegram <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
-                </button>
-                <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 rounded-full text-[#3b82f6] font-semibold text-[13px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
-                    X <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
-                </button>
-            </div>
+        {/* Caja de Saldo Flotante */}
+        <div className="fixed top-[85px] right-5 z-40 bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 transition-all">
+           <img 
+              src="/telegram-star-icon.png" 
+              alt="Stars" 
+              draggable={false}
+              className="w-[18px] h-[18px] object-contain pointer-events-none select-none" 
+              style={{ WebkitTouchCallout: "none" }}
+           />
+           <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>{myStars}</span>
+           <button 
+              onClick={() => setIsTopUpOpen(true)}
+              className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 transition-transform ml-1"
+           >
+              <Plus className="w-4 h-4 text-[#a78bfa]" strokeWidth={3} />
+           </button>
         </div>
 
-        {/* ── Sección Lootboxes ── */}
-        <div className="mt-10 px-5">
-           <div className="flex items-center justify-between mb-5">
-              <h3 className="text-white font-bold text-[24px] flex items-center gap-2" style={{ fontFamily: SFD }}>
-                 Lootboxes <span className="text-[#8e8e93] text-[22px] font-medium">{MARKET_BOXES.length}</span>
-              </h3>
-              <div className="flex gap-2">
-                 <button className="w-10 h-10 rounded-[14px] bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
-                    <Filter className="w-[18px] h-[18px] text-[#3b82f6]" strokeWidth={2.5} />
-                 </button>
-                 <button className="w-10 h-10 rounded-[14px] bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
-                    <Star className="w-[18px] h-[18px] text-[#8e8e93]" strokeWidth={2.5} />
-                 </button>
+        <div className="flex flex-col relative overflow-x-hidden pt-4">
+          
+          {/* Tarjetas Superpuestas */}
+          <div className="w-full h-[180px] relative flex justify-center items-center overflow-hidden">
+              <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] shadow-lg opacity-40">
+                  <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
               </div>
-           </div>
+              <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] translate-x-[130px] rotate-[15deg] flex items-center justify-center border border-[#1c1c1e] shadow-lg opacity-40">
+                  <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
+              </div>
+              <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] -translate-x-[70px] rotate-[-8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
+                  <span className="text-white/50 font-bold text-6xl drop-shadow-md" style={{ fontFamily: SFD }}>?</span>
+              </div>
+              <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] translate-x-[70px] rotate-[8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
+                  <span className="text-white/50 font-bold text-6xl drop-shadow-md" style={{ fontFamily: SFD }}>?</span>
+              </div>
+              <div className="relative z-30 w-[140px] h-[140px] bg-[#141415] rounded-[32px] flex items-center justify-center border border-[#3a3a3c] shadow-[0_20px_40px_rgba(0,0,0,0.8)]">
+                  <span className="text-white/80 font-bold text-7xl drop-shadow-lg" style={{ fontFamily: SFD }}>?</span>
+              </div>
+          </div>
 
-           <div className="grid grid-cols-3 gap-3">
-              {MARKET_BOXES.map((box) => (
-                 <div key={box.id} className="flex flex-col w-full">
-                    <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e]">
-                       {box.isSoldOut && (
-                          <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a] text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">
-                             Sold out
-                          </div>
-                       )}
-                       <LootboxVisual color={box.color} imgSrc={box.image} />
-                       <button className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>
-                          Market
-                       </button>
-                    </div>
-                    <div className="mt-3 text-center flex flex-col items-center">
-                      <span className="text-white font-bold text-[14px] leading-tight" style={{ fontFamily: SFD }}>{box.name}</span>
-                    </div>
-                 </div>
-              ))}
-           </div>
-        </div>
+          {/* Título y Botones Links */}
+          <div className="w-full flex flex-col items-center mt-6">
+              <h2 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>xBlum Presale</h2>
+              <div className="flex gap-3 mt-4">
+                  <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 rounded-full text-[#3b82f6] font-semibold text-[13px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
+                      Play <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                  </button>
+                  <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 rounded-full text-[#3b82f6] font-semibold text-[13px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
+                      Telegram <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                  </button>
+                  <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 rounded-full text-[#3b82f6] font-semibold text-[13px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
+                      X <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                  </button>
+              </div>
+          </div>
 
-        {/* ── Sección My Inventory ── */}
-        <div className="mt-12 pb-10 px-5">
-           <div className="flex items-center mb-5">
-              <h3 className="text-white font-bold text-[24px] flex items-center gap-2" style={{ fontFamily: SFD }}>
-                 My Inventory <span className="text-[#8e8e93] text-[22px] font-medium">0</span>
-              </h3>
-           </div>
-           <div className="grid grid-cols-3 gap-3">
-              {MARKET_BOXES.map((box) => (
-                 <div key={`inv-${box.id}`} className="flex flex-col w-full">
-                    <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e] opacity-60">
-                       <div className="absolute top-2.5 left-2.5 bg-[#2c2c2e] text-[#a1a1aa] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">
-                          x0
-                       </div>
-                       <LootboxVisual color={box.color} imgSrc={box.image} />
-                       <button disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>
-                          Unbox
-                       </button>
-                    </div>
-                 </div>
-              ))}
-           </div>
+          {/* Sección Lootboxes */}
+          <div className="mt-10 px-5">
+             <div className="flex items-center justify-between mb-5">
+                <h3 className="text-white font-bold text-[24px] flex items-center gap-2" style={{ fontFamily: SFD }}>
+                   Lootboxes <span className="text-[#8e8e93] text-[22px] font-medium">{MARKET_BOXES.length}</span>
+                </h3>
+                <div className="flex gap-2">
+                   <button className="w-10 h-10 rounded-[14px] bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
+                      <Filter className="w-[18px] h-[18px] text-[#3b82f6]" strokeWidth={2.5} />
+                   </button>
+                   <button className="w-10 h-10 rounded-[14px] bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
+                      <Star className="w-[18px] h-[18px] text-[#8e8e93]" strokeWidth={2.5} />
+                   </button>
+                </div>
+             </div>
+
+             <div className="grid grid-cols-3 gap-3">
+                {MARKET_BOXES.map((box) => (
+                   <div key={box.id} className="flex flex-col w-full">
+                      <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e]">
+                         {box.isSoldOut && (
+                            <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a] text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">
+                               Sold out
+                            </div>
+                         )}
+                         <LootboxVisual color={box.color} imgSrc={box.image} />
+                         <button className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>
+                            Market
+                         </button>
+                      </div>
+                      <div className="mt-3 text-center flex flex-col items-center">
+                        <span className="text-white font-bold text-[14px] leading-tight" style={{ fontFamily: SFD }}>{box.name}</span>
+                      </div>
+                   </div>
+                ))}
+             </div>
+          </div>
+
+          {/* Sección My Inventory */}
+          <div className="mt-12 pb-10 px-5">
+             <div className="flex items-center mb-5">
+                <h3 className="text-white font-bold text-[24px] flex items-center gap-2" style={{ fontFamily: SFD }}>
+                   My Inventory <span className="text-[#8e8e93] text-[22px] font-medium">0</span>
+                </h3>
+             </div>
+             <div className="grid grid-cols-3 gap-3">
+                {MARKET_BOXES.map((box) => (
+                   <div key={`inv-${box.id}`} className="flex flex-col w-full">
+                      <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e] opacity-60">
+                         <div className="absolute top-2.5 left-2.5 bg-[#2c2c2e] text-[#a1a1aa] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">
+                            x0
+                         </div>
+                         <LootboxVisual color={box.color} imgSrc={box.image} />
+                         <button disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>
+                            Unbox
+                         </button>
+                      </div>
+                   </div>
+                ))}
+             </div>
+          </div>
         </div>
       </div>
 
-      {/* ── Modal Top UP (Bottom Sheet) ── */}
+      {/* ── MODAL TOP UP (Fuera del contenedor animado para respetar el viewport) ── */}
       {isTopUpOpen && (
-        <div className="fixed inset-0 z-[100] flex flex-col justify-end">
+        <div className="fixed inset-0 z-[9999] flex flex-col justify-end pointer-events-auto">
           {/* Overlay oscuro */}
           <div 
             className="absolute inset-0 bg-black/70 animate-in fade-in duration-300"
             onClick={() => setIsTopUpOpen(false)}
           />
           
-          {/* Contenedor del Panel (Permite scroll y se acomoda al teclado nativamente) */}
-          <div className="relative w-full bg-[#000000] rounded-t-[28px] px-5 pt-4 pb-[env(safe-area-inset-bottom,20px)] border-t border-[#1c1c1e] flex flex-col max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+          {/* Contenedor del Panel */}
+          <div className="relative w-full bg-[#000000] rounded-t-[28px] px-5 pt-4 pb-[60px] border-t border-[#1c1c1e] flex flex-col max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
             
             {/* Indicador de arrastre (Handle) */}
             <div className="w-10 h-1 bg-[#2c2c2e] rounded-full mx-auto mb-5" />
             
             {/* Título */}
-            <h2 className="text-white font-bold text-center text-[22px] mb-8" style={{ fontFamily: SFD }}>
+            <h2 className="text-white font-bold text-center text-[22px] mb-6" style={{ fontFamily: SFD }}>
               Top UP
             </h2>
             
-            {/* Input Personalizado */}
-            <div className="flex items-center justify-center gap-2 mb-8">
+            {/* Input Personalizado Centrado */}
+            <div className="flex items-center justify-center gap-3 mb-8">
               <img 
                  src="/telegram-star-icon.png" 
                  alt="Star" 
@@ -284,7 +286,7 @@ export function MarketView() {
                  value={starInput}
                  onChange={handleStarInput}
                  placeholder="0"
-                 className="bg-transparent text-white font-bold text-[56px] w-[200px] text-center outline-none placeholder:text-[#3a3a3c] caret-blue-500"
+                 className="bg-transparent text-white font-bold text-[56px] w-[200px] outline-none placeholder:text-[#3a3a3c] caret-blue-500"
                  style={{ fontFamily: SFD }}
               />
             </div>
@@ -295,25 +297,30 @@ export function MarketView() {
             </p>
 
             {/* Lista de Paquetes */}
-            <div className="flex flex-col">
+            <div className="flex flex-col pb-6">
               {STAR_PACKAGES.map((pkg, i) => (
                 <button 
                   key={i} 
                   className="flex items-center justify-between py-[18px] px-2 border-b border-[#1c1c1e] active:bg-[#111111] transition-colors rounded-lg"
                 >
                    <div className="flex items-center gap-4">
-                      {/* Lógica para mostrar 1 o 3 estrellas apiladas según la imagen */}
-                      <div className="relative flex items-center justify-center w-8 h-8">
+                      
+                      {/* Estrellas Apiladas (Izquierda a Derecha con Contorno) */}
+                      <div className="relative flex items-center justify-center w-10 h-8">
                         {pkg.stacked ? (
                           <>
-                            <img src="/telegram-star-icon.png" className="absolute left-0 w-[22px] h-[22px] z-10 drop-shadow-md" />
-                            <img src="/telegram-star-icon.png" className="absolute left-[6px] w-[22px] h-[22px] z-20 drop-shadow-md" />
-                            <img src="/telegram-star-icon.png" className="absolute left-[12px] w-[22px] h-[22px] z-30 drop-shadow-md" />
+                            {/* Estrella 1 (Fondo - Izquierda) */}
+                            <img src="/telegram-star-icon.png" className="absolute left-0 w-[22px] h-[22px] z-10 brightness-75" />
+                            {/* Estrella 2 (Medio) - El drop-shadow negro crea el contorno de separación */}
+                            <img src="/telegram-star-icon.png" className="absolute left-[8px] w-[22px] h-[22px] z-20 brightness-90" style={{ filter: "drop-shadow(-2px 0px 0px black)" }} />
+                            {/* Estrella 3 (Frente - Derecha) */}
+                            <img src="/telegram-star-icon.png" className="absolute left-[16px] w-[22px] h-[22px] z-30" style={{ filter: "drop-shadow(-2px 0px 0px black)" }} />
                           </>
                         ) : (
                           <img src="/telegram-star-icon.png" className="w-[22px] h-[22px]" />
                         )}
                       </div>
+
                       <span className="text-white font-bold text-[17px]" style={{ fontFamily: SF }}>{pkg.stars} stars</span>
                    </div>
                    <span className="text-[#8e8e93] font-medium text-[16px]" style={{ fontFamily: SF }}>{pkg.price}</span>
@@ -323,7 +330,6 @@ export function MarketView() {
           </div>
         </div>
       )}
-
-    </div>
+    </>
   )
 }
