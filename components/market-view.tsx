@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect } from "react"
-import { Store, Plus, Filter, Star, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react"
+import { Store, Plus, Filter, Star, ArrowUpRight } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -10,52 +10,36 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 // ── Base de Datos Visual (Nombres Premium e Imágenes Mapeadas) ──
 const MARKET_BOXES = [
   { 
-    id: 'eternal', 
-    name: 'Eternal Beacon', 
-    serial: '#12,311', 
-    price: 150, 
-    date: 'MAY 7, 2026', 
-    color: '#a855f7', // Púrpura
-    image: '/1000009371.png', 
-    isSoldOut: false,
-    rarity: 'MYTHIC'
-  },
-  { 
-    id: 'aureus', 
-    name: 'Aureus', 
-    serial: '#11,351', 
-    price: 120, 
-    date: 'MAY 7, 2026', 
-    color: '#facc15', // Dorado
-    image: '/1000009361.png', 
-    isSoldOut: false,
-    rarity: 'LEGENDARY'
+    id: 'secret', 
+    name: 'Secret', 
+    color: '#eab308', // Arena/Dorado oscuro
+    image: '/1000009369.png', 
+    isSoldOut: false 
   },
   { 
     id: 'toxic', 
     name: 'Toxic Whisper', 
-    serial: '#8531', 
-    price: 75, 
-    date: 'MAY 7, 2026', 
-    color: '#c084fc', // Lila/Blanco
+    color: '#c084fc', // Lila
     image: '/1000009370.png', 
-    isSoldOut: true,
-    rarity: 'EPIC'
+    isSoldOut: false 
   },
   { 
-    id: 'secret', 
-    name: 'Secret', 
-    serial: '#00,001', 
-    price: 50, 
-    date: 'MAY 7, 2026', 
-    color: '#eab308', // Arena/Dorado oscuro
-    image: '/1000009369.png', 
-    isSoldOut: true,
-    rarity: 'RARE'
+    id: 'eternal', 
+    name: 'Eternal Beacon', 
+    color: '#a855f7', // Púrpura
+    image: '/1000009371.png', 
+    isSoldOut: true 
+  },
+  { 
+    id: 'aureus', 
+    name: 'Aureus', 
+    color: '#facc15', // Dorado brillante
+    image: '/1000009361.png', 
+    isSoldOut: false 
   }
 ]
 
-// ── Animaciones CSS ──
+// ── Animación Flotante ──
 const animationStyles = `
   @keyframes box-float {
     0%, 100% { transform: translateY(0); }
@@ -68,21 +52,20 @@ const animationStyles = `
 
 // ── Componente Visual de la Caja ──
 const LootboxVisual = ({ color, imgSrc }: { color: string, imgSrc: string }) => (
-  <div className="relative w-full h-[110px] flex flex-col items-center justify-end mt-2 mb-2 group cursor-pointer">
-    
+  <div className="relative w-full h-[110px] flex flex-col items-center justify-center mb-1 mt-3">
     {/* Resplandor trasero */}
     <div 
-      className="absolute bottom-[20%] w-[60px] h-[60px] opacity-20 rounded-full z-0 transition-opacity duration-500 group-hover:opacity-40"
-      style={{ backgroundColor: color, filter: 'blur(15px)' }}
+      className="absolute bottom-4 w-[60px] h-[60px] opacity-30 rounded-full z-0"
+      style={{ backgroundColor: color, filter: 'blur(20px)' }}
     ></div>
 
-    {/* Imagen de la Caja protegida y animada */}
-    <div className="relative z-10 animate-box-float transition-transform duration-500 group-hover:scale-110 flex items-center justify-center">
+    {/* Imagen Protegida y Animada */}
+    <div className="relative z-10 animate-box-float">
       <img 
         src={imgSrc} 
         alt="Lootbox" 
         draggable={false}
-        className="w-[90px] h-[90px] object-contain pointer-events-none mix-blend-screen select-none"
+        className="w-[90px] h-[90px] object-contain mix-blend-screen pointer-events-none select-none"
         style={{ WebkitTouchCallout: "none" }}
       />
     </div>
@@ -92,11 +75,12 @@ const LootboxVisual = ({ color, imgSrc }: { color: string, imgSrc: string }) => 
 export function MarketView() {
   const ctx = useApp() as any
   const { setCurrentView } = ctx
-  const myStars = 150 
+  const myStars = 0 
 
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
+ 
     tg.BackButton.show()
     
     const handleBack = () => {
@@ -113,120 +97,116 @@ export function MarketView() {
       <style>{animationStyles}</style>
       
       {/* ── Header Principal ── */}
-      <div className="sticky top-0 z-40 flex items-center justify-between px-5 pt-16 pb-4 bg-black/90 backdrop-blur-md">
-         <div className="flex items-center gap-2.5">
-            <h1 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>
-               XBLUM <span className="font-normal text-[#e5e5ea]">MARKETPLACE</span>
+      <div className="sticky top-0 z-40 flex items-center justify-between px-5 pt-14 pb-4 bg-black">
+         <div className="flex items-center gap-2">
+            <Store className="w-[22px] h-[22px] text-[#3b82f6]" strokeWidth={2.5} />
+            <h1 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>
+               xBlum Market
             </h1>
          </div>
       </div>
 
-      {/* ── Balance Oficial de Stars (Flotante y Movido hacia abajo) ── */}
-      <div className="fixed top-[70px] right-5 z-50 bg-[#111111] rounded-[10px] px-3 py-1.5 flex items-center gap-2 border border-[#2c2c2e] shadow-lg backdrop-blur-md">
+      {/* ── Caja de Saldo Flotante (Siempre visible al scrollear) ── */}
+      <div className="fixed top-[85px] right-5 z-50 bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 transition-all">
          <img 
             src="/telegram-star-icon.png" 
             alt="Stars" 
             draggable={false}
-            className="w-[16px] h-[16px] object-contain drop-shadow-[0_0_8px_rgba(250,204,21,0.5)] pointer-events-none select-none" 
+            className="w-[18px] h-[18px] object-contain pointer-events-none select-none" 
             style={{ WebkitTouchCallout: "none" }}
          />
-         <span className="text-white font-bold text-[14px]" style={{ fontFamily: SF }}>{myStars} STARS</span>
+         <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>{myStars}</span>
+         <button className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 transition-transform ml-1">
+            <Plus className="w-4 h-4 text-[#a78bfa]" strokeWidth={3} />
+         </button>
       </div>
 
-      <div className="flex flex-col relative overflow-x-hidden pt-2">
+      <div className="flex flex-col relative overflow-x-hidden pt-4">
         
-        {/* ── Carrusel "PRE-SALE: COSMETIC PACKS" (De 3 Tarjetas) ── */}
-        <div className="w-full flex flex-col items-center mt-2 px-5">
-           <h2 className="text-white font-bold text-[20px] mb-4 w-full text-center" style={{ fontFamily: SFD }}>PRE-SALE: COSMETIC PACKS</h2>
-           
-           <div className="relative w-full h-[180px] bg-[#0a0a0b] rounded-[16px] border border-[#1c1c1e] flex flex-col items-center justify-center overflow-hidden shadow-lg group">
-              {/* Fondo Cósmico */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#4c1d95]/30 via-[#0a0a0b] to-[#0a0a0b] opacity-80"></div>
-              
-              {/* Tarjetas Laterales (Solo 2, con opacidad al final para desvanecerse) */}
-              <div className="absolute z-20 w-[115px] h-[115px] bg-[#0f0f10] rounded-[20px] right-[58%] opacity-40 scale-95 flex items-center justify-center border border-[#1c1c1e] overflow-hidden">
-                 <div className="absolute inset-0 bg-gradient-to-l from-black/80 to-transparent z-10"></div>
-              </div>
-              <div className="absolute z-20 w-[115px] h-[115px] bg-[#0f0f10] rounded-[20px] left-[58%] opacity-40 scale-95 flex items-center justify-center border border-[#1c1c1e] overflow-hidden">
-                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-10"></div>
-              </div>
+        {/* ── 5 Tarjetas Superpuestas Sincronizadas ── */}
+        <div className="w-full h-[180px] relative flex justify-center items-center overflow-hidden">
+            
+            {/* Nivel 1: Exteriores (Con opacidad y degradado) */}
+            <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] shadow-lg opacity-40">
+                <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
+            </div>
+            <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] translate-x-[130px] rotate-[15deg] flex items-center justify-center border border-[#1c1c1e] shadow-lg opacity-40">
+                <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
+            </div>
 
-              {/* Caja Principal Destacada (Centro) */}
-              <div className="relative z-30 w-[120px] h-[120px] flex items-center justify-center animate-box-float drop-shadow-[0_15px_30px_rgba(0,0,0,0.8)]">
-                 <img 
-                    src="/1000009371.png" 
-                    alt="Eternal Beacon" 
-                    draggable={false}
-                    className="w-[120px] h-[120px] object-contain mix-blend-screen pointer-events-none select-none" 
-                    style={{ WebkitTouchCallout: "none" }}
-                 />
-              </div>
-              
-              <div className="relative z-30 -mt-2 text-center">
-                 <p className="text-[11px] font-bold tracking-widest" style={{ fontFamily: SF }}>
-                    <span className="text-[#8e8e93]">RARITY: </span> 
-                    <span className="text-[#c084fc]">MYTHIC</span>
-                 </p>
-                 <p className="text-white font-bold text-[15px] mt-1 tracking-wide" style={{ fontFamily: SFD }}>#ETERNAL-BEACON #001</p>
-              </div>
+            {/* Nivel 2: Intermedias */}
+            <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] -translate-x-[70px] rotate-[-8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
+                <span className="text-white/50 font-bold text-6xl drop-shadow-md" style={{ fontFamily: SFD }}>?</span>
+            </div>
+            <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] translate-x-[70px] rotate-[8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
+                <span className="text-white/50 font-bold text-6xl drop-shadow-md" style={{ fontFamily: SFD }}>?</span>
+            </div>
 
-              {/* Controles del carrusel */}
-              <button className="absolute left-3 top-1/2 -translate-y-1/2 opacity-50 hover:opacity-100 transition-opacity"><ChevronLeft className="text-white w-6 h-6"/></button>
-              <button className="absolute right-3 top-1/2 -translate-y-1/2 opacity-50 hover:opacity-100 transition-opacity"><ChevronRight className="text-white w-6 h-6"/></button>
-           </div>
-           
-           {/* Botones de Navegación Rápidos */}
-           <div className="w-full flex justify-center gap-2 mt-4 overflow-x-auto scrollbar-hide">
-              {["VIEW COLLECTION", "TELEGRAM", "FRAGMENT", "WEB"].map((btn) => (
-                 <button key={btn} className="shrink-0 px-3.5 py-1.5 rounded-[8px] border border-[#2c2c2e] bg-[#111111] text-[#a1a1aa] font-semibold text-[11px] uppercase tracking-wider hover:bg-[#1c1c1e] hover:text-white transition-colors" style={{ fontFamily: SF }}>
-                    {btn}
-                 </button>
-              ))}
-           </div>
+            {/* Nivel 3: Central */}
+            <div className="relative z-30 w-[140px] h-[140px] bg-[#141415] rounded-[32px] flex items-center justify-center border border-[#3a3a3c] shadow-[0_20px_40px_rgba(0,0,0,0.8)]">
+                <span className="text-white/80 font-bold text-7xl drop-shadow-lg" style={{ fontFamily: SFD }}>?</span>
+            </div>
+        </div>
+
+        {/* ── Título y Botones Links ── */}
+        <div className="w-full flex flex-col items-center mt-6">
+            <h2 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>xBlum Presale</h2>
+            
+            <div className="flex gap-3 mt-4">
+                <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 rounded-full text-[#3b82f6] font-semibold text-[13px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
+                    Play <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                </button>
+                <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 rounded-full text-[#3b82f6] font-semibold text-[13px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
+                    Telegram <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                </button>
+                <button className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 rounded-full text-[#3b82f6] font-semibold text-[13px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
+                    X <ArrowUpRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                </button>
+            </div>
         </div>
 
         {/* ── Sección Lootboxes ── */}
-        <div className="mt-10">
-           <div className="flex items-center justify-between px-5 mb-5">
-              <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>
-                 LOOTBOXES
+        <div className="mt-10 px-5">
+           <div className="flex items-center justify-between mb-5">
+              <h3 className="text-white font-bold text-[24px] flex items-center gap-2" style={{ fontFamily: SFD }}>
+                 Lootboxes <span className="text-[#8e8e93] text-[22px] font-medium">{MARKET_BOXES.length}</span>
               </h3>
+              <div className="flex gap-2">
+                 <button className="w-10 h-10 rounded-[14px] bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
+                    <Filter className="w-[18px] h-[18px] text-[#3b82f6]" strokeWidth={2.5} />
+                 </button>
+                 <button className="w-10 h-10 rounded-[14px] bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
+                    <Star className="w-[18px] h-[18px] text-[#8e8e93]" strokeWidth={2.5} />
+                 </button>
+              </div>
            </div>
 
-           <div className="grid grid-cols-3 gap-[10px] px-5">
+           {/* Cuadrícula */}
+           <div className="grid grid-cols-3 gap-3">
               {MARKET_BOXES.map((box) => (
-                 <div key={box.id} className="flex flex-col items-center w-full">
-                    <div className="w-full bg-[#111111] rounded-[20px] p-2 pb-3 flex flex-col items-center relative transition-transform active:scale-[0.98] border border-[#1c1c1e]">
+                 <div key={box.id} className="flex flex-col w-full">
+                    {/* Tarjeta Oscura */}
+                    <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e]">
                        
+                       {/* Badge Sold Out */}
                        {box.isSoldOut && (
-                          <div className="absolute top-2 left-2 bg-[#3a1a1a] text-[#ff4d4d] px-1.5 py-[2px] rounded text-[9px] font-bold uppercase tracking-wider z-30 border border-[#ff4d4d]/20">
+                          <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a] text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">
                              Sold out
                           </div>
                        )}
 
+                       {/* Gráfico Visual */}
                        <LootboxVisual color={box.color} imgSrc={box.image} />
 
-                       <button className="w-full bg-[#1c1c1e] text-white font-bold text-[12px] py-2 rounded-[12px] hover:bg-[#2c2c2e] transition-colors border border-[#2c2c2e]" style={{ fontFamily: SF }}>
+                       {/* Botón Inferior */}
+                       <button className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>
                           Market
                        </button>
                     </div>
 
-                    <div className="mt-3 text-center flex flex-col items-center px-1">
-                       <span className="text-white font-bold text-[13px] leading-tight tracking-wide" style={{ fontFamily: SFD }}>{box.name}</span>
-                       <span className="text-[#8e8e93] font-medium text-[11px] mt-0.5" style={{ fontFamily: SF }}>{box.serial}</span>
-                       
-                       <div className="flex items-center gap-1 mt-1.5">
-                          <img 
-                             src="/telegram-star-icon.png" 
-                             alt="Star" 
-                             draggable={false}
-                             className="w-[12px] h-[12px] object-contain pointer-events-none select-none" 
-                             style={{ WebkitTouchCallout: "none" }}
-                          />
-                          <span className="text-[#e5e5ea] font-bold text-[12px]" style={{ fontFamily: SF }}>{box.price} STARS</span>
-                       </div>
-                       
-                       <span className="text-[#636366] text-[9px] font-bold uppercase tracking-widest mt-1.5">{box.date}</span>
+                    {/* Metadatos */}
+                    <div className="mt-3 text-center flex flex-col items-center">
+                      <span className="text-white font-bold text-[14px] leading-tight" style={{ fontFamily: SFD }}>{box.name}</span>
                     </div>
                  </div>
               ))}
@@ -234,25 +214,25 @@ export function MarketView() {
         </div>
 
         {/* ── Sección My Inventory ── */}
-        <div className="mt-12 pb-10">
-           <div className="flex items-center px-5 mb-5">
-              <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>
-                 MY INVENTORY
+        <div className="mt-12 pb-10 px-5">
+           <div className="flex items-center mb-5">
+              <h3 className="text-white font-bold text-[24px] flex items-center gap-2" style={{ fontFamily: SFD }}>
+                 My Inventory <span className="text-[#8e8e93] text-[22px] font-medium">0</span>
               </h3>
            </div>
 
-           <div className="grid grid-cols-3 gap-[10px] px-5">
+           <div className="grid grid-cols-3 gap-3">
               {MARKET_BOXES.map((box) => (
-                 <div key={`inv-${box.id}`} className="flex flex-col items-center w-full opacity-50">
-                    <div className="w-full bg-[#111111] rounded-[20px] p-2 pb-3 flex flex-col items-center relative border border-[#1c1c1e]">
+                 <div key={`inv-${box.id}`} className="flex flex-col w-full">
+                    <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e] opacity-60">
                        
-                       <div className="absolute top-2 left-2 bg-[#2c2c2e] text-[#a1a1aa] px-1.5 py-[2px] rounded text-[9px] font-bold tracking-wider z-30">
+                       <div className="absolute top-2.5 left-2.5 bg-[#2c2c2e] text-[#a1a1aa] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">
                           x0
                        </div>
 
                        <LootboxVisual color={box.color} imgSrc={box.image} />
 
-                       <button disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[12px] py-2 rounded-[12px] border border-[#1c1c1e]" style={{ fontFamily: SF }}>
+                       <button disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>
                           Unbox
                        </button>
                     </div>
