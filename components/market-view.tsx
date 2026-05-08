@@ -274,8 +274,7 @@ export function MarketView() {
             </h2>
             
             {/* Input Personalizado Centrado */}
-            <div className="flex justify-center mb-10">
-              {/* Un wrapper que se ajusta a su contenido para mantener icono y texto unidos */}
+            <div className="flex justify-center mb-8">
               <div className="flex items-center gap-3">
                 <img 
                    src="/telegram-star-icon.png" 
@@ -288,7 +287,6 @@ export function MarketView() {
                    value={starInput}
                    onChange={handleStarInput}
                    placeholder="0"
-                   // El ancho se ajusta dinámicamente usando min-width, o con auto si el texto crece
                    className="bg-transparent text-white font-bold text-[56px] w-[140px] outline-none placeholder:text-[#3a3a3c] caret-blue-500"
                    style={{ fontFamily: SFD }}
                 />
@@ -296,24 +294,25 @@ export function MarketView() {
             </div>
 
             {/* Subtítulo Choose Package */}
-            <p className="text-[#3b82f6] font-semibold text-[15px] mb-2 px-2" style={{ fontFamily: SF }}>
+            <p className="text-[#3b82f6] font-semibold text-[15px] mb-1 px-2" style={{ fontFamily: SF }}>
               choose package
             </p>
 
-            {/* Lista de Paquetes */}
+            {/* Lista de Paquetes (Más compacta) */}
             <div className="flex flex-col pb-6">
               {STAR_PACKAGES.map((pkg, i) => (
                 <button 
                   key={i} 
-                  className="flex items-center justify-between py-[18px] px-2 border-b border-[#1c1c1e] active:bg-[#111111] transition-colors rounded-lg"
+                  // Reducido el padding vertical a py-3 para juntar los paquetes
+                  className="flex items-center justify-between py-3 px-2 border-b border-[#1c1c1e] active:bg-[#111111] transition-colors rounded-lg"
                 >
                    <div className="flex items-center gap-4">
                       
-                      {/* Generador dinámico de estrellas apiladas */}
+                      {/* Generador dinámico de estrellas apiladas (Izquierda a Derecha) */}
                       <div 
                         className="relative flex items-center" 
-                        // El ancho del contenedor crece según la cantidad de estrellas (22px base + 6px por cada estrella extra)
-                        style={{ width: `${22 + (pkg.count - 1) * 6}px`, height: '22px' }}
+                        // El contenedor crece suavemente: 22px base + 4.5px por cada estrella extra
+                        style={{ width: `${22 + (pkg.count - 1) * 4.5}px`, height: '22px' }}
                       >
                         {Array.from({ length: pkg.count }).map((_, idx) => (
                            <img 
@@ -321,10 +320,10 @@ export function MarketView() {
                              src="/telegram-star-icon.png" 
                              className="absolute top-0 h-[22px] w-[22px]" 
                              style={{ 
-                               left: `${idx * 6}px`,  // Cada estrella se desplaza 6px a la derecha
-                               zIndex: 10 + idx,      // La estrella de más a la derecha queda al frente
-                               // Añade un borde sombreado negro para separar visualmente las estrellas que están detrás
-                               filter: idx > 0 ? "drop-shadow(-2px 0px 0px #000000)" : "none"
+                               left: `${idx * 4.5}px`, // Desplazamiento muy sutil a la derecha
+                               zIndex: 20 - idx,       // La estrella 0 (izquierda) tiene mayor z-index y tapa a las demás
+                               // Crea el contorno oscuro en el borde derecho de las estrellas frontales
+                               filter: "drop-shadow(1.5px 0px 0px #000000)" 
                              }}
                              alt="star"
                            />
