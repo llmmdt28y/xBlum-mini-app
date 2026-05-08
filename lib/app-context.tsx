@@ -7,7 +7,7 @@ import {
 
 // Se ha simplificado para dejar solo inglés
 export type Language  = "en"
-export type ModelName = "Grok 4.3" | "Grok 4.3 Mini" | "Grok 4" | "Grok 4 Mini" | "GPT-5.4" | "GPT-5.2"
+export type ModelName = "Grok 4.3" | "Grok 4.1" | "GPT-5.4" | "GPT-5.2"
 export type View      = "home" | "settings" | "store" | "premium" | "referral" | "analytics" | "profile" | "x-rewards" | "group-settings"
 
 export type UserPreferences = {
@@ -99,13 +99,21 @@ function getTgUser() {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user
 }
 
+// Normalize legacy DB model names → current UI model names.
+// Users who had "Grok 4" stored before the rename will resolve to "Grok 4.1".
+function _normalizeModel(raw: string | undefined | null): ModelName {
+  if (raw === "Grok 4" || raw === "Grok 4 Mini" || !raw) return "Grok 4.1"
+  const valid: ModelName[] = ["Grok 4.3", "Grok 4.1", "GPT-5.4", "GPT-5.2"]
+  return valid.includes(raw as ModelName) ? (raw as ModelName) : "Grok 4.1"
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>({
     tokens: 0,
     x_points: 0,
     isPremium: false,
     language: "en",
-    selectedModel: "Grok 4",
+    selectedModel: "Grok 4.1",  // overwritten by API on first load
     userPreferences: { name: "", age: "", location: "", preferences: "" },
     currentView: "home",
     userId: null,
@@ -161,7 +169,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           userId:          data.user_id,
           x_points:        data.x_points,
           isPremium:       data.is_premium,
-          selectedModel:   data.selected_model,
+          selectedModel:   _normalizeModel(data.selected_model),
           personalizeMemories: data.personalize_memories,
           isThrottled:     data.is_throttled,
           throttleMinutes: data.throttle_mins,
