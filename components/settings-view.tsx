@@ -4,64 +4,72 @@ import { useApp, type ModelName } from "@/lib/app-context"
 import { ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, X, ExternalLink, AlertCircle, Trash2, Loader2 } from "lucide-react"
 import { useState, useEffect } from "react"
 
-const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
+const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
 const MODEL_LOGO: Record<string, string> = {
-  "Grok 4.3":      "/grok.png",
-  "Grok 4.1":      "/grok.png",
-  "GPT-5.4":       "/gpt.png",
-  "GPT-5.2":       "/gpt.png",
+  "Grok 4.3": "/grok.png",
+  "Grok 4.1": "/grok.png",
+  "Grok 4":   "/grok.png",   // DB legacy alias
+  "GPT-5.4":  "/gpt.png",
+  "GPT-5.2":  "/gpt.png",
+}
+
+// ModelTokenStatus shape from /api/user_profile → model_token_status
+interface ModelTokenInfo {
+  used:      number
+  limit:     number
+  mins_left: number
+  pct:       number
 }
 
 const MODELS: {
-  name: ModelName | string;
+  name: string
   desc: string
-  tag: string | null; 
+  tag: string | null
   tagColor: string
-  proOnly: boolean;
-  initial: string;
-  tagStyle?: string;
+  tagStyle?: string
+  proOnly: boolean
+  initial: string
 }[] = [
-  { 
-    name:"Grok 4.3",      
-    desc:"Latest capabilities with advanced intelligence",         
-    tag:"New", 
-    tagColor:"bg-white text-[#111]", 
-    tagStyle: "rounded-md", 
-    proOnly:false, 
-    initial:"G" 
+  {
+    name: "Grok 4.3",
+    desc: "Latest capabilities with advanced intelligence",
+    tag: "New",
+    tagColor: "bg-white text-[#111]",
+    tagStyle: "rounded-md",
+    proOnly: false,
+    initial: "G",
   },
-  { 
-    name:"Grok 4.1",      
-    desc:"Advanced reasoning and deep analysis",         
-    tag:"New", 
-    tagColor:"bg-white text-[#111]", 
-    tagStyle: "rounded-md", 
-    proOnly:false, 
-    initial:"G" 
+  {
+    name: "Grok 4.1",
+    desc: "Advanced reasoning and deep analysis",
+    tag: null,
+    tagColor: "",
+    proOnly: false,
+    initial: "G",
   },
-  { 
-    name:"GPT-5.4",       
-    desc:"Maximum capability for complex tasks",            
-    tag:"PRO",     
-    tagColor:"bg-amber-500/15 text-amber-500", 
+  {
+    name: "GPT-5.4",
+    desc: "Maximum capability for complex tasks",
+    tag: "PRO",
+    tagColor: "bg-amber-500/15 text-amber-500",
     tagStyle: "rounded",
-    proOnly:true,  
-    initial:"4" 
+    proOnly: true,
+    initial: "4",
   },
-  { 
-    name:"GPT-5.2",       
-    desc:"Fast and reliable for everyday use",                
-    tag:null,      
-    tagColor:"",                  
-    proOnly:false, 
-    initial:"2" 
+  {
+    name: "GPT-5.2",
+    desc: "Fast and reliable for everyday use",
+    tag: null,
+    tagColor: "",
+    proOnly: false,
+    initial: "2",
   },
 ]
 
 const LANGS = [
-  { code:"en" as const, name:"English", flag:"🇬🇧" },
+  { code: "en" as const, name: "English", flag: "🇬🇧" },
 ]
 
 function Row({ label, sublabel, right, onClick, leftNode, danger }: {
@@ -84,7 +92,8 @@ function Row({ label, sublabel, right, onClick, leftNode, danger }: {
         </div>
       )}
       <div className="flex-1 text-left">
-        <p className={`${danger ? "text-[#ef4444]" : "text-white"}`} style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+        <p className={`${danger ? "text-[#ef4444]" : "text-white"}`}
+           style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
           {label}
         </p>
         {sublabel && (
@@ -93,7 +102,6 @@ function Row({ label, sublabel, right, onClick, leftNode, danger }: {
           </p>
         )}
       </div>
-     
       {right ?? (danger ? <div /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />)}
     </button>
   )
@@ -103,16 +111,13 @@ function Divider() {
   return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />
 }
 
-// Actualizado: El título ahora está dentro del contenedor, azul y con un padding ajustado ("más pegado")
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
       <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
         {title && (
           <div className="flex items-center justify-between px-5 pt-3 pb-1">
-            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>
-              {title}
-            </p>
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>{title}</p>
             {rightAction && <div>{rightAction}</div>}
           </div>
         )}
@@ -142,24 +147,30 @@ function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void;
   )
 }
 
-function ModelLogo({ name, active, locked }: { name: string; active: boolean; locked: boolean }) {
+function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
   const model = MODELS.find(m => m.name === name)
   const imageProps = {
     draggable: false,
     onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
-    style: { WebkitTouchCallout: "none" as const, userSelect: "none" as const }
+    style: { WebkitTouchCallout: "none" as const, userSelect: "none" as const },
   }
 
-  if (locked) return (
-    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-      <Lock className="w-4 h-4" style={{ color: "#636366" }} />
-    </div>
-  )
+  if (locked)
+    return (
+      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
+        <Lock className="w-4 h-4" style={{ color: "#636366" }} />
+      </div>
+    )
+
   return (
-    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-[#1c1c1e]`} style={{ background: "#111" }}>
-      <img src={MODEL_LOGO[name] || "/grok.png"} alt={name} className="w-6 h-6 object-contain pointer-events-none select-none" {...imageProps}
+    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-[#1c1c1e]" style={{ background: "#111" }}>
+      <img
+        src={MODEL_LOGO[name] || "/grok.png"}
+        alt={name}
+        className="w-6 h-6 object-contain pointer-events-none select-none"
+        {...imageProps}
         onError={e => {
-          const el = e.currentTarget;
+          const el = e.currentTarget
           el.style.display = "none"
           const p = el.parentElement
           if (p) {
@@ -175,6 +186,20 @@ function ModelLogo({ name, active, locked }: { name: string; active: boolean; lo
   )
 }
 
+// Token usage mini-bar shown inside each model row when limit is > 0
+function TokenBar({ pct }: { pct: number }) {
+  const clamped = Math.min(100, Math.max(0, pct))
+  const color = clamped >= 90 ? "#ef4444" : clamped >= 70 ? "#f97316" : "#3b82f6"
+  return (
+    <div className="w-full mt-1.5 rounded-full overflow-hidden" style={{ height: "2px", background: "#2c2c2e" }}>
+      <div
+        className="h-full rounded-full transition-all duration-500"
+        style={{ width: `${clamped}%`, background: color }}
+      />
+    </div>
+  )
+}
+
 function SubHeader({ title }: { title: string }) {
   return (
     <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3" style={{
@@ -184,10 +209,14 @@ function SubHeader({ title }: { title: string }) {
       WebkitBackdropFilter: "blur(20px)",
       borderBottom: "1px solid rgba(255,255,255,0.05)",
     }}>
-      <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>{title}</h2>
+      <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+        {title}
+      </h2>
     </div>
   )
 }
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export function SettingsView() {
   const {
@@ -198,9 +227,11 @@ export function SettingsView() {
     personalizeMemories, setPersonalizeMemories,
     deleteAllMemories, deleteAllHistory,
     submitFeedback,
+    modelTokenStatus,
+    refreshModelTokenStatus,
   } = useApp()
 
-  const [page, setPage] = useState<"main"|"model"|"lang"|"prefs">("main")
+  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs">("main")
   const [tempPrefs, setTempPrefs] = useState(userPreferences)
   const [improveModel, setImproveModel] = useState(false)
   const [saving, setSaving] = useState("")
@@ -213,11 +244,9 @@ export function SettingsView() {
 
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
 
-  // Determinar si Grok 4.3 o Grok 4.1 están activos
-  const isGrok43Active = typeof selectedModel === 'string' && selectedModel === "Grok 4.3";
-  const isGrok41Active = typeof selectedModel === 'string' && (selectedModel === "Grok 4.1" || (selectedModel.startsWith("Grok 4") && selectedModel !== "Grok 4.3"));
-  
-  const displayModelName = isGrok43Active ? "Grok 4.3" : (isGrok41Active ? "Grok 4.1" : selectedModel);
+  // Normalize display name — DB may store "Grok 4" which maps to "Grok 4.1" in UI
+  // Normalize DB legacy "Grok 4" → display "Grok 4.1"
+  const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -238,6 +267,14 @@ export function SettingsView() {
     setSaving("")
     setPage("main")
   }
+
+  // Refresh token status every time the model-selector page is opened
+  // so the free-tier bars and "limit reached" badges are always current.
+  useEffect(() => {
+    if (page === "model") {
+      refreshModelTokenStatus()
+    }
+  }, [page, refreshModelTokenStatus])
 
   async function handlePersonalizeToggle() {
     setSaving("personalize")
@@ -273,70 +310,98 @@ export function SettingsView() {
     )
   }
 
+  // ── Model page ─────────────────────────────────────────────────────────────
   if (page === "model") return (
-    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
+    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300"
+         style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 space-y-4">
         <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-          
           <div className="px-5 pt-3 pb-1">
             <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>LLM model</p>
           </div>
 
           {MODELS.map((m) => {
             const locked = m.proOnly && !isPremium
-            
-            // Lógica ajustada para la palomita
-            const active = m.name === selectedModel || 
-                           (m.name === "Grok 4.1" && isGrok41Active) || 
-                           (m.name === "Grok 4.3" && isGrok43Active);
-            
-            // Lógica visual del límite para Grok 4.3
-            const throttledGrok41 = isThrottled && m.name === "Grok 4.1";
-            const limitedGrok43 = isThrottled && m.name === "Grok 4.3"; // Utiliza tu logica real aquí para disparar el límite visual
 
-            const isDisabled = locked || saving === "model" || limitedGrok43;
-            
+            // Map UI name → DB canonical for token status lookup
+            // DB canonical: "Grok 4.1" stored as "Grok 4" (legacy), "Grok 4.3" as-is
+            const tokenKey = m.name === "Grok 4.1" ? "Grok 4" : m.name
+            const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey]
+
+            // Limit hit: token budget exhausted
+            const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
+            const minsLeft = limitHit ? tokenInfo.mins_left : 0
+            const pct      = tokenInfo?.pct ?? 0
+
+            // Active check (normalize DB "Grok 4" → UI "Grok 4.1")
+            // "Grok 4" in DB is shown as "Grok 4.1" in UI
+            const active =
+              m.name === selectedModel ||
+              (m.name === "Grok 4.1" && selectedModel === "Grok 4")
+
+            const isDisabled = locked || saving === "model" || !!limitHit
+
             return (
-              <button 
-                key={m.name} 
+              <button
+                key={m.name}
                 disabled={isDisabled}
-                onClick={() => !locked && !limitedGrok43 && selectModel(m.name)}
+                onClick={() => !locked && !limitHit && selectModel(m.name)}
                 className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
-                style={{ opacity: locked || limitedGrok43 ? 0.5 : 1 }}
+                style={{ opacity: locked || limitHit ? 0.5 : 1 }}
               >
                 <div className="flex items-center gap-4 flex-1">
-                  <ModelLogo name={m.name} active={active} locked={locked} />
-                  <div className="flex-1 text-left">
+                  <ModelLogo name={m.name} locked={locked} />
+                  <div className="flex-1 text-left min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>{m.name}</p>
-                      
-                      {m.tag && !locked && !limitedGrok43 && (
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || 'rounded'} ${m.tagColor}`} style={{ fontFamily: SF }}>
+                      <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>
+                        {m.name}
+                      </p>
+
+                      {/* Tag (New / PRO) — only when not locked or limited */}
+                      {m.tag && !locked && !limitHit && (
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
+                          style={{ fontFamily: SF }}>
                           {m.tag}
                         </span>
                       )}
+
+                      {/* PRO lock badge */}
                       {locked && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500" style={{ fontFamily: SF }}>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
+                              style={{ fontFamily: SF }}>
                           PRO
                         </span>
                       )}
-                      {limitedGrok43 && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]" style={{ fontFamily: SF }}>
-                          limit reached • until {minutesUntilReset}m
+
+                      {/* Limit reached badge */}
+                      {limitHit && !locked && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
+                              style={{ fontFamily: SF }}>
+                          limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
                         </span>
                       )}
-                      {throttledGrok41 && !limitedGrok43 && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500" style={{ fontFamily: SF }}>
+
+                      {/* Throttle badge for non-Grok models (legacy) */}
+                      {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
+                              style={{ fontFamily: SF }}>
                           cooling {minutesUntilReset}min
                         </span>
                       )}
                     </div>
+
                     <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
+
+                    {/* Token usage bar — only shown for free tier Grok models */}
+                    {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
+                      <TokenBar pct={pct} />
+                    )}
                   </div>
                 </div>
-                
-                <div className="shrink-0 flex items-center justify-center w-6 h-6">
+
+                <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
                   {saving === "model" && active ? (
                     <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8e8e93" }} />
                   ) : active && !isDisabled ? (
@@ -346,30 +411,34 @@ export function SettingsView() {
               </button>
             )
           })}
+
           <div className="pb-2" />
         </div>
 
+        {/* Upgrade button */}
         {!isPremium && (
-          <button onClick={() => { setPage("main"); setCurrentView("premium") }}
+          <button
+            onClick={() => { setPage("main"); setCurrentView("premium") }}
             className="w-full p-4 rounded-2xl text-center text-[15px] font-bold active:scale-[0.98] transition-transform mt-2"
-            style={{ background: "#fff", color: "#000", fontFamily: SF }}>
-            Unlock Pro Models
+            style={{ background: "#3b82f6", color: "#fff", fontFamily: SF }}>
+            ⭐ Upgrade to xBlum Pro
           </button>
         )}
       </div>
     </div>
   )
 
+  // ── Lang page ──────────────────────────────────────────────────────────────
   if (page === "lang") return (
-    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
+    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300"
+         style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 space-y-2">
         <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
           {LANGS.map((lang, i, arr) => (
             <div key={lang.code}>
               <button onClick={() => { setLanguage(lang.code); setPage("main") }}
-                className="w-full p-4 flex items-center justify-between active:bg-white/5 transition-colors"
-              >
+                className="w-full p-4 flex items-center justify-between active:bg-white/5 transition-colors">
                 <div className="flex items-center gap-4">
                   <span className="text-[22px]">{lang.flag}</span>
                   <p className="text-white" style={{ fontFamily: SF, fontSize: "16px" }}>{lang.name}</p>
@@ -384,34 +453,46 @@ export function SettingsView() {
     </div>
   )
 
+  // ── Prefs page ─────────────────────────────────────────────────────────────
   if (page === "prefs") return (
-    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300" style={{ background: "#000", minHeight: "100vh" }}>
+    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300"
+         style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Preferences" />
       <div className="px-4 pt-6 space-y-5">
-        {(["name","age","location"] as const).map(field => (
+        {(["name", "age", "location"] as const).map(field => (
           <div key={field} className="space-y-2">
-            <label className="px-2 font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, textTransform: "capitalize" }}>{field}</label>
-            <input type="text" value={tempPrefs[field]}
+            <label className="px-2 font-medium"
+                   style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, textTransform: "capitalize" }}>
+              {field}
+            </label>
+            <input
+              type="text"
+              value={tempPrefs[field]}
               onChange={e => setTempPrefs({ ...tempPrefs, [field]: e.target.value })}
               className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none transition-colors"
               style={{ background: "#111", border: "1px solid #1c1c1e", fontFamily: SF, fontSize: "16px" }}
-              onFocus={(e) => e.target.style.borderColor = "#3a3a3c"}
-              onBlur={(e) => e.target.style.borderColor = "transparent"}
+              onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
+              onBlur={e => (e.target.style.borderColor = "transparent")}
             />
           </div>
         ))}
         <div className="space-y-2">
-          <label className="px-2 font-medium" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>Your Preferences</label>
-          <textarea value={tempPrefs.preferences}
+          <label className="px-2 font-medium"
+                 style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+            Your Preferences
+          </label>
+          <textarea
+            value={tempPrefs.preferences}
             onChange={e => setTempPrefs({ ...tempPrefs, preferences: e.target.value })}
             className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none min-h-[140px] resize-none transition-colors"
             style={{ background: "#111", border: "1px solid #1c1c1e", fontFamily: SF, fontSize: "16px" }}
             placeholder="I prefer concise answers..."
-            onFocus={(e) => e.target.style.borderColor = "#3a3a3c"}
-            onBlur={(e) => e.target.style.borderColor = "transparent"}
+            onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
+            onBlur={e => (e.target.style.borderColor = "transparent")}
           />
         </div>
-        <button onClick={() => { setUserPreferences(tempPrefs); setPage("main") }}
+        <button
+          onClick={() => { setUserPreferences(tempPrefs); setPage("main") }}
           className="w-full py-4 mt-4 bg-white text-black font-bold rounded-2xl active:scale-[0.98] transition-transform"
           style={{ fontFamily: SF, fontSize: "16px" }}>
           Save Preferences
@@ -420,40 +501,54 @@ export function SettingsView() {
     </div>
   )
 
+  // ── Main settings page ─────────────────────────────────────────────────────
   return (
     <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
-
       <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3" style={{
         paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)",
         background: "rgba(0,0,0,0.92)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
       }}>
-        <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>Settings</h2>
+        <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+          Settings
+        </h2>
       </div>
 
       <div className="px-4 pt-4 pb-28 space-y-6">
 
-        {/* ── xBlum Pro card ── */}
+        {/* ── xBlum Pro card (non-premium only) ── */}
         {!isPremium && (
           <button
             onClick={() => setCurrentView("premium")}
             className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left animate-in fade-in slide-in-from-bottom-4 duration-500"
             style={{ background: "#111", border: "1px solid #1c1c1e", borderRadius: "20px", minHeight: "96px" }}
           >
-            <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 8% 40%, rgba(245,158,11,0.07) 0%, transparent 55%)" }} />
-            <div className="absolute pointer-events-none" style={{ width: "90px", height: "90px", borderRadius: "50%", top: "-30px", right: "-20px", background: "radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)", border: "1px solid rgba(245,158,11,0.10)" }} />
-            <div className="absolute pointer-events-none" style={{ width: "55px", height: "55px", borderRadius: "50%", bottom: "-18px", right: "30px", background: "radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)", border: "1px solid rgba(245,158,11,0.08)" }} />
-
+            <div className="absolute inset-0 pointer-events-none"
+                 style={{ background: "radial-gradient(ellipse at 8% 40%, rgba(245,158,11,0.07) 0%, transparent 55%)" }} />
+            <div className="absolute pointer-events-none"
+                 style={{ width: "90px", height: "90px", borderRadius: "50%", top: "-30px", right: "-20px",
+                          background: "radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)",
+                          border: "1px solid rgba(245,158,11,0.10)" }} />
+            <div className="absolute pointer-events-none"
+                 style={{ width: "55px", height: "55px", borderRadius: "50%", bottom: "-18px", right: "30px",
+                          background: "radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)",
+                          border: "1px solid rgba(245,158,11,0.08)" }} />
             <div className="relative z-10 px-5 py-5 flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <p className="text-white font-bold text-[18px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500" style={{ background: "rgba(245,158,11,0.15)", fontFamily: SF }}>PRO</span>
+                <p className="text-white font-bold text-[18px] leading-tight"
+                   style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500"
+                      style={{ background: "rgba(245,158,11,0.15)", fontFamily: SF }}>PRO</span>
               </div>
-              <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>Upgrade your plan to enjoy full features</p>
-
-              <div className="flex items-center justify-center mt-3 px-4 py-3 rounded-xl w-full" style={{ background: "#fff" }}>
-                <span className="text-black font-bold" style={{ fontSize: "15px", fontFamily: SF }}>Upgrade →</span>
+              <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+                Upgrade your plan to enjoy full features
+              </p>
+              <div className="flex items-center justify-center mt-3 px-4 py-3 rounded-xl w-full"
+                   style={{ background: "#fff" }}>
+                <span className="text-black font-bold" style={{ fontSize: "15px", fontFamily: SF }}>
+                  Upgrade →
+                </span>
               </div>
             </div>
           </button>
@@ -463,14 +558,28 @@ export function SettingsView() {
         <Section title="Profile">
           <Row
             leftNode={
-              <div className="w-[24px] h-[24px] flex items-center justify-center rounded overflow-hidden" style={{ background: "#1c1c1e" }}>
-                 <img src={MODEL_LOGO[selectedModel] || "/grok.png"} alt="" className="w-full h-full object-contain pointer-events-none select-none" draggable={false}
-                   onError={e => { e.currentTarget.style.display="none"; const p=e.currentTarget.parentElement; if(p){p.style.background="#1c1c1e"; const s=document.createElement("span"); s.textContent=currentModelInfo?.initial??"?"; s.style.color="white"; s.style.fontWeight="700"; s.style.fontSize="12px"; p.appendChild(s)} }}
-                 />
+              <div className="w-[24px] h-[24px] flex items-center justify-center rounded overflow-hidden"
+                   style={{ background: "#1c1c1e" }}>
+                <img
+                  src={MODEL_LOGO[selectedModel] || "/grok.png"} alt=""
+                  className="w-full h-full object-contain pointer-events-none select-none"
+                  draggable={false}
+                  onError={e => {
+                    e.currentTarget.style.display = "none"
+                    const p = e.currentTarget.parentElement
+                    if (p) {
+                      p.style.background = "#1c1c1e"
+                      const s = document.createElement("span")
+                      s.textContent = currentModelInfo?.initial ?? "?"
+                      s.style.color = "white"; s.style.fontWeight = "700"; s.style.fontSize = "12px"
+                      p.appendChild(s)
+                    }
+                  }}
+                />
               </div>
             }
             label="LLM model"
-            sublabel={displayModelName + (isThrottled && isGrok41Active ? " · cooling" : "")}
+            sublabel={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
           <Divider />
@@ -497,7 +606,9 @@ export function SettingsView() {
                 <Database className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>Personalize Memories</p>
+                <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+                  Personalize Memories
+                </p>
                 <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
                   {personalizeMemories ? "xBlum learns from your chats" : "Minimal context only"}
                 </p>
@@ -507,12 +618,14 @@ export function SettingsView() {
           </div>
           <Divider />
           <div className="flex items-center justify-between px-5" style={{ paddingTop: "14px", paddingBottom: "14px" }}>
-             <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
               <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
                 <Bot className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>Improve Model</p>
+                <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+                  Improve Model
+                </p>
               </div>
             </div>
             <Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />
@@ -522,42 +635,52 @@ export function SettingsView() {
         {/* ── Danger Zone ── */}
         <Section title="Danger Zone">
           <Row
-            leftNode={saving === "del_mem" ? <Loader2 className="w-[20px] h-[20px] animate-spin text-[#ef4444]" /> : <Trash2 className="w-[20px] h-[20px]" style={{ color: "#ef4444" }} />}
+            leftNode={saving === "del_mem"
+              ? <Loader2 className="w-[20px] h-[20px] animate-spin text-[#ef4444]" />
+              : <Trash2 className="w-[20px] h-[20px]" style={{ color: "#ef4444" }} />}
             label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
             onClick={handleDeleteMemories}
             danger
-            right={<div />} 
+            right={<div />}
           />
           <Divider />
           <Row
-            leftNode={saving === "del_hist" ? <Loader2 className="w-[20px] h-[20px] animate-spin text-[#ef4444]" /> : <Trash2 className="w-[20px] h-[20px]" style={{ color: "#ef4444" }} />}
+            leftNode={saving === "del_hist"
+              ? <Loader2 className="w-[20px] h-[20px] animate-spin text-[#ef4444]" />
+              : <Trash2 className="w-[20px] h-[20px]" style={{ color: "#ef4444" }} />}
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
-            right={<div />} 
+            right={<div />}
           />
         </Section>
 
         {/* ── Support ── */}
         <Section title="Support">
           <a href="https://xblum.gitbook.io/home/xblum/terms" target="_blank" rel="noopener noreferrer"
-            className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors" style={{ paddingTop: "14px", paddingBottom: "14px" }}>
+             className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
+             style={{ paddingTop: "14px", paddingBottom: "14px" }}>
             <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
               <FileText className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>Terms of Use</p>
+              <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+                Terms of Use
+              </p>
             </div>
             <ExternalLink className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
           </a>
           <Divider />
           <a href="https://xblum.gitbook.io/home/xblum/privacy" target="_blank" rel="noopener noreferrer"
-            className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors" style={{ paddingTop: "14px", paddingBottom: "14px" }}>
+             className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
+             style={{ paddingTop: "14px", paddingBottom: "14px" }}>
             <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
               <Shield className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>Privacy Policy</p>
+              <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+                Privacy Policy
+              </p>
             </div>
             <ExternalLink className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
           </a>
@@ -569,24 +692,31 @@ export function SettingsView() {
             right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
           />
         </Section>
-
       </div>
 
       {/* ── Feedback Modal ── */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-          <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[90vh] flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
+          <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[90vh] flex flex-col"
+               style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
-              <button onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
-                className="w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity" style={{ background: "#1c1c1e" }}>
+              <button
+                onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
+                className="w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity"
+                style={{ background: "#1c1c1e" }}>
                 <X className="w-4 h-4 text-white" />
               </button>
-              <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>Feedback & Support</h2>
+              <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                Feedback & Support
+              </h2>
               {reportSent ? (
-                <div className="px-3 py-1.5 rounded-full text-[#34c759] font-bold text-xs" style={{ fontFamily: SF }}>Sent ✓</div>
+                <div className="px-3 py-1.5 rounded-full text-[#34c759] font-bold text-xs" style={{ fontFamily: SF }}>
+                  Sent ✓
+                </div>
               ) : (
                 <button
                   onClick={async () => {
@@ -596,7 +726,10 @@ export function SettingsView() {
                     setSubmittingReport(false)
                     if (ok) {
                       setReportSent(true)
-                      setTimeout(() => { setShowReportModal(false); setReportSent(false); setReportDescription(""); setReportType("General feedback") }, 1800)
+                      setTimeout(() => {
+                        setShowReportModal(false); setReportSent(false)
+                        setReportDescription(""); setReportType("General feedback")
+                      }, 1800)
                     } else {
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       ;(window as any).Telegram?.WebApp?.showAlert("Could not send. Please try again.")
@@ -604,42 +737,57 @@ export function SettingsView() {
                   }}
                   disabled={!reportDescription.trim() || submittingReport}
                   className="px-4 py-1.5 bg-white disabled:opacity-40 rounded-full text-black font-bold active:scale-95 transition-transform"
-                  style={{ fontSize: "13px", fontFamily: SF }}
-                >
+                  style={{ fontSize: "13px", fontFamily: SF }}>
                   {submittingReport ? "Sending..." : "Submit"}
                 </button>
               )}
             </div>
+
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
               {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(52,199,89,0.1)" }}>
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center"
+                       style={{ background: "rgba(52,199,89,0.1)" }}>
                     <Check className="w-8 h-8 text-[#34c759]" />
                   </div>
                   <p className="text-white font-bold" style={{ fontSize: "18px", fontFamily: SFD }}>Thank you!</p>
-                  <p className="text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>Your feedback has been received. We'll review it shortly.</p>
+                  <p className="text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+                    Your feedback has been received. We'll review it shortly.
+                  </p>
                 </div>
               ) : (
                 <>
                   <div className="relative">
-                    <button onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
-                      className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform" style={{ background: "#1c1c1e" }}>
+                    <button
+                      onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
+                      className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
+                      style={{ background: "#1c1c1e" }}>
                       <MessageSquare className="w-5 h-5" style={{ color: "#8e8e93" }} />
-                      <span className="flex-1 text-left text-white font-medium" style={{ fontSize: "15px", fontFamily: SF }}>{reportType}</span>
-                      <ChevronDown className={`w-5 h-5 transition-transform ${showReportTypeDropdown ? "rotate-180" : ""}`} style={{ color: "#8e8e93" }} />
+                      <span className="flex-1 text-left text-white font-medium" style={{ fontSize: "15px", fontFamily: SF }}>
+                        {reportType}
+                      </span>
+                      <ChevronDown
+                        className={`w-5 h-5 transition-transform ${showReportTypeDropdown ? "rotate-180" : ""}`}
+                        style={{ color: "#8e8e93" }} />
                     </button>
                     {showReportTypeDropdown && (
-                      <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-hidden z-10 border border-[#2c2c2e]" style={{ background: "#1c1c1e" }}>
-                        {["General feedback","Bug report","Feature request","Performance issue","Support request","Other"].map(type => (
-                          <button key={type} onClick={() => { setReportType(type); setShowReportTypeDropdown(false) }}
-                            className={`w-full px-5 py-3.5 text-left text-[15px] font-medium active:bg-[#2c2c2e] transition-colors ${reportType === type ? "text-white" : "text-[#8e8e93]"}`} style={{ fontFamily: SF }}>
+                      <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-hidden z-10 border border-[#2c2c2e]"
+                           style={{ background: "#1c1c1e" }}>
+                        {["General feedback", "Bug report", "Feature request", "Performance issue", "Support request", "Other"].map(type => (
+                          <button
+                            key={type}
+                            onClick={() => { setReportType(type); setShowReportTypeDropdown(false) }}
+                            className={`w-full px-5 py-3.5 text-left text-[15px] font-medium active:bg-[#2c2c2e] transition-colors ${reportType === type ? "text-white" : "text-[#8e8e93]"}`}
+                            style={{ fontFamily: SF }}>
                             {type}
                           </button>
                         ))}
                       </div>
                     )}
                   </div>
-                  <textarea value={reportDescription} onChange={e => setReportDescription(e.target.value)}
+                  <textarea
+                    value={reportDescription}
+                    onChange={e => setReportDescription(e.target.value)}
                     placeholder={
                       reportType === "Bug report" ? "Describe what went wrong..." :
                       reportType === "Feature request" ? "Describe the feature you'd like..." :
@@ -647,8 +795,8 @@ export function SettingsView() {
                     }
                     className="w-full min-h-[160px] p-5 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none transition-colors"
                     style={{ background: "#1c1c1e", border: "1px solid #2c2c2e", fontSize: "15px", fontFamily: SF }}
-                    onFocus={(e) => e.target.style.borderColor = "#48484a"}
-                    onBlur={(e) => e.target.style.borderColor = "transparent"}
+                    onFocus={e => (e.target.style.borderColor = "#48484a")}
+                    onBlur={e => (e.target.style.borderColor = "transparent")}
                   />
                   <p className="text-center px-4" style={{ fontSize: "12px", color: "#636366", fontFamily: SF }}>
                     Feedback is sent directly to the xBlum team.
