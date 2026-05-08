@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles } from "lucide-react"
+import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2 } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -62,11 +62,10 @@ export function MarketView() {
   const [starInput, setStarInput] = useState("")
   const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
 
-  // ── ESTADOS DE LA RULETA ──
+  // ── ESTADOS DE LA RULETA EN LÍNEA ──
   const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
   const [isSpinningActive, setIsSpinningActive] = useState(false)
-  const [wonItem, setWonItem] = useState<any>(null)
-  const [rouletteItems, setRouletteItems] = useState<any[]>([])
+  const [tracks, setTracks] = useState<Array<{ winner: any, items: any[] }>>([])
 
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
@@ -87,37 +86,35 @@ export function MarketView() {
     setStarInput(num > 150000 ? '150000' : num.toString())
   }
 
-  // ── LÓGICA DE APERTURA (RULETA) ──
-  const startRoulette = () => {
-    // 1. Elegir un premio al azar
-    const winner = INSIDE_ITEMS[Math.floor(Math.random() * INSIDE_ITEMS.length)]
-    setWonItem(winner)
+  // ── LÓGICA DE APERTURA (MÚLTIPLES FILAS) ──
+  const startRoulette = (count: number) => {
+    // Generar la cantidad de filas necesarias (1 o 3)
+    const newTracks = Array.from({ length: count }).map(() => {
+      const winner = INSIDE_ITEMS[Math.floor(Math.random() * INSIDE_ITEMS.length)]
+      const items = Array(35).fill({ type: 'dummy' })
+      items[25] = { type: 'winner', ...winner }
+      return { winner, items }
+    })
 
-    // 2. Crear la pista (35 tarjetas), colocando el ganador en el índice 25
-    const items = Array(35).fill({ type: 'dummy' })
-    items[25] = { type: 'winner', ...winner }
-    setRouletteItems(items)
-
-    // 3. Iniciar estados
+    setTracks(newTracks)
     setOpeningState('spinning')
     setIsSpinningActive(false)
 
-    // 4. Activar transición CSS tras un pequeño retraso
+    // Activar el giro después de un mini retraso para que aplique CSS Transition
     setTimeout(() => {
        setIsSpinningActive(true)
     }, 50)
 
-    // 5. Terminar giro y mostrar resultado con blur
+    // Terminar la animación a los 4s
     setTimeout(() => {
        setOpeningState('result')
        setIsSpinningActive(false)
-    }, 4050) // 4s de transición + 50ms buffer
+    }, 4050)
   }
 
   const closeRoulette = () => {
     setOpeningState('idle')
-    setWonItem(null)
-    setRouletteItems([])
+    setTracks([])
   }
 
   const numValue = starInput ? parseInt(starInput, 10) : 0
@@ -144,48 +141,122 @@ export function MarketView() {
           /* ── VISTA DETALLE ── */
           <div className="animate-in slide-in-from-right-8 fade-in duration-300">
             <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black">
-               <button onClick={() => setViewingBoxId(null)} className="flex items-center gap-1.5 text-white active:opacity-70">
+               <button onClick={() => { if (openingState === 'idle') setViewingBoxId(null) }} className={`flex items-center gap-1.5 text-white transition-opacity ${openingState !== 'idle' ? 'opacity-50 cursor-not-allowed' : 'active:opacity-70'}`}>
                   <ChevronLeft className="w-6 h-6" />
                   <span className="font-semibold text-[17px]" style={{ fontFamily: SF }}>back</span>
                </button>
             </div>
 
             <div className="flex flex-col px-5 pt-6 items-center">
-               <h2 className="text-white font-bold text-[28px] mb-8" style={{ fontFamily: SFD }}>{activeBoxData.name}</h2>
+               <h2 className="text-white font-bold text-[28px] mb-8 transition-all" style={{ fontFamily: SFD }}>
+                  {openingState === 'idle' ? activeBoxData.name : openingState === 'spinning' ? 'Opening...' : 'Rewards Drop!'}
+               </h2>
 
-               {/* Ruleta Estática (Background Carousel) */}
-               <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden mb-8">
-                  <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] -translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
-                      <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
-                  </div>
-                  <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
-                      <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
-                  </div>
+               {/* ── RULETA: ESTÁTICA O ANIMADA EN LÍNEA ── */}
+               <div className="w-full flex flex-col items-center mb-8 relative">
+                  {openingState === 'idle' ? (
+                     // -- 1. Carrusel de previsualización estática --
+                     <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden animate-in fade-in duration-500">
+                        <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] -translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
+                            <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
+                        </div>
+                        <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
+                            <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
+                        </div>
 
-                  <div className="absolute z-20 w-[95px] h-[95px] bg-[#0d0d0f] rounded-[24px] -translate-x-[115px] flex items-center justify-center border border-[#2c2c2e] shadow-xl opacity-70">
-                      <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
-                  </div>
-                  <div className="absolute z-20 w-[95px] h-[95px] bg-[#0d0d0f] rounded-[24px] translate-x-[115px] flex items-center justify-center border border-[#2c2c2e] shadow-xl opacity-70">
-                      <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
-                  </div>
+                        <div className="absolute z-20 w-[95px] h-[95px] bg-[#0d0d0f] rounded-[24px] -translate-x-[115px] flex items-center justify-center border border-[#2c2c2e] shadow-xl opacity-70">
+                            <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
+                        </div>
+                        <div className="absolute z-20 w-[95px] h-[95px] bg-[#0d0d0f] rounded-[24px] translate-x-[115px] flex items-center justify-center border border-[#2c2c2e] shadow-xl opacity-70">
+                            <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
+                        </div>
 
-                  <div className="relative z-30 w-[110px] h-[110px] bg-[#141415] rounded-[28px] flex items-center justify-center border border-[#3b82f6]/40 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
-                      <LootboxVisual color={activeBoxData.color} imgSrc={activeBoxData.image} size="large" />
-                  </div>
-                  <div className="absolute -top-1 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white" />
+                        <div className="relative z-30 w-[110px] h-[110px] bg-[#141415] rounded-[28px] flex items-center justify-center border border-[#3b82f6]/40 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
+                            <LootboxVisual color={activeBoxData.color} imgSrc={activeBoxData.image} size="large" />
+                        </div>
+                        <div className="absolute -top-1 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white" />
+                     </div>
+                  ) : (
+                     // -- 2. Pistas de Ruleta Animada (1x o 3x) --
+                     <div className="w-full flex flex-col gap-4 relative overflow-hidden py-2 animate-in fade-in duration-300">
+                        {/* Sombras de túnel para ocultar los bordes */}
+                        <div className="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-black to-transparent z-40 pointer-events-none" />
+                        <div className="absolute right-0 top-0 bottom-0 w-[20%] bg-gradient-to-l from-black to-transparent z-40 pointer-events-none" />
+
+                        {tracks.map((track, trackIdx) => (
+                           <div key={trackIdx} className="w-full h-[110px] relative flex items-center overflow-visible">
+                              <div className="absolute left-1/2 -top-1 -translate-x-1/2 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
+
+                              <div
+                                className="flex gap-3 absolute left-1/2"
+                                style={{
+                                  transform: openingState === 'spinning' && isSpinningActive
+                                    ? `translateX(calc(-50px - ${25 * 112}px))`
+                                    : openingState === 'result'
+                                    ? `translateX(calc(-50px - ${25 * 112}px))`
+                                    : `translateX(-50px)`,
+                                  transition: isSpinningActive ? `transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)` : 'none',
+                                }}
+                              >
+                                {track.items.map((item, idx) => {
+                                   const isWinnerCard = idx === 25;
+                                   const isResult = openingState === 'result';
+
+                                   return (
+                                     <div
+                                       key={idx}
+                                       className={`w-[100px] h-[100px] flex-shrink-0 flex flex-col items-center justify-center rounded-[24px] border transition-all duration-700 ${
+                                         isResult && !isWinnerCard
+                                           ? 'opacity-0 scale-50' // Oculta las perdedoras
+                                           : isResult && isWinnerCard
+                                           ? 'opacity-100 scale-110 bg-[#111111] border-[#3b82f6] shadow-[0_0_30px_rgba(59,130,246,0.3)] z-50' // Resalta la ganadora
+                                           : 'bg-[#0d0d0f] border-[#2c2c2e] opacity-80 shadow-md' // Estilo mientras gira
+                                       }`}
+                                     >
+                                       {item.type === 'dummy' ? (
+                                         <span className="text-white/30 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
+                                       ) : (
+                                         <>
+                                            <item.icon className="w-10 h-10 drop-shadow-lg" style={{ color: item.color }} />
+                                            {isResult && <span className="text-white font-bold text-[11px] text-center px-1 mt-2 leading-tight animate-in fade-in zoom-in duration-500 delay-300" style={{ fontFamily: SF }}>{item.name}</span>}
+                                         </>
+                                       )}
+                                     </div>
+                                   )
+                                })}
+                              </div>
+                           </div>
+                        ))}
+                     </div>
+                  )}
                </div>
 
-               {/* Botones de Apertura que lanzan la animación */}
-               <button onClick={startRoulette} className="w-full bg-[#3b82f6] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-lg mb-3" style={{ fontFamily: SF }}>
-                  <span>Open for {activeBoxData.price}</span> 
-                  <img src="/telegram-star-icon.png" className="w-[20px] h-[20px] object-contain -mt-[2px]" alt="Star" />
-               </button>
-               
-               <button onClick={startRoulette} className="text-[#3b82f6] font-semibold text-[14px] active:opacity-70 mb-10" style={{ fontFamily: SF }}>
-                  Open 3x for {activeBoxData.price * 3} Stars
-               </button>
+               {/* ── CONTROL DE BOTONES DINÁMICO ── */}
+               <div className="w-full flex flex-col items-center min-h-[110px] justify-center">
+                  {openingState === 'idle' ? (
+                     <>
+                        <button onClick={() => startRoulette(1)} className="w-full bg-[#3b82f6] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-lg mb-3" style={{ fontFamily: SF }}>
+                           <span>Open for {activeBoxData.price}</span> 
+                           <img src="/telegram-star-icon.png" className="w-[20px] h-[20px] object-contain -mt-[2px]" alt="Star" />
+                        </button>
+                        <button onClick={() => startRoulette(3)} className="text-[#3b82f6] font-semibold text-[14px] active:opacity-70 mb-5 transition-opacity" style={{ fontFamily: SF }}>
+                           Open 3x for {activeBoxData.price * 3} Stars
+                        </button>
+                     </>
+                  ) : openingState === 'spinning' ? (
+                     <button disabled className="w-full bg-[#ef4444] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(239,68,68,0.3)] mb-8 transition-colors animate-in fade-in zoom-in duration-300" style={{ fontFamily: SF }}>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Opening...
+                     </button>
+                  ) : (
+                     <button onClick={closeRoulette} className="w-full bg-[#10b981] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] mb-8 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300" style={{ fontFamily: SF }}>
+                        Collect {tracks.length > 1 ? 'Items' : 'Item'}
+                     </button>
+                  )}
+               </div>
 
-               <div className="w-full flex flex-col">
+               {/* Sección What's Inside (Se mantiene igual, solo se baja si crecen las pistas) */}
+               <div className="w-full flex flex-col mt-2">
                   <h3 className="text-white font-bold text-[22px] mb-4" style={{ fontFamily: SFD }}>What's inside</h3>
                   <div className="grid grid-cols-3 gap-3">
                      {INSIDE_ITEMS.map((item) => (
@@ -277,86 +348,6 @@ export function MarketView() {
           </div>
         )}
       </div>
-
-      {/* ── OVERLAY DE LA RULETA (ANIMACIÓN DE APERTURA) ── */}
-      {openingState !== 'idle' && (
-        <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center transition-all duration-500 pointer-events-auto ${openingState === 'result' ? 'bg-black/70 backdrop-blur-md' : 'bg-black/90'}`}>
-          
-          {/* Triángulo indicador (Solo visible al girar) */}
-          {openingState === 'spinning' && (
-            <div className="absolute top-1/2 -translate-y-[85px] z-50 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[14px] border-t-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
-          )}
-
-          {/* Pista de Animación */}
-          <div className="w-full overflow-hidden relative h-[250px] flex items-center">
-             
-             {/* Sombras a los bordes para dar efecto de túnel */}
-             {openingState === 'spinning' && (
-               <>
-                 <div className="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-black to-transparent z-40" />
-                 <div className="absolute right-0 top-0 bottom-0 w-[20%] bg-gradient-to-l from-black to-transparent z-40" />
-               </>
-             )}
-
-             <div
-               className="flex gap-3 absolute left-1/2" // left-1/2 pone el origen exacto al centro de la pantalla
-               style={{
-                 // 100px width + 12px gap = 112px avance por tarjeta. 
-                 // -50px compensa el ancho de la tarjeta para centrarla
-                 transform: openingState === 'spinning' && isSpinningActive
-                   ? `translateX(calc(-50px - ${25 * 112}px))`
-                   : openingState === 'result'
-                   ? `translateX(calc(-50px - ${25 * 112}px))`
-                   : `translateX(-50px)`,
-                 transition: isSpinningActive ? 'transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)' : 'none',
-               }}
-             >
-               {rouletteItems.map((item, idx) => {
-                  const isWinnerCard = idx === 25;
-                  const isResult = openingState === 'result';
-
-                  return (
-                    <div
-                      key={idx}
-                      className={`w-[100px] h-[100px] flex-shrink-0 flex items-center justify-center rounded-[24px] border transition-all duration-700 ${
-                        isResult && !isWinnerCard
-                          ? 'opacity-0 scale-50' // Las tarjetas perdedoras se esfuman
-                          : isResult && isWinnerCard
-                          ? 'opacity-100 scale-150 bg-[#111111] border-[#3b82f6] shadow-[0_0_50px_rgba(59,130,246,0.3)] z-50 relative' // El ganador brilla y crece
-                          : 'bg-[#0d0d0f] border-[#2c2c2e] opacity-80 shadow-md' // Estado girando
-                      }`}
-                    >
-                      {item.type === 'dummy' ? (
-                        <span className="text-white/30 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center p-2">
-                           {/* Renderizamos el icono del ganador */}
-                           <item.icon className="w-10 h-10 drop-shadow-lg" style={{ color: item.color }} />
-                        </div>
-                      )}
-                    </div>
-                  )
-               })}
-             </div>
-          </div>
-
-          {/* Botón y nombre del premio (Aparece tras el blur) */}
-          {openingState === 'result' && (
-             <div className="absolute bottom-24 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700 delay-300">
-                <span className="text-white font-bold text-[32px] mb-1" style={{ fontFamily: SFD }}>{wonItem?.name}</span>
-                <span className="font-semibold text-[15px] mb-8" style={{ fontFamily: SF, color: wonItem?.color || '#a78bfa' }}>{wonItem?.rarity} Drop!</span>
-                
-                <button
-                  onClick={closeRoulette}
-                  className="bg-[#3b82f6] text-white px-12 py-4 rounded-[18px] font-bold text-[18px] active:scale-95 transition-transform shadow-[0_8px_30px_rgba(59,130,246,0.4)]"
-                  style={{ fontFamily: SF }}
-                >
-                  Collect Item
-                </button>
-             </div>
-          )}
-        </div>
-      )}
 
       {/* ── MODAL TOP UP ── */}
       {isTopUpOpen && (
