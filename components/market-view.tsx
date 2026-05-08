@@ -7,32 +7,36 @@ import { Store, Plus, Filter, Star, ArrowUpRight } from "lucide-react"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Base de Datos Visual (Con tus imágenes premium) ──
+// ── Base de Datos Visual (Nombres Premium e Imágenes Mapeadas) ──
 const MARKET_BOXES = [
   { 
-    id: 'initiate', 
-    name: 'Initiate Cache', 
-    limit: '0 / 5000', 
-    color: '#4ade80', 
+    id: 'secret', 
+    name: 'Secret', 
+    color: '#eab308', // Arena/Dorado oscuro
+    image: '/1000009369.png', 
+    isSoldOut: false 
+  },
+  { 
+    id: 'toxic', 
+    name: 'Toxic Whisper', 
+    color: '#c084fc', // Lila
+    image: '/1000009370.png', 
+    isSoldOut: false 
+  },
+  { 
+    id: 'eternal', 
+    name: 'Eternal Beacon', 
+    color: '#a855f7', // Púrpura
     image: '/1000009371.png', 
     isSoldOut: true 
-  }, 
+  },
   { 
-    id: 'advanced', 
-    name: 'Advanced Artifact', 
-    limit: '0 / 4000', 
-    color: '#3b82f6', 
-    image: '/1000009370.png', 
-    isSoldOut: true 
-  },     
-  { 
-    id: 'apex', 
-    name: 'Apex Contraband', 
-    limit: '0 / 6000', 
-    color: '#facc15', 
-    image: '/1000009369.png', 
-    isSoldOut: true 
-  } 
+    id: 'aureus', 
+    name: 'Aureus', 
+    color: '#facc15', // Dorado brillante
+    image: '/1000009361.png', 
+    isSoldOut: false 
+  }
 ]
 
 // ── Animación Flotante ──
@@ -163,7 +167,7 @@ export function MarketView() {
         <div className="mt-10 px-5">
            <div className="flex items-center justify-between mb-5">
               <h3 className="text-white font-bold text-[24px] flex items-center gap-2" style={{ fontFamily: SFD }}>
-                 Lootboxes <span className="text-[#8e8e93] text-[22px] font-medium">3</span>
+                 Lootboxes <span className="text-[#8e8e93] text-[22px] font-medium">{MARKET_BOXES.length}</span>
               </h3>
               <div className="flex gap-2">
                  <button className="w-10 h-10 rounded-[14px] bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
@@ -175,7 +179,7 @@ export function MarketView() {
               </div>
            </div>
 
-           {/* Cuadrícula Exacta */}
+           {/* Cuadrícula - Los elementos adicionales bajarán automáticamente */}
            <div className="grid grid-cols-3 gap-3">
               {MARKET_BOXES.map((box) => (
                  <div key={box.id} className="flex flex-col w-full">
@@ -193,15 +197,14 @@ export function MarketView() {
                        <LootboxVisual color={box.color} imgSrc={box.image} />
 
                        {/* Botón Inferior */}
-                       <button className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>
+                       <button className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>
                           Market
                        </button>
                     </div>
 
-                    {/* Metadatos (Debajo de la tarjeta) */}
+                    {/* Metadatos (Debajo de la tarjeta sin números de inventario) */}
                     <div className="mt-3 text-center flex flex-col items-center">
-                       <span className="text-white font-bold text-[15px]" style={{ fontFamily: SFD }}>{box.name}</span>
-                       <span className="text-[#8e8e93] font-medium text-[13px] mt-0.5" style={{ fontFamily: SF }}>{box.limit}</span>
+                       <span className="text-white font-bold text-[14px] leading-tight" style={{ fontFamily: SFD }}>{box.name}</span>
                     </div>
                  </div>
               ))}
