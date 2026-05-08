@@ -163,6 +163,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const initData = (window as any).Telegram?.WebApp?.initData
       const data = await apiCall("/api/status", { initData }) as any
+
+      // If initData was not yet available when the call was made,
+      // the server returns 401 — silently skip rather than overwrite state.
+      if (data?.detail === "Invalid or missing initData" || data?.status === 401) {
+        setState(s => ({ ...s, isLoading: false }))
+        return
+      }
+
       if (data && !data.error) {
         setState(s => ({
           ...s,
@@ -195,13 +203,49 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    refreshUserData()
+    // Telegram WebApp may not have injected initData yet on first render.
+    // Wait for it to be ready before fetching user data.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tg = (window as any).Telegram?.WebApp
+    if (tg?.initData && tg.initData.length > 10) {
+      // initData already available — call immediately
+      refreshUserData()
+    } else if (tg) {
+      // Wait for the ready event, then retry
+      const onReady = () => refreshUserData()
+      tg.ready()
+      // Telegram fires onEvent("viewportChanged") when fully loaded
+      // but the safest cross-platform pattern is a short poll
+      let attempts = 0
+      const poll = setInterval(() => {
+        attempts++
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data = (window as any).Telegram?.WebApp?.initData
+        if ((data && data.length > 10) || attempts >= 20) {
+          clearInterval(poll)
+          refreshUserData()
+        }
+      }, 150)
+    } else {
+      // Not in Telegram context (dev/browser) — call directly
+      refreshUserData()
+    }
   }, [])
 
   const setSelectedModel = async (m: ModelName) => {
+    // Optimistic update immediately
     setState(s => ({ ...s, selectedModel: m }))
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await apiCall("/api/set_model", { initData: (window as any).Telegram?.WebApp?.initData, model: m })
+    const tgApp = (window as any).Telegram?.WebApp
+    const result = await apiCall("/api/set_model", {
+      initData: tgApp?.initData,
+      userId:   tgApp?.initDataUnsafe?.user?.id,  // fallback identifier
+      model:    m,
+    }) as any
+    if (!result?.ok) {
+      // Server rejected — log but keep optimistic state since bot already has it
+      console.warn("[setSelectedModel] Server response:", result)
+    }
   }
 
   const setPersonalizeMemories = async (enabled: boolean) => {
