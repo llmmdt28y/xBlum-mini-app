@@ -305,8 +305,8 @@ export function ProfileView() {
     setSelectedItem(null)
   }
 
-  // Exactamente 4 espacios para la fila horizontal de logros en el perfil principal
-  const TOTAL_PROFILE_ACH_SLOTS = 4;
+  // ── Modificado: Exactamente 5 espacios basados en tu imagen ──
+  const TOTAL_PROFILE_ACH_SLOTS = 5;
   const profileAchievementSlots = Array.from({ length: TOTAL_PROFILE_ACH_SLOTS });
 
   // ── OBTENEMOS LAS CATEGORÍAS ÚNICAS DESBLOQUEADAS ──
@@ -405,12 +405,13 @@ export function ProfileView() {
               </button>
            </div>
           
-           <div className="flex items-center pl-2 overflow-x-hidden pb-4 pt-2">
+           {/* Modificado para apilamiento recto */}
+           <div className="flex items-center pl-1 overflow-x-hidden pb-4 pt-2">
               {profileAchievementSlots.map((_, i) => {
                  const key = unlockedAchKeys[i];
                  const zIndex = 10 - i; 
-                 const marginLeft = i === 0 ? '0' : '-28px'; 
-                 const rotation = i === 0 ? '0deg' : `${i * 6}deg`; 
+                 // Espaciado negativo constante para igualar la captura (sin rotación)
+                 const marginLeft = i === 0 ? '0' : '-16px'; 
                  
                  if (key) {
                     const ach = ACHIEVEMENTS_DB[key];
@@ -418,12 +419,11 @@ export function ProfileView() {
                       <button 
                         key={key}
                         onClick={() => openItemModal(key)}
-                        className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-all duration-300 flex items-center justify-center relative bg-transparent hover:-translate-y-2"
+                        className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
                         style={{ 
                           clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
                           zIndex: zIndex,
-                          marginLeft: marginLeft,
-                          transform: `rotate(${rotation})`
+                          marginLeft: marginLeft
                         }}
                       >
                         <img 
@@ -443,8 +443,7 @@ export function ProfileView() {
                          style={{ 
                            clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
                            zIndex: zIndex,
-                           marginLeft: marginLeft,
-                           transform: `rotate(${rotation})`
+                           marginLeft: marginLeft
                          }}
                       >
                       </div>
