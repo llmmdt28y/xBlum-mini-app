@@ -28,7 +28,6 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
   robot: {
     id: 'robot',
     name: 'First Touch',
-    // ¡NUEVA CATEGORÍA ÉPICA ASIGNADA AQUÍ!
     category: 'Vanguard', 
     serial: '#01,244',
     collection: 'Achievements',
@@ -194,6 +193,7 @@ export function ProfileView() {
   // Lógica para Desbloquear Logros Automáticamente
   useEffect(() => {
     if (typeof window === 'undefined') return;
+ 
     const userLv = currentLevel.lv;
     
     let newlyFound = null;
@@ -254,7 +254,7 @@ export function ProfileView() {
                className="absolute left-1/2 top-1/2" 
                style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
              >
-                <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
+                 <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
              </div>
           ))}
        </div>
@@ -338,7 +338,7 @@ export function ProfileView() {
 
            <div className="relative flex justify-center items-center w-full mb-3 z-10">
                 <div className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
-                  {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
+                 {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                 </div>
            </div>
           <div className="text-center flex flex-col items-center relative z-10">
@@ -376,10 +376,10 @@ export function ProfileView() {
               {isLevelsExpanded && (
                 <div className="mt-4 flex flex-col gap-2 animate-in slide-in-from-top-2">
                    {lockedLevels.slice(0, 3).map((lvl) => (
-                      <div key={lvl.lv} className="flex items-center justify-between p-3 rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e]">
+                     <div key={lvl.lv} className="flex items-center justify-between p-3 rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e]">
                          <div className="flex items-center gap-3">
                             <div className="w-8 h-8 flex items-center justify-center grayscale opacity-50 shrink-0">
-                              <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
+                               <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
                             </div>
                             <div>
                                <p className="text-[#8e8e93] font-medium text-[14px] leading-none mb-1" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
@@ -390,7 +390,7 @@ export function ProfileView() {
                       </div>
                    ))}
                 </div>
-              )}
+               )}
            </div>
         </div>
 
@@ -398,26 +398,41 @@ export function ProfileView() {
         <div className="w-full relative z-10">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
-                Achievements <span className="text-[#48484a] text-[16px] ml-1">{unlockedAchKeys.length}</span>
+                 Achievements <span className="text-[#48484a] text-[16px] ml-1">{unlockedAchKeys.length}</span>
               </h3>
               <button onClick={() => setIsAchievementsMenuOpen(true)} className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
                 <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
               </button>
            </div>
-           
-           <div className="flex items-center gap-[2px] overflow-x-hidden pb-2">
+          
+           <div className="flex items-center pl-2 overflow-x-hidden pb-4 pt-2">
               {profileAchievementSlots.map((_, i) => {
                  const key = unlockedAchKeys[i];
+                 const zIndex = 10 - i; 
+                 const marginLeft = i === 0 ? '0' : '-28px'; 
+                 const rotation = i === 0 ? '0deg' : `${i * 6}deg`; 
+                 
                  if (key) {
                     const ach = ACHIEVEMENTS_DB[key];
                     return (
                       <button 
                         key={key}
                         onClick={() => openItemModal(key)}
-                        className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent"
-                        style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                        className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-all duration-300 flex items-center justify-center relative bg-transparent hover:-translate-y-2"
+                        style={{ 
+                          clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                          zIndex: zIndex,
+                          marginLeft: marginLeft,
+                          transform: `rotate(${rotation})`
+                        }}
                       >
-                        <img src={ach.img} draggable={false} alt={ach.name} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                        <img 
+                          src={ach.img} 
+                          draggable={false} 
+                          alt={ach.name} 
+                          className="w-[125%] h-[125%] object-cover pointer-events-none select-none" 
+                          style={{ WebkitTouchCallout: "none" }} 
+                        />
                       </button>
                     )
                  } else {
@@ -425,7 +440,12 @@ export function ProfileView() {
                       <div 
                          key={`empty-${i}`} 
                          className="w-[82px] h-[94px] shrink-0 flex items-center justify-center relative bg-[#111111]"
-                         style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                         style={{ 
+                           clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                           zIndex: zIndex,
+                           marginLeft: marginLeft,
+                           transform: `rotate(${rotation})`
+                         }}
                       >
                       </div>
                     )
@@ -450,7 +470,7 @@ export function ProfileView() {
                        </div>
                     )}
                     {currentLevel.lv < 3 && ( 
-                       <div className="absolute -bottom-1 -right-1 bg-[#1c1c1e] rounded-full p-[2px] border border-[#2c2c2e]">
+                      <div className="absolute -bottom-1 -right-1 bg-[#1c1c1e] rounded-full p-[2px] border border-[#2c2c2e]">
                           <Lock className="w-2 h-2 text-[#8e8e93]" strokeWidth={3} />
                        </div>
                     )}
@@ -493,7 +513,7 @@ export function ProfileView() {
           />
           
           <h1 className="text-white text-[28px] font-bold mt-6 text-center" style={{ fontFamily: SFD }}>
-             {ACHIEVEMENTS_DB[newlyUnlocked].name}
+            {ACHIEVEMENTS_DB[newlyUnlocked].name}
           </h1>
           <p className="text-[#8e8e93] text-[13px] font-bold mt-1 tracking-widest uppercase" style={{ fontFamily: SF }}>
              OBTAINED: {ACHIEVEMENTS_DB[newlyUnlocked].date}
@@ -511,8 +531,7 @@ export function ProfileView() {
               80% { transform: translateX(8px) rotate(4deg); }
             }
             .achievement-shake-animation {
-              animation: achievementShake 0.6s ease-in-out forwards;
-            }
+              animation: achievementShake 0.6s ease-in-out forwards; }
           `}} />
         </div>
       )}
@@ -529,7 +548,7 @@ export function ProfileView() {
 
             {/* Mapeo Dinámico de Categorías */}
             {unlockedCategories.length > 0 ? (
-               unlockedCategories.map((category) => {
+                unlockedCategories.map((category) => {
                   const categoryKeys = unlockedAchKeys.filter(key => ACHIEVEMENTS_DB[key].category === category);
                   
                   return (
@@ -537,7 +556,7 @@ export function ProfileView() {
                         {/* Cabecera de la Categoría */}
                         <div className="flex items-center justify-between mb-6">
                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center">
+                               <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center">
                                  <Hexagon className="w-3 h-3 text-[#8e8e93]" />
                               </div>
                               <span className="text-white font-bold text-[17px]" style={{ fontFamily: SFD }}>{category}</span>
@@ -546,7 +565,7 @@ export function ProfileView() {
                            <div className="w-7 h-7 rounded-full bg-[#111111] flex items-center justify-center">
                               <ChevronDown className="w-4 h-4 text-[#48484a]" />
                            </div>
-                        </div>
+                         </div>
 
                         {/* Cuadrícula de 2 columnas de esta categoría específica */}
                         <div className="grid grid-cols-2 gap-x-4 gap-y-8">
@@ -563,7 +582,7 @@ export function ProfileView() {
                                       draggable={false} 
                                       className="w-[140px] h-[140px] object-contain pointer-events-none select-none" 
                                       style={{ WebkitTouchCallout: "none" }} 
-                                   />
+                                    />
                                  </button>
                                  <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{ach.name}</h2>
                                  <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{ach.desc}</p>
@@ -572,7 +591,7 @@ export function ProfileView() {
                             )
                           })}
                         </div>
-                     </div>
+                      </div>
                   )
                })
             ) : (
@@ -587,7 +606,7 @@ export function ProfileView() {
         <div className="fixed inset-0 z-[110] flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
            <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto">
-              {/* Header Limpio sin X, usando el back nativo */}
+             {/* Header Limpio sin X, usando el back nativo */}
               
               <div className="w-full flex justify-center mt-12 mb-2">{selectedItem.preview}</div>
 
@@ -598,7 +617,7 @@ export function ProfileView() {
               )}
               {selectedItem.desc && (
                 <p className="text-[#8e8e93] text-[14px] mt-3 mb-6 px-6 text-center leading-relaxed" style={{ fontFamily: SF }}>{selectedItem.desc}</p>
-              )}
+               )}
 
               <div className="px-5 w-full">
                  <div className="bg-[#141415] rounded-[16px] border border-[#1c1c1e] w-full flex flex-col mb-8 overflow-hidden">
@@ -612,7 +631,7 @@ export function ProfileView() {
                        <div className="flex items-center">
                           <span>{selectedItem.collection}</span>
                           <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.rarityPercent}</span>
-                       </div>
+                        </div>
                     </ModalInfoRow>
                     <ModalInfoRow label="symbol">
                        <div className="flex items-center">
@@ -636,14 +655,14 @@ export function ProfileView() {
                       selectedItem.id === 'hearts' ? (
                         equippedBackground === selectedItem.id ? (
                            <button onClick={handleEquipToggle} className="w-full bg-[#1c1c1e] text-white font-bold text-[17px] rounded-[16px] py-4 border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
-                              Unequip
+                               Unequip
                            </button>
                         ) : (
                            <button onClick={handleEquipToggle} className="w-full bg-[#3b82f6] active:bg-[#2563eb] transition-colors text-white font-bold text-[17px] rounded-[16px] py-4">
                               Equip Background
                            </button>
                         )
-                      ) : (
+                       ) : (
                          <button disabled className="w-full bg-[#1c1c1e] text-[#636366] font-bold text-[17px] rounded-[16px] py-4">
                             Owned
                          </button>
@@ -655,7 +674,7 @@ export function ProfileView() {
                       </button>
                    )}
                  </div>
-              </div>
+               </div>
            </div>
         </div>
       )}
