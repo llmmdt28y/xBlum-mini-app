@@ -2,7 +2,8 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect } from "react"
-import { Store, Plus, Filter, Star, ArrowUpRight, Hexagon, Ghost, Zap, Rocket } from "lucide-react"
+// ¡AQUÍ ESTABA EL ERROR! Faltaba importar 'Search'
+import { Store, Plus, Filter, Star, ArrowUpRight, Hexagon, Ghost, Zap, Rocket, Search } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
