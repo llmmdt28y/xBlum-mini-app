@@ -7,11 +7,19 @@ import {
 
 // Se ha simplificado para dejar solo inglés
 export type Language  = "en"
-export type ModelName = "Grok 4" | "Grok 4 Mini" | "GPT-5.4" | "GPT-5.2"
+export type ModelName = "Grok 4.3" | "Grok 4.3 Mini" | "Grok 4" | "Grok 4 Mini" | "GPT-5.4" | "GPT-5.2"
 export type View      = "home" | "settings" | "store" | "premium" | "referral" | "analytics" | "profile" | "x-rewards" | "group-settings"
 
 export type UserPreferences = {
   name: string; age: string; location: string; preferences: string
+}
+
+// Token budget status per model — populated from /api/user_profile → model_token_status
+export type ModelTokenInfo = {
+  used:      number   // estimated tokens consumed in last 1h
+  limit:     number   // hourly budget for this tier (free/premium)
+  mins_left: number   // minutes until enough tokens expire
+  pct:       number   // used/limit * 100, capped at 100
 }
 
 export type AppState = {
@@ -40,6 +48,7 @@ export type AppState = {
   my_rank_global: { rank: number; tp: number }
   my_rank_weekly: { rank: number; tp: number }
   selectedGroupId: number | null
+  modelTokenStatus: Record<string, ModelTokenInfo> | null
 }
 
 export type AppContextType = AppState & {
@@ -62,6 +71,7 @@ export type AppContextType = AppState & {
   minutesUntilReset: number
   t: (key: string) => string
   setSelectedGroupId: (id: number | null) => void
+  refreshModelTokenStatus: () => Promise<void>
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -116,6 +126,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     my_rank_global: { rank: 0, tp: 0 },
     my_rank_weekly: { rank: 0, tp: 0 },
     selectedGroupId: null,
+    modelTokenStatus: null,
   })
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
@@ -163,6 +174,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           image_daily_limit: data.image_daily_limit,
           my_rank_global:  data.my_rank_global,
           my_rank_weekly:  data.my_rank_weekly,
+          // model_token_status: populated by /api/user_profile (refreshModelTokenStatus)
+          // /api/status may also include it if backend adds it — map opportunistically
+          ...(data.model_token_status ? { modelTokenStatus: data.model_token_status } : {}),
         }))
       }
     } catch (e) {
@@ -244,6 +258,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try { (window as any).Telegram?.WebApp?.close() } catch (e) { console.error(e) }
   }
 
+  // Fetches the per-model token budget from /api/user_profile and updates state.
+  // Called when the settings model-selector page opens so status is always fresh.
+  const refreshModelTokenStatus = useCallback(async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const initData = (window as any).Telegram?.WebApp?.initData
+      const data = await apiCall("/api/user_profile", { initData }) as any
+      if (data?.model_token_status) {
+        setState(s => ({ ...s, modelTokenStatus: data.model_token_status }))
+      }
+    } catch (e) {
+      console.error("[refreshModelTokenStatus]", e)
+    }
+  }, [apiCall])
+
   async function submitFeedback(type: string, description: string): Promise<boolean> {
     try {
       const data = await apiCall("/api/submit_feedback", { feedback_type: type, description }) as { ok?: boolean }
@@ -279,6 +308,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     minutesUntilReset: state.throttleMinutes,
     t,
     setSelectedGroupId:     id => setState(s => ({ ...s, selectedGroupId: id })),
+    refreshModelTokenStatus,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
