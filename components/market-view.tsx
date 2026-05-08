@@ -88,7 +88,6 @@ export function MarketView() {
 
   // ── LÓGICA DE APERTURA (MÚLTIPLES FILAS) ──
   const startRoulette = (count: number) => {
-    // Generar la cantidad de filas necesarias (1 o 3)
     const newTracks = Array.from({ length: count }).map(() => {
       const winner = INSIDE_ITEMS[Math.floor(Math.random() * INSIDE_ITEMS.length)]
       const items = Array(35).fill({ type: 'dummy' })
@@ -100,16 +99,16 @@ export function MarketView() {
     setOpeningState('spinning')
     setIsSpinningActive(false)
 
-    // Activar el giro después de un mini retraso para que aplique CSS Transition
+    // Activar el giro después de un mini retraso
     setTimeout(() => {
        setIsSpinningActive(true)
     }, 50)
 
-    // Terminar la animación a los 4s
+    // Aumentamos a 6s para generar más suspenso
     setTimeout(() => {
        setOpeningState('result')
        setIsSpinningActive(false)
-    }, 4050)
+    }, 6050)
   }
 
   const closeRoulette = () => {
@@ -129,7 +128,7 @@ export function MarketView() {
 
       {/* Contenedor Flotante Saldo */}
       <div className="fixed top-[85px] right-5 z-[60] bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 transition-all">
-         <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain" />
+         <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain -mt-[2px]" />
          <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>{myStars.toLocaleString('en-US')}</span>
          <button onClick={() => setIsTopUpOpen(true)} className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 ml-1 transition-transform">
             <Plus className="w-4 h-4 text-[#a78bfa]" strokeWidth={3} />
@@ -174,7 +173,9 @@ export function MarketView() {
                         <div className="relative z-30 w-[110px] h-[110px] bg-[#141415] rounded-[28px] flex items-center justify-center border border-[#3b82f6]/40 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
                             <LootboxVisual color={activeBoxData.color} imgSrc={activeBoxData.image} size="large" />
                         </div>
-                        <div className="absolute -top-1 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white" />
+                        
+                        {/* Flecha indicadora actualizada para que sea igual a la de la animación */}
+                        <div className="absolute left-1/2 -top-1 -translate-x-1/2 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
                      </div>
                   ) : (
                      // -- 2. Pistas de Ruleta Animada (1x o 3x) --
@@ -195,7 +196,7 @@ export function MarketView() {
                                     : openingState === 'result'
                                     ? `translateX(calc(-50px - ${25 * 112}px))`
                                     : `translateX(-50px)`,
-                                  transition: isSpinningActive ? `transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)` : 'none',
+                                  transition: isSpinningActive ? `transform 6s cubic-bezier(0.15, 0.85, 0.15, 1)` : 'none',
                                 }}
                               >
                                 {track.items.map((item, idx) => {
@@ -255,7 +256,7 @@ export function MarketView() {
                   )}
                </div>
 
-               {/* Sección What's Inside (Se mantiene igual, solo se baja si crecen las pistas) */}
+               {/* Sección What's Inside */}
                <div className="w-full flex flex-col mt-2">
                   <h3 className="text-white font-bold text-[22px] mb-4" style={{ fontFamily: SFD }}>What's inside</h3>
                   <div className="grid grid-cols-3 gap-3">
