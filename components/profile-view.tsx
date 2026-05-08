@@ -28,13 +28,15 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
   robot: {
     id: 'robot',
     name: 'First Touch',
-    category: 'Vanguard', 
+    category: 'Vanguard',
     serial: '#01,244',
     collection: 'Achievements',
-    rarity: 'Common',
-    rarityPercent: '100%',
-    type: 'Welcome Badge',
-    typePercent: '100%',
+    model: 'Pioneer Badge',
+    modelPercent: '100%',
+    symbol: 'Automata',
+    symbolPercent: '100%',
+    backdrop: 'Cosmic Void',
+    backdropPercent: '',
     quantityIssued: 12500,
     quantityMax: null, 
     reqLevel: 1,
@@ -45,13 +47,15 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
   pepe: {
     id: 'pepe',
     name: 'Early Pepe',
-    category: 'Early Access', 
+    category: 'Void',
     serial: '#00,004',
     collection: 'Achievements',
-    rarity: 'Exclusive',
-    rarityPercent: '0.1%',
-    type: 'Early Access',
-    typePercent: '0.1%',
+    model: 'Meme Relic',
+    modelPercent: '0.1%',
+    symbol: 'Rare Artifact',
+    symbolPercent: '0.1%',
+    backdrop: 'Dark Matter',
+    backdropPercent: '0.5%',
     quantityIssued: 4,
     quantityMax: 15,
     reqLevel: 2,
@@ -62,13 +66,15 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
   pyramid: { 
     id: 'pyramid',
     name: 'The Architect',
-    category: 'Secrets', 
+    category: 'Illuminati',
     serial: '#00,001',
     collection: 'Achievements',
-    rarity: 'Mythic',
-    rarityPercent: '0.01%',
-    type: 'Secret',
-    typePercent: '0.01%',
+    model: 'Forbidden Cipher',
+    modelPercent: '0.01%',
+    symbol: 'All-Seeing Eye',
+    symbolPercent: '0.01%',
+    backdrop: 'Abyssal Space',
+    backdropPercent: '0.05%',
     quantityIssued: 1,
     quantityMax: 10,
     reqLevel: 99, 
@@ -193,7 +199,6 @@ export function ProfileView() {
   // Lógica para Desbloquear Logros Automáticamente
   useEffect(() => {
     if (typeof window === 'undefined') return;
- 
     const userLv = currentLevel.lv;
     
     let newlyFound = null;
@@ -254,7 +259,7 @@ export function ProfileView() {
                className="absolute left-1/2 top-1/2" 
                style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
              >
-                 <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
+                <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
              </div>
           ))}
        </div>
@@ -266,7 +271,9 @@ export function ProfileView() {
       setSelectedItem({
         id: 'hearts',
         name: 'Pixel Hearts', serial: '#94,355', collection: 'Cosmetic Backgrounds',
-        rarity: 'Exclusive (Early Access)', rarityPercent: '0.5%', type: 'Icon Background', typePercent: '0.4%',
+        model: 'Cosmetic Backgrounds', modelPercent: '0.5%',
+        symbol: 'Icon Background', symbolPercent: '0.4%',
+        backdrop: 'Exclusive', backdropPercent: '',
         quantityIssued: 124, quantityMax: 500, reqLevel: 3, reqBP: 2500,
         desc: 'A premium pixel heart aura that surrounds your avatar, reserved for early supporters.',
         date: "MAY 7, 2026",
@@ -276,7 +283,9 @@ export function ProfileView() {
       setSelectedItem({
         id: 'sparkles',
         name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
-        rarity: 'Rare', rarityPercent: '2.5%', type: 'Name Icon', typePercent: '1.2%',
+        model: 'Name Icons', modelPercent: '2.5%',
+        symbol: 'Title Badge', symbolPercent: '1.2%',
+        backdrop: 'Rare', backdropPercent: '',
         quantityIssued: 3150, quantityMax: 10000, reqLevel: 8, reqBP: 50000,
         desc: 'A sparkling icon that appears next to your username to signify your high rank.',
         date: "MAY 7, 2026",
@@ -287,7 +296,9 @@ export function ProfileView() {
       setSelectedItem({
         id: ach.id,
         name: ach.name, serial: ach.serial, collection: ach.collection,
-        rarity: ach.rarity, rarityPercent: ach.rarityPercent, type: ach.type, typePercent: ach.typePercent,
+        model: ach.model, modelPercent: ach.modelPercent,
+        symbol: ach.symbol, symbolPercent: ach.symbolPercent,
+        backdrop: ach.backdrop, backdropPercent: ach.backdropPercent,
         quantityIssued: ach.quantityIssued, quantityMax: ach.quantityMax, reqLevel: ach.reqLevel,
         desc: ach.desc,
         date: ach.date,
@@ -305,12 +316,13 @@ export function ProfileView() {
     setSelectedItem(null)
   }
 
-  // ── Modificado: Exactamente 5 espacios basados en tu imagen ──
-  const TOTAL_PROFILE_ACH_SLOTS = 5;
+  const TOTAL_PROFILE_ACH_SLOTS = 4;
   const profileAchievementSlots = Array.from({ length: TOTAL_PROFILE_ACH_SLOTS });
 
-  // ── OBTENEMOS LAS CATEGORÍAS ÚNICAS DESBLOQUEADAS ──
   const unlockedCategories = Array.from(new Set(unlockedAchKeys.map(key => ACHIEVEMENTS_DB[key].category)));
+
+  // Lógica de propiedad del ítem seleccionado para el modal
+  const isItemOwned = selectedItem ? currentLevel.lv >= selectedItem.reqLevel : false;
 
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
@@ -338,7 +350,7 @@ export function ProfileView() {
 
            <div className="relative flex justify-center items-center w-full mb-3 z-10">
                 <div className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
-                 {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
+                  {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                 </div>
            </div>
           <div className="text-center flex flex-col items-center relative z-10">
@@ -376,10 +388,10 @@ export function ProfileView() {
               {isLevelsExpanded && (
                 <div className="mt-4 flex flex-col gap-2 animate-in slide-in-from-top-2">
                    {lockedLevels.slice(0, 3).map((lvl) => (
-                     <div key={lvl.lv} className="flex items-center justify-between p-3 rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e]">
+                      <div key={lvl.lv} className="flex items-center justify-between p-3 rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e]">
                          <div className="flex items-center gap-3">
                             <div className="w-8 h-8 flex items-center justify-center grayscale opacity-50 shrink-0">
-                               <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
+                              <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
                             </div>
                             <div>
                                <p className="text-[#8e8e93] font-medium text-[14px] leading-none mb-1" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
@@ -390,50 +402,46 @@ export function ProfileView() {
                       </div>
                    ))}
                 </div>
-               )}
+              )}
            </div>
         </div>
 
-        {/* ── Achievements (Fila Única Horizontal Exacta) ── */}
+        {/* ── Achievements (Fila Única Horizontal con Sombra de Profundidad) ── */}
         <div className="w-full relative z-10">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
-                 Achievements <span className="text-[#48484a] text-[16px] ml-1">{unlockedAchKeys.length}</span>
+                Achievements <span className="text-[#48484a] text-[16px] ml-1">{unlockedAchKeys.length}</span>
               </h3>
               <button onClick={() => setIsAchievementsMenuOpen(true)} className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
                 <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
               </button>
            </div>
-          
-           {/* Modificado para apilamiento recto */}
-           <div className="flex items-center pl-1 overflow-x-hidden pb-4 pt-2">
+           
+           <div className="flex items-center gap-[2px] overflow-x-hidden pb-4 pt-2 pl-1">
               {profileAchievementSlots.map((_, i) => {
                  const key = unlockedAchKeys[i];
                  const zIndex = 10 - i; 
-                 // Espaciado negativo constante para igualar la captura (sin rotación)
                  const marginLeft = i === 0 ? '0' : '-16px'; 
                  
                  if (key) {
                     const ach = ACHIEVEMENTS_DB[key];
                     return (
-                      <button 
-                        key={key}
-                        onClick={() => openItemModal(key)}
-                        className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
-                        style={{ 
-                          clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
-                          zIndex: zIndex,
-                          marginLeft: marginLeft
-                        }}
-                      >
-                        <img 
-                          src={ach.img} 
-                          draggable={false} 
-                          alt={ach.name} 
-                          className="w-[125%] h-[125%] object-cover pointer-events-none select-none" 
-                          style={{ WebkitTouchCallout: "none" }} 
-                        />
-                      </button>
+                      // Añadida sombra sutil con drop-shadow para sensación de profundidad
+                      <div key={key} style={{ zIndex, marginLeft }} className="drop-shadow-[0_0_15px_rgba(255,255,255,0.08)]">
+                         <button 
+                           onClick={() => openItemModal(key)}
+                           className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
+                           style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                         >
+                           <img 
+                             src={ach.img} 
+                             draggable={false} 
+                             alt={ach.name} 
+                             className="w-[125%] h-[125%] object-cover pointer-events-none select-none" 
+                             style={{ WebkitTouchCallout: "none" }} 
+                           />
+                         </button>
+                      </div>
                     )
                  } else {
                     return (
@@ -469,7 +477,7 @@ export function ProfileView() {
                        </div>
                     )}
                     {currentLevel.lv < 3 && ( 
-                      <div className="absolute -bottom-1 -right-1 bg-[#1c1c1e] rounded-full p-[2px] border border-[#2c2c2e]">
+                       <div className="absolute -bottom-1 -right-1 bg-[#1c1c1e] rounded-full p-[2px] border border-[#2c2c2e]">
                           <Lock className="w-2 h-2 text-[#8e8e93]" strokeWidth={3} />
                        </div>
                     )}
@@ -495,14 +503,12 @@ export function ProfileView() {
 
       </div>
 
-      {/* ── MODAL FULLSCREEN: NUEVO LOGRO DESBLOQUEADO (Animación Shake) ── */}
+      {/* ── MODAL FULLSCREEN: NUEVO LOGRO DESBLOQUEADO ── */}
       {newlyUnlocked && ACHIEVEMENTS_DB[newlyUnlocked] && (
         <div 
           className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300"
           onClick={() => setNewlyUnlocked(null)}
         >
-          {/* Header Superior Limpio - Controlado por Back de Telegram */}
-          
           <img 
             src={ACHIEVEMENTS_DB[newlyUnlocked].img} 
             alt={ACHIEVEMENTS_DB[newlyUnlocked].name} 
@@ -512,7 +518,7 @@ export function ProfileView() {
           />
           
           <h1 className="text-white text-[28px] font-bold mt-6 text-center" style={{ fontFamily: SFD }}>
-            {ACHIEVEMENTS_DB[newlyUnlocked].name}
+             {ACHIEVEMENTS_DB[newlyUnlocked].name}
           </h1>
           <p className="text-[#8e8e93] text-[13px] font-bold mt-1 tracking-widest uppercase" style={{ fontFamily: SF }}>
              OBTAINED: {ACHIEVEMENTS_DB[newlyUnlocked].date}
@@ -530,7 +536,8 @@ export function ProfileView() {
               80% { transform: translateX(8px) rotate(4deg); }
             }
             .achievement-shake-animation {
-              animation: achievementShake 0.6s ease-in-out forwards; }
+              animation: achievementShake 0.6s ease-in-out forwards;
+            }
           `}} />
         </div>
       )}
@@ -540,22 +547,19 @@ export function ProfileView() {
         <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
           
           <div className="px-5 pt-8 flex flex-col">
-            {/* Título Principal Limpio - Controlado por Back de Telegram */}
             <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>
               Achievements
             </h1>
 
-            {/* Mapeo Dinámico de Categorías */}
             {unlockedCategories.length > 0 ? (
-                unlockedCategories.map((category) => {
+               unlockedCategories.map((category) => {
                   const categoryKeys = unlockedAchKeys.filter(key => ACHIEVEMENTS_DB[key].category === category);
                   
                   return (
                      <div key={category} className="mb-10 w-full">
-                        {/* Cabecera de la Categoría */}
                         <div className="flex items-center justify-between mb-6">
                            <div className="flex items-center gap-2">
-                               <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center">
+                              <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center">
                                  <Hexagon className="w-3 h-3 text-[#8e8e93]" />
                               </div>
                               <span className="text-white font-bold text-[17px]" style={{ fontFamily: SFD }}>{category}</span>
@@ -564,9 +568,8 @@ export function ProfileView() {
                            <div className="w-7 h-7 rounded-full bg-[#111111] flex items-center justify-center">
                               <ChevronDown className="w-4 h-4 text-[#48484a]" />
                            </div>
-                         </div>
+                        </div>
 
-                        {/* Cuadrícula de 2 columnas de esta categoría específica */}
                         <div className="grid grid-cols-2 gap-x-4 gap-y-8">
                           {categoryKeys.map((key) => {
                             const ach = ACHIEVEMENTS_DB[key];
@@ -581,7 +584,7 @@ export function ProfileView() {
                                       draggable={false} 
                                       className="w-[140px] h-[140px] object-contain pointer-events-none select-none" 
                                       style={{ WebkitTouchCallout: "none" }} 
-                                    />
+                                   />
                                  </button>
                                  <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{ach.name}</h2>
                                  <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{ach.desc}</p>
@@ -590,7 +593,7 @@ export function ProfileView() {
                             )
                           })}
                         </div>
-                      </div>
+                     </div>
                   )
                })
             ) : (
@@ -600,12 +603,11 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── Bottom Sheet Modal (Detalles Inventario/Logros) - Z-Index 110 para evitar superposiciones ── */}
+      {/* ── Bottom Sheet Modal (Detalles Inventario/Logros) ── */}
       {selectedItem && (
         <div className="fixed inset-0 z-[110] flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
            <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto">
-             {/* Header Limpio sin X, usando el back nativo */}
               
               <div className="w-full flex justify-center mt-12 mb-2">{selectedItem.preview}</div>
 
@@ -616,30 +618,52 @@ export function ProfileView() {
               )}
               {selectedItem.desc && (
                 <p className="text-[#8e8e93] text-[14px] mt-3 mb-6 px-6 text-center leading-relaxed" style={{ fontFamily: SF }}>{selectedItem.desc}</p>
-               )}
+              )}
 
               <div className="px-5 w-full">
                  <div className="bg-[#141415] rounded-[16px] border border-[#1c1c1e] w-full flex flex-col mb-8 overflow-hidden">
                     <ModalInfoRow label="owner">
                        <div className="flex items-center justify-start gap-2 w-full">
-                          {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
-                          <span className="text-[#3b82f6] font-medium">{displayName}</span>
+                          {isItemOwned ? (
+                             <>
+                               {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
+                               <span className="text-[#3b82f6] font-medium">{displayName}</span>
+                             </>
+                          ) : (
+                             <>
+                               {/* Logo / Placeholder del xBlum Market */}
+                               <div className="w-5 h-5 rounded-full bg-[#1c1c1e] flex items-center justify-center overflow-hidden">
+                                  <span className="text-[#8e8e93] text-[10px] font-bold">xB</span>
+                               </div>
+                               <span className="text-[#3b82f6] font-medium flex items-center gap-1.5">
+                                  xBlum Market
+                                  {/* Icono de Verificación Estilo Instagram Oficial */}
+                                  <svg viewBox="0 0 24 24" fill="none" className="w-[16px] h-[16px]">
+                                     <path d="M11.99 22c-1.33 0-2.58-.28-3.7-.8l-1.39.24c-.58.1-1.12-.34-1.1-1l.05-1.52c-.89-.9-1.46-2.07-1.46-3.32 0-1.33.28-2.58.8-3.7l-.24-1.39c-.1-.58.34-1.12 1-1.1l1.52.05c.9-.89 2.07-1.46 3.32-1.46 1.33 0 2.58.28 3.7.8l1.39-.24c.58-.1 1.12.34 1.1 1l-.05 1.52c.89.9 1.46 2.07 1.46 3.32 0 1.33-.28 2.58-.8 3.7l.24 1.39c.1.58-.34 1.12-1 1.1l-1.52-.05c-.9.89-2.07 1.46-3.32 1.46z" fill="#3b82f6"/>
+                                     <path d="M10.73 15.58c-.2 0-.39-.08-.53-.22l-2.48-2.48c-.29-.29-.29-.77 0-1.06.29-.29.77-.29 1.06 0l1.95 1.95 4.67-4.67c.29-.29.77-.29 1.06 0 .29.29.29.77 0 1.06l-5.2 5.2c-.14.14-.33.22-.53.22z" fill="#fff"/>
+                                  </svg>
+                               </span>
+                             </>
+                          )}
                        </div>
                     </ModalInfoRow>
                     <ModalInfoRow label="model">
                        <div className="flex items-center">
-                          <span>{selectedItem.collection}</span>
-                          <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.rarityPercent}</span>
-                        </div>
+                          <span>{selectedItem.model}</span>
+                          {selectedItem.modelPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.modelPercent}</span>}
+                       </div>
                     </ModalInfoRow>
                     <ModalInfoRow label="symbol">
                        <div className="flex items-center">
-                          <span>{selectedItem.type}</span>
-                          <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.typePercent}</span>
+                          <span>{selectedItem.symbol}</span>
+                          {selectedItem.symbolPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.symbolPercent}</span>}
                        </div>
                     </ModalInfoRow>
                     <ModalInfoRow label="backdrop">
-                       {selectedItem.rarity}
+                       <div className="flex items-center">
+                          <span>{selectedItem.backdrop}</span>
+                          {selectedItem.backdropPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.backdropPercent}</span>}
+                       </div>
                     </ModalInfoRow>
                     <ModalInfoRow label="quantity" isLast>
                        {selectedItem.quantityMax 
@@ -650,18 +674,18 @@ export function ProfileView() {
                  </div>
 
                  <div className="w-full mb-[120px]">
-                   {currentLevel.lv >= selectedItem.reqLevel ? (
+                   {isItemOwned ? (
                       selectedItem.id === 'hearts' ? (
                         equippedBackground === selectedItem.id ? (
                            <button onClick={handleEquipToggle} className="w-full bg-[#1c1c1e] text-white font-bold text-[17px] rounded-[16px] py-4 border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
-                               Unequip
+                              Unequip
                            </button>
                         ) : (
                            <button onClick={handleEquipToggle} className="w-full bg-[#3b82f6] active:bg-[#2563eb] transition-colors text-white font-bold text-[17px] rounded-[16px] py-4">
                               Equip Background
                            </button>
                         )
-                       ) : (
+                      ) : (
                          <button disabled className="w-full bg-[#1c1c1e] text-[#636366] font-bold text-[17px] rounded-[16px] py-4">
                             Owned
                          </button>
@@ -673,7 +697,7 @@ export function ProfileView() {
                       </button>
                    )}
                  </div>
-               </div>
+              </div>
            </div>
         </div>
       )}
