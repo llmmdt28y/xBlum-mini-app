@@ -57,9 +57,16 @@ export function MarketView() {
   const { setCurrentView } = ctx
   const myStars = 1500
 
+  // ── ESTADOS PRINCIPALES ──
   const [isTopUpOpen, setIsTopUpOpen] = useState(false)
   const [starInput, setStarInput] = useState("")
   const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
+
+  // ── ESTADOS DE LA RULETA ──
+  const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
+  const [isSpinningActive, setIsSpinningActive] = useState(false)
+  const [wonItem, setWonItem] = useState<any>(null)
+  const [rouletteItems, setRouletteItems] = useState<any[]>([])
 
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
@@ -78,6 +85,39 @@ export function MarketView() {
     if (val === '') { setStarInput(''); return }
     const num = parseInt(val, 10)
     setStarInput(num > 150000 ? '150000' : num.toString())
+  }
+
+  // ── LÓGICA DE APERTURA (RULETA) ──
+  const startRoulette = () => {
+    // 1. Elegir un premio al azar
+    const winner = INSIDE_ITEMS[Math.floor(Math.random() * INSIDE_ITEMS.length)]
+    setWonItem(winner)
+
+    // 2. Crear la pista (35 tarjetas), colocando el ganador en el índice 25
+    const items = Array(35).fill({ type: 'dummy' })
+    items[25] = { type: 'winner', ...winner }
+    setRouletteItems(items)
+
+    // 3. Iniciar estados
+    setOpeningState('spinning')
+    setIsSpinningActive(false)
+
+    // 4. Activar transición CSS tras un pequeño retraso
+    setTimeout(() => {
+       setIsSpinningActive(true)
+    }, 50)
+
+    // 5. Terminar giro y mostrar resultado con blur
+    setTimeout(() => {
+       setOpeningState('result')
+       setIsSpinningActive(false)
+    }, 4050) // 4s de transición + 50ms buffer
+  }
+
+  const closeRoulette = () => {
+    setOpeningState('idle')
+    setWonItem(null)
+    setRouletteItems([])
   }
 
   const numValue = starInput ? parseInt(starInput, 10) : 0
@@ -113,9 +153,8 @@ export function MarketView() {
             <div className="flex flex-col px-5 pt-6 items-center">
                <h2 className="text-white font-bold text-[28px] mb-8" style={{ fontFamily: SFD }}>{activeBoxData.name}</h2>
 
-               {/* ── RULETA: SEPARADA Y ALINEADA SIN ROTACIÓN ── */}
+               {/* Ruleta Estática (Background Carousel) */}
                <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden mb-8">
-                  {/* Capa Z-10 (Más lejanas, izquierda y derecha) */}
                   <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] -translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
                       <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
                   </div>
@@ -123,7 +162,6 @@ export function MarketView() {
                       <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
                   </div>
 
-                  {/* Capa Z-20 (Intermedias, izquierda y derecha) */}
                   <div className="absolute z-20 w-[95px] h-[95px] bg-[#0d0d0f] rounded-[24px] -translate-x-[115px] flex items-center justify-center border border-[#2c2c2e] shadow-xl opacity-70">
                       <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
                   </div>
@@ -131,22 +169,19 @@ export function MarketView() {
                       <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
                   </div>
 
-                  {/* Capa Z-30 (Caja Activa Central) */}
                   <div className="relative z-30 w-[110px] h-[110px] bg-[#141415] rounded-[28px] flex items-center justify-center border border-[#3b82f6]/40 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
                       <LootboxVisual color={activeBoxData.color} imgSrc={activeBoxData.image} size="large" />
                   </div>
-                  
-                  {/* Triángulo Indicador apuntando hacia abajo */}
                   <div className="absolute -top-1 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white" />
                </div>
 
-               {/* Botón de Apertura (Icono de estrella ajustado) */}
-               <button className="w-full bg-[#3b82f6] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-lg mb-3" style={{ fontFamily: SF }}>
+               {/* Botones de Apertura que lanzan la animación */}
+               <button onClick={startRoulette} className="w-full bg-[#3b82f6] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-lg mb-3" style={{ fontFamily: SF }}>
                   <span>Open for {activeBoxData.price}</span> 
                   <img src="/telegram-star-icon.png" className="w-[20px] h-[20px] object-contain -mt-[2px]" alt="Star" />
                </button>
                
-               <button className="text-[#3b82f6] font-semibold text-[14px] active:opacity-70 mb-10" style={{ fontFamily: SF }}>
+               <button onClick={startRoulette} className="text-[#3b82f6] font-semibold text-[14px] active:opacity-70 mb-10" style={{ fontFamily: SF }}>
                   Open 3x for {activeBoxData.price * 3} Stars
                </button>
 
@@ -181,7 +216,6 @@ export function MarketView() {
             </div>
 
             <div className="flex flex-col pt-4">
-              {/* Carrusel Desordenado Principal (Mantenido con rotación) */}
               <div className="w-full h-[180px] relative flex justify-center items-center overflow-hidden">
                   <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
                       <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
@@ -243,6 +277,86 @@ export function MarketView() {
           </div>
         )}
       </div>
+
+      {/* ── OVERLAY DE LA RULETA (ANIMACIÓN DE APERTURA) ── */}
+      {openingState !== 'idle' && (
+        <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center transition-all duration-500 pointer-events-auto ${openingState === 'result' ? 'bg-black/70 backdrop-blur-md' : 'bg-black/90'}`}>
+          
+          {/* Triángulo indicador (Solo visible al girar) */}
+          {openingState === 'spinning' && (
+            <div className="absolute top-1/2 -translate-y-[85px] z-50 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[14px] border-t-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+          )}
+
+          {/* Pista de Animación */}
+          <div className="w-full overflow-hidden relative h-[250px] flex items-center">
+             
+             {/* Sombras a los bordes para dar efecto de túnel */}
+             {openingState === 'spinning' && (
+               <>
+                 <div className="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-black to-transparent z-40" />
+                 <div className="absolute right-0 top-0 bottom-0 w-[20%] bg-gradient-to-l from-black to-transparent z-40" />
+               </>
+             )}
+
+             <div
+               className="flex gap-3 absolute left-1/2" // left-1/2 pone el origen exacto al centro de la pantalla
+               style={{
+                 // 100px width + 12px gap = 112px avance por tarjeta. 
+                 // -50px compensa el ancho de la tarjeta para centrarla
+                 transform: openingState === 'spinning' && isSpinningActive
+                   ? `translateX(calc(-50px - ${25 * 112}px))`
+                   : openingState === 'result'
+                   ? `translateX(calc(-50px - ${25 * 112}px))`
+                   : `translateX(-50px)`,
+                 transition: isSpinningActive ? 'transform 4s cubic-bezier(0.15, 0.85, 0.15, 1)' : 'none',
+               }}
+             >
+               {rouletteItems.map((item, idx) => {
+                  const isWinnerCard = idx === 25;
+                  const isResult = openingState === 'result';
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`w-[100px] h-[100px] flex-shrink-0 flex items-center justify-center rounded-[24px] border transition-all duration-700 ${
+                        isResult && !isWinnerCard
+                          ? 'opacity-0 scale-50' // Las tarjetas perdedoras se esfuman
+                          : isResult && isWinnerCard
+                          ? 'opacity-100 scale-150 bg-[#111111] border-[#3b82f6] shadow-[0_0_50px_rgba(59,130,246,0.3)] z-50 relative' // El ganador brilla y crece
+                          : 'bg-[#0d0d0f] border-[#2c2c2e] opacity-80 shadow-md' // Estado girando
+                      }`}
+                    >
+                      {item.type === 'dummy' ? (
+                        <span className="text-white/30 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center p-2">
+                           {/* Renderizamos el icono del ganador */}
+                           <item.icon className="w-10 h-10 drop-shadow-lg" style={{ color: item.color }} />
+                        </div>
+                      )}
+                    </div>
+                  )
+               })}
+             </div>
+          </div>
+
+          {/* Botón y nombre del premio (Aparece tras el blur) */}
+          {openingState === 'result' && (
+             <div className="absolute bottom-24 flex flex-col items-center animate-in slide-in-from-bottom-8 fade-in duration-700 delay-300">
+                <span className="text-white font-bold text-[32px] mb-1" style={{ fontFamily: SFD }}>{wonItem?.name}</span>
+                <span className="font-semibold text-[15px] mb-8" style={{ fontFamily: SF, color: wonItem?.color || '#a78bfa' }}>{wonItem?.rarity} Drop!</span>
+                
+                <button
+                  onClick={closeRoulette}
+                  className="bg-[#3b82f6] text-white px-12 py-4 rounded-[18px] font-bold text-[18px] active:scale-95 transition-transform shadow-[0_8px_30px_rgba(59,130,246,0.4)]"
+                  style={{ fontFamily: SF }}
+                >
+                  Collect Item
+                </button>
+             </div>
+          )}
+        </div>
+      )}
 
       {/* ── MODAL TOP UP ── */}
       {isTopUpOpen && (
