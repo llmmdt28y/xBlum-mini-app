@@ -23,7 +23,37 @@ const LEVEL_CONFIG = [
   { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
 ]
 
-// ── Base de Datos de Logros ──────────────────────────────────────────
+// ── Base de Datos de Cosméticos (Inventario Limpio y Estándar) ──
+const COSMETIC_ITEMS_DB: Record<string, any> = {
+  hearts: {
+    id: 'hearts',
+    type: 'Profile Background',
+    category: 'Icon Backgrounds', // Categoría estándar
+    name: 'Pixel Hearts', serial: '#94,355', collection: 'Cosmetic Backgrounds',
+    model: 'Pixel Pulse', modelPercent: '0.5%',
+    symbol: 'Heart Aura', symbolPercent: '0.4%',
+    backdrop: 'Retro Flow Grid', backdropPercent: '',
+    quantityIssued: 124, quantityMax: 500, reqLevel: 3, reqBP: 2500,
+    desc: 'A premium pixel heart aura that surrounds your avatar, reserved for early supporters.',
+    date: "MAY 7, 2026",
+    getPreview: () => <PreviewPixelHearts />
+  },
+  sparkles: {
+    id: 'sparkles',
+    type: 'Name Icon',
+    category: 'Name Icons', // Categoría estándar
+    name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
+    model: 'Cosmetic Badge', modelPercent: '2.5%',
+    symbol: 'Apex Mark', symbolPercent: '1.2%',
+    backdrop: 'Rare', backdropPercent: '',
+    quantityIssued: 3150, quantityMax: 10000, reqLevel: 8, reqBP: 50000,
+    desc: 'A sparkling icon that appears next to your username to signify your high rank.',
+    date: "MAY 7, 2026",
+    getPreview: () => <Sparkles className="w-24 h-24 text-[#8e8e93]" />
+  }
+}
+
+// ── Base de Datos de Logros (Con nombres Épicos/Misteriosos) ──
 const ACHIEVEMENTS_DB: Record<string, any> = {
   robot: {
     id: 'robot',
@@ -31,12 +61,9 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     category: 'Vanguard',
     serial: '#01,244',
     collection: 'Achievements',
-    model: 'Pioneer Badge',
-    modelPercent: '100%',
-    symbol: 'Automata',
-    symbolPercent: '100%',
-    backdrop: 'Cosmic Void',
-    backdropPercent: '',
+    model: 'Pioneer Badge', modelPercent: '100%',
+    symbol: 'Automata', symbolPercent: '100%',
+    backdrop: 'Cosmic Void', backdropPercent: '',
     quantityIssued: 12500,
     quantityMax: null, 
     reqLevel: 1,
@@ -50,12 +77,9 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     category: 'Void',
     serial: '#00,004',
     collection: 'Achievements',
-    model: 'Meme Relic',
-    modelPercent: '0.1%',
-    symbol: 'Rare Artifact',
-    symbolPercent: '0.1%',
-    backdrop: 'Dark Matter',
-    backdropPercent: '0.5%',
+    model: 'Meme Relic', modelPercent: '0.1%',
+    symbol: 'Rare Artifact', symbolPercent: '0.1%',
+    backdrop: 'Dark Matter', backdropPercent: '',
     quantityIssued: 4,
     quantityMax: 15,
     reqLevel: 2,
@@ -69,12 +93,9 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     category: 'Illuminati',
     serial: '#00,001',
     collection: 'Achievements',
-    model: 'Forbidden Cipher',
-    modelPercent: '0.01%',
-    symbol: 'All-Seeing Eye',
-    symbolPercent: '0.01%',
-    backdrop: 'Abyssal Space',
-    backdropPercent: '0.05%',
+    model: 'Forbidden Cipher', modelPercent: '0.01%',
+    symbol: 'All-Seeing Eye', symbolPercent: '0.01%',
+    backdrop: 'Abyssal Space', backdropPercent: '',
     quantityIssued: 1,
     quantityMax: 10,
     reqLevel: 99, 
@@ -83,6 +104,23 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
     date: "MAY 7, 2026"
   }
 }
+
+const BACKGROUND_HEARTS_PREVIEW = [
+  { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
+  { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
+  { x: -110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x:  110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x: -160, y: -20, rot:  10, op: 0.08, size: 20, color: "#ffffff" },
+  { x:  160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
+  { x: -140, y:  50, rot:  -5, op: 0.12, size: 22, color: "#ffffff" },
+  { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
+  { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
+  { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
+  { x: -120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  { x:  120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
+  { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
+]
 
 // ── Componente Pixel Art (Nivel) ──────────────────────────────────────
 const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: string, size?: number }) => {
@@ -122,22 +160,21 @@ const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opaci
   </svg>
 )
 
-const BACKGROUND_HEARTS = [
-  { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
-  { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
-  { x: -110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
-  { x:  110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
-  { x: -160, y: -20, rot:  10, op: 0.08, size: 20, color: "#ffffff" },
-  { x:  160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
-  { x: -140, y:  50, rot:  -5, op: 0.12, size: 22, color: "#ffffff" },
-  { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
-  { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
-  { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
-  { x: -120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
-  { x:  120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
-  { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
-  { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
-]
+const PreviewPixelHearts = () => (
+  <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden">
+     <div className="absolute inset-0 pointer-events-none z-0">
+        {BACKGROUND_HEARTS_PREVIEW.map((h, i) => (
+           <div 
+             key={i} 
+             className="absolute left-1/2 top-1/2" 
+             style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+           >
+              <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
+           </div>
+        ))}
+     </div>
+  </div>
+)
 
 type TgUser = {
   id: number
@@ -177,10 +214,11 @@ export function ProfileView() {
   
   const [equippedBackground, setEquippedBackground] = useState<string | null>(null)
 
-  // ── ESTADOS DE LOGROS (ACHIEVEMENTS) ──
+  // ── ESTADOS DE MENÚS (ACHIEVEMENTS & INVENTORY) ──
   const [unlockedAchKeys, setUnlockedAchKeys] = useState<string[]>([])
   const [newlyUnlocked, setNewlyUnlocked] = useState<string | null>(null)
   const [isAchievementsMenuOpen, setIsAchievementsMenuOpen] = useState(false);
+  const [isCosmeticInventoryMenuOpen, setIsCosmeticInventoryMenuOpen] = useState(false);
 
   const currentLevel = [...LEVEL_CONFIG].reverse().find(l => myBP >= l.bp) || LEVEL_CONFIG[0]
   const nextLevel = LEVEL_CONFIG[currentLevel.lv] || currentLevel
@@ -238,6 +276,8 @@ export function ProfileView() {
         setSelectedItem(null) 
       } else if (isAchievementsMenuOpen) {
         setIsAchievementsMenuOpen(false) 
+      } else if (isCosmeticInventoryMenuOpen) { 
+        setIsCosmeticInventoryMenuOpen(false)
       } else { 
         setCurrentView("home");
         tg.BackButton.hide() 
@@ -246,64 +286,25 @@ export function ProfileView() {
     
     tg.BackButton.onClick(handleBack)
     return () => { tg.BackButton.offClick(handleBack) }
-  }, [setCurrentView, selectedItem, newlyUnlocked, isAchievementsMenuOpen])
+  }, [setCurrentView, selectedItem, newlyUnlocked, isAchievementsMenuOpen, isCosmeticInventoryMenuOpen])
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
-  const PreviewPixelHeartsModal = (
-    <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden">
-       <div className="absolute inset-0 pointer-events-none z-0">
-          {BACKGROUND_HEARTS.map((h, i) => (
-             <div 
-               key={i} 
-               className="absolute left-1/2 top-1/2" 
-               style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
-             >
-                <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
-             </div>
-          ))}
-       </div>
-    </div>
-  )
-
-  const openItemModal = (type: string) => {
-    if (type === 'hearts') {
-      setSelectedItem({
-        id: 'hearts',
-        name: 'Pixel Hearts', serial: '#94,355', collection: 'Cosmetic Backgrounds',
-        model: 'Cosmetic Backgrounds', modelPercent: '0.5%',
-        symbol: 'Icon Background', symbolPercent: '0.4%',
-        backdrop: 'Exclusive', backdropPercent: '',
-        quantityIssued: 124, quantityMax: 500, reqLevel: 3, reqBP: 2500,
-        desc: 'A premium pixel heart aura that surrounds your avatar, reserved for early supporters.',
-        date: "MAY 7, 2026",
-        preview: PreviewPixelHeartsModal
-      })
-    } else if (type === 'sparkles') {
-      setSelectedItem({
-        id: 'sparkles',
-        name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
-        model: 'Name Icons', modelPercent: '2.5%',
-        symbol: 'Title Badge', symbolPercent: '1.2%',
-        backdrop: 'Rare', backdropPercent: '',
-        quantityIssued: 3150, quantityMax: 10000, reqLevel: 8, reqBP: 50000,
-        desc: 'A sparkling icon that appears next to your username to signify your high rank.',
-        date: "MAY 7, 2026",
-        preview: <Sparkles className="w-24 h-24 text-[#8e8e93]" />
-      })
-    } else if (ACHIEVEMENTS_DB[type]) {
-      const ach = ACHIEVEMENTS_DB[type];
-      setSelectedItem({
-        id: ach.id,
-        name: ach.name, serial: ach.serial, collection: ach.collection,
-        model: ach.model, modelPercent: ach.modelPercent,
-        symbol: ach.symbol, symbolPercent: ach.symbolPercent,
-        backdrop: ach.backdrop, backdropPercent: ach.backdropPercent,
-        quantityIssued: ach.quantityIssued, quantityMax: ach.quantityMax, reqLevel: ach.reqLevel,
-        desc: ach.desc,
-        date: ach.date,
-        preview: <img src={ach.img} draggable={false} className="w-[150px] h-[150px] object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} alt={ach.name} />
-      })
+  const openItemModal = (id: string, isAchievement = false) => {
+    if (isAchievement) {
+       const ach = ACHIEVEMENTS_DB[id];
+       setSelectedItem({
+         ...ach,
+         preview: <img src={ach.img} draggable={false} className="w-[150px] h-[150px] object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} alt={ach.name} />
+       })
+    } else {
+       const item = COSMETIC_ITEMS_DB[id];
+       if (item) {
+          setSelectedItem({
+            ...item,
+            preview: item.getPreview()
+          })
+       }
     }
   }
 
@@ -311,7 +312,9 @@ export function ProfileView() {
     if (equippedBackground === selectedItem?.id) {
        setEquippedBackground(null)
     } else {
-       setEquippedBackground(selectedItem?.id)
+       if (selectedItem?.type === 'Profile Background') {
+         setEquippedBackground(selectedItem?.id)
+       }
     }
     setSelectedItem(null)
   }
@@ -319,10 +322,11 @@ export function ProfileView() {
   const TOTAL_PROFILE_ACH_SLOTS = 4;
   const profileAchievementSlots = Array.from({ length: TOTAL_PROFILE_ACH_SLOTS });
 
-  const unlockedCategories = Array.from(new Set(unlockedAchKeys.map(key => ACHIEVEMENTS_DB[key].category)));
-
   // Lógica de propiedad del ítem seleccionado para el modal
   const isItemOwned = selectedItem ? currentLevel.lv >= selectedItem.reqLevel : false;
+
+  // ── OBTENEMOS LAS CATEGORÍAS COSMÉTICAS DISPONIBLES (Inventario Normal) ──
+  const cosmeticCategories = Array.from(new Set(Object.values(COSMETIC_ITEMS_DB).map(item => item.category)));
 
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
@@ -340,7 +344,7 @@ export function ProfileView() {
            
            {equippedBackground === 'hearts' && (
              <div className="absolute inset-0 pointer-events-none z-0" style={{ height: '240px', top: '-40px', maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
-                {BACKGROUND_HEARTS.map((h, i) => (
+                {BACKGROUND_HEARTS_PREVIEW.map((h, i) => (
                    <div key={i} className="absolute left-1/2 top-[40%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
                       <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
                    </div>
@@ -426,10 +430,9 @@ export function ProfileView() {
                  if (key) {
                     const ach = ACHIEVEMENTS_DB[key];
                     return (
-                      // Añadida sombra sutil con drop-shadow para sensación de profundidad
                       <div key={key} style={{ zIndex, marginLeft }} className="drop-shadow-[0_0_15px_rgba(255,255,255,0.08)]">
                          <button 
-                           onClick={() => openItemModal(key)}
+                           onClick={() => openItemModal(key, true)}
                            className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
                            style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
                          >
@@ -461,43 +464,28 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Inventory ── */}
+        {/* ── Inventory (Botón al Catálogo) ── */}
         <div className="w-full pb-6 relative z-10">
-           <h3 className="text-white font-bold text-[18px] mb-4" style={{ fontFamily: SFD }}>Inventory</h3>
-           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-              
-              <button onClick={() => openItemModal('hearts')} className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] border border-[#2c2c2e] p-4 flex flex-col justify-between shrink-0 relative overflow-hidden active:scale-[0.98] transition-transform text-left">
-                 <div className="absolute -top-4 -right-4 w-20 h-20 opacity-10 pointer-events-none" style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}></div>
-                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-[#2c2c2e]">
-                    <PixelHeartOutline color="#ffffff" opacity={0.8} size={10} />
-                    
-                    {equippedBackground === 'hearts' && (
-                       <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-[2px]">
-                          <Check className="w-2 h-2 text-white" strokeWidth={4} />
-                       </div>
-                    )}
-                    {currentLevel.lv < 3 && ( 
-                       <div className="absolute -bottom-1 -right-1 bg-[#1c1c1e] rounded-full p-[2px] border border-[#2c2c2e]">
-                          <Lock className="w-2 h-2 text-[#8e8e93]" strokeWidth={3} />
-                       </div>
-                    )}
+           <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
+                Inventory
+              </h3>
+              <button onClick={() => setIsCosmeticInventoryMenuOpen(true)} className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
+                <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
+              </button>
+           </div>
+           
+           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 pt-2">
+              <button onClick={() => setIsCosmeticInventoryMenuOpen(true)} className="w-[140px] h-[160px] rounded-[24px] bg-[#141415] border border-[#2c2c2e] p-5 flex flex-col justify-between shrink-0 relative overflow-hidden active:scale-[0.98] transition-transform text-left group">
+                 <div className="absolute inset-0 bg-blue-500 opacity-0 group-active:opacity-10 transition-opacity"></div>
+                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-[#2c2c2e]">
+                    <Hexagon className="w-5 h-5 text-[#8e8e93]" />
                  </div>
                  <div className="relative z-10">
-                    <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>Icon Backgrounds</p>
-                    <p className={`text-[13px] mt-1 font-medium ${currentLevel.lv >= 3 ? 'text-blue-400' : 'text-[#636366]'}`} style={{ fontFamily: SF }}>Pixel Hearts</p>
+                    <p className="text-white font-medium text-[16px] leading-tight" style={{ fontFamily: SF }}>Open</p>
+                    <p className="text-blue-400 text-[14px] mt-1 font-medium" style={{ fontFamily: SF }}>Cosmetic Catalogue</p>
                  </div>
               </button>
-
-              <button onClick={() => openItemModal('sparkles')} className="w-[120px] h-[140px] rounded-[24px] bg-[#141415] p-4 flex flex-col justify-between shrink-0 active:scale-[0.98] transition-transform text-left border border-[#2c2c2e]">
-                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[#1c1c1e]">
-                    <Sparkles className="w-4 h-4 text-[#8e8e93]" />
-                 </div>
-                 <div>
-                    <p className="text-white font-medium text-[15px] leading-tight" style={{ fontFamily: SF }}>Name Icons</p>
-                    <p className="text-[#8e8e93] text-[13px] mt-1" style={{ fontFamily: SF }}>0 items</p>
-                 </div>
-              </button>
-
            </div>
         </div>
 
@@ -542,7 +530,7 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS (SISTEMA DE CATEGORÍAS) ── */}
+      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS (SISTEMA DE CATEGORÍAS ÉPICAS) ── */}
       {isAchievementsMenuOpen && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
           
@@ -551,54 +539,115 @@ export function ProfileView() {
               Achievements
             </h1>
 
-            {unlockedCategories.length > 0 ? (
-               unlockedCategories.map((category) => {
-                  const categoryKeys = unlockedAchKeys.filter(key => ACHIEVEMENTS_DB[key].category === category);
-                  
-                  return (
-                     <div key={category} className="mb-10 w-full">
-                        <div className="flex items-center justify-between mb-6">
-                           <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center">
-                                 <Hexagon className="w-3 h-3 text-[#8e8e93]" />
-                              </div>
-                              <span className="text-white font-bold text-[17px]" style={{ fontFamily: SFD }}>{category}</span>
-                              <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryKeys.length}</span>
+            {Array.from(new Set(unlockedAchKeys.map(key => ACHIEVEMENTS_DB[key].category || 'Secrets'))).map((category) => {
+               const categoryKeys = unlockedAchKeys.filter(key => (ACHIEVEMENTS_DB[key].category || 'Secrets') === category);
+               
+               return (
+                  <div key={category} className="mb-10 w-full">
+                     <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                           <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center">
+                              <Hexagon className="w-3 h-3 text-[#8e8e93]" />
                            </div>
-                           <div className="w-7 h-7 rounded-full bg-[#111111] flex items-center justify-center">
-                              <ChevronDown className="w-4 h-4 text-[#48484a]" />
-                           </div>
+                           <span className="text-white font-bold text-[17px] uppercase tracking-wider" style={{ fontFamily: SFD }}>{category}</span>
+                           <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryKeys.length}</span>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-8">
-                          {categoryKeys.map((key) => {
-                            const ach = ACHIEVEMENTS_DB[key];
-                            return (
-                              <div key={key} className="flex flex-col items-center text-center w-full">
-                                 <button 
-                                   onClick={() => openItemModal(key)}
-                                   className="active:scale-95 transition-transform flex flex-col items-center w-full"
-                                 >
-                                   <img 
-                                      src={ach.img} 
-                                      draggable={false} 
-                                      className="w-[140px] h-[140px] object-contain pointer-events-none select-none" 
-                                      style={{ WebkitTouchCallout: "none" }} 
-                                   />
-                                 </button>
-                                 <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{ach.name}</h2>
-                                 <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{ach.desc}</p>
-                                 <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{ach.date}</p>
-                              </div>
-                            )
-                          })}
+                        <div className="w-7 h-7 rounded-full bg-[#111111] flex items-center justify-center">
+                           <ChevronDown className="w-4 h-4 text-[#48484a]" />
                         </div>
                      </div>
-                  )
-               })
-            ) : (
-               <p className="text-[#8e8e93] text-[15px] mt-10 text-center" style={{ fontFamily: SF }}>No achievements unlocked yet.</p>
-            )}
+
+                     <div className="grid grid-cols-2 gap-x-4 gap-y-8 pl-1">
+                       {categoryKeys.map((key) => {
+                         const ach = ACHIEVEMENTS_DB[key];
+                         return (
+                           <div key={key} className="flex flex-col items-center text-center w-full drop-shadow-[0_0_15px_rgba(255,255,255,0.06)]">
+                              <button 
+                                onClick={() => openItemModal(key, true)}
+                                className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
+                                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                              >
+                                <img 
+                                   src={ach.img} 
+                                   draggable={false} 
+                                   className="w-[125%] h-[125%] object-cover pointer-events-none select-none" 
+                                   style={{ WebkitTouchCallout: "none" }} 
+                                />
+                              </button>
+                              <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{ach.name}</h2>
+                              <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{ach.desc}</p>
+                              <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{ach.date}</p>
+                           </div>
+                         )
+                       })}
+                     </div>
+                  </div>
+               )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL FULLSCREEN: MENÚ DE INVENTARIO COSMÉTICO (CATÁLOGO) ── */}
+      {isCosmeticInventoryMenuOpen && (
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
+          
+          <div className="px-5 pt-8 flex flex-col">
+            <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>
+              Catalogue
+            </h1>
+
+            {cosmeticCategories.map((category) => {
+               const categoryItems = Object.values(COSMETIC_ITEMS_DB).filter(item => item.category === category);
+               
+               return (
+                  <div key={category} className="mb-10 w-full">
+                     <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                           <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center">
+                              <Hexagon className="w-3 h-3 text-[#8e8e93]" />
+                           </div>
+                           <span className="text-white font-bold text-[17px] uppercase tracking-wider" style={{ fontFamily: SFD }}>{category}</span>
+                           <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryItems.length}</span>
+                        </div>
+                        <div className="w-7 h-7 rounded-full bg-[#111111] flex items-center justify-center">
+                           <ChevronDown className="w-4 h-4 text-[#48484a]" />
+                        </div>
+                     </div>
+
+                     <div className="grid grid-cols-2 gap-x-4 gap-y-8 pl-1">
+                       {categoryItems.map((item) => {
+                         const isOwned = currentLevel.lv >= item.reqLevel;
+                         return (
+                           <div key={item.id} className={`flex flex-col items-center text-center w-full drop-shadow-[0_0_15px_rgba(255,255,255,0.06)] ${!isOwned ? 'grayscale opacity-60' : ''}`}>
+                              <button 
+                                onClick={() => openItemModal(item.id)}
+                                className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1 group"
+                                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                              >
+                                {item.getPreview()}
+                                {!isOwned && (
+                                    <div className="absolute inset-0 flex items-center justify-center z-20">
+                                       <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center border border-[#2c2c2e]">
+                                          <Lock className="w-6 h-6 text-[#8e8e93]" strokeWidth={2} />
+                                       </div>
+                                    </div>
+                                )}
+                              </button>
+                              <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{item.name}</h2>
+                              <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{item.desc}</p>
+                              {isOwned ? (
+                                 <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{item.date}</p>
+                              ) : (
+                                 <p className="text-[#48484a] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>Requires Level {item.reqLevel}</p>
+                              )}
+                           </div>
+                         )
+                       })}
+                     </div>
+                  </div>
+               )
+            })}
           </div>
         </div>
       )}
@@ -613,7 +662,7 @@ export function ProfileView() {
 
               <h2 className="text-white font-bold text-[24px] mt-2" style={{ fontFamily: SFD }}>{selectedItem.name} <span className="text-[#8e8e93] font-normal">{selectedItem.serial}</span></h2>
               
-              {selectedItem.date && (
+              {selectedItem.date && isItemOwned && (
                 <p className="text-[#8e8e93] text-[12px] mt-1 tracking-widest uppercase font-bold" style={{ fontFamily: SF }}>OBTAINED: {selectedItem.date}</p>
               )}
               {selectedItem.desc && (
@@ -637,10 +686,8 @@ export function ProfileView() {
                                </div>
                                <span className="text-[#3b82f6] font-medium flex items-center gap-1.5">
                                   xBlum Market
-                                  {/* Icono de Verificación Estilo Instagram Oficial */}
-                                  <svg viewBox="0 0 24 24" fill="none" className="w-[16px] h-[16px]">
-                                     <path d="M11.99 22c-1.33 0-2.58-.28-3.7-.8l-1.39.24c-.58.1-1.12-.34-1.1-1l.05-1.52c-.89-.9-1.46-2.07-1.46-3.32 0-1.33.28-2.58.8-3.7l-.24-1.39c-.1-.58.34-1.12 1-1.1l1.52.05c.9-.89 2.07-1.46 3.32-1.46 1.33 0 2.58.28 3.7.8l1.39-.24c.58-.1 1.12.34 1.1 1l-.05 1.52c.89.9 1.46 2.07 1.46 3.32 0 1.33-.28 2.58-.8 3.7l.24 1.39c.1.58-.34 1.12-1 1.1l-1.52-.05c-.9.89-2.07 1.46-3.32 1.46z" fill="#3b82f6"/>
-                                     <path d="M10.73 15.58c-.2 0-.39-.08-.53-.22l-2.48-2.48c-.29-.29-.29-.77 0-1.06.29-.29.77-.29 1.06 0l1.95 1.95 4.67-4.67c.29-.29.77-.29 1.06 0 .29.29.29.77 0 1.06l-5.2 5.2c-.14.14-.33.22-.53.22z" fill="#fff"/>
+                                  <svg viewBox="0 0 24 24" fill="none" className="w-[16px] h-[16px] shrink-0">
+                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.71 9.71L11.5 16.92l-2.92-2.92c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l1.51 1.51 4.21-4.21c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41z" fill="#3b82f6"/>
                                   </svg>
                                </span>
                              </>
@@ -675,7 +722,7 @@ export function ProfileView() {
 
                  <div className="w-full mb-[120px]">
                    {isItemOwned ? (
-                      selectedItem.id === 'hearts' ? (
+                      selectedItem.type === 'Profile Background' ? (
                         equippedBackground === selectedItem.id ? (
                            <button onClick={handleEquipToggle} className="w-full bg-[#1c1c1e] text-white font-bold text-[17px] rounded-[16px] py-4 border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
                               Unequip
