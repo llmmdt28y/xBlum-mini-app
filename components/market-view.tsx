@@ -114,6 +114,7 @@ export function MarketView() {
     if (num > 150000) {
       setStarInput('150000')
     } else {
+      // Usamos num.toString() para evitar que el usuario escriba ceros a la izquierda (ej. "05" se vuelve "5")
       setStarInput(num.toString())
     }
   }
@@ -273,24 +274,43 @@ export function MarketView() {
               Top UP
             </h2>
             
-            {/* Input Personalizado Centrado */}
-            <div className="flex justify-center mb-8">
-              <div className="flex items-center gap-3">
-                <img 
-                   src="/telegram-star-icon.png" 
-                   alt="Star" 
-                   className="w-[42px] h-[42px] object-contain pointer-events-none select-none"
-                />
-                <input 
-                   type="text"
-                   inputMode="numeric"
-                   value={starInput}
-                   onChange={handleStarInput}
-                   placeholder="0"
-                   className="bg-transparent text-white font-bold text-[56px] w-[140px] outline-none placeholder:text-[#3a3a3c] caret-blue-500"
-                   style={{ fontFamily: SFD }}
-                />
-              </div>
+            {/* Zona del Input y Botón de Recarga Personalizada */}
+            <div className="flex flex-col items-center mb-8">
+               
+               {/* Input Centrado Dinámicamente */}
+               <div className="flex items-center justify-center gap-3">
+                 <img 
+                    src="/telegram-star-icon.png" 
+                    alt="Star" 
+                    className="w-[42px] h-[42px] object-contain pointer-events-none select-none drop-shadow-md"
+                 />
+                 <input 
+                    type="text"
+                    inputMode="numeric"
+                    value={starInput}
+                    onChange={handleStarInput}
+                    placeholder="0"
+                    // El ancho dinámico en 'ch' asegura que el bloque Icono + Texto esté siempre perfectamente centrado en el div contenedor
+                    style={{ 
+                       fontFamily: SFD,
+                       width: starInput ? `${starInput.length}ch` : '1ch'
+                    }}
+                    className="bg-transparent text-white font-bold text-[56px] min-w-[32px] outline-none placeholder:text-[#3a3a3c] caret-[#3b82f6] transition-all"
+                 />
+               </div>
+
+               {/* Botón de Recarga (Aparece y se activa si hay un monto válido) */}
+               <button 
+                  disabled={!starInput || parseInt(starInput) === 0}
+                  className={`mt-6 w-full max-w-[300px] py-3.5 rounded-[14px] font-bold text-[17px] transition-all duration-300 active:scale-95 ${
+                     starInput && parseInt(starInput) > 0 
+                        ? 'bg-[#3b82f6] text-white shadow-[0_4px_16px_rgba(59,130,246,0.25)]' 
+                        : 'bg-[#1c1c1e] text-[#636366]'
+                  }`}
+                  style={{ fontFamily: SF }}
+               >
+                  Buy {starInput ? starInput : '0'} Stars
+               </button>
             </div>
 
             {/* Subtítulo Choose Package */}
@@ -298,12 +318,11 @@ export function MarketView() {
               choose package
             </p>
 
-            {/* Lista de Paquetes (Más compacta) */}
+            {/* Lista de Paquetes */}
             <div className="flex flex-col pb-6">
               {STAR_PACKAGES.map((pkg, i) => (
                 <button 
                   key={i} 
-                  // Reducido el padding vertical a py-3 para juntar los paquetes
                   className="flex items-center justify-between py-3 px-2 border-b border-[#1c1c1e] active:bg-[#111111] transition-colors rounded-lg"
                 >
                    <div className="flex items-center gap-4">
@@ -311,7 +330,6 @@ export function MarketView() {
                       {/* Generador dinámico de estrellas apiladas (Izquierda a Derecha) */}
                       <div 
                         className="relative flex items-center" 
-                        // El contenedor crece suavemente: 22px base + 4.5px por cada estrella extra
                         style={{ width: `${22 + (pkg.count - 1) * 4.5}px`, height: '22px' }}
                       >
                         {Array.from({ length: pkg.count }).map((_, idx) => (
@@ -320,9 +338,8 @@ export function MarketView() {
                              src="/telegram-star-icon.png" 
                              className="absolute top-0 h-[22px] w-[22px]" 
                              style={{ 
-                               left: `${idx * 4.5}px`, // Desplazamiento muy sutil a la derecha
-                               zIndex: 20 - idx,       // La estrella 0 (izquierda) tiene mayor z-index y tapa a las demás
-                               // Crea el contorno oscuro en el borde derecho de las estrellas frontales
+                               left: `${idx * 4.5}px`, 
+                               zIndex: 20 - idx,       
                                filter: "drop-shadow(1.5px 0px 0px #000000)" 
                              }}
                              alt="star"
