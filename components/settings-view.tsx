@@ -415,15 +415,7 @@ export function SettingsView() {
           <div className="pb-2" />
         </div>
 
-        {/* Upgrade button */}
-        {!isPremium && (
-          <button
-            onClick={() => { setPage("main"); setCurrentView("premium") }}
-            className="w-full p-4 rounded-2xl text-center text-[15px] font-bold active:scale-[0.98] transition-transform mt-2"
-            style={{ background: "#3b82f6", color: "#fff", fontFamily: SF }}>
-            ⭐ Upgrade to xBlum Pro
-          </button>
-        )}
+
       </div>
     </div>
   )
