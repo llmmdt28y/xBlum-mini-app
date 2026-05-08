@@ -8,13 +8,13 @@ import { PremiumView } from "@/components/premium-view"
 import { ReferralView } from "@/components/referral-view"
 import { ProfileView } from "@/components/profile-view"
 import { XRewardsView } from "@/components/x-rewards-view" 
-import { AnalyticsView } from "@/components/analytics-view"
+import { MarketView } from "@/components/market-view" // Añadido MarketView
 import { GroupSettingsView } from "@/components/group-settings-view"
 import { ScheduleView } from "@/components/schedule-view"
 import { LevelsView } from "@/components/levels-view" 
 import { ShopView } from "@/components/shop-view" 
 import { useEffect, useState } from "react"
-import { Home, Target, Activity, CircleUser, Loader2 } from "lucide-react"
+import { Home, Target, Store, CircleUser, Loader2 } from "lucide-react" // Cambiado Activity por Store
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = { 
@@ -44,14 +44,15 @@ function NavBar() {
 
   type Tab = { id: string; label: string; icon: any; disabled?: boolean }
   
+  // Reemplazamos Analytics por Market aquí
   const tabs: Tab[] = [
     { id: "home",      label: "Home",      icon: Home },
     { id: "levels",    label: "BP Levels", icon: Target }, 
-    { id: "analytics", label: "Analytics", icon: Activity },
+    { id: "market",    label: "Market",    icon: Store }, // Cambiado a Market y el icono a Store
     { id: "profile",   label: "Profile",   icon: CircleUser },
   ]
 
-  const mainViews = ["home", "levels", "analytics", "profile"]
+  const mainViews = ["home", "levels", "market", "profile"] // Cambiado analytics por market
   const activeTab = mainViews.includes(currentView) ? currentView : "home"
 
   function handleTab(id: string) {
@@ -110,12 +111,12 @@ function NavBar() {
                     <Icon size={18} color="#000000" strokeWidth={2.5} />
                   )}
                   <span className="text-black font-bold" style={{ fontSize: "14px", letterSpacing: "-0.02em" }}>
-                    {tab.label}
+                     {tab.label}
                   </span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center">
-                  {tab.id === "profile" && photoUrl ? (
+                   {tab.id === "profile" && photoUrl ? (
                     <img src={photoUrl} alt="" className="w-6 h-6 rounded-full object-cover" />
                   ) : (
                     <Icon size={22} color="rgba(255,255,255,0.45)" strokeWidth={1.8} />
@@ -133,7 +134,8 @@ function NavBar() {
 // ── App shell ──────────────────────────────────────────
 function AppContent() {
   const { currentView, isLoading } = useApp()
-  const showNav = ["home", "levels", "analytics", "profile"].includes(currentView)
+  // Reemplazamos analytics por market aquí
+  const showNav = ["home", "levels", "market", "profile"].includes(currentView)
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
@@ -165,6 +167,7 @@ function AppContent() {
       }
 
       let loadedCount = 0
+     
       const checkDone = () => {
         loadedCount++
         if (loadedCount === images.length) setImagesLoaded(true)
@@ -193,6 +196,7 @@ function AppContent() {
     if (!isLoading && imagesLoaded) {
       setFadeLoading(true) 
       const t = setTimeout(() => setShowLoading(false), 400) 
+    
       return () => clearTimeout(t)
     }
   }, [isLoading, imagesLoaded])
@@ -220,7 +224,7 @@ function AppContent() {
         {currentView === "referral"  && <ReferralView />}
         {currentView === "profile"   && <ProfileView />}
         {currentView === "x-rewards" && <XRewardsView />}
-        {currentView === "analytics" && <AnalyticsView />}
+        {currentView === "market"    && <MarketView />} {/* Modificado a MarketView */}
         {currentView === "group-settings" && <GroupSettingsView />}
         {currentView === "schedule"  && <ScheduleView />}
         
