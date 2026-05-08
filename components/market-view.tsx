@@ -39,14 +39,14 @@ const MARKET_BOXES = [
   }
 ]
 
-// ── Paquetes de Estrellas ──
+// ── Paquetes de Estrellas con Conteo Dinámico ──
 const STAR_PACKAGES = [
-  { stars: "100", price: "$2.49", stacked: false },
-  { stars: "250", price: "$5.89", stacked: false },
-  { stars: "500", price: "$11.59", stacked: false },
-  { stars: "1 000", price: "$22.99", stacked: true },
-  { stars: "2 500", price: "$56.99", stacked: true },
-  { stars: "10 000", price: "$226.99", stacked: true },
+  { stars: "100", price: "$2.49", count: 1 },
+  { stars: "250", price: "$5.89", count: 2 },
+  { stars: "500", price: "$11.59", count: 3 },
+  { stars: "1 000", price: "$22.99", count: 4 },
+  { stars: "2 500", price: "$56.99", count: 5 },
+  { stars: "10 000", price: "$226.99", count: 6 },
 ]
 
 // ── Animación Flotante ──
@@ -253,7 +253,7 @@ export function MarketView() {
         </div>
       </div>
 
-      {/* ── MODAL TOP UP (Fuera del contenedor animado para respetar el viewport) ── */}
+      {/* ── MODAL TOP UP ── */}
       {isTopUpOpen && (
         <div className="fixed inset-0 z-[9999] flex flex-col justify-end pointer-events-auto">
           {/* Overlay oscuro */}
@@ -265,30 +265,34 @@ export function MarketView() {
           {/* Contenedor del Panel */}
           <div className="relative w-full bg-[#000000] rounded-t-[28px] px-5 pt-4 pb-[60px] border-t border-[#1c1c1e] flex flex-col max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
             
-            {/* Indicador de arrastre (Handle) */}
+            {/* Indicador de arrastre */}
             <div className="w-10 h-1 bg-[#2c2c2e] rounded-full mx-auto mb-5" />
             
             {/* Título */}
-            <h2 className="text-white font-bold text-center text-[22px] mb-6" style={{ fontFamily: SFD }}>
+            <h2 className="text-white font-bold text-center text-[22px] mb-8" style={{ fontFamily: SFD }}>
               Top UP
             </h2>
             
             {/* Input Personalizado Centrado */}
-            <div className="flex items-center justify-center gap-3 mb-8">
-              <img 
-                 src="/telegram-star-icon.png" 
-                 alt="Star" 
-                 className="w-10 h-10 object-contain pointer-events-none select-none"
-              />
-              <input 
-                 type="text"
-                 inputMode="numeric"
-                 value={starInput}
-                 onChange={handleStarInput}
-                 placeholder="0"
-                 className="bg-transparent text-white font-bold text-[56px] w-[200px] outline-none placeholder:text-[#3a3a3c] caret-blue-500"
-                 style={{ fontFamily: SFD }}
-              />
+            <div className="flex justify-center mb-10">
+              {/* Un wrapper que se ajusta a su contenido para mantener icono y texto unidos */}
+              <div className="flex items-center gap-3">
+                <img 
+                   src="/telegram-star-icon.png" 
+                   alt="Star" 
+                   className="w-[42px] h-[42px] object-contain pointer-events-none select-none"
+                />
+                <input 
+                   type="text"
+                   inputMode="numeric"
+                   value={starInput}
+                   onChange={handleStarInput}
+                   placeholder="0"
+                   // El ancho se ajusta dinámicamente usando min-width, o con auto si el texto crece
+                   className="bg-transparent text-white font-bold text-[56px] w-[140px] outline-none placeholder:text-[#3a3a3c] caret-blue-500"
+                   style={{ fontFamily: SFD }}
+                />
+              </div>
             </div>
 
             {/* Subtítulo Choose Package */}
@@ -305,20 +309,26 @@ export function MarketView() {
                 >
                    <div className="flex items-center gap-4">
                       
-                      {/* Estrellas Apiladas (Izquierda a Derecha con Contorno) */}
-                      <div className="relative flex items-center justify-center w-10 h-8">
-                        {pkg.stacked ? (
-                          <>
-                            {/* Estrella 1 (Fondo - Izquierda) */}
-                            <img src="/telegram-star-icon.png" className="absolute left-0 w-[22px] h-[22px] z-10 brightness-75" />
-                            {/* Estrella 2 (Medio) - El drop-shadow negro crea el contorno de separación */}
-                            <img src="/telegram-star-icon.png" className="absolute left-[8px] w-[22px] h-[22px] z-20 brightness-90" style={{ filter: "drop-shadow(-2px 0px 0px black)" }} />
-                            {/* Estrella 3 (Frente - Derecha) */}
-                            <img src="/telegram-star-icon.png" className="absolute left-[16px] w-[22px] h-[22px] z-30" style={{ filter: "drop-shadow(-2px 0px 0px black)" }} />
-                          </>
-                        ) : (
-                          <img src="/telegram-star-icon.png" className="w-[22px] h-[22px]" />
-                        )}
+                      {/* Generador dinámico de estrellas apiladas */}
+                      <div 
+                        className="relative flex items-center" 
+                        // El ancho del contenedor crece según la cantidad de estrellas (22px base + 6px por cada estrella extra)
+                        style={{ width: `${22 + (pkg.count - 1) * 6}px`, height: '22px' }}
+                      >
+                        {Array.from({ length: pkg.count }).map((_, idx) => (
+                           <img 
+                             key={idx}
+                             src="/telegram-star-icon.png" 
+                             className="absolute top-0 h-[22px] w-[22px]" 
+                             style={{ 
+                               left: `${idx * 6}px`,  // Cada estrella se desplaza 6px a la derecha
+                               zIndex: 10 + idx,      // La estrella de más a la derecha queda al frente
+                               // Añade un borde sombreado negro para separar visualmente las estrellas que están detrás
+                               filter: idx > 0 ? "drop-shadow(-2px 0px 0px #000000)" : "none"
+                             }}
+                             alt="star"
+                           />
+                        ))}
                       </div>
 
                       <span className="text-white font-bold text-[17px]" style={{ fontFamily: SF }}>{pkg.stars} stars</span>
