@@ -52,18 +52,13 @@ const PREMIUM_DROPS = [
 // ── Componente: Caja 3D Estilizada ──
 const LootboxGraphic = ({ color, glow }: { color: string, glow: string }) => (
   <div className="relative w-16 h-16 flex items-center justify-center">
-    {/* Resplandor superior */}
     <div className="absolute -top-4 w-12 h-12 rounded-full blur-xl opacity-60" style={{ backgroundColor: glow }}></div>
-    {/* Base de la caja */}
     <div className="relative w-12 h-12 bg-[#1a1a1a] rounded-xl border-t-2 border-[#333] shadow-[0_10px_20px_rgba(0,0,0,0.5)] flex items-center justify-center overflow-hidden">
-      {/* Detalle frontal */}
       <div className="w-4 h-4 bg-[#0a0a0a] rounded-sm border border-[#333] flex items-center justify-center">
         <div className="w-1.5 h-1.5 rounded-sm" style={{ backgroundColor: color, boxShadow: `0 0 5px ${color}` }}></div>
       </div>
-      {/* Tapa abierta (Efecto visual) */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-b from-white/20 to-transparent"></div>
     </div>
-    {/* Holograma flotando arriba */}
     <div className="absolute -top-3 w-6 h-6 animate-pulse" style={{ background: color, clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}></div>
   </div>
 )
@@ -72,7 +67,7 @@ export function MarketView() {
   const ctx = useApp() as any
   const { setCurrentView } = ctx
   const myBP = ctx.x_points ?? ctx.tokens ?? 0
-  const myStars = 0 // Simulación de balance de Telegram Stars
+  const myStars = 0 
 
   const [selectedBox, setSelectedBox] = useState<any>(null)
 
@@ -92,7 +87,8 @@ export function MarketView() {
     
     tg.BackButton.onClick(handleBack)
     return () => { tg.BackButton.offClick(handleBack) }
-  }, [setCurrentView, selectedItem])
+    // AQUÍ ESTABA EL ERROR: Decía selectedItem en vez de selectedBox
+  }, [setCurrentView, selectedBox]) 
 
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300 bg-[#000000] pb-24">
@@ -105,7 +101,6 @@ export function MarketView() {
             </div>
             <h1 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>xBlum Market</h1>
          </div>
-         {/* Balance Button estilo Telegram Stars */}
          <button className="bg-[#1c1c1e] border border-[#2c2c2e] px-3 py-1.5 rounded-full flex items-center gap-1.5 active:scale-95 transition-transform">
             <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
             <span className="text-white font-bold text-[14px]" style={{ fontFamily: SF }}>{myStars}</span>
@@ -118,15 +113,12 @@ export function MarketView() {
         {/* ── Carrusel "Presale" (Efecto Superpuesto 3D) ── */}
         <div className="w-full flex flex-col items-center mt-6">
            <div className="relative w-full h-[140px] flex items-center justify-center">
-              {/* Tarjeta Izquierda (Fondo) */}
               <div className="absolute left-[15%] w-[100px] h-[100px] bg-[#111] rounded-[24px] border border-[#222] scale-75 opacity-50 blur-[1px] flex items-center justify-center transform -rotate-6">
                  <div className="w-10 h-10 bg-white/10 rounded-lg"></div>
               </div>
-              {/* Tarjeta Derecha (Fondo) */}
               <div className="absolute right-[15%] w-[100px] h-[100px] bg-[#111] rounded-[24px] border border-[#222] scale-75 opacity-50 blur-[1px] flex items-center justify-center transform rotate-6">
                  <div className="w-10 h-10 bg-white/10 rounded-full"></div>
               </div>
-              {/* Tarjeta Central (Principal) */}
               <div className="relative z-10 w-[120px] h-[120px] bg-[#141415] rounded-[32px] border border-[#2c2c2e] shadow-2xl flex items-center justify-center">
                  <LootboxGraphic color="#8b5cf6" glow="rgba(139, 92, 246, 0.4)" />
               </div>
@@ -134,7 +126,6 @@ export function MarketView() {
            
            <h2 className="text-white font-bold text-[22px] mt-6" style={{ fontFamily: SFD }}>Vanguard Presale</h2>
            
-           {/* Enlaces estilo Tags */}
            <div className="flex gap-3 mt-4">
               <button className="flex items-center gap-1.5 px-4 py-2 bg-[#1c1c1e] rounded-full text-blue-400 font-bold text-[13px]" style={{ fontFamily: SF }}>
                  Play <ExternalLink className="w-3 h-3" />
@@ -190,7 +181,6 @@ export function MarketView() {
               </div>
            </div>
 
-           {/* Grid de Cajas */}
            <div className="grid grid-cols-3 gap-3">
               {LOOTBOXES_DB.map((box) => (
                  <div 
@@ -198,7 +188,6 @@ export function MarketView() {
                    className={`bg-[#111111] rounded-[20px] border border-[#1c1c1e] p-3 flex flex-col items-center relative transition-transform ${box.soldOut ? 'opacity-70 grayscale-[30%]' : 'active:scale-95'}`}
                    onClick={() => !box.soldOut && setSelectedBox(box)}
                  >
-                    {/* Etiqueta Superior */}
                     {box.soldOut ? (
                        <div className="absolute top-2 left-2 bg-[#3a1a1a] border border-[#ff4d4d]/30 text-[#ff4d4d] px-2 py-0.5 text-[9px] font-bold rounded-md uppercase tracking-wider">
                           Sold out
@@ -209,12 +198,10 @@ export function MarketView() {
                        </div>
                     )}
 
-                    {/* Gráfico de la Caja */}
                     <div className="mt-6 mb-4">
                        <LootboxGraphic color={box.color} glow={box.glow} />
                     </div>
 
-                    {/* Botón Inferior */}
                     <button className="w-full bg-[#1c1c1e] text-white font-bold text-[12px] py-2 rounded-[10px] mt-auto" style={{ fontFamily: SF }}>
                        Market
                     </button>
@@ -223,7 +210,7 @@ export function MarketView() {
            </div>
         </div>
 
-        {/* ── Inventario (Placeholder Inferior visual) ── */}
+        {/* ── Inventario Placeholder ── */}
         <div className="px-5 mt-10">
            <h3 className="text-white font-bold text-[22px] flex items-center gap-2 mb-4" style={{ fontFamily: SFD }}>
               My Inventory <span className="text-[#48484a] text-[18px]">0</span>
@@ -234,10 +221,9 @@ export function MarketView() {
         </div>
       </div>
 
-      {/* ── MODAL DE COLECCIÓN (Al hacer click en una caja) ── */}
+      {/* ── MODAL DE COLECCIÓN ── */}
       {selectedBox && (
          <div className="fixed inset-0 z-50 bg-black flex flex-col animate-in fade-in duration-300">
-            {/* Header del Detalle */}
             <div className="flex items-center justify-between px-5 pt-8 pb-4 bg-black border-b border-[#1c1c1e]">
                <button 
                   className="text-white flex items-center gap-1 text-[16px] font-medium" 
@@ -254,7 +240,6 @@ export function MarketView() {
             </div>
 
             <div className="flex-1 overflow-y-auto pb-32">
-               {/* Título de Colección y Gráfico Principal */}
                <div className="flex flex-col items-center mt-6">
                   <h1 className="text-white text-[28px] font-bold" style={{ fontFamily: SFD }}>Collection</h1>
                   <div className="flex items-center gap-2 mt-1">
@@ -262,7 +247,6 @@ export function MarketView() {
                      <span className="text-[#8e8e93] text-[14px] font-medium" style={{ fontFamily: SF }}>xBlum · {selectedBox.name}</span>
                   </div>
 
-                  {/* Estadísticas (On sale, Floor, Volume) */}
                   <div className="flex items-center justify-center gap-8 mt-8 w-full px-8">
                      <div className="flex flex-col items-center">
                         <span className="text-white font-bold text-[18px]" style={{ fontFamily: SF }}>{selectedBox.stats.onSale}</span>
@@ -282,7 +266,6 @@ export function MarketView() {
                      </div>
                   </div>
 
-                  {/* Caja Visual Grande */}
                   <div className="w-[80%] aspect-video bg-[#0a0a0b] rounded-[24px] border border-[#1c1c1e] mt-8 flex items-center justify-center">
                      <div className="scale-[1.5]">
                         <LootboxGraphic color={selectedBox.color} glow={selectedBox.glow} />
@@ -290,7 +273,6 @@ export function MarketView() {
                   </div>
                </div>
 
-               {/* Lista de Contenido (Items dentro de la caja) */}
                <div className="px-5 mt-10">
                   <div className="flex items-center justify-between mb-4">
                      <h3 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>
@@ -302,13 +284,11 @@ export function MarketView() {
                      </div>
                   </div>
 
-                  {/* Buscador */}
                   <div className="w-full h-10 bg-[#1c1c1e] rounded-xl flex items-center px-3 mb-6 border border-[#2c2c2e]">
                      <Search className="w-4 h-4 text-[#8e8e93] mr-2" />
                      <input type="text" placeholder="Search by name or serial" className="bg-transparent border-none outline-none text-white text-[14px] flex-1 placeholder:text-[#636366]" style={{ fontFamily: SF }} />
                   </div>
 
-                  {/* Lista de Items */}
                   <div className="flex flex-col gap-3">
                      {PREMIUM_DROPS.map((drop) => (
                         <div key={drop.id} className="flex items-center justify-between bg-[#111111] p-3 rounded-[16px] border border-[#1c1c1e]">
@@ -324,7 +304,7 @@ export function MarketView() {
                            </div>
                            <div className="flex items-center gap-3">
                               <span className="text-white font-bold text-[14px] flex items-center gap-1" style={{ fontFamily: SF }}>
-                                 {selectedBox.currency === 'Stars' && <Star className="w-3.5 h-3.5 text-blue-400 fill-blue-400" />}
+                                 {selectedBox.currency === 'Stars' ? <Star className="w-3.5 h-3.5 text-blue-400 fill-blue-400" /> : <span className="text-[10px] text-blue-400 mt-0.5">BP</span>}
                                  {drop.price}
                               </span>
                               <button className="w-8 h-8 rounded-full bg-[#1c1c1e] flex items-center justify-center border border-[#2c2c2e]">
@@ -337,7 +317,6 @@ export function MarketView() {
                </div>
             </div>
 
-            {/* Sticky Buy Button */}
             <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black via-black to-transparent pt-10">
                <button className="w-full bg-blue-500 active:bg-blue-600 transition-colors text-white font-bold text-[17px] py-4 rounded-[16px]" style={{ fontFamily: SF }}>
                   Buy {selectedBox.name} for {selectedBox.price} {selectedBox.currency}
