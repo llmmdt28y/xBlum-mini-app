@@ -1,7 +1,7 @@
 import React from "react"
 import { BaseEquippedBackground, BasePreviewBackground } from "./base-background"
 
-// ── POSICIONES COMPARTIDAS (Corregido: Eliminados los 2 iconos inferiores) ──
+// ── POSICIONES COMPARTIDAS (Sin los iconos inferiores para evitar recarga) ──
 export const BACKGROUND_ELEMENTS_PREVIEW = [
   { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
   { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
@@ -13,7 +13,6 @@ export const BACKGROUND_ELEMENTS_PREVIEW = [
   { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
   { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
   { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
-  // Iconos inferiores (y: 110) eliminados para evitar recarga en los menús
   { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
   { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
 ]
@@ -48,15 +47,15 @@ export const PreviewPixelHearts = () => (
            <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
        </div>
     ))}
+    {/* ICONO CENTRAL PARA LA TARJETA */}
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+       <PixelHeartOutline color="#ffffff" opacity={0.9} size={48} />
+    </div>
   </BasePreviewBackground>
 )
 
 export const EquippedPixelHearts = () => (
-  <BaseEquippedBackground 
-    height="550px" 
-    containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)" 
-    innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)"
-  >
+  <BaseEquippedBackground height="550px" containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)" innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)">
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
       <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
          <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
@@ -73,17 +72,15 @@ export const PreviewAstralStars = () => (
            <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.25)' }} />
        </div>
     ))}
+    {/* ICONO CENTRAL PARA LA TARJETA */}
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+       <img src="/telegram-star-icon.png" alt="star" style={{ width: 48, height: 48, filter: 'grayscale(1) brightness(2)', opacity: 0.9 }} />
+    </div>
   </BasePreviewBackground>
 )
 
 export const EquippedAstralStars = () => (
-  <BaseEquippedBackground 
-    height="550px" 
-    gradient="linear-gradient(to bottom, #4a3b32 0%, #1e1612 50%, #000000 100%)" 
-    noiseOpacity={0.35} 
-    containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)" 
-    innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)"
-  >
+  <BaseEquippedBackground height="550px" gradient="linear-gradient(to bottom, #4a3b32 0%, #1e1612 50%, #000000 100%)" noiseOpacity={0.35} containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)" innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)">
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
       <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
          <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.2)' }} />
@@ -92,29 +89,23 @@ export const EquippedAstralStars = () => (
   </BaseEquippedBackground>
 )
 
-// --- VARIANTE 3: MONEY BAGS (Blue/Slate) ---
+// --- VARIANTE 3: MONEY BAGS ---
 export const PreviewMoneyBags = () => (
-  <BasePreviewBackground
-    gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 60%, #0d131f 100%)"
-    noiseOpacity={0.35} 
-    innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)"
-  >
+  <BasePreviewBackground gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 60%, #0d131f 100%)" noiseOpacity={0.35} innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)">
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
        <div key={i} className="absolute left-1/2 top-1/2" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
            <MoneyBagIcon color="#0f1626" opacity={0.4} size={h.size + 4} />
        </div>
     ))}
+    {/* ICONO CENTRAL PARA LA TARJETA */}
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+       <MoneyBagIcon color="#0f1626" opacity={0.8} size={56} />
+    </div>
   </BasePreviewBackground>
 )
 
 export const EquippedMoneyBags = () => (
-  <BaseEquippedBackground
-    height="550px"
-    gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 50%, #000000 100%)"
-    noiseOpacity={0.3} 
-    containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)"
-    innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)"
-  >
+  <BaseEquippedBackground height="550px" gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 50%, #000000 100%)" noiseOpacity={0.3} containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)" innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)">
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
       <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
            <MoneyBagIcon color="#0f1626" opacity={0.4} size={h.size + 4} />
@@ -123,29 +114,23 @@ export const EquippedMoneyBags = () => (
   </BaseEquippedBackground>
 )
 
-// --- VARIANTE 4: MOCHA ROYALTY (Taupe/Brown con Corona) ---
+// --- VARIANTE 4: MOCHA ROYALTY ---
 export const PreviewMochaWealth = () => (
-  <BasePreviewBackground
-    gradient="linear-gradient(to bottom, #9b8478 0%, #856e62 60%, #6d574b 100%)"
-    noiseOpacity={0.35} 
-    innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)"
-  >
+  <BasePreviewBackground gradient="linear-gradient(to bottom, #9b8478 0%, #856e62 60%, #6d574b 100%)" noiseOpacity={0.35} innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)">
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
        <div key={i} className="absolute left-1/2 top-1/2" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
            <CrownIcon color="#4a362a" opacity={0.35} size={h.size + 4} />
        </div>
     ))}
+    {/* ICONO CENTRAL PARA LA TARJETA */}
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+       <CrownIcon color="#4a362a" opacity={0.8} size={56} />
+    </div>
   </BasePreviewBackground>
 )
 
 export const EquippedMochaWealth = () => (
-  <BaseEquippedBackground
-    height="550px"
-    gradient="linear-gradient(to bottom, #9b8478 0%, #856e62 50%, #000000 100%)"
-    noiseOpacity={0.3} 
-    containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)"
-    innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)"
-  >
+  <BaseEquippedBackground height="550px" gradient="linear-gradient(to bottom, #9b8478 0%, #856e62 50%, #000000 100%)" noiseOpacity={0.3} containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)" innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)">
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
       <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
            <CrownIcon color="#4a362a" opacity={0.35} size={h.size + 4} />
