@@ -9,7 +9,7 @@ export const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string
   </svg>
 )
 
-// ── ICONO BOLSAS DE DINERO (Tu diseño original) ──
+// ── ICONO BOLSAS DE DINERO (Diseño original) ──
 export const MoneyBagIcon = ({
   color = "#1f2f52",
   opacity = 0.18,
@@ -32,20 +32,6 @@ export const MoneyBagIcon = ({
     <path d="M32 27C28.5 27 26 29 26 32C26 35 28 36.5 31 37.5V42C29 41.8 27.5 40.8 26.5 39.5L24 42C25.8 44 28 45 31 45.2V48H34V45.1C37.7 44.7 40 42.5 40 39C40 35.8 38 34 34 32.8V29.5C35.5 29.7 36.8 30.4 37.8 31.3L40 28.7C38.5 27.2 36.5 26.3 34 26V23H31V26.1C27.5 26.5 25 28.7 25 32C25 35.2 27.1 36.9 31 38V41.6C28.8 41.4 27 40.3 25.7 38.8L23.5 41.5C25.4 43.7 28 45 31 45.3V48H34V45.2C38 44.7 41 42.3 41 38.8C41 35.4 38.9 33.4 34 32V29.4C35.8 29.6 37.2 30.4 38.4 31.4L40.5 28.6C38.8 27 36.8 26.1 34 25.8V23H31V25.9C27.4 26.3 25 28.7 25 32C25 35.1 26.9 36.8 31 38V41.5C28.7 41.2 26.8 40.1 25.2 38.3L22.8 41C25 43.5 27.8 44.9 31 45.2V48H34V45.1C38.4 44.5 41 41.9 41 38.5C41 35.1 39.1 33.2 34 31.8V29.2C35.8 29.5 37.2 30.2 38.5 31.2L40.5 28.5C38.7 27 36.6 26.1 34 25.8V23H31V26C27.5 26.4 25 28.7 25 32" fill="#5a6d93" opacity="0.5" />
   </svg>
 )
-
-// ── POSICIONES BOLSAS DE DINERO (Rodeando el avatar central) ──
-const MONEY_BAGS_PATTERN_POSITIONS = [
-  { x: -115, y: -40, rot: -15, size: 28 }, // Arriba Izquierda
-  { x:  115, y: -40, rot:  15, size: 28 }, // Arriba Derecha
-  { x: -145, y:  30, rot: -10, size: 24 }, // Medio Izquierda
-  { x:  145, y:  30, rot:  10, size: 24 }, // Medio Derecha
-  { x: -100, y:  90, rot: -20, size: 32 }, // Abajo Izquierda
-  { x:  100, y:  90, rot:  20, size: 32 }, // Abajo Derecha
-  { x: -175, y: -10, rot:  -5, size: 20 }, // Extremo Izquierda
-  { x:  175, y: -10, rot:   5, size: 20 }, // Extremo Derecha
-  { x:  -70, y: -90, rot: -25, size: 22 }, // Esquina Superior Izquierda
-  { x:   70, y: -90, rot:  25, size: 22 }, // Esquina Superior Derecha
-]
 
 // --- VARIANTE 1: PIXEL HEARTS ---
 export const PreviewPixelHearts = () => (
@@ -89,32 +75,54 @@ export const EquippedAstralStars = () => (
   </BaseEquippedBackground>
 )
 
-// --- VARIANTE 3: MONEY BAGS ---
-export const PreviewMoneyBags = () => (
+// ── NUEVA VARIANTE 3: SHADOW CURRENCY (Réplica idéntica de composición de Astral Shadows) ──
+
+export const PreviewShadowCurrency = () => (
   <BasePreviewBackground
-    gradient="linear-gradient(180deg, #586887 0%, #47597a 35%, #364869 70%, #2c3c5c 100%)"
-    noiseOpacity={0.28}
-    innerMask="radial-gradient(ellipse at center, black 12%, transparent 82%)"
+    // Degradado azul pizarra profundo derivado de la imagen de referencia
+    gradient="linear-gradient(to bottom, #101a30 0%, #081020 60%, #000000 100%)"
+    noiseOpacity={0.4} // Mismo ruido que Astral Shadows
+    innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)"
   >
-    {MONEY_BAGS_PATTERN_POSITIONS.map((h, i) => (
-      <div key={i} className="absolute left-1/2 top-1/2" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-        <MoneyBagIcon color="#1f2c4b" opacity={0.18} size={h.size + 2} />
-      </div>
+    {/* Replicamos las posiciones, rotaciones y opacidades exactas mapeando BACKGROUND_ELEMENTS_PREVIEW */}
+    {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+       <div
+         key={i}
+         className="absolute left-1/2 top-1/2"
+         style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+       >
+           <MoneyBagIcon
+             color="#1f2f52" // Color azul marino oscuro para el efecto de sombra monocromática
+             opacity={h.op} // Usamos la opacidad definida en shared-positions para la dispersión
+             size={h.size}
+           />
+       </div>
     ))}
   </BasePreviewBackground>
 )
 
-export const EquippedMoneyBags = () => (
+export const EquippedShadowCurrency = () => (
   <BaseEquippedBackground
     height="550px"
-    gradient="linear-gradient(180deg, #586887 0%, #47597a 30%, #364869 68%, #2c3c5c 100%)"
-    noiseOpacity={0.24}
+    gradient="linear-gradient(to bottom, #101a30 0%, #081020 50%, #000000 100%)"
+    noiseOpacity={0.35} // Mismo ruido que Astral Shadows
+    // Máscara externa copiada de Astral Shadows
     containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)"
-    innerMask="radial-gradient(ellipse at center 40%, black 12%, transparent 82%)"
+    // Máscara interna radial copiada de Astral Shadows para dejar el centro para la foto
+    innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)"
   >
-    {MONEY_BAGS_PATTERN_POSITIONS.map((h, i) => (
-      <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-        <MoneyBagIcon color="#1f2c4b" opacity={0.18} size={h.size + 2} />
+    {/* Replicamos la composición exacta mapeando BACKGROUND_ELEMENTS_PREVIEW */}
+    {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+      <div
+        key={i}
+        className="absolute left-1/2 top-[28%]" // Mismo offset vertical que Astral Shadows
+        style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+      >
+           <MoneyBagIcon
+             color="#1f2f52" // Color azul marino oscuro
+             opacity={h.op} // Usamos opacidad definida en shared-positions
+             size={h.size}
+           />
       </div>
     ))}
   </BaseEquippedBackground>
