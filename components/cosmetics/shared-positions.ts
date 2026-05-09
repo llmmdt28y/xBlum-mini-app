@@ -1,0 +1,16 @@
+export const BACKGROUND_ELEMENTS_PREVIEW = [
+  { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
+  { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
+  { x: -110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x:  110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x: -160, y: -20, rot:  10, op: 0.08, size: 20, color: "#ffffff" },
+  { x:  160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
+  { x: -140, y:  50, rot:  -5, op: 0.12, size: 22, color: "#ffffff" },
+  { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
+  { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
+  { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
+  { x: -120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  { x:  120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
+  { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
+]
