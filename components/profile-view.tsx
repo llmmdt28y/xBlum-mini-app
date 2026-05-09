@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Hexagon, X, MoreVertical, Palette, ArrowLeft, Sparkles } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Hexagon, X, MoreVertical, Palette, Sparkles } from "lucide-react"
 
 // Importamos la data externa y configuraciones
 import { LEVEL_CONFIG } from "@/lib/data/levels-config"
@@ -130,6 +130,7 @@ export function ProfileView() {
     return () => { tg.BackButton.offClick(handleBack) }
   }, [setCurrentView, selectedItem, newlyUnlocked, isAchievementsMenuOpen, isCosmeticInventoryMenuOpen, isStylePickerOpen])
 
+  
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
   const openItemModal = (id: string, isAchievement = false) => {
@@ -172,17 +173,23 @@ export function ProfileView() {
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
         
-        {/* ── MENÚ HAMBURGUESA (PUNTOS VERTICALES) ── */}
-        <div className="absolute left-5 top-0 z-30" style={{ marginTop: "12px" }}>
-           <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[32px] h-[32px] flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full border border-white/10 active:opacity-60 transition-opacity">
-             <MoreVertical className="w-[18px] h-[18px] text-white" />
+        {/* ── MENÚ PÍLDORA (SETTINGS & HAMBURGUESA) ── */}
+        <div className="absolute right-5 top-0 z-30 flex items-center bg-black/20 backdrop-blur-md rounded-[24px] border border-white/10 p-[3px] shadow-lg" style={{ marginTop: "12px" }}>
+           <button onClick={() => setCurrentView("settings")} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
+             <Settings className="w-[16px] h-[16px] text-white" />
            </button>
            
+           <div className="w-[1px] h-[18px] bg-white/15 mx-0.5" />
+           
+           <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
+             <MoreVertical className="w-[18px] h-[18px] text-white" />
+           </button>
+  
            {/* Dropdown Menu */}
            {isHamburgerOpen && (
              <>
                <div className="fixed inset-0 z-40" onClick={() => setIsHamburgerOpen(false)} />
-               <div className="absolute top-10 left-0 bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] shadow-2xl overflow-hidden w-[220px] z-50 animate-in fade-in zoom-in-95 duration-200">
+               <div className="absolute top-[48px] right-0 bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] shadow-2xl overflow-hidden w-[220px] z-50 animate-in fade-in zoom-in-95 duration-200">
                   <button 
                     onClick={() => {
                       setPreviewBg(equippedBackground);
@@ -200,11 +207,6 @@ export function ProfileView() {
              </>
            )}
         </div>
-
-        {/* ── BOTÓN SETTINGS ── */}
-        <button onClick={() => setCurrentView("settings")} className="absolute right-5 top-0 active:opacity-60 transition-opacity z-20 w-[32px] h-[32px] flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full border border-white/10" style={{ marginTop: "12px" }}>
-          <Settings className="w-[16px] h-[16px] text-white" />
-        </button>
 
         {/* ── Avatar Principal ── */}
         <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative z-10">
@@ -242,7 +244,7 @@ export function ProfileView() {
               </div>
               <div className="flex items-center justify-between w-full mb-2 gap-[4px]">
                 {Array.from({ length: 24 }).map((_, i) => (
-                  <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.4)]' : 'bg-[#2c2c2e]'}`} />
+                   <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white shadow-[0_0_5px_rgba(255,255,255,0.4)]' : 'bg-[#2c2c2e]'}`} />
                 ))}
               </div>
               <button onClick={() => setIsLevelsExpanded(!isLevelsExpanded)} className="w-full flex items-center justify-center gap-1.5 pt-3 mt-2 active:opacity-70 transition-opacity">
@@ -252,10 +254,10 @@ export function ProfileView() {
               {isLevelsExpanded && (
                 <div className="mt-4 flex flex-col gap-2 animate-in slide-in-from-top-2">
                    {lockedLevels.slice(0, 3).map((lvl) => (
-                     <div key={lvl.lv} className="flex items-center justify-between p-3 rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e]">
+                    <div key={lvl.lv} className="flex items-center justify-between p-3 rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e]">
                          <div className="flex items-center gap-3">
                             <div className="w-8 h-8 flex items-center justify-center grayscale opacity-50 shrink-0">
-                               <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
+                                <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
                             </div>
                             <div>
                                <p className="text-[#8e8e93] font-medium text-[14px] leading-none mb-1" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
@@ -266,7 +268,7 @@ export function ProfileView() {
                       </div>
                    ))}
                 </div>
-             )}
+              )}
            </div>
         </div>
 
@@ -281,7 +283,7 @@ export function ProfileView() {
               </button>
            </div>
              
-           <div className="flex items-center gap-[2px] overflow-x-hidden pb-4 pt-2 pl-1">
+          <div className="flex items-center gap-[2px] overflow-x-hidden pb-4 pt-2 pl-1">
               {profileAchievementSlots.map((_, i) => {
                  const key = unlockedAchKeys[i];
                  const zIndex = 10 - i; 
@@ -295,7 +297,7 @@ export function ProfileView() {
                            className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
                            style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
                          >
-                             <img src={ach.img} draggable={false} alt={ach.name} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                              <img src={ach.img} draggable={false} alt={ach.name} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                          </button>
                       </div>
                     )
@@ -315,13 +317,13 @@ export function ProfileView() {
                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Inventory</h3>
               <button onClick={() => setIsCosmeticInventoryMenuOpen(true)} className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
                 <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
-               </button>
+              </button>
            </div>
            
            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 pt-2">
               <button onClick={() => setIsCosmeticInventoryMenuOpen(true)} className="w-[140px] h-[160px] rounded-[24px] bg-[#141415] border border-[#2c2c2e] p-5 flex flex-col justify-between shrink-0 relative overflow-hidden active:scale-[0.98] transition-transform text-left group">
                  <div className="absolute inset-0 bg-blue-500 opacity-0 group-active:opacity-10 transition-opacity"></div>
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-[#2c2c2e]">
+                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-[#2c2c2e]">
                     <Hexagon className="w-5 h-5 text-[#8e8e93]" />
                  </div>
                  <div className="relative z-10">
@@ -335,11 +337,13 @@ export function ProfileView() {
       </div>
 
       {/* ── MODAL NUEVA: SELECTOR DE ESTILOS (CHANGE PROFILE COLOR) ── */}
-      {/* Se le dio un z-[999] para que cubra la Navigation Bar inferior nativa si existe */}
       {isStylePickerOpen && (
         <div className="fixed inset-0 z-[999] bg-[#0a0a0b] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden">
             
-            {/* Profile Preview Block (Estático superior, sin el navbar back button) */}
+            {/* Ocultar la Navigation Bar global */}
+            <style>{`#main-nav-bar { display: none !important; }`}</style>
+            
+            {/* Profile Preview Block (Estático superior) */}
             <div className="relative w-full h-[320px] shrink-0 flex flex-col items-center justify-center pt-4">
                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                  {previewBg && COSMETIC_ITEMS_DB[previewBg]?.getEquipped ? (
@@ -352,7 +356,7 @@ export function ProfileView() {
                </div>
                
                <div className="relative z-10 flex flex-col items-center mt-2">
-                  <div className="flex items-center justify-center overflow-hidden rounded-full relative shadow-[0_0_20px_rgba(0,0,0,0.5)] border-2 border-white/5" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
+                 <div className="flex items-center justify-center overflow-hidden rounded-full relative shadow-[0_0_20px_rgba(0,0,0,0.5)] border-2 border-white/5" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
                      {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                   </div>
                   <div className="text-center flex flex-col items-center mt-3">
@@ -367,7 +371,7 @@ export function ProfileView() {
                </div>
             </div>
 
-            {/* Bottom Grid Container (3 Columnas, Scrolleable independientemente) */}
+            {/* Bottom Grid Container (3 Columnas, Flex-1 para scrollear sin mover lo demás) */}
             <div className="flex-1 bg-[#141415] overflow-y-auto relative z-20">
                 <div className="grid grid-cols-3 gap-3 p-4">
                    
@@ -393,12 +397,10 @@ export function ProfileView() {
                                {item.getPreview()}
                             </div>
                             
-                            {/* Top-Right Clean Badge (Optimizado para 3 cols, sin bordes internos) */}
                             <div className="absolute top-0 right-0 bg-black/40 backdrop-blur-md px-1.5 py-0.5 rounded-bl-[10px] z-10 border-b border-l border-white/5">
                                <span className="text-white/80 text-[9px] font-bold tracking-wide">{item.serial}</span>
                             </div>
 
-                            {/* Bottom Name Pill (Optimizado para 3 cols, mas compacto) */}
                             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-[8px] flex items-center justify-center gap-1 z-10 w-[85%] border border-white/10">
                                <Sparkles className="w-3 h-3 text-white shrink-0" />
                                <span className="text-white text-[9px] font-bold truncate" style={{ fontFamily: SF }}>{item.name}</span>
@@ -409,14 +411,14 @@ export function ProfileView() {
                 </div>
             </div>
 
-            {/* Fixed Footer Apply Button (Estático abajo) */}
-            <div className="shrink-0 px-5 pt-4 pb-8 bg-[#141415] border-t border-white/5 z-50">
+            {/* Fixed Footer Apply Button (Estático abajo, con padding extra para compensar la barra ausente) */}
+            <div className="shrink-0 px-5 pt-4 bg-[#141415] border-t border-white/5 z-50 relative" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 24px)) + 90px)" }}>
                {isPreviewOwned ? (
                  <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="w-full bg-[#007aff] hover:bg-[#0062cc] active:scale-[0.98] transition-all text-white font-bold text-[17px] rounded-[16px] py-4 shadow-[0_8px_30px_rgba(0,122,255,0.4)]">
                     Apply style
                  </button>
                ) : (
-                 <button disabled className="w-full bg-[#1c1c1e] text-[#636366] border border-[#2c2c2e] font-bold text-[17px] rounded-[16px] py-4 flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+                  <button disabled className="w-full bg-[#1c1c1e] text-[#636366] border border-[#2c2c2e] font-bold text-[17px] rounded-[16px] py-4 flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
                     <Lock className="w-5 h-5" /> Requires Level {previewItem.reqLevel}
                  </button>
                )}
@@ -452,29 +454,29 @@ export function ProfileView() {
                            <div key={item.id} className={`flex flex-col items-center text-center w-full drop-shadow-[0_0_15px_rgba(255,255,255,0.06)] ${!isOwned ? 'grayscale opacity-60' : ''}`}>
                               <button onClick={() => openItemModal(item.id)} className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1 group" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}>
                                 {item.getPreview()}
-                                {!isOwned && (
+                                 {!isOwned && (
                                     <div className="absolute inset-0 flex items-center justify-center z-20">
                                        <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center border border-[#2c2c2e]">
                                           <Lock className="w-6 h-6 text-[#8e8e93]" strokeWidth={2} />
                                        </div>
                                     </div>
                                 )}
-                              </button>
+                               </button>
                               <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{item.name}</h2>
                               <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{item.desc}</p>
-                              {isOwned ? (
+                               {isOwned ? (
                                  <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{item.date}</p>
                               ) : (
                                  <p className="text-[#48484a] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>Requires Level {item.reqLevel}</p>
                               )}
                            </div>
-                          )
+                           )
                        })}
                      </div>
                   </div>
                )
             })}
-           </div>
+            </div>
         </div>
       )}
 
@@ -494,28 +496,28 @@ export function ProfileView() {
           <div className="px-5 pt-8 flex flex-col">
              <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>Achievements</h1>
             {Array.from(new Set(unlockedAchKeys.map(key => ACHIEVEMENTS_DB[key].category || 'Secrets'))).map((category) => {
-               const categoryKeys = unlockedAchKeys.filter(key => (ACHIEVEMENTS_DB[key].category || 'Secrets') === category);
+                const categoryKeys = unlockedAchKeys.filter(key => (ACHIEVEMENTS_DB[key].category || 'Secrets') === category);
                 return (
                   <div key={category} className="mb-10 w-full">
                      <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
+                         <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Hexagon className="w-3 h-3 text-[#8e8e93]" /></div>
                            <span className="text-white font-bold text-[17px] uppercase tracking-wider" style={{ fontFamily: SFD }}>{category}</span>
-                           <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryKeys.length}</span>
+                            <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryKeys.length}</span>
                         </div>
                      </div>
                      <div className="grid grid-cols-2 gap-x-4 gap-y-8 pl-1">
-                       {categoryKeys.map((key) => {
+                      {categoryKeys.map((key) => {
                          const ach = ACHIEVEMENTS_DB[key];
                          return (
                            <div key={key} className="flex flex-col items-center text-center w-full drop-shadow-[0_0_15px_rgba(255,255,255,0.06)]">
                               <button onClick={() => openItemModal(key, true)} className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}>
-                                <img src={ach.img} draggable={false} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                                 <img src={ach.img} draggable={false} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                               </button>
                               <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{ach.name}</h2>
                               <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{ach.desc}</p>
                               <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{ach.date}</p>
-                           </div>
+                            </div>
                          )
                        })}
                      </div>
@@ -529,11 +531,11 @@ export function ProfileView() {
       {selectedItem && (
         <div className="fixed inset-0 z-[110] flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
-           <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto">
+            <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto">
               <div className="w-full flex justify-center mt-12 mb-2">{selectedItem.preview}</div>
               <h2 className="text-white font-bold text-[24px] mt-2" style={{ fontFamily: SFD }}>{selectedItem.name} <span className="text-[#8e8e93] font-normal">{selectedItem.serial}</span></h2>
               {selectedItem.date && isItemOwned && (<p className="text-[#8e8e93] text-[12px] mt-1 tracking-widest uppercase font-bold" style={{ fontFamily: SF }}>OBTAINED: {selectedItem.date}</p>)}
-              {selectedItem.desc && (<p className="text-[#8e8e93] text-[14px] mt-3 mb-6 px-6 text-center leading-relaxed" style={{ fontFamily: SF }}>{selectedItem.desc}</p>)}
+               {selectedItem.desc && (<p className="text-[#8e8e93] text-[14px] mt-3 mb-6 px-6 text-center leading-relaxed" style={{ fontFamily: SF }}>{selectedItem.desc}</p>)}
 
               <div className="px-5 w-full">
                  <div className="bg-[#141415] rounded-[16px] border border-[#1c1c1e] w-full flex flex-col mb-8 overflow-hidden">
@@ -545,14 +547,14 @@ export function ProfileView() {
                                  <span className="text-[#3b82f6] font-medium">{displayName}</span>
                              </>
                           ) : (
-                              <>
+                               <>
                                <div className="w-5 h-5 rounded-full bg-[#1c1c1e] flex items-center justify-center overflow-hidden"><span className="text-[#8e8e93] text-[10px] font-bold">xB</span></div>
                                <span className="text-[#3b82f6] font-medium flex items-center gap-1.5">xBlum Market</span>
-                              </>
+                               </>
                           )}
                        </div>
                     </ModalInfoRow>
-                    <ModalInfoRow label="model"><div className="flex items-center"><span>{selectedItem.model}</span>{selectedItem.modelPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.modelPercent}</span>}</div></ModalInfoRow>
+                   <ModalInfoRow label="model"><div className="flex items-center"><span>{selectedItem.model}</span>{selectedItem.modelPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.modelPercent}</span>}</div></ModalInfoRow>
                     <ModalInfoRow label="symbol"><div className="flex items-center"><span>{selectedItem.symbol}</span>{selectedItem.symbolPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.symbolPercent}</span>}</div></ModalInfoRow>
                     <ModalInfoRow label="backdrop"><div className="flex items-center"><span>{selectedItem.backdrop}</span>{selectedItem.backdropPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.backdropPercent}</span>}</div></ModalInfoRow>
                     <ModalInfoRow label="quantity" isLast>{selectedItem.quantityMax ? `${selectedItem.quantityIssued.toLocaleString()}/${selectedItem.quantityMax.toLocaleString()} issued` : `${selectedItem.quantityIssued.toLocaleString()} issued`}</ModalInfoRow>
