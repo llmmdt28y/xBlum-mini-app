@@ -102,7 +102,7 @@ const PreviewAstralStars = () => (
   </div>
 )
 
-// ── Base de Datos de Cosméticos (Inventario Limpio y Estándar) ──
+// ── Base de Datos de Cosméticos ──
 const COSMETIC_ITEMS_DB: Record<string, any> = {
   hearts: {
     id: 'hearts',
@@ -125,7 +125,8 @@ const COSMETIC_ITEMS_DB: Record<string, any> = {
     model: 'Star Silhouette', modelPercent: '1.2%',
     symbol: 'Dark Star', symbolPercent: '0.8%',
     backdrop: 'Grainy Bronze Gradient', backdropPercent: '',
-    quantityIssued: 312, quantityMax: 1000, reqLevel: 5, reqBP: 12000,
+    // Cambiado reqLevel a 1 y reqBP a 0 para que sea gratis para pruebas
+    quantityIssued: 312, quantityMax: 1000, reqLevel: 1, reqBP: 0,
     desc: 'A rich, grainy gradient background featuring floating dark star silhouettes. Pure elegance.',
     date: "MAY 8, 2026",
     getPreview: () => <PreviewAstralStars />
