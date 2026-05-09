@@ -2,216 +2,18 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Hexagon } from "lucide-react"
+
+// Importamos la data externa y configuraciones
+import { LEVEL_CONFIG } from "@/lib/data/levels-config"
+import { ACHIEVEMENTS_DB } from "@/lib/data/achievements-db"
+import { COSMETIC_ITEMS_DB } from "@/lib/data/cosmetics-db"
+
+// Importamos componentes reutilizables
+import { PixelObject } from "@/components/cosmetics/pixel-object"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
-
-// ── Configuración de Niveles ─────────────────────────────────────────
-const LEVEL_CONFIG = [
-  { lv: 1,  name: "Novice",    bp: 0,       color: "#82c3cd", pixels: [33, 23, 32, 34, 43] },
-  { lv: 2,  name: "Explorer",  bp: 1000,    color: "#a8e8a8", pixels: [22, 23, 24, 32, 33, 34, 42, 43, 44] },
-  { lv: 3,  name: "Advanced",  bp: 2500,    color: "#e8a8c1", pixels: [30, 21, 31, 41, 12, 22, 32, 42, 52, 3, 13, 23, 33, 43, 53, 63, 14, 24, 34, 44, 54, 25, 35, 45, 36] },
-  { lv: 4,  name: "Expert",    bp: 6000,    color: "#ffd9a8", pixels: [21, 31, 41, 12, 52, 13, 53, 14, 54, 25, 35, 45] },
-  { lv: 5,  name: "Specialist",bp: 12000,   color: "#a8c1e8", pixels: [30, 21, 41, 12, 32, 52, 3, 33, 63, 14, 34, 54, 25, 45, 36] },
-  { lv: 6,  name: "Elite",     bp: 25000,   color: "#d1a8e8", pixels: [21, 31, 41, 12, 32, 52, 13, 33, 53, 14, 34, 54, 25, 35, 45] },
-  { lv: 7,  name: "Veteran",   bp: 50000,   color: "#e8a8a8", pixels: [0, 60, 11, 51, 22, 42, 33, 24, 44, 15, 55, 6, 66] },
-  { lv: 8,  name: "Commander", bp: 100000,  color: "#f4f4f4", pixels: [30, 21, 31, 41, 3, 13, 23, 33, 43, 53, 63, 25, 35, 45, 36] },
-  { lv: 9,  name: "Legend",    bp: 250000,  color: "#ffd700", pixels: [30, 11, 51, 2, 32, 62, 13, 53, 4, 34, 64, 15, 55, 36] },
-  { lv: 10, name: "Oracle",    bp: 500000,  color: "#00ffcc", pixels: [11, 21, 31, 41, 51, 12, 52, 13, 53, 14, 54, 15, 25, 35, 45, 55] },
-  { lv: 11, name: "Visionary", bp: 1000000, color: "#ff007f", pixels: [30, 21, 31, 41, 2, 12, 22, 42, 52, 62, 33, 4, 14, 24, 44, 54, 64, 25, 35, 45, 36] },
-  { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
-]
-
-// ── Posiciones compartidas (Hearts & Stars) ───────────────────────────
-const BACKGROUND_ELEMENTS_PREVIEW = [
-  { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
-  { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
-  { x: -110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
-  { x:  110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
-  { x: -160, y: -20, rot:  10, op: 0.08, size: 20, color: "#ffffff" },
-  { x:  160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
-  { x: -140, y:  50, rot:  -5, op: 0.12, size: 22, color: "#ffffff" },
-  { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
-  { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
-  { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
-  { x: -120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
-  { x:  120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
-  { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
-  { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
-]
-
-// ── Componente Pixel Heart Outline ────────────────────────────────────
-const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 11 11" fill={color} xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
-    <rect x="2" y="1" width="2" height="1" />
-    <rect x="7" y="1" width="2" height="1" />
-    <rect x="1" y="2" width="1" height="1" />
-    <rect x="4" y="2" width="1" height="1" />
-    <rect x="6" y="2" width="1" height="1" />
-    <rect x="9" y="2" width="1" height="1" />
-    <rect x="0" y="3" width="1" height="3" />
-    <rect x="5" y="3" width="1" height="1" />
-    <rect x="10" y="3" width="1" height="3" />
-    <rect x="1" y="6" width="1" height="1" />
-    <rect x="9" y="6" width="1" height="1" />
-    <rect x="2" y="7" width="1" height="1" />
-    <rect x="8" y="7" width="1" height="1" />
-    <rect x="3" y="8" width="1" height="1" />
-    <rect x="7" y="8" width="1" height="1" />
-    <rect x="4" y="9" width="1" height="1" />
-    <rect x="6" y="9" width="1" height="1" />
-    <rect x="5" y="10" width="1" height="1" />
-  </svg>
-)
-
-const PreviewPixelHearts = () => (
-  <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]">
-     <div className="absolute inset-0 pointer-events-none z-0">
-        {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-           <div 
-             key={i} 
-             className="absolute left-1/2 top-1/2" 
-             style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
-           >
-               <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
-           </div>
-        ))}
-     </div>
-  </div>
-)
-
-const PreviewAstralStars = () => (
-  <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]" style={{ background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 60%, #000000 100%)' }}>
-     {/* Capa de ruido/grano solo aplicada desde la mitad hacia abajo */}
-     <div className="absolute inset-0 opacity-[0.4] mix-blend-overlay pointer-events-none" style={{ 
-         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-         maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 80%, black 100%)',
-         WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 80%, black 100%)'
-     }}></div>
-
-     <div className="absolute inset-0 pointer-events-none z-0" style={{ maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
-        {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-           <div 
-             key={i} 
-             className="absolute left-1/2 top-1/2" 
-             style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
-           >
-               <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.25)' }} />
-           </div>
-        ))}
-     </div>
-  </div>
-)
-
-// ── Base de Datos de Cosméticos ──
-const COSMETIC_ITEMS_DB: Record<string, any> = {
-  hearts: {
-    id: 'hearts',
-    type: 'Profile Background',
-    category: 'Icon Backgrounds',
-    name: 'Pixel Hearts', serial: '#94,355', collection: 'Cosmetic Backgrounds',
-    model: 'Pixel Pulse', modelPercent: '0.5%',
-    symbol: 'Heart Aura', symbolPercent: '0.4%',
-    backdrop: 'Retro Flow Grid', backdropPercent: '',
-    quantityIssued: 124, quantityMax: 500, reqLevel: 3, reqBP: 2500,
-    desc: 'A premium pixel heart aura that surrounds your avatar, reserved for early supporters.',
-    date: "MAY 7, 2026",
-    getPreview: () => <PreviewPixelHearts />
-  },
-  astral_stars: {
-    id: 'astral_stars',
-    type: 'Profile Background',
-    category: 'Icon Backgrounds',
-    name: 'Astral Shadows', serial: '#42,108', collection: 'Cosmetic Backgrounds',
-    model: 'Star Silhouette', modelPercent: '1.2%',
-    symbol: 'White Star', symbolPercent: '0.8%',
-    backdrop: 'Grainy Bronze Gradient', backdropPercent: '',
-    quantityIssued: 312, quantityMax: 1000, reqLevel: 1, reqBP: 0,
-    desc: 'A rich, grainy gradient background featuring floating dark star silhouettes. Pure elegance.',
-    date: "MAY 8, 2026",
-    getPreview: () => <PreviewAstralStars />
-  },
-  sparkles: {
-    id: 'sparkles',
-    type: 'Name Icon',
-    category: 'Name Icons',
-    name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
-    model: 'Cosmetic Badge', modelPercent: '2.5%',
-    symbol: 'Apex Mark', symbolPercent: '1.2%',
-    backdrop: 'Rare', backdropPercent: '',
-    quantityIssued: 3150, quantityMax: 10000, reqLevel: 8, reqBP: 50000,
-    desc: 'A sparkling icon that appears next to your username to signify your high rank.',
-    date: "MAY 7, 2026",
-    getPreview: () => <Sparkles className="w-24 h-24 text-[#8e8e93]" />
-  }
-}
-
-// ── Base de Datos de Logros ──
-const ACHIEVEMENTS_DB: Record<string, any> = {
-  robot: {
-    id: 'robot',
-    name: 'First Touch',
-    category: 'Vanguard',
-    serial: '#01,244',
-    collection: 'Achievements',
-    model: 'Pioneer Badge', modelPercent: '100%',
-    symbol: 'Automata', symbolPercent: '100%',
-    backdrop: 'Cosmic Void', backdropPercent: '',
-    quantityIssued: 12500,
-    quantityMax: null, 
-    reqLevel: 1,
-    img: '/robot-achievement.png',
-    desc: 'Complete your first task. The world has answered your touch. A mark of beginning in the xBlum network.',
-    date: "MAY 7, 2026"
-  },
-  pepe: {
-    id: 'pepe',
-    name: 'Early Pepe',
-    category: 'Void',
-    serial: '#00,004',
-    collection: 'Achievements',
-    model: 'Meme Relic', modelPercent: '0.1%',
-    symbol: 'Rare Artifact', symbolPercent: '0.1%',
-    backdrop: 'Dark Matter', backdropPercent: '',
-    quantityIssued: 4,
-    quantityMax: 15,
-    reqLevel: 2,
-    img: '/pepe-achievement.png',
-    desc: 'Assigned to the first 15 users who reached Level 2 on the platform during the Early Access phase. Your early belief is forever recognized.',
-    date: "MAY 7, 2026"
-  },
-  pyramid: { 
-    id: 'pyramid',
-    name: 'The Architect',
-    category: 'Illuminati',
-    serial: '#00,001',
-    collection: 'Achievements',
-    model: 'Forbidden Cipher', modelPercent: '0.01%',
-    symbol: 'All-Seeing Eye', symbolPercent: '0.01%',
-    backdrop: 'Abyssal Space', backdropPercent: '',
-    quantityIssued: 1,
-    quantityMax: 10,
-    reqLevel: 99, 
-    img: '/pyramid-achievement.png',
-    desc: 'You have uncovered the deepest secrets of the platform. A truly mythic accomplishment reserved for the top elite.',
-    date: "MAY 7, 2026"
-  }
-}
-
-// ── Componente Pixel Art (Nivel) ──────────────────────────────────────
-const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: string, size?: number }) => {
-  return (
-    <svg viewBox="0 0 7 7" width={size} height={size} style={{ filter: `drop-shadow(0 0 12px ${color})` }}>
-      {pixels.map(pos => {
-        const x = Math.floor(pos / 10)
-        const y = pos % 10
-        return <rect key={pos} x={x} y={y} width="1" height="1" fill={color} />
-      })}
-      <rect x="3" y="3" width="1" height="1" fill="white" opacity="0.4" />
-    </svg>
-  )
-}
 
 type TgUser = {
   id: number
@@ -365,43 +167,9 @@ export function ProfileView() {
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
 
-      {/* ── BACKGROUNDS GLOBALES (EXTENDIDOS AL TOPE PARA MODO FULLSCREEN) ── */}
-      {equippedBackground === 'astral_stars' && (
-        <div 
-          className="absolute top-0 left-0 right-0 pointer-events-none z-0" 
-          style={{ 
-            height: '550px', // Extendido bien abajo
-            background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 50%, #000000 100%)',
-            maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
-          }}
-        >
-           {/* Capa de ruido/grano svg nativo SOLO APLICADO EN LA PARTE BAJA DEL DEGRADADO */}
-           <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
-               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-               maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
-               WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)'
-           }}></div>
-           
-           <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
-             {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-                <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                   {/* Filtro modificado para que las estrellas sean blancas neutrales (sin tono amarillo) */}
-                   <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.2)' }} />
-                </div>
-             ))}
-           </div>
-        </div>
-      )}
-
-      {equippedBackground === 'hearts' && (
-        <div className="absolute top-0 left-0 right-0 pointer-events-none z-0" style={{ height: '400px', maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
-           {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-              <div key={i} className="absolute left-1/2 top-[35%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                 <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
-              </div>
-           ))}
-        </div>
+      {/* ── BACKGROUNDS GLOBALES DINÁMICOS ── */}
+      {equippedBackground && COSMETIC_ITEMS_DB[equippedBackground]?.getEquipped && (
+        COSMETIC_ITEMS_DB[equippedBackground].getEquipped()
       )}
 
       {/* Espacio invisible (Header) para absorber el Notch/Status Bar en el modo Fullscreen */}
@@ -416,19 +184,16 @@ export function ProfileView() {
         {/* ── Avatar Principal ── */}
         <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative z-10">
            <div className="relative flex justify-center items-center w-full mb-3 z-10">
-                {/* Ajuste: Se ha quitado el borde negro CSS (border-2 border-black) para integrarlo totalmente */}
                 <div className="flex items-center justify-center overflow-hidden rounded-full relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
                    {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                 </div>
            </div>
           
           <div className="text-center flex flex-col items-center relative z-10">
-            {/* Contenedor relativo inline para centrar solo el texto perfectamente */}
             <div className="relative inline-flex items-center justify-center">
                <p className="text-white font-bold" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>
                  {displayName || "Your Name"}
                </p>
-               {/* Badge posicionado de forma absoluta a la derecha del nombre */}
                <div className="absolute left-full ml-1.5 flex items-center justify-center shrink-0">
                  <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={32} />
                </div>
