@@ -385,7 +385,7 @@ export function ProfileView() {
            
            <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
              {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-                <div key={i} className="absolute left-1/2 top-[18%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+                <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
                    {/* Filtro modificado para que las estrellas sean blancas neutrales (sin tono amarillo) */}
                    <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.2)' }} />
                 </div>
@@ -416,7 +416,8 @@ export function ProfileView() {
         {/* ── Avatar Principal ── */}
         <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative z-10">
            <div className="relative flex justify-center items-center w-full mb-3 z-10">
-                <div className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
+                {/* Ajuste: Se ha quitado el borde negro CSS (border-2 border-black) para integrarlo totalmente */}
+                <div className="flex items-center justify-center overflow-hidden rounded-full relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
                   {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                 </div>
            </div>
