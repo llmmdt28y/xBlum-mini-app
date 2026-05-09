@@ -82,11 +82,9 @@ const PreviewPixelHearts = () => (
 )
 
 const PreviewAstralStars = () => (
-  <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]" style={{ background: 'linear-gradient(to bottom, #4a3b32, #1a1512)' }}>
+  <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]" style={{ background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 60%, #000000 100%)' }}>
      {/* Capa de ruido/grano */}
-     <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
-     {/* Desvanecido oscuro inferior */}
-     <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black to-transparent z-10 pointer-events-none"></div>
+     <div className="absolute inset-0 opacity-[0.25] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
 
      <div className="absolute inset-0 pointer-events-none z-0" style={{ maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
         {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
@@ -95,7 +93,7 @@ const PreviewAstralStars = () => (
              className="absolute left-1/2 top-1/2" 
              style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
            >
-               <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'brightness(0.1) opacity(0.6)' }} />
+               <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'brightness(0.15) opacity(0.6)' }} />
            </div>
         ))}
      </div>
@@ -125,7 +123,6 @@ const COSMETIC_ITEMS_DB: Record<string, any> = {
     model: 'Star Silhouette', modelPercent: '1.2%',
     symbol: 'Dark Star', symbolPercent: '0.8%',
     backdrop: 'Grainy Bronze Gradient', backdropPercent: '',
-    // Cambiado reqLevel a 1 y reqBP a 0 para que sea gratis para pruebas
     quantityIssued: 312, quantityMax: 1000, reqLevel: 1, reqBP: 0,
     desc: 'A rich, grainy gradient background featuring floating dark star silhouettes. Pure elegance.',
     date: "MAY 8, 2026",
@@ -271,6 +268,30 @@ export function ProfileView() {
     setUsername(user.username ? "@" + user.username : "")
   }, [])
 
+  // Comunicación con Telegram para cambiar los colores nativos de la interfaz
+  useEffect(() => {
+    const tg = (window as any).Telegram?.WebApp
+    if (!tg) return
+
+    try {
+      if (equippedBackground === 'astral_stars') {
+         tg.setHeaderColor('#4a3b32') // Color café del fondo Astral para la parte nativa superior
+      } else {
+         tg.setHeaderColor('#000000') // Negro por defecto
+      }
+      tg.setBackgroundColor('#000000') // La base siempre termina en negro
+    } catch (e) {
+      console.log('TG API Not supported or outdated')
+    }
+
+    return () => {
+      try {
+        tg.setHeaderColor('#000000')
+        tg.setBackgroundColor('#000000')
+      } catch(e) {}
+    }
+  }, [equippedBackground])
+
   // Lógica para Desbloquear Logros Automáticamente
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -388,20 +409,30 @@ export function ProfileView() {
              </div>
            )}
 
-           {/* RENDER FONDO 2: ASTRAL STARS */}
+           {/* RENDER FONDO 2: ASTRAL STARS (Premium Noise Fade) */}
            {equippedBackground === 'astral_stars' && (
-             <div className="absolute pointer-events-none z-0 overflow-hidden" style={{ top: '-60px', left: '-20px', right: '-20px', height: '300px', width: 'calc(100% + 40px)', background: 'linear-gradient(to bottom, #4a3b32, #1a1512)' }}>
+             <div 
+               className="absolute pointer-events-none z-0" 
+               style={{ 
+                 top: '-120px', 
+                 left: '-20px', 
+                 right: '-20px', 
+                 height: '480px', 
+                 width: 'calc(100% + 40px)', 
+                 background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 60%, #000000 100%)',
+                 // La máscara hace que todo el elemento (color + ruido) se desvanezca junto
+                 maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
+                 WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
+               }}
+             >
                 {/* Capa de grano svg nativo */}
-                <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
-                
-                {/* Desvanecido al negro para integrarse con el resto de la vista */}
-                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent z-10 pointer-events-none"></div>
+                <div className="absolute inset-0 opacity-[0.25] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
                 
                 {/* Estrellas oscuras circulares */}
-                <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
+                <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
                   {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
                      <div key={i} className="absolute left-1/2 top-[40%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                        <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'brightness(0.1) opacity(0.5)' }} />
+                        <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'brightness(0.15) opacity(0.5)' }} />
                      </div>
                   ))}
                 </div>
