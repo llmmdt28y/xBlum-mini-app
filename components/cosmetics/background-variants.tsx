@@ -1,8 +1,24 @@
 import React from "react"
 import { BaseEquippedBackground, BasePreviewBackground } from "./base-background"
-import { BACKGROUND_ELEMENTS_PREVIEW } from "./shared-positions"
 
-// --- COMPONENTES VISUALES COMPARTIDOS ---
+// ── POSICIONES COMPARTIDAS (Corregido: Eliminados los 2 iconos inferiores) ──
+export const BACKGROUND_ELEMENTS_PREVIEW = [
+  { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
+  { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
+  { x: -110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x:  110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x: -160, y: -20, rot:  10, op: 0.08, size: 20, color: "#ffffff" },
+  { x:  160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
+  { x: -140, y:  50, rot:  -5, op: 0.12, size: 22, color: "#ffffff" },
+  { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
+  { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
+  { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
+  // Iconos de y: 110 eliminados a petición para limpiar la zona inferior
+  { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
+  { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
+]
+
+// --- COMPONENTES VISUALES ---
 export const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 11 11" fill={color} xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
     <rect x="2" y="1" width="2" height="1" /><rect x="7" y="1" width="2" height="1" /><rect x="1" y="2" width="1" height="1" /><rect x="4" y="2" width="1" height="1" /><rect x="6" y="2" width="1" height="1" /><rect x="9" y="2" width="1" height="1" /><rect x="0" y="3" width="1" height="3" /><rect x="5" y="3" width="1" height="1" /><rect x="10" y="3" width="1" height="3" /><rect x="1" y="6" width="1" height="1" /><rect x="9" y="6" width="1" height="1" /><rect x="2" y="7" width="1" height="1" /><rect x="8" y="7" width="1" height="1" /><rect x="3" y="8" width="1" height="1" /><rect x="7" y="8" width="1" height="1" /><rect x="4" y="9" width="1" height="1" /><rect x="6" y="9" width="1" height="1" /><rect x="5" y="10" width="1" height="1" />
@@ -17,12 +33,9 @@ export const MoneyBagIcon = ({ color = "#1f2f52", opacity = 0.18, size = 24 }: {
   </svg>
 )
 
-// ── ICONO CORONA PREMIUM ──
 export const CrownIcon = ({ color = "#4a362a", opacity = 0.35, size = 24 }: { color?: string, opacity?: number, size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
-    {/* Cuerpo principal de la corona */}
     <path d="M3 16L2.4 8.2C2.3 7.1 3.5 6.4 4.4 7L8 9.5L11.1 3.3C11.5 2.5 12.5 2.5 12.9 3.3L16 9.5L19.6 7C20.5 6.4 21.7 7.1 21.6 8.2L21 16H3Z" fill={color} />
-    {/* Base de la corona (ligeramente más transparente para darle profundidad) */}
     <path d="M3 18H21V20C21 20.6 20.6 21 20 21H4C3.4 21 3 20.6 3 20V18Z" fill={color} opacity="0.7" />
   </svg>
 )
@@ -39,9 +52,13 @@ export const PreviewPixelHearts = () => (
 )
 
 export const EquippedPixelHearts = () => (
-  <BaseEquippedBackground height="400px" innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)">
+  <BaseEquippedBackground 
+    height="550px" 
+    containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)" 
+    innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)"
+  >
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-      <div key={i} className="absolute left-1/2 top-[35%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+      <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
          <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
       </div>
     ))}
@@ -60,7 +77,13 @@ export const PreviewAstralStars = () => (
 )
 
 export const EquippedAstralStars = () => (
-  <BaseEquippedBackground height="550px" gradient="linear-gradient(to bottom, #4a3b32 0%, #1e1612 50%, #000000 100%)" noiseOpacity={0.35} containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)" innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)">
+  <BaseEquippedBackground 
+    height="550px" 
+    gradient="linear-gradient(to bottom, #4a3b32 0%, #1e1612 50%, #000000 100%)" 
+    noiseOpacity={0.35} 
+    containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)" 
+    innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)"
+  >
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
       <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
          <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.2)' }} />
@@ -69,10 +92,10 @@ export const EquippedAstralStars = () => (
   </BaseEquippedBackground>
 )
 
-// --- VARIANTE 3: MONEY BAGS (Blue/Slate) ---
+// --- VARIANTE 3: MONEY BAGS ---
 export const PreviewMoneyBags = () => (
   <BasePreviewBackground
-    gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 60%, #0d131f 100%)"
+    gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 60%, #000000 100%)"
     noiseOpacity={0.35} 
     innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)"
   >
@@ -100,10 +123,10 @@ export const EquippedMoneyBags = () => (
   </BaseEquippedBackground>
 )
 
-// --- VARIANTE 4: MOCHA ROYALTY (Taupe/Brown con Corona) ---
+// --- VARIANTE 4: MOCHA ROYALTY ---
 export const PreviewMochaWealth = () => (
   <BasePreviewBackground
-    gradient="linear-gradient(to bottom, #9b8478 0%, #856e62 60%, #6d574b 100%)"
+    gradient="linear-gradient(to bottom, #9b8478 0%, #856e62 60%, #000000 100%)"
     noiseOpacity={0.35} 
     innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)"
   >
@@ -118,7 +141,7 @@ export const PreviewMochaWealth = () => (
 export const EquippedMochaWealth = () => (
   <BaseEquippedBackground
     height="550px"
-    gradient="linear-gradient(to bottom, #9b8478 0%, #856e62 50%, #4a362a 100%)"
+    gradient="linear-gradient(to bottom, #9b8478 0%, #856e62 50%, #000000 100%)"
     noiseOpacity={0.3} 
     containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)"
     innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)"
