@@ -23,12 +23,91 @@ const LEVEL_CONFIG = [
   { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
 ]
 
+// ── Posiciones compartidas (Hearts & Stars) ───────────────────────────
+const BACKGROUND_ELEMENTS_PREVIEW = [
+  { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
+  { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
+  { x: -110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x:  110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
+  { x: -160, y: -20, rot:  10, op: 0.08, size: 20, color: "#ffffff" },
+  { x:  160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
+  { x: -140, y:  50, rot:  -5, op: 0.12, size: 22, color: "#ffffff" },
+  { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
+  { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
+  { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
+  { x: -120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  { x:  120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
+  { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
+  { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
+]
+
+// ── Componente Pixel Heart Outline ────────────────────────────────────
+const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 11 11" fill={color} xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
+    <rect x="2" y="1" width="2" height="1" />
+    <rect x="7" y="1" width="2" height="1" />
+    <rect x="1" y="2" width="1" height="1" />
+    <rect x="4" y="2" width="1" height="1" />
+    <rect x="6" y="2" width="1" height="1" />
+    <rect x="9" y="2" width="1" height="1" />
+    <rect x="0" y="3" width="1" height="3" />
+    <rect x="5" y="3" width="1" height="1" />
+    <rect x="10" y="3" width="1" height="3" />
+    <rect x="1" y="6" width="1" height="1" />
+    <rect x="9" y="6" width="1" height="1" />
+    <rect x="2" y="7" width="1" height="1" />
+    <rect x="8" y="7" width="1" height="1" />
+    <rect x="3" y="8" width="1" height="1" />
+    <rect x="7" y="8" width="1" height="1" />
+    <rect x="4" y="9" width="1" height="1" />
+    <rect x="6" y="9" width="1" height="1" />
+    <rect x="5" y="10" width="1" height="1" />
+  </svg>
+)
+
+const PreviewPixelHearts = () => (
+  <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]">
+     <div className="absolute inset-0 pointer-events-none z-0">
+        {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+           <div 
+             key={i} 
+             className="absolute left-1/2 top-1/2" 
+             style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+           >
+               <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
+           </div>
+        ))}
+     </div>
+  </div>
+)
+
+const PreviewAstralStars = () => (
+  <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]" style={{ background: 'linear-gradient(to bottom, #4a3b32, #1a1512)' }}>
+     {/* Capa de ruido/grano */}
+     <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+     {/* Desvanecido oscuro inferior */}
+     <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black to-transparent z-10 pointer-events-none"></div>
+
+     <div className="absolute inset-0 pointer-events-none z-0" style={{ maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
+        {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+           <div 
+             key={i} 
+             className="absolute left-1/2 top-1/2" 
+             style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+           >
+               <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'brightness(0.1) opacity(0.6)' }} />
+           </div>
+        ))}
+     </div>
+  </div>
+)
+
 // ── Base de Datos de Cosméticos (Inventario Limpio y Estándar) ──
 const COSMETIC_ITEMS_DB: Record<string, any> = {
   hearts: {
     id: 'hearts',
     type: 'Profile Background',
-    category: 'Icon Backgrounds', // Categoría estándar
+    category: 'Icon Backgrounds',
     name: 'Pixel Hearts', serial: '#94,355', collection: 'Cosmetic Backgrounds',
     model: 'Pixel Pulse', modelPercent: '0.5%',
     symbol: 'Heart Aura', symbolPercent: '0.4%',
@@ -38,10 +117,23 @@ const COSMETIC_ITEMS_DB: Record<string, any> = {
     date: "MAY 7, 2026",
     getPreview: () => <PreviewPixelHearts />
   },
+  astral_stars: {
+    id: 'astral_stars',
+    type: 'Profile Background',
+    category: 'Icon Backgrounds',
+    name: 'Astral Shadows', serial: '#42,108', collection: 'Cosmetic Backgrounds',
+    model: 'Star Silhouette', modelPercent: '1.2%',
+    symbol: 'Dark Star', symbolPercent: '0.8%',
+    backdrop: 'Grainy Bronze Gradient', backdropPercent: '',
+    quantityIssued: 312, quantityMax: 1000, reqLevel: 5, reqBP: 12000,
+    desc: 'A rich, grainy gradient background featuring floating dark star silhouettes. Pure elegance.',
+    date: "MAY 8, 2026",
+    getPreview: () => <PreviewAstralStars />
+  },
   sparkles: {
     id: 'sparkles',
     type: 'Name Icon',
-    category: 'Name Icons', // Categoría estándar
+    category: 'Name Icons',
     name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
     model: 'Cosmetic Badge', modelPercent: '2.5%',
     symbol: 'Apex Mark', symbolPercent: '1.2%',
@@ -53,7 +145,7 @@ const COSMETIC_ITEMS_DB: Record<string, any> = {
   }
 }
 
-// ── Base de Datos de Logros (Con nombres Épicos/Misteriosos) ──
+// ── Base de Datos de Logros ──
 const ACHIEVEMENTS_DB: Record<string, any> = {
   robot: {
     id: 'robot',
@@ -105,23 +197,6 @@ const ACHIEVEMENTS_DB: Record<string, any> = {
   }
 }
 
-const BACKGROUND_HEARTS_PREVIEW = [
-  { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
-  { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
-  { x: -110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
-  { x:  110, y: 10, rot:  0, op: 0.20, size: 28, color: "#ffffff" },
-  { x: -160, y: -20, rot:  10, op: 0.08, size: 20, color: "#ffffff" },
-  { x:  160, y: -20, rot: -10, op: 0.08, size: 20, color: "#ffffff" },
-  { x: -140, y:  50, rot:  -5, op: 0.12, size: 22, color: "#ffffff" },
-  { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
-  { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
-  { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
-  { x: -120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
-  { x:  120, y: 110, rot:   0, op: 0.06, size: 16, color: "#ffffff" },
-  { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
-  { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
-]
-
 // ── Componente Pixel Art (Nivel) ──────────────────────────────────────
 const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: string, size?: number }) => {
   return (
@@ -135,46 +210,6 @@ const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: st
     </svg>
   )
 }
-
-// ── Componente Pixel Heart Outline ────────────────────────────────────
-const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 11 11" fill={color} xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
-    <rect x="2" y="1" width="2" height="1" />
-    <rect x="7" y="1" width="2" height="1" />
-    <rect x="1" y="2" width="1" height="1" />
-    <rect x="4" y="2" width="1" height="1" />
-    <rect x="6" y="2" width="1" height="1" />
-    <rect x="9" y="2" width="1" height="1" />
-    <rect x="0" y="3" width="1" height="3" />
-    <rect x="5" y="3" width="1" height="1" />
-    <rect x="10" y="3" width="1" height="3" />
-    <rect x="1" y="6" width="1" height="1" />
-    <rect x="9" y="6" width="1" height="1" />
-    <rect x="2" y="7" width="1" height="1" />
-    <rect x="8" y="7" width="1" height="1" />
-    <rect x="3" y="8" width="1" height="1" />
-    <rect x="7" y="8" width="1" height="1" />
-    <rect x="4" y="9" width="1" height="1" />
-    <rect x="6" y="9" width="1" height="1" />
-    <rect x="5" y="10" width="1" height="1" />
-  </svg>
-)
-
-const PreviewPixelHearts = () => (
-  <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden">
-     <div className="absolute inset-0 pointer-events-none z-0">
-        {BACKGROUND_HEARTS_PREVIEW.map((h, i) => (
-           <div 
-             key={i} 
-             className="absolute left-1/2 top-1/2" 
-             style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
-           >
-              <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
-           </div>
-        ))}
-     </div>
-  </div>
-)
 
 type TgUser = {
   id: number
@@ -212,6 +247,7 @@ export function ProfileView() {
   const [isLevelsExpanded, setIsLevelsExpanded] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
   
+  // Fondo activo
   const [equippedBackground, setEquippedBackground] = useState<string | null>(null)
 
   // ── ESTADOS DE MENÚS (ACHIEVEMENTS & INVENTORY) ──
@@ -238,7 +274,7 @@ export function ProfileView() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const userLv = currentLevel.lv;
-    
+ 
     let newlyFound = null;
     const unlocked = [];
 
@@ -322,10 +358,8 @@ export function ProfileView() {
   const TOTAL_PROFILE_ACH_SLOTS = 4;
   const profileAchievementSlots = Array.from({ length: TOTAL_PROFILE_ACH_SLOTS });
 
-  // Lógica de propiedad del ítem seleccionado para el modal
   const isItemOwned = selectedItem ? currentLevel.lv >= selectedItem.reqLevel : false;
 
-  // ── OBTENEMOS LAS CATEGORÍAS COSMÉTICAS DISPONIBLES (Inventario Normal) ──
   const cosmeticCategories = Array.from(new Set(Object.values(COSMETIC_ITEMS_DB).map(item => item.category)));
 
   return (
@@ -342,13 +376,34 @@ export function ProfileView() {
         {/* ── Avatar y Fondo Principal ── */}
         <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative">
            
+           {/* RENDER FONDO 1: PIXEL HEARTS */}
            {equippedBackground === 'hearts' && (
              <div className="absolute inset-0 pointer-events-none z-0" style={{ height: '240px', top: '-40px', maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
-                {BACKGROUND_HEARTS_PREVIEW.map((h, i) => (
+                {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
                    <div key={i} className="absolute left-1/2 top-[40%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
                       <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
                    </div>
                 ))}
+             </div>
+           )}
+
+           {/* RENDER FONDO 2: ASTRAL STARS */}
+           {equippedBackground === 'astral_stars' && (
+             <div className="absolute pointer-events-none z-0 overflow-hidden" style={{ top: '-60px', left: '-20px', right: '-20px', height: '300px', width: 'calc(100% + 40px)', background: 'linear-gradient(to bottom, #4a3b32, #1a1512)' }}>
+                {/* Capa de grano svg nativo */}
+                <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+                
+                {/* Desvanecido al negro para integrarse con el resto de la vista */}
+                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent z-10 pointer-events-none"></div>
+                
+                {/* Estrellas oscuras circulares */}
+                <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
+                  {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+                     <div key={i} className="absolute left-1/2 top-[40%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+                        <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'brightness(0.1) opacity(0.5)' }} />
+                     </div>
+                  ))}
+                </div>
              </div>
            )}
 
@@ -395,7 +450,7 @@ export function ProfileView() {
                       <div key={lvl.lv} className="flex items-center justify-between p-3 rounded-[14px] bg-[#0a0a0b] border border-[#1c1c1e]">
                          <div className="flex items-center gap-3">
                             <div className="w-8 h-8 flex items-center justify-center grayscale opacity-50 shrink-0">
-                              <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
+                               <PixelObject pixels={lvl.pixels} color={lvl.color} size={20} />
                             </div>
                             <div>
                                <p className="text-[#8e8e93] font-medium text-[14px] leading-none mb-1" style={{ fontFamily: SF }}>Level {lvl.lv}</p>
@@ -410,7 +465,7 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Achievements (Fila Única Horizontal con Sombra de Profundidad) ── */}
+        {/* ── Achievements (Fila Única Horizontal) ── */}
         <div className="w-full relative z-10">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
@@ -420,13 +475,12 @@ export function ProfileView() {
                 <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
               </button>
            </div>
-           
+            
            <div className="flex items-center gap-[2px] overflow-x-hidden pb-4 pt-2 pl-1">
               {profileAchievementSlots.map((_, i) => {
                  const key = unlockedAchKeys[i];
                  const zIndex = 10 - i; 
-                 const marginLeft = i === 0 ? '0' : '-16px'; 
-                 
+                 const marginLeft = i === 0 ? '0' : '-16px';
                  if (key) {
                     const ach = ACHIEVEMENTS_DB[key];
                     return (
@@ -436,7 +490,7 @@ export function ProfileView() {
                            className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
                            style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
                          >
-                           <img 
+                             <img 
                              src={ach.img} 
                              draggable={false} 
                              alt={ach.name} 
@@ -478,7 +532,7 @@ export function ProfileView() {
            <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 pt-2">
               <button onClick={() => setIsCosmeticInventoryMenuOpen(true)} className="w-[140px] h-[160px] rounded-[24px] bg-[#141415] border border-[#2c2c2e] p-5 flex flex-col justify-between shrink-0 relative overflow-hidden active:scale-[0.98] transition-transform text-left group">
                  <div className="absolute inset-0 bg-blue-500 opacity-0 group-active:opacity-10 transition-opacity"></div>
-                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-[#2c2c2e]">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-[#2c2c2e]">
                     <Hexagon className="w-5 h-5 text-[#8e8e93]" />
                  </div>
                  <div className="relative z-10">
@@ -530,7 +584,7 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS (SISTEMA DE CATEGORÍAS ÉPICAS) ── */}
+      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS ── */}
       {isAchievementsMenuOpen && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
           
@@ -599,7 +653,6 @@ export function ProfileView() {
 
             {cosmeticCategories.map((category) => {
                const categoryItems = Object.values(COSMETIC_ITEMS_DB).filter(item => item.category === category);
-               
                return (
                   <div key={category} className="mb-10 w-full">
                      <div className="flex items-center justify-between mb-6">
@@ -627,11 +680,11 @@ export function ProfileView() {
                               >
                                 {item.getPreview()}
                                 {!isOwned && (
-                                    <div className="absolute inset-0 flex items-center justify-center z-20">
+                                   <div className="absolute inset-0 flex items-center justify-center z-20">
                                        <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center border border-[#2c2c2e]">
                                           <Lock className="w-6 h-6 text-[#8e8e93]" strokeWidth={2} />
                                        </div>
-                                    </div>
+                                   </div>
                                 )}
                               </button>
                               <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{item.name}</h2>
@@ -657,13 +710,13 @@ export function ProfileView() {
         <div className="fixed inset-0 z-[110] flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
            <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto">
-              
+               
               <div className="w-full flex justify-center mt-12 mb-2">{selectedItem.preview}</div>
 
               <h2 className="text-white font-bold text-[24px] mt-2" style={{ fontFamily: SFD }}>{selectedItem.name} <span className="text-[#8e8e93] font-normal">{selectedItem.serial}</span></h2>
               
               {selectedItem.date && isItemOwned && (
-                <p className="text-[#8e8e93] text-[12px] mt-1 tracking-widest uppercase font-bold" style={{ fontFamily: SF }}>OBTAINED: {selectedItem.date}</p>
+                 <p className="text-[#8e8e93] text-[12px] mt-1 tracking-widest uppercase font-bold" style={{ fontFamily: SF }}>OBTAINED: {selectedItem.date}</p>
               )}
               {selectedItem.desc && (
                 <p className="text-[#8e8e93] text-[14px] mt-3 mb-6 px-6 text-center leading-relaxed" style={{ fontFamily: SF }}>{selectedItem.desc}</p>
@@ -706,7 +759,7 @@ export function ProfileView() {
                           {selectedItem.symbolPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.symbolPercent}</span>}
                        </div>
                     </ModalInfoRow>
-                    <ModalInfoRow label="backdrop">
+                     <ModalInfoRow label="backdrop">
                        <div className="flex items-center">
                           <span>{selectedItem.backdrop}</span>
                           {selectedItem.backdropPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.backdropPercent}</span>}
