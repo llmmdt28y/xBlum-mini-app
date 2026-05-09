@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft, Menu, Palette, ArrowLeft } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft, MoreVertical, Palette, ArrowLeft } from "lucide-react"
 
 // Importamos la data externa y configuraciones
 import { LEVEL_CONFIG } from "@/lib/data/levels-config"
@@ -85,14 +85,12 @@ export function ProfileView() {
     let newlyFound = null;
     const unlocked = [];
 
-    // Logro 1: Robot (Nivel 1)
     unlocked.push('robot');
     if (!localStorage.getItem('ach_robot_shown')) {
       newlyFound = 'robot';
       localStorage.setItem('ach_robot_shown', 'true');
     }
 
-    // Logro 2: Pepe (Nivel 2)
     if (userLv >= ACHIEVEMENTS_DB.pepe.reqLevel) {
       unlocked.push('pepe');
       if (!newlyFound && !localStorage.getItem('ach_pepe_shown')) {
@@ -175,10 +173,10 @@ export function ProfileView() {
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
         
-        {/* ── MENÚ HAMBURGUESA (PROFILE COLORS) ── */}
+        {/* ── MENÚ HAMBURGUESA (PUNTOS VERTICALES) ── */}
         <div className="absolute left-5 top-0 z-30" style={{ marginTop: "12px" }}>
            <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[32px] h-[32px] flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full border border-white/10 active:opacity-60 transition-opacity">
-             <Menu className="w-[16px] h-[16px] text-white" />
+             <MoreVertical className="w-[18px] h-[18px] text-white" />
            </button>
            
            {/* Dropdown Menu */}
@@ -312,7 +310,7 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Inventory (Solo cosméticos regulares ahora) ── */}
+        {/* ── Inventory ── */}
         <div className="w-full pb-6 relative z-10">
            <div className="flex items-center justify-between mb-4">
                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Inventory</h3>
@@ -376,19 +374,19 @@ export function ProfileView() {
                </div>
             </div>
 
-            {/* Bottom Grid Container */}
+            {/* Bottom Grid Container (3 Columnas) */}
             <div className="flex-1 bg-[#141415] rounded-t-[32px] border-t border-[#2c2c2e] overflow-y-auto relative z-20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-                <div className="grid grid-cols-2 gap-3 p-5 pb-[120px]">
+                <div className="grid grid-cols-3 gap-2.5 p-4 pb-[120px]">
                    
                    {/* None/Unequip Card */}
-                   <button onClick={() => setPreviewBg(null)} className={`relative aspect-square rounded-[20px] overflow-hidden border-[3px] transition-all ${previewBg === null ? 'border-[#3b82f6]' : 'border-transparent'} bg-[#1c1c1e] flex flex-col items-center justify-center group`}>
-                      <div className="w-12 h-12 rounded-full bg-[#2c2c2e] flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                   <button onClick={() => setPreviewBg(null)} className={`relative aspect-square rounded-[16px] overflow-hidden border-2 transition-all ${previewBg === null ? 'border-[#3b82f6]' : 'border-transparent'} bg-[#1c1c1e] flex flex-col items-center justify-center group`}>
+                      <div className="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                          <X className="w-5 h-5 text-[#8e8e93]" />
                       </div>
-                      <span className="text-[#8e8e93] font-medium text-[14px]">Default</span>
+                      <span className="text-[#8e8e93] font-medium text-[12px]">Default</span>
                    </button>
                    
-                   {/* Background Cards (Excluyendo el objeto del centro usando CSS inline) */}
+                   {/* Background Cards */}
                    {Object.values(COSMETIC_ITEMS_DB).filter(i => i.type === 'Profile Background').map(item => {
                       const isSelected = previewBg === item.id;
                       const isOwned = currentLevel.lv >= item.reqLevel;
@@ -396,19 +394,21 @@ export function ProfileView() {
                          <button 
                            key={item.id}
                            onClick={() => setPreviewBg(item.id)}
-                           className={`relative aspect-square rounded-[20px] overflow-hidden border-[3px] transition-all ${isSelected ? 'border-[#3b82f6]' : 'border-transparent'} ${!isOwned ? 'grayscale opacity-60' : ''}`}
+                           className={`relative aspect-square rounded-[16px] overflow-hidden border-2 transition-all ${isSelected ? 'border-[#3b82f6]' : 'border-transparent'} ${!isOwned ? 'grayscale opacity-60' : ''}`}
                          >
                             <div className="absolute inset-0 pointer-events-none flex items-center justify-center bg-[#111111] [&>div]:!h-full [&>div]:!w-full [&>div]:!rounded-none">
                                {item.getPreview()}
                             </div>
                             
-                            <div className="absolute top-0 right-0 bg-black/40 backdrop-blur-md px-2 py-1 rounded-bl-[10px] z-10">
-                               <span className="text-white/80 text-[10px] font-bold">{item.serial}</span>
+                            {/* Diagonal Ribbon (Top Right) */}
+                            <div className="absolute top-[8px] -right-[24px] w-[80px] bg-black/40 backdrop-blur-md py-0.5 text-center rotate-45 z-10 border-y border-white/10 shadow-sm">
+                               <span className="text-white/90 text-[8px] font-bold">{item.serial}</span>
                             </div>
 
-                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1.5 z-10 w-[85%] border border-white/5">
-                               <Sparkles className="w-3.5 h-3.5 text-white" />
-                               <span className="text-white text-[12px] font-bold truncate">{item.name}</span>
+                            {/* Bottom Pill */}
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-[8px] flex items-center justify-center gap-1 z-10 w-[85%] border border-white/10">
+                               <Sparkles className="w-3 h-3 text-white shrink-0" />
+                               <span className="text-white text-[9px] font-bold truncate">{item.name}</span>
                             </div>
                          </button>
                       )
@@ -433,13 +433,12 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── MODAL FULLSCREEN: MENÚ DE INVENTARIO COSMÉTICO GENERAL (SIN BACKGROUNDS) ── */}
+      {/* ── MODAL FULLSCREEN: MENÚ DE INVENTARIO COSMÉTICO GENERAL ── */}
       {isCosmeticInventoryMenuOpen && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
           <div className="px-5 pt-8 flex flex-col">
             <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>Catalogue</h1>
             {cosmeticCategories.map((category) => {
-               // Filtramos los Profile Backgrounds para que no salgan en este inventario
                const categoryItems = Object.values(COSMETIC_ITEMS_DB).filter(item => item.category === category && item.type !== 'Profile Background');
                if (categoryItems.length === 0) return null;
 
@@ -488,8 +487,7 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── MODALES EXISTENTES (NUEVO LOGRO / DETALLES DE ITEMS) MANTENIDOS ── */}
-      {/* ── MODAL FULLSCREEN: NUEVO LOGRO DESBLOQUEADO ── */}
+      {/* ── MODALES EXISTENTES MANTENIDOS ── */}
       {newlyUnlocked && ACHIEVEMENTS_DB[newlyUnlocked] && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300" onClick={() => setNewlyUnlocked(null)}>
           <img src={ACHIEVEMENTS_DB[newlyUnlocked].img} alt={ACHIEVEMENTS_DB[newlyUnlocked].name} draggable={false} className="w-[200px] h-[200px] object-contain achievement-shake-animation pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
@@ -500,7 +498,6 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS ── */}
       {isAchievementsMenuOpen && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
           <div className="px-5 pt-8 flex flex-col">
@@ -538,7 +535,6 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── Bottom Sheet Modal (Detalles de Items) ── */}
       {selectedItem && (
         <div className="fixed inset-0 z-[110] flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
@@ -571,7 +567,6 @@ export function ProfileView() {
                     <ModalInfoRow label="quantity" isLast>{selectedItem.quantityMax ? `${selectedItem.quantityIssued.toLocaleString()}/${selectedItem.quantityMax.toLocaleString()} issued` : `${selectedItem.quantityIssued.toLocaleString()} issued`}</ModalInfoRow>
                  </div>
                  
-                 {/* Boton original por si lo ocupas para otras cosas no de fondo */}
                  <div className="w-full mb-[120px]">
                    {isItemOwned ? (
                          <button disabled className="w-full bg-[#1c1c1e] text-[#636366] font-bold text-[17px] rounded-[16px] py-4">Owned</button>
