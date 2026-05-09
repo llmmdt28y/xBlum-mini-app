@@ -9,6 +9,14 @@ export const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string
   </svg>
 )
 
+export const MoneyBagIcon = ({ color = "#1f2f52", opacity = 0.18, size = 24 }: { color?: string, opacity?: number, size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
+    <path d="M24 10C24 10 28 16 32 16C36 16 40 10 40 10L45 16C45 16 40 21 32 21C24 21 19 16 19 16L24 10Z" fill={color} />
+    <path d="M18 24C18 18 23 15 32 15C41 15 46 18 46 24C46 28 43 31 43 31C43 31 50 37 50 45C50 55 42 60 32 60C22 60 14 55 14 45C14 37 21 31 21 31C21 31 18 28 18 24Z" fill={color} />
+    <path d="M32 27C28.5 27 26 29 26 32C26 35 28 36.5 31 37.5V42C29 41.8 27.5 40.8 26.5 39.5L24 42C25.8 44 28 45 31 45.2V48H34V45.1C37.7 44.7 40 42.5 40 39C40 35.8 38 34 34 32.8V29.5C35.5 29.7 36.8 30.4 37.8 31.3L40 28.7C38.5 27.2 36.5 26.3 34 26V23H31V26.1C27.5 26.5 25 28.7 25 32C25 35.2 27.1 36.9 31 38V41.6C28.8 41.4 27 40.3 25.7 38.8L23.5 41.5C25.4 43.7 28 45 31 45.3V48H34V45.2C38 44.7 41 42.3 41 38.8C41 35.4 38.9 33.4 34 32V29.4C35.8 29.6 37.2 30.4 38.4 31.4L40.5 28.6C38.8 27 36.8 26.1 34 25.8V23H31V25.9C27.4 26.3 25 28.7 25 32C25 35.1 26.9 36.8 31 38V41.5C28.7 41.2 26.8 40.1 25.2 38.3L22.8 41C25 43.5 27.8 44.9 31 45.2V48H34V45.1C38.4 44.5 41 41.9 41 38.5C41 35.1 39.1 33.2 34 31.8V29.2C35.8 29.5 37.2 30.2 38.5 31.2L40.5 28.5C38.7 27 36.6 26.1 34 25.8V23H31V26C27.5 26.4 25 28.7 25 32" fill="#5a6d93" opacity="0.5" />
+  </svg>
+)
+
 // --- VARIANTE 1: PIXEL HEARTS ---
 export const PreviewPixelHearts = () => (
   <BasePreviewBackground>
@@ -53,46 +61,51 @@ export const EquippedAstralStars = () => (
 
 // --- VARIANTE 3: XENO HELM ---
 export const PreviewXenoHelm = () => (
-  <BasePreviewBackground
-    gradient="linear-gradient(to bottom, #001a33 0%, #00091a 60%, #000000 100%)"
-    noiseOpacity={0.3}
-    innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)"
-  >
+  <BasePreviewBackground gradient="linear-gradient(to bottom, #001a33 0%, #00091a 60%, #000000 100%)" noiseOpacity={0.3} innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)">
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
        <div key={i} className="absolute left-1/2 top-1/2" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-          <img
-             src="/xeno-helm-icon.png"
-             alt="xeno-helm"
-             style={{
-                 width: h.size,
-                 height: h.size,
-                 filter: 'grayscale(1) brightness(1.6) opacity(0.2) drop-shadow(0 0 5px #00c3ff)'
-             }}
-          />
+          <img src="/xeno-helm-icon.png" alt="xeno-helm" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(1.6) opacity(0.2) drop-shadow(0 0 5px #00c3ff)' }} />
        </div>
     ))}
   </BasePreviewBackground>
 )
 
 export const EquippedXenoHelm = () => (
+  <BaseEquippedBackground height="550px" gradient="linear-gradient(to bottom, #001a33 0%, #00091a 50%, #000000 100%)" noiseOpacity={0.25} containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)" innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)">
+    {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+      <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+         <img src="/xeno-helm-icon.png" alt="xeno-helm" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(1.6) opacity(0.2) drop-shadow(0 0 5px #00c3ff)' }} />
+      </div>
+    ))}
+  </BaseEquippedBackground>
+)
+
+// --- VARIANTE 4: MONEY BAGS ---
+export const PreviewMoneyBags = () => (
+  <BasePreviewBackground
+    gradient="linear-gradient(180deg, #586887 0%, #47597a 35%, #364869 70%, #2c3c5c 100%)"
+    noiseOpacity={0.28}
+    innerMask="radial-gradient(ellipse at center, black 12%, transparent 82%)"
+  >
+    {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+      <div key={i} className="absolute left-1/2 top-1/2" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+        <MoneyBagIcon color="#1f2c4b" opacity={0.18} size={h.size + 2} />
+      </div>
+    ))}
+  </BasePreviewBackground>
+)
+
+export const EquippedMoneyBags = () => (
   <BaseEquippedBackground
     height="550px"
-    gradient="linear-gradient(to bottom, #001a33 0%, #00091a 50%, #000000 100%)"
-    noiseOpacity={0.25}
+    gradient="linear-gradient(180deg, #586887 0%, #47597a 30%, #364869 68%, #2c3c5c 100%)"
+    noiseOpacity={0.24}
     containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)"
-    innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)"
+    innerMask="radial-gradient(ellipse at center 40%, black 12%, transparent 82%)"
   >
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
       <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-         <img
-             src="/xeno-helm-icon.png"
-             alt="xeno-helm"
-             style={{
-                 width: h.size,
-                 height: h.size,
-                 filter: 'grayscale(1) brightness(1.6) opacity(0.2) drop-shadow(0 0 5px #00c3ff)'
-             }}
-         />
+        <MoneyBagIcon color="#1f2c4b" opacity={0.18} size={h.size + 2} />
       </div>
     ))}
   </BaseEquippedBackground>
