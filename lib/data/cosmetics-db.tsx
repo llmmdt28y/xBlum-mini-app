@@ -23,8 +23,6 @@ export const COSMETIC_ITEMS_DB: Record<string, any> = {
     getPreview: () => <PreviewAstralStars />,
     getEquipped: () => <EquippedAstralStars />
   },
-  
-  // ── MONEY BAGS ──
   money_bags: {
     id: 'money_bags',
     type: 'Profile Background',
@@ -40,14 +38,13 @@ export const COSMETIC_ITEMS_DB: Record<string, any> = {
     backdropPercent: '',
     quantityIssued: 182,
     quantityMax: 600,
-    reqLevel: 1, // Puesto en 1 para que lo pruebes
+    reqLevel: 1,
     reqBP: 0,
     date: 'MAY 8, 2026',
     desc: 'Dark floating money bag silhouettes over a soft grainy Telegram-style gradient.',
     getPreview: () => <PreviewMoneyBags />,
     getEquipped: () => <EquippedMoneyBags />
   },
-
   sparkles: {
     id: 'sparkles', type: 'Name Icon', category: 'Name Icons', name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
     model: 'Cosmetic Badge', modelPercent: '2.5%', symbol: 'Apex Mark', symbolPercent: '1.2%', backdrop: 'Rare', backdropPercent: '',
