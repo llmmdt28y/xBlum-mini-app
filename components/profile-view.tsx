@@ -97,7 +97,7 @@ const PreviewAstralStars = () => (
              className="absolute left-1/2 top-1/2" 
              style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
            >
-               <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'brightness(0.15) opacity(0.6)' }} />
+               <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.25)' }} />
            </div>
         ))}
      </div>
@@ -125,7 +125,7 @@ const COSMETIC_ITEMS_DB: Record<string, any> = {
     category: 'Icon Backgrounds',
     name: 'Astral Shadows', serial: '#42,108', collection: 'Cosmetic Backgrounds',
     model: 'Star Silhouette', modelPercent: '1.2%',
-    symbol: 'Dark Star', symbolPercent: '0.8%',
+    symbol: 'White Star', symbolPercent: '0.8%',
     backdrop: 'Grainy Bronze Gradient', backdropPercent: '',
     quantityIssued: 312, quantityMax: 1000, reqLevel: 1, reqBP: 0,
     desc: 'A rich, grainy gradient background featuring floating dark star silhouettes. Pure elegance.',
@@ -272,39 +272,6 @@ export function ProfileView() {
     setUsername(user.username ? "@" + user.username : "")
   }, [])
 
-  // ── CONTROL DE API TELEGRAM PARA COLORES NATIVOS ──
-  useEffect(() => {
-    const tg = (window as any).Telegram?.WebApp
-    if (!tg) return
-
-    try {
-      // Indicamos a la app que estamos listos para asegurar que los comandos se procesen
-      if (tg.ready) tg.ready();
-
-      // Colores de la barra superior (batería, hora) y la base general
-      const topColor = equippedBackground === 'astral_stars' ? '#4a3b32' : '#000000';
-      const bottomColor = '#000000'; // Siempre negro en la base/navegación para coincidir con la app
-
-      if (tg.setHeaderColor) tg.setHeaderColor(topColor);
-      if (tg.setBackgroundColor) tg.setBackgroundColor(bottomColor);
-      
-      // En versiones recientes (7.10+) Telegram permite ajustar explícitamente la barra de navegación del SO
-      if (tg.setBottomBarColor) tg.setBottomBarColor(bottomColor);
-      
-    } catch (e) {
-      console.log('Error applying TG colors:', e)
-    }
-
-    // Al desmontar o cambiar la vista principal, limpiamos los colores a su estado base (negro puro)
-    return () => {
-      try {
-        if (tg.setHeaderColor) tg.setHeaderColor('#000000');
-        if (tg.setBackgroundColor) tg.setBackgroundColor('#000000');
-        if (tg.setBottomBarColor) tg.setBottomBarColor('#000000');
-      } catch(e) {}
-    }
-  }, [equippedBackground])
-
   // Lógica para Desbloquear Logros Automáticamente
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -392,71 +359,62 @@ export function ProfileView() {
 
   const TOTAL_PROFILE_ACH_SLOTS = 4;
   const profileAchievementSlots = Array.from({ length: TOTAL_PROFILE_ACH_SLOTS });
-
   const isItemOwned = selectedItem ? currentLevel.lv >= selectedItem.reqLevel : false;
-
   const cosmeticCategories = Array.from(new Set(Object.values(COSMETIC_ITEMS_DB).map(item => item.category)));
 
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
 
-      <div className="sticky top-0 z-30 flex items-center justify-center w-full" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)", background: "transparent" }}></div>
+      {/* ── BACKGROUNDS GLOBALES (EXTENDIDOS AL TOPE PARA MODO FULLSCREEN) ── */}
+      {equippedBackground === 'astral_stars' && (
+        <div 
+          className="absolute top-0 left-0 right-0 pointer-events-none z-0" 
+          style={{ 
+            height: '550px', // Extendido bien abajo
+            background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 50%, #000000 100%)',
+            maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
+          }}
+        >
+           {/* Capa de grano svg nativo SOLO APLICADO EN LA PARTE BAJA DEL DEGRADADO */}
+           <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
+               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+               maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
+               WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)'
+           }}></div>
+           
+           <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
+             {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+                <div key={i} className="absolute left-1/2 top-[35%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+                   {/* Filtro modificado para que las estrellas sean blancas neutrales (sin tono amarillo) */}
+                   <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.2)' }} />
+                </div>
+             ))}
+           </div>
+        </div>
+      )}
 
-      <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden">
+      {equippedBackground === 'hearts' && (
+        <div className="absolute top-0 left-0 right-0 pointer-events-none z-0" style={{ height: '400px', maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
+           {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+              <div key={i} className="absolute left-1/2 top-[35%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+                 <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
+              </div>
+           ))}
+        </div>
+      )}
+
+      {/* Espacio invisible (Header) para absorber el Notch/Status Bar en el modo Fullscreen */}
+      <div className="sticky top-0 z-30 flex items-center justify-center w-full pointer-events-none" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)", background: "transparent" }}></div>
+
+      <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
         
         <button onClick={() => setCurrentView("settings")} className="absolute right-5 top-0 active:opacity-60 transition-opacity z-20" style={{ marginTop: "12px" }}>
           <Settings className="w-[22px] h-[22px] text-white/60 hover:text-white transition-colors" />
         </button>
 
-        {/* ── Avatar y Fondo Principal ── */}
-        <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative">
-           
-           {/* RENDER FONDO 1: PIXEL HEARTS */}
-           {equippedBackground === 'hearts' && (
-             <div className="absolute inset-0 pointer-events-none z-0" style={{ height: '240px', top: '-40px', maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
-                {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-                   <div key={i} className="absolute left-1/2 top-[40%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                      <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
-                   </div>
-                ))}
-             </div>
-           )}
-
-           {/* RENDER FONDO 2: ASTRAL STARS (Premium Noise Fade) */}
-           {equippedBackground === 'astral_stars' && (
-             <div 
-               className="absolute pointer-events-none z-0" 
-               style={{ 
-                 top: '-120px', 
-                 left: '-20px', 
-                 right: '-20px', 
-                 height: '480px', 
-                 width: 'calc(100% + 40px)', 
-                 background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 60%, #000000 100%)',
-                 // La máscara maestra difumina el borde final hacia el negro de la aplicación
-                 maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
-                 WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
-               }}
-             >
-                {/* Capa de grano svg nativo SOLO APLICADO EN LA PARTE BAJA DEL DEGRADADO */}
-                <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                    // Esta máscara local asegura que la parte superior sea suave, y el grano inicie donde empieza la oscuridad
-                    maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 50%, black 85%, black 100%)',
-                    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 50%, black 85%, black 100%)'
-                }}></div>
-                
-                {/* Estrellas oscuras circulares */}
-                <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
-                  {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-                     <div key={i} className="absolute left-1/2 top-[40%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                        <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'brightness(0.15) opacity(0.5)' }} />
-                     </div>
-                  ))}
-                </div>
-             </div>
-           )}
-
+        {/* ── Avatar Principal ── */}
+        <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative z-10">
            <div className="relative flex justify-center items-center w-full mb-3 z-10">
                 <div className="flex items-center justify-center overflow-hidden rounded-full border-2 border-black relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
                   {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
