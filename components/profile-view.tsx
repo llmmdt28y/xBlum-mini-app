@@ -83,8 +83,12 @@ const PreviewPixelHearts = () => (
 
 const PreviewAstralStars = () => (
   <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]" style={{ background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 60%, #000000 100%)' }}>
-     {/* Capa de ruido/grano */}
-     <div className="absolute inset-0 opacity-[0.25] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+     {/* Capa de ruido/grano solo aplicada desde la mitad hacia abajo */}
+     <div className="absolute inset-0 opacity-[0.4] mix-blend-overlay pointer-events-none" style={{ 
+         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+         maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 80%, black 100%)',
+         WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 80%, black 100%)'
+     }}></div>
 
      <div className="absolute inset-0 pointer-events-none z-0" style={{ maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
         {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
@@ -268,26 +272,35 @@ export function ProfileView() {
     setUsername(user.username ? "@" + user.username : "")
   }, [])
 
-  // Comunicación con Telegram para cambiar los colores nativos de la interfaz
+  // ── CONTROL DE API TELEGRAM PARA COLORES NATIVOS ──
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     if (!tg) return
 
     try {
-      if (equippedBackground === 'astral_stars') {
-         tg.setHeaderColor('#4a3b32') // Color café del fondo Astral para la parte nativa superior
-      } else {
-         tg.setHeaderColor('#000000') // Negro por defecto
-      }
-      tg.setBackgroundColor('#000000') // La base siempre termina en negro
+      // Indicamos a la app que estamos listos para asegurar que los comandos se procesen
+      if (tg.ready) tg.ready();
+
+      // Colores de la barra superior (batería, hora) y la base general
+      const topColor = equippedBackground === 'astral_stars' ? '#4a3b32' : '#000000';
+      const bottomColor = '#000000'; // Siempre negro en la base/navegación para coincidir con la app
+
+      if (tg.setHeaderColor) tg.setHeaderColor(topColor);
+      if (tg.setBackgroundColor) tg.setBackgroundColor(bottomColor);
+      
+      // En versiones recientes (7.10+) Telegram permite ajustar explícitamente la barra de navegación del SO
+      if (tg.setBottomBarColor) tg.setBottomBarColor(bottomColor);
+      
     } catch (e) {
-      console.log('TG API Not supported or outdated')
+      console.log('Error applying TG colors:', e)
     }
 
+    // Al desmontar o cambiar la vista principal, limpiamos los colores a su estado base (negro puro)
     return () => {
       try {
-        tg.setHeaderColor('#000000')
-        tg.setBackgroundColor('#000000')
+        if (tg.setHeaderColor) tg.setHeaderColor('#000000');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#000000');
+        if (tg.setBottomBarColor) tg.setBottomBarColor('#000000');
       } catch(e) {}
     }
   }, [equippedBackground])
@@ -420,13 +433,18 @@ export function ProfileView() {
                  height: '480px', 
                  width: 'calc(100% + 40px)', 
                  background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 60%, #000000 100%)',
-                 // La máscara hace que todo el elemento (color + ruido) se desvanezca junto
+                 // La máscara maestra difumina el borde final hacia el negro de la aplicación
                  maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
                  WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
                }}
              >
-                {/* Capa de grano svg nativo */}
-                <div className="absolute inset-0 opacity-[0.25] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
+                {/* Capa de grano svg nativo SOLO APLICADO EN LA PARTE BAJA DEL DEGRADADO */}
+                <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                    // Esta máscara local asegura que la parte superior sea suave, y el grano inicie donde empieza la oscuridad
+                    maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 50%, black 85%, black 100%)',
+                    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 50%, black 85%, black 100%)'
+                }}></div>
                 
                 {/* Estrellas oscuras circulares */}
                 <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
