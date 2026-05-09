@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Hexagon, X, MoreVertical, Palette, ArrowLeft } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Hexagon, X, MoreVertical, Palette, Sparkles } from "lucide-react"
 
 // Importamos la data externa y configuraciones
 import { LEVEL_CONFIG } from "@/lib/data/levels-config"
@@ -338,17 +338,8 @@ export function ProfileView() {
       {isStylePickerOpen && (
         <div className="fixed inset-0 z-[100] bg-[#141415] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden">
             
-            {/* Header Navbar */}
-            <div className="flex items-center justify-between px-5 pt-8 pb-4 relative z-50">
-               <button onClick={() => setIsStylePickerOpen(false)} className="w-8 h-8 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full active:scale-95 transition-transform border border-white/10">
-                  <ArrowLeft className="w-4 h-4 text-white" />
-               </button>
-               <span className="text-white font-bold text-[17px] absolute left-1/2 -translate-x-1/2" style={{ fontFamily: SFD }}>Profile Color</span>
-               <div className="w-8 h-8" />
-            </div>
-
-            {/* Profile Preview Block */}
-            <div className="relative w-full h-[300px] shrink-0 flex flex-col items-center justify-center">
+            {/* Profile Preview Block (Estático superior) */}
+            <div className="relative w-full h-[320px] shrink-0 flex flex-col items-center justify-center pt-8">
                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                  {previewBg && COSMETIC_ITEMS_DB[previewBg]?.getEquipped ? (
                     COSMETIC_ITEMS_DB[previewBg].getEquipped()
@@ -375,9 +366,9 @@ export function ProfileView() {
                </div>
             </div>
 
-            {/* Bottom Grid Container (3 Columnas) */}
+            {/* Bottom Grid Container (3 Columnas, Scrolleable independientemente) */}
             <div className="flex-1 bg-[#141415] overflow-y-auto relative z-20">
-                <div className="grid grid-cols-3 gap-3 p-4 pb-[150px]">
+                <div className="grid grid-cols-3 gap-3 p-4">
                    
                    {/* None/Unequip Card */}
                    <button onClick={() => setPreviewBg(null)} className={`relative aspect-square rounded-[20px] overflow-hidden border-[2px] transition-all ${previewBg === null ? 'border-[#007aff] ring-2 ring-[#007aff]/30' : 'border-white/5'} bg-[#1c1c1e] flex flex-col items-center justify-center group`}>
@@ -416,8 +407,8 @@ export function ProfileView() {
                 </div>
             </div>
 
-            {/* Fixed Floating Apply Button */}
-            <div className="absolute bottom-8 left-5 right-5 z-50 pointer-events-auto">
+            {/* Fixed Footer Apply Button (Estático abajo) */}
+            <div className="shrink-0 px-5 pt-4 pb-8 bg-[#141415] border-t border-white/5 z-50">
                {isPreviewOwned ? (
                  <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="w-full bg-[#007aff] hover:bg-[#0062cc] active:scale-[0.98] transition-all text-white font-bold text-[17px] rounded-[16px] py-4 shadow-[0_8px_30px_rgba(0,122,255,0.4)]">
                     Apply style
