@@ -9,6 +9,7 @@ export const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string
   </svg>
 )
 
+// ── ICONO BOLSAS DE DINERO ──
 export const MoneyBagIcon = ({
   color = "#1f2f52",
   opacity = 0.18,
@@ -67,16 +68,25 @@ export const EquippedAstralStars = () => (
   </BaseEquippedBackground>
 )
 
-// --- VARIANTE 3: MONEY BAGS (Estructura idéntica a Astral Stars) ---
+// --- VARIANTE 3: MONEY BAGS (Con ajuste de contraste e iluminación) ---
 export const PreviewMoneyBags = () => (
   <BasePreviewBackground
-    gradient="linear-gradient(to bottom, #101a30 0%, #081020 60%, #000000 100%)"
-    noiseOpacity={0.4}
+    // Degradado azul pizarra metálico más claro en la parte superior para crear contraste
+    gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 60%, #0d131f 100%)"
+    noiseOpacity={0.35} 
     innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)"
   >
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-       <div key={i} className="absolute left-1/2 top-1/2" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-           <MoneyBagIcon color="#1f2f52" opacity={h.op} size={h.size} />
+       <div
+         key={i}
+         className="absolute left-1/2 top-1/2"
+         style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+       >
+           <MoneyBagIcon
+             color="#0f1626" // Navy casi negro para crear un efecto de silueta/sombra fuerte
+             opacity={0.4}   // Mayor opacidad para que resalten sobre el ruido
+             size={h.size + 4} // Ligeramente más grandes para notar los detalles de la bolsa
+           />
        </div>
     ))}
   </BasePreviewBackground>
@@ -85,14 +95,22 @@ export const PreviewMoneyBags = () => (
 export const EquippedMoneyBags = () => (
   <BaseEquippedBackground
     height="550px"
-    gradient="linear-gradient(to bottom, #101a30 0%, #081020 50%, #000000 100%)"
-    noiseOpacity={0.35}
+    gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 50%, #000000 100%)"
+    noiseOpacity={0.3} // Ruido equilibrado
     containerMask="linear-gradient(to bottom, black 0%, black 75%, transparent 100%)"
     innerMask="radial-gradient(ellipse at center 40%, black 10%, transparent 80%)"
   >
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-      <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-           <MoneyBagIcon color="#1f2f52" opacity={h.op} size={h.size} />
+      <div
+        key={i}
+        className="absolute left-1/2 top-[28%]"
+        style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+      >
+           <MoneyBagIcon
+             color="#0f1626"
+             opacity={0.4}
+             size={h.size + 4}
+           />
       </div>
     ))}
   </BaseEquippedBackground>
