@@ -3,7 +3,8 @@ import { Sparkles } from "lucide-react"
 import {
   PreviewPixelHearts, EquippedPixelHearts,
   PreviewAstralStars, EquippedAstralStars,
-  PreviewXenoHelm, EquippedXenoHelm
+  PreviewXenoHelm, EquippedXenoHelm,
+  PreviewMoneyBags, EquippedMoneyBags
 } from "@/components/cosmetics/background-variants"
 
 export const COSMETIC_ITEMS_DB: Record<string, any> = {
@@ -26,10 +27,32 @@ export const COSMETIC_ITEMS_DB: Record<string, any> = {
   xeno_helm: {
     id: 'xeno_helm', type: 'Profile Background', category: 'Icon Backgrounds', name: 'Xeno Helm', serial: '#10,402', collection: 'Cosmetic Backgrounds',
     model: 'Ancient Artifact', modelPercent: '0.8%', symbol: 'Alien Shield', symbolPercent: '0.6%', backdrop: 'Deep Space Navy', backdropPercent: '',
-    quantityIssued: 88, quantityMax: 250, reqLevel: 1, reqBP: 0, date: "MAY 8, 2026", // <-- Actualizado a Nivel 1, BP 0
+    quantityIssued: 88, quantityMax: 250, reqLevel: 1, reqBP: 0, date: "MAY 8, 2026",
     desc: 'An alien artifact containing a faint pulsating defensive matrix, unearthed during deep space exploration.',
     getPreview: () => <PreviewXenoHelm />,
     getEquipped: () => <EquippedXenoHelm />
+  },
+  money_bags: {
+    id: 'money_bags',
+    type: 'Profile Background',
+    category: 'Icon Backgrounds',
+    name: 'Money Bags',
+    serial: '#14,281',
+    collection: 'Cosmetic Backgrounds',
+    model: 'Shadow Currency',
+    modelPercent: '0.7%',
+    symbol: 'Money Bag Aura',
+    symbolPercent: '0.5%',
+    backdrop: 'Blue Grain Gradient',
+    backdropPercent: '',
+    quantityIssued: 182,
+    quantityMax: 600,
+    reqLevel: 1,
+    reqBP: 0,
+    date: 'MAY 8, 2026',
+    desc: 'Dark floating money bag silhouettes over a soft grainy Telegram-style gradient.',
+    getPreview: () => <PreviewMoneyBags />,
+    getEquipped: () => <EquippedMoneyBags />
   },
   sparkles: {
     id: 'sparkles', type: 'Name Icon', category: 'Name Icons', name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
