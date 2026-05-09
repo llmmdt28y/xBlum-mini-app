@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Hexagon, X, MoreVertical, Palette, Sparkles } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Hexagon, X, MoreVertical, Palette, ArrowLeft, Sparkles } from "lucide-react"
 
 // Importamos la data externa y configuraciones
 import { LEVEL_CONFIG } from "@/lib/data/levels-config"
@@ -172,39 +172,46 @@ export function ProfileView() {
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
         
-        {/* ── MENÚ HAMBURGUESA (PUNTOS VERTICALES) ── */}
-        <div className="absolute left-5 top-0 z-30" style={{ marginTop: "12px" }}>
-           <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[32px] h-[32px] flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full border border-white/10 active:opacity-60 transition-opacity">
-             <MoreVertical className="w-[18px] h-[18px] text-white" />
-           </button>
+        {/* ── BOTONES SUPERIORES (PÍLDORA DE CONFIGURACIÓN) ── */}
+        <div className="absolute right-5 top-0 z-40 flex items-center bg-black/30 backdrop-blur-md rounded-full border border-white/10 shadow-sm" style={{ marginTop: "12px" }}>
            
-           {/* Dropdown Menu */}
-           {isHamburgerOpen && (
-             <>
-               <div className="fixed inset-0 z-40" onClick={() => setIsHamburgerOpen(false)} />
-               <div className="absolute top-10 left-0 bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] shadow-2xl overflow-hidden w-[220px] z-50 animate-in fade-in zoom-in-95 duration-200">
-                  <button 
-                    onClick={() => {
-                      setPreviewBg(equippedBackground);
-                      setIsStylePickerOpen(true);
-                      setIsHamburgerOpen(false);
-                    }}
-                    className="flex items-center gap-3 w-full px-4 py-3.5 text-white hover:bg-[#2c2c2e] transition-colors text-left"
-                  >
-                    <div className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center shrink-0">
-                       <Palette className="w-3.5 h-3.5 text-white" />
-                    </div>
-                    <span className="text-[14px] font-medium" style={{ fontFamily: SF }}>Change Profile Color</span>
-                  </button>
-               </div>
-             </>
-           )}
-        </div>
+           {/* Botón de Menú (Change Profile Color) */}
+           <div className="relative">
+               <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[38px] h-[38px] flex items-center justify-center active:opacity-60 transition-opacity">
+                 <MoreVertical className="w-[18px] h-[18px] text-white/90" />
+               </button>
+               
+               {/* Dropdown Menu */}
+               {isHamburgerOpen && (
+                 <>
+                   <div className="fixed inset-0 z-40" onClick={() => setIsHamburgerOpen(false)} />
+                   <div className="absolute top-12 right-0 bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] shadow-2xl overflow-hidden w-[220px] z-50 animate-in fade-in zoom-in-95 duration-200">
+                      <button 
+                        onClick={() => {
+                          setPreviewBg(equippedBackground);
+                          setIsStylePickerOpen(true);
+                          setIsHamburgerOpen(false);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-3.5 text-white hover:bg-[#2c2c2e] transition-colors text-left"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center shrink-0">
+                           <Palette className="w-3.5 h-3.5 text-white" />
+                        </div>
+                        <span className="text-[14px] font-medium" style={{ fontFamily: SF }}>Change Profile Color</span>
+                      </button>
+                   </div>
+                 </>
+               )}
+           </div>
 
-        {/* ── BOTÓN SETTINGS ── */}
-        <button onClick={() => setCurrentView("settings")} className="absolute right-5 top-0 active:opacity-60 transition-opacity z-20 w-[32px] h-[32px] flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full border border-white/10" style={{ marginTop: "12px" }}>
-          <Settings className="w-[16px] h-[16px] text-white" />
-        </button>
+           {/* Divisor sutil */}
+           <div className="w-[1px] h-[16px] bg-white/20" />
+
+           {/* Botón Settings */}
+           <button onClick={() => setCurrentView("settings")} className="w-[38px] h-[38px] flex items-center justify-center active:opacity-60 transition-opacity">
+             <Settings className="w-[18px] h-[18px] text-white/90" />
+           </button>
+        </div>
 
         {/* ── Avatar Principal ── */}
         <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative z-10">
@@ -335,11 +342,12 @@ export function ProfileView() {
       </div>
 
       {/* ── MODAL NUEVA: SELECTOR DE ESTILOS (CHANGE PROFILE COLOR) ── */}
+      {/* Se le dio un z-[999] para que cubra la Navigation Bar inferior nativa si existe */}
       {isStylePickerOpen && (
-        <div className="fixed inset-0 z-[100] bg-[#141415] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden">
+        <div className="fixed inset-0 z-[999] bg-[#0a0a0b] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden">
             
-            {/* Profile Preview Block (Estático superior) */}
-            <div className="relative w-full h-[320px] shrink-0 flex flex-col items-center justify-center pt-8">
+            {/* Profile Preview Block (Estático superior, sin el navbar back button) */}
+            <div className="relative w-full h-[320px] shrink-0 flex flex-col items-center justify-center pt-4">
                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                  {previewBg && COSMETIC_ITEMS_DB[previewBg]?.getEquipped ? (
                     COSMETIC_ITEMS_DB[previewBg].getEquipped()
@@ -347,7 +355,7 @@ export function ProfileView() {
                     <div className="w-full h-full bg-[#0a0a0b]" /> 
                  )}
                  {/* Suave degradado para unir el fondo con la cuadrícula negra */}
-                 <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-[#141415] to-transparent" />
+                 <div className="absolute bottom-0 left-0 right-0 h-[80px] bg-gradient-to-t from-[#141415] to-transparent" />
                </div>
                
                <div className="relative z-10 flex flex-col items-center mt-2">
@@ -368,7 +376,7 @@ export function ProfileView() {
 
             {/* Bottom Grid Container (3 Columnas, Scrolleable independientemente) */}
             <div className="flex-1 bg-[#141415] overflow-y-auto relative z-20">
-                <div className="grid grid-cols-3 gap-3 p-4">
+                <div className="grid grid-cols-3 gap-3 p-4 pb-[100px]">
                    
                    {/* None/Unequip Card */}
                    <button onClick={() => setPreviewBg(null)} className={`relative aspect-square rounded-[20px] overflow-hidden border-[2px] transition-all ${previewBg === null ? 'border-[#007aff] ring-2 ring-[#007aff]/30' : 'border-white/5'} bg-[#1c1c1e] flex flex-col items-center justify-center group`}>
@@ -407,8 +415,8 @@ export function ProfileView() {
                 </div>
             </div>
 
-            {/* Fixed Footer Apply Button (Estático abajo) */}
-            <div className="shrink-0 px-5 pt-4 pb-8 bg-[#141415] border-t border-white/5 z-50">
+            {/* Fixed Floating Apply Button (Flotando más arriba de los bordes inferiores) */}
+            <div className="absolute bottom-6 left-5 right-5 z-50 pointer-events-auto">
                {isPreviewOwned ? (
                  <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="w-full bg-[#007aff] hover:bg-[#0062cc] active:scale-[0.98] transition-all text-white font-bold text-[17px] rounded-[16px] py-4 shadow-[0_8px_30px_rgba(0,122,255,0.4)]">
                     Apply style
