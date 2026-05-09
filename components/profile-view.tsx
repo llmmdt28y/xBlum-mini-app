@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft, Sword } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Ghost, ChevronLeft } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -41,7 +41,7 @@ const BACKGROUND_ELEMENTS_PREVIEW = [
   { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
 ]
 
-// ── Componentes de Iconos Personalizados ────────────────────────────────────
+// ── Componentes de Iconos Personalizados (SVG Vectors puros) ────────────────
 const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 11 11" fill={color} xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
     <rect x="2" y="1" width="2" height="1" />
@@ -65,13 +65,19 @@ const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opaci
   </svg>
 )
 
-// Daga SVG Custom (Premium y Simétrica sin depender de Lucide)
 const PremiumDagger = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity, filter: `drop-shadow(0 0 4px ${color})` }}>
     <path d="M12 1L14 9L22 11L14 13L12 23L10 13L2 11L10 9L12 1Z" fill={color} />
   </svg>
 )
 
+const PremiumAlien = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity, filter: `drop-shadow(0 0 4px ${color})` }}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58172 2 4 6.02944 4 11C4 14.8659 5.56863 18.2544 8.29289 20.2929C9.38071 21.1066 10.6904 21.5 12 21.5C13.3096 21.5 14.6193 21.1066 15.7071 20.2929C18.4314 18.2544 20 14.8659 20 11C20 6.02944 16.4183 2 12 2ZM8.5 14.5C6.567 14.5 5.5 11.5 5.5 9.5C5.5 7.5 6.567 6.5 8 6.5C9.433 6.5 10.5 8 10.5 10C10.5 12 10.433 14.5 8.5 14.5ZM15.5 14.5C17.433 14.5 18.5 11.5 18.5 9.5C18.5 7.5 17.433 6.5 16 6.5C14.567 6.5 13.5 8 13.5 10C13.5 12 13.567 14.5 15.5 14.5Z" fill={color} />
+  </svg>
+)
+
+// ── Componentes de Previsualización (Filtros y Degradados) ────────────────
 const PreviewPixelHearts = () => (
   <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]">
      <div className="absolute inset-0 pointer-events-none z-0">
@@ -125,8 +131,51 @@ const PreviewEmeraldGlint = () => (
              className="absolute left-1/2 top-1/2" 
              style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
            >
-               {/* Componente SVG Customizado */}
                <PremiumDagger color="#ffffff" size={h.size * 1.3} opacity={0.25} />
+           </div>
+        ))}
+     </div>
+  </div>
+)
+
+const PreviewCosmicAlien = () => (
+  <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]" style={{ background: 'linear-gradient(to bottom, #3b0764 0%, #17052a 60%, #000000 100%)' }}>
+     <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
+         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+         maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
+         WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)'
+     }}></div>
+
+     <div className="absolute inset-0 pointer-events-none z-0" style={{ maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
+        {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+           <div 
+             key={i} 
+             className="absolute left-1/2 top-1/2" 
+             style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+           >
+               <PremiumAlien color="#ffffff" size={h.size * 1.2} opacity={0.25} />
+           </div>
+        ))}
+     </div>
+  </div>
+)
+
+const PreviewPhantomVoid = () => (
+  <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]" style={{ background: 'linear-gradient(to bottom, #1e293b 0%, #0f172a 60%, #000000 100%)' }}>
+     <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
+         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+         maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
+         WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)'
+     }}></div>
+
+     <div className="absolute inset-0 pointer-events-none z-0" style={{ maskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center, black 10%, transparent 80%)" }}>
+        {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+           <div 
+             key={i} 
+             className="absolute left-1/2 top-1/2" 
+             style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
+           >
+               <Ghost color="#ffffff" style={{ width: h.size * 1.1, height: h.size * 1.1, opacity: 0.2 }} strokeWidth={1.5} />
            </div>
         ))}
      </div>
@@ -173,6 +222,32 @@ const COSMETIC_ITEMS_DB: Record<string, any> = {
     desc: 'A rich, dark emerald gradient background adorned with floating stylized daggers. Exquisite premium refinement.',
     date: "MAY 8, 2026",
     getPreview: () => <PreviewEmeraldGlint />
+  },
+  cosmic_alien: {
+    id: 'cosmic_alien',
+    type: 'Profile Background',
+    category: 'Icon Backgrounds',
+    name: 'Cosmic Alien', serial: '#08,199', collection: 'Cosmetic Backgrounds',
+    model: 'Extraterrestrial', modelPercent: '0.2%',
+    symbol: 'White Alien', symbolPercent: '0.3%',
+    backdrop: 'Deep Space Purple', backdropPercent: '',
+    quantityIssued: 98, quantityMax: 500, reqLevel: 1, reqBP: 0,
+    desc: 'An otherworldly purple gradient featuring floating extraterrestrial silhouettes. Perfect for cosmic explorers.',
+    date: "MAY 8, 2026",
+    getPreview: () => <PreviewCosmicAlien />
+  },
+  phantom_void: {
+    id: 'phantom_void',
+    type: 'Profile Background',
+    category: 'Icon Backgrounds',
+    name: 'Phantom Void', serial: '#22,044', collection: 'Cosmetic Backgrounds',
+    model: 'Ethereal Spirit', modelPercent: '1.5%',
+    symbol: 'White Ghost', symbolPercent: '1.8%',
+    backdrop: 'Steel Blue Fog', backdropPercent: '',
+    quantityIssued: 1420, quantityMax: 5000, reqLevel: 1, reqBP: 0,
+    desc: 'A chilling steel-blue void populated by wandering phantom spirits. Embrace the shadows.',
+    date: "MAY 8, 2026",
+    getPreview: () => <PreviewPhantomVoid />
   },
   sparkles: {
     id: 'sparkles',
@@ -291,7 +366,8 @@ export function ProfileView() {
   const [isLevelsExpanded, setIsLevelsExpanded] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
   
-  const [equippedBackground, setEquippedBackground] = useState<string | null>('emerald_glint')
+  // Fondo activo por defecto (Alien)
+  const [equippedBackground, setEquippedBackground] = useState<string | null>('cosmic_alien')
 
   // ── ESTADOS DE MENÚS (ACHIEVEMENTS & INVENTORY) ──
   const [unlockedAchKeys, setUnlockedAchKeys] = useState<string[]>([])
@@ -312,6 +388,40 @@ export function ProfileView() {
     setDisplayName(full || user.username || "User")
     setUsername(user.username ? "@" + user.username : "")
   }, [])
+
+  // ── CONTROL DE API TELEGRAM PARA COLORES NATIVOS ──
+  useEffect(() => {
+    const tg = (window as any).Telegram?.WebApp
+    if (!tg) return
+
+    try {
+      if (tg.ready) tg.ready();
+
+      // Colores de la barra superior dependiendo del fondo
+      const topColor = 
+        equippedBackground === 'astral_stars' ? '#4a3b32' : 
+        equippedBackground === 'emerald_glint' ? '#1a3e35' : 
+        equippedBackground === 'cosmic_alien' ? '#3b0764' :
+        equippedBackground === 'phantom_void' ? '#1e293b' : '#000000';
+        
+      const bottomColor = '#000000';
+
+      if (tg.setHeaderColor) tg.setHeaderColor(topColor);
+      if (tg.setBackgroundColor) tg.setBackgroundColor(bottomColor);
+      if (tg.setBottomBarColor) tg.setBottomBarColor(bottomColor);
+      
+    } catch (e) {
+      console.log('Error applying TG colors:', e)
+    }
+
+    return () => {
+      try {
+        if (tg.setHeaderColor) tg.setHeaderColor('#000000');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#000000');
+        if (tg.setBottomBarColor) tg.setBottomBarColor('#000000');
+      } catch(e) {}
+    }
+  }, [equippedBackground])
 
   // Lógica para Desbloquear Logros Automáticamente
   useEffect(() => {
@@ -340,6 +450,7 @@ export function ProfileView() {
     if (newlyFound) setNewlyUnlocked(newlyFound);
   }, [currentLevel.lv])
 
+  // Manejo robusto del botón Back de Telegram
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
@@ -409,21 +520,8 @@ export function ProfileView() {
       )}
 
       {equippedBackground === 'astral_stars' && (
-        <div 
-          className="absolute top-0 left-0 right-0 pointer-events-none z-0" 
-          style={{ 
-            height: '550px',
-            background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 50%, #000000 100%)',
-            maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
-          }}
-        >
-           <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
-               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-               maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
-               WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)'
-           }}></div>
-           
+        <div className="absolute top-0 left-0 right-0 pointer-events-none z-0" style={{ height: '550px', background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 50%, #000000 100%)', maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)' }}>
+           <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`, maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)' }}></div>
            <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
              {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
                 <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
@@ -434,28 +532,41 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* RENDER FONDO 3: EMERALD GLINT */}
       {equippedBackground === 'emerald_glint' && (
-        <div 
-          className="absolute top-0 left-0 right-0 pointer-events-none z-0" 
-          style={{ 
-            height: '550px',
-            background: 'linear-gradient(to bottom, #1a3e35 0%, #142014 60%, #000000 100%)',
-            maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
-          }}
-        >
-           <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
-               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-               maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
-               WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)'
-           }}></div>
-           
+        <div className="absolute top-0 left-0 right-0 pointer-events-none z-0" style={{ height: '550px', background: 'linear-gradient(to bottom, #1a3e35 0%, #142014 60%, #000000 100%)', maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)' }}>
+           <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`, maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)' }}></div>
            <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
              {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
                 <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                   {/* Componente Premium Dagger */}
                    <PremiumDagger color="#ffffff" size={h.size} opacity={0.25} />
+                </div>
+             ))}
+           </div>
+        </div>
+      )}
+
+      {/* RENDER FONDO 4: COSMIC ALIEN (Nuevo y Personalizado) */}
+      {equippedBackground === 'cosmic_alien' && (
+        <div className="absolute top-0 left-0 right-0 pointer-events-none z-0" style={{ height: '550px', background: 'linear-gradient(to bottom, #3b0764 0%, #17052a 60%, #000000 100%)', maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)' }}>
+           <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`, maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)' }}></div>
+           <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
+             {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+                <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+                   <PremiumAlien color="#ffffff" size={h.size} opacity={0.2} />
+                </div>
+             ))}
+           </div>
+        </div>
+      )}
+
+      {/* RENDER FONDO 5: PHANTOM VOID (Usando Fantasmas de Lucide) */}
+      {equippedBackground === 'phantom_void' && (
+        <div className="absolute top-0 left-0 right-0 pointer-events-none z-0" style={{ height: '550px', background: 'linear-gradient(to bottom, #1e293b 0%, #0f172a 60%, #000000 100%)', maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)' }}>
+           <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`, maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)', WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)' }}></div>
+           <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
+             {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
+                <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+                   <Ghost color="#ffffff" style={{ width: h.size, height: h.size, opacity: 0.2 }} strokeWidth={1.5} />
                 </div>
              ))}
            </div>
@@ -472,6 +583,7 @@ export function ProfileView() {
         </div>
       )}
 
+      {/* Espacio invisible (Header) */}
       <div className="sticky top-0 z-30 flex items-center justify-center w-full pointer-events-none" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)", background: "transparent" }}></div>
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
