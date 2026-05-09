@@ -32,8 +32,6 @@ export const COSMETIC_ITEMS_DB: Record<string, any> = {
     getPreview: () => <PreviewMoneyBags />,
     getEquipped: () => <EquippedMoneyBags />
   },
-  
-  // ── MOCHA ROYALTY (Fondo café con coronas) ──
   mocha_wealth: {
     id: 'mocha_wealth', type: 'Profile Background', category: 'Icon Backgrounds', name: 'Mocha Royalty', serial: '#22,105', collection: 'Cosmetic Backgrounds',
     model: 'Premium Crown', modelPercent: '1.2%', symbol: 'Dark Crest', symbolPercent: '0.8%', backdrop: 'Warm Taupe Gradient', backdropPercent: '',
@@ -42,7 +40,6 @@ export const COSMETIC_ITEMS_DB: Record<string, any> = {
     getPreview: () => <PreviewMochaWealth />,
     getEquipped: () => <EquippedMochaWealth />
   },
-
   sparkles: {
     id: 'sparkles', type: 'Name Icon', category: 'Name Icons', name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
     model: 'Cosmetic Badge', modelPercent: '2.5%', symbol: 'Apex Mark', symbolPercent: '1.2%', backdrop: 'Rare', backdropPercent: '',
