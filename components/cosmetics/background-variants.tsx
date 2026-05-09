@@ -1,7 +1,7 @@
 import React from "react"
 import { BaseEquippedBackground, BasePreviewBackground } from "./base-background"
 
-// ── POSICIONES COMPARTIDAS (Sin los iconos inferiores para evitar recarga) ──
+// ── POSICIONES COMPARTIDAS ──
 export const BACKGROUND_ELEMENTS_PREVIEW = [
   { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
   { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
@@ -47,9 +47,9 @@ export const PreviewPixelHearts = () => (
            <PixelHeartOutline color={h.color} opacity={h.op} size={h.size} />
        </div>
     ))}
-    {/* ICONO CENTRAL PARA LA TARJETA */}
+    {/* ESCALA REDUCIDA para la tarjeta pequeña */}
     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-       <PixelHeartOutline color="#ffffff" opacity={0.9} size={48} />
+       <PixelHeartOutline color="#ffffff" opacity={0.9} size={36} />
     </div>
   </BasePreviewBackground>
 )
@@ -72,9 +72,9 @@ export const PreviewAstralStars = () => (
            <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.25)' }} />
        </div>
     ))}
-    {/* ICONO CENTRAL PARA LA TARJETA */}
+    {/* ESCALA REDUCIDA para la tarjeta pequeña */}
     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-       <img src="/telegram-star-icon.png" alt="star" style={{ width: 48, height: 48, filter: 'grayscale(1) brightness(2)', opacity: 0.9 }} />
+       <img src="/telegram-star-icon.png" alt="star" style={{ width: 36, height: 36, filter: 'grayscale(1) brightness(2)', opacity: 0.9 }} />
     </div>
   </BasePreviewBackground>
 )
@@ -89,7 +89,7 @@ export const EquippedAstralStars = () => (
   </BaseEquippedBackground>
 )
 
-// --- VARIANTE 3: MONEY BAGS ---
+// --- VARIANTE 3: MONEY BAGS (Blue/Slate) ---
 export const PreviewMoneyBags = () => (
   <BasePreviewBackground gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 60%, #0d131f 100%)" noiseOpacity={0.35} innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)">
     {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
@@ -97,9 +97,9 @@ export const PreviewMoneyBags = () => (
            <MoneyBagIcon color="#0f1626" opacity={0.4} size={h.size + 4} />
        </div>
     ))}
-    {/* ICONO CENTRAL PARA LA TARJETA */}
+    {/* ESCALA REDUCIDA para la tarjeta pequeña */}
     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-       <MoneyBagIcon color="#0f1626" opacity={0.8} size={56} />
+       <MoneyBagIcon color="#0f1626" opacity={0.8} size={40} />
     </div>
   </BasePreviewBackground>
 )
@@ -122,9 +122,9 @@ export const PreviewMochaWealth = () => (
            <CrownIcon color="#4a362a" opacity={0.35} size={h.size + 4} />
        </div>
     ))}
-    {/* ICONO CENTRAL PARA LA TARJETA */}
+    {/* ESCALA REDUCIDA para la tarjeta pequeña */}
     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-       <CrownIcon color="#4a362a" opacity={0.8} size={56} />
+       <CrownIcon color="#4a362a" opacity={0.8} size={40} />
     </div>
   </BasePreviewBackground>
 )
