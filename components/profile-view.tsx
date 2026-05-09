@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft, Sword, Dagger } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft, Sword } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -23,7 +23,7 @@ const LEVEL_CONFIG = [
   { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
 ]
 
-// ── Posiciones compartidas (Hearts, Stars & Daggers) ───────────────────────────
+// ── Posiciones compartidas ───────────────────────────
 const BACKGROUND_ELEMENTS_PREVIEW = [
   { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
   { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
@@ -41,7 +41,7 @@ const BACKGROUND_ELEMENTS_PREVIEW = [
   { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
 ]
 
-// ── Componente Pixel Heart Outline ────────────────────────────────────
+// ── Componentes de Iconos Personalizados ────────────────────────────────────
 const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 11 11" fill={color} xmlns="http://www.w3.org/2000/svg" style={{ opacity }}>
     <rect x="2" y="1" width="2" height="1" />
@@ -62,6 +62,13 @@ const PixelHeartOutline = ({ color, opacity, size = 20 }: { color: string, opaci
     <rect x="4" y="9" width="1" height="1" />
     <rect x="6" y="9" width="1" height="1" />
     <rect x="5" y="10" width="1" height="1" />
+  </svg>
+)
+
+// Daga SVG Custom (Premium y Simétrica sin depender de Lucide)
+const PremiumDagger = ({ color, opacity, size = 20 }: { color: string, opacity: number, size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ opacity, filter: `drop-shadow(0 0 4px ${color})` }}>
+    <path d="M12 1L14 9L22 11L14 13L12 23L10 13L2 11L10 9L12 1Z" fill={color} />
   </svg>
 )
 
@@ -103,7 +110,6 @@ const PreviewAstralStars = () => (
   </div>
 )
 
-// Componente Previsualización Emerald Glint (Con Dagas Vectoriales Mejoradas)
 const PreviewEmeraldGlint = () => (
   <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]" style={{ background: 'linear-gradient(to bottom, #1a3e35 0%, #142014 60%, #000000 100%)' }}>
      <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
@@ -119,8 +125,8 @@ const PreviewEmeraldGlint = () => (
              className="absolute left-1/2 top-1/2" 
              style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
            >
-               {/* Ajuste: Se usa Dagger (Daga) de Lucide-React, con mayor tamaño y stroke más fino */}
-               <Dagger color="#ffffff" style={{ width: h.size * 1.3, height: h.size * 1.3, opacity: 0.2 }} strokeWidth={1.3} />
+               {/* Componente SVG Customizado */}
+               <PremiumDagger color="#ffffff" size={h.size * 1.3} opacity={0.25} />
            </div>
         ))}
      </div>
@@ -160,7 +166,6 @@ const COSMETIC_ITEMS_DB: Record<string, any> = {
     type: 'Profile Background',
     category: 'Icon Backgrounds',
     name: 'Emerald Glint', serial: '#15,310', collection: 'Cosmetic Backgrounds',
-    // Actualización de nombres en base de datos
     model: 'Dagger Rain', modelPercent: '0.9%',
     symbol: 'White Dagger', symbolPercent: '1.1%',
     backdrop: 'Grainy Emerald Gradient', backdropPercent: '',
@@ -286,7 +291,6 @@ export function ProfileView() {
   const [isLevelsExpanded, setIsLevelsExpanded] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
   
-  // Fondo activo (Hecho emerald_glint por defecto para que sea el que se vea al cargar)
   const [equippedBackground, setEquippedBackground] = useState<string | null>('emerald_glint')
 
   // ── ESTADOS DE MENÚS (ACHIEVEMENTS & INVENTORY) ──
@@ -317,14 +321,12 @@ export function ProfileView() {
     let newlyFound = null;
     const unlocked = [];
 
-    // Logro 1: Robot (Nivel 1)
     unlocked.push('robot');
     if (!localStorage.getItem('ach_robot_shown')) {
       newlyFound = 'robot';
       localStorage.setItem('ach_robot_shown', 'true');
     }
 
-    // Logro 2: Pepe (Nivel 2)
     if (userLv >= ACHIEVEMENTS_DB.pepe.reqLevel) {
       unlocked.push('pepe');
       if (!newlyFound && !localStorage.getItem('ach_pepe_shown')) {
@@ -338,7 +340,6 @@ export function ProfileView() {
     if (newlyFound) setNewlyUnlocked(newlyFound);
   }, [currentLevel.lv])
 
-  // Manejo robusto del botón Back de Telegram
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
@@ -402,8 +403,7 @@ export function ProfileView() {
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
 
-      {/* ── BACKGROUNDS GLOBALES (EXTENDIDOS AL TOPE PARA MODO FULLSCREEN) ── */}
-      {/* RENDER FONDO NEGRO POR DEFECTO SI NADA ESTÁ EQUIPADO */}
+      {/* ── BACKGROUNDS GLOBALES ── */}
       {!equippedBackground && (
          <div className="absolute top-0 left-0 right-0 pointer-events-none z-0 bg-black" style={{ height: '400px' }}></div>
       )}
@@ -412,13 +412,12 @@ export function ProfileView() {
         <div 
           className="absolute top-0 left-0 right-0 pointer-events-none z-0" 
           style={{ 
-            height: '550px', // Extendido bien abajo
+            height: '550px',
             background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 50%, #000000 100%)',
             maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
           }}
         >
-           {/* Capa de ruido/grano svg nativo SOLO APLICADO EN LA PARTE BAJA DEL DEGRADADO */}
            <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
@@ -428,7 +427,6 @@ export function ProfileView() {
            <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
              {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
                 <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                   {/* Filtro modificado para que las estrellas sean blancas neutrales (sin tono amarillo) */}
                    <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.2)' }} />
                 </div>
              ))}
@@ -436,18 +434,17 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* RENDER FONDO 3: EMERALD GLINT (Nuevo con Dagas Mejoradas) */}
+      {/* RENDER FONDO 3: EMERALD GLINT */}
       {equippedBackground === 'emerald_glint' && (
         <div 
           className="absolute top-0 left-0 right-0 pointer-events-none z-0" 
           style={{ 
-            height: '550px', // Extendido bien abajo
+            height: '550px',
             background: 'linear-gradient(to bottom, #1a3e35 0%, #142014 60%, #000000 100%)',
             maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
           }}
         >
-           {/* Capa de ruido/grano svg nativo SOLO APLICADO EN LA PARTE BAJA DEL DEGRADADO */}
            <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
@@ -457,8 +454,8 @@ export function ProfileView() {
            <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
              {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
                 <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                   {/* Ajuste: Se renderiza Dagger (Daga) de Lucide-React, con stroke fino y opacidad baja */}
-                   <Dagger color="#ffffff" style={{ width: h.size, height: h.size, opacity: 0.2 }} strokeWidth={1.3} />
+                   {/* Componente Premium Dagger */}
+                   <PremiumDagger color="#ffffff" size={h.size} opacity={0.25} />
                 </div>
              ))}
            </div>
@@ -475,7 +472,6 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* Espacio invisible (Header) para absorber el Notch/Status Bar en el modo Fullscreen */}
       <div className="sticky top-0 z-30 flex items-center justify-center w-full pointer-events-none" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)", background: "transparent" }}></div>
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
@@ -487,7 +483,6 @@ export function ProfileView() {
         {/* ── Avatar Principal ── */}
         <div className="flex flex-col items-center pt-2 animate-in fade-in zoom-in-95 duration-500 relative z-10">
            <div className="relative flex justify-center items-center w-full mb-3 z-10">
-                {/* Avatar totalmente integrado (sin borde negro explicito) */}
                 <div className="flex items-center justify-center overflow-hidden rounded-full relative shadow-lg" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
                   {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} onError={() => setPhotoUrl(null)} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                 </div>
@@ -545,7 +540,7 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Achievements (Fila Única Horizontal) ── */}
+        {/* ── Achievements ── */}
         <div className="w-full relative z-10">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
@@ -598,7 +593,7 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Inventory (Botón al Catálogo) ── */}
+        {/* ── Inventory ── */}
         <div className="w-full pb-6 relative z-10">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
@@ -699,7 +694,7 @@ export function ProfileView() {
                               <button 
                                 onClick={() => openItemModal(key, true)}
                                 className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
-                                style={{ clipPath: "polygon(50% 0%, 100% 25% 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
                               >
                                 <img 
                                    src={ach.img} 
@@ -756,7 +751,7 @@ export function ProfileView() {
                               <button 
                                 onClick={() => openItemModal(item.id)}
                                 className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1 group"
-                                style={{ clipPath: "polygon(50% 0%, 100% 25% 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
                               >
                                 {item.getPreview()}
                                 {!isOwned && (
@@ -861,7 +856,7 @@ export function ProfileView() {
                               Unequip
                            </button>
                         ) : (
-                           <button onClick={handleEquipToggle} className="w-full bg-[#3b82f6] active:bg-[#2563eb] transition-colors text-white font-bold text-[17px] rounded6px] py-4">
+                           <button onClick={handleEquipToggle} className="w-full bg-[#3b82f6] active:bg-[#2563eb] transition-colors text-white font-bold text-[17px] rounded-[16px] py-4">
                               Equip Background
                            </button>
                         )
