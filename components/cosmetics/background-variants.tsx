@@ -13,7 +13,7 @@ export const BACKGROUND_ELEMENTS_PREVIEW = [
   { x:  140, y:  50, rot:   5, op: 0.12, size: 22, color: "#ffffff" },
   { x: -75,  y:  80, rot: -15, op: 0.10, size: 18, color: "#ffffff" },
   { x:  75,  y:  80, rot:  15, op: 0.10, size: 18, color: "#ffffff" },
-  // Iconos de y: 110 eliminados a petición para limpiar la zona inferior
+  // Iconos inferiores (y: 110) eliminados para evitar recarga en los menús
   { x: -40,  y: -90, rot:  10, op: 0.08, size: 18, color: "#ffffff" },
   { x:  40,  y: -90, rot: -10, op: 0.08, size: 18, color: "#ffffff" },
 ]
@@ -92,10 +92,10 @@ export const EquippedAstralStars = () => (
   </BaseEquippedBackground>
 )
 
-// --- VARIANTE 3: MONEY BAGS ---
+// --- VARIANTE 3: MONEY BAGS (Blue/Slate) ---
 export const PreviewMoneyBags = () => (
   <BasePreviewBackground
-    gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 60%, #000000 100%)"
+    gradient="linear-gradient(to bottom, #4a5c7a 0%, #2a374f 60%, #0d131f 100%)"
     noiseOpacity={0.35} 
     innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)"
   >
@@ -123,10 +123,10 @@ export const EquippedMoneyBags = () => (
   </BaseEquippedBackground>
 )
 
-// --- VARIANTE 4: MOCHA ROYALTY ---
+// --- VARIANTE 4: MOCHA ROYALTY (Taupe/Brown con Corona) ---
 export const PreviewMochaWealth = () => (
   <BasePreviewBackground
-    gradient="linear-gradient(to bottom, #9b8478 0%, #856e62 60%, #000000 100%)"
+    gradient="linear-gradient(to bottom, #9b8478 0%, #856e62 60%, #6d574b 100%)"
     noiseOpacity={0.35} 
     innerMask="radial-gradient(ellipse at center, black 10%, transparent 80%)"
   >
