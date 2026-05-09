@@ -3,7 +3,8 @@ import { Sparkles } from "lucide-react"
 import {
   PreviewPixelHearts, EquippedPixelHearts,
   PreviewAstralStars, EquippedAstralStars,
-  PreviewMoneyBags, EquippedMoneyBags
+  PreviewMoneyBags, EquippedMoneyBags,
+  PreviewMochaWealth, EquippedMochaWealth
 } from "@/components/cosmetics/background-variants"
 
 export const COSMETIC_ITEMS_DB: Record<string, any> = {
@@ -24,27 +25,24 @@ export const COSMETIC_ITEMS_DB: Record<string, any> = {
     getEquipped: () => <EquippedAstralStars />
   },
   money_bags: {
-    id: 'money_bags',
-    type: 'Profile Background',
-    category: 'Icon Backgrounds',
-    name: 'Money Bags',
-    serial: '#14,281',
-    collection: 'Cosmetic Backgrounds',
-    model: 'Shadow Currency',
-    modelPercent: '0.7%',
-    symbol: 'Money Bag Aura',
-    symbolPercent: '0.5%',
-    backdrop: 'Blue Grain Gradient',
-    backdropPercent: '',
-    quantityIssued: 182,
-    quantityMax: 600,
-    reqLevel: 1,
-    reqBP: 0,
-    date: 'MAY 8, 2026',
+    id: 'money_bags', type: 'Profile Background', category: 'Icon Backgrounds', name: 'Shadow Currency', serial: '#14,281', collection: 'Cosmetic Backgrounds',
+    model: 'Shadow Currency', modelPercent: '0.7%', symbol: 'Money Bag Aura', symbolPercent: '0.5%', backdrop: 'Blue Grain Gradient', backdropPercent: '',
+    quantityIssued: 182, quantityMax: 600, reqLevel: 1, reqBP: 0, date: 'MAY 8, 2026',
     desc: 'Dark floating money bag silhouettes over a soft grainy Telegram-style gradient.',
     getPreview: () => <PreviewMoneyBags />,
     getEquipped: () => <EquippedMoneyBags />
   },
+  
+  // ── MOCHA ROYALTY (Fondo café con coronas) ──
+  mocha_wealth: {
+    id: 'mocha_wealth', type: 'Profile Background', category: 'Icon Backgrounds', name: 'Mocha Royalty', serial: '#22,105', collection: 'Cosmetic Backgrounds',
+    model: 'Premium Crown', modelPercent: '1.2%', symbol: 'Dark Crest', symbolPercent: '0.8%', backdrop: 'Warm Taupe Gradient', backdropPercent: '',
+    quantityIssued: 245, quantityMax: 1000, reqLevel: 1, reqBP: 0, date: 'MAY 8, 2026',
+    desc: 'Elegant dark crown silhouettes floating over a soft warm mocha Telegram-style gradient.',
+    getPreview: () => <PreviewMochaWealth />,
+    getEquipped: () => <EquippedMochaWealth />
+  },
+
   sparkles: {
     id: 'sparkles', type: 'Name Icon', category: 'Name Icons', name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
     model: 'Cosmetic Badge', modelPercent: '2.5%', symbol: 'Apex Mark', symbolPercent: '1.2%', backdrop: 'Rare', backdropPercent: '',
