@@ -1,6 +1,10 @@
 import React from "react"
 import { Sparkles } from "lucide-react"
-import { PreviewPixelHearts, EquippedPixelHearts, PreviewAstralStars, EquippedAstralStars } from "@/components/cosmetics/background-variants"
+import {
+  PreviewPixelHearts, EquippedPixelHearts,
+  PreviewAstralStars, EquippedAstralStars,
+  PreviewXenoHelm, EquippedXenoHelm
+} from "@/components/cosmetics/background-variants"
 
 export const COSMETIC_ITEMS_DB: Record<string, any> = {
   hearts: {
@@ -9,7 +13,7 @@ export const COSMETIC_ITEMS_DB: Record<string, any> = {
     quantityIssued: 124, quantityMax: 500, reqLevel: 3, reqBP: 2500, date: "MAY 7, 2026",
     desc: 'A premium pixel heart aura that surrounds your avatar, reserved for early supporters.',
     getPreview: () => <PreviewPixelHearts />,
-    getEquipped: () => <EquippedPixelHearts /> 
+    getEquipped: () => <EquippedPixelHearts />
   },
   astral_stars: {
     id: 'astral_stars', type: 'Profile Background', category: 'Icon Backgrounds', name: 'Astral Shadows', serial: '#42,108', collection: 'Cosmetic Backgrounds',
@@ -17,7 +21,15 @@ export const COSMETIC_ITEMS_DB: Record<string, any> = {
     quantityIssued: 312, quantityMax: 1000, reqLevel: 1, reqBP: 0, date: "MAY 8, 2026",
     desc: 'A rich, grainy gradient background featuring floating dark star silhouettes. Pure elegance.',
     getPreview: () => <PreviewAstralStars />,
-    getEquipped: () => <EquippedAstralStars /> 
+    getEquipped: () => <EquippedAstralStars />
+  },
+  xeno_helm: {
+    id: 'xeno_helm', type: 'Profile Background', category: 'Icon Backgrounds', name: 'Xeno Helm', serial: '#10,402', collection: 'Cosmetic Backgrounds',
+    model: 'Ancient Artifact', modelPercent: '0.8%', symbol: 'Alien Shield', symbolPercent: '0.6%', backdrop: 'Deep Space Navy', backdropPercent: '',
+    quantityIssued: 88, quantityMax: 250, reqLevel: 1, reqBP: 0, date: "MAY 8, 2026", // <-- Actualizado a Nivel 1, BP 0
+    desc: 'An alien artifact containing a faint pulsating defensive matrix, unearthed during deep space exploration.',
+    getPreview: () => <PreviewXenoHelm />,
+    getEquipped: () => <EquippedXenoHelm />
   },
   sparkles: {
     id: 'sparkles', type: 'Name Icon', category: 'Name Icons', name: 'Sparkle Title', serial: '#12,442', collection: 'Name Icons',
