@@ -376,7 +376,7 @@ export function ProfileView() {
             WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
           }}
         >
-           {/* Capa de grano svg nativo SOLO APLICADO EN LA PARTE BAJA DEL DEGRADADO */}
+           {/* Capa de ruido/grano svg nativo SOLO APLICADO EN LA PARTE BAJA DEL DEGRADADO */}
            <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
@@ -385,7 +385,7 @@ export function ProfileView() {
            
            <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
              {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
-                <div key={i} className="absolute left-1/2 top-[35%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+                <div key={i} className="absolute left-1/2 top-[18%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
                    {/* Filtro modificado para que las estrellas sean blancas neutrales (sin tono amarillo) */}
                    <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.2)' }} />
                 </div>
