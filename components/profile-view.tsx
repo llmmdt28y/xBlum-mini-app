@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft, MoreVertical, Palette, ArrowLeft } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Hexagon, X, MoreVertical, Palette, ArrowLeft } from "lucide-react"
 
 // Importamos la data externa y configuraciones
 import { LEVEL_CONFIG } from "@/lib/data/levels-config"
@@ -100,7 +100,6 @@ export function ProfileView() {
     }
 
     setUnlockedAchKeys(unlocked);
-    
     if (newlyFound) setNewlyUnlocked(newlyFound);
   }, [currentLevel.lv])
 
@@ -168,7 +167,7 @@ export function ProfileView() {
         COSMETIC_ITEMS_DB[equippedBackground].getEquipped()
       )}
 
-      {/* Espacio invisible (Header) para absorber el Notch/Status Bar en el modo Fullscreen */}
+      {/* Espacio invisible (Header) para absorber el Notch/Status Bar */}
       <div className="sticky top-0 z-30 flex items-center justify-center w-full pointer-events-none" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)", background: "transparent" }}></div>
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
@@ -337,28 +336,30 @@ export function ProfileView() {
 
       {/* ── MODAL NUEVA: SELECTOR DE ESTILOS (CHANGE PROFILE COLOR) ── */}
       {isStylePickerOpen && (
-        <div className="fixed inset-0 z-[100] bg-[#0a0a0b] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden">
+        <div className="fixed inset-0 z-[100] bg-[#141415] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden">
             
             {/* Header Navbar */}
-            <div className="flex items-center justify-between px-5 pt-6 pb-2 relative z-50">
+            <div className="flex items-center justify-between px-5 pt-8 pb-4 relative z-50">
                <button onClick={() => setIsStylePickerOpen(false)} className="w-8 h-8 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full active:scale-95 transition-transform border border-white/10">
                   <ArrowLeft className="w-4 h-4 text-white" />
                </button>
-               <span className="text-white font-bold text-[17px]" style={{ fontFamily: SFD }}>Profile Color</span>
+               <span className="text-white font-bold text-[17px] absolute left-1/2 -translate-x-1/2" style={{ fontFamily: SFD }}>Profile Color</span>
                <div className="w-8 h-8" />
             </div>
 
             {/* Profile Preview Block */}
-            <div className="relative w-full h-[280px] shrink-0 flex flex-col items-center justify-center">
+            <div className="relative w-full h-[300px] shrink-0 flex flex-col items-center justify-center">
                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                  {previewBg && COSMETIC_ITEMS_DB[previewBg]?.getEquipped ? (
                     COSMETIC_ITEMS_DB[previewBg].getEquipped()
                  ) : (
-                    <div className="w-full h-full bg-[#000000]" /> 
+                    <div className="w-full h-full bg-[#0a0a0b]" /> 
                  )}
+                 {/* Suave degradado para unir el fondo con la cuadrícula negra */}
+                 <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-[#141415] to-transparent" />
                </div>
                
-               <div className="relative z-10 flex flex-col items-center mt-4">
+               <div className="relative z-10 flex flex-col items-center mt-2">
                   <div className="flex items-center justify-center overflow-hidden rounded-full relative shadow-[0_0_20px_rgba(0,0,0,0.5)] border-2 border-white/5" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
                      {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                   </div>
@@ -375,15 +376,15 @@ export function ProfileView() {
             </div>
 
             {/* Bottom Grid Container (3 Columnas) */}
-            <div className="flex-1 bg-[#141415] rounded-t-[32px] border-t border-[#2c2c2e] overflow-y-auto relative z-20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-                <div className="grid grid-cols-3 gap-2.5 p-4 pb-[120px]">
+            <div className="flex-1 bg-[#141415] overflow-y-auto relative z-20">
+                <div className="grid grid-cols-3 gap-3 p-4 pb-[150px]">
                    
                    {/* None/Unequip Card */}
-                   <button onClick={() => setPreviewBg(null)} className={`relative aspect-square rounded-[16px] overflow-hidden border-2 transition-all ${previewBg === null ? 'border-[#3b82f6]' : 'border-transparent'} bg-[#1c1c1e] flex flex-col items-center justify-center group`}>
+                   <button onClick={() => setPreviewBg(null)} className={`relative aspect-square rounded-[20px] overflow-hidden border-[2px] transition-all ${previewBg === null ? 'border-[#007aff] ring-2 ring-[#007aff]/30' : 'border-white/5'} bg-[#1c1c1e] flex flex-col items-center justify-center group`}>
                       <div className="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                          <X className="w-5 h-5 text-[#8e8e93]" />
                       </div>
-                      <span className="text-[#8e8e93] font-medium text-[12px]">Default</span>
+                      <span className="text-[#8e8e93] font-medium text-[11px]">Default</span>
                    </button>
                    
                    {/* Background Cards */}
@@ -394,21 +395,20 @@ export function ProfileView() {
                          <button 
                            key={item.id}
                            onClick={() => setPreviewBg(item.id)}
-                           className={`relative aspect-square rounded-[16px] overflow-hidden border-2 transition-all ${isSelected ? 'border-[#3b82f6]' : 'border-transparent'} ${!isOwned ? 'grayscale opacity-60' : ''}`}
+                           className={`relative aspect-square rounded-[20px] overflow-hidden border-[2px] transition-all ${isSelected ? 'border-[#007aff] ring-2 ring-[#007aff]/30' : 'border-white/5'} ${!isOwned ? 'grayscale opacity-60' : ''} bg-[#111111]`}
                          >
-                            <div className="absolute inset-0 pointer-events-none flex items-center justify-center bg-[#111111] [&>div]:!h-full [&>div]:!w-full [&>div]:!rounded-none">
+                            <div className="absolute inset-0 pointer-events-none flex items-center justify-center [&>div]:!h-full [&>div]:!w-full [&>div]:!rounded-none">
                                {item.getPreview()}
                             </div>
                             
-                            {/* Diagonal Ribbon (Top Right) */}
-                            <div className="absolute top-[8px] -right-[24px] w-[80px] bg-black/40 backdrop-blur-md py-0.5 text-center rotate-45 z-10 border-y border-white/10 shadow-sm">
-                               <span className="text-white/90 text-[8px] font-bold">{item.serial}</span>
+                            {/* Top-Right Clean Badge */}
+                            <div className="absolute top-0 right-0 bg-black/40 backdrop-blur-md px-1.5 py-0.5 rounded-bl-[10px] z-10 border-b border-l border-white/5">
+                               <span className="text-white/80 text-[9px] font-bold tracking-wide">{item.serial}</span>
                             </div>
 
-                            {/* Bottom Pill */}
-                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-[8px] flex items-center justify-center gap-1 z-10 w-[85%] border border-white/10">
-                               <Sparkles className="w-3 h-3 text-white shrink-0" />
-                               <span className="text-white text-[9px] font-bold truncate">{item.name}</span>
+                            {/* Bottom Name Pill */}
+                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-[8px] flex items-center justify-center z-10 w-[85%] border border-white/10">
+                               <span className="text-white text-[10px] font-semibold truncate" style={{ fontFamily: SF }}>{item.name}</span>
                             </div>
                          </button>
                       )
@@ -416,19 +416,17 @@ export function ProfileView() {
                 </div>
             </div>
 
-            {/* Fixed Bottom Apply Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-[#141415] via-[#141415] to-transparent pb-8 z-50 pointer-events-none">
-               <div className="pointer-events-auto">
-                 {isPreviewOwned ? (
-                   <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="w-full bg-[#007aff] active:scale-[0.98] transition-transform text-white font-bold text-[17px] rounded-[16px] py-4 shadow-lg shadow-[#007aff]/30">
-                      Apply style
-                   </button>
-                 ) : (
-                   <button disabled className="w-full bg-[#1c1c1e] text-[#636366] border border-[#2c2c2e] font-bold text-[17px] rounded-[16px] py-4 flex items-center justify-center gap-2">
-                      <Lock className="w-5 h-5" /> Requires Level {previewItem.reqLevel}
-                   </button>
-                 )}
-               </div>
+            {/* Fixed Floating Apply Button */}
+            <div className="absolute bottom-8 left-5 right-5 z-50 pointer-events-auto">
+               {isPreviewOwned ? (
+                 <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="w-full bg-[#007aff] hover:bg-[#0062cc] active:scale-[0.98] transition-all text-white font-bold text-[17px] rounded-[16px] py-4 shadow-[0_8px_30px_rgba(0,122,255,0.4)]">
+                    Apply style
+                 </button>
+               ) : (
+                 <button disabled className="w-full bg-[#1c1c1e] text-[#636366] border border-[#2c2c2e] font-bold text-[17px] rounded-[16px] py-4 flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+                    <Lock className="w-5 h-5" /> Requires Level {previewItem.reqLevel}
+                 </button>
+               )}
             </div>
         </div>
       )}
