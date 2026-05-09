@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft, Sword } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft, Sword, Dagger } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -23,7 +23,7 @@ const LEVEL_CONFIG = [
   { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
 ]
 
-// ── Posiciones compartidas (Hearts, Stars & Swords) ───────────────────────────
+// ── Posiciones compartidas (Hearts, Stars & Daggers) ───────────────────────────
 const BACKGROUND_ELEMENTS_PREVIEW = [
   { x: -90, y: -50, rot: -5, op: 0.15, size: 24, color: "#ffffff" },
   { x:  90, y: -50, rot:  5, op: 0.15, size: 24, color: "#ffffff" },
@@ -103,7 +103,7 @@ const PreviewAstralStars = () => (
   </div>
 )
 
-// Componente Previsualización Emerald Glint (Con espadas de Lucide)
+// Componente Previsualización Emerald Glint (Con Dagas Vectoriales Mejoradas)
 const PreviewEmeraldGlint = () => (
   <div className="relative w-full h-[200px] flex items-center justify-center overflow-hidden rounded-[24px]" style={{ background: 'linear-gradient(to bottom, #1a3e35 0%, #142014 60%, #000000 100%)' }}>
      <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
@@ -119,7 +119,8 @@ const PreviewEmeraldGlint = () => (
              className="absolute left-1/2 top-1/2" 
              style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}
            >
-               <Sword color="#ffffff" style={{ width: h.size, height: h.size, opacity: 0.2 }} strokeWidth={1.5} />
+               {/* Ajuste: Se usa Dagger (Daga) de Lucide-React, con mayor tamaño y stroke más fino */}
+               <Dagger color="#ffffff" style={{ width: h.size * 1.3, height: h.size * 1.3, opacity: 0.2 }} strokeWidth={1.3} />
            </div>
         ))}
      </div>
@@ -159,11 +160,12 @@ const COSMETIC_ITEMS_DB: Record<string, any> = {
     type: 'Profile Background',
     category: 'Icon Backgrounds',
     name: 'Emerald Glint', serial: '#15,310', collection: 'Cosmetic Backgrounds',
-    model: 'Sword Rain', modelPercent: '0.9%',
+    // Actualización de nombres en base de datos
+    model: 'Dagger Rain', modelPercent: '0.9%',
     symbol: 'White Dagger', symbolPercent: '1.1%',
     backdrop: 'Grainy Emerald Gradient', backdropPercent: '',
     quantityIssued: 512, quantityMax: 2500, reqLevel: 1, reqBP: 0,
-    desc: 'A rich, dark emerald gradient background adorned with floating stylized swords. Exquisite premium refinement.',
+    desc: 'A rich, dark emerald gradient background adorned with floating stylized daggers. Exquisite premium refinement.',
     date: "MAY 8, 2026",
     getPreview: () => <PreviewEmeraldGlint />
   },
@@ -410,12 +412,13 @@ export function ProfileView() {
         <div 
           className="absolute top-0 left-0 right-0 pointer-events-none z-0" 
           style={{ 
-            height: '550px', 
+            height: '550px', // Extendido bien abajo
             background: 'linear-gradient(to bottom, #4a3b32 0%, #1e1612 50%, #000000 100%)',
             maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
           }}
         >
+           {/* Capa de ruido/grano svg nativo SOLO APLICADO EN LA PARTE BAJA DEL DEGRADADO */}
            <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
@@ -425,6 +428,7 @@ export function ProfileView() {
            <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
              {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
                 <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
+                   {/* Filtro modificado para que las estrellas sean blancas neutrales (sin tono amarillo) */}
                    <img src="/telegram-star-icon.png" alt="star" style={{ width: h.size, height: h.size, filter: 'grayscale(1) brightness(2) opacity(0.2)' }} />
                 </div>
              ))}
@@ -432,17 +436,18 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* RENDER FONDO 3: EMERALD GLINT (Nuevo con Espadas) */}
+      {/* RENDER FONDO 3: EMERALD GLINT (Nuevo con Dagas Mejoradas) */}
       {equippedBackground === 'emerald_glint' && (
         <div 
           className="absolute top-0 left-0 right-0 pointer-events-none z-0" 
           style={{ 
-            height: '550px',
+            height: '550px', // Extendido bien abajo
             background: 'linear-gradient(to bottom, #1a3e35 0%, #142014 60%, #000000 100%)',
             maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)'
           }}
         >
+           {/* Capa de ruido/grano svg nativo SOLO APLICADO EN LA PARTE BAJA DEL DEGRADADO */}
            <div className="absolute inset-0 opacity-[0.35] mix-blend-overlay pointer-events-none" style={{ 
                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 40%, black 85%, black 100%)',
@@ -452,8 +457,8 @@ export function ProfileView() {
            <div className="absolute inset-0 z-0 pointer-events-none" style={{ maskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)", WebkitMaskImage: "radial-gradient(ellipse at center 40%, black 10%, transparent 80%)" }}>
              {BACKGROUND_ELEMENTS_PREVIEW.map((h, i) => (
                 <div key={i} className="absolute left-1/2 top-[28%]" style={{ transform: `translate(calc(-50% + ${h.x}px), calc(-50% + ${h.y}px)) rotate(${h.rot}deg)` }}>
-                   {/* Se renderizan las espadas de Lucide-React como SVG */}
-                   <Sword color="#ffffff" style={{ width: h.size, height: h.size, opacity: 0.2 }} strokeWidth={1.5} />
+                   {/* Ajuste: Se renderiza Dagger (Daga) de Lucide-React, con stroke fino y opacidad baja */}
+                   <Dagger color="#ffffff" style={{ width: h.size, height: h.size, opacity: 0.2 }} strokeWidth={1.3} />
                 </div>
              ))}
            </div>
@@ -694,7 +699,7 @@ export function ProfileView() {
                               <button 
                                 onClick={() => openItemModal(key, true)}
                                 className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
-                                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                                style={{ clipPath: "polygon(50% 0%, 100% 25% 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
                               >
                                 <img 
                                    src={ach.img} 
@@ -751,7 +756,7 @@ export function ProfileView() {
                               <button 
                                 onClick={() => openItemModal(item.id)}
                                 className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1 group"
-                                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                                style={{ clipPath: "polygon(50% 0%, 100% 25% 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
                               >
                                 {item.getPreview()}
                                 {!isOwned && (
@@ -856,7 +861,7 @@ export function ProfileView() {
                               Unequip
                            </button>
                         ) : (
-                           <button onClick={handleEquipToggle} className="w-full bg-[#3b82f6] active:bg-[#2563eb] transition-colors text-white font-bold text-[17px] rounded-[16px] py-4">
+                           <button onClick={handleEquipToggle} className="w-full bg-[#3b82f6] active:bg-[#2563eb] transition-colors text-white font-bold text-[17px] rounded6px] py-4">
                               Equip Background
                            </button>
                         )
