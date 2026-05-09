@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Hexagon } from "lucide-react"
+import { Settings, Lock, ChevronDown, ChevronRight, Sparkles, Hexagon, Check, X, ChevronLeft, Menu, Palette, ArrowLeft } from "lucide-react"
 
 // Importamos la data externa y configuraciones
 import { LEVEL_CONFIG } from "@/lib/data/levels-config"
@@ -51,8 +51,11 @@ export function ProfileView() {
   const [isLevelsExpanded, setIsLevelsExpanded] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
   
-  // Fondo activo
+  // Fondo activo y estados de UI para el Menu de Perfil
   const [equippedBackground, setEquippedBackground] = useState<string | null>(null)
+  const [isHamburgerOpen, setIsHamburgerOpen] = useState(false)
+  const [isStylePickerOpen, setIsStylePickerOpen] = useState(false)
+  const [previewBg, setPreviewBg] = useState<string | null>(null)
 
   // ── ESTADOS DE MENÚS (ACHIEVEMENTS & INVENTORY) ──
   const [unlockedAchKeys, setUnlockedAchKeys] = useState<string[]>([])
@@ -114,6 +117,8 @@ export function ProfileView() {
         setNewlyUnlocked(null)
       } else if (selectedItem) {
         setSelectedItem(null) 
+      } else if (isStylePickerOpen) {
+        setIsStylePickerOpen(false)
       } else if (isAchievementsMenuOpen) {
         setIsAchievementsMenuOpen(false) 
       } else if (isCosmeticInventoryMenuOpen) { 
@@ -126,7 +131,7 @@ export function ProfileView() {
     
     tg.BackButton.onClick(handleBack)
     return () => { tg.BackButton.offClick(handleBack) }
-  }, [setCurrentView, selectedItem, newlyUnlocked, isAchievementsMenuOpen, isCosmeticInventoryMenuOpen])
+  }, [setCurrentView, selectedItem, newlyUnlocked, isAchievementsMenuOpen, isCosmeticInventoryMenuOpen, isStylePickerOpen])
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
@@ -148,21 +153,14 @@ export function ProfileView() {
     }
   }
 
-  const handleEquipToggle = () => {
-    if (equippedBackground === selectedItem?.id) {
-       setEquippedBackground(null)
-    } else {
-       if (selectedItem?.type === 'Profile Background') {
-         setEquippedBackground(selectedItem?.id)
-       }
-    }
-    setSelectedItem(null)
-  }
-
   const TOTAL_PROFILE_ACH_SLOTS = 4;
   const profileAchievementSlots = Array.from({ length: TOTAL_PROFILE_ACH_SLOTS });
   const isItemOwned = selectedItem ? currentLevel.lv >= selectedItem.reqLevel : false;
   const cosmeticCategories = Array.from(new Set(Object.values(COSMETIC_ITEMS_DB).map(item => item.category)));
+
+  // Validadores para el Style Picker
+  const previewItem = previewBg ? COSMETIC_ITEMS_DB[previewBg] : null;
+  const isPreviewOwned = previewItem ? currentLevel.lv >= previewItem.reqLevel : true;
 
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
@@ -177,8 +175,38 @@ export function ProfileView() {
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
         
-        <button onClick={() => setCurrentView("settings")} className="absolute right-5 top-0 active:opacity-60 transition-opacity z-20" style={{ marginTop: "12px" }}>
-          <Settings className="w-[22px] h-[22px] text-white/60 hover:text-white transition-colors" />
+        {/* ── MENÚ HAMBURGUESA (PROFILE COLORS) ── */}
+        <div className="absolute left-5 top-0 z-30" style={{ marginTop: "12px" }}>
+           <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[32px] h-[32px] flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full border border-white/10 active:opacity-60 transition-opacity">
+             <Menu className="w-[16px] h-[16px] text-white" />
+           </button>
+           
+           {/* Dropdown Menu */}
+           {isHamburgerOpen && (
+             <>
+               <div className="fixed inset-0 z-40" onClick={() => setIsHamburgerOpen(false)} />
+               <div className="absolute top-10 left-0 bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] shadow-2xl overflow-hidden w-[220px] z-50 animate-in fade-in zoom-in-95 duration-200">
+                  <button 
+                    onClick={() => {
+                      setPreviewBg(equippedBackground);
+                      setIsStylePickerOpen(true);
+                      setIsHamburgerOpen(false);
+                    }}
+                    className="flex items-center gap-3 w-full px-4 py-3.5 text-white hover:bg-[#2c2c2e] transition-colors text-left"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center shrink-0">
+                       <Palette className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <span className="text-[14px] font-medium" style={{ fontFamily: SF }}>Change Profile Color</span>
+                  </button>
+               </div>
+             </>
+           )}
+        </div>
+
+        {/* ── BOTÓN SETTINGS ── */}
+        <button onClick={() => setCurrentView("settings")} className="absolute right-5 top-0 active:opacity-60 transition-opacity z-20 w-[32px] h-[32px] flex items-center justify-center bg-black/20 backdrop-blur-md rounded-full border border-white/10" style={{ marginTop: "12px" }}>
+          <Settings className="w-[16px] h-[16px] text-white" />
         </button>
 
         {/* ── Avatar Principal ── */}
@@ -191,7 +219,7 @@ export function ProfileView() {
           
           <div className="text-center flex flex-col items-center relative z-10">
             <div className="relative inline-flex items-center justify-center">
-               <p className="text-white font-bold" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>
+               <p className="text-white font-bold drop-shadow-md" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>
                  {displayName || "Your Name"}
                </p>
                <div className="absolute left-full ml-1.5 flex items-center justify-center shrink-0">
@@ -199,7 +227,7 @@ export function ProfileView() {
                </div>
             </div>
             
-            <p className="mt-1.5" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>{username}</p>
+            <p className="mt-1.5 drop-shadow-md" style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", fontFamily: SF }}>{username}</p>
           </div>
         </div>
 
@@ -245,7 +273,7 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Achievements (Fila Única Horizontal) ── */}
+        {/* ── Achievements ── */}
         <div className="w-full relative z-10">
            <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
@@ -270,27 +298,13 @@ export function ProfileView() {
                            className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
                            style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
                          >
-                             <img 
-                             src={ach.img} 
-                             draggable={false} 
-                             alt={ach.name} 
-                             className="w-[125%] h-[125%] object-cover pointer-events-none select-none" 
-                             style={{ WebkitTouchCallout: "none" }} 
-                           />
+                             <img src={ach.img} draggable={false} alt={ach.name} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                          </button>
                       </div>
                     )
                  } else {
                     return (
-                      <div 
-                         key={`empty-${i}`} 
-                         className="w-[82px] h-[94px] shrink-0 flex items-center justify-center relative bg-[#111111]"
-                         style={{ 
-                           clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
-                           zIndex: zIndex,
-                           marginLeft: marginLeft
-                         }}
-                      >
+                      <div key={`empty-${i}`} className="w-[82px] h-[94px] shrink-0 flex items-center justify-center relative bg-[#111111]" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)", zIndex: zIndex, marginLeft: marginLeft }}>
                       </div>
                     )
                  }
@@ -298,12 +312,10 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Inventory (Botón al Catálogo) ── */}
+        {/* ── Inventory (Solo cosméticos regulares ahora) ── */}
         <div className="w-full pb-6 relative z-10">
            <div className="flex items-center justify-between mb-4">
-               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
-                Inventory
-              </h3>
+               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Inventory</h3>
               <button onClick={() => setIsCosmeticInventoryMenuOpen(true)} className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
                 <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
                </button>
@@ -325,114 +337,112 @@ export function ProfileView() {
 
       </div>
 
-      {/* ── MODAL FULLSCREEN: NUEVO LOGRO DESBLOQUEADO ── */}
-      {newlyUnlocked && ACHIEVEMENTS_DB[newlyUnlocked] && (
-        <div 
-          className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300"
-          onClick={() => setNewlyUnlocked(null)}
-        >
-          <img 
-            src={ACHIEVEMENTS_DB[newlyUnlocked].img} 
-            alt={ACHIEVEMENTS_DB[newlyUnlocked].name} 
-            draggable={false}
-            className="w-[200px] h-[200px] object-contain achievement-shake-animation pointer-events-none select-none" 
-            style={{ WebkitTouchCallout: "none" }}
-          />
-          
-          <h1 className="text-white text-[28px] font-bold mt-6 text-center" style={{ fontFamily: SFD }}>
-             {ACHIEVEMENTS_DB[newlyUnlocked].name}
-          </h1>
-          <p className="text-[#8e8e93] text-[13px] font-bold mt-1 tracking-widest uppercase" style={{ fontFamily: SF }}>
-             OBTAINED: {ACHIEVEMENTS_DB[newlyUnlocked].date}
-          </p>
-          <p className="text-[#8e8e93] text-center text-[15px] mt-6 max-w-[280px] leading-relaxed" style={{ fontFamily: SF }}>
-             {ACHIEVEMENTS_DB[newlyUnlocked].desc}
-          </p>
+      {/* ── MODAL NUEVA: SELECTOR DE ESTILOS (CHANGE PROFILE COLOR) ── */}
+      {isStylePickerOpen && (
+        <div className="fixed inset-0 z-[100] bg-[#0a0a0b] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden">
+            
+            {/* Header Navbar */}
+            <div className="flex items-center justify-between px-5 pt-6 pb-2 relative z-50">
+               <button onClick={() => setIsStylePickerOpen(false)} className="w-8 h-8 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full active:scale-95 transition-transform border border-white/10">
+                  <ArrowLeft className="w-4 h-4 text-white" />
+               </button>
+               <span className="text-white font-bold text-[17px]" style={{ fontFamily: SFD }}>Profile Color</span>
+               <div className="w-8 h-8" />
+            </div>
 
-          <style dangerouslySetInnerHTML={{__html: `
-            @keyframes achievementShake {
-              0%, 100% { transform: translateX(0); }
-              20% { transform: translateX(-8px) rotate(-4deg); }
-              40% { transform: translateX(8px) rotate(4deg); }
-              60% { transform: translateX(-8px) rotate(-4deg); }
-              80% { transform: translateX(8px) rotate(4deg); }
-            }
-            .achievement-shake-animation {
-              animation: achievementShake 0.6s ease-in-out forwards;
-            }
-          `}} />
-        </div>
-      )}
-
-      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS ── */}
-      {isAchievementsMenuOpen && (
-        <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
-          
-          <div className="px-5 pt-8 flex flex-col">
-             <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>
-              Achievements
-            </h1>
-
-            {Array.from(new Set(unlockedAchKeys.map(key => ACHIEVEMENTS_DB[key].category || 'Secrets'))).map((category) => {
-               const categoryKeys = unlockedAchKeys.filter(key => (ACHIEVEMENTS_DB[key].category || 'Secrets') === category);
+            {/* Profile Preview Block */}
+            <div className="relative w-full h-[280px] shrink-0 flex flex-col items-center justify-center">
+               <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+                 {previewBg && COSMETIC_ITEMS_DB[previewBg]?.getEquipped ? (
+                    COSMETIC_ITEMS_DB[previewBg].getEquipped()
+                 ) : (
+                    <div className="w-full h-full bg-[#000000]" /> 
+                 )}
+               </div>
                
-                return (
-                  <div key={category} className="mb-10 w-full">
-                     <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center">
-                              <Hexagon className="w-3 h-3 text-[#8e8e93]" />
-                           </div>
-                           <span className="text-white font-bold text-[17px] uppercase tracking-wider" style={{ fontFamily: SFD }}>{category}</span>
-                           <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryKeys.length}</span>
-                        </div>
-                        <div className="w-7 h-7 rounded-full bg-[#111111] flex items-center justify-center">
-                           <ChevronDown className="w-4 h-4 text-[#48484a]" />
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-2 gap-x-4 gap-y-8 pl-1">
-                       {categoryKeys.map((key) => {
-                         const ach = ACHIEVEMENTS_DB[key];
-                         return (
-                           <div key={key} className="flex flex-col items-center text-center w-full drop-shadow-[0_0_15px_rgba(255,255,255,0.06)]">
-                              <button 
-                                onClick={() => openItemModal(key, true)}
-                                className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
-                                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-                              >
-                                <img 
-                                   src={ach.img} 
-                                   draggable={false} 
-                                   className="w-[125%] h-[125%] object-cover pointer-events-none select-none" 
-                                   style={{ WebkitTouchCallout: "none" }} 
-                                />
-                              </button>
-                              <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{ach.name}</h2>
-                              <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{ach.desc}</p>
-                              <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{ach.date}</p>
-                           </div>
-                         )
-                       })}
-                     </div>
+               <div className="relative z-10 flex flex-col items-center mt-4">
+                  <div className="flex items-center justify-center overflow-hidden rounded-full relative shadow-[0_0_20px_rgba(0,0,0,0.5)] border-2 border-white/5" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
+                     {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                   </div>
-                )
-            })}
-          </div>
+                  <div className="text-center flex flex-col items-center mt-3">
+                    <div className="relative inline-flex items-center justify-center">
+                       <p className="text-white font-bold drop-shadow-md" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>{displayName || "Your Name"}</p>
+                       <div className="absolute left-full ml-1.5 flex items-center justify-center shrink-0">
+                         <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={32} />
+                       </div>
+                    </div>
+                    <p className="mt-1.5 drop-shadow-md" style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", fontFamily: SF }}>{username}</p>
+                  </div>
+               </div>
+            </div>
+
+            {/* Bottom Grid Container */}
+            <div className="flex-1 bg-[#141415] rounded-t-[32px] border-t border-[#2c2c2e] overflow-y-auto relative z-20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+                <div className="grid grid-cols-2 gap-3 p-5 pb-[120px]">
+                   
+                   {/* None/Unequip Card */}
+                   <button onClick={() => setPreviewBg(null)} className={`relative aspect-square rounded-[20px] overflow-hidden border-[3px] transition-all ${previewBg === null ? 'border-[#3b82f6]' : 'border-transparent'} bg-[#1c1c1e] flex flex-col items-center justify-center group`}>
+                      <div className="w-12 h-12 rounded-full bg-[#2c2c2e] flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                         <X className="w-5 h-5 text-[#8e8e93]" />
+                      </div>
+                      <span className="text-[#8e8e93] font-medium text-[14px]">Default</span>
+                   </button>
+                   
+                   {/* Background Cards (Excluyendo el objeto del centro usando CSS inline) */}
+                   {Object.values(COSMETIC_ITEMS_DB).filter(i => i.type === 'Profile Background').map(item => {
+                      const isSelected = previewBg === item.id;
+                      const isOwned = currentLevel.lv >= item.reqLevel;
+                      return (
+                         <button 
+                           key={item.id}
+                           onClick={() => setPreviewBg(item.id)}
+                           className={`relative aspect-square rounded-[20px] overflow-hidden border-[3px] transition-all ${isSelected ? 'border-[#3b82f6]' : 'border-transparent'} ${!isOwned ? 'grayscale opacity-60' : ''}`}
+                         >
+                            <div className="absolute inset-0 pointer-events-none flex items-center justify-center bg-[#111111] [&>div]:!h-full [&>div]:!w-full [&>div]:!rounded-none">
+                               {item.getPreview()}
+                            </div>
+                            
+                            <div className="absolute top-0 right-0 bg-black/40 backdrop-blur-md px-2 py-1 rounded-bl-[10px] z-10">
+                               <span className="text-white/80 text-[10px] font-bold">{item.serial}</span>
+                            </div>
+
+                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-[12px] flex items-center justify-center gap-1.5 z-10 w-[85%] border border-white/5">
+                               <Sparkles className="w-3.5 h-3.5 text-white" />
+                               <span className="text-white text-[12px] font-bold truncate">{item.name}</span>
+                            </div>
+                         </button>
+                      )
+                   })}
+                </div>
+            </div>
+
+            {/* Fixed Bottom Apply Button */}
+            <div className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-[#141415] via-[#141415] to-transparent pb-8 z-50 pointer-events-none">
+               <div className="pointer-events-auto">
+                 {isPreviewOwned ? (
+                   <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="w-full bg-[#007aff] active:scale-[0.98] transition-transform text-white font-bold text-[17px] rounded-[16px] py-4 shadow-lg shadow-[#007aff]/30">
+                      Apply style
+                   </button>
+                 ) : (
+                   <button disabled className="w-full bg-[#1c1c1e] text-[#636366] border border-[#2c2c2e] font-bold text-[17px] rounded-[16px] py-4 flex items-center justify-center gap-2">
+                      <Lock className="w-5 h-5" /> Requires Level {previewItem.reqLevel}
+                   </button>
+                 )}
+               </div>
+            </div>
         </div>
       )}
 
-      {/* ── MODAL FULLSCREEN: MENÚ DE INVENTARIO COSMÉTICO (CATÁLOGO) ── */}
+      {/* ── MODAL FULLSCREEN: MENÚ DE INVENTARIO COSMÉTICO GENERAL (SIN BACKGROUNDS) ── */}
       {isCosmeticInventoryMenuOpen && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
-          
           <div className="px-5 pt-8 flex flex-col">
-            <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>
-              Catalogue
-            </h1>
-
+            <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>Catalogue</h1>
             {cosmeticCategories.map((category) => {
-               const categoryItems = Object.values(COSMETIC_ITEMS_DB).filter(item => item.category === category);
+               // Filtramos los Profile Backgrounds para que no salgan en este inventario
+               const categoryItems = Object.values(COSMETIC_ITEMS_DB).filter(item => item.category === category && item.type !== 'Profile Background');
+               if (categoryItems.length === 0) return null;
+
                return (
                   <div key={category} className="mb-10 w-full">
                      <div className="flex items-center justify-between mb-6">
@@ -443,9 +453,6 @@ export function ProfileView() {
                            <span className="text-white font-bold text-[17px] uppercase tracking-wider" style={{ fontFamily: SFD }}>{category}</span>
                            <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryItems.length}</span>
                         </div>
-                        <div className="w-7 h-7 rounded-full bg-[#111111] flex items-center justify-center">
-                           <ChevronDown className="w-4 h-4 text-[#48484a]" />
-                        </div>
                      </div>
 
                      <div className="grid grid-cols-2 gap-x-4 gap-y-8 pl-1">
@@ -453,11 +460,7 @@ export function ProfileView() {
                          const isOwned = currentLevel.lv >= item.reqLevel;
                          return (
                            <div key={item.id} className={`flex flex-col items-center text-center w-full drop-shadow-[0_0_15px_rgba(255,255,255,0.06)] ${!isOwned ? 'grayscale opacity-60' : ''}`}>
-                              <button 
-                                 onClick={() => openItemModal(item.id)}
-                                className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1 group"
-                                style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-                               >
+                              <button onClick={() => openItemModal(item.id)} className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1 group" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}>
                                 {item.getPreview()}
                                 {!isOwned && (
                                     <div className="absolute inset-0 flex items-center justify-center z-20">
@@ -485,22 +488,65 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── Bottom Sheet Modal (Detalles Inventario/Logros) ── */}
+      {/* ── MODALES EXISTENTES (NUEVO LOGRO / DETALLES DE ITEMS) MANTENIDOS ── */}
+      {/* ── MODAL FULLSCREEN: NUEVO LOGRO DESBLOQUEADO ── */}
+      {newlyUnlocked && ACHIEVEMENTS_DB[newlyUnlocked] && (
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300" onClick={() => setNewlyUnlocked(null)}>
+          <img src={ACHIEVEMENTS_DB[newlyUnlocked].img} alt={ACHIEVEMENTS_DB[newlyUnlocked].name} draggable={false} className="w-[200px] h-[200px] object-contain achievement-shake-animation pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+          <h1 className="text-white text-[28px] font-bold mt-6 text-center" style={{ fontFamily: SFD }}>{ACHIEVEMENTS_DB[newlyUnlocked].name}</h1>
+          <p className="text-[#8e8e93] text-[13px] font-bold mt-1 tracking-widest uppercase" style={{ fontFamily: SF }}>OBTAINED: {ACHIEVEMENTS_DB[newlyUnlocked].date}</p>
+          <p className="text-[#8e8e93] text-center text-[15px] mt-6 max-w-[280px] leading-relaxed" style={{ fontFamily: SF }}>{ACHIEVEMENTS_DB[newlyUnlocked].desc}</p>
+          <style dangerouslySetInnerHTML={{__html: `@keyframes achievementShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px) rotate(-4deg); } 40% { transform: translateX(8px) rotate(4deg); } 60% { transform: translateX(-8px) rotate(-4deg); } 80% { transform: translateX(8px) rotate(4deg); } } .achievement-shake-animation { animation: achievementShake 0.6s ease-in-out forwards; }`}} />
+        </div>
+      )}
+
+      {/* ── MODAL FULLSCREEN: MENÚ DE DETALLE DE LOGROS ── */}
+      {isAchievementsMenuOpen && (
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
+          <div className="px-5 pt-8 flex flex-col">
+             <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>Achievements</h1>
+            {Array.from(new Set(unlockedAchKeys.map(key => ACHIEVEMENTS_DB[key].category || 'Secrets'))).map((category) => {
+               const categoryKeys = unlockedAchKeys.filter(key => (ACHIEVEMENTS_DB[key].category || 'Secrets') === category);
+                return (
+                  <div key={category} className="mb-10 w-full">
+                     <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Hexagon className="w-3 h-3 text-[#8e8e93]" /></div>
+                           <span className="text-white font-bold text-[17px] uppercase tracking-wider" style={{ fontFamily: SFD }}>{category}</span>
+                           <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryKeys.length}</span>
+                        </div>
+                     </div>
+                     <div className="grid grid-cols-2 gap-x-4 gap-y-8 pl-1">
+                       {categoryKeys.map((key) => {
+                         const ach = ACHIEVEMENTS_DB[key];
+                         return (
+                           <div key={key} className="flex flex-col items-center text-center w-full drop-shadow-[0_0_15px_rgba(255,255,255,0.06)]">
+                              <button onClick={() => openItemModal(key, true)} className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}>
+                                <img src={ach.img} draggable={false} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                              </button>
+                              <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{ach.name}</h2>
+                              <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{ach.desc}</p>
+                              <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{ach.date}</p>
+                           </div>
+                         )
+                       })}
+                     </div>
+                  </div>
+                )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Bottom Sheet Modal (Detalles de Items) ── */}
       {selectedItem && (
         <div className="fixed inset-0 z-[110] flex flex-col justify-end">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
            <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto">
-               
               <div className="w-full flex justify-center mt-12 mb-2">{selectedItem.preview}</div>
-
               <h2 className="text-white font-bold text-[24px] mt-2" style={{ fontFamily: SFD }}>{selectedItem.name} <span className="text-[#8e8e93] font-normal">{selectedItem.serial}</span></h2>
-              
-              {selectedItem.date && isItemOwned && (
-                 <p className="text-[#8e8e93] text-[12px] mt-1 tracking-widest uppercase font-bold" style={{ fontFamily: SF }}>OBTAINED: {selectedItem.date}</p>
-              )}
-              {selectedItem.desc && (
-                <p className="text-[#8e8e93] text-[14px] mt-3 mb-6 px-6 text-center leading-relaxed" style={{ fontFamily: SF }}>{selectedItem.desc}</p>
-              )}
+              {selectedItem.date && isItemOwned && (<p className="text-[#8e8e93] text-[12px] mt-1 tracking-widest uppercase font-bold" style={{ fontFamily: SF }}>OBTAINED: {selectedItem.date}</p>)}
+              {selectedItem.desc && (<p className="text-[#8e8e93] text-[14px] mt-3 mb-6 px-6 text-center leading-relaxed" style={{ fontFamily: SF }}>{selectedItem.desc}</p>)}
 
               <div className="px-5 w-full">
                  <div className="bg-[#141415] rounded-[16px] border border-[#1c1c1e] w-full flex flex-col mb-8 overflow-hidden">
@@ -513,71 +559,30 @@ export function ProfileView() {
                              </>
                           ) : (
                               <>
-                               {/* Logo / Placeholder del xBlum Market */}
-                               <div className="w-5 h-5 rounded-full bg-[#1c1c1e] flex items-center justify-center overflow-hidden">
-                                  <span className="text-[#8e8e93] text-[10px] font-bold">xB</span>
-                               </div>
-                               <span className="text-[#3b82f6] font-medium flex items-center gap-1.5">
-                                   xBlum Market
-                                  <svg viewBox="0 0 24 24" fill="none" className="w-[16px] h-[16px] shrink-0">
-                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.71 9.71L11.5 16.92l-2.92-2.92c-.39-.39-.39-1.02 0-1.41.39-.39 1.02-.39 1.41 0l1.51 1.51 4.21-4.21c.39-.39 1.02-.39 1.41 0 .39.39.39 1.02 0 1.41z" fill="#3b82f6"/>
-                                  </svg>
-                               </span>
+                               <div className="w-5 h-5 rounded-full bg-[#1c1c1e] flex items-center justify-center overflow-hidden"><span className="text-[#8e8e93] text-[10px] font-bold">xB</span></div>
+                               <span className="text-[#3b82f6] font-medium flex items-center gap-1.5">xBlum Market</span>
                               </>
                           )}
                        </div>
                     </ModalInfoRow>
-                    <ModalInfoRow label="model">
-                       <div className="flex items-center">
-                          <span>{selectedItem.model}</span>
-                          {selectedItem.modelPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.modelPercent}</span>}
-                       </div>
-                    </ModalInfoRow>
-                    <ModalInfoRow label="symbol">
-                       <div className="flex items-center">
-                          <span>{selectedItem.symbol}</span>
-                          {selectedItem.symbolPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.symbolPercent}</span>}
-                       </div>
-                    </ModalInfoRow>
-                     <ModalInfoRow label="backdrop">
-                       <div className="flex items-center">
-                          <span>{selectedItem.backdrop}</span>
-                          {selectedItem.backdropPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.backdropPercent}</span>}
-                       </div>
-                    </ModalInfoRow>
-                    <ModalInfoRow label="quantity" isLast>
-                       {selectedItem.quantityMax 
-                          ? `${selectedItem.quantityIssued.toLocaleString()}/${selectedItem.quantityMax.toLocaleString()} issued`
-                         : `${selectedItem.quantityIssued.toLocaleString()} issued`
-                       }
-                    </ModalInfoRow>
+                    <ModalInfoRow label="model"><div className="flex items-center"><span>{selectedItem.model}</span>{selectedItem.modelPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.modelPercent}</span>}</div></ModalInfoRow>
+                    <ModalInfoRow label="symbol"><div className="flex items-center"><span>{selectedItem.symbol}</span>{selectedItem.symbolPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.symbolPercent}</span>}</div></ModalInfoRow>
+                    <ModalInfoRow label="backdrop"><div className="flex items-center"><span>{selectedItem.backdrop}</span>{selectedItem.backdropPercent && <span className="bg-[#2c2c2e] text-[#3b82f6] px-1.5 py-0.5 rounded-[6px] text-[12px] ml-2 font-bold">{selectedItem.backdropPercent}</span>}</div></ModalInfoRow>
+                    <ModalInfoRow label="quantity" isLast>{selectedItem.quantityMax ? `${selectedItem.quantityIssued.toLocaleString()}/${selectedItem.quantityMax.toLocaleString()} issued` : `${selectedItem.quantityIssued.toLocaleString()} issued`}</ModalInfoRow>
                  </div>
-
-                  <div className="w-full mb-[120px]">
+                 
+                 {/* Boton original por si lo ocupas para otras cosas no de fondo */}
+                 <div className="w-full mb-[120px]">
                    {isItemOwned ? (
-                      selectedItem.type === 'Profile Background' ? (
-                        equippedBackground === selectedItem.id ? (
-                           <button onClick={handleEquipToggle} className="w-full bg-[#1c1c1e] text-white font-bold text-[17px] rounded-[16px] py-4 border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
-                              Unequip
-                           </button>
-                        ) : (
-                            <button onClick={handleEquipToggle} className="w-full bg-[#3b82f6] active:bg-[#2563eb] transition-colors text-white font-bold text-[17px] rounded-[16px] py-4">
-                              Equip Background
-                           </button>
-                        )
-                       ) : (
-                         <button disabled className="w-full bg-[#1c1c1e] text-[#636366] font-bold text-[17px] rounded-[16px] py-4">
-                            Owned
-                         </button>
-                      )
+                         <button disabled className="w-full bg-[#1c1c1e] text-[#636366] font-bold text-[17px] rounded-[16px] py-4">Owned</button>
                    ) : (
                       <button disabled className="w-full bg-[#1c1c1e] text-[#636366] font-bold text-[17px] rounded-[16px] py-4 flex flex-col items-center justify-center leading-tight">
-                          <span>Locked</span>
+                         <span>Locked</span>
                          <span className="text-[12px] font-normal mt-0.5 text-[#48484a]">Requires Level {selectedItem.reqLevel}</span>
                       </button>
                    )}
                  </div>
-               </div>
+              </div>
            </div>
         </div>
       )}
