@@ -456,7 +456,7 @@ export function HomeView() {
                 {CONNECTORS_DB.slice(0, 3).map((connector) => (
                   <div key={connector.id} className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#1c1c1e] overflow-hidden">
-                      <img src={connector.src} alt="" className="w-6 h-6 object-contain" />
+                      <img src={connector.src} alt="" draggable={false} className="w-6 h-6 object-contain pointer-events-none select-none" />
                     </div>
                     <p className="text-white text-[15px] font-medium flex-1 truncate" style={{ fontFamily: SF }}>{connector.name}</p>
                     <button 
@@ -483,42 +483,11 @@ export function HomeView() {
             {/* Card 2: My Tools */}
             <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
               <div className="flex items-center justify-between mb-4">
-                <div className="flex flex-col">
-                  <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>My Tools</h3>
-                  <p className="text-[#8e8e93] text-[13px] mt-0.5" style={{ fontFamily: SF }}>Native integrations & assistants</p>
-                </div>
+                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>My Tools</h3>
               </div>
-              
-              <div className="flex flex-col gap-3 opacity-50 pointer-events-none select-none">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#1c1c1e]">
-                    <Lock className="w-5 h-5 text-amber-500" />
-                  </div>
-                  <p className="text-white text-[15px] font-medium flex-1 truncate" style={{ fontFamily: SF }}>Private Mode</p>
-                  <button className="px-4 py-1.5 rounded-full text-[13px] font-bold text-black bg-white shrink-0" style={{ fontFamily: SF }}>View</button>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#1c1c1e] overflow-hidden p-2">
-                    <img src="/telegram-icon.png" alt="" className="w-full h-full object-contain" />
-                  </div>
-                  <p className="text-white text-[15px] font-medium flex-1 truncate" style={{ fontFamily: SF }}>Telegram Search</p>
-                  <button className="px-4 py-1.5 rounded-full text-[13px] font-bold text-black bg-white shrink-0" style={{ fontFamily: SF }}>View</button>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#1c1c1e]">
-                    <Sparkles className="w-5 h-5 text-blue-400" />
-                  </div>
-                  <p className="text-white text-[15px] font-medium flex-1 truncate" style={{ fontFamily: SF }}>Writing Assistant</p>
-                  <button className="px-4 py-1.5 rounded-full text-[13px] font-bold text-black bg-white shrink-0" style={{ fontFamily: SF }}>View</button>
-                </div>
+              <div className="flex-1 flex items-center justify-center min-h-[140px]">
+                <p className="text-[#48484a] text-[15px] font-medium" style={{ fontFamily: SF }}>Coming soon...</p>
               </div>
-
-              <button 
-                className="mt-5 w-full py-3.5 rounded-[16px] text-[#8e8e93] text-[15px] font-medium flex items-center justify-center gap-2 cursor-not-allowed"
-                style={{ background: "#1c1c1e" }}
-              >
-                Coming soon
-              </button>
             </div>
 
           </div>
@@ -556,7 +525,7 @@ export function HomeView() {
                     <div className="overflow-y-auto no-scrollbar pb-8 space-y-2 flex-1">
                         {filteredConnectors.map(c => (
                             <button key={c.id} onClick={() => setModalState({ view: "detail", connectorId: c.id })} className="w-full flex items-center gap-4 p-3 rounded-2xl active:bg-white/5 transition-colors text-left" style={{ border: "1px solid #1c1c1e" }}>
-                                <img src={c.src} alt="" className="w-8 h-8 object-contain" />
+                                <img src={c.src} alt="" draggable={false} className="w-8 h-8 object-contain pointer-events-none select-none" />
                                 <div className="flex-1">
                                     <p className="text-white font-medium">{c.name}</p>
                                     <p className="text-[#8e8e93] text-[12px]">{c.isConnected ? "Active" : "Tap to connect"}</p>
@@ -574,7 +543,7 @@ export function HomeView() {
                 <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e]">
                   <div className="flex items-center gap-3">
                     <button onClick={() => setModalState({ view: "list", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full active:bg-[#1c1c1e] transition-colors"><ArrowLeft className="w-5 h-5 text-[#8e8e93]" /></button>
-                    <img src={activeConnectorData.src} alt="" className="w-7 h-7 object-contain" />
+                    <img src={activeConnectorData.src} alt="" draggable={false} className="w-7 h-7 object-contain pointer-events-none select-none" />
                     <h2 className="text-white font-bold text-[17px]">{activeConnectorData.name}</h2>
                   </div>
                   {activeConnectorData.isConnected ? (
