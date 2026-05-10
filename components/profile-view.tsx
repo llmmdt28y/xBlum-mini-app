@@ -173,15 +173,15 @@ export function ProfileView() {
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
         
-        {/* ── MENÚ PÍLDORA (SETTINGS & HAMBURGUESA) ── */}
-        <div className="absolute right-5 top-0 z-30 flex items-center bg-black/20 backdrop-blur-md rounded-[24px] border border-white/10 p-[3px] shadow-lg" style={{ marginTop: "12px" }}>
-           <button onClick={() => setCurrentView("settings")} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
+        {/* ── MENÚ PÍLDORA (SETTINGS & HAMBURGUESA) MÁS ANGOSTA ── */}
+        <div className="absolute right-5 top-0 z-30 flex items-center bg-black/20 backdrop-blur-md rounded-[24px] border border-white/10 p-[2px] shadow-lg" style={{ marginTop: "12px" }}>
+           <button onClick={() => setCurrentView("settings")} className="w-[32px] h-[32px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
              <Settings className="w-[16px] h-[16px] text-white" />
            </button>
            
-           <div className="w-[1px] h-[18px] bg-white/15 mx-0.5" />
-           
-           <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
+           {/* El divisor visual de en medio ha sido eliminado como solicitaste */}
+
+           <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[32px] h-[32px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
              <MoreVertical className="w-[18px] h-[18px] text-white" />
            </button>
   
@@ -189,7 +189,7 @@ export function ProfileView() {
            {isHamburgerOpen && (
              <>
                <div className="fixed inset-0 z-40" onClick={() => setIsHamburgerOpen(false)} />
-               <div className="absolute top-[48px] right-0 bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] shadow-2xl overflow-hidden w-[220px] z-50 animate-in fade-in zoom-in-95 duration-200">
+               <div className="absolute top-[44px] right-0 bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] shadow-2xl overflow-hidden w-[220px] z-50 animate-in fade-in zoom-in-95 duration-200">
                   <button 
                     onClick={() => {
                       setPreviewBg(equippedBackground);
@@ -371,8 +371,8 @@ export function ProfileView() {
                </div>
             </div>
 
-            {/* Bottom Grid Container (3 Columnas, Flex-1 para scrollear sin mover lo demás) */}
-            <div className="flex-1 bg-[#141415] overflow-y-auto relative z-20">
+            {/* Bottom Grid Container (Flex-1 para scrollear sin mover lo demás, con padding extra abajo para librar el botón flotante) */}
+            <div className="flex-1 bg-[#141415] overflow-y-auto relative z-20 pb-[120px]">
                 <div className="grid grid-cols-3 gap-3 p-4">
                    
                    {/* None/Unequip Card */}
@@ -411,14 +411,14 @@ export function ProfileView() {
                 </div>
             </div>
 
-            {/* Fixed Footer Apply Button (Estático abajo, con padding extra para compensar la barra ausente) */}
-            <div className="shrink-0 px-5 pt-4 bg-[#141415] border-t border-white/5 z-50 relative" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 24px)) + 90px)" }}>
+            {/* Floating Footer Apply Button (Superpuesto en vez de apilado) */}
+            <div className="absolute bottom-0 left-0 right-0 px-5 pointer-events-none z-50 flex flex-col justify-end bg-gradient-to-t from-[#141415] via-[#141415]/90 to-transparent pt-12" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 24px)) + 60px)" }}>
                {isPreviewOwned ? (
-                 <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="w-full bg-[#007aff] hover:bg-[#0062cc] active:scale-[0.98] transition-all text-white font-bold text-[17px] rounded-[16px] py-4 shadow-[0_8px_30px_rgba(0,122,255,0.4)]">
+                 <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="pointer-events-auto w-full bg-[#007aff] hover:bg-[#0062cc] active:scale-[0.98] transition-all text-white font-bold text-[17px] rounded-[16px] py-4 shadow-[0_8px_30px_rgba(0,122,255,0.4)]">
                     Apply style
                  </button>
                ) : (
-                  <button disabled className="w-full bg-[#1c1c1e] text-[#636366] border border-[#2c2c2e] font-bold text-[17px] rounded-[16px] py-4 flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+                  <button disabled className="pointer-events-auto w-full bg-[#1c1c1e] text-[#636366] border border-[#2c2c2e] font-bold text-[17px] rounded-[16px] py-4 flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
                     <Lock className="w-5 h-5" /> Requires Level {previewItem.reqLevel}
                  </button>
                )}
