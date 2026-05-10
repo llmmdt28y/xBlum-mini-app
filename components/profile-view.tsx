@@ -338,10 +338,13 @@ export function ProfileView() {
 
       {/* ── MODAL: SELECTOR DE ESTILOS (CHANGE PROFILE COLOR) FIX GENERAL ── */}
       {isStylePickerOpen && (
-        <div className="fixed inset-0 z-[999] bg-[#0a0a0b] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden page-fija">
+        <div 
+          className="fixed inset-0 z-[999] bg-[#0a0a0b] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden page-fija"
+          style={{ height: "var(--tg-viewport-height, 100dvh)", position: "fixed", top: 0, left: 0, bottom: 0, right: 0 }}
+        >
             
-            {/* Ocultar la Navigation Bar global */}
-            <style>{`#main-nav-bar { display: none !important; } .page-fija { pointer-events: auto !important; }`}</style>
+            {/* Ocultar la Navigation Bar global y BLOQUEAR SCROLL DE PÁGINA */}
+            <style>{`#main-nav-bar { display: none !important; } body { overflow: hidden !important; } .page-fija { pointer-events: auto !important; }`}</style>
             
             {/* PÍLDORA SUPERIOR DERECHA (NATIVA-STYLE DENTRO MODAL CON X) ── */}
             <div className="absolute right-5 top-0 z-50 flex items-center bg-transparent backdrop-blur-md rounded-[24px] border border-white/10 p-[2px] shadow-lg" style={{ marginTop: "calc(var(--tg-safe-area-inset-top, 24px) + 8px)" }}>
@@ -379,8 +382,8 @@ export function ProfileView() {
                </div>
             </div>
 
-            {/* Bottom Grid Container (Flex-1, ESTE ES EL ÚNICO SCROLL) ── */}
-            <div className="flex-1 bg-[#141415] overflow-y-auto relative z-20 pb-6 scrollbar-native">
+            {/* Bottom Grid Container (Flex-1, min-h-0 previene el overflow excesivo, ESTE ES EL ÚNICO SCROLL) ── */}
+            <div className="flex-1 min-h-0 bg-[#141415] overflow-y-auto relative z-20 pb-6 scrollbar-native">
                 <div className="grid grid-cols-3 gap-3 p-4">
                    
                    {/* None/Unequip Card */}
@@ -420,7 +423,7 @@ export function ProfileView() {
             </div>
 
             {/* Footer Container (shrink-0, Estático abajo, NO SCROLL) ── */}
-            <div className="shrink-0 px-5 pt-4 bg-[#141415] border-t border-white/5 z-50 relative shadow-[0_-10px_30px_rgba(0,0,0,0.5)]" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 24px)) + 16px)" }}>
+            <div className="shrink-0 px-5 pt-5 bg-[#141415] border-t border-white/5 z-50 relative shadow-[0_-10px_30px_rgba(0,0,0,0.5)]" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 24px)) + 48px)" }}>
                {isPreviewOwned ? (
                  <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="w-full bg-[#007aff] hover:bg-[#0062cc] active:scale-[0.98] transition-all text-white font-bold text-[17px] rounded-[16px] py-4 shadow-[0_8px_30px_rgba(0,122,255,0.4)]">
                     Apply style
