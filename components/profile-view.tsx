@@ -173,23 +173,23 @@ export function ProfileView() {
 
       <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
         
-        {/* ── MENÚ PÍLDORA (SETTINGS & HAMBURGUESA) MÁS ANGOSTA ── */}
-        <div className="absolute right-5 top-0 z-30 flex items-center bg-black/20 backdrop-blur-md rounded-[24px] border border-white/10 p-[2px] shadow-lg" style={{ marginTop: "12px" }}>
-           <button onClick={() => setCurrentView("settings")} className="w-[32px] h-[32px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
-             <Settings className="w-[16px] h-[16px] text-white" />
+        {/* ── PÍLDORA SUPERIOR DERECHA (NATIVA-STYLE SWAPPED) ── */}
+        <div className="absolute right-5 top-0 z-30 flex items-center bg-transparent backdrop-blur-md rounded-[24px] border border-white/10 p-[2px] shadow-lg" style={{ marginTop: "12px" }}>
+           {/* Botón 1 (Izquierdo): Más opciones (Nativa) - Lógica Hamburger */}
+           <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
+             <MoreVertical className="w-[20px] h-[20px] text-white" />
            </button>
            
-           {/* El divisor visual de en medio ha sido eliminado como solicitaste */}
-
-           <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[32px] h-[32px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
-             <MoreVertical className="w-[18px] h-[18px] text-white" />
+           {/* Botón 2 (Derecho): Engranaje (Nativa) - Lógica Settings */}
+           <button onClick={() => setCurrentView("settings")} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
+             <Settings className="w-[18px] h-[18px] text-white" />
            </button>
   
-           {/* Dropdown Menu */}
+           {/* Dropdown Menu (Anchored to MoreVertical) */}
            {isHamburgerOpen && (
              <>
                <div className="fixed inset-0 z-40" onClick={() => setIsHamburgerOpen(false)} />
-               <div className="absolute top-[44px] right-0 bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] shadow-2xl overflow-hidden w-[220px] z-50 animate-in fade-in zoom-in-95 duration-200">
+               <div className="absolute top-[48px] right-0 bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] shadow-2xl overflow-hidden w-[220px] z-50 animate-in fade-in zoom-in-95 duration-200">
                   <button 
                     onClick={() => {
                       setPreviewBg(equippedBackground);
@@ -336,15 +336,23 @@ export function ProfileView() {
 
       </div>
 
-      {/* ── MODAL NUEVA: SELECTOR DE ESTILOS (CHANGE PROFILE COLOR) ── */}
+      {/* ── MODAL: SELECTOR DE ESTILOS (CHANGE PROFILE COLOR) FIX GENERAL ── */}
       {isStylePickerOpen && (
-        <div className="fixed inset-0 z-[999] bg-[#0a0a0b] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden">
+        <div className="fixed inset-0 z-[999] bg-[#0a0a0b] flex flex-col animate-in slide-in-from-bottom-full duration-300 overflow-hidden page-fija">
             
             {/* Ocultar la Navigation Bar global */}
-            <style>{`#main-nav-bar { display: none !important; }`}</style>
+            <style>{`#main-nav-bar { display: none !important; } .page-fija { pointer-events: auto !important; }`}</style>
             
-            {/* Profile Preview Block (Estático superior) */}
-            <div className="relative w-full h-[320px] shrink-0 flex flex-col items-center justify-center pt-4">
+            {/* PÍLDORA SUPERIOR DERECHA (NATIVA-STYLE DENTRO MODAL CON X) ── */}
+            <div className="absolute right-5 top-0 z-50 flex items-center bg-transparent backdrop-blur-md rounded-[24px] border border-white/10 p-[2px] shadow-lg" style={{ marginTop: "calc(var(--tg-safe-area-inset-top, 24px) + 8px)" }}>
+               {/* Botón (Solo X para cerrar selector) */}
+               <button onClick={() => setIsStylePickerOpen(false)} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
+                 <X className="w-[20px] h-[20px] text-white" />
+               </button>
+            </div>
+
+            {/* Profile Preview Block (Estático superior, NO SCROLL) ── */}
+            <div className="relative w-full h-[320px] shrink-0 flex flex-col items-center justify-center pt-4 border-b border-white/5 bg-[#0a0a0b] z-10">
                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
                  {previewBg && COSMETIC_ITEMS_DB[previewBg]?.getEquipped ? (
                     COSMETIC_ITEMS_DB[previewBg].getEquipped()
@@ -352,12 +360,12 @@ export function ProfileView() {
                     <div className="w-full h-full bg-[#0a0a0b]" /> 
                  )}
                  {/* Suave degradado para unir el fondo con la cuadrícula negra */}
-                 <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-[#141415] to-transparent" />
+                 <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-[#0a0a0b] to-transparent" />
                </div>
                
-               <div className="relative z-10 flex flex-col items-center mt-2">
+               <div className="relative z-10 flex flex-col items-center mt-2 pointer-events-none">
                  <div className="flex items-center justify-center overflow-hidden rounded-full relative shadow-[0_0_20px_rgba(0,0,0,0.5)] border-2 border-white/5" style={{ width: 100, height: 100, background: "linear-gradient(135deg,#1e1e1e,#0a0a0a)" }}>
-                     {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <span className="text-white font-bold pointer-events-none select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
+                     {photoUrl ? <img src={photoUrl} alt={displayName} className="w-full h-full object-cover select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <span className="text-white font-bold select-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>{initials || "?"}</span>}
                   </div>
                   <div className="text-center flex flex-col items-center mt-3">
                     <div className="relative inline-flex items-center justify-center">
@@ -371,16 +379,16 @@ export function ProfileView() {
                </div>
             </div>
 
-            {/* Bottom Grid Container (Flex-1 para scrollear sin mover lo demás, con padding extra abajo para librar el botón flotante) */}
-            <div className="flex-1 bg-[#141415] overflow-y-auto relative z-20 pb-[120px]">
+            {/* Bottom Grid Container (Flex-1, ESTE ES EL ÚNICO SCROLL) ── */}
+            <div className="flex-1 bg-[#141415] overflow-y-auto relative z-20 pb-6 scrollbar-native">
                 <div className="grid grid-cols-3 gap-3 p-4">
                    
                    {/* None/Unequip Card */}
                    <button onClick={() => setPreviewBg(null)} className={`relative aspect-square rounded-[20px] overflow-hidden border-[2px] transition-all ${previewBg === null ? 'border-[#007aff] ring-2 ring-[#007aff]/30' : 'border-white/5'} bg-[#1c1c1e] flex flex-col items-center justify-center group`}>
-                      <div className="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+                      <div className="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform relative z-10">
                          <X className="w-5 h-5 text-[#8e8e93]" />
                       </div>
-                      <span className="text-[#8e8e93] font-medium text-[11px]">Default</span>
+                      <span className="text-[#8e8e93] font-medium text-[11px] relative z-10">Default</span>
                    </button>
                    
                    {/* Background Cards */}
@@ -411,14 +419,14 @@ export function ProfileView() {
                 </div>
             </div>
 
-            {/* Floating Footer Apply Button (Superpuesto en vez de apilado) */}
-            <div className="absolute bottom-0 left-0 right-0 px-5 pointer-events-none z-50 flex flex-col justify-end bg-gradient-to-t from-[#141415] via-[#141415]/90 to-transparent pt-12" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 24px)) + 60px)" }}>
+            {/* Footer Container (shrink-0, Estático abajo, NO SCROLL) ── */}
+            <div className="shrink-0 px-5 pt-4 bg-[#141415] border-t border-white/5 z-50 relative shadow-[0_-10px_30px_rgba(0,0,0,0.5)]" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 24px)) + 16px)" }}>
                {isPreviewOwned ? (
-                 <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="pointer-events-auto w-full bg-[#007aff] hover:bg-[#0062cc] active:scale-[0.98] transition-all text-white font-bold text-[17px] rounded-[16px] py-4 shadow-[0_8px_30px_rgba(0,122,255,0.4)]">
+                 <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="w-full bg-[#007aff] hover:bg-[#0062cc] active:scale-[0.98] transition-all text-white font-bold text-[17px] rounded-[16px] py-4 shadow-[0_8px_30px_rgba(0,122,255,0.4)]">
                     Apply style
                  </button>
                ) : (
-                  <button disabled className="pointer-events-auto w-full bg-[#1c1c1e] text-[#636366] border border-[#2c2c2e] font-bold text-[17px] rounded-[16px] py-4 flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+                  <button disabled className="w-full bg-[#1c1c1e] text-[#636366] border border-[#2c2c2e] font-bold text-[17px] rounded-[16px] py-4 flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
                     <Lock className="w-5 h-5" /> Requires Level {previewItem.reqLevel}
                  </button>
                )}
@@ -483,7 +491,7 @@ export function ProfileView() {
       {/* ── MODALES EXISTENTES MANTENIDOS ── */}
       {newlyUnlocked && ACHIEVEMENTS_DB[newlyUnlocked] && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300" onClick={() => setNewlyUnlocked(null)}>
-          <img src={ACHIEVEMENTS_DB[newlyUnlocked].img} alt={ACHIEVEMENTS_DB[newlyUnlocked].name} draggable={false} className="w-[200px] h-[200px] object-contain achievement-shake-animation pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+          <img src={ACHIEVEMENTS_DB[newlyUnlocked].img} alt={ACHIEVEMENTS_DB[newlyUnlocked].name} draggable={false} className="w-[200px] h-[200px] object-contain achievement-shake-animation select-none" style={{ WebkitTouchCallout: "none" }} />
           <h1 className="text-white text-[28px] font-bold mt-6 text-center" style={{ fontFamily: SFD }}>{ACHIEVEMENTS_DB[newlyUnlocked].name}</h1>
           <p className="text-[#8e8e93] text-[13px] font-bold mt-1 tracking-widest uppercase" style={{ fontFamily: SF }}>OBTAINED: {ACHIEVEMENTS_DB[newlyUnlocked].date}</p>
           <p className="text-[#8e8e93] text-center text-[15px] mt-6 max-w-[280px] leading-relaxed" style={{ fontFamily: SF }}>{ACHIEVEMENTS_DB[newlyUnlocked].desc}</p>
@@ -512,7 +520,7 @@ export function ProfileView() {
                          return (
                            <div key={key} className="flex flex-col items-center text-center w-full drop-shadow-[0_0_15px_rgba(255,255,255,0.06)]">
                               <button onClick={() => openItemModal(key, true)} className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}>
-                                 <img src={ach.img} draggable={false} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                                 <img src={ach.img} draggable={false} className="w-[125%] h-[125%] object-cover select-none" style={{ WebkitTouchCallout: "none" }} />
                               </button>
                               <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{ach.name}</h2>
                               <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{ach.desc}</p>
@@ -529,9 +537,9 @@ export function ProfileView() {
       )}
 
       {selectedItem && (
-        <div className="fixed inset-0 z-[110] flex flex-col justify-end">
+        <div className="fixed inset-0 z-[110] flex flex-col justify-end overflow-hidden page-fija">
            <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
-            <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto">
+            <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto pb-[140px]">
               <div className="w-full flex justify-center mt-12 mb-2">{selectedItem.preview}</div>
               <h2 className="text-white font-bold text-[24px] mt-2" style={{ fontFamily: SFD }}>{selectedItem.name} <span className="text-[#8e8e93] font-normal">{selectedItem.serial}</span></h2>
               {selectedItem.date && isItemOwned && (<p className="text-[#8e8e93] text-[12px] mt-1 tracking-widest uppercase font-bold" style={{ fontFamily: SF }}>OBTAINED: {selectedItem.date}</p>)}
@@ -543,7 +551,7 @@ export function ProfileView() {
                        <div className="flex items-center justify-start gap-2 w-full">
                            {isItemOwned ? (
                              <>
-                               {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full pointer-events-none select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
+                               {photoUrl ? <img src={photoUrl} className="w-5 h-5 rounded-full select-none" draggable={false} style={{ WebkitTouchCallout: "none" }} /> : <div className="w-5 h-5 rounded-full bg-[#1c1c1e]" />}
                                  <span className="text-[#3b82f6] font-medium">{displayName}</span>
                              </>
                           ) : (
@@ -560,7 +568,7 @@ export function ProfileView() {
                     <ModalInfoRow label="quantity" isLast>{selectedItem.quantityMax ? `${selectedItem.quantityIssued.toLocaleString()}/${selectedItem.quantityMax.toLocaleString()} issued` : `${selectedItem.quantityIssued.toLocaleString()} issued`}</ModalInfoRow>
                  </div>
                  
-                 <div className="w-full mb-[120px]">
+                 <div className="w-full relative z-10">
                    {isItemOwned ? (
                          <button disabled className="w-full bg-[#1c1c1e] text-[#636366] font-bold text-[17px] rounded-[16px] py-4">Owned</button>
                    ) : (
