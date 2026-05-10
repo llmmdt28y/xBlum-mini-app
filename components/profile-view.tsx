@@ -156,7 +156,7 @@ export function ProfileView() {
   const previewItem = previewBg ? COSMETIC_ITEMS_DB[previewBg] : null;
   const isPreviewOwned = previewItem ? currentLevel.lv >= previewItem.reqLevel : true;
 
-  // Datos Dummy para la pestaña de Gifts (Basado en la imagen de referencia)
+  // Datos Dummy para la pestaña de Gifts
   const DUMMY_GIFTS = [
     { id: 'cake', emoji: '🎂', limited: true },
     { id: 'champagne', emoji: '🍾', limited: true },
@@ -272,13 +272,18 @@ export function ProfileView() {
           </div>
         </div>
 
-        {/* ── NAVEGACIÓN PRINCIPAL (TABS) ── */}
-        <div className="w-full flex justify-center z-10 relative">
-          <div className="flex items-center gap-1 bg-transparent border-b border-white/5 pb-1 w-full justify-center">
+        {/* ── NAVEGACIÓN PRINCIPAL (TABS) REFINADA ── */}
+        <div className="w-full flex justify-center z-10 relative mb-4">
+          {/* Contenedor gris oscuro largo */}
+          <div className="flex items-center bg-[#1c1c1e] rounded-full p-[3px]">
 
             <button
               onClick={() => setActiveMainTab("inventory")}
-              className={`px-3 py-2 rounded-full text-[15px] font-medium transition-all ${activeMainTab === "inventory" ? "bg-[#2c2c2e] text-white" : "text-[#8e8e93] hover:text-white"}`}
+              className={`px-4 py-1.5 rounded-full text-[14px] font-medium transition-all ${
+                activeMainTab === "inventory" 
+                ? "bg-[#1f2b3e] text-[#60a5fa] shadow-sm" // Píldora azul transparente
+                : "text-[#8e8e93] hover:text-white bg-transparent"
+              }`}
               style={{ fontFamily: SF }}
             >
               inventory
@@ -286,33 +291,45 @@ export function ProfileView() {
 
             <button
               onClick={() => setActiveMainTab("gifts")}
-              className={`px-3 py-2 rounded-full text-[15px] font-medium flex items-center gap-1.5 transition-all ${activeMainTab === "gifts" ? "bg-[#2c2c2e] text-white" : "text-[#8e8e93] hover:text-white"}`}
+              className={`px-4 py-1.5 rounded-full text-[14px] font-medium flex items-center gap-1.5 transition-all ${
+                activeMainTab === "gifts" 
+                ? "bg-[#1f2b3e] text-[#60a5fa] shadow-sm" // Píldora azul transparente
+                : "text-[#8e8e93] hover:text-white bg-transparent"
+              }`}
               style={{ fontFamily: SF }}
             >
-              gifts <span className="text-[13px] tracking-tighter">🎂🍾🧸</span>
+              gifts <span className="text-[12px] tracking-tighter">🎂🍾🧸</span>
             </button>
 
           </div>
         </div>
 
         {/* ── CONTENIDO DINÁMICO DE PESTAÑAS ── */}
-        <div className="w-full animate-in fade-in duration-300 pt-2">
+        <div className="w-full animate-in fade-in duration-300">
 
           {/* ── PESTAÑA PRINCIPAL: INVENTORY ── */}
           {activeMainTab === "inventory" && (
             <div className="w-full flex flex-col">
-              {/* Sub-filtros Internos (Replicando estilo de píldora gris con seleccionado blanco) ── */}
-              <div className="flex items-center justify-center gap-2 mb-6">
+              {/* Sub-filtros Internos Reducidos ── */}
+              <div className="flex items-center justify-center gap-2 mb-4 mt-1">
                 <button
                   onClick={() => setActiveInventorySubTab("cosmetics")}
-                  className={`px-4 py-1.5 rounded-full text-[14px] font-medium transition-colors ${activeInventorySubTab === "cosmetics" ? "bg-[#2c2c2e] text-white" : "text-[#8e8e93] hover:text-white"}`}
+                  className={`px-3 py-1 rounded-full text-[13px] font-medium transition-colors ${
+                    activeInventorySubTab === "cosmetics" 
+                    ? "bg-[#2c2c2e] text-white" // Fondo activo
+                    : "text-[#8e8e93] bg-transparent hover:text-white" // Sin fondo
+                  }`}
                   style={{ fontFamily: SF }}
                 >
                   cosmetics
                 </button>
                 <button
                   onClick={() => setActiveInventorySubTab("achievements")}
-                  className={`px-4 py-1.5 rounded-full text-[14px] font-medium transition-colors ${activeInventorySubTab === "achievements" ? "bg-[#2c2c2e] text-white" : "text-[#8e8e93] hover:text-white"}`}
+                  className={`px-3 py-1 rounded-full text-[13px] font-medium transition-colors ${
+                    activeInventorySubTab === "achievements" 
+                    ? "bg-[#2c2c2e] text-white" // Fondo activo
+                    : "text-[#8e8e93] bg-transparent hover:text-white" // Sin fondo
+                  }`}
                   style={{ fontFamily: SF }}
                 >
                   achievements
@@ -324,7 +341,7 @@ export function ProfileView() {
                 <div className="grid grid-cols-3 gap-3">
                   {/* Grilla de Cosméticos (Filtrada para quitar Profile Backgrounds) ── */}
                   {Object.values(COSMETIC_ITEMS_DB)
-                    .filter(item => item.type !== 'Profile Background') // Eliminamos los fondos de perfil
+                    .filter(item => item.type !== 'Profile Background')
                     .map((item) => {
                       const isOwned = currentLevel.lv >= item.reqLevel;
                       return (
@@ -338,7 +355,7 @@ export function ProfileView() {
                             {item.getPreview()}
                           </div>
 
-                          {/* Etiqueta de cantidad si existe (Opcional, estilo Telegram) */}
+                          {/* Etiqueta de cantidad si existe */}
                           <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-[6px] z-10">
                             <span className="text-white/80 text-[10px] font-bold">#1</span>
                           </div>
@@ -356,7 +373,7 @@ export function ProfileView() {
 
               {activeInventorySubTab === "achievements" && (
                 <div className="flex flex-col gap-3">
-                  {/* Lista Vertical de Logros (Mantenemos el diseño nativo de lista) ── */}
+                  {/* Lista Vertical de Logros ── */}
                   {unlockedAchKeys.map((key) => {
                     const ach = ACHIEVEMENTS_DB[key];
                     return (
@@ -386,21 +403,29 @@ export function ProfileView() {
           {/* ── PESTAÑA PRINCIPAL: GIFTS ── */}
           {activeMainTab === "gifts" && (
             <div className="w-full flex flex-col relative pb-[80px]">
-              {/* Sub-filtros nativos de regalos (Replicando estilo de píldora gris con seleccionado blanco) ── */}
-              <div className="flex items-center justify-center gap-2 mb-6">
+              {/* Sub-filtros nativos de regalos Reducidos ── */}
+              <div className="flex items-center justify-center gap-2 mb-4 mt-1">
                 <button
                   onClick={() => setActiveGiftsSubTab("all gifts")}
-                  className={`px-4 py-1.5 rounded-full text-[14px] font-medium transition-colors ${activeGiftsSubTab === "all gifts" ? "bg-[#2c2c2e] text-white" : "text-[#8e8e93] hover:text-white"}`}
+                  className={`px-3 py-1 rounded-full text-[13px] font-medium transition-colors ${
+                    activeGiftsSubTab === "all gifts" 
+                    ? "bg-[#2c2c2e] text-white" // Fondo gris sólido activo
+                    : "text-[#8e8e93] bg-transparent hover:text-white" // Sin fondo inactivo
+                  }`}
                   style={{ fontFamily: SF }}
                 >
                   all gifts
                 </button>
                 <button
                   onClick={() => setActiveGiftsSubTab("+ add collection")}
-                  className={`px-3 py-1.5 text-[14px] font-medium flex items-center gap-1 transition-colors ${activeGiftsSubTab === "+ add collection" ? "bg-[#2c2c2e] text-white" : "text-[#8e8e93] hover:text-white"}`}
+                  className={`px-3 py-1 rounded-full text-[13px] font-medium flex items-center gap-1 transition-colors ${
+                    activeGiftsSubTab === "+ add collection" 
+                    ? "bg-[#2c2c2e] text-white" 
+                    : "text-[#8e8e93] bg-transparent hover:text-white"
+                  }`}
                   style={{ fontFamily: SF }}
                 >
-                  <span className="text-[16px] font-light">+</span> add collection
+                  <span className="text-[14px] font-light leading-none">+</span> add collection
                 </button>
               </div>
 
@@ -429,7 +454,7 @@ export function ProfileView() {
                  </div>
               )}
 
-              {/* Botón Flotante Inferior de Regalos (Replicando el diseño nativo) ── */}
+              {/* Botón Flotante Inferior de Regalos ── */}
               <div className="fixed bottom-[calc(var(--tg-safe-area-inset-bottom,24px)+100px)] left-0 right-0 px-8 flex justify-center z-40 pointer-events-none">
                 <button className="bg-[#007aff] hover:bg-[#0062cc] active:scale-95 transition-all text-white font-bold text-[16px] rounded-full py-3.5 px-6 shadow-[0_8px_25px_rgba(0,122,255,0.4)] flex items-center justify-center gap-2 w-full max-w-[280px] pointer-events-auto">
                   <Gift className="w-5 h-5" /> send gifts to friends
