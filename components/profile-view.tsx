@@ -62,7 +62,7 @@ export function ProfileView() {
 
   // Nuevo Estado para las Pestañas Internas (Sub-tabs)
   const [activeInventorySubTab, setActiveInventorySubTab] = useState<"cosmetics" | "achievements">("cosmetics")
-  const [activeGiftsSubTab, setActiveGiftsSubTab] = useState<"all gifts" | "+ add collection">("all gifts")
+  const [activeGiftsSubTab, setActiveGiftsSubTab] = useState<"all gifts" | "vault">("all gifts")
 
   // Estado de Logros
   const [unlockedAchKeys, setUnlockedAchKeys] = useState<string[]>([])
@@ -217,8 +217,9 @@ export function ProfileView() {
               <p className="text-white font-bold drop-shadow-md" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>
                 {displayName || "Your Name"}
               </p>
-              <div className="absolute left-full ml-1.5 flex items-center justify-center shrink-0">
-                <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={32} />
+              {/* Icono de nivel centrado verticalmente con exactitud */}
+              <div className="absolute left-full ml-1.5 top-1/2 -translate-y-1/2 flex items-center justify-center shrink-0">
+                <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={28} />
               </div>
             </div>
 
@@ -413,15 +414,15 @@ export function ProfileView() {
                   all gifts
                 </button>
                 <button
-                  onClick={() => setActiveGiftsSubTab("+ add collection")}
-                  className={`px-3 py-1 rounded-full text-[13px] font-medium flex items-center gap-1 transition-colors ${
-                    activeGiftsSubTab === "+ add collection" 
+                  onClick={() => setActiveGiftsSubTab("vault")}
+                  className={`px-3 py-1 rounded-full text-[13px] font-medium transition-colors ${
+                    activeGiftsSubTab === "vault" 
                     ? "bg-[#2c2c2e] text-white" 
                     : "text-[#8e8e93] bg-transparent hover:text-white"
                   }`}
                   style={{ fontFamily: SF }}
                 >
-                  <span className="text-[14px] font-light leading-none">+</span> add collection
+                  vault
                 </button>
               </div>
 
@@ -430,7 +431,7 @@ export function ProfileView() {
                 <>
                   {userHasGifts ? (
                      <div className="grid grid-cols-3 gap-3">
-                       {/* Grilla de Regalos (Oculta si no hay) */}
+                       {/* Grilla de Regalos */}
                      </div>
                   ) : (
                      /* ESTADO VACÍO DE REGALOS (Como en la imagen de referencia) */
@@ -457,25 +458,25 @@ export function ProfileView() {
                         >
                            Go to Market <ChevronRight className="w-4 h-4" />
                         </button>
-
-                        <div className="flex gap-1.5 mt-8">
-                           <div className="w-8 h-1.5 bg-[#48484a] rounded-full" />
-                           <div className="w-8 h-1.5 bg-white/20 rounded-full" />
-                        </div>
                      </div>
                   )}
                 </>
               )}
 
-              {activeGiftsSubTab === "+ add collection" && (
+              {activeGiftsSubTab === "vault" && (
                  <div className="text-center py-20 bg-[#141415] rounded-[24px] border border-dashed border-white/10 mt-2">
-                   <Palette className="w-12 h-12 text-[#48484a] mx-auto mb-4" />
-                   <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Create Collection</h3>
-                   <p className="text-[#8e8e93] text-[14px] max-w-[220px] mx-auto mt-2" style={{ fontFamily: SF }}>Showcase your favorite gifts to everyone!</p>
+                   <Lock className="w-12 h-12 text-[#48484a] mx-auto mb-4" />
+                   <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Your Vault</h3>
+                   <p className="text-[#8e8e93] text-[14px] max-w-[220px] mx-auto mt-2" style={{ fontFamily: SF }}>Private collection hidden from others.</p>
                  </div>
               )}
 
-              {/* El botón flotante inferior se podría ocultar en el estado vacío si lo prefieres, pero lo mantenemos para ser fieles a la UI */}
+              {/* Botón Flotante Inferior de Regalos ── */}
+              <div className="fixed bottom-[calc(var(--tg-safe-area-inset-bottom,24px)+100px)] left-0 right-0 px-8 flex justify-center z-40 pointer-events-none">
+                <button className="bg-[#007aff] hover:bg-[#0062cc] active:scale-95 transition-all text-white font-bold text-[16px] rounded-full py-3.5 px-6 shadow-[0_8px_25px_rgba(0,122,255,0.4)] flex items-center justify-center gap-2 w-full max-w-[280px] pointer-events-auto">
+                  <Gift className="w-5 h-5" /> send gifts to friends
+                </button>
+              </div>
             </div>
           )}
 
@@ -491,13 +492,6 @@ export function ProfileView() {
 
           {/* Ocultar la Navigation Bar global y BLOQUEAR SCROLL DE PÁGINA */}
           <style>{`#main-nav-bar { display: none !important; } body { overflow: hidden !important; } .page-fija { pointer-events: auto !important; }`}</style>
-
-          {/* PÍLDORA SUPERIOR DERECHA (NATIVA-STYLE DENTRO MODAL CON X) ── */}
-          <div className="absolute right-5 top-0 z-50 flex items-center bg-transparent backdrop-blur-md rounded-[24px] border border-white/10 p-[2px] shadow-lg" style={{ marginTop: "calc(var(--tg-safe-area-inset-top, 24px) + 8px)" }}>
-            <button onClick={() => setIsStylePickerOpen(false)} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
-              <X className="w-[20px] h-[20px] text-white" />
-            </button>
-          </div>
 
           {/* Profile Preview Block (Estático superior, NO SCROLL) ── */}
           <div className="relative w-full h-[320px] shrink-0 flex flex-col items-center justify-center pt-4 border-b border-white/5 bg-[#0a0a0b] z-10">
@@ -517,8 +511,8 @@ export function ProfileView() {
               <div className="text-center flex flex-col items-center mt-3">
                 <div className="relative inline-flex items-center justify-center">
                   <p className="text-white font-bold drop-shadow-md" style={{ fontSize: "24px", letterSpacing: "-0.01em", fontFamily: SFD, lineHeight: "1" }}>{displayName || "Your Name"}</p>
-                  <div className="absolute left-full ml-1.5 flex items-center justify-center shrink-0">
-                    <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={32} />
+                  <div className="absolute left-full ml-1.5 top-1/2 -translate-y-1/2 flex items-center justify-center shrink-0">
+                    <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={28} />
                   </div>
                 </div>
                 <p className="mt-1.5 drop-shadow-md" style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", fontFamily: SF }}>{username}</p>
