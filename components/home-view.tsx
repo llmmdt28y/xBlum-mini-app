@@ -4,7 +4,7 @@ import { useApp } from "@/lib/app-context"
 import { 
   Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
   ChevronRight, Loader2, CalendarDays, Search, ShieldCheck, Github, 
-  Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft
+  Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2
 } from "lucide-react"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 
@@ -22,25 +22,96 @@ const ICON_COLORS: Record<string, string> = {
 
 // --- Connectors Database ---
 const CONNECTORS_DB = [
-  { id: "github", name: "GitHub", category: "Featured", icon: <Github className="w-5 h-5 text-white" /> },
-  { id: "notion", name: "Notion", category: "Featured", icon: <Hexagon className="w-5 h-5 text-white" /> },
   { 
     id: "gmail", 
     name: "Gmail", 
     category: "Featured", 
-    icon: <Mail className="w-5 h-5 text-red-500" />,
+    src: "/gmail.png",
     detailCategory: "Productivity",
-    description: "Grant access to xBlum to search your emails.",
+    description: "Connect your Gmail to manage your inbox with AI.",
+    isConnected: true,
+    userEmail: "user@gmail.com",
     features: [
-      { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search in your emails", desc: "Search your inbox, summarize unread emails and find messages from specific people." },
-      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "We do not use your Gmail data to train our models." },
+      { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, summarize unread emails and find messages from specific people." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your personal data remains private and is never used for training purposes." },
       { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your emails stay in Gmail", desc: "We don't store your emails. Search is performed in real-time when you ask questions." }
-    ],
-    disclaimer: "Third-party connectors are not created or maintained by us. Use caution when granting access to external services. Review permissions before connecting."
+    ]
   },
-  { id: "calendar", name: "Google Calendar", category: "Featured", icon: <Calendar className="w-5 h-5 text-blue-400" /> },
-  { id: "drive", name: "Google Drive", category: "Featured", icon: <HardDrive className="w-5 h-5 text-green-400" /> },
-  { id: "outlook", name: "Outlook", category: "Productivity", icon: <Mail className="w-5 h-5 text-blue-500" /> }
+  { 
+    id: "drive", 
+    name: "Google Drive", 
+    category: "Featured", 
+    src: "/google-drive.png",
+    detailCategory: "Productivity",
+    description: "Access and analyze your cloud documents seamlessly.",
+    isConnected: false,
+    userEmail: "",
+    features: [
+      { icon: <HardDrive className="w-5 h-5 text-[#8e8e93]" />, title: "Access your files", desc: "Search documents, summarize presentations and ask questions about your Google Drive files." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your files are accessed only when you request it, with zero training usage." },
+      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your files stay in Drive", desc: "Data is retrieved on-the-fly and never stored on our servers." }
+    ]
+  },
+  { 
+    id: "calendar", 
+    name: "Google Calendar", 
+    category: "Featured", 
+    src: "/google-calendar.png",
+    detailCategory: "Productivity",
+    description: "Keep track of your schedule and meetings.",
+    isConnected: false,
+    userEmail: "",
+    features: [
+      { icon: <Calendar className="w-5 h-5 text-[#8e8e93]" />, title: "Search your calendar", desc: "Check today's agenda, find upcoming events and get meeting details." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your schedule is private. We do not use event data for AI training." },
+      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your events stay in Calendar", desc: "We only read your calendar data to provide real-time information." }
+    ]
+  },
+  { 
+    id: "outlook", 
+    name: "Outlook", 
+    category: "Productivity", 
+    src: "/outlook.png",
+    detailCategory: "Microsoft 365",
+    description: "Integrate your Microsoft outlook account.",
+    isConnected: false,
+    userEmail: "",
+    features: [
+      { icon: <Mail className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, find emails from specific people and summarize email threads." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Enterprise-grade privacy ensures your data is never used for training." },
+      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your emails stay in Outlook", desc: "Secure real-time access without permanent data storage." }
+    ]
+  },
+  { 
+    id: "github", 
+    name: "GitHub", 
+    category: "Featured", 
+    src: "/github-icon.png",
+    detailCategory: "Development",
+    description: "Connect to your repositories and manage your code.",
+    isConnected: false,
+    userEmail: "",
+    features: [
+      { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search repositories", desc: "Find issues, pull requests, and analyze your codebase." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your code remains yours. We do not train on private repositories." },
+      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Secure access", desc: "Access is granted via secure OAuth tokens." }
+    ]
+  },
+  { 
+    id: "notion", 
+    name: "Notion", 
+    category: "Featured", 
+    src: "/notion-icon.png",
+    detailCategory: "Productivity",
+    description: "Access your workspaces and databases.",
+    isConnected: false,
+    userEmail: "",
+    features: [
+      { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search your workspaces", desc: "Find pages, summarize databases, and query your notes." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your workspace content is entirely excluded from model training." },
+      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your data stays in Notion", desc: "Real-time API queries mean we don't duplicate your databases." }
+    ]
+  }
 ];
 
 function getTg() { return (window as any).Telegram?.WebApp }
@@ -82,15 +153,12 @@ export function HomeView() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [sending, setSending] = useState(false)
   
-  // Connectors State
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
 
-  // Carousel State
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
-
-  // Schedule API Data State
+  
   const [scheduleItems, setScheduleItems] = useState<any[]>([])
   const [loadingSchedules, setLoadingSchedules] = useState(true)
   const [activeScheduleIndex, setActiveScheduleIndex] = useState(0)
@@ -122,7 +190,6 @@ export function HomeView() {
     fetchSchedules()
   }, [fetchSchedules])
 
-  // Telegram Back Button Management
   useEffect(() => {
     const tg = getTg()
     if (!tg?.BackButton) return
@@ -200,18 +267,12 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div 
-      className="flex-1 flex flex-col items-center px-4 pb-28 bg-black select-none"
-      style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)" }}
-    >
-      <style>{`
-        .snap-always { scroll-snap-stop: always; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-      `}</style>
+    <div className="flex-1 flex flex-col items-center px-4 pb-28 bg-black select-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)" }}>
+      <style>{`.snap-always { scroll-snap-stop: always; } .no-scrollbar::-webkit-scrollbar { display: none; }`}</style>
 
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
 
-        {/* --- Hero Header --- */}
+        {/* --- Header --- */}
         <div className="w-full pt-6 pb-2 animate-in fade-in duration-500">
           <p className="text-[#8e8e93] text-sm font-medium mb-1" style={{ fontFamily: SF }}>
             {t("poweredBy")} <button onClick={() => setCurrentView("settings")} className="text-white hover:text-neutral-300 transition-colors font-semibold">{selectedModel}</button>
@@ -304,7 +365,7 @@ export function HomeView() {
           </button>
         </div>
 
-        {/* --- Top Carousel --- */}
+        {/* --- Top Carousel (Schedules & Referral) --- */}
         <div className="w-full flex flex-col gap-2.5 items-center animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both">
           <div ref={carouselRef} onScroll={handleScroll} className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto no-scrollbar">
             
@@ -378,192 +439,141 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* --- Connectors Section --- */}
-        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both pb-4">
-            <div 
-              className="w-full rounded-[24px] p-4 flex flex-col" 
-              style={{ background: "#111", border: "1px solid #1c1c1e" }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex flex-col">
-                  <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Connectors</h3>
-                  <p className="text-[#8e8e93] text-[13px] mt-0.5" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
-                </div>
-              </div>
+        {/* --- Horizontal Cards Carousel (Connectors & Tools) --- */}
+        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar">
+          <div className="flex gap-3 w-max px-1">
+            
+            {/* Card 1: Connectors */}
+            <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+              <button onClick={() => setModalState({ view: "list", connectorId: null })} className="flex items-center gap-1 mb-4 active:opacity-70 w-fit">
+                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Connectors</h3>
+                <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+              </button>
               
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-4">
                 {CONNECTORS_DB.slice(0, 3).map((connector) => (
-                  <div key={connector.id} className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-                      {connector.icon}
+                  <button key={connector.id} onClick={() => setModalState({ view: "detail", connectorId: connector.id })} className="w-full flex items-center gap-4 active:opacity-60 transition-opacity text-left">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-[#1c1c1e]">
+                      <img src={connector.src} alt="" className="w-6 h-6 object-contain" />
                     </div>
-                    <p className="text-white text-[15px] font-medium flex-1" style={{ fontFamily: SF }}>{connector.name}</p>
-                    <button 
-                      onClick={() => setModalState({ view: "detail", connectorId: connector.id })}
-                      className="px-4 py-1.5 rounded-full text-[13px] font-bold transition-opacity active:opacity-70 text-black bg-white"
-                      style={{ fontFamily: SF }}
-                    >
-                      View
-                    </button>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF }}>{connector.name}</p>
+                      <p className="text-[#8e8e93] text-[13px] truncate" style={{ fontFamily: SF }}>{connector.isConnected ? "Connected" : "Not linked"}</p>
+                    </div>
+                  </button>
                 ))}
               </div>
-
-              <button 
-                onClick={() => setModalState({ view: "list", connectorId: null })}
-                className="mt-5 w-full py-3.5 rounded-[16px] text-white text-[15px] font-medium flex items-center justify-center gap-2 transition-colors active:bg-white/5"
-                style={{ background: "#1c1c1e" }}
-              >
-                <Plus className="w-4 h-4 text-[#8e8e93]" />
-                Add connection
-              </button>
             </div>
+
+            {/* Card 2: My Tools */}
+            <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+              <div className="flex items-center gap-1 mb-4">
+                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>My Tools</h3>
+              </div>
+              <div className="flex-1 flex flex-col items-center justify-center min-h-[140px] gap-2 opacity-40">
+                <Plus className="w-8 h-8 text-[#48484a]" />
+                <p className="text-[#48484a] text-[15px] font-medium" style={{ fontFamily: SF }}>Coming soon</p>
+              </div>
+            </div>
+
+          </div>
         </div>
 
       </div>
 
-      {/* --- MODALS (Emergent Bottom Sheets, Not Full Screen) --- */}
+      {/* --- EMERGENT MODALS --- */}
       {modalState.view !== "closed" && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
-            onClick={() => setModalState({ view: "closed", connectorId: null })}
-          />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={() => setModalState({ view: "closed", connectorId: null })} />
 
-          <div className="relative w-full max-w-md rounded-t-[24px] animate-in slide-in-from-bottom duration-300 flex flex-col shadow-2xl" 
-               style={{ background: "#111", borderTop: "1px solid #1c1c1e", borderLeft: "1px solid #1c1c1e", borderRight: "1px solid #1c1c1e", maxHeight: "80vh" }}>
+          <div className="relative w-full max-w-md rounded-t-[24px] animate-in slide-in-from-bottom duration-300 flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e", maxHeight: "85vh" }}>
             
-            {/* -- View 1: Connectors List -- */}
+            {/* View List */}
             {modalState.view === "list" && (
-              <>
-                <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e]">
-                  <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>New connector</h2>
-                  <button onClick={() => setModalState({ view: "closed", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full transition-opacity active:opacity-70 bg-[#1c1c1e]">
-                    <X className="w-5 h-5 text-white" />
-                  </button>
+                <div className="flex flex-col p-4 h-full">
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>Add connection</h2>
+                        <button onClick={() => setModalState({ view: "closed", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-70 transition-opacity"><X className="w-5 h-5 text-white" /></button>
+                    </div>
+                    
+                    <div className="relative mb-6">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#636366]" />
+                      <input 
+                        type="text" 
+                        placeholder="Search connectors" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 rounded-[16px] text-white placeholder:text-[#636366] focus:outline-none text-[15px]"
+                        style={{ background: "#1c1c1e", border: "1px solid transparent", fontFamily: SF }}
+                      />
+                    </div>
+
+                    <div className="overflow-y-auto no-scrollbar pb-8 space-y-2 flex-1">
+                        {filteredConnectors.map(c => (
+                            <button key={c.id} onClick={() => setModalState({ view: "detail", connectorId: c.id })} className="w-full flex items-center gap-4 p-3 rounded-2xl active:bg-white/5 transition-colors text-left" style={{ border: "1px solid #1c1c1e" }}>
+                                <img src={c.src} alt="" className="w-8 h-8 object-contain" />
+                                <div className="flex-1">
+                                    <p className="text-white font-medium">{c.name}</p>
+                                    <p className="text-[#8e8e93] text-[12px]">{c.isConnected ? "Active" : "Tap to connect"}</p>
+                                </div>
+                                <ChevronRight className="w-4 h-4 text-[#48484a]" />
+                            </button>
+                        ))}
+                    </div>
                 </div>
-                
-                <div className="overflow-y-auto p-4 flex-1 no-scrollbar space-y-6">
-                  {/* Search */}
-                  <div className="relative">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#636366]" />
-                    <input 
-                      type="text" 
-                      placeholder="Search" 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-[16px] text-white placeholder:text-[#636366] focus:outline-none text-[15px]"
-                      style={{ background: "#1c1c1e", border: "1px solid transparent", fontFamily: SF }}
-                    />
-                  </div>
-
-                  {/* Custom */}
-                  <button className="w-full flex items-center gap-4 p-3 rounded-[16px] transition-colors active:bg-[#1c1c1e]" style={{ border: "1px solid #1c1c1e" }}>
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#2c2c2e] shrink-0">
-                      <Plus className="w-5 h-5 text-[#8e8e93]" />
-                    </div>
-                    <div className="text-left flex-1">
-                      <p className="text-white text-[15px] font-medium" style={{ fontFamily: SF }}>Custom</p>
-                      <p className="text-[#8e8e93] text-[13px]" style={{ fontFamily: SF }}>Add your own custom connector</p>
-                    </div>
-                  </button>
-
-                  {/* Featured List */}
-                  <div>
-                    <h4 className="text-[#8e8e93] text-[13px] font-medium mb-2 ml-1" style={{ fontFamily: SF }}>Featured</h4>
-                    <div className="rounded-[16px] overflow-hidden" style={{ border: "1px solid #1c1c1e", background: "#111" }}>
-                      {filteredConnectors.filter(c => c.category === "Featured").map((c, i, arr) => (
-                        <button 
-                          key={c.id} 
-                          onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                          className="w-full flex items-center gap-3 p-4 transition-colors active:bg-white/5"
-                          style={{ borderBottom: i < arr.length - 1 ? "1px solid #1c1c1e" : "none" }}
-                        >
-                          <div className="w-6 h-6 flex items-center justify-center shrink-0">
-                            {c.icon}
-                          </div>
-                          <span className="text-white text-[15px] font-medium" style={{ fontFamily: SF }}>{c.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Productivity List */}
-                  <div>
-                    <h4 className="text-[#8e8e93] text-[13px] font-medium mb-2 ml-1" style={{ fontFamily: SF }}>Productivity</h4>
-                    <div className="rounded-[16px] overflow-hidden" style={{ border: "1px solid #1c1c1e", background: "#111" }}>
-                      {filteredConnectors.filter(c => c.category === "Productivity").map((c, i, arr) => (
-                        <button 
-                          key={c.id} 
-                          onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                          className="w-full flex items-center gap-3 p-4 transition-colors active:bg-white/5"
-                          style={{ borderBottom: i < arr.length - 1 ? "1px solid #1c1c1e" : "none" }}
-                        >
-                          <div className="w-6 h-6 flex items-center justify-center shrink-0">
-                            {c.icon}
-                          </div>
-                          <span className="text-white text-[15px] font-medium" style={{ fontFamily: SF }}>{c.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                </div>
-              </>
             )}
 
-            {/* -- View 2: Connector Detail -- */}
+            {/* View Detail */}
             {modalState.view === "detail" && activeConnectorData && (
-              <div className="flex flex-col h-full overflow-y-auto no-scrollbar">
-                <div className="flex items-center justify-between p-4 sticky top-0 bg-[#111] z-10 border-b border-[#1c1c1e]">
+              <div className="flex flex-col overflow-hidden h-full">
+                <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e]">
                   <div className="flex items-center gap-3">
-                    <button onClick={() => setModalState({ view: "list", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full transition-opacity active:opacity-70 hover:bg-[#1c1c1e]">
-                      <ArrowLeft className="w-5 h-5 text-[#8e8e93]" />
-                    </button>
-                    <div className="w-8 h-8 flex items-center justify-center rounded-md overflow-hidden bg-white/5">
-                      {activeConnectorData.icon}
-                    </div>
-                    <div>
-                      <h2 className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>{activeConnectorData.name}</h2>
-                      <p className="text-[#8e8e93] text-[12px] leading-none mt-0.5" style={{ fontFamily: SF }}>{activeConnectorData.detailCategory || activeConnectorData.category}</p>
-                    </div>
+                    <button onClick={() => setModalState({ view: "list", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full active:bg-[#1c1c1e] transition-colors"><ArrowLeft className="w-5 h-5 text-[#8e8e93]" /></button>
+                    <img src={activeConnectorData.src} alt="" className="w-7 h-7 object-contain" />
+                    <h2 className="text-white font-bold text-[17px]">{activeConnectorData.name}</h2>
                   </div>
-                  <button className="px-4 py-1.5 bg-white text-black text-[13px] font-bold rounded-full active:opacity-70 transition-opacity" style={{ fontFamily: SF }}>
-                    Connect
-                  </button>
+                  {activeConnectorData.isConnected ? (
+                    <button className="px-4 py-1.5 bg-red-500/10 text-red-500 text-[13px] font-bold rounded-full flex items-center gap-2 active:opacity-70 transition-opacity"><Trash2 className="w-3.5 h-3.5" /> Disconnect</button>
+                  ) : (
+                    <button className="px-5 py-1.5 bg-white text-black text-[13px] font-bold rounded-full active:opacity-70 transition-opacity">Connect</button>
+                  )}
                 </div>
                 
-                <div className="p-4 space-y-6 pb-8">
+                <div className="p-4 overflow-y-auto no-scrollbar space-y-5 pb-8">
+                  
                   <p className="text-[#e5e5ea] text-[14px]" style={{ fontFamily: SF }}>
-                    {activeConnectorData.description || `Grant access to xBlum to interact with your ${activeConnectorData.name} data.`}
+                    {activeConnectorData.description}
                   </p>
 
-                  <div className="space-y-3">
-                    <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1" style={{ fontFamily: SF }}>About this connector</h3>
-                    
-                    <div className="rounded-[16px] overflow-hidden" style={{ border: "1px solid #1c1c1e", background: "#111" }}>
-                      {(activeConnectorData.features || [
-                        { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "Secure connection", desc: "We use standard OAuth to securely authenticate." }
-                      ]).map((feat: any, i: number, arr: any[]) => (
+                  {activeConnectorData.isConnected && (
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                        <div className="flex flex-col">
+                            <p className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider">Linked account</p>
+                            <p className="text-white text-[14px] font-medium">{activeConnectorData.userEmail}</p>
+                        </div>
+                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]" />
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
+                    <div className="rounded-2xl border border-[#1c1c1e] overflow-hidden bg-black/20">
+                      {activeConnectorData.features.map((feat, i, arr) => (
                         <div key={i} className="flex gap-4 p-4" style={{ borderBottom: i < arr.length - 1 ? "1px solid #1c1c1e" : "none" }}>
                           <div className="shrink-0 mt-0.5">{feat.icon}</div>
                           <div>
-                            <p className="text-white font-semibold text-[15px] mb-1" style={{ fontFamily: SF }}>{feat.title}</p>
-                            <p className="text-[#8e8e93] text-[13px] leading-relaxed" style={{ fontFamily: SF }}>{feat.desc}</p>
+                            <p className="text-white font-semibold text-[15px] mb-0.5">{feat.title}</p>
+                            <p className="text-[#8e8e93] text-[13px] leading-relaxed">{feat.desc}</p>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
-
-                  <p className="text-[#636366] text-[12px] leading-relaxed px-1" style={{ fontFamily: SF }}>
-                    {activeConnectorData.disclaimer || "Third-party connectors are not created or maintained by us. Use caution when granting access to external services. Review permissions before connecting."}
-                  </p>
                 </div>
               </div>
             )}
             
-            <div style={{ height: "calc(env(safe-area-inset-bottom, 0px))", background: "#111" }} />
+            <div style={{ height: "calc(env(safe-area-inset-bottom, 0px) + 20px)" }} />
           </div>
         </div>
       )}
