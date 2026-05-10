@@ -4,7 +4,7 @@ import { useApp } from "@/lib/app-context"
 import { 
   Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
   ChevronRight, Loader2, CalendarDays, Search, ShieldCheck, Github, 
-  Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2
+  Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2, Sparkles
 } from "lucide-react"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 
@@ -445,35 +445,80 @@ export function HomeView() {
             
             {/* Card 1: Connectors */}
             <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-              <button onClick={() => setModalState({ view: "list", connectorId: null })} className="flex items-center gap-1 mb-4 active:opacity-70 w-fit">
-                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Connectors</h3>
-                <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
-              </button>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col">
+                  <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Connectors</h3>
+                  <p className="text-[#8e8e93] text-[13px] mt-0.5" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
+                </div>
+              </div>
               
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 {CONNECTORS_DB.slice(0, 3).map((connector) => (
-                  <button key={connector.id} onClick={() => setModalState({ view: "detail", connectorId: connector.id })} className="w-full flex items-center gap-4 active:opacity-60 transition-opacity text-left">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden bg-[#1c1c1e]">
+                  <div key={connector.id} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#1c1c1e] overflow-hidden">
                       <img src={connector.src} alt="" className="w-6 h-6 object-contain" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-[16px] font-medium truncate" style={{ fontFamily: SF }}>{connector.name}</p>
-                      <p className="text-[#8e8e93] text-[13px] truncate" style={{ fontFamily: SF }}>{connector.isConnected ? "Connected" : "Not linked"}</p>
-                    </div>
-                  </button>
+                    <p className="text-white text-[15px] font-medium flex-1 truncate" style={{ fontFamily: SF }}>{connector.name}</p>
+                    <button 
+                      onClick={() => setModalState({ view: "detail", connectorId: connector.id })}
+                      className="px-4 py-1.5 rounded-full text-[13px] font-bold transition-opacity active:opacity-70 text-black bg-white shrink-0"
+                      style={{ fontFamily: SF }}
+                    >
+                      View
+                    </button>
+                  </div>
                 ))}
               </div>
+
+              <button 
+                onClick={() => setModalState({ view: "list", connectorId: null })}
+                className="mt-5 w-full py-3.5 rounded-[16px] text-white text-[15px] font-medium flex items-center justify-center gap-2 transition-colors active:bg-white/5"
+                style={{ background: "#1c1c1e" }}
+              >
+                <Plus className="w-4 h-4 text-[#8e8e93]" />
+                Add connection
+              </button>
             </div>
 
             {/* Card 2: My Tools */}
             <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-              <div className="flex items-center gap-1 mb-4">
-                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>My Tools</h3>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col">
+                  <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>My Tools</h3>
+                  <p className="text-[#8e8e93] text-[13px] mt-0.5" style={{ fontFamily: SF }}>Native integrations & assistants</p>
+                </div>
               </div>
-              <div className="flex-1 flex flex-col items-center justify-center min-h-[140px] gap-2 opacity-40">
-                <Plus className="w-8 h-8 text-[#48484a]" />
-                <p className="text-[#48484a] text-[15px] font-medium" style={{ fontFamily: SF }}>Coming soon</p>
+              
+              <div className="flex flex-col gap-3 opacity-50 pointer-events-none select-none">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#1c1c1e]">
+                    <Lock className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <p className="text-white text-[15px] font-medium flex-1 truncate" style={{ fontFamily: SF }}>Private Mode</p>
+                  <button className="px-4 py-1.5 rounded-full text-[13px] font-bold text-black bg-white shrink-0" style={{ fontFamily: SF }}>View</button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#1c1c1e] overflow-hidden p-2">
+                    <img src="/telegram-icon.png" alt="" className="w-full h-full object-contain" />
+                  </div>
+                  <p className="text-white text-[15px] font-medium flex-1 truncate" style={{ fontFamily: SF }}>Telegram Search</p>
+                  <button className="px-4 py-1.5 rounded-full text-[13px] font-bold text-black bg-white shrink-0" style={{ fontFamily: SF }}>View</button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#1c1c1e]">
+                    <Sparkles className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <p className="text-white text-[15px] font-medium flex-1 truncate" style={{ fontFamily: SF }}>Writing Assistant</p>
+                  <button className="px-4 py-1.5 rounded-full text-[13px] font-bold text-black bg-white shrink-0" style={{ fontFamily: SF }}>View</button>
+                </div>
               </div>
+
+              <button 
+                className="mt-5 w-full py-3.5 rounded-[16px] text-[#8e8e93] text-[15px] font-medium flex items-center justify-center gap-2 cursor-not-allowed"
+                style={{ background: "#1c1c1e" }}
+              >
+                Coming soon
+              </button>
             </div>
 
           </div>
