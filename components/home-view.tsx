@@ -1,10 +1,12 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, Code, Sparkles, ChevronRight, Loader2, CalendarDays } from "lucide-react"
+import { 
+  Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
+  ChevronRight, Loader2, CalendarDays, Search, ShieldCheck, Github, 
+  Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft
+} from "lucide-react"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
-
-type ExploreModalType = "private" | "telegram" | "google" | "writing" | "coding" | null
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -18,9 +20,31 @@ const ICON_COLORS: Record<string, string> = {
   Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b"
 }
 
+// --- Connectors Database ---
+const CONNECTORS_DB = [
+  { id: "github", name: "GitHub", category: "Featured", icon: <Github className="w-5 h-5 text-white" /> },
+  { id: "notion", name: "Notion", category: "Featured", icon: <Hexagon className="w-5 h-5 text-white" /> },
+  { 
+    id: "gmail", 
+    name: "Gmail", 
+    category: "Featured", 
+    icon: <Mail className="w-5 h-5 text-red-500" />,
+    detailCategory: "Productivity",
+    description: "Grant access to xBlum to search your emails.",
+    features: [
+      { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search in your emails", desc: "Search your inbox, summarize unread emails and find messages from specific people." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "We do not use your Gmail data to train our models." },
+      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your emails stay in Gmail", desc: "We don't store your emails. Search is performed in real-time when you ask questions." }
+    ],
+    disclaimer: "Third-party connectors are not created or maintained by us. Use caution when granting access to external services. Review permissions before connecting."
+  },
+  { id: "calendar", name: "Google Calendar", category: "Featured", icon: <Calendar className="w-5 h-5 text-blue-400" /> },
+  { id: "drive", name: "Google Drive", category: "Featured", icon: <HardDrive className="w-5 h-5 text-green-400" /> },
+  { id: "outlook", name: "Outlook", category: "Productivity", icon: <Mail className="w-5 h-5 text-blue-500" /> }
+];
+
 function getTg() { return (window as any).Telegram?.WebApp }
 
-// Helper para formatear la fecha a un formato corto (ej: "In 30m" o "2:00 PM")
 function formatTimeRelative(fireAt: string) {
   if (!fireAt) return "Anytime"
   try {
@@ -51,28 +75,26 @@ function formatTimeRelative(fireAt: string) {
 export function HomeView() {
   const {
     t, selectedModel, setCurrentView, isPremium,
-    isThrottled, minutesUntilReset, sendChatMessage, openExploreTopic,
+    isThrottled, minutesUntilReset, sendChatMessage
   } = useApp()
 
   const [message, setMessage] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
-  const [exploreModal, setExploreModal] = useState<ExploreModalType>(null)
-  const [showAllTopics, setShowAllTopics] = useState(false)
-  const [modalInput, setModalInput] = useState("")
   const [sending, setSending] = useState(false)
-  const [openingTopic, setOpeningTopic] = useState<ExploreModalType>(null)
   
+  // Connectors State
+  const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
+  const [searchQuery, setSearchQuery] = useState("")
+
   // Carousel State
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
 
   // Schedule API Data State
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [scheduleItems, setScheduleItems] = useState<any[]>([])
   const [loadingSchedules, setLoadingSchedules] = useState(true)
   const [activeScheduleIndex, setActiveScheduleIndex] = useState(0)
 
-  // ── Fetch Schedules ──
   const fetchSchedules = useCallback(async () => {
     setLoadingSchedules(true)
     try {
@@ -84,8 +106,8 @@ export function HomeView() {
         if (d.success && Array.isArray(d.items)) {
           const now = new Date().getTime()
           const upcoming = d.items
-            .filter((t: any) => new Date(t.fire_at).getTime() > now - 60000) // Filtrar tareas pasadas
-            .sort((a: any, b: any) => new Date(a.fire_at).getTime() - new Date(b.fire_at).getTime()) // Ordenar por próximos
+            .filter((t: any) => new Date(t.fire_at).getTime() > now - 60000)
+            .sort((a: any, b: any) => new Date(a.fire_at).getTime() - new Date(b.fire_at).getTime())
           setScheduleItems(upcoming)
         }
       }
@@ -100,24 +122,22 @@ export function HomeView() {
     fetchSchedules()
   }, [fetchSchedules])
 
-  // ── Gestión del Botón Atrás Nativo de Telegram ──
+  // Telegram Back Button Management
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tg = (window as any).Telegram?.WebApp
+    const tg = getTg()
     if (!tg?.BackButton) return
 
-    if (showAllTopics || exploreModal) {
+    if (modalState.view !== "closed") {
       tg.BackButton.show()
     } else {
       tg.BackButton.hide()
     }
 
     const handleBack = () => {
-      if (exploreModal) {
-        setExploreModal(null)
-        setModalInput("")
-      } else if (showAllTopics) {
-        setShowAllTopics(false)
+      if (modalState.view === "detail") {
+        setModalState({ view: "list", connectorId: null })
+      } else if (modalState.view === "list") {
+        setModalState({ view: "closed", connectorId: null })
       }
     }
 
@@ -125,9 +145,8 @@ export function HomeView() {
     return () => {
       tg.BackButton.offClick(handleBack)
     }
-  }, [showAllTopics, exploreModal])
+  }, [modalState.view])
 
-  // ── Scroll Handlers ──
   const handleScroll = useCallback(() => {
     if (!carouselRef.current) return
     const width = carouselRef.current.offsetWidth
@@ -138,7 +157,6 @@ export function HomeView() {
     }
   }, [currentBannerIndex])
 
-  // Preparamos los items a mostrar (con placeholders si está cargando o vacío)
   const displayItems = useMemo(() => {
     if (loadingSchedules) return [{ id: 'loading', title: 'Syncing schedule...', color: '#636366', fire_at: '' }]
     if (scheduleItems.length === 0) return [{ id: 'empty', title: 'No upcoming events', color: '#8e8e93', fire_at: '' }]
@@ -149,7 +167,7 @@ export function HomeView() {
     const el = e.currentTarget
     const index = Math.min(
       displayItems.length - 1,
-      Math.max(0, Math.round(el.scrollTop / 32)) // 32px es la altura de cada cápsula
+      Math.max(0, Math.round(el.scrollTop / 32))
     )
     if (index !== activeScheduleIndex) {
       setActiveScheduleIndex(index)
@@ -169,49 +187,17 @@ export function HomeView() {
     setSending(false)
   }
 
-  async function handleQuickSend(topicKey: ExploreModalType, text: string) {
-    if (sending || !topicKey) return
-    setExploreModal(null)
-    setModalInput("")
-    setSending(true)
-    await openExploreTopic(topicKey, text)
-    setSending(false)
-  }
-
-  async function handleOpenTopic(topicKey: ExploreModalType) {
-    if (openingTopic || !topicKey) return
-    setOpeningTopic(topicKey)
-    await openExploreTopic(topicKey)
-    setOpeningTopic(null)
-  }
-
   function handleKey(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter" && !e.shiftKey) handleSend()
   }
 
-  function handleCreateImage() {
-    setMessage("Create an image of ")
-    inputRef.current?.focus()
-  }
-
-  function handleGetTokens() {
-    setCurrentView("store")
-  }
-
-  function handleAddToChat() {
-    // Función para Telegram
-  }
-
   const showThrottle = isThrottled && selectedModel === "Grok 4.1"
 
-  const TOPICS_DATA = [
-    { id: "private", name: "Private Mode", desc: "Zero trace conversations", tag: "BETA", action: () => setExploreModal("private"), icon: <Lock className="w-5 h-5 text-amber-500" /> },
-    { id: "telegram", name: "Telegram Search", desc: "Find channels, posts & more", action: () => setExploreModal("telegram"), isImage: true, src: "/telegram-icon.png" },
-    { id: "google", name: "Google Tools", desc: "Mail, Drive, Docs & Sheets", action: () => setExploreModal("google"), isImage: true, src: "/gmail.png", contain: true },
-    { id: "writing", name: "Writing Assistant", desc: "Translate and refine text", action: () => setExploreModal("writing"), icon: <Sparkles className="w-5 h-5 text-blue-400" /> },
-    { id: "coding", name: "Coding & Tech", desc: "Debug and write code", action: () => setExploreModal("coding"), icon: <Code className="w-5 h-5 text-green-400" /> },
-    { id: "ton", name: "TON Wallet", desc: "Manage your crypto assets", action: () => {}, tag: "SOON", disabled: true, isImage: true, src: "/TON-ICON.png" },
-  ] as const;
+  const filteredConnectors = CONNECTORS_DB.filter(c => 
+    c.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
     <div 
@@ -225,7 +211,7 @@ export function HomeView() {
 
       <div className="flex flex-col items-center gap-5 w-full max-w-md">
 
-        {/* ── Hero Header ─────────────────────────────────────────────── */}
+        {/* --- Hero Header --- */}
         <div className="w-full pt-6 pb-2 animate-in fade-in duration-500">
           <p className="text-[#8e8e93] text-sm font-medium mb-1" style={{ fontFamily: SF }}>
             {t("poweredBy")} <button onClick={() => setCurrentView("settings")} className="text-white hover:text-neutral-300 transition-colors font-semibold">{selectedModel}</button>
@@ -235,7 +221,7 @@ export function HomeView() {
           </h1>
         </div>
 
-        {/* ── Throttle warning ────────────────────────────────────────── */}
+        {/* --- Throttle Warning --- */}
         {showThrottle && (
           <div className="w-full p-3.5 bg-orange-500/10 border border-orange-500/30 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
             <AlertTriangle className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
@@ -265,7 +251,7 @@ export function HomeView() {
           </div>
         )}
 
-        {/* ── Input ───────────────────────────────────────────────────── */}
+        {/* --- Main Input --- */}
         <div className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500 delay-75 fill-mode-both">
           <div className="relative">
             <input
@@ -298,10 +284,10 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* ── Action Buttons ──────────────────────────────────────────── */}
+        {/* --- Action Buttons --- */}
         <div className="w-full flex flex-nowrap justify-start gap-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
           <button
-            onClick={handleCreateImage}
+            onClick={() => { setMessage("Create an image of "); inputRef.current?.focus(); }}
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
             style={{ background: "#111", border: "1px solid #1c1c1e" }}
           >
@@ -309,32 +295,20 @@ export function HomeView() {
             <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>{t("createImage")}</span>
           </button>
           <button
-            onClick={handleGetTokens}
+            onClick={() => setCurrentView("store")}
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
             style={{ background: "#111", border: "1px solid #1c1c1e" }}
           >
             <Coins className="w-4 h-4 shrink-0" style={{ color: "#8e8e93" }} />
             <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>{t("getTokens")}</span>
           </button>
-          <button
-            onClick={handleAddToChat}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-white active:opacity-70 transition-opacity whitespace-nowrap"
-            style={{ background: "#111", border: "1px solid #1c1c1e" }}
-          >
-            <MessageCircle className="w-4 h-4 shrink-0" style={{ color: "#8e8e93" }} />
-            <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>{t("addToChat")}</span>
-          </button>
         </div>
 
-        {/* ── Swiper Banners (Carousel) ─────────────────────────────────── */}
+        {/* --- Top Carousel --- */}
         <div className="w-full flex flex-col gap-2.5 items-center animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 fill-mode-both">
-          
-          <div 
-            ref={carouselRef}
-            onScroll={handleScroll}
-            className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto no-scrollbar"
-          >
-            {/* ── Schedule Banner Dinámico (DISEÑO PREMIUM ONBOARDING) ── */}
+          <div ref={carouselRef} onScroll={handleScroll} className="w-full flex flex-nowrap snap-x snap-mandatory overflow-x-auto no-scrollbar">
+            
+            {/* Schedule Banner */}
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px] pr-2">
                 <div
                   onClick={() => setCurrentView("schedule")}
@@ -346,26 +320,15 @@ export function HomeView() {
                       height: "105px",
                   }}
                 >
-                  {/* Luz radial dinámica de fondo */}
-                  <div 
-                    className="absolute inset-0 pointer-events-none transition-colors duration-700 opacity-40 mix-blend-screen" 
-                    style={{ background: `radial-gradient(circle at 15% 50%, ${activeScheduleColor} 0%, transparent 60%)` }} 
-                  />
-                  
-                  {/* Textura de ruido suave (estilo onboarding) */}
+                  <div className="absolute inset-0 pointer-events-none transition-colors duration-700 opacity-40 mix-blend-screen" style={{ background: `radial-gradient(circle at 15% 50%, ${activeScheduleColor} 0%, transparent 60%)` }} />
                   <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('/noise.png')", backgroundSize: "100px 100px" }} />
 
-                  {/* Icono Premium Glassmorphism */}
                   <div className="relative z-10 w-[60px] h-[60px] rounded-full flex items-center justify-center shrink-0 ml-1" style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.15)" }}>
                     <div className="absolute inset-0 rounded-full border border-white/5 bg-white/5" />
                     <CalendarDays className="w-7 h-7 text-white drop-shadow-lg relative z-10" strokeWidth={1.5} />
-                    {/* Punto rojo indicador de notificaciones */}
-                    {hasNotifications && (
-                      <div className="absolute top-[2px] right-[2px] w-3.5 h-3.5 rounded-full bg-[#f43f5e] border-[2px] border-[#1a1a1c] shadow-sm z-20"></div>
-                    )}
+                    {hasNotifications && <div className="absolute top-[2px] right-[2px] w-3.5 h-3.5 rounded-full bg-[#f43f5e] border-[2px] border-[#1a1a1c] shadow-sm z-20"></div>}
                   </div>
 
-                  {/* Textos y Cápsulas */}
                   <div className="relative z-10 flex flex-col flex-1 min-w-0 pr-2 justify-center mt-0.5">
                     <div className="flex items-center justify-between mb-1.5">
                         <h3 className="text-white font-bold text-[19px] leading-tight tracking-tight" style={{ fontFamily: SFD }}>Schedules</h3>
@@ -373,49 +336,17 @@ export function HomeView() {
                             <ChevronRight className="w-4 h-4 text-white/50" />
                         </div>
                     </div>
-                    
-                    {/* Contenedor Deslizable - Altura exacta para snap 1 a 1 */}
-                    <div 
-                      onScroll={handleScheduleScroll}
-                      onClick={(e) => e.stopPropagation()} 
-                      className="h-[32px] overflow-y-auto snap-y snap-mandatory no-scrollbar w-full"
-                      style={{ scrollBehavior: 'smooth' }}
-                    >
+                    <div onScroll={handleScheduleScroll} onClick={(e) => e.stopPropagation()} className="h-[32px] overflow-y-auto snap-y snap-mandatory no-scrollbar w-full" style={{ scrollBehavior: 'smooth' }}>
                       <div className="flex flex-col">
                         {displayItems.map((item, idx) => {
                           const isActive = idx === activeScheduleIndex;
                           const itemColor = item.color || ICON_COLORS[item.icon_name] || "#3b82f6";
                           const timeStr = item.fire_at ? formatTimeRelative(item.fire_at) : (item.id === 'loading' ? 'Loading' : 'Relax');
-
                           return (
-                            <div 
-                              key={item.id} 
-                              className="h-[32px] snap-center snap-always flex items-center shrink-0 transition-all duration-300 ease-out"
-                              style={{
-                                transform: isActive ? 'scale(1) translateX(0)' : 'scale(0.85) translateX(-4%)',
-                                opacity: isActive ? 1 : 0.35,
-                                transformOrigin: 'left center'
-                              }}
-                            >
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setCurrentView("schedule");
-                                }}
-                                className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-[12px] max-w-full shadow-sm active:scale-95 transition-transform"
-                                style={{ 
-                                  background: `rgba(0,0,0,0.4)`, 
-                                  border: `1px solid rgba(255,255,255,0.08)`,
-                                }}
-                              >
-                                {item.id === 'loading' ? (
-                                  <Loader2 className="w-2.5 h-2.5 animate-spin shrink-0" style={{ color: itemColor }} />
-                                ) : (
-                                  <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: itemColor, boxShadow: `0 0 8px ${itemColor}` }} />
-                                )}
-                                <span className="text-[13px] font-medium truncate text-white/90" style={{ fontFamily: SF }}>
-                                  {timeStr} <span className="opacity-30 mx-1">•</span> {item.title}
-                                </span>
+                            <div key={item.id} className="h-[32px] snap-center snap-always flex items-center shrink-0 transition-all duration-300 ease-out" style={{ transform: isActive ? 'scale(1) translateX(0)' : 'scale(0.85) translateX(-4%)', opacity: isActive ? 1 : 0.35, transformOrigin: 'left center' }}>
+                              <button onClick={(e) => { e.stopPropagation(); setCurrentView("schedule"); }} className="flex items-center gap-2.5 px-3.5 py-1.5 rounded-[12px] max-w-full shadow-sm active:scale-95 transition-transform" style={{ background: `rgba(0,0,0,0.4)`, border: `1px solid rgba(255,255,255,0.08)` }}>
+                                {item.id === 'loading' ? <Loader2 className="w-2.5 h-2.5 animate-spin shrink-0" style={{ color: itemColor }} /> : <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: itemColor, boxShadow: `0 0 8px ${itemColor}` }} />}
+                                <span className="text-[13px] font-medium truncate text-white/90" style={{ fontFamily: SF }}>{timeStr} <span className="opacity-30 mx-1">•</span> {item.title}</span>
                               </button>
                             </div>
                           )
@@ -423,469 +354,216 @@ export function HomeView() {
                       </div>
                     </div>
                   </div>
-
                 </div>
             </div>
 
-            {/* ── Referral Banner (SECOND POSITION) ── */}
+            {/* Referral Banner */}
             <div className="flex shrink-0 w-full max-w-md snap-center rounded-[24px]">
-                <button
-                onClick={() => setCurrentView("referral")}
-                className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left"
-                style={{
-                    background: "#060606",
-                    border: "1px solid #1c1c1e",
-                    borderRadius: "24px",
-                    height: "105px",
-                }}
-                >
+                <button onClick={() => setCurrentView("referral")} className="w-full shrink-0 relative overflow-hidden active:opacity-80 transition-opacity text-left" style={{ background: "#060606", border: "1px solid #1c1c1e", borderRadius: "24px", height: "105px" }}>
                     <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 10% 50%, rgba(255,255,255,0.03) 0%, transparent 55%)" }} />
                     <div className="relative z-10 flex items-center justify-between h-full px-5">
                         <div className="flex flex-col gap-2.5">
                           <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Invite a Friend & Get<br />Free Tokens</p>
-                          <div
-                              className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden"
-                              style={{
-                              background: "rgba(255,255,255,0.07)",
-                              backdropFilter: "blur(16px) saturate(180%)",
-                              WebkitBackdropFilter: "blur(16px) saturate(180%)",
-                              border: "1px solid rgba(255,255,255,0.13)",
-                              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.4)",
-                              }}
-                          >
-                              <div className="absolute inset-x-2 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)" }} />
+                          <div className="flex items-center gap-1 px-3 py-1 rounded-full w-fit relative overflow-hidden" style={{ background: "rgba(255,255,255,0.07)", backdropFilter: "blur(16px) saturate(180%)", WebkitBackdropFilter: "blur(16px) saturate(180%)", border: "1px solid rgba(255,255,255,0.13)" }}>
                               <span className="text-white text-[11px] font-medium relative z-10 tracking-wide" style={{ fontFamily: SF }}>share invite</span>
                               <span className="text-white text-[11px] relative z-10" style={{ opacity: 0.55 }}>›</span>
                           </div>
                         </div>
-                        <div className="relative shrink-0 pointer-events-none select-none" style={{ width: "120px", height: "105px" }}>
-                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "46px", height: "46px", top: "-5px", right: "4px", opacity: 0.55, transform: "rotate(18deg)", filter: "brightness(0.75)" }} />
-                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "68px", height: "68px", top: "50%", left: "0px", transform: "translateY(-50%) rotate(-18deg)", opacity: 1, filter: "drop-shadow(0 4px 16px rgba(30,140,255,0.55))" }} />
-                            <img src="/xblum-coin.png" alt="" draggable={false} className="absolute pointer-events-none select-none" style={{ width: "44px", height: "44px", bottom: "4px", right: "6px", opacity: 0.6, transform: "rotate(-8deg)", filter: "brightness(0.8)" }} />
-                        </div>
                     </div>
                 </button>
             </div>
-            
           </div>
-
-          {/* ── Pagination Dots Indicators (•) ── */}
           <div className="flex items-center gap-1.5 mt-0.5">
-            {[0, 1].map(index => (
-                <div key={index} className={`w-1.5 h-1.5 rounded-full transition-colors ${currentBannerIndex === index ? 'bg-white' : 'bg-[#2c2c2e]'}`} />
-            ))}
+            {[0, 1].map(index => <div key={index} className={`w-1.5 h-1.5 rounded-full transition-colors ${currentBannerIndex === index ? 'bg-white' : 'bg-[#2c2c2e]'}`} />)}
           </div>
         </div>
 
-        {/* ── Explore Section (CARRUSEL HORIZONTAL) ───────────────────── */}
-        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both overflow-x-auto snap-x snap-mandatory pb-4" style={{ scrollbarWidth: "none" }}>
-          <div className="flex gap-3 w-max px-1">
-            
-            {/* Tarjeta 1: Explore (Compacta) */}
-            <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-              <button onClick={() => setShowAllTopics(true)} className="flex items-center gap-1 mb-4 active:opacity-70 w-fit">
-                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Explore</h3>
-                <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
-              </button>
+        {/* --- Connectors Section --- */}
+        <div className="w-full mt-2 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200 fill-mode-both pb-4">
+            <div 
+              className="w-full rounded-[24px] p-4 flex flex-col" 
+              style={{ background: "#111", border: "1px solid #1c1c1e" }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col">
+                  <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Connectors</h3>
+                  <p className="text-[#8e8e93] text-[13px] mt-0.5" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
+                </div>
+              </div>
               
-              <div className="flex flex-col gap-4">
-                {TOPICS_DATA.slice(0, 3).map((topic) => (
-                  <button
-                    key={topic.id}
-                    onClick={topic.action}
-                    disabled={openingTopic === topic.id}
-                    className="w-full flex items-center gap-4 active:opacity-60 transition-opacity text-left disabled:opacity-50"
-                  >
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ background: "#1c1c1e" }}>
-                      {openingTopic === topic.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-[#8e8e93]" />
-                      ) : topic.isImage ? (
-                        <img src={topic.src} alt={topic.name} draggable={false} className={`w-full h-full pointer-events-none select-none ${topic.contain ? 'object-contain p-2' : 'object-cover'}`} />
-                      ) : (
-                        topic.icon
-                      )}
+              <div className="flex flex-col gap-3">
+                {CONNECTORS_DB.slice(0, 3).map((connector) => (
+                  <div key={connector.id} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
+                      {connector.icon}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-[16px] font-medium truncate leading-tight" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>{topic.name}</p>
-                      <p className="text-[#8e8e93] text-[13px] truncate mt-0.5" style={{ fontFamily: SF }}>{topic.desc}</p>
-                    </div>
-                  </button>
+                    <p className="text-white text-[15px] font-medium flex-1" style={{ fontFamily: SF }}>{connector.name}</p>
+                    <button 
+                      onClick={() => setModalState({ view: "detail", connectorId: connector.id })}
+                      className="px-4 py-1.5 rounded-full text-[13px] font-bold transition-opacity active:opacity-70 text-black bg-white"
+                      style={{ fontFamily: SF }}
+                    >
+                      View
+                    </button>
+                  </div>
                 ))}
               </div>
-            </div>
 
-            {/* Tarjeta 2: My Tools */}
-            <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-              <div className="flex items-center gap-1 mb-4">
-                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>My Tools</h3>
-              </div>
-              <div className="flex-1 flex items-center justify-center min-h-[140px]">
-                <p className="text-[#48484a] text-[15px] font-medium" style={{ fontFamily: SF }}>Coming soon...</p>
-              </div>
+              <button 
+                onClick={() => setModalState({ view: "list", connectorId: null })}
+                className="mt-5 w-full py-3.5 rounded-[16px] text-white text-[15px] font-medium flex items-center justify-center gap-2 transition-colors active:bg-white/5"
+                style={{ background: "#1c1c1e" }}
+              >
+                <Plus className="w-4 h-4 text-[#8e8e93]" />
+                Add connection
+              </button>
             </div>
-
-          </div>
         </div>
 
       </div>
 
-      {/* ── MODAL FULL SCREEN: ALL TOPICS (Con Blur y sin Header) ── */}
-      {showAllTopics && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-black/65 backdrop-blur-xl animate-in fade-in duration-300">
-          
-          <div className="pt-16 pb-2" />
-
-          <div className="flex-1 overflow-y-auto px-4 pb-12 space-y-1 no-scrollbar">
-            {TOPICS_DATA.map((topic) => (
-              <button
-                key={topic.id}
-                onClick={() => {
-                  if (!topic.disabled) {
-                    topic.action();
-                  }
-                }}
-                disabled={topic.disabled}
-                className="w-full flex items-center gap-4 px-2 py-4 active:bg-white/5 transition-colors rounded-2xl text-left disabled:opacity-50"
-              >
-                <div className="w-[50px] h-[50px] rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ background: "#1c1c1e" }}>
-                  {topic.isImage ? (
-                    <img src={topic.src} alt={topic.name} draggable={false} className={`w-full h-full pointer-events-none select-none ${topic.contain ? 'object-contain p-2.5' : 'object-cover'}`} />
-                  ) : (
-                    <div className="scale-110">{topic.icon}</div>
-                  )}
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="text-white text-[17px] font-medium truncate" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>{topic.name}</p>
-                    {topic.tag && (
-                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${topic.tag === 'BETA' ? 'bg-[#1c1c1e] text-[#8e8e93]' : 'bg-amber-500/15 text-amber-500'}`} style={{ fontFamily: SF }}>
-                        {topic.tag}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[#8e8e93] text-[14px] truncate mt-0.5" style={{ fontFamily: SF }}>{topic.desc}</p>
-                </div>
-                
-                <ChevronRight className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Sub-modales de Topic ────────── */}
-      {exploreModal && (
+      {/* --- MODALS (Emergent Bottom Sheets, Not Full Screen) --- */}
+      {modalState.view !== "closed" && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
-            onClick={() => { setExploreModal(null); setModalInput("") }}
+            onClick={() => setModalState({ view: "closed", connectorId: null })}
           />
 
-          <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[85vh] flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
+          <div className="relative w-full max-w-md rounded-t-[24px] animate-in slide-in-from-bottom duration-300 flex flex-col shadow-2xl" 
+               style={{ background: "#111", borderTop: "1px solid #1c1c1e", borderLeft: "1px solid #1c1c1e", borderRight: "1px solid #1c1c1e", maxHeight: "80vh" }}>
             
-            <button
-              onClick={() => { setExploreModal(null); setModalInput("") }}
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full transition-opacity active:opacity-70 z-10"
-              style={{ background: "#1c1c1e" }}
-            >
-              <X className="w-5 h-5 text-white" />
-            </button>
+            {/* -- View 1: Connectors List -- */}
+            {modalState.view === "list" && (
+              <>
+                <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e]">
+                  <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>New connector</h2>
+                  <button onClick={() => setModalState({ view: "closed", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full transition-opacity active:opacity-70 bg-[#1c1c1e]">
+                    <X className="w-5 h-5 text-white" />
+                  </button>
+                </div>
+                
+                <div className="overflow-y-auto p-4 flex-1 no-scrollbar space-y-6">
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#636366]" />
+                    <input 
+                      type="text" 
+                      placeholder="Search" 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 rounded-[16px] text-white placeholder:text-[#636366] focus:outline-none text-[15px]"
+                      style={{ background: "#1c1c1e", border: "1px solid transparent", fontFamily: SF }}
+                    />
+                  </div>
 
-            <div className="pt-10 pb-4 overflow-y-auto flex-1 no-scrollbar">
-
-              {/* Private Mode Modal */}
-              {exploreModal === "private" && (
-                <>
-                  <div className="flex flex-col items-center px-4 mb-6">
-                    <div className="w-20 h-20 mb-4 flex items-center justify-center">
-                      <Lock className="w-16 h-16 text-amber-500" />
+                  {/* Custom */}
+                  <button className="w-full flex items-center gap-4 p-3 rounded-[16px] transition-colors active:bg-[#1c1c1e]" style={{ border: "1px solid #1c1c1e" }}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#2c2c2e] shrink-0">
+                      <Plus className="w-5 h-5 text-[#8e8e93]" />
                     </div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Private Mode</h2>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ background: "#1c1c1e", color: "#8e8e93", fontFamily: SF }}>beta</span>
+                    <div className="text-left flex-1">
+                      <p className="text-white text-[15px] font-medium" style={{ fontFamily: SF }}>Custom</p>
+                      <p className="text-[#8e8e93] text-[13px]" style={{ fontFamily: SF }}>Add your own custom connector</p>
                     </div>
-                    <p className="text-[#8e8e93] text-[14px] text-center px-4" style={{ fontFamily: SF }}>
-                      Opens a dedicated topic where nothing is saved — no history, no memory, no context. Ever.
-                    </p>
+                  </button>
+
+                  {/* Featured List */}
+                  <div>
+                    <h4 className="text-[#8e8e93] text-[13px] font-medium mb-2 ml-1" style={{ fontFamily: SF }}>Featured</h4>
+                    <div className="rounded-[16px] overflow-hidden" style={{ border: "1px solid #1c1c1e", background: "#111" }}>
+                      {filteredConnectors.filter(c => c.category === "Featured").map((c, i, arr) => (
+                        <button 
+                          key={c.id} 
+                          onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                          className="w-full flex items-center gap-3 p-4 transition-colors active:bg-white/5"
+                          style={{ borderBottom: i < arr.length - 1 ? "1px solid #1c1c1e" : "none" }}
+                        >
+                          <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                            {c.icon}
+                          </div>
+                          <span className="text-white text-[15px] font-medium" style={{ fontFamily: SF }}>{c.name}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="mx-4 mb-4 bg-amber-500/10 border border-amber-500/20 rounded-[20px] p-4 space-y-2">
-                    {[
-                      "🚫  No conversation history saved",
-                      "🧠  No memory or profile updates",
-                      "👤  No context from past chats",
-                      "🔒  Each message treated as the first",
-                    ].map((line, i) => (
-                      <p key={i} className="text-amber-500/90 text-[13px] font-medium" style={{ fontFamily: SF }}>{line}</p>
-                    ))}
+                  {/* Productivity List */}
+                  <div>
+                    <h4 className="text-[#8e8e93] text-[13px] font-medium mb-2 ml-1" style={{ fontFamily: SF }}>Productivity</h4>
+                    <div className="rounded-[16px] overflow-hidden" style={{ border: "1px solid #1c1c1e", background: "#111" }}>
+                      {filteredConnectors.filter(c => c.category === "Productivity").map((c, i, arr) => (
+                        <button 
+                          key={c.id} 
+                          onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                          className="w-full flex items-center gap-3 p-4 transition-colors active:bg-white/5"
+                          style={{ borderBottom: i < arr.length - 1 ? "1px solid #1c1c1e" : "none" }}
+                        >
+                          <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                            {c.icon}
+                          </div>
+                          <span className="text-white text-[15px] font-medium" style={{ fontFamily: SF }}>{c.name}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
-                    {[
-                      { icon: "📄", text: "Review a contract for hidden risks" },
-                      { icon: "✉️", text: "Draft a sensitive message" },
-                      { icon: "🤔", text: "Ask about a confusing situation" },
-                      { icon: "🧘", text: "I need advice on something personal" },
-                    ].map((item, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleQuickSend("private", item.text)}
-                        disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
-                        style={{ borderBottom: i < 3 ? "1px solid #2c2c2e" : "none" }}
-                      >
-                        <span className="text-[20px]">{item.icon}</span>
-                        <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
-                      </button>
-                    ))}
-                  </div>
+                </div>
+              </>
+            )}
 
-                  <div className="mx-4 mt-4">
-                    <button
-                      onClick={() => handleOpenTopic("private")}
-                      disabled={sending}
-                      className="w-full py-4 bg-amber-500/20 border border-amber-500/40 text-amber-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
-                      style={{ fontFamily: SF, fontSize: "16px" }}
-                    >
-                      {sending ? "Opening..." : "Open Private Topic"}
+            {/* -- View 2: Connector Detail -- */}
+            {modalState.view === "detail" && activeConnectorData && (
+              <div className="flex flex-col h-full overflow-y-auto no-scrollbar">
+                <div className="flex items-center justify-between p-4 sticky top-0 bg-[#111] z-10 border-b border-[#1c1c1e]">
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => setModalState({ view: "list", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full transition-opacity active:opacity-70 hover:bg-[#1c1c1e]">
+                      <ArrowLeft className="w-5 h-5 text-[#8e8e93]" />
                     </button>
-                  </div>
-                </>
-              )}
-
-              {/* Telegram Search Modal */}
-              {exploreModal === "telegram" && (
-                <>
-                  <div className="flex flex-col items-center px-4 mb-6">
-                    <div className="w-20 h-20 mb-4 flex items-center justify-center pointer-events-none select-none">
-                      <img src="/telegram-icon.png" alt="Telegram" draggable={false} className="w-20 h-20 pointer-events-none select-none" />
+                    <div className="w-8 h-8 flex items-center justify-center rounded-md overflow-hidden bg-white/5">
+                      {activeConnectorData.icon}
                     </div>
-                    <h2 className="text-white font-bold text-[20px] mb-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Search on Telegram</h2>
-                    <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Opens a dedicated Telegram Search topic</p>
-                  </div>
-                  <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
-                    {[
-                      { icon: "🔍", text: "Find channels similar to @unofficialus" },
-                      { icon: "📈", text: "How to grow followers on my channel" },
-                      { icon: "🎨", text: "Create trending visuals for my post" },
-                      { icon: "🚫", text: "My Telegram account was banned" },
-                    ].map((item, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleQuickSend("telegram", item.text)}
-                        disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
-                        style={{ borderBottom: i < 3 ? "1px solid #2c2c2e" : "none" }}
-                      >
-                        <span className="text-[20px]">{item.icon}</span>
-                        <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mx-4 mt-4">
-                    <button
-                      onClick={() => handleOpenTopic("telegram")}
-                      disabled={sending}
-                      className="w-full py-4 bg-blue-500/20 border border-blue-500/40 text-blue-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
-                      style={{ fontFamily: SF, fontSize: "16px" }}
-                    >
-                      {sending ? "Opening..." : "Open Telegram Search"}
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {/* Google Tools Modal */}
-              {exploreModal === "google" && (
-                <>
-                  <div className="flex flex-col items-center px-4 mb-6">
-                    <div className="w-20 h-20 mb-4 flex items-center justify-center pointer-events-none select-none">
-                      <img src="/gmail.png" alt="Google" draggable={false} className="w-16 h-16 pointer-events-none select-none object-contain" />
-                    </div>
-                    <h2 className="text-white font-bold text-[20px] mb-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Google Tools</h2>
-                    <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Opens a dedicated Google Tools topic</p>
-                  </div>
-                  <div className="mx-4 mb-4 rounded-[20px] p-4" style={{ background: "#1c1c1e" }}>
-                    <div className="flex items-center gap-3 mb-4 pointer-events-none select-none">
-                      <img src="/gmail.png" alt="Gmail" draggable={false} className="w-8 h-8 pointer-events-none select-none object-contain" />
-                      <div>
-                        <p className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Gmail</p>
-                        <p className="text-[13px]" style={{ color: "#8e8e93", fontFamily: SF }}>Read, send & manage emails with AI</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleQuickSend("google", "Connect my Gmail account")}
-                        disabled={sending}
-                        className="flex-1 py-3 bg-white text-black text-[14px] font-bold rounded-[16px] active:opacity-70 transition-opacity disabled:opacity-50"
-                        style={{ fontFamily: SF }}
-                      >
-                        Connect Gmail
-                      </button>
-                      <button
-                        onClick={() => handleQuickSend("google", "Read my latest emails")}
-                        disabled={sending}
-                        className="flex-1 py-3 text-white text-[14px] font-medium rounded-[16px] active:opacity-70 transition-opacity disabled:opacity-50"
-                        style={{ background: "#2c2c2e", fontFamily: SF }}
-                      >
-                        Read emails
-                      </button>
+                    <div>
+                      <h2 className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>{activeConnectorData.name}</h2>
+                      <p className="text-[#8e8e93] text-[12px] leading-none mt-0.5" style={{ fontFamily: SF }}>{activeConnectorData.detailCategory || activeConnectorData.category}</p>
                     </div>
                   </div>
-                  <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
-                    {[
-                      { icon: "✉️", text: "Compose an email for me" },
-                      { icon: "📁", text: "Connect Google Drive" },
-                      { icon: "📝", text: "Connect Google Docs" },
-                      { icon: "📊", text: "Connect Google Sheets" },
-                    ].map((item, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleQuickSend("google", item.text)}
-                        disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
-                        style={{ borderBottom: i < 3 ? "1px solid #2c2c2e" : "none" }}
-                      >
-                        <span className="text-[20px]">{item.icon}</span>
-                        <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mx-4 mt-4">
-                    <button
-                      onClick={() => handleOpenTopic("google")}
-                      disabled={sending}
-                      className="w-full py-4 bg-white/10 border border-white/20 text-white font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
-                      style={{ fontFamily: SF, fontSize: "16px" }}
-                    >
-                      {sending ? "Opening..." : "Open Google Tools Topic"}
-                    </button>
-                  </div>
-                </>
-              )}
+                  <button className="px-4 py-1.5 bg-white text-black text-[13px] font-bold rounded-full active:opacity-70 transition-opacity" style={{ fontFamily: SF }}>
+                    Connect
+                  </button>
+                </div>
+                
+                <div className="p-4 space-y-6 pb-8">
+                  <p className="text-[#e5e5ea] text-[14px]" style={{ fontFamily: SF }}>
+                    {activeConnectorData.description || `Grant access to xBlum to interact with your ${activeConnectorData.name} data.`}
+                  </p>
 
-              {/* Writing Assistant Modal */}
-              {exploreModal === "writing" && (
-                <>
-                  <div className="flex flex-col items-center px-4 mb-6">
-                    <div className="w-20 h-20 mb-4 flex items-center justify-center">
-                      <Sparkles className="w-16 h-16 text-blue-400" />
+                  <div className="space-y-3">
+                    <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1" style={{ fontFamily: SF }}>About this connector</h3>
+                    
+                    <div className="rounded-[16px] overflow-hidden" style={{ border: "1px solid #1c1c1e", background: "#111" }}>
+                      {(activeConnectorData.features || [
+                        { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "Secure connection", desc: "We use standard OAuth to securely authenticate." }
+                      ]).map((feat: any, i: number, arr: any[]) => (
+                        <div key={i} className="flex gap-4 p-4" style={{ borderBottom: i < arr.length - 1 ? "1px solid #1c1c1e" : "none" }}>
+                          <div className="shrink-0 mt-0.5">{feat.icon}</div>
+                          <div>
+                            <p className="text-white font-semibold text-[15px] mb-1" style={{ fontFamily: SF }}>{feat.title}</p>
+                            <p className="text-[#8e8e93] text-[13px] leading-relaxed" style={{ fontFamily: SF }}>{feat.desc}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <h2 className="text-white font-bold text-[20px] mb-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Writing Assistant</h2>
-                    <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Opens a dedicated Writing topic</p>
                   </div>
-                  <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
-                    {[
-                      { icon: "🌍", text: "Translate naturally to English" },
-                      { icon: "✏️", text: "Fix grammar in my message" },
-                      { icon: "📚", text: "Explain the difference between similar words" },
-                      { icon: "💬", text: "Polite English phrases for business" },
-                      { icon: "✨", text: "Rewrite this text more fluently" },
-                    ].map((item, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleQuickSend("writing", item.text)}
-                        disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
-                        style={{ borderBottom: i < 4 ? "1px solid #2c2c2e" : "none" }}
-                      >
-                        <span className="text-[20px]">{item.icon}</span>
-                        <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mx-4 mt-4">
-                    <button
-                      onClick={() => handleOpenTopic("writing")}
-                      disabled={sending}
-                      className="w-full py-4 bg-blue-500/20 border border-blue-500/40 text-blue-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
-                      style={{ fontFamily: SF, fontSize: "16px" }}
-                    >
-                      {sending ? "Opening..." : "Open Writing Topic"}
-                    </button>
-                  </div>
-                </>
-              )}
 
-              {/* Coding & Tech Modal */}
-              {exploreModal === "coding" && (
-                <>
-                  <div className="flex flex-col items-center px-4 mb-6">
-                    <div className="w-20 h-20 mb-4 flex items-center justify-center">
-                      <Code className="w-16 h-16 text-green-400" />
-                    </div>
-                    <h2 className="text-white font-bold text-[20px] mb-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Coding & Tech</h2>
-                    <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Opens a dedicated Coding topic</p>
-                  </div>
-                  <div className="mx-4 rounded-[20px] overflow-hidden" style={{ background: "#1c1c1e" }}>
-                    {[
-                      { icon: "💻", text: "Explain this code to me" },
-                      { icon: "🐛", text: "Help me debug this error" },
-                      { icon: "🚀", text: "Optimize my code for performance" },
-                      { icon: "📱", text: "Create a simple app structure" },
-                      { icon: "🔧", text: "Best practices for this technology" },
-                    ].map((item, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleQuickSend("coding", item.text)}
-                        disabled={sending}
-                        className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-white/5 transition-colors disabled:opacity-50 text-left"
-                        style={{ borderBottom: i < 4 ? "1px solid #2c2c2e" : "none" }}
-                      >
-                        <span className="text-[20px]">{item.icon}</span>
-                        <span className="text-white text-[15px]" style={{ fontFamily: SF }}>{item.text}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mx-4 mt-4">
-                    <button
-                      onClick={() => handleOpenTopic("coding")}
-                      disabled={sending}
-                      className="w-full py-4 bg-green-500/20 border border-green-500/40 text-green-400 font-bold rounded-[20px] active:scale-[0.98] transition-transform disabled:opacity-50"
-                      style={{ fontFamily: SF, fontSize: "16px" }}
-                    >
-                      {sending ? "Opening..." : "Open Coding Topic"}
-                    </button>
-                  </div>
-                </>
-              )}
-
-            </div>
-
-            {/* Ask anything input bar */}
-            <div className="p-4" style={{ borderTop: "1px solid #1c1c1e", background: "#111" }}>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={modalInput}
-                  onChange={(e) => setModalInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && modalInput.trim() && exploreModal) {
-                      handleQuickSend(exploreModal, modalInput.trim())
-                    }
-                  }}
-                  placeholder="Ask anything..."
-                  className="w-full pl-5 pr-14 py-4 rounded-full text-white placeholder:text-[#636366] focus:outline-none text-[15px] transition-all"
-                  style={{ background: "#1c1c1e", border: "1px solid #2c2c2e", fontFamily: SF }}
-                />
-                <button
-                  onClick={() => {
-                    if (modalInput.trim() && exploreModal) handleQuickSend(exploreModal, modalInput.trim())
-                  }}
-                  disabled={sending}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all"
-                  style={{ 
-                    background: modalInput.trim() ? "#fff" : "#2c2c2e", 
-                    color: modalInput.trim() ? "#000" : "#636366" 
-                  }}
-                >
-                  <ArrowUp className="w-5 h-5" />
-                </button>
+                  <p className="text-[#636366] text-[12px] leading-relaxed px-1" style={{ fontFamily: SF }}>
+                    {activeConnectorData.disclaimer || "Third-party connectors are not created or maintained by us. Use caution when granting access to external services. Review permissions before connecting."}
+                  </p>
+                </div>
               </div>
-            </div>
-
-            <div style={{ height: "calc(env(safe-area-inset-bottom, 0px) + 12px)", background: "#111" }} />
+            )}
+            
+            <div style={{ height: "calc(env(safe-area-inset-bottom, 0px))", background: "#111" }} />
           </div>
         </div>
       )}
