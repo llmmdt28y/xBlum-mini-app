@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Settings, Lock, ChevronDown, ChevronRight, Hexagon, X, MoreVertical, Palette, Sparkles } from "lucide-react"
+import { Settings, Lock, ChevronDown, X, MoreVertical, Palette, Sparkles, Gift } from "lucide-react"
 
 // Importamos la data externa y configuraciones
 import { LEVEL_CONFIG } from "@/lib/data/levels-config"
@@ -51,17 +51,18 @@ export function ProfileView() {
   const [isLevelsExpanded, setIsLevelsExpanded] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
   
-  // Fondo activo y estados de UI para el Menu de Perfil
+  // ── ESTADOS DE UI Y NAVEGACIÓN ──
   const [equippedBackground, setEquippedBackground] = useState<string | null>(null)
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false)
   const [isStylePickerOpen, setIsStylePickerOpen] = useState(false)
   const [previewBg, setPreviewBg] = useState<string | null>(null)
+  
+  // Nuevo Estado para las Pestañas (Tabs) Principales
+  const [activeTab, setActiveTab] = useState<"achievements" | "inventory" | "gifts">("gifts")
 
-  // ── ESTADOS DE MENÚS (ACHIEVEMENTS & INVENTORY) ──
+  // Estado de Logros
   const [unlockedAchKeys, setUnlockedAchKeys] = useState<string[]>([])
   const [newlyUnlocked, setNewlyUnlocked] = useState<string | null>(null)
-  const [isAchievementsMenuOpen, setIsAchievementsMenuOpen] = useState(false);
-  const [isCosmeticInventoryMenuOpen, setIsCosmeticInventoryMenuOpen] = useState(false);
 
   const currentLevel = [...LEVEL_CONFIG].reverse().find(l => myBP >= l.bp) || LEVEL_CONFIG[0]
   const nextLevel = LEVEL_CONFIG[currentLevel.lv] || currentLevel
@@ -116,10 +117,6 @@ export function ProfileView() {
         setSelectedItem(null) 
       } else if (isStylePickerOpen) {
         setIsStylePickerOpen(false)
-      } else if (isAchievementsMenuOpen) {
-        setIsAchievementsMenuOpen(false) 
-      } else if (isCosmeticInventoryMenuOpen) { 
-        setIsCosmeticInventoryMenuOpen(false)
       } else { 
         setCurrentView("home");
         tg.BackButton.hide() 
@@ -128,7 +125,7 @@ export function ProfileView() {
     
     tg.BackButton.onClick(handleBack)
     return () => { tg.BackButton.offClick(handleBack) }
-  }, [setCurrentView, selectedItem, newlyUnlocked, isAchievementsMenuOpen, isCosmeticInventoryMenuOpen, isStylePickerOpen])
+  }, [setCurrentView, selectedItem, newlyUnlocked, isStylePickerOpen])
 
   
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
@@ -151,17 +148,19 @@ export function ProfileView() {
     }
   }
 
-  const TOTAL_PROFILE_ACH_SLOTS = 4;
-  const profileAchievementSlots = Array.from({ length: TOTAL_PROFILE_ACH_SLOTS });
   const isItemOwned = selectedItem ? currentLevel.lv >= selectedItem.reqLevel : false;
-  const cosmeticCategories = Array.from(new Set(Object.values(COSMETIC_ITEMS_DB).map(item => item.category)));
-
-  // Validadores para el Style Picker
   const previewItem = previewBg ? COSMETIC_ITEMS_DB[previewBg] : null;
   const isPreviewOwned = previewItem ? currentLevel.lv >= previewItem.reqLevel : true;
 
+  // Datos Dummy para la pestaña de Gifts (Basado en la imagen de referencia)
+  const DUMMY_GIFTS = [
+    { id: 'cake', emoji: '🎂', limited: true },
+    { id: 'champagne', emoji: '🍾', limited: true },
+    { id: 'bear', emoji: '🧸', limited: false },
+  ];
+
   return (
-    <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300" style={{ background: "#000000" }}>
+    <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300 scrollbar-native" style={{ background: "#000000" }}>
 
       {/* ── BACKGROUNDS GLOBALES DINÁMICOS ── */}
       {equippedBackground && COSMETIC_ITEMS_DB[equippedBackground]?.getEquipped && (
@@ -171,21 +170,18 @@ export function ProfileView() {
       {/* Espacio invisible (Header) para absorber el Notch/Status Bar */}
       <div className="sticky top-0 z-30 flex items-center justify-center w-full pointer-events-none" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 44px)", background: "transparent" }}></div>
 
-      <div className="px-5 pt-2 pb-28 space-y-8 relative overflow-x-hidden z-10">
+      <div className="px-5 pt-2 pb-32 space-y-8 relative overflow-x-hidden z-10">
         
         {/* ── PÍLDORA SUPERIOR DERECHA (NATIVA-STYLE SWAPPED) ── */}
         <div className="absolute right-5 top-0 z-30 flex items-center bg-transparent backdrop-blur-md rounded-[24px] border border-white/10 p-[2px] shadow-lg" style={{ marginTop: "12px" }}>
-           {/* Botón 1 (Izquierdo): Más opciones (Nativa) - Lógica Hamburger */}
            <button onClick={() => setIsHamburgerOpen(!isHamburgerOpen)} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
              <MoreVertical className="w-[20px] h-[20px] text-white" />
            </button>
-           
-           {/* Botón 2 (Derecho): Engranaje (Nativa) - Lógica Settings */}
            <button onClick={() => setCurrentView("settings")} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
              <Settings className="w-[18px] h-[18px] text-white" />
            </button>
   
-           {/* Dropdown Menu (Anchored to MoreVertical) */}
+           {/* Dropdown Menu */}
            {isHamburgerOpen && (
              <>
                <div className="fixed inset-0 z-40" onClick={() => setIsHamburgerOpen(false)} />
@@ -231,7 +227,7 @@ export function ProfileView() {
         </div>
 
         {/* ── Niveles ── */}
-        <div className="w-full relative z-10 mt-6">
+        <div className="w-full relative z-10 mt-6 mb-2">
            <div className="bg-[#141415] rounded-[22px] p-5 border border-[#1c1c1e]">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2.5">
@@ -272,68 +268,152 @@ export function ProfileView() {
            </div>
         </div>
 
-        {/* ── Achievements ── */}
-        <div className="w-full relative z-10">
-           <div className="flex items-center justify-between mb-4">
-              <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
-                Achievements <span className="text-[#48484a] text-[16px] ml-1">{unlockedAchKeys.length}</span>
-              </h3>
-              <button onClick={() => setIsAchievementsMenuOpen(true)} className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
-                <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
-              </button>
-           </div>
-             
-          <div className="flex items-center gap-[2px] overflow-x-hidden pb-4 pt-2 pl-1">
-              {profileAchievementSlots.map((_, i) => {
-                 const key = unlockedAchKeys[i];
-                 const zIndex = 10 - i; 
-                 const marginLeft = i === 0 ? '0' : '-16px';
-                 if (key) {
-                    const ach = ACHIEVEMENTS_DB[key];
-                    return (
-                      <div key={key} style={{ zIndex, marginLeft }} className="drop-shadow-[0_0_15px_rgba(255,255,255,0.08)]">
-                         <button 
-                           onClick={() => openItemModal(key, true)}
-                           className="w-[82px] h-[94px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1"
-                           style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
-                         >
-                              <img src={ach.img} draggable={false} alt={ach.name} className="w-[125%] h-[125%] object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
-                         </button>
-                      </div>
-                    )
-                 } else {
-                    return (
-                      <div key={`empty-${i}`} className="w-[82px] h-[94px] shrink-0 flex items-center justify-center relative bg-[#111111]" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)", zIndex: zIndex, marginLeft: marginLeft }}>
-                      </div>
-                    )
-                 }
-              })}
-           </div>
+        {/* ── NAVEGACIÓN PRINCIPAL (TABS) ── */}
+        <div className="w-full flex justify-center z-10 relative">
+          <div className="flex items-center gap-1 bg-transparent border-b border-white/5 pb-1 w-full justify-center">
+            
+            <button 
+              onClick={() => setActiveTab("achievements")}
+              className={`px-3 py-2 rounded-full text-[15px] font-medium transition-all ${activeTab === "achievements" ? "bg-[#2c2c2e] text-white" : "text-[#8e8e93] hover:text-white"}`}
+              style={{ fontFamily: SF }}
+            >
+              achievements
+            </button>
+
+            <button 
+              onClick={() => setActiveTab("inventory")}
+              className={`px-3 py-2 rounded-full text-[15px] font-medium transition-all ${activeTab === "inventory" ? "bg-[#2c2c2e] text-white" : "text-[#8e8e93] hover:text-white"}`}
+              style={{ fontFamily: SF }}
+            >
+              inventory
+            </button>
+
+            <button 
+              onClick={() => setActiveTab("gifts")}
+              className={`px-3 py-2 rounded-full text-[15px] font-medium flex items-center gap-1.5 transition-all ${activeTab === "gifts" ? "bg-[#2c2c2e] text-white" : "text-[#8e8e93] hover:text-white"}`}
+              style={{ fontFamily: SF }}
+            >
+              gifts <span className="text-[13px] tracking-tighter">🎂🍾🧸</span>
+            </button>
+
+          </div>
         </div>
 
-        {/* ── Inventory ── */}
-        <div className="w-full pb-6 relative z-10">
-           <div className="flex items-center justify-between mb-4">
-               <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Inventory</h3>
-              <button onClick={() => setIsCosmeticInventoryMenuOpen(true)} className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center active:scale-95 transition-transform">
-                <ChevronRight className="w-4 h-4 text-[#8e8e93]" />
-              </button>
-           </div>
-           
-           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 pt-2">
-              <button onClick={() => setIsCosmeticInventoryMenuOpen(true)} className="w-[140px] h-[160px] rounded-[24px] bg-[#141415] border border-[#2c2c2e] p-5 flex flex-col justify-between shrink-0 relative overflow-hidden active:scale-[0.98] transition-transform text-left group">
-                 <div className="absolute inset-0 bg-blue-500 opacity-0 group-active:opacity-10 transition-opacity"></div>
-                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#1c1c1e] relative z-10 border border-[#2c2c2e]">
-                    <Hexagon className="w-5 h-5 text-[#8e8e93]" />
-                 </div>
-                 <div className="relative z-10">
-                    <p className="text-white font-medium text-[16px] leading-tight" style={{ fontFamily: SF }}>Open</p>
-                    <p className="text-blue-400 text-[14px] mt-1 font-medium" style={{ fontFamily: SF }}>Cosmetic Catalogue</p>
-                 </div>
-              </button>
-           </div>
-        </div>
+        {/* ── CONTENIDO DINÁMICO DE PESTAÑAS ── */}
+        <div className="w-full animate-in fade-in duration-300 pt-2">
+            
+            {/* ── PESTAÑA: ACHIEVEMENTS ── */}
+            {activeTab === "achievements" && (
+               <div className="w-full flex flex-col">
+                  {/* Sub-filtros */}
+                  <div className="flex items-center justify-center gap-2 mb-6">
+                     <button className="bg-[#2c2c2e] text-white px-4 py-1.5 rounded-full text-[14px] font-medium" style={{ fontFamily: SF }}>all achievements</button>
+                     <button className="text-[#8e8e93] px-3 py-1.5 text-[14px] font-medium flex items-center gap-1" style={{ fontFamily: SF }}>locked</button>
+                  </div>
 
+                  {/* Lista Vertical de Logros (Soluciona el problema de los hexágonos) */}
+                  <div className="flex flex-col gap-3">
+                     {unlockedAchKeys.map((key) => {
+                         const ach = ACHIEVEMENTS_DB[key];
+                         return (
+                            <button 
+                               key={key} 
+                               onClick={() => openItemModal(key, true)}
+                               className="flex items-center gap-4 bg-[#141415] rounded-[20px] p-4 border border-[#1c1c1e] active:scale-[0.98] transition-transform text-left"
+                            >
+                               {/* Hexagon Layout Fijo */}
+                               <div className="w-[64px] h-[74px] shrink-0 relative bg-transparent flex items-center justify-center" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}>
+                                  <img src={ach.img} draggable={false} className="w-[125%] h-[125%] object-cover pointer-events-none select-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" style={{ WebkitTouchCallout: "none" }} />
+                               </div>
+                               
+                               <div className="flex-1 pr-2">
+                                  <h4 className="text-white font-bold text-[16px] mb-1" style={{ fontFamily: SFD }}>{ach.name}</h4>
+                                  <p className="text-[#8e8e93] text-[13px] leading-tight line-clamp-2" style={{ fontFamily: SF }}>{ach.desc}</p>
+                                  <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>OBTAINED: {ach.date}</p>
+                               </div>
+                            </button>
+                         )
+                     })}
+                  </div>
+               </div>
+            )}
+
+            {/* ── PESTAÑA: INVENTORY ── */}
+            {activeTab === "inventory" && (
+               <div className="w-full flex flex-col">
+                  {/* Sub-filtros */}
+                  <div className="flex items-center justify-center gap-2 mb-6">
+                     <button className="bg-[#2c2c2e] text-white px-4 py-1.5 rounded-full text-[14px] font-medium" style={{ fontFamily: SF }}>all items</button>
+                     <button className="text-[#8e8e93] px-3 py-1.5 text-[14px] font-medium" style={{ fontFamily: SF }}>equipped</button>
+                  </div>
+
+                  {/* Cuadrícula de Inventario 3-Col */}
+                  <div className="grid grid-cols-3 gap-3">
+                     {Object.values(COSMETIC_ITEMS_DB).map((item) => {
+                         const isOwned = currentLevel.lv >= item.reqLevel;
+                         return (
+                            <button 
+                               key={item.id} 
+                               onClick={() => openItemModal(item.id)}
+                               className={`relative aspect-square rounded-[20px] overflow-hidden border border-[#2c2c2e] bg-[#141415] flex items-center justify-center active:scale-[0.96] transition-transform ${!isOwned ? 'grayscale opacity-60' : ''}`}
+                            >
+                               {/* Preview Wrapper */}
+                               <div className="absolute inset-0 flex items-center justify-center [&>div]:!h-full [&>div]:!w-full [&>div]:!rounded-[20px] p-2">
+                                  {item.getPreview()}
+                               </div>
+                               
+                               {/* Etiqueta de cantidad si existe (Opcional, estilo Telegram) */}
+                               <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-[6px] z-10">
+                                  <span className="text-white/80 text-[10px] font-bold">#1</span>
+                               </div>
+
+                               {!isOwned && (
+                                   <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/40 backdrop-blur-[2px]">
+                                      <Lock className="w-6 h-6 text-white/70" strokeWidth={2} />
+                                   </div>
+                               )}
+                            </button>
+                         )
+                     })}
+                  </div>
+               </div>
+            )}
+
+            {/* ── PESTAÑA: GIFTS ── */}
+            {activeTab === "gifts" && (
+               <div className="w-full flex flex-col relative pb-[80px]">
+                  {/* Sub-filtros nativos de regalos */}
+                  <div className="flex items-center justify-center gap-2 mb-6">
+                     <button className="bg-[#2c2c2e] text-white px-4 py-1.5 rounded-full text-[14px] font-medium" style={{ fontFamily: SF }}>all gifts</button>
+                     <button className="text-[#8e8e93] px-3 py-1.5 text-[14px] font-medium flex items-center gap-1" style={{ fontFamily: SF }}>
+                        <span className="text-[16px] font-light">+</span> add collection
+                     </button>
+                  </div>
+
+                  {/* Cuadrícula de Regalos 3-Col */}
+                  <div className="grid grid-cols-3 gap-3">
+                     {DUMMY_GIFTS.map((gift, i) => (
+                         <div key={i} className="relative aspect-square rounded-[20px] bg-[#141415] flex items-center justify-center border border-[#1c1c1e]">
+                            {gift.limited && (
+                               <div className="absolute top-2 left-2 w-5 h-5 bg-[#8e44ad] rounded-full flex items-center justify-center border-2 border-[#141415] z-10 shadow-sm">
+                                  <Sparkles className="w-3 h-3 text-yellow-300" />
+                               </div>
+                            )}
+                            <span className="text-[48px] drop-shadow-lg" style={{ filter: "drop-shadow(0px 10px 15px rgba(0,0,0,0.4))" }}>{gift.emoji}</span>
+                         </div>
+                     ))}
+                  </div>
+
+                  {/* Botón Flotante Inferior de Regalos */}
+                  <div className="fixed bottom-[calc(var(--tg-safe-area-inset-bottom,24px)+100px)] left-0 right-0 px-8 flex justify-center z-40 pointer-events-none">
+                     <button className="bg-[#007aff] hover:bg-[#0062cc] active:scale-95 transition-all text-white font-bold text-[16px] rounded-full py-3.5 px-6 shadow-[0_8px_25px_rgba(0,122,255,0.4)] flex items-center justify-center gap-2 w-full max-w-[280px] pointer-events-auto">
+                        <Gift className="w-5 h-5" /> send gifts to friends
+                     </button>
+                  </div>
+               </div>
+            )}
+
+        </div>
       </div>
 
       {/* ── MODAL: SELECTOR DE ESTILOS (CHANGE PROFILE COLOR) FIX GENERAL ── */}
@@ -348,7 +428,6 @@ export function ProfileView() {
             
             {/* PÍLDORA SUPERIOR DERECHA (NATIVA-STYLE DENTRO MODAL CON X) ── */}
             <div className="absolute right-5 top-0 z-50 flex items-center bg-transparent backdrop-blur-md rounded-[24px] border border-white/10 p-[2px] shadow-lg" style={{ marginTop: "calc(var(--tg-safe-area-inset-top, 24px) + 8px)" }}>
-               {/* Botón (Solo X para cerrar selector) */}
                <button onClick={() => setIsStylePickerOpen(false)} className="w-[34px] h-[34px] flex items-center justify-center rounded-full active:bg-white/10 transition-colors">
                  <X className="w-[20px] h-[20px] text-white" />
                </button>
@@ -362,7 +441,6 @@ export function ProfileView() {
                  ) : (
                     <div className="w-full h-full bg-[#0a0a0b]" /> 
                  )}
-                 {/* Suave degradado para unir el fondo con la cuadrícula negra */}
                  <div className="absolute bottom-0 left-0 right-0 h-[60px] bg-gradient-to-t from-[#0a0a0b] to-transparent" />
                </div>
                
@@ -382,11 +460,10 @@ export function ProfileView() {
                </div>
             </div>
 
-            {/* Bottom Grid Container (Flex-1, min-h-0 previene el overflow excesivo, ESTE ES EL ÚNICO SCROLL) ── */}
+            {/* Bottom Grid Container (Flex-1, min-h-0 previene el overflow excesivo) ── */}
             <div className="flex-1 min-h-0 bg-[#141415] overflow-y-auto relative z-20 pb-6 scrollbar-native">
                 <div className="grid grid-cols-3 gap-3 p-4">
                    
-                   {/* None/Unequip Card */}
                    <button onClick={() => setPreviewBg(null)} className={`relative aspect-square rounded-[20px] overflow-hidden border-[2px] transition-all ${previewBg === null ? 'border-[#007aff] ring-2 ring-[#007aff]/30' : 'border-white/5'} bg-[#1c1c1e] flex flex-col items-center justify-center group`}>
                       <div className="w-10 h-10 rounded-full bg-[#2c2c2e] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform relative z-10">
                          <X className="w-5 h-5 text-[#8e8e93]" />
@@ -394,7 +471,6 @@ export function ProfileView() {
                       <span className="text-[#8e8e93] font-medium text-[11px] relative z-10">Default</span>
                    </button>
                    
-                   {/* Background Cards */}
                    {Object.values(COSMETIC_ITEMS_DB).filter(i => i.type === 'Profile Background').map(item => {
                       const isSelected = previewBg === item.id;
                       const isOwned = currentLevel.lv >= item.reqLevel;
@@ -407,11 +483,9 @@ export function ProfileView() {
                             <div className="absolute inset-0 pointer-events-none flex items-center justify-center [&>div]:!h-full [&>div]:!w-full [&>div]:!rounded-none">
                                {item.getPreview()}
                             </div>
-                            
                             <div className="absolute top-0 right-0 bg-black/40 backdrop-blur-md px-1.5 py-0.5 rounded-bl-[10px] z-10 border-b border-l border-white/5">
                                <span className="text-white/80 text-[9px] font-bold tracking-wide">{item.serial}</span>
                             </div>
-
                             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-[8px] flex items-center justify-center gap-1 z-10 w-[85%] border border-white/10">
                                <Sparkles className="w-3 h-3 text-white shrink-0" />
                                <span className="text-white text-[9px] font-bold truncate" style={{ fontFamily: SF }}>{item.name}</span>
@@ -422,7 +496,7 @@ export function ProfileView() {
                 </div>
             </div>
 
-            {/* Footer Container (shrink-0, Estático abajo, NO SCROLL) ── */}
+            {/* Footer Container (shrink-0, Estático abajo) ── */}
             <div className="shrink-0 px-5 pt-5 bg-[#141415] border-t border-white/5 z-50 relative shadow-[0_-10px_30px_rgba(0,0,0,0.5)]" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 24px)) + 48px)" }}>
                {isPreviewOwned ? (
                  <button onClick={() => { setEquippedBackground(previewBg); setIsStylePickerOpen(false); }} className="w-full bg-[#007aff] hover:bg-[#0062cc] active:scale-[0.98] transition-all text-white font-bold text-[17px] rounded-[16px] py-4 shadow-[0_8px_30px_rgba(0,122,255,0.4)]">
@@ -437,61 +511,7 @@ export function ProfileView() {
         </div>
       )}
 
-      {/* ── MODAL FULLSCREEN: MENÚ DE INVENTARIO COSMÉTICO GENERAL ── */}
-      {isCosmeticInventoryMenuOpen && (
-        <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
-          <div className="px-5 pt-8 flex flex-col">
-            <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>Catalogue</h1>
-            {cosmeticCategories.map((category) => {
-               const categoryItems = Object.values(COSMETIC_ITEMS_DB).filter(item => item.category === category && item.type !== 'Profile Background');
-               if (categoryItems.length === 0) return null;
-
-               return (
-                  <div key={category} className="mb-10 w-full">
-                     <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                           <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center">
-                              <Hexagon className="w-3 h-3 text-[#8e8e93]" />
-                           </div>
-                           <span className="text-white font-bold text-[17px] uppercase tracking-wider" style={{ fontFamily: SFD }}>{category}</span>
-                           <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryItems.length}</span>
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-2 gap-x-4 gap-y-8 pl-1">
-                        {categoryItems.map((item) => {
-                         const isOwned = currentLevel.lv >= item.reqLevel;
-                         return (
-                           <div key={item.id} className={`flex flex-col items-center text-center w-full drop-shadow-[0_0_15px_rgba(255,255,255,0.06)] ${!isOwned ? 'grayscale opacity-60' : ''}`}>
-                              <button onClick={() => openItemModal(item.id)} className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1 group" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}>
-                                {item.getPreview()}
-                                 {!isOwned && (
-                                    <div className="absolute inset-0 flex items-center justify-center z-20">
-                                       <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center border border-[#2c2c2e]">
-                                          <Lock className="w-6 h-6 text-[#8e8e93]" strokeWidth={2} />
-                                       </div>
-                                    </div>
-                                )}
-                               </button>
-                              <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{item.name}</h2>
-                              <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{item.desc}</p>
-                               {isOwned ? (
-                                 <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{item.date}</p>
-                              ) : (
-                                 <p className="text-[#48484a] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>Requires Level {item.reqLevel}</p>
-                              )}
-                           </div>
-                           )
-                       })}
-                     </div>
-                  </div>
-               )
-            })}
-            </div>
-        </div>
-      )}
-
-      {/* ── MODALES EXISTENTES MANTENIDOS ── */}
+      {/* ── MODALES DETALLADOS DE ITEMS EXISTENTES MANTENIDOS ── */}
       {newlyUnlocked && ACHIEVEMENTS_DB[newlyUnlocked] && (
         <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300" onClick={() => setNewlyUnlocked(null)}>
           <img src={ACHIEVEMENTS_DB[newlyUnlocked].img} alt={ACHIEVEMENTS_DB[newlyUnlocked].name} draggable={false} className="w-[200px] h-[200px] object-contain achievement-shake-animation select-none" style={{ WebkitTouchCallout: "none" }} />
@@ -499,43 +519,6 @@ export function ProfileView() {
           <p className="text-[#8e8e93] text-[13px] font-bold mt-1 tracking-widest uppercase" style={{ fontFamily: SF }}>OBTAINED: {ACHIEVEMENTS_DB[newlyUnlocked].date}</p>
           <p className="text-[#8e8e93] text-center text-[15px] mt-6 max-w-[280px] leading-relaxed" style={{ fontFamily: SF }}>{ACHIEVEMENTS_DB[newlyUnlocked].desc}</p>
           <style dangerouslySetInnerHTML={{__html: `@keyframes achievementShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px) rotate(-4deg); } 40% { transform: translateX(8px) rotate(4deg); } 60% { transform: translateX(-8px) rotate(-4deg); } 80% { transform: translateX(8px) rotate(4deg); } } .achievement-shake-animation { animation: achievementShake 0.6s ease-in-out forwards; }`}} />
-        </div>
-      )}
-
-      {isAchievementsMenuOpen && (
-        <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-300 overflow-y-auto pb-10">
-          <div className="px-5 pt-8 flex flex-col">
-             <h1 className="text-white text-[32px] font-bold mb-8" style={{ fontFamily: SFD }}>Achievements</h1>
-            {Array.from(new Set(unlockedAchKeys.map(key => ACHIEVEMENTS_DB[key].category || 'Secrets'))).map((category) => {
-                const categoryKeys = unlockedAchKeys.filter(key => (ACHIEVEMENTS_DB[key].category || 'Secrets') === category);
-                return (
-                  <div key={category} className="mb-10 w-full">
-                     <div className="flex items-center justify-between mb-6">
-                         <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Hexagon className="w-3 h-3 text-[#8e8e93]" /></div>
-                           <span className="text-white font-bold text-[17px] uppercase tracking-wider" style={{ fontFamily: SFD }}>{category}</span>
-                            <span className="text-[#48484a] text-[16px] font-semibold" style={{ fontFamily: SF }}>{categoryKeys.length}</span>
-                        </div>
-                     </div>
-                     <div className="grid grid-cols-2 gap-x-4 gap-y-8 pl-1">
-                      {categoryKeys.map((key) => {
-                         const ach = ACHIEVEMENTS_DB[key];
-                         return (
-                           <div key={key} className="flex flex-col items-center text-center w-full drop-shadow-[0_0_15px_rgba(255,255,255,0.06)]">
-                              <button onClick={() => openItemModal(key, true)} className="w-[140px] h-[140px] shrink-0 active:scale-95 transition-transform flex items-center justify-center relative bg-transparent hover:-translate-y-1" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}>
-                                 <img src={ach.img} draggable={false} className="w-[125%] h-[125%] object-cover select-none" style={{ WebkitTouchCallout: "none" }} />
-                              </button>
-                              <h2 className="text-white font-bold text-[15px] mt-3" style={{ fontFamily: SFD }}>{ach.name}</h2>
-                              <p className="text-[#8e8e93] text-[11px] mt-1.5 leading-[1.3] px-1" style={{ fontFamily: SF }}>{ach.desc}</p>
-                              <p className="text-[#636366] text-[10px] mt-2 font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{ach.date}</p>
-                            </div>
-                         )
-                       })}
-                     </div>
-                  </div>
-                )
-            })}
-          </div>
         </div>
       )}
 
