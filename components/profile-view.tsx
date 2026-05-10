@@ -156,12 +156,8 @@ export function ProfileView() {
   const previewItem = previewBg ? COSMETIC_ITEMS_DB[previewBg] : null;
   const isPreviewOwned = previewItem ? currentLevel.lv >= previewItem.reqLevel : true;
 
-  // Datos Dummy para la pestaña de Gifts
-  const DUMMY_GIFTS = [
-    { id: 'cake', emoji: '🎂', limited: true },
-    { id: 'champagne', emoji: '🍾', limited: true },
-    { id: 'bear', emoji: '🧸', limited: false },
-  ];
+  // En este estado, simulamos que el usuario NO TIENE regalos
+  const userHasGifts = false;
 
   return (
     <div className="flex-1 overflow-y-auto relative animate-in fade-in duration-300 scrollbar-native" style={{ background: "#000000" }}>
@@ -273,7 +269,7 @@ export function ProfileView() {
         </div>
 
         {/* ── NAVEGACIÓN PRINCIPAL (TABS) REFINADA ── */}
-        <div className="w-full flex justify-center z-10 relative mb-4">
+        <div className="w-full flex justify-center z-10 relative mb-4 mt-8">
           {/* Contenedor gris oscuro largo */}
           <div className="flex items-center bg-[#1c1c1e] rounded-full p-[3px]">
 
@@ -409,8 +405,8 @@ export function ProfileView() {
                   onClick={() => setActiveGiftsSubTab("all gifts")}
                   className={`px-3 py-1 rounded-full text-[13px] font-medium transition-colors ${
                     activeGiftsSubTab === "all gifts" 
-                    ? "bg-[#2c2c2e] text-white" // Fondo gris sólido activo
-                    : "text-[#8e8e93] bg-transparent hover:text-white" // Sin fondo inactivo
+                    ? "bg-[#2c2c2e] text-white" 
+                    : "text-[#8e8e93] bg-transparent hover:text-white"
                   }`}
                   style={{ fontFamily: SF }}
                 >
@@ -431,19 +427,44 @@ export function ProfileView() {
 
               {/* Contenido Dinámico de Sub-pestañas de Gifts ── */}
               {activeGiftsSubTab === "all gifts" && (
-                <div className="grid grid-cols-3 gap-3">
-                  {/* Grilla de Regalos 3-Col */}
-                  {DUMMY_GIFTS.map((gift, i) => (
-                    <div key={i} className="relative aspect-square rounded-[20px] bg-[#141415] flex items-center justify-center border border-[#1c1c1e]">
-                      {gift.limited && (
-                        <div className="absolute top-2 left-2 w-5 h-5 bg-[#8e44ad] rounded-full flex items-center justify-center border-2 border-[#141415] z-10 shadow-sm">
-                          <Sparkles className="w-3 h-3 text-yellow-300" />
+                <>
+                  {userHasGifts ? (
+                     <div className="grid grid-cols-3 gap-3">
+                       {/* Grilla de Regalos (Oculta si no hay) */}
+                     </div>
+                  ) : (
+                     /* ESTADO VACÍO DE REGALOS (Como en la imagen de referencia) */
+                     <div className="flex flex-col items-center justify-center pt-8 pb-10">
+                        {/* Asegúrate de tener el gif en public/empty-gift.gif */}
+                        <div className="relative w-[140px] h-[140px] mb-4">
+                           <img 
+                              src="/empty-gift.gif" 
+                              alt="No gifts" 
+                              className="w-full h-full object-contain pointer-events-none select-none" 
+                              draggable={false} 
+                              style={{ 
+                                 WebkitTouchCallout: "none",
+                                 filter: "grayscale(100%) opacity(0.7)" // Aplica filtro desaturado
+                              }} 
+                           />
                         </div>
-                      )}
-                      <span className="text-[48px] drop-shadow-lg" style={{ filter: "drop-shadow(0px 10px 15px rgba(0,0,0,0.4))" }}>{gift.emoji}</span>
-                    </div>
-                  ))}
-                </div>
+                        <h3 className="text-white font-bold text-[20px] mb-2" style={{ fontFamily: SFD }}>If there are no Gifts</h3>
+                        <p className="text-[#8e8e93] text-[15px] mb-6" style={{ fontFamily: SF }}>You can buy them in the marketplace</p>
+                        
+                        <button 
+                           onClick={() => setCurrentView("market")}
+                           className="bg-[#007aff] hover:bg-[#0062cc] active:scale-95 transition-all text-white font-semibold text-[15px] rounded-xl py-3 px-6 flex items-center justify-center gap-2"
+                        >
+                           Go to Market <ChevronRight className="w-4 h-4" />
+                        </button>
+
+                        <div className="flex gap-1.5 mt-8">
+                           <div className="w-8 h-1.5 bg-[#48484a] rounded-full" />
+                           <div className="w-8 h-1.5 bg-white/20 rounded-full" />
+                        </div>
+                     </div>
+                  )}
+                </>
               )}
 
               {activeGiftsSubTab === "+ add collection" && (
@@ -454,12 +475,7 @@ export function ProfileView() {
                  </div>
               )}
 
-              {/* Botón Flotante Inferior de Regalos ── */}
-              <div className="fixed bottom-[calc(var(--tg-safe-area-inset-bottom,24px)+100px)] left-0 right-0 px-8 flex justify-center z-40 pointer-events-none">
-                <button className="bg-[#007aff] hover:bg-[#0062cc] active:scale-95 transition-all text-white font-bold text-[16px] rounded-full py-3.5 px-6 shadow-[0_8px_25px_rgba(0,122,255,0.4)] flex items-center justify-center gap-2 w-full max-w-[280px] pointer-events-auto">
-                  <Gift className="w-5 h-5" /> send gifts to friends
-                </button>
-              </div>
+              {/* El botón flotante inferior se podría ocultar en el estado vacío si lo prefieres, pero lo mantenemos para ser fieles a la UI */}
             </div>
           )}
 
