@@ -171,19 +171,20 @@ export function ProfileView() {
           {isHamburgerOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsHamburgerOpen(false)} />
-              <div className="absolute top-[48px] right-0 bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] shadow-2xl overflow-hidden w-[220px] z-50 animate-in fade-in zoom-in-95 duration-200">
+              {/* MODIFICADO: Menú desplegable gris más claro (bg-[#2c2c2e]), más reducido (w-[170px]) y superpuesto tapando el icono original (top-0 right-0) */}
+              <div className="absolute top-0 right-0 bg-[#2c2c2e] border border-[#3a3a3c] rounded-[16px] shadow-2xl overflow-hidden w-[170px] z-50 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
                 <button
                   onClick={() => {
                     setPreviewBg(equippedBackground);
                     setIsStylePickerOpen(true);
                     setIsHamburgerOpen(false);
                   }}
-                  className="flex items-center gap-3 w-full px-4 py-3.5 text-white hover:bg-[#2c2c2e] transition-colors text-left"
+                  className="flex items-center gap-3 w-full px-3 py-3 text-white hover:bg-[#3a3a3c] active:bg-[#3a3a3c] transition-colors text-left"
                 >
-                  <div className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-[#3a3a3c] flex items-center justify-center shrink-0">
                     <Palette className="w-3.5 h-3.5 text-white" />
                   </div>
-                  <span className="text-[14px] font-medium" style={{ fontFamily: SF }}>Change Profile Color</span>
+                  <span className="text-[14px] font-medium" style={{ fontFamily: SF }}>Change Color</span>
                 </button>
               </div>
             </>
@@ -375,8 +376,10 @@ export function ProfileView() {
                         </div>
                         <h3 className="text-white font-bold text-[20px] mb-2" style={{ fontFamily: SFD }}>If there are no Gifts</h3>
                         <p className="text-[#8e8e93] text-[15px] mb-6" style={{ fontFamily: SF }}>You can buy them in the marketplace</p>
-                        <button onClick={() => setCurrentView("market")} className="bg-[#007aff] hover:bg-[#0062cc] active:scale-95 transition-all text-white font-semibold text-[15px] rounded-xl py-3 px-6 flex items-center justify-center gap-2">
-                          Go to Market <ChevronRight className="w-4 h-4" />
+                        
+                        {/* MODIFICADO: Botón Go to Market idéntico al de la imagen proporcionada */}
+                        <button onClick={() => setCurrentView("market")} className="bg-[#007aff] hover:bg-[#0062cc] active:scale-95 transition-all text-white font-medium text-[15px] rounded-[14px] py-2.5 px-8 flex items-center justify-center gap-1.5 shadow-sm mt-2">
+                          Go to Market <ChevronRight className="w-4 h-4 stroke-[2.5px]" />
                         </button>
                      </div>
                   )}
@@ -391,11 +394,7 @@ export function ProfileView() {
                  </div>
               )}
 
-              <div className="fixed bottom-[calc(var(--tg-safe-area-inset-bottom,24px)+100px)] left-0 right-0 px-8 flex justify-center z-40 pointer-events-none">
-                <button className="bg-[#007aff] hover:bg-[#0062cc] active:scale-95 transition-all text-white font-bold text-[16px] rounded-full py-3.5 px-6 shadow-[0_8px_25px_rgba(0,122,255,0.4)] flex items-center justify-center gap-2 w-full max-w-[280px] pointer-events-auto">
-                  <Gift className="w-5 h-5" /> send gifts to friends
-                </button>
-              </div>
+              {/* MODIFICADO: Se eliminó el div con el botón flotante "send gifts to friends" de esta sección */}
             </div>
           )}
         </div>
@@ -486,10 +485,8 @@ export function ProfileView() {
           
           <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
           
-          {/* ELIMINADO: pb-[140px]. AGREGADO: pb-8 para reducir considerablemente el tamaño muerto del modal */}
           <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto pb-8" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, 24px) + 24px)" }}>
             
-            {/* AGREGADO: Reduje mt-12 a mt-8 para que suba un poco la imagen */}
             <div className="w-full flex justify-center mt-8 mb-2">{selectedItem.preview}</div>
             
             <h2 className="text-white font-bold text-[24px] mt-2" style={{ fontFamily: SFD }}>{selectedItem.name} <span className="text-[#8e8e93] font-normal">{selectedItem.serial}</span></h2>
@@ -497,7 +494,6 @@ export function ProfileView() {
             {selectedItem.desc && (<p className="text-[#8e8e93] text-[14px] mt-3 mb-6 px-6 text-center leading-relaxed" style={{ fontFamily: SF }}>{selectedItem.desc}</p>)}
 
             <div className="px-5 w-full">
-              {/* MODIFICADO: mb-4 pasó a mb-6 para empujar el botón "Locked/Owned" más abajo y separarlo de este bloque */}
               <div className="bg-[#141415] rounded-[14px] border border-[#1c1c1e] w-full flex flex-col mb-6 overflow-hidden">
                 <ModalInfoRow label="owner">
                   <div className="flex items-center justify-start gap-2 w-full">
