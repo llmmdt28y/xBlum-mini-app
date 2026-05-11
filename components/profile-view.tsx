@@ -28,7 +28,7 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Fila de Info del Modal (MODIFICADA: Más compacta) ──────
+// ── Fila de Info del Modal (Más compacta) ──────
 const ModalInfoRow = ({ label, children, isLast }: any) => (
   <div className={`flex items-center gap-2 py-2 px-3 ${!isLast ? 'border-b border-[#2c2c2e]/50' : ''}`}>
     <span className="text-[#8e8e93] font-bold text-[13px] capitalize w-[65px] shrink-0" style={{ fontFamily: SF }}>{label}</span>
@@ -482,19 +482,23 @@ export function ProfileView() {
 
       {selectedItem && (
         <div className="fixed inset-0 z-[110] flex flex-col justify-end overflow-hidden page-fija">
-          {/* ESTILOS PARA OCULTAR LA NAVBAR Y BLOQUEAR SCROLL CUANDO EL MODAL ESTÁ ABIERTO */}
           <style>{`#main-nav-bar { display: none !important; } body { overflow: hidden !important; } .page-fija { pointer-events: auto !important; }`}</style>
           
           <div className="absolute inset-0 bg-black/80 animate-in fade-in duration-200" onClick={() => setSelectedItem(null)} />
-          <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto pb-[140px]">
-            <div className="w-full flex justify-center mt-12 mb-2">{selectedItem.preview}</div>
+          
+          {/* ELIMINADO: pb-[140px]. AGREGADO: pb-8 para reducir considerablemente el tamaño muerto del modal */}
+          <div className="relative bg-[#0a0a0b] w-full rounded-t-[24px] flex flex-col items-center animate-in slide-in-from-bottom-full duration-300 max-h-[90vh] overflow-y-auto pb-8" style={{ paddingBottom: "calc(var(--tg-safe-area-inset-bottom, 24px) + 24px)" }}>
+            
+            {/* AGREGADO: Reduje mt-12 a mt-8 para que suba un poco la imagen */}
+            <div className="w-full flex justify-center mt-8 mb-2">{selectedItem.preview}</div>
+            
             <h2 className="text-white font-bold text-[24px] mt-2" style={{ fontFamily: SFD }}>{selectedItem.name} <span className="text-[#8e8e93] font-normal">{selectedItem.serial}</span></h2>
             {selectedItem.date && isItemOwned && (<p className="text-[#8e8e93] text-[12px] mt-1 tracking-widest uppercase font-bold" style={{ fontFamily: SF }}>OBTAINED: {selectedItem.date}</p>)}
             {selectedItem.desc && (<p className="text-[#8e8e93] text-[14px] mt-3 mb-6 px-6 text-center leading-relaxed" style={{ fontFamily: SF }}>{selectedItem.desc}</p>)}
 
             <div className="px-5 w-full">
-              {/* Contenedor de información MODIFICADO: rounded-[14px] y mb-4 */}
-              <div className="bg-[#141415] rounded-[14px] border border-[#1c1c1e] w-full flex flex-col mb-4 overflow-hidden">
+              {/* MODIFICADO: mb-4 pasó a mb-6 para empujar el botón "Locked/Owned" más abajo y separarlo de este bloque */}
+              <div className="bg-[#141415] rounded-[14px] border border-[#1c1c1e] w-full flex flex-col mb-6 overflow-hidden">
                 <ModalInfoRow label="owner">
                   <div className="flex items-center justify-start gap-2 w-full">
                     {isItemOwned ? (
