@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2 } from "lucide-react"
+import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2, Send, Gift, Clock } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -30,6 +30,12 @@ const STAR_PACKAGES = [
   { stars: "1 000", price: "$19.99", count: 4 },
   { stars: "2 500", price: "$49.99", count: 5 },
   { stars: "10 000", price: "$199.99", count: 6 },
+]
+
+// ── Datos de Subastas (Prototipo) ──
+const AUCTION_ITEMS = [
+  { id: 'witch', title: 'WICKED WITCH', tag: '#0341', imgSrc: '/1000010039.jpg', currentBid: 1500, timeLeft: '2h 15m', source: 'Lootbox', exclusive: true },
+  { id: 'ares', title: 'ARES WAR MASK', tag: '#0098', imgSrc: '/1000010040.jpg', currentBid: 2200, timeLeft: '5d 1h', source: 'Lootbox', exclusive: true },
 ]
 
 const animationStyles = `
@@ -61,6 +67,9 @@ export function MarketView() {
   const [isTopUpOpen, setIsTopUpOpen] = useState(false)
   const [starInput, setStarInput] = useState("")
   const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
+  
+  // ── ESTADO DE PESTAÑAS (Píldoras) ──
+  const [activeTab, setActiveTab] = useState<'play' | 'auctions'>('play')
 
   // ── ESTADOS DE LA RULETA EN LÍNEA ──
   const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
@@ -99,16 +108,8 @@ export function MarketView() {
     setOpeningState('spinning')
     setIsSpinningActive(false)
 
-    // Activar el giro después de un mini retraso
-    setTimeout(() => {
-       setIsSpinningActive(true)
-    }, 50)
-
-    // Aumentamos a 6s para generar más suspenso
-    setTimeout(() => {
-       setOpeningState('result')
-       setIsSpinningActive(false)
-    }, 6050)
+    setTimeout(() => { setIsSpinningActive(true) }, 50)
+    setTimeout(() => { setOpeningState('result'); setIsSpinningActive(false) }, 6050)
   }
 
   const closeRoulette = () => {
@@ -137,7 +138,7 @@ export function MarketView() {
 
       <div className="flex-1 overflow-y-auto pb-32">
         {viewingBoxId && activeBoxData ? (
-          /* ── VISTA DETALLE ── */
+          /* ── VISTA DETALLE DE LOOTBOX ── */
           <div className="animate-in slide-in-from-right-8 fade-in duration-300">
             <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black">
                <button onClick={() => { if (openingState === 'idle') setViewingBoxId(null) }} className={`flex items-center gap-1.5 text-white transition-opacity ${openingState !== 'idle' ? 'opacity-50 cursor-not-allowed' : 'active:opacity-70'}`}>
@@ -151,43 +152,35 @@ export function MarketView() {
                   {openingState === 'idle' ? activeBoxData.name : openingState === 'spinning' ? 'Opening...' : 'Rewards Drop!'}
                </h2>
 
-               {/* ── RULETA: ESTÁTICA O ANIMADA EN LÍNEA ── */}
                <div className="w-full flex flex-col items-center mb-8 relative">
                   {openingState === 'idle' ? (
-                     // -- 1. Carrusel de previsualización estática --
                      <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden animate-in fade-in duration-500">
+                        {/* Fondos estáticos */}
                         <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] -translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
-                            <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
+                           <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
                         </div>
                         <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
-                            <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
+                           <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
                         </div>
-
                         <div className="absolute z-20 w-[95px] h-[95px] bg-[#0d0d0f] rounded-[24px] -translate-x-[115px] flex items-center justify-center border border-[#2c2c2e] shadow-xl opacity-70">
-                            <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
+                           <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
                         </div>
                         <div className="absolute z-20 w-[95px] h-[95px] bg-[#0d0d0f] rounded-[24px] translate-x-[115px] flex items-center justify-center border border-[#2c2c2e] shadow-xl opacity-70">
-                            <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
+                           <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
                         </div>
-
                         <div className="relative z-30 w-[110px] h-[110px] bg-[#141415] rounded-[28px] flex items-center justify-center border border-[#3b82f6]/40 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
-                            <LootboxVisual color={activeBoxData.color} imgSrc={activeBoxData.image} size="large" />
+                           <LootboxVisual color={activeBoxData.color} imgSrc={activeBoxData.image} size="large" />
                         </div>
-                        
-                        {/* Flecha indicadora actualizada para que sea igual a la de la animación */}
                         <div className="absolute left-1/2 -top-1 -translate-x-1/2 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
                      </div>
                   ) : (
-                     // -- 2. Pistas de Ruleta Animada (1x o 3x) --
                      <div className="w-full flex flex-col gap-4 relative overflow-hidden py-2 animate-in fade-in duration-300">
-                        {/* Sombras de túnel para ocultar los bordes */}
                         <div className="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-black to-transparent z-40 pointer-events-none" />
                         <div className="absolute right-0 top-0 bottom-0 w-[20%] bg-gradient-to-l from-black to-transparent z-40 pointer-events-none" />
 
                         {tracks.map((track, trackIdx) => (
                            <div key={trackIdx} className="w-full h-[110px] relative flex items-center overflow-visible">
                               <div className="absolute left-1/2 -top-1 -translate-x-1/2 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
-
                               <div
                                 className="flex gap-3 absolute left-1/2"
                                 style={{
@@ -202,18 +195,8 @@ export function MarketView() {
                                 {track.items.map((item, idx) => {
                                    const isWinnerCard = idx === 25;
                                    const isResult = openingState === 'result';
-
                                    return (
-                                     <div
-                                       key={idx}
-                                       className={`w-[100px] h-[100px] flex-shrink-0 flex flex-col items-center justify-center rounded-[24px] border transition-all duration-700 ${
-                                         isResult && !isWinnerCard
-                                           ? 'opacity-0 scale-50' // Oculta las perdedoras
-                                           : isResult && isWinnerCard
-                                           ? 'opacity-100 scale-110 bg-[#111111] border-[#3b82f6] shadow-[0_0_30px_rgba(59,130,246,0.3)] z-50' // Resalta la ganadora
-                                           : 'bg-[#0d0d0f] border-[#2c2c2e] opacity-80 shadow-md' // Estilo mientras gira
-                                       }`}
-                                     >
+                                     <div key={idx} className={`w-[100px] h-[100px] flex-shrink-0 flex flex-col items-center justify-center rounded-[24px] border transition-all duration-700 ${isResult && !isWinnerCard ? 'opacity-0 scale-50' : isResult && isWinnerCard ? 'opacity-100 scale-110 bg-[#111111] border-[#3b82f6] shadow-[0_0_30px_rgba(59,130,246,0.3)] z-50' : 'bg-[#0d0d0f] border-[#2c2c2e] opacity-80 shadow-md'}`}>
                                        {item.type === 'dummy' ? (
                                          <span className="text-white/30 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
                                        ) : (
@@ -278,7 +261,7 @@ export function MarketView() {
             </div>
           </div>
         ) : (
-          /* ── VISTA PRINCIPAL ── */
+          /* ── VISTA PRINCIPAL (HEADER + TABS) ── */
           <div className="animate-in fade-in duration-300">
             <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black">
                <div className="flex items-center gap-2">
@@ -306,45 +289,116 @@ export function MarketView() {
                   </div>
               </div>
 
+              {/* Pestañas Centradas: Play y Auctions */}
               <div className="w-full flex flex-col items-center mt-6">
-                  <h2 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>xBlum Presale</h2>
-                  <div className="flex gap-3 mt-4">
-                      {['Play', 'Telegram', 'X'].map(t => (
-                        <button key={t} className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 rounded-full text-[#3b82f6] font-semibold text-[13px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
-                          {t} <ArrowUpRight className="w-3.5 h-3.5" />
-                        </button>
-                      ))}
+                  <div className="flex bg-[#1c1c1e] p-1 rounded-full gap-1 mt-4">
+                      <button 
+                        onClick={() => setActiveTab('play')}
+                        className={`flex items-center justify-center gap-1.5 px-8 py-2.5 rounded-full font-bold text-[14px] transition-all duration-300 ${activeTab === 'play' ? 'bg-[#3b82f6] text-white shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'text-[#8e8e93] hover:text-white'}`} style={{ fontFamily: SF }}>
+                          Play
+                      </button>
+                      <button 
+                        onClick={() => setActiveTab('auctions')}
+                        className={`flex items-center justify-center gap-1.5 px-8 py-2.5 rounded-full font-bold text-[14px] transition-all duration-300 ${activeTab === 'auctions' ? 'bg-[#3b82f6] text-white shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'text-[#8e8e93] hover:text-white'}`} style={{ fontFamily: SF }}>
+                          Auctions
+                      </button>
                   </div>
               </div>
 
-              <div className="mt-10 px-5">
-                 <h3 className="text-white font-bold text-[24px] mb-5" style={{ fontFamily: SFD }}>Lootboxes <span className="text-[#8e8e93] font-medium">{MARKET_BOXES.length}</span></h3>
-                 <div className="grid grid-cols-3 gap-3">
-                    {MARKET_BOXES.map((box) => (
-                       <div key={box.id} className="flex flex-col">
-                          <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e]">
-                             {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a] text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">Sold out</div>}
-                             <LootboxVisual color={box.color} imgSrc={box.image} />
-                             <button onClick={() => setViewingBoxId(box.id)} className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>Market</button>
-                          </div>
-                          <span className="mt-3 text-white font-bold text-[14px] text-center" style={{ fontFamily: SFD }}>{box.name}</span>
-                       </div>
-                    ))}
-                 </div>
-              </div>
+              {/* ── CONTENIDO: PLAY (LOOTBOXES) ── */}
+              {activeTab === 'play' && (
+                <div className="animate-in fade-in slide-in-from-left-4 duration-300">
+                  <div className="mt-10 px-5">
+                     <h3 className="text-white font-bold text-[24px] mb-5" style={{ fontFamily: SFD }}>Lootboxes <span className="text-[#8e8e93] font-medium">{MARKET_BOXES.length}</span></h3>
+                     <div className="grid grid-cols-3 gap-3">
+                        {MARKET_BOXES.map((box) => (
+                           <div key={box.id} className="flex flex-col">
+                              <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e]">
+                                 {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a] text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">Sold out</div>}
+                                 <LootboxVisual color={box.color} imgSrc={box.image} />
+                                 <button onClick={() => setViewingBoxId(box.id)} className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>Market</button>
+                              </div>
+                              <span className="mt-3 text-white font-bold text-[14px] text-center" style={{ fontFamily: SFD }}>{box.name}</span>
+                           </div>
+                        ))}
+                     </div>
+                  </div>
 
-              <div className="mt-12 px-5">
-                 <h3 className="text-white font-bold text-[24px] mb-5" style={{ fontFamily: SFD }}>My Inventory <span className="text-[#8e8e93] font-medium">0</span></h3>
-                 <div className="grid grid-cols-3 gap-3">
-                    {MARKET_BOXES.map((box) => (
-                       <div key={`inv-${box.id}`} className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col border border-[#1c1c1e] opacity-60">
-                          <div className="absolute top-2.5 left-2.5 bg-[#2c2c2e] text-[#a1a1aa] px-[6px] py-[2px] rounded text-[10px] font-bold">x0</div>
-                          <LootboxVisual color={box.color} imgSrc={box.image} />
-                          <button disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>Unbox</button>
-                       </div>
-                    ))}
-                 </div>
-              </div>
+                  <div className="mt-12 px-5">
+                     <h3 className="text-white font-bold text-[24px] mb-5" style={{ fontFamily: SFD }}>My Inventory <span className="text-[#8e8e93] font-medium">0</span></h3>
+                     <div className="grid grid-cols-3 gap-3">
+                        {MARKET_BOXES.map((box) => (
+                           <div key={`inv-${box.id}`} className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col border border-[#1c1c1e] opacity-60">
+                              <div className="absolute top-2.5 left-2.5 bg-[#2c2c2e] text-[#a1a1aa] px-[6px] py-[2px] rounded text-[10px] font-bold">x0</div>
+                              <LootboxVisual color={box.color} imgSrc={box.image} />
+                              <button disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>Unbox</button>
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── CONTENIDO: AUCTIONS ── */}
+              {activeTab === 'auctions' && (
+                <div className="mt-8 px-5 animate-in fade-in slide-in-from-right-4 duration-300 pb-10">
+                  <div className="flex items-center justify-center gap-2 mb-4 p-1 bg-[#1c1c1e] rounded-[16px] max-w-[300px] mx-auto border border-[#2c2c2e]">
+                     <button className="flex-1 bg-[#2c2c2e] text-white font-bold text-[12px] py-2 rounded-[12px] shadow-md transition-all">LIVE AUCTIONS</button>
+                     <button className="flex-1 text-[#8e8e93] font-bold text-[12px] py-2 transition-all">ENDED AUCTIONS</button>
+                  </div>
+                  
+                  <p className="text-center text-[#8e8e93] text-[11px] mb-6 font-semibold px-4 uppercase tracking-wider" style={{ fontFamily: SF }}>
+                     Bid on real Telegram NFTs, Cosmetics, and Loot Box items
+                  </p>
+
+                  <div className="flex flex-col gap-4">
+                     {AUCTION_ITEMS.map((item) => (
+                        <div key={item.id} className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-3 flex gap-4 relative overflow-hidden shadow-lg">
+                           {/* Miniatura y Tags */}
+                           <div className="w-[105px] h-[105px] bg-[#0a0a0b] border border-[#2c2c2e] rounded-[18px] overflow-hidden relative flex-shrink-0 flex items-center justify-center">
+                              {item.exclusive && (
+                                <div className="absolute top-0 left-0 bg-[#3b82f6]/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-br-[10px] z-10 flex items-center gap-1 shadow-sm">
+                                   <Send className="w-2.5 h-2.5" /> Exclusive
+                                </div>
+                              )}
+                              <img src={item.imgSrc} alt={item.title} className="w-[85%] h-[85%] object-contain" />
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-1.5 flex justify-center items-center gap-1">
+                                 <Gift className="w-3 h-3 text-[#eab308]" />
+                                 <span className="text-white/90 text-[9px] font-bold">{item.source}</span>
+                              </div>
+                           </div>
+                           
+                           {/* Info de la Subasta */}
+                           <div className="flex flex-col flex-1 py-0.5">
+                              <h4 className="text-white font-black text-[15px] leading-tight mb-1" style={{ fontFamily: SFD }}>
+                                {item.title} <span className="text-[#8e8e93] font-semibold">{item.tag}</span>
+                              </h4>
+                              
+                              <div className="flex flex-col gap-0.5 mt-2">
+                                 <span className="text-[#8e8e93] text-[11px] font-semibold uppercase tracking-wide">Current Bid</span>
+                                 <div className="flex items-center gap-1">
+                                    <span className="text-white font-bold text-[16px]">{item.currentBid}</span>
+                                    <span className="text-[#3b82f6] font-bold text-[13px]">tokens</span>
+                                 </div>
+                              </div>
+                              
+                              <div className="flex items-end justify-between mt-auto pt-2">
+                                 <div className="flex flex-col gap-0.5">
+                                    <span className="text-[#8e8e93] text-[10px] font-semibold uppercase flex items-center gap-1">
+                                      <Clock className="w-3 h-3" /> Time left
+                                    </span>
+                                    <span className="text-white font-bold text-[13px]">{item.timeLeft}</span>
+                                 </div>
+                                 <button className="bg-gradient-to-r from-[#eab308] to-[#facc15] text-black font-bold text-[12px] px-4 py-2 rounded-[12px] active:scale-95 transition-transform shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                                    PLACE BID
+                                 </button>
+                              </div>
+                           </div>
+                        </div>
+                     ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
