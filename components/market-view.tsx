@@ -2,17 +2,17 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useRef } from "react"
-import { Plus, Star, ArrowDown, X, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy, ChevronRight, ChevronLeft, Bell } from "lucide-react"
+import { Plus, Star, ArrowDown, X, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy, ChevronRight, ChevronLeft, Bell, Gift } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
 // ── Base de Datos Visual ──
 const MARKET_BOXES = [
-  { id: 'secret', name: 'Secret', color: '#eab308', image: '/1000009369.png', isSoldOut: false, price: 150 },
-  { id: 'toxic', name: 'Toxic Whisper', color: '#c084fc', image: '/1000009370.png', isSoldOut: false, price: 300 },
-  { id: 'eternal', name: 'Eternal Beacon', color: '#a855f7', image: '/1000009371.png', isSoldOut: true, price: 500 },
-  { id: 'aureus', name: 'Aureus', color: '#facc15', image: '/1000009361.png', isSoldOut: false, price: 1000 }
+  { id: 'secret', name: 'Secret', color: '#eab308', image: '/1000009369.png', isSoldOut: false, price: 150, description: "Contains rare API access and VIP badges." },
+  { id: 'toxic', name: 'Toxic Whisper', color: '#c084fc', image: '/1000009370.png', isSoldOut: false, price: 300, description: "Unlock exclusive themes and high-value stars." },
+  { id: 'eternal', name: 'Eternal Beacon', color: '#a855f7', image: '/1000009371.png', isSoldOut: true, price: 500, description: "Highest drop rate for Legendary VortX items." },
+  { id: 'aureus', name: 'Aureus', color: '#facc15', image: '/1000009361.png', isSoldOut: false, price: 1000, description: "The definitive collector's crate. Guaranteed rare." }
 ]
 
 const INSIDE_ITEMS = [
@@ -425,37 +425,35 @@ export function MarketView() {
                </button>
             </div>
 
-            {/* 4. Valor Estimado (Alineado con Atributos) */}
-            <div className="px-5 w-full mb-2">
-               <div className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-5 flex justify-between items-center shadow-lg">
-                  <div className="flex flex-col">
-                     <div className="flex items-center gap-1.5 text-[#8e8e93] text-[13px] font-medium mb-1">
-                        Est. value <Info className="w-3.5 h-3.5" />
-                     </div>
-                     <div className="flex items-center gap-1.5 text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
-                        <img src="/telegram-star-icon.png" className="w-4 h-4 pointer-events-none select-none" draggable={false} alt="Star" /> {activeAuctionData.estValue}
-                     </div>
+            {/* 4. Valor Estimado (Ancho Reducido) */}
+            <div className="bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-5 flex justify-between items-center mx-auto shadow-lg w-[calc(100%-60px)] max-w-[340px] mb-2 border border-[#2c2c2e]">
+               <div className="flex flex-col">
+                  <div className="flex items-center gap-1.5 text-[#8e8e93] text-[13px] font-medium mb-1">
+                     Est. value <Info className="w-3.5 h-3.5" />
                   </div>
-                  <div className="flex flex-col text-right">
-                     <span className="text-[#8e8e93] text-[13px] font-medium mb-1">Equal to</span>
-                     <span className="text-white font-bold text-[17px]" style={{ fontFamily: SFD }}>{activeAuctionData.fiatValue}</span>
+                  <div className="flex items-center gap-1.5 text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
+                     <img src="/telegram-star-icon.png" className="w-4 h-4 pointer-events-none select-none" draggable={false} alt="Star" /> {activeAuctionData.estValue}
                   </div>
+               </div>
+               <div className="flex flex-col text-right">
+                  <span className="text-[#8e8e93] text-[13px] font-medium mb-1">Equal to</span>
+                  <span className="text-white font-bold text-[17px]" style={{ fontFamily: SFD }}>{activeAuctionData.fiatValue}</span>
                </div>
             </div>
 
-            {/* 5. Rarity & Attributes */}
-            <div className="px-5 flex flex-col gap-2">
-               <h4 className="text-white font-bold text-[18px] mb-2 px-1" style={{ fontFamily: SFD }}>Rarity & Attributes</h4>
-               {/* Tabla de Atributos Lista Limpia */}
-               <div className="w-full flex flex-col gap-1 px-1">
+            {/* 5. Rarity & Attributes (Título fuera, atributos dentro de un contenedor) */}
+            <div className="px-5 flex flex-col gap-2 mb-8">
+               <h4 className="text-[#8e8e93] font-semibold text-[15px] mb-1 px-1" style={{ fontFamily: SF }}>Rarity & Attributes</h4>
+               {/* Contenedor Exclusivo para Model, Symbol, Backdrop */}
+               <div className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-2 shadow-lg">
                   {activeAuctionData.attributes.map((attr, idx) => (
-                     <div key={idx} className={`flex items-center justify-between py-3 ${idx !== activeAuctionData.attributes.length - 1 ? 'border-b border-[#1c1c1e]' : ''}`}>
+                     <div key={idx} className={`flex items-center justify-between p-3 ${idx !== activeAuctionData.attributes.length - 1 ? 'border-b border-[#1c1c1e]' : ''}`}>
                         <span className="text-[#8e8e93] text-[14px] w-[90px]" style={{ fontFamily: SF }}>{attr.name}</span>
                         <div className="flex-1 flex items-center gap-2">
                            <span className="text-white font-medium text-[14px]">{attr.value}</span>
                            <span className={`${attr.rarityColor} text-[11px] font-bold px-2 py-0.5 rounded-md`}>{attr.rarity}</span>
                         </div>
-                        <div className="flex items-center gap-1 bg-[#111111] text-[#8e8e93] text-[12px] font-semibold px-2 py-1 rounded-lg border border-[#1c1c1e]">
+                        <div className="flex items-center gap-1 bg-[#111111] text-[#8e8e93] text-[12px] font-semibold px-2 py-1 rounded-lg border border-[#2c2c2e]">
                            <img src="/telegram-star-icon.png" className="w-3 h-3 pointer-events-none select-none grayscale opacity-70" draggable={false} alt="Star" /> {attr.price}
                         </div>
                      </div>
@@ -491,52 +489,150 @@ export function MarketView() {
             <div className="flex flex-col flex-1 pb-10">
                {/* ── CONTENIDO: PLAY (LOOTBOXES) ── */}
                {activeTab === 'Play' && (
-                 <div className="animate-in fade-in slide-in-from-left-4 duration-300 pt-4">
-                   <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden mb-6">
-                       <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
-                           <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
+                 <div className="animate-in fade-in slide-in-from-left-4 duration-300 pt-4 px-5">
+                   {/* Gráfico Superior Reemplazado - Stack de Lootboxes Premium */}
+                   <div className="w-full h-[180px] relative flex justify-center items-center overflow-hidden mb-6 bg-[#0a0a0b] rounded-[32px] border border-[#1c1c1e] shadow-xl">
+                       {/* Fondo Resplandor Dinámico */}
+                       <div className="absolute inset-0 opacity-10 blur-[40px] rounded-[32px]" style={{ backgroundColor: MARKET_BOXES[0].color, transition: "background-color 0.5s ease" }}/>
+                       
+                       {/* Lootboxes Apilados Visuales */}
+                       <div className="absolute z-10 w-[80px] h-[80px] bg-black rounded-[20px] -translate-x-[110px] rotate-[-20deg] flex items-center justify-center border border-[#1c1c1e] opacity-30 shadow-inner">
+                           <LootboxVisual color={MARKET_BOXES[2].color} imgSrc={MARKET_BOXES[2].image} size="normal" />
                        </div>
-                       <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] translate-x-[130px] rotate-[15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
-                           <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
+                       <div className="absolute z-10 w-[80px] h-[80px] bg-black rounded-[20px] translate-x-[110px] rotate-[20deg] flex items-center justify-center border border-[#1c1c1e] opacity-30 shadow-inner">
+                           <LootboxVisual color={MARKET_BOXES[3].color} imgSrc={MARKET_BOXES[3].image} size="normal" />
                        </div>
-                       <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] -translate-x-[70px] rotate-[-8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
-                           <span className="text-white/50 font-bold text-6xl" style={{ fontFamily: SFD }}>?</span>
+                       <div className="absolute z-20 w-[100px] h-[100px] bg-[#0d0d0f] rounded-[24px] -translate-x-[60px] rotate-[-10deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
+                           <LootboxVisual color={MARKET_BOXES[1].color} imgSrc={MARKET_BOXES[1].image} size="normal" />
                        </div>
-                       <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] translate-x-[70px] rotate-[8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
-                           <span className="text-white/50 font-bold text-6xl" style={{ fontFamily: SFD }}>?</span>
+                       <div className="absolute z-20 w-[100px] h-[100px] bg-[#0d0d0f] rounded-[24px] translate-x-[60px] rotate-[10deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
+                           <LootboxVisual color={MARKET_BOXES[2].color} imgSrc={MARKET_BOXES[2].image} size="normal" />
                        </div>
-                       <div className="relative z-30 w-[140px] h-[140px] bg-[#141415] rounded-[32px] flex items-center justify-center border border-[#3a3a3c] shadow-2xl">
-                           <span className="text-white/80 font-bold text-7xl" style={{ fontFamily: SFD }}>?</span>
+                       <div className="relative z-30 w-[120px] h-[120px] bg-[#141415] rounded-[28px] flex items-center justify-center border border-[#3b82f6]/60 shadow-[0_0_40px_rgba(59,130,246,0.3)]">
+                           <LootboxVisual color={MARKET_BOXES[0].color} imgSrc={MARKET_BOXES[0].image} size="large" />
                        </div>
                    </div>
 
-                   <div className="px-5">
-                      <h3 className="text-white font-bold text-[24px] mb-5" style={{ fontFamily: SFD }}>Lootboxes <span className="text-[#8e8e93] font-medium">{MARKET_BOXES.length}</span></h3>
-                      <div className="grid grid-cols-3 gap-3">
-                         {MARKET_BOXES.map((box) => (
-                            <div key={box.id} className="flex flex-col">
-                               <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e]">
-                                  {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a] text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">Sold out</div>}
-                                  <LootboxVisual color={box.color} imgSrc={box.image} />
-                                  <button type="button" onClick={() => setViewingBoxId(box.id)} className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>Market</button>
+                   {/* Featured Collection Heading */}
+                   <div className="flex items-center gap-2 mb-5 px-1">
+                      <div className="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center border border-[#2c2c2e]">
+                         <Star className="w-5 h-5 text-[#eab308]" />
+                      </div>
+                      <div className="flex flex-col">
+                         <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Featured Collection</h3>
+                         <p className="text-[#8e8e93] text-[13px] -mt-0.5" style={{ fontFamily: SF }}>VortX Premium Series Lootboxes</p>
+                      </div>
+                   </div>
+
+                   {/* Featured Lootbox Card - Diseño Premium */}
+                   <div className="w-full bg-[#111111] rounded-[28px] p-5 flex flex-col border border-[#2c2c2e] shadow-2xl mb-8 relative group active:scale-[0.99] transition-transform">
+                       {/* verified y header */}
+                       <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-1.5 text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>
+                             <BadgeCheck className="w-3.5 h-3.5 text-[#3b82f6]" />
+                             VortX Certified
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                             <Heart className="w-4 h-4 text-[#636366] hover:text-[#ff3b30] transition-colors" />
+                             <MoreHorizontal className="w-4 h-4 text-[#636366]" />
+                          </div>
+                       </div>
+                       {/* imagen y info */}
+                       <div className="flex items-center gap-5 mb-5">
+                          <div className="w-[110px] h-[110px] rounded-[22px] bg-[#0a0a0b] flex items-center justify-center border border-[#1c1c1e] shrink-0 p-1">
+                              <LootboxVisual color={MARKET_BOXES[0].color} imgSrc={MARKET_BOXES[0].image} size="large" />
+                          </div>
+                          <div className="flex flex-col flex-1">
+                             <h4 className="text-white font-bold text-[18px] mb-1" style={{ fontFamily: SFD }}>{MARKET_BOXES[0].name} Box</h4>
+                             <p className="text-[#8e8e93] text-[13px] leading-relaxed line-clamp-2" style={{ fontFamily: SF }}>{MARKET_BOXES[0].description}</p>
+                             <div className="flex items-center gap-1.5 mt-2 bg-[#1c1c1e] p-1.5 rounded-full border border-[#2c2c2e] w-fit">
+                                <img src="/telegram-star-icon.png" draggable={false} className="w-3 h-3 pointer-events-none select-none" alt="Star" />
+                                <span className="text-white font-bold text-[14px]" style={{ fontFamily: SF }}>{MARKET_BOXES[0].price} Stars</span>
+                             </div>
+                          </div>
+                       </div>
+                       {/* boton market */}
+                       <button type="button" onClick={() => setViewingBoxId(MARKET_BOXES[0].id)} className="w-full bg-[#1c1c1e] text-white font-bold text-[15px] py-3 rounded-[16px] flex justify-center items-center gap-2 active:scale-95 transition-all shadow-[0_0_10px_rgba(59,130,246,0.15)] border border-[#2c2c2e]" style={{ fontFamily: SF }}>
+                          View Market
+                       </button>
+                   </div>
+
+                   {/* Browse Heading */}
+                   <div className="flex items-center justify-between gap-2 mb-5 px-1 pt-2 border-t border-[#1c1c1e]">
+                      <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Browse Lootboxes <span className="text-[#8e8e93] font-medium text-[16px]">{MARKET_BOXES.length - 1}</span></h3>
+                      <button type="button" className="text-[#3b82f6] text-[13px] font-bold" style={{ fontFamily: SF }}>See all</button>
+                   </div>
+
+                   {/* Main Lootboxes Grid - Estilo Auctions */}
+                   <div className="grid grid-cols-2 gap-4 mt-2 mb-10">
+                      {MARKET_BOXES.slice(1).map((box) => (
+                         <div 
+                            key={box.id} 
+                            onClick={() => setViewingBoxId(box.id)}
+                            className="bg-[#111111] rounded-[24px] p-3 flex flex-col border border-[#1c1c1e] shadow-lg cursor-pointer transition-all hover:bg-[#161618]"
+                         >
+                            {/*verified y header */}
+                            <div className="flex justify-between items-center px-1 mb-3">
+                               <div className="flex items-center gap-1 text-[#8e8e93] text-[11px] font-medium" style={{ fontFamily: SF }}>
+                                  <BadgeCheck className="w-3 h-3 text-[#3b82f6]" />
+                                  Certified
                                </div>
-                               <span className="mt-3 text-white font-bold text-[14px] text-center" style={{ fontFamily: SFD }}>{box.name}</span>
+                               <Heart className="w-3.5 h-3.5 text-[#636366] hover:text-[#ff3b30] transition-colors" />
                             </div>
-                         ))}
+
+                            {/*imagen */}
+                            <div className="w-full aspect-square bg-[#0a0a0b] rounded-[18px] overflow-hidden relative flex items-center justify-center border border-[#1c1c1e] p-1">
+                               {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a]/80 backdrop-blur-sm text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30 border border-[#4a1a1a]">Sold out</div>}
+                               <LootboxVisual color={box.color} imgSrc={box.image} size="normal" />
+                            </div>
+                            
+                            {/*info */}
+                            <div className="flex flex-col flex-1 pt-3 mb-1.5">
+                               <span className="text-white font-bold text-[14px] px-1 truncate leading-tight" style={{ fontFamily: SFD }}>
+                                  {box.name} Box
+                               </span>
+                               <p className="text-[#8e8e93] text-[11px] px-1 line-clamp-1" style={{ fontFamily: SF }}>{box.collection}</p>
+                               <div className="flex items-center gap-1.5 px-1.5 mt-2 bg-[#1c1c1e] p-1 rounded-full border border-[#2c2c2e] w-fit">
+                                  <img src="/telegram-star-icon.png" className="w-3 h-3 pointer-events-none select-none" draggable={false} alt="Star" />
+                                  <span className="text-white font-bold text-[13px]" style={{ fontFamily: SF }}>{box.price} Stars</span>
+                               </div>
+                            </div>
+                         </div>
+                      ))}
+                   </div>
+
+                   {/* Inventory Heading */}
+                   <div className="flex items-center gap-2 mb-5 px-1 pt-2 border-t border-[#1c1c1e]">
+                      <div className="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center border border-[#2c2c2e]">
+                         <Gift className="w-5 h-5 text-[#3b82f6]" />
+                      </div>
+                      <div className="flex flex-col">
+                         <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>My Inventory</h3>
+                         <p className="text-[#8e8e93] text-[13px] -mt-0.5" style={{ fontFamily: SF }}>You currently have <span className="font-bold">0</span> unopened boxes</p>
                       </div>
                    </div>
 
-                   <div className="mt-12 px-5">
-                      <h3 className="text-white font-bold text-[24px] mb-5" style={{ fontFamily: SFD }}>My Inventory <span className="text-[#8e8e93] font-medium">0</span></h3>
-                      <div className="grid grid-cols-3 gap-3">
-                         {MARKET_BOXES.map((box) => (
-                            <div key={`inv-${box.id}`} className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col border border-[#1c1c1e] opacity-60">
-                               <LootboxVisual color={box.color} imgSrc={box.image} />
-                               <button type="button" disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>Unbox</button>
-                            </div>
-                         ))}
+                   {/* Stylized Inventory */}
+                   <div className="w-full bg-[#111111] rounded-[28px] p-6 flex items-center gap-5 border border-[#1c1c1e] shadow-inner mb-12 opacity-60">
+                      <div className="w-[100px] h-[100px] relative flex justify-center items-center shrink-0">
+                         {/* Stack Visual */}
+                         <div className="absolute z-10 w-[60px] h-[60px] bg-[#0d0d0f] rounded-[18px] -translate-x-[40px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40 shadow-inner">
+                             <LootboxVisual color={MARKET_BOXES[1].color} imgSrc={MARKET_BOXES[1].image} size="normal" />
+                         </div>
+                         <div className="absolute z-10 w-[60px] h-[60px] bg-[#0d0d0f] rounded-[18px] translate-x-[40px] rotate-[15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40 shadow-inner">
+                             <LootboxVisual color={MARKET_BOXES[2].color} imgSrc={MARKET_BOXES[2].image} size="normal" />
+                         </div>
+                         <div className="relative z-20 w-[80px] h-[80px] bg-[#141415] rounded-[22px] flex items-center justify-center border border-[#2c2c2e] shadow-xl">
+                             <LootboxVisual color={MARKET_BOXES[0].color} imgSrc={MARKET_BOXES[0].image} size="large" />
+                         </div>
+                      </div>
+                      <div className="flex flex-col flex-1 items-start text-left">
+                         <h4 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Unopened Boxes</h4>
+                         <p className="text-[#8e8e93] text-[13px] mb-3 leading-tight" style={{ fontFamily: SF }}>Contains high value digital gifts. Open now to unlock rewards.</p>
+                         <button type="button" disabled className="w-full max-w-[140px] bg-[#1c1c1e] text-[#636366] font-bold text-[14px] py-2 rounded-[14px] transition-all border border-[#2c2c2e]" style={{ fontFamily: SF }}>Open Boxes</button>
                       </div>
                    </div>
+
                  </div>
                )}
 
@@ -718,38 +814,34 @@ export function MarketView() {
              </div>
 
              {/* Your Price Box */}
-             <div className="bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-4 flex flex-col gap-4 mb-4">
+             <div className="bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-4 flex flex-col gap-4 mb-4 relative">
                 <div className="flex flex-col">
                    <span className="text-white font-bold text-[16px]" style={{ fontFamily: SFD }}>Your Price</span>
                    <span className="text-[#8e8e93] text-[13px]" style={{ fontFamily: SF }}>Current price — {activeAuctionData.estValue} Stars</span>
                 </div>
                 
-                <div className="bg-[#1c1c1e] rounded-[16px] p-4 flex items-center justify-between border border-[#2c2c2e]">
-                   <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-[#3b82f6] flex items-center justify-center shrink-0">
-                         <img src="/telegram-star-icon.png" className="w-3.5 h-3.5 pointer-events-none select-none" draggable={false} alt="Star" />
-                      </div>
+                <div className="bg-[#1c1c1e] rounded-[16px] p-4 flex items-center justify-between border border-[#2c2c2e] relative overflow-visible">
+                   <div className="flex items-center gap-3 w-fit">
+                      {/* Icono de Estrella Grande y Centrado (Sin Círculo) */}
+                      <img src="/telegram-star-icon.png" draggable={false} className="w-8 h-8 pointer-events-none select-none" alt="Star" />
+                      
                       <input 
                          type="text" 
                          inputMode="numeric" 
                          placeholder="0" 
                          value={offerInput}
                          onChange={handleOfferInput}
-                         className="bg-transparent text-white font-bold text-[20px] outline-none w-24 placeholder:text-[#636366]"
+                         className="bg-transparent text-white font-bold text-[24px] outline-none placeholder:text-[#636366] -ml-0.5 flex-1"
                          style={{ fontFamily: SFD }}
                       />
                    </div>
-                   <span className="text-[#8e8e93] font-medium text-[15px]" style={{ fontFamily: SF }}>≈ ${(offerNumValue * 0.013).toFixed(2)}</span>
+                   <span className="text-[#8e8e93] font-medium text-[15px] pl-3" style={{ fontFamily: SF }}>≈ ${(offerNumValue * 0.013).toFixed(2)}</span>
                 </div>
 
                 <div className="flex flex-col gap-2.5 mt-2">
                    <div className="flex items-center justify-between">
                       <span className="text-[#8e8e93] text-[14px] flex items-center gap-1" style={{ fontFamily: SF }}>Service Fee <Info className="w-3 h-3" /></span>
                       <span className="text-white font-bold text-[14px]">{serviceFee} Stars</span>
-                   </div>
-                   <div className="flex items-center justify-between">
-                      <span className="text-[#8e8e93] text-[14px] flex items-center gap-1" style={{ fontFamily: SF }}>Creator Royalties <Info className="w-3 h-3" /></span>
-                      <span className="text-white font-bold text-[14px]">0 Stars</span>
                    </div>
                    <div className="flex items-center justify-between pt-2 border-t border-[#1c1c1e]">
                       <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>Seller will get</span>
@@ -759,7 +851,7 @@ export function MarketView() {
              </div>
 
              {/* Offer Duration */}
-             <div className="bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-4 flex flex-col mb-4">
+             <div className="bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-4 flex flex-col mb-4 border border-[#2c2c2e]">
                 <span className="text-white font-bold text-[16px] mb-3" style={{ fontFamily: SFD }}>Offer Duration</span>
                 <button type="button" className="w-full bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] p-4 flex justify-between items-center text-white font-medium text-[15px] mb-3" style={{ fontFamily: SF }}>
                    7 days <ChevronDown className="w-5 h-5 text-[#8e8e93]" />
@@ -769,15 +861,15 @@ export function MarketView() {
                 </p>
              </div>
 
-             <div className="flex gap-3 bg-[#111111] border border-[#1c1c1e] p-4 rounded-[20px] mb-6">
+             <div className="flex gap-3 bg-[#111111] border border-[#1c1c1e] p-4 rounded-[20px] mb-6 border border-[#2c2c2e]">
                 <Bell className="w-5 h-5 text-[#8e8e93] shrink-0 mt-0.5" />
                 <span className="text-[#8e8e93] text-[14px] leading-relaxed" style={{ fontFamily: SF }}>
                    We will notify the NFT owner about your offer via a notification.
                 </span>
              </div>
 
-             <div className="flex flex-col gap-3">
-                <div className="flex gap-2">
+             <div className="flex flex-col gap-3 pt-4 border-t border-[#1c1c1e]">
+                <div className="flex gap-3">
                    <button type="button" disabled={!isOfferValid} className={`flex-1 ${isOfferValid ? 'bg-[#3b82f6] text-white active:scale-95 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'bg-[#1c1c1e] text-[#636366]'} font-bold text-[16px] py-4 rounded-[16px] transition-all`} style={{ fontFamily: SF }}>
                       Send
                    </button>
