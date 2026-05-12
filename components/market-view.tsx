@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ShoppingCart, Gavel, Search, ArrowDownUp, Layers, List, SlidersHorizontal, Heart, MoreHorizontal } from "lucide-react"
+import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -32,7 +32,7 @@ const STAR_PACKAGES = [
   { stars: "10 000", price: "$199.99", count: 6 },
 ]
 
-// ── Datos de Subastas y NFTs (Grid y Detalle) ──
+// ── Datos de Subastas y NFTs ──
 const AUCTION_ITEMS = [
   { 
     id: 'pepe', 
@@ -128,9 +128,11 @@ export function MarketView() {
   const [starInput, setStarInput] = useState("")
   const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
   
-  // ── ESTADOS DE PESTAÑAS Y SUBASTAS ──
+  // ── ESTADOS DE PESTAÑAS, SUBASTAS Y VISTA ──
   const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Play')
   const [viewingAuctionId, setViewingAuctionId] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
 
   // ── ESTADOS DE LA RULETA EN LÍNEA ──
   const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
@@ -187,6 +189,11 @@ export function MarketView() {
     setTracks([])
   }
 
+  const toggleExpandAuction = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setExpandedAuctionId(prev => prev === id ? null : id)
+  }
+
   const numValue = starInput ? parseInt(starInput, 10) : 0
   const isError = starInput !== "" && numValue < 15
   const isValid = numValue >= 15 && numValue <= 150000
@@ -224,7 +231,6 @@ export function MarketView() {
                   {openingState === 'idle' ? activeBoxData.name : openingState === 'spinning' ? 'Opening...' : 'Rewards Drop!'}
                </h2>
 
-               {/* ... (Ruleta y contenido Lootbox) ... */}
                <div className="w-full flex flex-col items-center mb-8 relative">
                   {openingState === 'idle' ? (
                      <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden animate-in fade-in duration-500">
@@ -337,17 +343,17 @@ export function MarketView() {
             <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black/90 backdrop-blur-md">
                <button onClick={() => setViewingAuctionId(null)} className="flex items-center gap-1.5 text-white active:opacity-70 transition-opacity">
                   <ChevronLeft className="w-6 h-6" />
-                  <span className="font-semibold text-[17px]" style={{ fontFamily: SF }}>back</span>
+                  <span className="font-semibold text-[17px]" style={{ fontFamily: SF }}>Marketplace</span>
                </button>
             </div>
 
             <div className="px-5 mt-2">
-               <div className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[28px] overflow-hidden shadow-xl">
+               <div className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[24px] overflow-hidden shadow-xl">
                   {/* Cabecera / Imagen */}
-                  <div className="w-full h-[220px] bg-[#1c1c1e] relative flex items-center justify-center overflow-hidden">
-                     <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} className="w-full h-full object-cover opacity-90" />
+                  <div className="w-full h-[240px] bg-[#161618] relative flex items-center justify-center overflow-hidden p-4">
+                     <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} className="w-full h-full object-contain drop-shadow-xl" />
                      {activeAuctionData.owned && (
-                       <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10">
+                       <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10">
                          <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#a855f7] border border-white/20" />
                          <span className="text-white text-[12px] font-medium" style={{ fontFamily: SF }}>Owned by <span className="font-bold">you</span></span>
                        </div>
@@ -355,13 +361,13 @@ export function MarketView() {
                   </div>
                   
                   {/* Información Principal */}
-                  <div className="p-5 flex flex-col items-center">
-                     <div className="flex items-center gap-1.5 text-[#8e8e93] text-[13px] mb-1 font-medium" style={{ fontFamily: SF }}>
-                        <img src="/telegram-star-icon.png" className="w-4 h-4 grayscale opacity-70" alt="Collection" />
+                  <div className="p-5 flex flex-col">
+                     <div className="flex items-center gap-1.5 text-[#8e8e93] text-[14px] mb-2 font-medium" style={{ fontFamily: SF }}>
+                        <BadgeCheck className="w-4 h-4 text-[#3b82f6]" />
                         {activeAuctionData.collection}
                      </div>
-                     <h3 className="text-white font-bold text-[24px] mb-6" style={{ fontFamily: SFD }}>
-                        {activeAuctionData.title} <span className="text-[#8e8e93]">{activeAuctionData.tag}</span>
+                     <h3 className="text-white font-bold text-[26px] mb-6 leading-tight" style={{ fontFamily: SFD }}>
+                        {activeAuctionData.title} <span className="text-[#8e8e93] font-semibold">{activeAuctionData.tag}</span>
                      </h3>
 
                      {/* Botones de Acción */}
@@ -369,8 +375,8 @@ export function MarketView() {
                         <button className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)]" style={{ fontFamily: SF }}>
                            <ShoppingCart className="w-4 h-4" /> {activeAuctionData.owned ? 'Sell' : 'Buy Now'}
                         </button>
-                        <button className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-[#3b82f6] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e]" style={{ fontFamily: SF }}>
-                           <Gavel className="w-4 h-4" /> {activeAuctionData.owned ? 'Transfer' : 'Place Bid'}
+                        <button className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e]" style={{ fontFamily: SF }}>
+                           <Gavel className="w-4 h-4 text-[#a1a1aa]" /> {activeAuctionData.owned ? 'Transfer' : 'Place Bid'}
                         </button>
                      </div>
 
@@ -392,8 +398,8 @@ export function MarketView() {
 
                      {/* Rarity & Attributes Completos */}
                      <div className="w-full flex flex-col">
-                        <h4 className="text-[#8e8e93] font-semibold text-[15px] mb-3" style={{ fontFamily: SF }}>Rarity & Attributes</h4>
-                        <div className="w-full bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] p-1 flex flex-col">
+                        <h4 className="text-white font-bold text-[18px] mb-3" style={{ fontFamily: SFD }}>Rarity & Attributes</h4>
+                        <div className="w-full bg-[#161618] border border-[#2c2c2e] rounded-[16px] p-1 flex flex-col">
                            {activeAuctionData.attributes.map((attr, idx) => (
                               <div key={idx} className={`flex items-center justify-between p-3 ${idx !== activeAuctionData.attributes.length - 1 ? 'border-b border-[#2c2c2e]' : ''}`}>
                                  <span className="text-[#8e8e93] text-[14px] w-[90px]" style={{ fontFamily: SF }}>{attr.name}</span>
@@ -414,29 +420,34 @@ export function MarketView() {
           </div>
 
         ) : (
-          /* ── VISTA PRINCIPAL & AUCTIONS GRID ── */
+          /* ── VISTA PRINCIPAL & AUCTIONS ── */
           <div className="animate-in fade-in duration-300 flex flex-col h-full">
             
-            {/* Header Fijo con Pestañas */}
+            {/* Header Fijo con Pestañas (Diseño de Píldora Gris con Verde Militar) */}
             <div className="sticky top-0 z-40 flex flex-col px-5 pt-14 pb-2 bg-black/95 backdrop-blur-md">
                <div className="flex items-center gap-2 mb-4">
                   <Store className="w-[22px] h-[22px] text-[#3b82f6]" strokeWidth={2.5} />
                   <h1 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>xBlum Market</h1>
                </div>
                
-               {/* Pestañas Centradas */}
-               <div className="flex justify-center gap-3 w-full">
-                  {['Play', 'Auctions'].map(t => (
-                     <button 
-                        key={t} 
-                        onClick={() => setActiveTab(t as 'Play' | 'Auctions')}
-                        className={`flex items-center gap-1.5 px-6 py-2.5 rounded-full font-bold text-[14px] active:scale-95 transition-all ${activeTab === t ? 'bg-[#3b82f6] text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-[#1c1c1e] text-[#8e8e93] hover:text-white'}`} 
-                        style={{ fontFamily: SF }}
-                     >
-                       {t} 
-                       {activeTab !== t && <ArrowUpRight className="w-3.5 h-3.5" />}
-                     </button>
-                   ))}
+               {/* Contenedor Gris para unir las Pestañas */}
+               <div className="w-full flex justify-center">
+                  <div className="flex bg-[#1c1c1e] p-1 rounded-full gap-1 border border-[#2c2c2e]">
+                     {['Play', 'Auctions'].map(t => (
+                        <button 
+                           key={t} 
+                           onClick={() => setActiveTab(t as 'Play' | 'Auctions')}
+                           className={`flex items-center justify-center gap-1.5 px-8 py-2 rounded-full font-bold text-[14px] transition-all duration-300 ${
+                              activeTab === t 
+                              ? 'bg-[#2d4a36] text-white shadow-sm' // Color Verde Militar seleccionado
+                              : 'text-[#8e8e93] hover:text-white'
+                           }`} 
+                           style={{ fontFamily: SF }}
+                        >
+                          {t} 
+                        </button>
+                      ))}
+                  </div>
                </div>
             </div>
 
@@ -494,7 +505,7 @@ export function MarketView() {
                  </div>
                )}
 
-               {/* ── CONTENIDO: AUCTIONS (Pantalla completa simulada, Grid 2 columnas) ── */}
+               {/* ── CONTENIDO: AUCTIONS (Pantalla completa simulada, Controles avanzados) ── */}
                {activeTab === 'Auctions' && (
                  <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
                     
@@ -503,20 +514,23 @@ export function MarketView() {
                        <Plus className="w-5 h-5" /> Add Gift
                     </button>
 
-                    {/* Fila de Búsqueda y Botones Secundarios */}
+                    {/* Fila de Búsqueda y Toggle de Vista */}
                     <div className="flex gap-2 w-full mb-4">
                        <div className="flex-1 bg-[#1c1c1e] rounded-[14px] flex items-center px-3 gap-2 border border-[#2c2c2e]">
                           <Search className="w-5 h-5 text-[#8e8e93]" />
                           <input type="text" placeholder="Name or description" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#636366]" style={{ fontFamily: SF }} />
                        </div>
-                       <button className="w-[46px] h-[46px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
+                       
+                       <button className="w-[46px] h-[46px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
                           <ArrowDownUp className="w-5 h-5" />
                        </button>
-                       <button className="w-[46px] h-[46px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
-                          <Layers className="w-5 h-5" />
-                       </button>
-                       <button className="w-[46px] h-[46px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
-                          <List className="w-5 h-5" />
+
+                       {/* Toggle entre Cuadrícula (2 columnas) y Lista (1 columna) */}
+                       <button 
+                          onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
+                          className="w-[46px] h-[46px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors shadow-sm"
+                       >
+                          {viewMode === 'grid' ? <List className="w-5 h-5" /> : <LayoutGrid className="w-5 h-5" />}
                        </button>
                     </div>
 
@@ -532,41 +546,98 @@ export function MarketView() {
                        ))}
                     </div>
 
-                    {/* Grid de 2 Columnas para los NFTs */}
-                    <div className="grid grid-cols-2 gap-3 mt-2">
-                       {AUCTION_ITEMS.map((item) => (
-                          <div 
-                             key={item.id} 
-                             onClick={() => setViewingAuctionId(item.id)} // Abre la vista detallada
-                             className="bg-[#111111] rounded-[20px] p-2 flex flex-col border border-[#1c1c1e] shadow-md cursor-pointer hover:bg-[#161618] transition-colors"
-                          >
-                             {/* Imagen cuadrada parecida a las galletas de jengibre */}
-                             <div className="w-full aspect-square bg-[#1c1c1e] rounded-[16px] overflow-hidden relative flex items-center justify-center p-1">
-                                <img src={item.imgSrc} alt={item.title} className="w-full h-full object-cover rounded-[12px]" />
-                             </div>
-                             
-                             {/* Iconos Favorito y Menú */}
-                             <div className="flex justify-between items-center px-1 mt-3 mb-1.5">
-                                <Heart className="w-[18px] h-[18px] text-[#636366] hover:text-[#ff3b30] transition-colors" />
-                                <MoreHorizontal className="w-[18px] h-[18px] text-[#636366]" />
-                             </div>
-                             
-                             {/* Título e ID */}
-                             <span className="text-white text-[13px] font-bold px-1 truncate leading-tight" style={{ fontFamily: SFD }}>
-                                {item.title} <span className="text-[#8e8e93] font-medium">{item.tag}</span>
-                             </span>
-                             
-                             {/* Precio */}
-                             <div className="flex items-center gap-1.5 px-1 mt-1.5 pb-1">
-                                <div className="w-4 h-4 rounded-full bg-[#3b82f6] flex items-center justify-center">
-                                   <Gem className="w-2.5 h-2.5 text-white" />
+                    {/* Renderizado Condicional del Modo de Vista */}
+                    {viewMode === 'grid' ? (
+                       /* ── VISTA DE 2 COLUMNAS (CUADRÍCULA) ── */
+                       <div className="grid grid-cols-2 gap-3 mt-2 animate-in fade-in duration-300">
+                          {AUCTION_ITEMS.map((item) => (
+                             <div 
+                                key={item.id} 
+                                onClick={() => setViewingAuctionId(item.id)}
+                                className="bg-[#111111] rounded-[20px] p-2 flex flex-col border border-[#1c1c1e] shadow-md cursor-pointer hover:bg-[#161618] transition-colors"
+                             >
+                                <div className="w-full aspect-square bg-[#1c1c1e] rounded-[16px] overflow-hidden relative flex items-center justify-center p-1">
+                                   <img src={item.imgSrc} alt={item.title} className="w-full h-full object-cover rounded-[12px]" />
                                 </div>
-                                <span className="text-white font-bold text-[14px]" style={{ fontFamily: SF }}>{item.gridPrice}</span>
+                                <div className="flex justify-between items-center px-1 mt-3 mb-1.5">
+                                   <Heart className="w-[18px] h-[18px] text-[#636366] hover:text-[#ff3b30] transition-colors" />
+                                   <MoreHorizontal className="w-[18px] h-[18px] text-[#636366]" />
+                                </div>
+                                <span className="text-white text-[13px] font-bold px-1 truncate leading-tight" style={{ fontFamily: SFD }}>
+                                   {item.title} <span className="text-[#8e8e93] font-medium">{item.tag}</span>
+                                </span>
+                                <div className="flex items-center gap-1.5 px-1 mt-1.5 pb-1">
+                                   <div className="w-4 h-4 rounded-full bg-[#3b82f6] flex items-center justify-center">
+                                      <Gem className="w-2.5 h-2.5 text-white" />
+                                   </div>
+                                   <span className="text-white font-bold text-[14px]" style={{ fontFamily: SF }}>{item.gridPrice}</span>
+                                </div>
                              </div>
-                          </div>
-                       ))}
-                    </div>
+                          ))}
+                       </div>
+                    ) : (
+                       /* ── VISTA DE 1 COLUMNA (LISTA CON ACORDEÓN) ── */
+                       <div className="flex flex-col gap-4 mt-2 animate-in fade-in duration-300">
+                          {AUCTION_ITEMS.map((item) => {
+                             const isExpanded = expandedAuctionId === item.id;
+                             return (
+                                <div 
+                                   key={item.id} 
+                                   onClick={() => setViewingAuctionId(item.id)}
+                                   className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-4 flex flex-col shadow-lg cursor-pointer transition-all hover:bg-[#161618]"
+                                >
+                                   <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-3">
+                                         <div className="w-14 h-14 bg-[#1c1c1e] rounded-[14px] border border-[#2c2c2e] overflow-hidden flex-shrink-0">
+                                            <img src={item.imgSrc} alt={item.title} className="w-full h-full object-cover" />
+                                         </div>
+                                         <div className="flex flex-col">
+                                            <span className="text-white font-bold text-[17px] leading-tight" style={{ fontFamily: SFD }}>
+                                               {item.title} <span className="text-[#8e8e93] font-semibold text-[14px]">{item.tag}</span>
+                                            </span>
+                                            <div className="flex items-center gap-1 text-[#8e8e93] text-[12px] font-medium mt-0.5" style={{ fontFamily: SF }}>
+                                               <BadgeCheck className="w-3.5 h-3.5 text-[#3b82f6]" /> {item.collection}
+                                            </div>
+                                         </div>
+                                      </div>
+                                      
+                                      <button 
+                                         onClick={(e) => toggleExpandAuction(item.id, e)} 
+                                         className="w-8 h-8 flex items-center justify-center bg-[#1c1c1e] rounded-full text-[#8e8e93] hover:text-white transition-colors border border-[#2c2c2e]"
+                                      >
+                                         {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                                      </button>
+                                   </div>
 
+                                   {isExpanded && (
+                                      <div 
+                                         className="flex flex-col mt-4 pt-3 border-t border-[#1c1c1e] animate-in fade-in slide-in-from-top-2 duration-300"
+                                         onClick={(e) => e.stopPropagation()} 
+                                      >
+                                         <div className="flex justify-between text-[#8e8e93] text-[12px] font-bold mb-2 uppercase tracking-wide" style={{ fontFamily: SF }}>
+                                            <span>Attribute</span>
+                                            <span>Floor price</span>
+                                         </div>
+                                         
+                                         {item.attributes.map((attr, idx) => (
+                                            <div key={idx} className="flex justify-between items-center py-1.5">
+                                               <div className="flex items-center gap-2">
+                                                  <span className="text-[#8e8e93] text-[13px] w-[80px]" style={{ fontFamily: SF }}>{attr.name}:</span>
+                                                  <span className="text-white text-[13px] font-medium" style={{ fontFamily: SF }}>{attr.value}</span>
+                                                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${attr.rarityColor}`}>{attr.rarity}</span>
+                                               </div>
+                                               <div className="flex items-center gap-1 text-[#a1a1aa] text-[13px] font-semibold" style={{ fontFamily: SF }}>
+                                                  <Gem className="w-3 h-3" /> {attr.price}
+                                               </div>
+                                            </div>
+                                         ))}
+                                      </div>
+                                   )}
+                                </div>
+                             )
+                          })}
+                       </div>
+                    )}
                  </div>
                )}
             </div>
