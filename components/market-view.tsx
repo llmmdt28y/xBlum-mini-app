@@ -1,8 +1,8 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { useEffect, useState } from "react"
-import { Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy } from "lucide-react"
+import { useEffect, useState, useRef } from "react"
+import { Plus, Star, ArrowDown, X, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy, ChevronRight } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -32,7 +32,6 @@ const STAR_PACKAGES = [
   { stars: "10 000", price: "$199.99", count: 6 },
 ]
 
-// ── Datos de Subastas y NFTs ──
 const AUCTION_ITEMS = [
   { 
     id: 'pepe', 
@@ -96,6 +95,14 @@ const AUCTION_ITEMS = [
   },
 ]
 
+// ── Opciones para Dropdowns de Filtros ──
+const FILTER_OPTIONS = {
+   sale: ['All', 'For sale', 'Not for sale'],
+   collections: ['All collections', 'Plush Pepes', 'Jelly Bunnies', 'Ginger Cookies'],
+   backdrop: ['All backdrops', 'Mint Gray', 'Dusty', 'Deep Blue Sea'],
+   symbol: ['All symbols', 'Bull Market Red', 'Phoenix', 'Classic Stone']
+}
+
 const animationStyles = `
   @keyframes box-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   .animate-box-float { animation: box-float 3.5s ease-in-out infinite; }
@@ -128,38 +135,69 @@ export function MarketView() {
   const [starInput, setStarInput] = useState("")
   const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
   
-  // ── ESTADOS DE PESTAÑAS, SUBASTAS Y VISTA ──
+  // ── ESTADOS DE PESTAÑAS Y VISTAS ──
   const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Play')
   const [viewingAuctionId, setViewingAuctionId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
+
+  // ── ESTADOS DE FILTROS ──
+  const [openDropdown, setOpenDropdown] = useState<'sale' | 'collections' | 'backdrop' | 'symbol' | null>(null)
+  const [filters, setFilters] = useState({ sale: 'For sale', collections: 'Collections', backdrop: 'Backdrop', symbol: 'Symbol' })
+
+  // ── ESTADOS DE ADD GIFT (LISTING FLOW) ──
+  const [isAddGiftOpen, setIsAddGiftOpen] = useState(false)
+  const [addGiftStep, setAddGiftStep] = useState<'choose_type' | 'select_gift'>('choose_type')
+  const [listingType, setListingType] = useState<'fixed' | 'auction' | 'falling' | null>(null)
 
   // ── ESTADOS DE LA RULETA EN LÍNEA ──
   const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
   const [isSpinningActive, setIsSpinningActive] = useState(false)
   const [tracks, setTracks] = useState<Array<{ winner: any, items: any[] }>>([])
 
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Cierra los dropdowns si se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  // ── NAVEGACIÓN NATIVA DE TELEGRAM (BACK BUTTON) ──
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
     
-    if (viewingBoxId) {
-       tg.BackButton.show(); 
-       const handleBack = () => setViewingBoxId(null)
-       tg.BackButton.onClick(handleBack); 
-       return () => tg.BackButton.offClick(handleBack)
-    } else if (viewingAuctionId) {
-       tg.BackButton.show(); 
-       const handleBack = () => setViewingAuctionId(null)
-       tg.BackButton.onClick(handleBack); 
-       return () => tg.BackButton.offClick(handleBack)
-    } else {
-       tg.BackButton.show(); 
-       const handleBack = () => { setCurrentView("home"); tg.BackButton.hide() }
-       tg.BackButton.onClick(handleBack); 
-       return () => tg.BackButton.offClick(handleBack)
+    // Siempre mostramos el back button en la MiniApp para evitar que se queden atrapados
+    tg.BackButton.show()
+
+    const handleBack = () => {
+      if (isAddGiftOpen) {
+         if (addGiftStep === 'select_gift') {
+            setAddGiftStep('choose_type') // Regresa un paso en el modal
+         } else {
+            setIsAddGiftOpen(false) // Cierra el modal de Add Gift
+         }
+      } else if (viewingBoxId) {
+         setViewingBoxId(null) // Cierra el Unboxing
+      } else if (viewingAuctionId) {
+         setViewingAuctionId(null) // Cierra detalle de NFT
+      } else if (activeTab === 'Auctions') {
+         setActiveTab('Play') // Regresa a Play
+      } else {
+         setCurrentView("home") // Regresa a la Home general de la app
+         tg.BackButton.hide()
+      }
     }
-  }, [setCurrentView, viewingBoxId, viewingAuctionId])
+
+    tg.BackButton.onClick(handleBack)
+    return () => tg.BackButton.offClick(handleBack)
+  }, [setCurrentView, viewingBoxId, viewingAuctionId, activeTab, isAddGiftOpen, addGiftStep])
 
   const handleStarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, '') 
@@ -194,6 +232,11 @@ export function MarketView() {
     setExpandedAuctionId(prev => prev === id ? null : id)
   }
 
+  const handleAddGiftSelection = (type: 'fixed' | 'auction' | 'falling') => {
+    setListingType(type)
+    setAddGiftStep('select_gift')
+  }
+
   const numValue = starInput ? parseInt(starInput, 10) : 0
   const isError = starInput !== "" && numValue < 15
   const isValid = numValue >= 15 && numValue <= 150000
@@ -203,10 +246,10 @@ export function MarketView() {
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-black relative overflow-hidden">
+    <div className="flex-1 flex flex-col h-full bg-black relative overflow-hidden" ref={dropdownRef}>
       <style>{animationStyles}</style>
 
-      {/* ── PÍLDORA DE TOP UP FLOTANTE (Posición original) ── */}
+      {/* ── PÍLDORA DE TOP UP FLOTANTE ── */}
       {activeTab === 'Play' && !viewingBoxId && (
         <div className="fixed top-[85px] right-5 z-[60] bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 transition-all animate-in fade-in zoom-in duration-300">
            <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain -mt-[2px]" />
@@ -218,17 +261,11 @@ export function MarketView() {
       )}
 
       <div className="flex-1 overflow-y-auto pb-32">
-        {/* ── VISTA DETALLE DE LOOTBOX ── */}
+        {/* ── VISTA DETALLE DE LOOTBOX (UNBOXING) ── */}
         {viewingBoxId && activeBoxData ? (
           <div className="animate-in slide-in-from-right-8 fade-in duration-300">
-            <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black">
-               <button onClick={() => { if (openingState === 'idle') setViewingBoxId(null) }} className={`flex items-center gap-1.5 text-white transition-opacity ${openingState !== 'idle' ? 'opacity-50 cursor-not-allowed' : 'active:opacity-70'}`}>
-                  <ChevronLeft className="w-6 h-6" />
-                  <span className="font-semibold text-[17px]" style={{ fontFamily: SF }}>back</span>
-               </button>
-            </div>
-
-            <div className="flex flex-col px-5 pt-6 items-center">
+            {/* El Header con botón back nativo lo quitamos visualmente */}
+            <div className="flex flex-col px-5 pt-16 items-center">
                <h2 className="text-white font-bold text-[28px] mb-8 transition-all" style={{ fontFamily: SFD }}>
                   {openingState === 'idle' ? activeBoxData.name : openingState === 'spinning' ? 'Opening...' : 'Rewards Drop!'}
                </h2>
@@ -340,15 +377,9 @@ export function MarketView() {
           </div>
           
         ) : viewingAuctionId && activeAuctionData ? (
-          /* ── VISTA DETALLE DE SUBASTA / NFT (Pantalla Completa) ── */
-          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10">
-            <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black/90 backdrop-blur-md border-b border-transparent">
-               <button onClick={() => setViewingAuctionId(null)} className="flex items-center gap-1.5 text-white active:opacity-70 transition-opacity">
-                  <ChevronLeft className="w-6 h-6" />
-                  <span className="font-semibold text-[17px]" style={{ fontFamily: SF }}>Marketplace</span>
-               </button>
-            </div>
-
+          /* ── VISTA DETALLE DE SUBASTA / NFT ── */
+          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-8">
+            {/* Header manual removido a favor de la flecha nativa */}
             <div className="px-5 mt-2">
                <div className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[24px] overflow-hidden shadow-xl">
                   <div className="w-full h-[240px] bg-[#161618] relative flex items-center justify-center overflow-hidden p-4">
@@ -420,11 +451,9 @@ export function MarketView() {
           /* ── VISTA PRINCIPAL & AUCTIONS ── */
           <div className="animate-in fade-in duration-300 flex flex-col h-full">
             
-            {/* ── HEADER FIJO Y PESTAÑAS (Diseño Profile View) ── */}
             <div className="sticky top-0 z-50 px-5 pt-8 pb-3 bg-black/95 backdrop-blur-md border-b border-transparent">
                <div className="w-full relative flex items-center justify-center min-h-[40px] mt-2">
-                   
-                   {/* Pestañas Centradas (Basado en el estilo profile-view.tsx) */}
+                   {/* Pestañas Centradas */}
                    <div className="flex items-center bg-[#1c1c1e] rounded-full p-[3px] border border-[#2c2c2e]/50">
                        <button 
                          onClick={() => setActiveTab('Play')}
@@ -437,7 +466,6 @@ export function MarketView() {
                            Auctions
                        </button>
                    </div>
-
                </div>
             </div>
 
@@ -484,7 +512,6 @@ export function MarketView() {
                       <div className="grid grid-cols-3 gap-3">
                          {MARKET_BOXES.map((box) => (
                             <div key={`inv-${box.id}`} className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col border border-[#1c1c1e] opacity-60">
-                               <div className="absolute top-2.5 left-2.5 bg-[#2c2c2e] text-[#a1a1aa] px-[6px] py-[2px] rounded text-[10px] font-bold">x0</div>
                                <LootboxVisual color={box.color} imgSrc={box.image} />
                                <button disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>Unbox</button>
                             </div>
@@ -494,15 +521,15 @@ export function MarketView() {
                  </div>
                )}
 
-               {/* ── CONTENIDO: AUCTIONS (Controles y Vistas) ── */}
+               {/* ── CONTENIDO: AUCTIONS (Controles Funcionales y Vistas) ── */}
                {activeTab === 'Auctions' && (
                  <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
                     
-                    <button className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-6" style={{ fontFamily: SF }}>
+                    <button onClick={() => setIsAddGiftOpen(true)} className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-6" style={{ fontFamily: SF }}>
                        <Plus className="w-5 h-5" /> Add Gift
                     </button>
 
-                    <div className="flex gap-2 w-full mb-3">
+                    <div className="flex gap-2 w-full mb-3 relative">
                        <div className="flex-1 bg-[#1c1c1e] rounded-[16px] flex items-center px-4 gap-2 border border-[#2c2c2e]">
                           <Search className="w-5 h-5 text-[#8e8e93]" />
                           <input type="text" placeholder="Search" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#8e8e93]" style={{ fontFamily: SF }} />
@@ -524,19 +551,70 @@ export function MarketView() {
                        </button>
                     </div>
 
-                    <div className="flex gap-2 w-full mb-4">
+                    {/* FILTROS FUNCIONALES */}
+                    <div className="flex gap-2 w-full mb-4 relative">
                        <button className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
                           <SlidersHorizontal className="w-5 h-5" />
                        </button>
                        
-                       <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar">
-                          <button className="flex-1 min-w-[140px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 text-white font-bold text-[15px] border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors" style={{ fontFamily: SF }}>
-                             For sale <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
-                          </button>
+                       <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar relative">
                           
-                          <button className="flex-1 min-w-[140px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 text-white font-bold text-[15px] border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors" style={{ fontFamily: SF }}>
-                             Collections <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
-                          </button>
+                          {/* Botón Filtro "Sale" */}
+                          <div className="relative shrink-0">
+                             <button onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`min-w-[120px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                                {filters.sale} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
+                             </button>
+                             {openDropdown === 'sale' && (
+                               <div className="absolute top-[50px] left-0 bg-[#2c2c2e] border border-[#3a3a3c] rounded-[12px] shadow-xl w-full py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                                  {FILTER_OPTIONS.sale.map(opt => (
+                                     <div key={opt} onClick={() => { setFilters({...filters, sale: opt}); setOpenDropdown(null) }} className="px-4 py-2.5 text-white text-[13px] font-medium hover:bg-[#3a3a3c] cursor-pointer">{opt}</div>
+                                  ))}
+                               </div>
+                             )}
+                          </div>
+                          
+                          {/* Botón Filtro "Collections" */}
+                          <div className="relative shrink-0">
+                             <button onClick={() => setOpenDropdown(openDropdown === 'collections' ? null : 'collections')} className={`min-w-[140px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'collections' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                                {filters.collections} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
+                             </button>
+                             {openDropdown === 'collections' && (
+                               <div className="absolute top-[50px] left-0 bg-[#2c2c2e] border border-[#3a3a3c] rounded-[12px] shadow-xl w-[180px] py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                                  {FILTER_OPTIONS.collections.map(opt => (
+                                     <div key={opt} onClick={() => { setFilters({...filters, collections: opt}); setOpenDropdown(null) }} className="px-4 py-2.5 text-white text-[13px] font-medium hover:bg-[#3a3a3c] cursor-pointer">{opt}</div>
+                                  ))}
+                               </div>
+                             )}
+                          </div>
+
+                          {/* Botón Filtro "Backdrop" */}
+                          <div className="relative shrink-0">
+                             <button onClick={() => setOpenDropdown(openDropdown === 'backdrop' ? null : 'backdrop')} className={`min-w-[130px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'backdrop' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                                {filters.backdrop} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
+                             </button>
+                             {openDropdown === 'backdrop' && (
+                               <div className="absolute top-[50px] left-0 bg-[#2c2c2e] border border-[#3a3a3c] rounded-[12px] shadow-xl w-[160px] py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                                  {FILTER_OPTIONS.backdrop.map(opt => (
+                                     <div key={opt} onClick={() => { setFilters({...filters, backdrop: opt}); setOpenDropdown(null) }} className="px-4 py-2.5 text-white text-[13px] font-medium hover:bg-[#3a3a3c] cursor-pointer">{opt}</div>
+                                  ))}
+                               </div>
+                             )}
+                          </div>
+                          
+                          {/* Botón Filtro "Symbol" */}
+                          <div className="relative shrink-0">
+                             <button onClick={() => setOpenDropdown(openDropdown === 'symbol' ? null : 'symbol')} className={`min-w-[120px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'symbol' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                                {filters.symbol} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
+                             </button>
+                             {openDropdown === 'symbol' && (
+                               <div className="absolute top-[50px] left-0 bg-[#2c2c2e] border border-[#3a3a3c] rounded-[12px] shadow-xl w-[150px] py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                                  {FILTER_OPTIONS.symbol.map(opt => (
+                                     <div key={opt} onClick={() => { setFilters({...filters, symbol: opt}); setOpenDropdown(null) }} className="px-4 py-2.5 text-white text-[13px] font-medium hover:bg-[#3a3a3c] cursor-pointer">{opt}</div>
+                                  ))}
+                               </div>
+                             )}
+                          </div>
+
                        </div>
                     </div>
 
@@ -636,6 +714,90 @@ export function MarketView() {
           </div>
         )}
       </div>
+
+      {/* ── MODAL "ADD GIFT" (SELECCIÓN DE TIPO Y LUEGO GIFT) ── */}
+      {isAddGiftOpen && (
+        <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsAddGiftOpen(false)} />
+          <div className={`relative w-full bg-white rounded-t-[28px] flex flex-col overflow-hidden transition-all duration-300 ${addGiftStep === 'choose_type' ? 'h-[360px] animate-in slide-in-from-bottom' : 'h-[85vh] animate-in slide-in-from-right-8'}`}>
+             
+             {addGiftStep === 'choose_type' ? (
+                /* PASO 1: ELEGIR TIPO (Recreación exacta de la imagen subida) */
+                <div className="flex flex-col p-5 pt-6 bg-white w-full h-full text-black">
+                   <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-black font-extrabold text-[26px]" style={{ fontFamily: SFD }}>Choose a type</h2>
+                      <button onClick={() => setIsAddGiftOpen(false)} className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center active:bg-gray-200 transition-colors">
+                         <X className="w-5 h-5 text-gray-500" />
+                      </button>
+                   </div>
+                   
+                   <div className="flex flex-col gap-5">
+                      <button onClick={() => handleAddGiftSelection('fixed')} className="flex items-center justify-between group">
+                         <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-[#3b82f6] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
+                               <Tag className="w-5 h-5" />
+                            </div>
+                            <div className="flex flex-col text-left">
+                               <span className="text-black font-bold text-[16px]" style={{ fontFamily: SF }}>Fixed Price</span>
+                               <span className="text-gray-500 text-[13px] leading-tight mt-0.5" style={{ fontFamily: SF }}>Enter a price to allow users to purchase your NFT instantly</span>
+                            </div>
+                         </div>
+                         <ChevronRight className="w-5 h-5 text-gray-400" />
+                      </button>
+
+                      <button onClick={() => handleAddGiftSelection('auction')} className="flex items-center justify-between group">
+                         <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-[#a855f7] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
+                               <Gavel className="w-5 h-5" />
+                            </div>
+                            <div className="flex flex-col text-left">
+                               <span className="text-black font-bold text-[16px]" style={{ fontFamily: SF }}>Auction</span>
+                               <span className="text-gray-500 text-[13px] leading-tight mt-0.5" style={{ fontFamily: SF }}>Allow other users to make bids on your NFT</span>
+                            </div>
+                         </div>
+                         <ChevronRight className="w-5 h-5 text-gray-400" />
+                      </button>
+
+                      <button onClick={() => handleAddGiftSelection('falling')} className="flex items-center justify-between group">
+                         <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-[#14b8a6] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
+                               <ArrowDown className="w-5 h-5" />
+                            </div>
+                            <div className="flex flex-col text-left">
+                               <span className="text-black font-bold text-[16px]" style={{ fontFamily: SF }}>Falling Price</span>
+                               <span className="text-gray-500 text-[13px] leading-tight mt-0.5" style={{ fontFamily: SF }}>Price decreases over time until it reaches the minimum</span>
+                            </div>
+                         </div>
+                         <ChevronRight className="w-5 h-5 text-gray-400" />
+                      </button>
+                   </div>
+                </div>
+             ) : (
+                /* PASO 2: SELECCIONAR GIFT (Pantalla extendida modo oscuro para consistencia con tu app) */
+                <div className="flex flex-col w-full h-full bg-[#0a0a0b] text-white">
+                   <div className="flex items-center gap-4 p-5 border-b border-[#1c1c1e]">
+                      <button onClick={() => setAddGiftStep('choose_type')} className="text-white">
+                         <ChevronLeft className="w-7 h-7" />
+                      </button>
+                      <h2 className="font-bold text-[22px]" style={{ fontFamily: SFD }}>Select a Gift</h2>
+                   </div>
+                   
+                   {/* EMPTY STATE: Cuando el usuario no tiene Gifts para listar */}
+                   <div className="flex-1 flex flex-col items-center justify-center p-8 text-center pb-20">
+                      <div className="w-[140px] h-[140px] mb-6 relative">
+                         {/* REQUIERE IMAGEN: empty-gift.webp en la carpeta /public */}
+                         <img src="/empty-gift.webp" alt="Empty" className="w-full h-full object-contain filter grayscale opacity-60" onError={(e) => { e.currentTarget.src = '/telegram-star-icon.png'; }} />
+                      </div>
+                      <h3 className="text-white font-bold text-[22px] mb-2" style={{ fontFamily: SFD }}>No gifts found</h3>
+                      <p className="text-[#8e8e93] text-[15px] max-w-[250px] mx-auto" style={{ fontFamily: SF }}>
+                         You don't have any Gifts available to list right now. Open Lootboxes or buy them in the market.
+                      </p>
+                   </div>
+                </div>
+             )}
+          </div>
+        </div>
+      )}
 
       {/* ── MODAL TOP UP ── */}
       {isTopUpOpen && (
