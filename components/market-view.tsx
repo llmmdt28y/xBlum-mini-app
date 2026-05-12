@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy } from "lucide-react"
+import { Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -331,7 +331,7 @@ export function MarketView() {
         ) : viewingAuctionId && activeAuctionData ? (
           /* ── VISTA DETALLE DE SUBASTA / NFT (Pantalla Completa) ── */
           <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10">
-            <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black/90 backdrop-blur-md border-b border-transparent">
+            <div className="sticky top-0 z-40 flex items-center px-5 pt-6 pb-4 bg-black/90 backdrop-blur-md border-b border-transparent">
                <button onClick={() => setViewingAuctionId(null)} className="flex items-center gap-1.5 text-white active:opacity-70 transition-opacity">
                   <ChevronLeft className="w-6 h-6" />
                   <span className="font-semibold text-[17px]" style={{ fontFamily: SF }}>Marketplace</span>
@@ -409,14 +409,10 @@ export function MarketView() {
           /* ── VISTA PRINCIPAL & AUCTIONS ── */
           <div className="animate-in fade-in duration-300 flex flex-col h-full">
             
-            {/* ── HEADER FIJO CON PESTAÑAS Y TOP UP COINCIDENTE ── */}
-            <div className="sticky top-0 z-40 flex flex-col px-5 pt-14 pb-3 bg-black/95 backdrop-blur-md border-b border-transparent">
-               <div className="flex items-center gap-2 mb-3">
-                  <Store className="w-[22px] h-[22px] text-[#3b82f6]" strokeWidth={2.5} />
-                  <h1 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>xBlum Market</h1>
-               </div>
-               
-               <div className="w-full flex justify-center items-center gap-3">
+            {/* ── HEADER FIJO Y CENTRADO EN LA PARTE SUPERIOR ── */}
+            <div className="sticky top-0 z-50 px-5 pt-6 pb-3 bg-black/95 backdrop-blur-md border-b border-transparent">
+               <div className="w-full relative flex items-center justify-center min-h-[36px]">
+                   
                    {/* Pestañas Centradas y Delgadas */}
                    <div className="flex bg-black/60 p-0.5 rounded-full gap-1.5 border border-[#2c2c2e]">
                        <button 
@@ -431,13 +427,13 @@ export function MarketView() {
                        </button>
                    </div>
 
-                   {/* Píldora de Top Up (Visible SOLO en 'Play' y con diseño coincidente) */}
+                   {/* Píldora de Top Up "Como antes" flotante a la derecha (Visible SOLO en 'Play') */}
                    {activeTab === 'Play' && (
-                       <div className="flex items-center gap-2 bg-black/60 p-0.5 pl-3 pr-0.5 rounded-full border border-[#2c2c2e] animate-in fade-in zoom-in duration-300">
-                          <img src="/telegram-star-icon.png" alt="Stars" className="w-[14px] h-[14px] object-contain" />
-                          <span className="text-white font-bold text-[13px]" style={{ fontFamily: SF }}>{myStars.toLocaleString('en-US')}</span>
-                          <button onClick={() => setIsTopUpOpen(true)} className="w-[26px] h-[26px] rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 transition-transform ml-1">
-                             <Plus className="w-3.5 h-3.5 text-[#a78bfa]" strokeWidth={3} />
+                       <div className="absolute right-0 bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 animate-in fade-in zoom-in duration-300">
+                          <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain -mt-[2px]" />
+                          <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>{myStars.toLocaleString('en-US')}</span>
+                          <button onClick={() => setIsTopUpOpen(true)} className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 ml-1 transition-transform">
+                             <Plus className="w-4 h-4 text-[#a78bfa]" strokeWidth={3} />
                           </button>
                        </div>
                    )}
@@ -497,7 +493,7 @@ export function MarketView() {
                  </div>
                )}
 
-               {/* ── CONTENIDO: AUCTIONS (Nuevos Controles + Funciones Propias) ── */}
+               {/* ── CONTENIDO: AUCTIONS (Controles y Vistas) ── */}
                {activeTab === 'Auctions' && (
                  <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
                     
