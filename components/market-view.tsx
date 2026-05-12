@@ -157,7 +157,6 @@ export function MarketView() {
 
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Cierra los dropdowns si se hace clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -173,24 +172,23 @@ export function MarketView() {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
     
-    // Siempre mostramos el back button en la MiniApp para evitar que se queden atrapados
     tg.BackButton.show()
 
     const handleBack = () => {
       if (isAddGiftOpen) {
          if (addGiftStep === 'select_gift') {
-            setAddGiftStep('choose_type') // Regresa un paso en el modal
+            setAddGiftStep('choose_type') 
          } else {
-            setIsAddGiftOpen(false) // Cierra el modal de Add Gift
+            setIsAddGiftOpen(false) 
          }
       } else if (viewingBoxId) {
-         setViewingBoxId(null) // Cierra el Unboxing
+         setViewingBoxId(null) 
       } else if (viewingAuctionId) {
-         setViewingAuctionId(null) // Cierra detalle de NFT
+         setViewingAuctionId(null) 
       } else if (activeTab === 'Auctions') {
-         setActiveTab('Play') // Regresa a Play
+         setActiveTab('Play') 
       } else {
-         setCurrentView("home") // Regresa a la Home general de la app
+         setCurrentView("home") 
          tg.BackButton.hide()
       }
     }
@@ -254,7 +252,7 @@ export function MarketView() {
         <div className="fixed top-[85px] right-5 z-[60] bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 transition-all animate-in fade-in zoom-in duration-300">
            <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain -mt-[2px]" />
            <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>{myStars.toLocaleString('en-US')}</span>
-           <button onClick={() => setIsTopUpOpen(true)} className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 ml-1 transition-transform">
+           <button type="button" onClick={() => setIsTopUpOpen(true)} className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 ml-1 transition-transform">
               <Plus className="w-4 h-4 text-[#a78bfa]" strokeWidth={3} />
            </button>
         </div>
@@ -264,7 +262,6 @@ export function MarketView() {
         {/* ── VISTA DETALLE DE LOOTBOX (UNBOXING) ── */}
         {viewingBoxId && activeBoxData ? (
           <div className="animate-in slide-in-from-right-8 fade-in duration-300">
-            {/* El Header con botón back nativo lo quitamos visualmente */}
             <div className="flex flex-col px-5 pt-16 items-center">
                <h2 className="text-white font-bold text-[28px] mb-8 transition-all" style={{ fontFamily: SFD }}>
                   {openingState === 'idle' ? activeBoxData.name : openingState === 'spinning' ? 'Opening...' : 'Rewards Drop!'}
@@ -335,21 +332,21 @@ export function MarketView() {
                <div className="w-full flex flex-col items-center min-h-[110px] justify-center">
                   {openingState === 'idle' ? (
                      <>
-                        <button onClick={() => startRoulette(1)} className="w-full bg-[#3b82f6] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-lg mb-3" style={{ fontFamily: SF }}>
+                        <button type="button" onClick={() => startRoulette(1)} className="w-full bg-[#3b82f6] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-lg mb-3" style={{ fontFamily: SF }}>
                            <span>Open for {activeBoxData.price}</span> 
                            <img src="/telegram-star-icon.png" className="w-[20px] h-[20px] object-contain -mt-[2px]" alt="Star" />
                         </button>
-                        <button onClick={() => startRoulette(3)} className="text-[#3b82f6] font-semibold text-[14px] active:opacity-70 mb-5 transition-opacity" style={{ fontFamily: SF }}>
+                        <button type="button" onClick={() => startRoulette(3)} className="text-[#3b82f6] font-semibold text-[14px] active:opacity-70 mb-5 transition-opacity" style={{ fontFamily: SF }}>
                            Open 3x for {activeBoxData.price * 3} Stars
                         </button>
                      </>
                   ) : openingState === 'spinning' ? (
-                     <button disabled className="w-full bg-[#ef4444] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(239,68,68,0.3)] mb-8 transition-colors animate-in fade-in zoom-in duration-300" style={{ fontFamily: SF }}>
+                     <button type="button" disabled className="w-full bg-[#ef4444] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(239,68,68,0.3)] mb-8 transition-colors animate-in fade-in zoom-in duration-300" style={{ fontFamily: SF }}>
                         <Loader2 className="w-5 h-5 animate-spin" />
                         Opening...
                      </button>
                   ) : (
-                     <button onClick={closeRoulette} className="w-full bg-[#10b981] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] mb-8 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300" style={{ fontFamily: SF }}>
+                     <button type="button" onClick={closeRoulette} className="w-full bg-[#10b981] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] mb-8 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300" style={{ fontFamily: SF }}>
                         Collect {tracks.length > 1 ? 'Items' : 'Item'}
                      </button>
                   )}
@@ -377,65 +374,70 @@ export function MarketView() {
           </div>
           
         ) : viewingAuctionId && activeAuctionData ? (
-          /* ── VISTA DETALLE DE SUBASTA / NFT ── */
-          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-8">
-            {/* Header manual removido a favor de la flecha nativa */}
+          /* ── VISTA DETALLE DE SUBASTA / NFT (Reducida y más abajo) ── */
+          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-20">
             <div className="px-5 mt-2">
-               <div className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[24px] overflow-hidden shadow-xl">
-                  <div className="w-full h-[240px] bg-[#161618] relative flex items-center justify-center overflow-hidden p-4">
+               <div className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[20px] overflow-hidden shadow-xl">
+                  
+                  {/* Contenedor de Imagen Más Pequeño */}
+                  <div className="w-full h-[160px] bg-[#161618] relative flex items-center justify-center overflow-hidden p-3">
                      <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} className="w-full h-full object-contain drop-shadow-xl" />
                      {activeAuctionData.owned && (
-                       <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10">
-                         <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#a855f7] border border-white/20" />
-                         <span className="text-white text-[12px] font-medium" style={{ fontFamily: SF }}>Owned by <span className="font-bold">you</span></span>
+                       <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/10">
+                         <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#a855f7] border border-white/20" />
+                         <span className="text-white text-[11px] font-medium" style={{ fontFamily: SF }}>Owned by <span className="font-bold">you</span></span>
                        </div>
                      )}
                   </div>
                   
-                  <div className="p-5 flex flex-col">
-                     <div className="flex items-center gap-1.5 text-[#8e8e93] text-[14px] mb-2 font-medium" style={{ fontFamily: SF }}>
-                        <BadgeCheck className="w-4 h-4 text-[#3b82f6]" />
+                  {/* Detalles Más Compactos */}
+                  <div className="p-4 flex flex-col">
+                     <div className="flex items-center gap-1.5 text-[#8e8e93] text-[13px] mb-1.5 font-medium" style={{ fontFamily: SF }}>
+                        <BadgeCheck className="w-3.5 h-3.5 text-[#3b82f6]" />
                         {activeAuctionData.collection}
                      </div>
-                     <h3 className="text-white font-bold text-[26px] mb-6 leading-tight" style={{ fontFamily: SFD }}>
+                     <h3 className="text-white font-bold text-[22px] mb-4 leading-tight" style={{ fontFamily: SFD }}>
                         {activeAuctionData.title} <span className="text-[#8e8e93] font-semibold">{activeAuctionData.tag}</span>
                      </h3>
 
-                     <div className="w-full flex gap-3 mb-6">
-                        <button className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)]" style={{ fontFamily: SF }}>
+                     {/* Botones de Acción Reducidos */}
+                     <div className="w-full flex gap-2 mb-4">
+                        <button type="button" className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[14px] py-2.5 rounded-[14px] flex items-center justify-center gap-1.5 transition-colors shadow-[0_0_10px_rgba(59,130,246,0.3)]" style={{ fontFamily: SF }}>
                            <ShoppingCart className="w-4 h-4" /> {activeAuctionData.owned ? 'Sell' : 'Buy Now'}
                         </button>
-                        <button className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e]" style={{ fontFamily: SF }}>
+                        <button type="button" className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white font-bold text-[14px] py-2.5 rounded-[14px] flex items-center justify-center gap-1.5 transition-colors border border-[#2c2c2e]" style={{ fontFamily: SF }}>
                            <Gavel className="w-4 h-4 text-[#a1a1aa]" /> {activeAuctionData.owned ? 'Transfer' : 'Place Bid'}
                         </button>
                      </div>
 
-                     <div className="w-full bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] p-4 flex justify-between items-center mb-6">
+                     {/* Bloque de Valor Estimado Reducido */}
+                     <div className="w-full bg-[#1c1c1e] border border-[#2c2c2e] rounded-[14px] p-3 flex justify-between items-center mb-4">
                         <div className="flex flex-col">
-                           <div className="flex items-center gap-1.5 text-[#8e8e93] text-[13px] font-medium mb-1">
-                              Est. value <Info className="w-3.5 h-3.5" />
+                           <div className="flex items-center gap-1.5 text-[#8e8e93] text-[12px] font-medium mb-1">
+                              Est. value <Info className="w-3 h-3" />
                            </div>
-                           <div className="flex items-center gap-1.5 text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>
-                              <Gem className="w-5 h-5 text-[#3b82f6]" /> {activeAuctionData.estValue}
+                           <div className="flex items-center gap-1.5 text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
+                              <Gem className="w-4 h-4 text-[#3b82f6]" /> {activeAuctionData.estValue}
                            </div>
                         </div>
                         <div className="flex flex-col text-right">
-                           <span className="text-[#8e8e93] text-[13px] font-medium mb-1">Equal to</span>
-                           <span className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>{activeAuctionData.fiatValue}</span>
+                           <span className="text-[#8e8e93] text-[12px] font-medium mb-1">Equal to</span>
+                           <span className="text-white font-bold text-[16px]" style={{ fontFamily: SFD }}>{activeAuctionData.fiatValue}</span>
                         </div>
                      </div>
 
+                     {/* Rarity & Attributes Compactos */}
                      <div className="w-full flex flex-col">
-                        <h4 className="text-white font-bold text-[18px] mb-3" style={{ fontFamily: SFD }}>Rarity & Attributes</h4>
-                        <div className="w-full bg-[#161618] border border-[#2c2c2e] rounded-[16px] p-1 flex flex-col">
+                        <h4 className="text-white font-bold text-[16px] mb-2" style={{ fontFamily: SFD }}>Rarity & Attributes</h4>
+                        <div className="w-full bg-[#161618] border border-[#2c2c2e] rounded-[14px] p-1 flex flex-col">
                            {activeAuctionData.attributes.map((attr, idx) => (
-                              <div key={idx} className={`flex items-center justify-between p-3 ${idx !== activeAuctionData.attributes.length - 1 ? 'border-b border-[#2c2c2e]' : ''}`}>
-                                 <span className="text-[#8e8e93] text-[14px] w-[90px]" style={{ fontFamily: SF }}>{attr.name}</span>
+                              <div key={idx} className={`flex items-center justify-between p-2.5 ${idx !== activeAuctionData.attributes.length - 1 ? 'border-b border-[#2c2c2e]' : ''}`}>
+                                 <span className="text-[#8e8e93] text-[13px] w-[80px]" style={{ fontFamily: SF }}>{attr.name}</span>
                                  <div className="flex-1 flex items-center gap-2">
-                                    <span className="text-white font-medium text-[14px]">{attr.value}</span>
-                                    <span className={`${attr.rarityColor} text-[11px] font-bold px-2 py-0.5 rounded-full`}>{attr.rarity}</span>
+                                    <span className="text-white font-medium text-[13px]">{attr.value}</span>
+                                    <span className={`${attr.rarityColor} text-[10px] font-bold px-1.5 py-0.5 rounded-md`}>{attr.rarity}</span>
                                  </div>
-                                 <div className="flex items-center gap-1 bg-white/5 text-[#8e8e93] text-[12px] font-semibold px-2 py-1 rounded-lg">
+                                 <div className="flex items-center gap-1 bg-white/5 text-[#8e8e93] text-[11px] font-semibold px-2 py-1 rounded-lg">
                                     <Gem className="w-3 h-3" /> {attr.price}
                                  </div>
                               </div>
@@ -456,11 +458,13 @@ export function MarketView() {
                    {/* Pestañas Centradas */}
                    <div className="flex items-center bg-[#1c1c1e] rounded-full p-[3px] border border-[#2c2c2e]/50">
                        <button 
+                         type="button"
                          onClick={() => setActiveTab('Play')}
                          className={`px-4 py-1.5 rounded-full text-[14px] font-medium transition-all ${activeTab === 'Play' ? 'bg-[#22C55E]/15 text-[#4ade80] shadow-sm' : 'text-[#8e8e93] hover:text-white bg-transparent'}`} style={{ fontFamily: SF }}>
                            Play
                        </button>
                        <button 
+                         type="button"
                          onClick={() => setActiveTab('Auctions')}
                          className={`px-4 py-1.5 rounded-full text-[14px] font-medium transition-all ${activeTab === 'Auctions' ? 'bg-[#22C55E]/15 text-[#4ade80] shadow-sm' : 'text-[#8e8e93] hover:text-white bg-transparent'}`} style={{ fontFamily: SF }}>
                            Auctions
@@ -499,7 +503,7 @@ export function MarketView() {
                                <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e]">
                                   {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a] text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">Sold out</div>}
                                   <LootboxVisual color={box.color} imgSrc={box.image} />
-                                  <button onClick={() => setViewingBoxId(box.id)} className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>Market</button>
+                                  <button type="button" onClick={() => setViewingBoxId(box.id)} className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>Market</button>
                                </div>
                                <span className="mt-3 text-white font-bold text-[14px] text-center" style={{ fontFamily: SFD }}>{box.name}</span>
                             </div>
@@ -513,7 +517,7 @@ export function MarketView() {
                          {MARKET_BOXES.map((box) => (
                             <div key={`inv-${box.id}`} className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col border border-[#1c1c1e] opacity-60">
                                <LootboxVisual color={box.color} imgSrc={box.image} />
-                               <button disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>Unbox</button>
+                               <button type="button" disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>Unbox</button>
                             </div>
                          ))}
                       </div>
@@ -525,7 +529,7 @@ export function MarketView() {
                {activeTab === 'Auctions' && (
                  <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
                     
-                    <button onClick={() => setIsAddGiftOpen(true)} className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-6" style={{ fontFamily: SF }}>
+                    <button type="button" onClick={() => setIsAddGiftOpen(true)} className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-6" style={{ fontFamily: SF }}>
                        <Plus className="w-5 h-5" /> Add Gift
                     </button>
 
@@ -535,15 +539,16 @@ export function MarketView() {
                           <input type="text" placeholder="Search" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#8e8e93]" style={{ fontFamily: SF }} />
                        </div>
                        
-                       <button className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
+                       <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
                           <ArrowDownUp className="w-5 h-5" />
                        </button>
 
-                       <button className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
+                       <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
                           <Copy className="w-5 h-5" />
                        </button>
 
                        <button 
+                          type="button"
                           onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
                           className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0 shadow-sm"
                        >
@@ -553,7 +558,7 @@ export function MarketView() {
 
                     {/* FILTROS FUNCIONALES */}
                     <div className="flex gap-2 w-full mb-4 relative">
-                       <button className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
+                       <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
                           <SlidersHorizontal className="w-5 h-5" />
                        </button>
                        
@@ -561,7 +566,7 @@ export function MarketView() {
                           
                           {/* Botón Filtro "Sale" */}
                           <div className="relative shrink-0">
-                             <button onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`min-w-[120px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                             <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`min-w-[120px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                                 {filters.sale} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
                              </button>
                              {openDropdown === 'sale' && (
@@ -575,7 +580,7 @@ export function MarketView() {
                           
                           {/* Botón Filtro "Collections" */}
                           <div className="relative shrink-0">
-                             <button onClick={() => setOpenDropdown(openDropdown === 'collections' ? null : 'collections')} className={`min-w-[140px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'collections' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                             <button type="button" onClick={() => setOpenDropdown(openDropdown === 'collections' ? null : 'collections')} className={`min-w-[140px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'collections' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                                 {filters.collections} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
                              </button>
                              {openDropdown === 'collections' && (
@@ -589,7 +594,7 @@ export function MarketView() {
 
                           {/* Botón Filtro "Backdrop" */}
                           <div className="relative shrink-0">
-                             <button onClick={() => setOpenDropdown(openDropdown === 'backdrop' ? null : 'backdrop')} className={`min-w-[130px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'backdrop' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                             <button type="button" onClick={() => setOpenDropdown(openDropdown === 'backdrop' ? null : 'backdrop')} className={`min-w-[130px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'backdrop' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                                 {filters.backdrop} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
                              </button>
                              {openDropdown === 'backdrop' && (
@@ -603,7 +608,7 @@ export function MarketView() {
                           
                           {/* Botón Filtro "Symbol" */}
                           <div className="relative shrink-0">
-                             <button onClick={() => setOpenDropdown(openDropdown === 'symbol' ? null : 'symbol')} className={`min-w-[120px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'symbol' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                             <button type="button" onClick={() => setOpenDropdown(openDropdown === 'symbol' ? null : 'symbol')} className={`min-w-[120px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'symbol' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                                 {filters.symbol} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
                              </button>
                              {openDropdown === 'symbol' && (
@@ -672,6 +677,7 @@ export function MarketView() {
                                       </div>
                                       
                                       <button 
+                                         type="button"
                                          onClick={(e) => toggleExpandAuction(item.id, e)} 
                                          className="w-8 h-8 flex items-center justify-center bg-[#1c1c1e] rounded-full text-[#8e8e93] hover:text-white transition-colors border border-[#2c2c2e]"
                                       >
@@ -719,81 +725,81 @@ export function MarketView() {
       {isAddGiftOpen && (
         <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsAddGiftOpen(false)} />
-          <div className={`relative w-full bg-white rounded-t-[28px] flex flex-col overflow-hidden transition-all duration-300 ${addGiftStep === 'choose_type' ? 'h-[360px] animate-in slide-in-from-bottom' : 'h-[85vh] animate-in slide-in-from-right-8'}`}>
+          <div className="relative w-full bg-black rounded-t-[28px] px-5 pt-4 pb-[60px] border-t border-[#1c1c1e] flex flex-col max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300">
              
              {addGiftStep === 'choose_type' ? (
-                /* PASO 1: ELEGIR TIPO (Recreación exacta de la imagen subida) */
-                <div className="flex flex-col p-5 pt-6 bg-white w-full h-full text-black">
-                   <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-black font-extrabold text-[26px]" style={{ fontFamily: SFD }}>Choose a type</h2>
-                      <button onClick={() => setIsAddGiftOpen(false)} className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center active:bg-gray-200 transition-colors">
-                         <X className="w-5 h-5 text-gray-500" />
-                      </button>
+                /* PASO 1: ELEGIR TIPO (Estilo Oscuro Modal Top Up) */
+                <>
+                   <div className="w-10 h-1 bg-[#2c2c2e] rounded-full mx-auto mb-5 shrink-0" />
+                   <div className="flex justify-center items-center mb-6 relative">
+                      <h2 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Choose a type</h2>
                    </div>
                    
-                   <div className="flex flex-col gap-5">
-                      <button onClick={() => handleAddGiftSelection('fixed')} className="flex items-center justify-between group">
+                   <div className="flex flex-col gap-3">
+                      <button type="button" onClick={() => handleAddGiftSelection('fixed')} className="flex items-center justify-between p-4 bg-[#111111] border border-[#1c1c1e] rounded-[20px] active:scale-[0.98] transition-all group">
                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-[#3b82f6] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
-                               <Tag className="w-5 h-5" />
+                            <div className="w-12 h-12 rounded-[14px] bg-[#3b82f6]/20 flex items-center justify-center text-[#3b82f6] shrink-0">
+                               <Tag className="w-6 h-6" />
                             </div>
                             <div className="flex flex-col text-left">
-                               <span className="text-black font-bold text-[16px]" style={{ fontFamily: SF }}>Fixed Price</span>
-                               <span className="text-gray-500 text-[13px] leading-tight mt-0.5" style={{ fontFamily: SF }}>Enter a price to allow users to purchase your NFT instantly</span>
+                               <span className="text-white font-bold text-[16px]" style={{ fontFamily: SF }}>Fixed Price</span>
+                               <span className="text-[#8e8e93] text-[12px] leading-tight mt-1 pr-2" style={{ fontFamily: SF }}>Enter a price to allow users to purchase your NFT instantly</span>
                             </div>
                          </div>
-                         <ChevronRight className="w-5 h-5 text-gray-400" />
+                         <ChevronRight className="w-5 h-5 text-[#636366] shrink-0 group-hover:text-white transition-colors" />
                       </button>
 
-                      <button onClick={() => handleAddGiftSelection('auction')} className="flex items-center justify-between group">
+                      <button type="button" onClick={() => handleAddGiftSelection('auction')} className="flex items-center justify-between p-4 bg-[#111111] border border-[#1c1c1e] rounded-[20px] active:scale-[0.98] transition-all group">
                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-[#a855f7] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
-                               <Gavel className="w-5 h-5" />
+                            <div className="w-12 h-12 rounded-[14px] bg-[#a855f7]/20 flex items-center justify-center text-[#a855f7] shrink-0">
+                               <Gavel className="w-6 h-6" />
                             </div>
                             <div className="flex flex-col text-left">
-                               <span className="text-black font-bold text-[16px]" style={{ fontFamily: SF }}>Auction</span>
-                               <span className="text-gray-500 text-[13px] leading-tight mt-0.5" style={{ fontFamily: SF }}>Allow other users to make bids on your NFT</span>
+                               <span className="text-white font-bold text-[16px]" style={{ fontFamily: SF }}>Auction</span>
+                               <span className="text-[#8e8e93] text-[12px] leading-tight mt-1 pr-2" style={{ fontFamily: SF }}>Allow other users to make bids on your NFT</span>
                             </div>
                          </div>
-                         <ChevronRight className="w-5 h-5 text-gray-400" />
+                         <ChevronRight className="w-5 h-5 text-[#636366] shrink-0 group-hover:text-white transition-colors" />
                       </button>
 
-                      <button onClick={() => handleAddGiftSelection('falling')} className="flex items-center justify-between group">
+                      <button type="button" onClick={() => handleAddGiftSelection('falling')} className="flex items-center justify-between p-4 bg-[#111111] border border-[#1c1c1e] rounded-[20px] active:scale-[0.98] transition-all group">
                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-[#14b8a6] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
-                               <ArrowDown className="w-5 h-5" />
+                            <div className="w-12 h-12 rounded-[14px] bg-[#14b8a6]/20 flex items-center justify-center text-[#14b8a6] shrink-0">
+                               <ArrowDown className="w-6 h-6" />
                             </div>
                             <div className="flex flex-col text-left">
-                               <span className="text-black font-bold text-[16px]" style={{ fontFamily: SF }}>Falling Price</span>
-                               <span className="text-gray-500 text-[13px] leading-tight mt-0.5" style={{ fontFamily: SF }}>Price decreases over time until it reaches the minimum</span>
+                               <span className="text-white font-bold text-[16px]" style={{ fontFamily: SF }}>Falling Price</span>
+                               <span className="text-[#8e8e93] text-[12px] leading-tight mt-1 pr-2" style={{ fontFamily: SF }}>Price decreases over time until it reaches the minimum</span>
                             </div>
                          </div>
-                         <ChevronRight className="w-5 h-5 text-gray-400" />
+                         <ChevronRight className="w-5 h-5 text-[#636366] shrink-0 group-hover:text-white transition-colors" />
                       </button>
                    </div>
-                </div>
+                </>
              ) : (
-                /* PASO 2: SELECCIONAR GIFT (Pantalla extendida modo oscuro para consistencia con tu app) */
-                <div className="flex flex-col w-full h-full bg-[#0a0a0b] text-white">
-                   <div className="flex items-center gap-4 p-5 border-b border-[#1c1c1e]">
-                      <button onClick={() => setAddGiftStep('choose_type')} className="text-white">
-                         <ChevronLeft className="w-7 h-7" />
+                /* PASO 2: SELECCIONAR GIFT */
+                <>
+                   <div className="w-10 h-1 bg-[#2c2c2e] rounded-full mx-auto mb-5 shrink-0" />
+                   <div className="flex items-center justify-between mb-6">
+                      <button type="button" onClick={() => setAddGiftStep('choose_type')} className="w-8 h-8 rounded-full bg-[#1c1c1e] flex items-center justify-center text-white active:scale-95 transition-transform">
+                         <ChevronLeft className="w-5 h-5" />
                       </button>
-                      <h2 className="font-bold text-[22px]" style={{ fontFamily: SFD }}>Select a Gift</h2>
+                      <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>Select a Gift</h2>
+                      <div className="w-8" /> {/* Spacer */}
                    </div>
                    
-                   {/* EMPTY STATE: Cuando el usuario no tiene Gifts para listar */}
-                   <div className="flex-1 flex flex-col items-center justify-center p-8 text-center pb-20">
-                      <div className="w-[140px] h-[140px] mb-6 relative">
-                         {/* REQUIERE IMAGEN: empty-gift.webp en la carpeta /public */}
-                         <img src="/empty-gift.webp" alt="Empty" className="w-full h-full object-contain filter grayscale opacity-60" onError={(e) => { e.currentTarget.src = '/telegram-star-icon.png'; }} />
+                   {/* EMPTY STATE */}
+                   <div className="flex-1 flex flex-col items-center justify-center py-10 text-center">
+                      <div className="w-[120px] h-[120px] mb-6 relative">
+                         {/* Usa onError nulo para evitar bucles de carga si la imagen no existe */}
+                         <img src="/empty-gift.webp" alt="Empty" className="w-full h-full object-contain filter grayscale opacity-60" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/telegram-star-icon.png'; }} />
                       </div>
-                      <h3 className="text-white font-bold text-[22px] mb-2" style={{ fontFamily: SFD }}>No gifts found</h3>
-                      <p className="text-[#8e8e93] text-[15px] max-w-[250px] mx-auto" style={{ fontFamily: SF }}>
+                      <h3 className="text-white font-bold text-[20px] mb-2" style={{ fontFamily: SFD }}>No gifts found</h3>
+                      <p className="text-[#8e8e93] text-[14px] max-w-[250px] mx-auto" style={{ fontFamily: SF }}>
                          You don't have any Gifts available to list right now. Open Lootboxes or buy them in the market.
                       </p>
                    </div>
-                </div>
+                </>
              )}
           </div>
         </div>
@@ -812,12 +818,12 @@ export function MarketView() {
                  <input type="text" inputMode="numeric" value={displayValue} onChange={handleStarInput} placeholder="0" style={{ width: displayValue ? `${displayValue.length}ch` : '1.2ch', fontFamily: SFD }} className={`bg-transparent font-bold text-[56px] outline-none caret-[#3b82f6] ${isError ? 'text-[#ff3b30]' : 'text-white'}`} />
                </div>
                <span className={`text-[13px] mt-2 font-medium ${isError ? 'text-[#ff3b30]' : 'text-[#636366]'}`} style={{ fontFamily: SF }}>Buy between 15 and 150,000 stars</span>
-               <button disabled={!isValid} className={`mt-5 w-full max-w-[300px] py-3.5 rounded-[14px] font-bold text-[17px] active:scale-95 transition-transform ${isValid ? 'bg-[#3b82f6] text-white shadow-lg' : 'bg-[#1c1c1e] text-[#636366]'}`} style={{ fontFamily: SF }}>Buy {displayValue || '0'} Stars</button>
+               <button type="button" disabled={!isValid} className={`mt-5 w-full max-w-[300px] py-3.5 rounded-[14px] font-bold text-[17px] active:scale-95 transition-transform ${isValid ? 'bg-[#3b82f6] text-white shadow-lg' : 'bg-[#1c1c1e] text-[#636366]'}`} style={{ fontFamily: SF }}>Buy {displayValue || '0'} Stars</button>
             </div>
             <p className="text-[#3b82f6] font-semibold text-[15px] mb-1 px-2" style={{ fontFamily: SF }}>choose package</p>
             <div className="flex flex-col pb-6">
               {STAR_PACKAGES.map((pkg, i) => (
-                <button key={i} className="flex items-center justify-between py-3 px-2 border-b border-[#1c1c1e] active:bg-[#111111] rounded-lg transition-colors">
+                <button type="button" key={i} className="flex items-center justify-between py-3 px-2 border-b border-[#1c1c1e] active:bg-[#111111] rounded-lg transition-colors">
                    <div className="flex items-center gap-4">
                       <div className="relative flex items-center" style={{ width: `${22 + (pkg.count - 1) * 4.5}px`, height: '22px' }}>
                         {Array.from({ length: pkg.count }).map((_, idx) => (
