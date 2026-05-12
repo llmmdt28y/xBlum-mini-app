@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel } from "lucide-react"
+import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ShoppingCart, Gavel, Search, ArrowDownUp, Layers, List, SlidersHorizontal, Heart, MoreHorizontal } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -32,7 +32,7 @@ const STAR_PACKAGES = [
   { stars: "10 000", price: "$199.99", count: 6 },
 ]
 
-// ── Datos de Subastas y NFTs ──
+// ── Datos de Subastas y NFTs (Grid y Detalle) ──
 const AUCTION_ITEMS = [
   { 
     id: 'pepe', 
@@ -47,11 +47,10 @@ const AUCTION_ITEMS = [
         { name: 'Symbol', value: 'Bull Market Red', rarity: '1.5%', price: '4,210', rarityColor: 'text-[#c084fc] bg-[#c084fc]/10' }
     ],
     owned: true,
-    currentBid: 3200,
-    buyNowPrice: 4800
+    gridPrice: '4,500'
   },
   { 
-    id: 'bunny', 
+    id: 'bunny1', 
     title: 'Jelly Bunny', 
     tag: '#4512', 
     collection: 'Jelly Bunnies',
@@ -64,8 +63,7 @@ const AUCTION_ITEMS = [
         { name: 'Symbol', value: 'Phoenix', rarity: '2%', price: '0.5', rarityColor: 'text-[#3b82f6] bg-[#3b82f6]/10' }
     ],
     owned: false,
-    currentBid: 1.2,
-    buyNowPrice: 2.0
+    gridPrice: '1.8'
   },
   { 
     id: 'bunny2', 
@@ -80,8 +78,21 @@ const AUCTION_ITEMS = [
         { name: 'Background', value: 'Dusty', rarity: '12%', price: '0.6', rarityColor: 'text-[#8e8e93] bg-[#8e8e93]/10' }
     ],
     owned: false,
-    currentBid: 0.3,
-    buyNowPrice: 0.6
+    gridPrice: '0.5'
+  },
+  { 
+    id: 'pepe2', 
+    title: 'Plush Pepe', 
+    tag: '#884', 
+    collection: 'Plush Pepes',
+    imgSrc: '/1000010040.jpg', 
+    estValue: '2,100', 
+    fiatValue: '$2,800.00',
+    attributes: [
+        { name: 'Model', value: 'Standard', rarity: '10%', price: '2,000', rarityColor: 'text-[#10b981] bg-[#10b981]/10' },
+    ],
+    owned: false,
+    gridPrice: '2,100'
   },
 ]
 
@@ -90,6 +101,8 @@ const animationStyles = `
   .animate-box-float { animation: box-float 3.5s ease-in-out infinite; }
   @keyframes shake-error { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
   .animate-shake { animation: shake-error 0.4s ease-in-out; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 `;
 
 const LootboxVisual = ({ color, imgSrc, size = "normal" }: { color: string, imgSrc: string, size?: "normal" | "large" }) => {
@@ -117,7 +130,6 @@ export function MarketView() {
   
   // ── ESTADOS DE PESTAÑAS Y SUBASTAS ──
   const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Play')
-  const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
   const [viewingAuctionId, setViewingAuctionId] = useState<string | null>(null)
 
   // ── ESTADOS DE LA RULETA EN LÍNEA ──
@@ -129,7 +141,6 @@ export function MarketView() {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
     
-    // Controlamos los botones de retroceso para las dos vistas detalladas
     if (viewingBoxId) {
        tg.BackButton.show(); 
        const handleBack = () => setViewingBoxId(null)
@@ -176,11 +187,6 @@ export function MarketView() {
     setTracks([])
   }
 
-  const toggleExpandAuction = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    setExpandedAuctionId(prev => prev === id ? null : id)
-  }
-
   const numValue = starInput ? parseInt(starInput, 10) : 0
   const isError = starInput !== "" && numValue < 15
   const isValid = numValue >= 15 && numValue <= 150000
@@ -218,6 +224,7 @@ export function MarketView() {
                   {openingState === 'idle' ? activeBoxData.name : openingState === 'spinning' ? 'Opening...' : 'Rewards Drop!'}
                </h2>
 
+               {/* ... (Ruleta y contenido Lootbox) ... */}
                <div className="w-full flex flex-col items-center mb-8 relative">
                   {openingState === 'idle' ? (
                      <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden animate-in fade-in duration-500">
@@ -325,7 +332,7 @@ export function MarketView() {
           </div>
           
         ) : viewingAuctionId && activeAuctionData ? (
-          /* ── VISTA DETALLE DE SUBASTA / NFT PESTAÑA NUEVA ── */
+          /* ── VISTA DETALLE DE SUBASTA / NFT (Pantalla Completa) ── */
           <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10">
             <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black/90 backdrop-blur-md">
                <button onClick={() => setViewingAuctionId(null)} className="flex items-center gap-1.5 text-white active:opacity-70 transition-opacity">
@@ -357,7 +364,7 @@ export function MarketView() {
                         {activeAuctionData.title} <span className="text-[#8e8e93]">{activeAuctionData.tag}</span>
                      </h3>
 
-                     {/* Botones de Acción: Buy, Auction (o Transfer/Sell) */}
+                     {/* Botones de Acción */}
                      <div className="w-full flex gap-3 mb-6">
                         <button className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)]" style={{ fontFamily: SF }}>
                            <ShoppingCart className="w-4 h-4" /> {activeAuctionData.owned ? 'Sell' : 'Buy Now'}
@@ -407,153 +414,161 @@ export function MarketView() {
           </div>
 
         ) : (
-          /* ── VISTA PRINCIPAL (HEADER + TABS) ── */
-          <div className="animate-in fade-in duration-300">
-            <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black">
-               <div className="flex items-center gap-2">
+          /* ── VISTA PRINCIPAL & AUCTIONS GRID ── */
+          <div className="animate-in fade-in duration-300 flex flex-col h-full">
+            
+            {/* Header Fijo con Pestañas */}
+            <div className="sticky top-0 z-40 flex flex-col px-5 pt-14 pb-2 bg-black/95 backdrop-blur-md">
+               <div className="flex items-center gap-2 mb-4">
                   <Store className="w-[22px] h-[22px] text-[#3b82f6]" strokeWidth={2.5} />
                   <h1 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>xBlum Market</h1>
                </div>
+               
+               {/* Pestañas Centradas */}
+               <div className="flex justify-center gap-3 w-full">
+                  {['Play', 'Auctions'].map(t => (
+                     <button 
+                        key={t} 
+                        onClick={() => setActiveTab(t as 'Play' | 'Auctions')}
+                        className={`flex items-center gap-1.5 px-6 py-2.5 rounded-full font-bold text-[14px] active:scale-95 transition-all ${activeTab === t ? 'bg-[#3b82f6] text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-[#1c1c1e] text-[#8e8e93] hover:text-white'}`} 
+                        style={{ fontFamily: SF }}
+                     >
+                       {t} 
+                       {activeTab !== t && <ArrowUpRight className="w-3.5 h-3.5" />}
+                     </button>
+                   ))}
+               </div>
             </div>
 
-            <div className="flex flex-col pt-4">
-              <div className="w-full h-[180px] relative flex justify-center items-center overflow-hidden">
-                  <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
-                      <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
-                  </div>
-                  <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] translate-x-[130px] rotate-[15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
-                      <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
-                  </div>
-                  <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] -translate-x-[70px] rotate-[-8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
-                      <span className="text-white/50 font-bold text-6xl" style={{ fontFamily: SFD }}>?</span>
-                  </div>
-                  <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] translate-x-[70px] rotate-[8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
-                      <span className="text-white/50 font-bold text-6xl" style={{ fontFamily: SFD }}>?</span>
-                  </div>
-                  <div className="relative z-30 w-[140px] h-[140px] bg-[#141415] rounded-[32px] flex items-center justify-center border border-[#3a3a3c] shadow-2xl">
-                      <span className="text-white/80 font-bold text-7xl" style={{ fontFamily: SFD }}>?</span>
-                  </div>
-              </div>
+            <div className="flex flex-col flex-1 pb-10">
+               {/* ── CONTENIDO: PLAY (LOOTBOXES) ── */}
+               {activeTab === 'Play' && (
+                 <div className="animate-in fade-in slide-in-from-left-4 duration-300 pt-4">
+                   {/* Decoración Cajas Flotantes */}
+                   <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden mb-6">
+                       <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
+                           <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
+                       </div>
+                       <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] translate-x-[130px] rotate-[15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
+                           <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
+                       </div>
+                       <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] -translate-x-[70px] rotate-[-8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
+                           <span className="text-white/50 font-bold text-6xl" style={{ fontFamily: SFD }}>?</span>
+                       </div>
+                       <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] translate-x-[70px] rotate-[8deg] flex items-center justify-center border border-[#2c2c2e] shadow-2xl">
+                           <span className="text-white/50 font-bold text-6xl" style={{ fontFamily: SFD }}>?</span>
+                       </div>
+                       <div className="relative z-30 w-[140px] h-[140px] bg-[#141415] rounded-[32px] flex items-center justify-center border border-[#3a3a3c] shadow-2xl">
+                           <span className="text-white/80 font-bold text-7xl" style={{ fontFamily: SFD }}>?</span>
+                       </div>
+                   </div>
 
-              {/* Pestañas Centradas */}
-              <div className="w-full flex flex-col items-center mt-6">
-                  <h2 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>xBlum Presale</h2>
-                  <div className="flex justify-center gap-3 mt-4">
-                     {['Play', 'Auctions'].map(t => (
-                        <button 
-                           key={t} 
-                           onClick={() => setActiveTab(t as 'Play' | 'Auctions')}
-                           className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-[13px] active:scale-95 transition-all ${activeTab === t ? 'bg-[#3b82f6] text-white shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-blue-500/10 text-[#3b82f6]'}`} 
-                           style={{ fontFamily: SF }}
-                        >
-                          {t} 
-                          {activeTab !== t && <ArrowUpRight className="w-3.5 h-3.5" />}
-                        </button>
-                      ))}
-                  </div>
-              </div>
+                   <div className="px-5">
+                      <h3 className="text-white font-bold text-[24px] mb-5" style={{ fontFamily: SFD }}>Lootboxes <span className="text-[#8e8e93] font-medium">{MARKET_BOXES.length}</span></h3>
+                      <div className="grid grid-cols-3 gap-3">
+                         {MARKET_BOXES.map((box) => (
+                            <div key={box.id} className="flex flex-col">
+                               <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e]">
+                                  {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a] text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">Sold out</div>}
+                                  <LootboxVisual color={box.color} imgSrc={box.image} />
+                                  <button onClick={() => setViewingBoxId(box.id)} className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>Market</button>
+                               </div>
+                               <span className="mt-3 text-white font-bold text-[14px] text-center" style={{ fontFamily: SFD }}>{box.name}</span>
+                            </div>
+                         ))}
+                      </div>
+                   </div>
 
-              {/* ── CONTENIDO: PLAY (LOOTBOXES) ── */}
-              {activeTab === 'Play' && (
-                <div className="animate-in fade-in slide-in-from-left-4 duration-300">
-                  <div className="mt-10 px-5">
-                     <h3 className="text-white font-bold text-[24px] mb-5" style={{ fontFamily: SFD }}>Lootboxes <span className="text-[#8e8e93] font-medium">{MARKET_BOXES.length}</span></h3>
-                     <div className="grid grid-cols-3 gap-3">
-                        {MARKET_BOXES.map((box) => (
-                           <div key={box.id} className="flex flex-col">
-                              <div className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col relative border border-[#1c1c1e]">
-                                 {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a] text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30">Sold out</div>}
-                                 <LootboxVisual color={box.color} imgSrc={box.image} />
-                                 <button onClick={() => setViewingBoxId(box.id)} className="w-full bg-[#2c2c2e] text-white font-bold text-[13px] py-2 rounded-[14px] mt-1 active:scale-95 transition-transform" style={{ fontFamily: SF }}>Market</button>
-                              </div>
-                              <span className="mt-3 text-white font-bold text-[14px] text-center" style={{ fontFamily: SFD }}>{box.name}</span>
-                           </div>
-                        ))}
-                     </div>
-                  </div>
+                   <div className="mt-12 px-5">
+                      <h3 className="text-white font-bold text-[24px] mb-5" style={{ fontFamily: SFD }}>My Inventory <span className="text-[#8e8e93] font-medium">0</span></h3>
+                      <div className="grid grid-cols-3 gap-3">
+                         {MARKET_BOXES.map((box) => (
+                            <div key={`inv-${box.id}`} className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col border border-[#1c1c1e] opacity-60">
+                               <div className="absolute top-2.5 left-2.5 bg-[#2c2c2e] text-[#a1a1aa] px-[6px] py-[2px] rounded text-[10px] font-bold">x0</div>
+                               <LootboxVisual color={box.color} imgSrc={box.image} />
+                               <button disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>Unbox</button>
+                            </div>
+                         ))}
+                      </div>
+                   </div>
+                 </div>
+               )}
 
-                  <div className="mt-12 px-5">
-                     <h3 className="text-white font-bold text-[24px] mb-5" style={{ fontFamily: SFD }}>My Inventory <span className="text-[#8e8e93] font-medium">0</span></h3>
-                     <div className="grid grid-cols-3 gap-3">
-                        {MARKET_BOXES.map((box) => (
-                           <div key={`inv-${box.id}`} className="w-full bg-[#111111] rounded-[22px] p-2 flex flex-col border border-[#1c1c1e] opacity-60">
-                              <div className="absolute top-2.5 left-2.5 bg-[#2c2c2e] text-[#a1a1aa] px-[6px] py-[2px] rounded text-[10px] font-bold">x0</div>
-                              <LootboxVisual color={box.color} imgSrc={box.image} />
-                              <button disabled className="w-full bg-[#161618] text-[#636366] font-bold text-[13px] py-2 rounded-[14px] mt-1" style={{ fontFamily: SF }}>Unbox</button>
-                           </div>
-                        ))}
-                     </div>
-                  </div>
-                </div>
-              )}
+               {/* ── CONTENIDO: AUCTIONS (Pantalla completa simulada, Grid 2 columnas) ── */}
+               {activeTab === 'Auctions' && (
+                 <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                    
+                    {/* Botón Principal: Add Gift */}
+                    <button className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-5" style={{ fontFamily: SF }}>
+                       <Plus className="w-5 h-5" /> Add Gift
+                    </button>
 
-              {/* ── CONTENIDO: AUCTIONS (LISTA DE TARJETAS REDUCIDAS + ACORDEÓN) ── */}
-              {activeTab === 'Auctions' && (
-                <div className="mt-10 px-5 animate-in fade-in slide-in-from-right-4 duration-300 pb-10">
-                  <div className="flex flex-col gap-4">
-                     {AUCTION_ITEMS.map((item) => {
-                        const isExpanded = expandedAuctionId === item.id;
+                    {/* Fila de Búsqueda y Botones Secundarios */}
+                    <div className="flex gap-2 w-full mb-4">
+                       <div className="flex-1 bg-[#1c1c1e] rounded-[14px] flex items-center px-3 gap-2 border border-[#2c2c2e]">
+                          <Search className="w-5 h-5 text-[#8e8e93]" />
+                          <input type="text" placeholder="Name or description" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#636366]" style={{ fontFamily: SF }} />
+                       </div>
+                       <button className="w-[46px] h-[46px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
+                          <ArrowDownUp className="w-5 h-5" />
+                       </button>
+                       <button className="w-[46px] h-[46px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
+                          <Layers className="w-5 h-5" />
+                       </button>
+                       <button className="w-[46px] h-[46px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
+                          <List className="w-5 h-5" />
+                       </button>
+                    </div>
 
-                        return (
-                           <div 
-                              key={item.id} 
-                              onClick={() => setViewingAuctionId(item.id)} // Clic en la tarjeta abre vista completa
-                              className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[18px] p-4 flex flex-col shadow-lg cursor-pointer transition-all hover:bg-[#161618]"
-                           >
-                              {/* Encabezado Reducido */}
-                              <div className="flex items-center justify-between">
-                                 <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-[#1c1c1e] rounded-[12px] border border-[#2c2c2e] overflow-hidden flex-shrink-0">
-                                       <img src={item.imgSrc} alt={item.title} className="w-full h-full object-cover" />
-                                    </div>
-                                    <div className="flex flex-col">
-                                       <span className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>
-                                          {item.title} <span className="text-[#8e8e93] font-semibold text-[14px]">{item.tag}</span>
-                                       </span>
-                                       <span className="text-[#8e8e93] text-[12px] font-medium" style={{ fontFamily: SF }}>{item.collection}</span>
-                                    </div>
-                                 </div>
-                                 
-                                 {/* Botón Acordeón (Flecha) */}
-                                 <button 
-                                    onClick={(e) => toggleExpandAuction(item.id, e)} // Evita que se abra la vista completa al tocar la flecha
-                                    className="w-8 h-8 flex items-center justify-center bg-[#1c1c1e] rounded-full text-[#8e8e93] hover:text-white transition-colors"
-                                 >
-                                    {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                                 </button>
-                              </div>
+                    {/* Fila de Filtros (Scroll Horizontal) */}
+                    <div className="flex gap-2 w-full overflow-x-auto pb-2 no-scrollbar mb-2">
+                       <button className="flex-shrink-0 w-10 h-10 bg-[#1c1c1e] rounded-[12px] flex items-center justify-center text-white border border-[#2c2c2e] active:bg-[#2c2c2e]">
+                          <SlidersHorizontal className="w-4 h-4" />
+                       </button>
+                       {['Collections', 'Backdrop', 'Symbol'].map(filter => (
+                         <button key={filter} className="flex-shrink-0 flex items-center gap-2 px-4 h-10 bg-[#1c1c1e] rounded-[12px] text-white font-medium text-[14px] border border-[#2c2c2e] active:bg-[#2c2c2e]" style={{ fontFamily: SF }}>
+                           {filter} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
+                         </button>
+                       ))}
+                    </div>
 
-                              {/* Sección Expandible (Atributos rápidos replicando la imagen) */}
-                              {isExpanded && (
-                                 <div 
-                                    className="flex flex-col mt-4 pt-3 border-t border-[#1c1c1e] animate-in fade-in slide-in-from-top-2 duration-300"
-                                    onClick={(e) => e.stopPropagation()} // Previene que un clic aquí abra la pestaña completa
-                                 >
-                                    <div className="flex justify-between text-[#8e8e93] text-[12px] font-semibold mb-2" style={{ fontFamily: SF }}>
-                                       <span>Attribute</span>
-                                       <span>Floor price</span>
-                                    </div>
-                                    
-                                    {item.attributes.map((attr, idx) => (
-                                       <div key={idx} className="flex justify-between items-center py-1.5">
-                                          <div className="flex items-center gap-2">
-                                             <span className="text-[#8e8e93] text-[13px] w-[80px]" style={{ fontFamily: SF }}>{attr.name}:</span>
-                                             <span className="text-white text-[13px] font-medium" style={{ fontFamily: SF }}>{attr.value}</span>
-                                             <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${attr.rarityColor}`}>{attr.rarity}</span>
-                                          </div>
-                                          <div className="flex items-center gap-1 text-[#a1a1aa] text-[13px] font-semibold" style={{ fontFamily: SF }}>
-                                             <Gem className="w-3 h-3" /> {attr.price}
-                                          </div>
-                                       </div>
-                                    ))}
-                                 </div>
-                              )}
-                           </div>
-                        )
-                     })}
-                  </div>
-                </div>
-              )}
+                    {/* Grid de 2 Columnas para los NFTs */}
+                    <div className="grid grid-cols-2 gap-3 mt-2">
+                       {AUCTION_ITEMS.map((item) => (
+                          <div 
+                             key={item.id} 
+                             onClick={() => setViewingAuctionId(item.id)} // Abre la vista detallada
+                             className="bg-[#111111] rounded-[20px] p-2 flex flex-col border border-[#1c1c1e] shadow-md cursor-pointer hover:bg-[#161618] transition-colors"
+                          >
+                             {/* Imagen cuadrada parecida a las galletas de jengibre */}
+                             <div className="w-full aspect-square bg-[#1c1c1e] rounded-[16px] overflow-hidden relative flex items-center justify-center p-1">
+                                <img src={item.imgSrc} alt={item.title} className="w-full h-full object-cover rounded-[12px]" />
+                             </div>
+                             
+                             {/* Iconos Favorito y Menú */}
+                             <div className="flex justify-between items-center px-1 mt-3 mb-1.5">
+                                <Heart className="w-[18px] h-[18px] text-[#636366] hover:text-[#ff3b30] transition-colors" />
+                                <MoreHorizontal className="w-[18px] h-[18px] text-[#636366]" />
+                             </div>
+                             
+                             {/* Título e ID */}
+                             <span className="text-white text-[13px] font-bold px-1 truncate leading-tight" style={{ fontFamily: SFD }}>
+                                {item.title} <span className="text-[#8e8e93] font-medium">{item.tag}</span>
+                             </span>
+                             
+                             {/* Precio */}
+                             <div className="flex items-center gap-1.5 px-1 mt-1.5 pb-1">
+                                <div className="w-4 h-4 rounded-full bg-[#3b82f6] flex items-center justify-center">
+                                   <Gem className="w-2.5 h-2.5 text-white" />
+                                </div>
+                                <span className="text-white font-bold text-[14px]" style={{ fontFamily: SF }}>{item.gridPrice}</span>
+                             </div>
+                          </div>
+                       ))}
+                    </div>
+
+                 </div>
+               )}
             </div>
           </div>
         )}
