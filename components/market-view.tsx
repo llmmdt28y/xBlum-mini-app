@@ -206,6 +206,17 @@ export function MarketView() {
     <div className="flex-1 flex flex-col h-full bg-black relative overflow-hidden">
       <style>{animationStyles}</style>
 
+      {/* ── PÍLDORA DE TOP UP FLOTANTE (Posición original) ── */}
+      {activeTab === 'Play' && !viewingBoxId && (
+        <div className="fixed top-[85px] right-5 z-[60] bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 transition-all animate-in fade-in zoom-in duration-300">
+           <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain -mt-[2px]" />
+           <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>{myStars.toLocaleString('en-US')}</span>
+           <button onClick={() => setIsTopUpOpen(true)} className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 ml-1 transition-transform">
+              <Plus className="w-4 h-4 text-[#a78bfa]" strokeWidth={3} />
+           </button>
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto pb-32">
         {/* ── VISTA DETALLE DE LOOTBOX ── */}
         {viewingBoxId && activeBoxData ? (
@@ -409,34 +420,24 @@ export function MarketView() {
           /* ── VISTA PRINCIPAL & AUCTIONS ── */
           <div className="animate-in fade-in duration-300 flex flex-col h-full">
             
-            {/* ── HEADER FIJO Y CENTRADO EN LA PARTE SUPERIOR (Alineado más abajo) ── */}
+            {/* ── HEADER FIJO Y PESTAÑAS (Diseño Profile View) ── */}
             <div className="sticky top-0 z-50 px-5 pt-8 pb-3 bg-black/95 backdrop-blur-md border-b border-transparent">
                <div className="w-full relative flex items-center justify-center min-h-[40px] mt-2">
                    
-                   {/* Pestañas Centradas y Delgadas */}
-                   <div className="flex bg-black/60 p-0.5 rounded-full gap-1 border border-[#2c2c2e]">
+                   {/* Pestañas Centradas (Basado en el estilo profile-view.tsx) */}
+                   <div className="flex items-center bg-[#1c1c1e] rounded-full p-[3px] border border-[#2c2c2e]/50">
                        <button 
                          onClick={() => setActiveTab('Play')}
-                         className={`flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-[14px] transition-all duration-300 ${activeTab === 'Play' ? 'bg-[#22C55E]/25 text-white shadow-sm' : 'text-[#8e8e93] hover:text-white'}`} style={{ fontFamily: SF }}>
+                         className={`px-4 py-1.5 rounded-full text-[14px] font-medium transition-all ${activeTab === 'Play' ? 'bg-[#22C55E]/15 text-[#4ade80] shadow-sm' : 'text-[#8e8e93] hover:text-white bg-transparent'}`} style={{ fontFamily: SF }}>
                            Play
                        </button>
                        <button 
                          onClick={() => setActiveTab('Auctions')}
-                         className={`flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-[14px] transition-all duration-300 ${activeTab === 'Auctions' ? 'bg-[#22C55E]/25 text-white shadow-sm' : 'text-[#8e8e93] hover:text-white'}`} style={{ fontFamily: SF }}>
+                         className={`px-4 py-1.5 rounded-full text-[14px] font-medium transition-all ${activeTab === 'Auctions' ? 'bg-[#22C55E]/15 text-[#4ade80] shadow-sm' : 'text-[#8e8e93] hover:text-white bg-transparent'}`} style={{ fontFamily: SF }}>
                            Auctions
                        </button>
                    </div>
 
-                   {/* Píldora de Top Up flotante y alineada verticalmente (Visible SOLO en 'Play') */}
-                   {activeTab === 'Play' && (
-                       <div className="absolute right-0 top-1/2 -translate-y-1/2 bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 animate-in fade-in zoom-in duration-300">
-                          <img src="/telegram-star-icon.png" alt="Stars" className="w-[16px] h-[16px] object-contain" />
-                          <span className="text-white font-bold text-[14px]" style={{ fontFamily: SF }}>{myStars.toLocaleString('en-US')}</span>
-                          <button onClick={() => setIsTopUpOpen(true)} className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 ml-1 transition-transform">
-                             <Plus className="w-4 h-4 text-[#a78bfa]" strokeWidth={3} />
-                          </button>
-                       </div>
-                   )}
                </div>
             </div>
 
