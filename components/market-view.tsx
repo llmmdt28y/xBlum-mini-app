@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
-import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck } from "lucide-react"
+import { Store, Plus, Star, ArrowUpRight, ChevronLeft, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -423,31 +423,27 @@ export function MarketView() {
           /* ── VISTA PRINCIPAL & AUCTIONS ── */
           <div className="animate-in fade-in duration-300 flex flex-col h-full">
             
-            {/* Header Fijo con Pestañas (Diseño de Píldora Gris con Verde Militar) */}
+            {/* Header Fijo con Pestañas */}
             <div className="sticky top-0 z-40 flex flex-col px-5 pt-14 pb-2 bg-black/95 backdrop-blur-md">
-               <div className="flex items-center gap-2 mb-4">
+               <div className="flex items-center gap-2 mb-2">
                   <Store className="w-[22px] h-[22px] text-[#3b82f6]" strokeWidth={2.5} />
                   <h1 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>xBlum Market</h1>
                </div>
                
-               {/* Contenedor Gris para unir las Pestañas */}
-               <div className="w-full flex justify-center">
-                  <div className="flex bg-[#1c1c1e] p-1 rounded-full gap-1 border border-[#2c2c2e]">
-                     {['Play', 'Auctions'].map(t => (
-                        <button 
-                           key={t} 
-                           onClick={() => setActiveTab(t as 'Play' | 'Auctions')}
-                           className={`flex items-center justify-center gap-1.5 px-8 py-2 rounded-full font-bold text-[14px] transition-all duration-300 ${
-                              activeTab === t 
-                              ? 'bg-[#2d4a36] text-white shadow-sm' // Color Verde Militar seleccionado
-                              : 'text-[#8e8e93] hover:text-white'
-                           }`} 
-                           style={{ fontFamily: SF }}
-                        >
-                          {t} 
-                        </button>
-                      ))}
-                  </div>
+               {/* Pestañas Centradas y Delgadas */}
+               <div className="w-full flex flex-col items-center mt-2">
+                   <div className="flex bg-black/60 p-0.5 rounded-full gap-1.5 border border-[#2c2c2e]">
+                       <button 
+                         onClick={() => setActiveTab('Play')}
+                         className={`flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-[14px] transition-all duration-300 ${activeTab === 'Play' ? 'bg-[#22C55E]/50 text-white shadow-sm' : 'text-[#8e8e93] hover:text-white'}`} style={{ fontFamily: SF }}>
+                           Play
+                       </button>
+                       <button 
+                         onClick={() => setActiveTab('Auctions')}
+                         className={`flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-full font-bold text-[14px] transition-all duration-300 ${activeTab === 'Auctions' ? 'bg-[#22C55E]/50 text-white shadow-sm' : 'text-[#8e8e93] hover:text-white'}`} style={{ fontFamily: SF }}>
+                           Auctions
+                       </button>
+                   </div>
                </div>
             </div>
 
@@ -505,50 +501,60 @@ export function MarketView() {
                  </div>
                )}
 
-               {/* ── CONTENIDO: AUCTIONS (Pantalla completa simulada, Controles avanzados) ── */}
+               {/* ── CONTENIDO: AUCTIONS (Nuevos Controles + Funciones Propias) ── */}
                {activeTab === 'Auctions' && (
                  <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
                     
                     {/* Botón Principal: Add Gift */}
-                    <button className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-5" style={{ fontFamily: SF }}>
+                    <button className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-6" style={{ fontFamily: SF }}>
                        <Plus className="w-5 h-5" /> Add Gift
                     </button>
 
-                    {/* Fila de Búsqueda y Toggle de Vista */}
-                    <div className="flex gap-2 w-full mb-4">
-                       <div className="flex-1 bg-[#1c1c1e] rounded-[14px] flex items-center px-3 gap-2 border border-[#2c2c2e]">
+                    {/* Controles: Fila 1 (Buscador y Botones Cuadrados) */}
+                    <div className="flex gap-2 w-full mb-3">
+                       <div className="flex-1 bg-[#1c1c1e] rounded-[16px] flex items-center px-4 gap-2 border border-[#2c2c2e]">
                           <Search className="w-5 h-5 text-[#8e8e93]" />
-                          <input type="text" placeholder="Name or description" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#636366]" style={{ fontFamily: SF }} />
+                          <input type="text" placeholder="Search" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#8e8e93]" style={{ fontFamily: SF }} />
                        </div>
                        
-                       <button className="w-[46px] h-[46px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors">
+                       <button className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
                           <ArrowDownUp className="w-5 h-5" />
                        </button>
 
-                       {/* Toggle entre Cuadrícula (2 columnas) y Lista (1 columna) */}
+                       <button className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
+                          <Copy className="w-5 h-5" />
+                       </button>
+
+                       {/* Toggle de Vista (Cuadrícula / Lista) de nuestra función */}
                        <button 
                           onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
-                          className="w-[46px] h-[46px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors shadow-sm"
+                          className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0 shadow-sm"
                        >
                           {viewMode === 'grid' ? <List className="w-5 h-5" /> : <LayoutGrid className="w-5 h-5" />}
                        </button>
                     </div>
 
-                    {/* Fila de Filtros (Scroll Horizontal) */}
-                    <div className="flex gap-2 w-full overflow-x-auto pb-2 no-scrollbar mb-2">
-                       <button className="flex-shrink-0 w-10 h-10 bg-[#1c1c1e] rounded-[12px] flex items-center justify-center text-white border border-[#2c2c2e] active:bg-[#2c2c2e]">
-                          <SlidersHorizontal className="w-4 h-4" />
+                    {/* Controles: Fila 2 (Botón Filtro y Dropdowns) */}
+                    <div className="flex gap-2 w-full mb-4">
+                       <button className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
+                          <SlidersHorizontal className="w-5 h-5" />
                        </button>
-                       {['Collections', 'Backdrop', 'Symbol'].map(filter => (
-                         <button key={filter} className="flex-shrink-0 flex items-center gap-2 px-4 h-10 bg-[#1c1c1e] rounded-[12px] text-white font-medium text-[14px] border border-[#2c2c2e] active:bg-[#2c2c2e]" style={{ fontFamily: SF }}>
-                           {filter} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
-                         </button>
-                       ))}
+                       
+                       <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar">
+                          {/* Botón Píldora Ancha tipo Dropdown */}
+                          <button className="flex-1 min-w-[140px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 text-white font-bold text-[15px] border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors" style={{ fontFamily: SF }}>
+                             For sale <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
+                          </button>
+                          
+                          {/* Otros Filtros para mantener tus funciones */}
+                          <button className="flex-1 min-w-[140px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 text-white font-bold text-[15px] border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors" style={{ fontFamily: SF }}>
+                             Collections <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
+                          </button>
+                       </div>
                     </div>
 
-                    {/* Renderizado Condicional del Modo de Vista */}
+                    {/* ── RENDERIZADO DEL GRID O LISTA ── */}
                     {viewMode === 'grid' ? (
-                       /* ── VISTA DE 2 COLUMNAS (CUADRÍCULA) ── */
                        <div className="grid grid-cols-2 gap-3 mt-2 animate-in fade-in duration-300">
                           {AUCTION_ITEMS.map((item) => (
                              <div 
@@ -576,7 +582,6 @@ export function MarketView() {
                           ))}
                        </div>
                     ) : (
-                       /* ── VISTA DE 1 COLUMNA (LISTA CON ACORDEÓN) ── */
                        <div className="flex flex-col gap-4 mt-2 animate-in fade-in duration-300">
                           {AUCTION_ITEMS.map((item) => {
                              const isExpanded = expandedAuctionId === item.id;
