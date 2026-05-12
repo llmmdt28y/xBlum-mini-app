@@ -103,7 +103,7 @@ const FILTER_OPTIONS = {
    symbol: ['All symbols', 'Bull Market Red', 'Phoenix', 'Classic Stone']
 }
 
-// Para evitar errores de JSX en Turbopack, las animaciones CSS se inyectarán de forma segura.
+// Estilos de animación inyectados de forma segura
 const animationStyles = `
   @keyframes box-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   .animate-box-float { animation: box-float 3.5s ease-in-out infinite; }
@@ -375,10 +375,10 @@ export function MarketView() {
           </div>
           
         ) : viewingAuctionId && activeAuctionData ? (
-          /* ── VISTA DETALLE DE SUBASTA / NFT (Rediseño Limpio y Compacto) ── */
-          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-16 flex flex-col gap-6">
+          /* ── VISTA DETALLE DE SUBASTA / NFT (Ajustado) ── */
+          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-16 flex flex-col gap-5">
             
-            {/* 1. Contenedor de Imagen Cuadrado Centrado (Más Grande y más redondo) */}
+            {/* 1. Contenedor de Imagen Cuadrado Centrado (Más Grande) */}
             <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center p-4 shadow-2xl mb-2">
                <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} className="w-full h-full object-contain drop-shadow-xl" />
                {activeAuctionData.owned && (
@@ -400,18 +400,18 @@ export function MarketView() {
                </h3>
             </div>
 
-            {/* 3. Botones de Acción (Sin Contenedor Gris de Fondo) */}
-            <div className="flex gap-3 mx-5 mb-2 px-1">
-               <button type="button" className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)] active:scale-95" style={{ fontFamily: SF }}>
+            {/* 3. Botones de Acción "Más largos y menos anchos" (Sin caja gris detrás) */}
+            <div className="flex gap-3 mx-5 px-1 mb-2">
+               <button type="button" className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[15px] py-2.5 rounded-full flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)] active:scale-95" style={{ fontFamily: SF }}>
                   <ShoppingCart className="w-4 h-4" /> {activeAuctionData.owned ? 'Sell' : 'Buy Now'}
                </button>
-               <button type="button" className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
+               <button type="button" className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-[#3b82f6] font-bold text-[15px] py-2.5 rounded-full flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
                   <Gavel className="w-4 h-4 text-[#a1a1aa]" /> {activeAuctionData.owned ? 'Transfer' : 'Place Bid'}
                </button>
             </div>
 
-            {/* 4. Valor Estimado (Ancho Más Reducido) */}
-            <div className="bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-5 flex justify-between items-center mx-auto shadow-lg w-[calc(100%-60px)] max-w-[340px] mb-2">
+            {/* 4. Valor Estimado (Ancho Reducido) */}
+            <div className="bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-4 flex justify-between items-center mx-auto shadow-lg w-[calc(100%-60px)] max-w-[320px] mb-2">
                <div className="flex flex-col">
                   <div className="flex items-center gap-1.5 text-[#8e8e93] text-[13px] font-medium mb-1">
                      Est. value <Info className="w-3.5 h-3.5" />
@@ -426,19 +426,19 @@ export function MarketView() {
                </div>
             </div>
 
-            {/* 5. Rarity & Attributes (Sin Contenedor Gris Externo) */}
-            <div className="px-5 flex flex-col gap-2">
-               <h4 className="text-white font-bold text-[18px] mb-2 px-1" style={{ fontFamily: SFD }}>Rarity & Attributes</h4>
-               {/* Tabla de Atributos Lista Limpia */}
-               <div className="w-full flex flex-col gap-1 px-1">
+            {/* 5. Rarity & Attributes (Título fuera, atributos dentro de un contenedor) */}
+            <div className="px-5 flex flex-col gap-2 mb-8">
+               <h4 className="text-[#8e8e93] font-semibold text-[15px] mb-1 px-1" style={{ fontFamily: SF }}>Rarity & Attributes</h4>
+               {/* Contenedor Exclusivo para Model, Symbol, Backdrop */}
+               <div className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-2 shadow-lg">
                   {activeAuctionData.attributes.map((attr, idx) => (
-                     <div key={idx} className={`flex items-center justify-between py-3 ${idx !== activeAuctionData.attributes.length - 1 ? 'border-b border-[#1c1c1e]' : ''}`}>
+                     <div key={idx} className={`flex items-center justify-between p-3 ${idx !== activeAuctionData.attributes.length - 1 ? 'border-b border-[#1c1c1e]' : ''}`}>
                         <span className="text-[#8e8e93] text-[14px] w-[90px]" style={{ fontFamily: SF }}>{attr.name}</span>
                         <div className="flex-1 flex items-center gap-2">
                            <span className="text-white font-medium text-[14px]">{attr.value}</span>
                            <span className={`${attr.rarityColor} text-[11px] font-bold px-2 py-0.5 rounded-md`}>{attr.rarity}</span>
                         </div>
-                        <div className="flex items-center gap-1 bg-[#111111] text-[#8e8e93] text-[12px] font-semibold px-2 py-1 rounded-lg border border-[#1c1c1e]">
+                        <div className="flex items-center gap-1 bg-[#1c1c1e] text-[#8e8e93] text-[12px] font-semibold px-2 py-1 rounded-lg border border-[#2c2c2e]">
                            <Gem className="w-3 h-3" /> {attr.price}
                         </div>
                      </div>
@@ -523,7 +523,7 @@ export function MarketView() {
                  </div>
                )}
 
-               {/* ── CONTENIDO: AUCTIONS ── */}
+               {/* ── CONTENIDO: AUCTIONS (Controles Funcionales y Vistas) ── */}
                {activeTab === 'Auctions' && (
                  <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
                     
@@ -709,14 +709,14 @@ export function MarketView() {
         )}
       </div>
 
-      {/* ── MODAL "ADD GIFT" (Estilo Original Lista Limpia) ── */}
+      {/* ── MODAL "ADD GIFT" (Lista Limpia Original) ── */}
       {isAddGiftOpen && (
         <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsAddGiftOpen(false)} />
           <div className="relative w-full bg-black rounded-t-[28px] px-5 pt-4 pb-[60px] border-t border-[#1c1c1e] flex flex-col max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300">
              
              {addGiftStep === 'choose_type' ? (
-                /* PASO 1: ELEGIR TIPO (Lista Limpia sin Contenedores de Cajas) */
+                /* PASO 1: ELEGIR TIPO (Lista Limpia sin Contenedores) */
                 <>
                    <div className="w-10 h-1 bg-[#2c2c2e] rounded-full mx-auto mb-5 shrink-0" />
                    <div className="flex justify-center items-center mb-6 relative">
@@ -726,7 +726,7 @@ export function MarketView() {
                    <div className="flex flex-col gap-0 px-1">
                       <button type="button" onClick={() => handleAddGiftSelection('fixed')} className="w-full flex items-center justify-between py-4 border-b border-[#1c1c1e] active:bg-[#111111] transition-colors group">
                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-[#3b82f6] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
+                            <div className="w-12 h-12 rounded-full bg-[#3b82f6] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform shadow-md">
                                <Tag className="w-5 h-5" />
                             </div>
                             <div className="flex flex-col text-left">
@@ -739,7 +739,7 @@ export function MarketView() {
 
                       <button type="button" onClick={() => handleAddGiftSelection('auction')} className="w-full flex items-center justify-between py-4 border-b border-[#1c1c1e] active:bg-[#111111] transition-colors group">
                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-[#a855f7] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
+                            <div className="w-12 h-12 rounded-full bg-[#a855f7] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform shadow-md">
                                <Gavel className="w-5 h-5" />
                             </div>
                             <div className="flex flex-col text-left">
@@ -752,7 +752,7 @@ export function MarketView() {
 
                       <button type="button" onClick={() => handleAddGiftSelection('falling')} className="w-full flex items-center justify-between py-4 active:bg-[#111111] transition-colors group">
                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-[#14b8a6] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
+                            <div className="w-12 h-12 rounded-full bg-[#14b8a6] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform shadow-md">
                                <ArrowDown className="w-5 h-5" />
                             </div>
                             <div className="flex flex-col text-left">
@@ -776,14 +776,14 @@ export function MarketView() {
                       <div className="w-8" /> {/* Spacer */}
                    </div>
                    
-                   {/* EMPTY STATE - Con Filtro de Color Profile View */}
+                   {/* EMPTY STATE - Con Filtro de Profile View (Grayscale Opacity) */}
                    <div className="flex-1 flex flex-col items-center justify-center py-10 text-center">
                       <div className="w-[120px] h-[120px] mb-6 relative">
                          <img 
                            src="/empty-gift.gif" 
                            alt="Empty" 
-                           className="w-full h-full object-contain pointer-events-none"
-                           style={{ filter: "invert(1) sepia(1) saturate(100) hue-rotate(200deg) brightness(0.85) contrast(1.5) opacity(0.3)" }} 
+                           className="w-full h-full object-contain pointer-events-none select-none"
+                           style={{ filter: "grayscale(100%) opacity(0.7)", WebkitTouchCallout: "none" }} 
                            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/telegram-star-icon.png'; }}
                          />
                       </div>
