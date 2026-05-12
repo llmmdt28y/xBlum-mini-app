@@ -206,15 +206,6 @@ export function MarketView() {
     <div className="flex-1 flex flex-col h-full bg-black relative overflow-hidden">
       <style>{animationStyles}</style>
 
-      {/* Contenedor Flotante Saldo */}
-      <div className="fixed top-[85px] right-5 z-[60] bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 transition-all">
-         <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain -mt-[2px]" />
-         <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>{myStars.toLocaleString('en-US')}</span>
-         <button onClick={() => setIsTopUpOpen(true)} className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 ml-1 transition-transform">
-            <Plus className="w-4 h-4 text-[#a78bfa]" strokeWidth={3} />
-         </button>
-      </div>
-
       <div className="flex-1 overflow-y-auto pb-32">
         {/* ── VISTA DETALLE DE LOOTBOX ── */}
         {viewingBoxId && activeBoxData ? (
@@ -340,7 +331,7 @@ export function MarketView() {
         ) : viewingAuctionId && activeAuctionData ? (
           /* ── VISTA DETALLE DE SUBASTA / NFT (Pantalla Completa) ── */
           <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10">
-            <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black/90 backdrop-blur-md">
+            <div className="sticky top-0 z-40 flex items-center px-5 pt-14 pb-4 bg-black/90 backdrop-blur-md border-b border-transparent">
                <button onClick={() => setViewingAuctionId(null)} className="flex items-center gap-1.5 text-white active:opacity-70 transition-opacity">
                   <ChevronLeft className="w-6 h-6" />
                   <span className="font-semibold text-[17px]" style={{ fontFamily: SF }}>Marketplace</span>
@@ -349,7 +340,6 @@ export function MarketView() {
 
             <div className="px-5 mt-2">
                <div className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[24px] overflow-hidden shadow-xl">
-                  {/* Cabecera / Imagen */}
                   <div className="w-full h-[240px] bg-[#161618] relative flex items-center justify-center overflow-hidden p-4">
                      <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} className="w-full h-full object-contain drop-shadow-xl" />
                      {activeAuctionData.owned && (
@@ -360,7 +350,6 @@ export function MarketView() {
                      )}
                   </div>
                   
-                  {/* Información Principal */}
                   <div className="p-5 flex flex-col">
                      <div className="flex items-center gap-1.5 text-[#8e8e93] text-[14px] mb-2 font-medium" style={{ fontFamily: SF }}>
                         <BadgeCheck className="w-4 h-4 text-[#3b82f6]" />
@@ -370,7 +359,6 @@ export function MarketView() {
                         {activeAuctionData.title} <span className="text-[#8e8e93] font-semibold">{activeAuctionData.tag}</span>
                      </h3>
 
-                     {/* Botones de Acción */}
                      <div className="w-full flex gap-3 mb-6">
                         <button className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)]" style={{ fontFamily: SF }}>
                            <ShoppingCart className="w-4 h-4" /> {activeAuctionData.owned ? 'Sell' : 'Buy Now'}
@@ -380,7 +368,6 @@ export function MarketView() {
                         </button>
                      </div>
 
-                     {/* Bloque de Valor Estimado */}
                      <div className="w-full bg-[#1c1c1e] border border-[#2c2c2e] rounded-[16px] p-4 flex justify-between items-center mb-6">
                         <div className="flex flex-col">
                            <div className="flex items-center gap-1.5 text-[#8e8e93] text-[13px] font-medium mb-1">
@@ -396,7 +383,6 @@ export function MarketView() {
                         </div>
                      </div>
 
-                     {/* Rarity & Attributes Completos */}
                      <div className="w-full flex flex-col">
                         <h4 className="text-white font-bold text-[18px] mb-3" style={{ fontFamily: SFD }}>Rarity & Attributes</h4>
                         <div className="w-full bg-[#161618] border border-[#2c2c2e] rounded-[16px] p-1 flex flex-col">
@@ -423,15 +409,15 @@ export function MarketView() {
           /* ── VISTA PRINCIPAL & AUCTIONS ── */
           <div className="animate-in fade-in duration-300 flex flex-col h-full">
             
-            {/* Header Fijo con Pestañas */}
-            <div className="sticky top-0 z-40 flex flex-col px-5 pt-14 pb-2 bg-black/95 backdrop-blur-md">
-               <div className="flex items-center gap-2 mb-2">
+            {/* ── HEADER FIJO CON PESTAÑAS Y TOP UP COINCIDENTE ── */}
+            <div className="sticky top-0 z-40 flex flex-col px-5 pt-14 pb-3 bg-black/95 backdrop-blur-md border-b border-transparent">
+               <div className="flex items-center gap-2 mb-3">
                   <Store className="w-[22px] h-[22px] text-[#3b82f6]" strokeWidth={2.5} />
                   <h1 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>xBlum Market</h1>
                </div>
                
-               {/* Pestañas Centradas y Delgadas */}
-               <div className="w-full flex flex-col items-center mt-2">
+               <div className="w-full flex justify-center items-center gap-3">
+                   {/* Pestañas Centradas y Delgadas */}
                    <div className="flex bg-black/60 p-0.5 rounded-full gap-1.5 border border-[#2c2c2e]">
                        <button 
                          onClick={() => setActiveTab('Play')}
@@ -444,6 +430,17 @@ export function MarketView() {
                            Auctions
                        </button>
                    </div>
+
+                   {/* Píldora de Top Up (Visible SOLO en 'Play' y con diseño coincidente) */}
+                   {activeTab === 'Play' && (
+                       <div className="flex items-center gap-2 bg-black/60 p-0.5 pl-3 pr-0.5 rounded-full border border-[#2c2c2e] animate-in fade-in zoom-in duration-300">
+                          <img src="/telegram-star-icon.png" alt="Stars" className="w-[14px] h-[14px] object-contain" />
+                          <span className="text-white font-bold text-[13px]" style={{ fontFamily: SF }}>{myStars.toLocaleString('en-US')}</span>
+                          <button onClick={() => setIsTopUpOpen(true)} className="w-[26px] h-[26px] rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 transition-transform ml-1">
+                             <Plus className="w-3.5 h-3.5 text-[#a78bfa]" strokeWidth={3} />
+                          </button>
+                       </div>
+                   )}
                </div>
             </div>
 
@@ -451,7 +448,6 @@ export function MarketView() {
                {/* ── CONTENIDO: PLAY (LOOTBOXES) ── */}
                {activeTab === 'Play' && (
                  <div className="animate-in fade-in slide-in-from-left-4 duration-300 pt-4">
-                   {/* Decoración Cajas Flotantes */}
                    <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden mb-6">
                        <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
                            <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
@@ -505,12 +501,10 @@ export function MarketView() {
                {activeTab === 'Auctions' && (
                  <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
                     
-                    {/* Botón Principal: Add Gift */}
                     <button className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-6" style={{ fontFamily: SF }}>
                        <Plus className="w-5 h-5" /> Add Gift
                     </button>
 
-                    {/* Controles: Fila 1 (Buscador y Botones Cuadrados) */}
                     <div className="flex gap-2 w-full mb-3">
                        <div className="flex-1 bg-[#1c1c1e] rounded-[16px] flex items-center px-4 gap-2 border border-[#2c2c2e]">
                           <Search className="w-5 h-5 text-[#8e8e93]" />
@@ -525,7 +519,6 @@ export function MarketView() {
                           <Copy className="w-5 h-5" />
                        </button>
 
-                       {/* Toggle de Vista (Cuadrícula / Lista) de nuestra función */}
                        <button 
                           onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
                           className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0 shadow-sm"
@@ -534,19 +527,16 @@ export function MarketView() {
                        </button>
                     </div>
 
-                    {/* Controles: Fila 2 (Botón Filtro y Dropdowns) */}
                     <div className="flex gap-2 w-full mb-4">
                        <button className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
                           <SlidersHorizontal className="w-5 h-5" />
                        </button>
                        
                        <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar">
-                          {/* Botón Píldora Ancha tipo Dropdown */}
                           <button className="flex-1 min-w-[140px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 text-white font-bold text-[15px] border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors" style={{ fontFamily: SF }}>
                              For sale <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
                           </button>
                           
-                          {/* Otros Filtros para mantener tus funciones */}
                           <button className="flex-1 min-w-[140px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 text-white font-bold text-[15px] border border-[#2c2c2e] active:bg-[#2c2c2e] transition-colors" style={{ fontFamily: SF }}>
                              Collections <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
                           </button>
