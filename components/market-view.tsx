@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useRef } from "react"
-import { Plus, Star, ArrowDown, X, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy, ChevronRight, ChevronLeft, Gift } from "lucide-react"
+import { Plus, Star, ArrowDown, X, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy, ChevronRight, ChevronLeft, Gift } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -137,6 +137,7 @@ export function MarketView() {
   const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Play')
   const [viewingAuctionId, setViewingAuctionId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [boxViewMode, setBoxViewMode] = useState<'grid' | 'list'>('grid') // Nuevo estado para la vista de Lootbox
   const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
 
   // ── ESTADOS DE FILTROS ──
@@ -279,14 +280,30 @@ export function MarketView() {
         {/* ── VISTA DETALLE DE LOOTBOX (UNBOXING) ── */}
         {viewingBoxId && activeBoxData ? (
           <div className="animate-in slide-in-from-right-8 fade-in duration-300">
-            <div className="flex flex-col px-5 pt-16 items-center">
-               <h2 className="text-white font-bold text-[28px] mb-8 transition-all" style={{ fontFamily: SFD }}>
-                  {openingState === 'idle' ? activeBoxData.name : openingState === 'spinning' ? 'Opening...' : 'Rewards Drop!'}
+            
+            {/* Header "Daily" / Cajas (Centrado y Back a la derecha) */}
+            <div className="flex items-center justify-between px-5 pt-14 pb-4 bg-black/90 backdrop-blur-md sticky top-0 z-50">
+               <div className="w-[80px]" /> {/* Spacer */}
+               <h2 className="text-white font-bold text-[22px] text-center" style={{ fontFamily: SFD }}>
+                  {activeBoxData.name}
                </h2>
+               <div className="w-[80px] flex justify-end">
+                  <button type="button" onClick={() => { if (openingState === 'idle') setViewingBoxId(null) }} className={`flex items-center justify-center gap-1 bg-[#1c1c1e] border border-[#2c2c2e] px-3 py-1.5 rounded-[12px] text-white transition-opacity ${openingState !== 'idle' ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}>
+                     <ChevronLeft className="w-4 h-4" />
+                     <span className="font-semibold text-[13px]" style={{ fontFamily: SF }}>Back</span>
+                  </button>
+               </div>
+            </div>
 
-               <div className="w-full flex flex-col items-center mb-8 relative">
+            <div className="flex flex-col items-center">
+               
+               {/* ── CONTENEDOR DE LA RULETA (Con flecha superpuesta) ── */}
+               <div className="w-full flex flex-col items-center relative py-4 px-5">
+                  {/* Flecha Blanca hacia abajo (Selector) */}
+                  <div className="absolute left-1/2 top-[6px] -translate-x-1/2 z-50 w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[16px] border-t-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]" />
+
                   {openingState === 'idle' ? (
-                     <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden animate-in fade-in duration-500">
+                     <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden animate-in fade-in duration-500 rounded-[24px]">
                         <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] -translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
                            <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
                         </div>
@@ -302,7 +319,6 @@ export function MarketView() {
                         <div className="relative z-30 w-[110px] h-[110px] bg-[#141415] rounded-[28px] flex items-center justify-center border border-[#3b82f6]/40 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
                            <LootboxVisual color={activeBoxData.color} imgSrc={activeBoxData.image} size="large" />
                         </div>
-                        <div className="absolute left-1/2 -top-1 -translate-x-1/2 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
                      </div>
                   ) : (
                      <div className="w-full flex flex-col gap-4 relative overflow-hidden py-2 animate-in fade-in duration-300">
@@ -311,7 +327,6 @@ export function MarketView() {
 
                         {tracks.map((track, trackIdx) => (
                            <div key={trackIdx} className="w-full h-[110px] relative flex items-center overflow-visible">
-                              <div className="absolute left-1/2 -top-1 -translate-x-1/2 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
                               <div
                                 className="flex gap-3 absolute left-1/2"
                                 style={{
@@ -327,7 +342,7 @@ export function MarketView() {
                                    const isWinnerCard = idx === 25;
                                    const isResult = openingState === 'result';
                                    return (
-                                     <div key={idx} className={`w-[100px] h-[100px] flex-shrink-0 flex flex-col items-center justify-center rounded-[24px] border transition-all duration-700 ${isResult && !isWinnerCard ? 'opacity-0 scale-50' : isResult && isWinnerCard ? 'opacity-100 scale-110 bg-[#111111] border-[#3b82f6] shadow-[0_0_30px_rgba(59,130,246,0.3)] z-50' : 'bg-[#0d0d0f] border-[#2c2c2e] opacity-80 shadow-md'}`}>
+                                     <div key={idx} className={`w-[100px] h-[100px] flex-shrink-0 flex flex-col items-center justify-center rounded-[24px] border transition-all duration-700 ${isResult && !isWinnerCard ? 'opacity-0 scale-50' : isResult && isWinnerCard ? 'opacity-100 scale-110 bg-[#111111] border-b-2 border-t-0 border-l-0 border-r-0 border-[#3b82f6] shadow-[0_0_30px_rgba(59,130,246,0.3)] z-40' : 'bg-[#0d0d0f] border-b-2 border-t-0 border-l-0 border-r-0 border-[#2c2c2e] opacity-80 shadow-md'}`}>
                                        {item.type === 'dummy' ? (
                                          <span className="text-white/30 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
                                        ) : (
@@ -346,46 +361,86 @@ export function MarketView() {
                   )}
                </div>
 
-               <div className="w-full flex flex-col items-center min-h-[110px] justify-center">
+               {/* BOTONES DE APERTURA */}
+               <div className="w-full flex flex-col items-center min-h-[90px] justify-center px-5 mt-2">
                   {openingState === 'idle' ? (
                      <>
                         <button type="button" onClick={() => startRoulette(1)} className="w-full bg-[#3b82f6] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-lg mb-3" style={{ fontFamily: SF }}>
                            <span>Open for {activeBoxData.price}</span> 
                            <img src="/telegram-star-icon.png" draggable={false} className="w-[20px] h-[20px] object-contain -mt-[2px] pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} alt="Star" />
                         </button>
-                        <button type="button" onClick={() => startRoulette(3)} className="text-[#3b82f6] font-semibold text-[14px] active:opacity-70 mb-5 transition-opacity" style={{ fontFamily: SF }}>
+                        <button type="button" onClick={() => startRoulette(3)} className="text-[#3b82f6] font-semibold text-[14px] active:opacity-70 transition-opacity" style={{ fontFamily: SF }}>
                            Open 3x for {activeBoxData.price * 3} Stars
                         </button>
                      </>
                   ) : openingState === 'spinning' ? (
-                     <button type="button" disabled className="w-full bg-[#ef4444] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(239,68,68,0.3)] mb-8 transition-colors animate-in fade-in zoom-in duration-300" style={{ fontFamily: SF }}>
+                     <button type="button" disabled className="w-full bg-[#ef4444] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-colors animate-in fade-in zoom-in duration-300" style={{ fontFamily: SF }}>
                         <Loader2 className="w-5 h-5 animate-spin" />
                         Opening...
                      </button>
                   ) : (
-                     <button type="button" onClick={closeRoulette} className="w-full bg-[#10b981] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] mb-8 animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300" style={{ fontFamily: SF }}>
+                     <button type="button" onClick={closeRoulette} className="w-full bg-[#10b981] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-in fade-in slide-in-from-bottom-2 duration-500 delay-300" style={{ fontFamily: SF }}>
                         Collect {tracks.length > 1 ? 'Items' : 'Item'}
                      </button>
                   )}
                </div>
 
-               <div className="w-full flex flex-col mt-2">
-                  <h3 className="text-white font-bold text-[22px] mb-4" style={{ fontFamily: SFD }}>What's inside</h3>
-                  <div className="grid grid-cols-3 gap-3">
-                     {INSIDE_ITEMS.map((item) => (
-                        <div key={item.id} className="bg-[#111111] rounded-[18px] p-3 flex flex-col relative border border-[#1c1c1e]">
-                           <Info className="absolute top-2 left-2 w-3.5 h-3.5 text-[#636366]" />
-                           <div className="flex-1 flex flex-col items-center justify-center mt-4 mb-2">
-                              <item.icon className="w-8 h-8 drop-shadow-lg mb-2" style={{ color: item.color }} />
-                              <span className="text-white font-bold text-[13px] text-center leading-tight" style={{ fontFamily: SF }}>{item.name}</span>
-                           </div>
-                           <div className="w-full flex justify-center mt-auto pt-2 border-t border-[#1c1c1e]">
-                              <span className="text-[#8e8e93] font-medium text-[11px]" style={{ fontFamily: SF }}>{item.drop}</span>
-                           </div>
-                           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[40%] h-[2px] rounded-t-full" style={{ backgroundColor: item.color }} />
-                        </div>
-                     ))}
+               {/* ── SECCIÓN "WEAPON CASE" (Inside Box) ── */}
+               <div className="w-full flex flex-col mt-10 px-5 border-t border-[#1c1c1e] pt-6">
+                  
+                  {/* Título y Controles */}
+                  <div className="flex items-center justify-between mb-4">
+                     <h3 className="text-white font-bold text-[24px] tracking-tight" style={{ fontFamily: SFD }}>
+                        {activeBoxData.name} Items <span className="text-[#8e8e93] font-medium text-[16px]">{INSIDE_ITEMS.length}</span>
+                     </h3>
+                     <div className="flex gap-2">
+                        <button type="button" onClick={() => setBoxViewMode(v => v === 'grid' ? 'list' : 'grid')} className="w-[38px] h-[38px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shadow-sm">
+                           {boxViewMode === 'grid' ? <List className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
+                        </button>
+                        <button type="button" className="w-[38px] h-[38px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform">
+                           <ArrowDownUp className="w-4 h-4" />
+                        </button>
+                     </div>
                   </div>
+
+                  {/* Buscador */}
+                  <div className="w-full bg-[#1c1c1e] rounded-[14px] flex items-center px-4 py-2.5 gap-2 border border-[#2c2c2e] mb-5">
+                     <Search className="w-5 h-5 text-[#8e8e93]" />
+                     <input type="text" placeholder={`Search in ${activeBoxData.name}...`} className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#636366]" style={{ fontFamily: SF }} />
+                  </div>
+
+                  {/* Renderizado de los Ítems */}
+                  {boxViewMode === 'grid' ? (
+                     <div className="grid grid-cols-2 gap-3 pb-8">
+                        {INSIDE_ITEMS.map((item) => (
+                           <div key={item.id} className="bg-[#111111] rounded-[20px] p-3 flex flex-col items-center relative border border-[#1c1c1e] shadow-md hover:bg-[#161618] transition-colors cursor-pointer">
+                              <div className="absolute top-2.5 right-2.5 bg-[#1c1c1e] border border-[#2c2c2e] px-1.5 py-0.5 rounded-md">
+                                 <span className="text-[#8e8e93] font-bold text-[10px]">{item.drop}</span>
+                              </div>
+                              <item.icon className="w-12 h-12 drop-shadow-lg my-5" style={{ color: item.color }} />
+                              <span className="text-white font-bold text-[14px] text-center leading-tight mb-2" style={{ fontFamily: SF }}>{item.name}</span>
+                              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full" style={{ color: item.color, backgroundColor: `${item.color}15`, border: `1px solid ${item.color}30` }}>{item.rarity}</span>
+                           </div>
+                        ))}
+                     </div>
+                  ) : (
+                     <div className="flex flex-col gap-3 pb-8">
+                        {INSIDE_ITEMS.map((item) => (
+                           <div key={item.id} className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-3 flex items-center gap-4 shadow-md hover:bg-[#161618] transition-colors cursor-pointer">
+                              <div className="w-14 h-14 rounded-[14px] bg-[#1c1c1e] flex items-center justify-center shrink-0 border border-[#2c2c2e]">
+                                 <item.icon className="w-7 h-7 drop-shadow-lg" style={{ color: item.color }} />
+                              </div>
+                              <div className="flex flex-col flex-1">
+                                 <span className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>{item.name}</span>
+                                 <span className="text-[12px] font-bold mt-1 w-fit px-2 rounded" style={{ color: item.color, backgroundColor: `${item.color}15` }}>{item.rarity}</span>
+                              </div>
+                              <div className="bg-[#1c1c1e] border border-[#2c2c2e] px-2.5 py-1.5 rounded-xl">
+                                 <span className="text-[#8e8e93] font-bold text-[13px]">{item.drop}</span>
+                              </div>
+                           </div>
+                        ))}
+                     </div>
+                  )}
                </div>
             </div>
           </div>
@@ -418,10 +473,10 @@ export function MarketView() {
 
             {/* 3. Botones de Acción (Sin Contenedor Gris de Fondo) */}
             <div className="flex gap-3 mx-5 mb-2 px-1">
-               <button type="button" className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-full flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)] active:scale-95" style={{ fontFamily: SF }}>
+               <button type="button" className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)] active:scale-95" style={{ fontFamily: SF }}>
                   <ShoppingCart className="w-4 h-4" /> {activeAuctionData.owned ? 'Sell' : 'Buy Now'}
                </button>
-               <button type="button" onClick={() => setIsMakeOfferOpen(true)} className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-[#3b82f6] font-bold text-[15px] py-3.5 rounded-full flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
+               <button type="button" onClick={() => setIsMakeOfferOpen(true)} className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-[#3b82f6] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
                   <Gavel className="w-4 h-4" /> {activeAuctionData.owned ? 'Transfer' : 'Place Bid'}
                </button>
             </div>
