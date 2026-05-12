@@ -137,7 +137,7 @@ export function MarketView() {
   const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Play')
   const [viewingAuctionId, setViewingAuctionId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [boxViewMode, setBoxViewMode] = useState<'grid' | 'list'>('grid') // Nuevo estado para la vista de Lootbox
+  const [boxViewMode, setBoxViewMode] = useState<'grid' | 'list'>('grid') // Estado para la vista de Lootbox Items
   const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
 
   // ── ESTADOS DE FILTROS ──
@@ -288,9 +288,9 @@ export function MarketView() {
                   {activeBoxData.name}
                </h2>
                <div className="w-[80px] flex justify-end">
-                  <button type="button" onClick={() => { if (openingState === 'idle') setViewingBoxId(null) }} className={`flex items-center justify-center gap-1 bg-[#1c1c1e] border border-[#2c2c2e] px-3 py-1.5 rounded-[12px] text-white transition-opacity ${openingState !== 'idle' ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}>
+                  <button type="button" onClick={() => { if (openingState === 'idle') setViewingBoxId(null) }} className={`flex items-center justify-center gap-1 bg-[#1c1c1e] border border-[#2c2c2e] px-3 py-1.5 rounded-full text-[#8e8e93] hover:text-white transition-opacity ${openingState !== 'idle' ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}>
                      <ChevronLeft className="w-4 h-4" />
-                     <span className="font-semibold text-[13px]" style={{ fontFamily: SF }}>Back</span>
+                     <span className="font-bold text-[13px]" style={{ fontFamily: SF }}>Back</span>
                   </button>
                </div>
             </div>
@@ -299,8 +299,8 @@ export function MarketView() {
                
                {/* ── CONTENEDOR DE LA RULETA (Con flecha superpuesta) ── */}
                <div className="w-full flex flex-col items-center relative py-4 px-5">
-                  {/* Flecha Blanca hacia abajo (Selector) */}
-                  <div className="absolute left-1/2 top-[6px] -translate-x-1/2 z-50 w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[16px] border-t-white drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)]" />
+                  {/* Flecha Blanca hacia abajo (Selector) idéntica a tu imagen */}
+                  <div className="absolute left-1/2 top-[4px] -translate-x-1/2 z-50 w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[16px] border-t-white drop-shadow-md" />
 
                   {openingState === 'idle' ? (
                      <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden animate-in fade-in duration-500 rounded-[24px]">
@@ -321,7 +321,7 @@ export function MarketView() {
                         </div>
                      </div>
                   ) : (
-                     <div className="w-full flex flex-col gap-4 relative overflow-hidden py-2 animate-in fade-in duration-300">
+                     <div className="w-full flex flex-col gap-4 relative overflow-hidden py-2 animate-in fade-in duration-300 mt-2">
                         <div className="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-black to-transparent z-40 pointer-events-none" />
                         <div className="absolute right-0 top-0 bottom-0 w-[20%] bg-gradient-to-l from-black to-transparent z-40 pointer-events-none" />
 
@@ -342,13 +342,13 @@ export function MarketView() {
                                    const isWinnerCard = idx === 25;
                                    const isResult = openingState === 'result';
                                    return (
-                                     <div key={idx} className={`w-[100px] h-[100px] flex-shrink-0 flex flex-col items-center justify-center rounded-[24px] border transition-all duration-700 ${isResult && !isWinnerCard ? 'opacity-0 scale-50' : isResult && isWinnerCard ? 'opacity-100 scale-110 bg-[#111111] border-b-2 border-t-0 border-l-0 border-r-0 border-[#3b82f6] shadow-[0_0_30px_rgba(59,130,246,0.3)] z-40' : 'bg-[#0d0d0f] border-b-2 border-t-0 border-l-0 border-r-0 border-[#2c2c2e] opacity-80 shadow-md'}`}>
+                                     <div key={idx} className={`w-[100px] h-[100px] flex-shrink-0 flex flex-col items-center justify-center rounded-[24px] border transition-all duration-700 ${isResult && !isWinnerCard ? 'opacity-0 scale-50' : isResult && isWinnerCard ? 'opacity-100 scale-110 bg-[#111111] border border-white/60 shadow-[0_0_30px_rgba(255,255,255,0.15)] z-40' : 'bg-[#0d0d0f] border border-[#2c2c2e] opacity-80 shadow-md'}`}>
                                        {item.type === 'dummy' ? (
                                          <span className="text-white/30 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
                                        ) : (
                                          <>
                                             <item.icon className="w-10 h-10 drop-shadow-lg" style={{ color: item.color }} />
-                                            {isResult && <span className="text-white font-bold text-[11px] text-center px-1 mt-2 leading-tight animate-in fade-in zoom-in duration-500 delay-300" style={{ fontFamily: SF }}>{item.name}</span>}
+                                            {isResult && <span className="text-[#8e8e93] font-bold text-[11px] text-center px-1 mt-2 leading-tight animate-in fade-in zoom-in duration-500 delay-300" style={{ fontFamily: SF }}>{item.name}</span>}
                                          </>
                                        )}
                                      </div>
@@ -390,9 +390,12 @@ export function MarketView() {
                   
                   {/* Título y Controles */}
                   <div className="flex items-center justify-between mb-4">
-                     <h3 className="text-white font-bold text-[24px] tracking-tight" style={{ fontFamily: SFD }}>
-                        {activeBoxData.name} Items <span className="text-[#8e8e93] font-medium text-[16px]">{INSIDE_ITEMS.length}</span>
-                     </h3>
+                     <div className="flex flex-col">
+                        <span className="text-[#8e8e93] text-[13px] font-medium mb-0.5" style={{ fontFamily: SF }}>What's Inside</span>
+                        <h3 className="text-white font-bold text-[24px] tracking-tight" style={{ fontFamily: SFD }}>
+                           {activeBoxData.name} Items
+                        </h3>
+                     </div>
                      <div className="flex gap-2">
                         <button type="button" onClick={() => setBoxViewMode(v => v === 'grid' ? 'list' : 'grid')} className="w-[38px] h-[38px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shadow-sm">
                            {boxViewMode === 'grid' ? <List className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
@@ -406,20 +409,26 @@ export function MarketView() {
                   {/* Buscador */}
                   <div className="w-full bg-[#1c1c1e] rounded-[14px] flex items-center px-4 py-2.5 gap-2 border border-[#2c2c2e] mb-5">
                      <Search className="w-5 h-5 text-[#8e8e93]" />
-                     <input type="text" placeholder={`Search in ${activeBoxData.name}...`} className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#636366]" style={{ fontFamily: SF }} />
+                     <input type="text" placeholder="Search items..." className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#636366]" style={{ fontFamily: SF }} />
                   </div>
 
-                  {/* Renderizado de los Ítems */}
+                  {/* Renderizado de los Ítems (Adaptado al diseño de Auctions) */}
                   {boxViewMode === 'grid' ? (
                      <div className="grid grid-cols-2 gap-3 pb-8">
                         {INSIDE_ITEMS.map((item) => (
-                           <div key={item.id} className="bg-[#111111] rounded-[20px] p-3 flex flex-col items-center relative border border-[#1c1c1e] shadow-md hover:bg-[#161618] transition-colors cursor-pointer">
-                              <div className="absolute top-2.5 right-2.5 bg-[#1c1c1e] border border-[#2c2c2e] px-1.5 py-0.5 rounded-md">
-                                 <span className="text-[#8e8e93] font-bold text-[10px]">{item.drop}</span>
+                           <div key={item.id} className="bg-[#111111] rounded-[20px] p-2 flex flex-col border border-[#1c1c1e] shadow-md hover:bg-[#161618] transition-colors cursor-pointer relative overflow-hidden">
+                              <div className="absolute top-3 right-3 bg-[#3b82f6] text-white font-bold text-[10px] px-1.5 py-0.5 rounded-full z-10 shadow-sm border border-white/20">
+                                 {item.drop}
                               </div>
-                              <item.icon className="w-12 h-12 drop-shadow-lg my-5" style={{ color: item.color }} />
-                              <span className="text-white font-bold text-[14px] text-center leading-tight mb-2" style={{ fontFamily: SF }}>{item.name}</span>
-                              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full" style={{ color: item.color, backgroundColor: `${item.color}15`, border: `1px solid ${item.color}30` }}>{item.rarity}</span>
+                              <div className="w-full aspect-square bg-[#1c1c1e] rounded-[16px] overflow-hidden relative flex items-center justify-center p-1">
+                                 <item.icon className="w-16 h-16 drop-shadow-xl" style={{ color: item.color }} />
+                              </div>
+                              <div className="flex flex-col flex-1 pt-3 pb-1 items-center text-center px-2">
+                                 <span className="text-white font-bold text-[14px] truncate leading-tight w-full" style={{ fontFamily: SFD }}>
+                                    {item.name}
+                                 </span>
+                                 <span className="text-[11px] font-bold mt-1.5 px-2.5 py-0.5 rounded-full" style={{ color: item.color, backgroundColor: `${item.color}15`, border: `1px solid ${item.color}30` }}>{item.rarity}</span>
+                              </div>
                            </div>
                         ))}
                      </div>
@@ -432,10 +441,10 @@ export function MarketView() {
                               </div>
                               <div className="flex flex-col flex-1">
                                  <span className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>{item.name}</span>
-                                 <span className="text-[12px] font-bold mt-1 w-fit px-2 rounded" style={{ color: item.color, backgroundColor: `${item.color}15` }}>{item.rarity}</span>
+                                 <span className="text-[12px] font-bold mt-1 w-fit px-2 rounded-full" style={{ color: item.color, backgroundColor: `${item.color}15`, border: `1px solid ${item.color}30` }}>{item.rarity}</span>
                               </div>
-                              <div className="bg-[#1c1c1e] border border-[#2c2c2e] px-2.5 py-1.5 rounded-xl">
-                                 <span className="text-[#8e8e93] font-bold text-[13px]">{item.drop}</span>
+                              <div className="bg-[#3b82f6] border border-white/20 px-2.5 py-1 rounded-full shadow-sm">
+                                 <span className="text-white font-bold text-[12px]">{item.drop}</span>
                               </div>
                            </div>
                         ))}
@@ -570,7 +579,7 @@ export function MarketView() {
 
                    {/* Browse Heading */}
                    <div className="flex items-center justify-between gap-2 mb-4 px-1">
-                      <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Browse Lootboxes <span className="text-[#8e8e93] font-medium text-[16px]">{MARKET_BOXES.length}</span></h3>
+                      <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Lootboxes <span className="text-[#8e8e93] font-medium text-[16px]">{MARKET_BOXES.length}</span></h3>
                    </div>
 
                    {/* Main Lootboxes Grid */}
@@ -840,7 +849,6 @@ export function MarketView() {
                       <span className="text-[#8e8e93] text-[14px] flex items-center gap-1" style={{ fontFamily: SF }}>Service Fee <Info className="w-3 h-3" /></span>
                       <span className="text-white font-bold text-[14px]">{serviceFee} Stars</span>
                    </div>
-                   {/* Eliminada la sección de Creator Royalties como pediste */}
                    <div className="flex items-center justify-between pt-2 border-t border-[#1c1c1e]">
                       <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>Seller will get</span>
                       <span className="text-white font-bold text-[15px]">{sellerGets} Stars</span>
@@ -944,7 +952,7 @@ export function MarketView() {
                       <div className="w-8" /> {/* Spacer */}
                    </div>
                    
-                   {/* EMPTY STATE - Con Filtro de Color Profile View */}
+                   {/* EMPTY STATE */}
                    <div className="flex-1 flex flex-col items-center justify-center py-10 text-center">
                       <div className="w-[120px] h-[120px] mb-6 relative">
                          <img 
