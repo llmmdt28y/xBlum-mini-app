@@ -103,6 +103,7 @@ const FILTER_OPTIONS = {
    symbol: ['All symbols', 'Bull Market Red', 'Phoenix', 'Classic Stone']
 }
 
+// Para evitar errores de JSX en Turbopack, las animaciones CSS se inyectarán de forma segura.
 const animationStyles = `
   @keyframes box-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   .animate-box-float { animation: box-float 3.5s ease-in-out infinite; }
@@ -245,320 +246,7 @@ export function MarketView() {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-black relative overflow-hidden" ref={dropdownRef}>
-      <style>{animationStyles}</style>
-
-      {/* ── PÍLDORA DE TOP UP FLOTANTE ── */}
-      {activeTab === 'Play' && !viewingBoxId && (
-        <div className="fixed top-[85px] right-5 z-[60] bg-[#1c1c1e]/85 backdrop-blur-md rounded-full p-1 pl-3 flex items-center gap-2 border border-[#2c2c2e] shadow-lg shadow-black/40 transition-all animate-in fade-in zoom-in duration-300">
-           <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain -mt-[2px]" />
-           <span className="text-white font-bold text-[15px]" style={{ fontFamily: SF }}>{myStars.toLocaleString('en-US')}</span>
-           <button type="button" onClick={() => setIsTopUpOpen(true)} className="w-7 h-7 rounded-full bg-[#2c2c2e] flex items-center justify-center active:scale-95 ml-1 transition-transform">
-              <Plus className="w-4 h-4 text-[#a78bfa]" strokeWidth={3} />
-           </button>
-        </div>
-      )}
-
-      <div className="flex-1 overflow-y-auto pb-32">
-        {/* ── VISTA DETALLE DE LOOTBOX (UNBOXING) ── */}
-        {viewingBoxId && activeBoxData ? (
-          <div className="animate-in slide-in-from-right-8 fade-in duration-300">
-            <div className="flex flex-col px-5 pt-16 items-center">
-               <h2 className="text-white font-bold text-[28px] mb-8 transition-all" style={{ fontFamily: SFD }}>
-                  {openingState === 'idle' ? activeBoxData.name : openingState === 'spinning' ? 'Opening...' : 'Rewards Drop!'}
-               </h2>
-
-               <div className="w-full flex flex-col items-center mb-8 relative">
-                  {openingState === 'idle' ? (
-                     <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden animate-in fade-in duration-500">
-                        <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] -translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
-                           <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
-                        </div>
-                        <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
-                           <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
-                        </div>
-                        <div className="absolute z-20 w-[95px] h-[95px] bg-[#0d0d0f] rounded-[24px] -translate-x-[115px] flex items-center justify-center border border-[#2c2c2e] shadow-xl opacity-70">
-                           <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
-                        </div>
-                        <div className="absolute z-20 w-[95px] h-[95px] bg-[#0d0d0f] rounded-[24px] translate-x-[115px] flex items-center justify-center border border-[#2c2c2e] shadow-xl opacity-70">
-                           <span className="text-white/50 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
-                        </div>
-                        <div className="relative z-30 w-[110px] h-[110px] bg-[#141415] rounded-[28px] flex items-center justify-center border border-[#3b82f6]/40 shadow-[0_0_30px_rgba(59,130,246,0.2)]">
-                           <LootboxVisual color={activeBoxData.color} imgSrc={activeBoxData.image} size="large" />
-                        </div>
-                        <div className="absolute left-1/2 -top-1 -translate-x-1/2 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
-                     </div>
-                  ) : (
-                     <div className="w-full flex flex-col gap-4 relative overflow-hidden py-2 animate-in fade-in duration-300">
-                        <div className="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-black to-transparent z-40 pointer-events-none" />
-                        <div className="absolute right-0 top-0 bottom-0 w-[20%] bg-gradient-to-l from-black to-transparent z-40 pointer-events-none" />
-
-                        {tracks.map((track, trackIdx) => (
-                           <div key={trackIdx} className="w-full h-[110px] relative flex items-center overflow-visible">
-                              <div className="absolute left-1/2 -top-1 -translate-x-1/2 z-40 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
-                              <div
-                                className="flex gap-3 absolute left-1/2"
-                                style={{
-                                  transform: openingState === 'spinning' && isSpinningActive
-                                    ? `translateX(calc(-50px - ${25 * 112}px))`
-                                    : openingState === 'result'
-                                    ? `translateX(calc(-50px - ${25 * 112}px))`
-                                    : `translateX(-50px)`,
-                                  transition: isSpinningActive ? `transform 6s cubic-bezier(0.15, 0.85, 0.15, 1)` : 'none',
-                                }}
-                              >
-                                {track.items.map((item, idx) => {
-                                   const isWinnerCard = idx === 25;
-                                   const isResult = openingState === 'result';
-                                   return (
-                                     <div key={idx} className={`w-[100px] h-[100px] flex-shrink-0 flex flex-col items-center justify-center rounded-[24px] border transition-all duration-700 ${isResult && !isWinnerCard```tsx
-"use client"
-
-import { useApp } from "@/lib/app-context"
-import { useEffect, useState, useRef } from "react"
-import { Plus, Star, ArrowDown, X, Info, Shield, Cpu, Sparkles, Loader2, Send, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy, ChevronRight, ChevronLeft } from "lucide-react"
-
-const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
-const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
-
-// ── Base de Datos Visual ──
-const MARKET_BOXES = [
-  { id: 'secret', name: 'Secret', color: '#eab308', image: '/1000009369.png', isSoldOut: false, price: 150 },
-  { id: 'toxic', name: 'Toxic Whisper', color: '#c084fc', image: '/1000009370.png', isSoldOut: false, price: 300 },
-  { id: 'eternal', name: 'Eternal Beacon', color: '#a855f7', image: '/1000009371.png', isSoldOut: true, price: 500 },
-  { id: 'aureus', name: 'Aureus', color: '#facc15', image: '/1000009361.png', isSoldOut: false, price: 1000 }
-]
-
-const INSIDE_ITEMS = [
-  { id: 1, name: "5,000 Stars", icon: Star, rarity: "Legendary", color: "#eab308", drop: "0.5%" },
-  { id: 2, name: "Grok 3 API Trial", icon: Cpu, rarity: "Legendary", color: "#a855f7", drop: "1.2%" },
-  { id: 3, name: "VortX VIP Badge", icon: Shield, rarity: "Rare", color: "#3b82f6", drop: "15.0%" },
-  { id: 4, name: "100 Stars", icon: Star, rarity: "Rare", color: "#eab308", drop: "25.3%" },
-  { id: 5, name: "Dark Theme UI", icon: Sparkles, rarity: "Common", color: "#c084fc", drop: "58.0%" },
-]
-
-const STAR_PACKAGES = [
-  { stars: "100", price: "$1.99", count: 1 },
-  { stars: "250", price: "$4.99", count: 2 },
-  { stars: "500", price: "$9.99", count: 3 },
-  { stars: "1 000", price: "$19.99", count: 4 },
-  { stars: "2 500", price: "$49.99", count: 5 },
-  { stars: "10 000", price: "$199.99", count: 6 },
-]
-
-const AUCTION_ITEMS = [
-  { 
-    id: 'pepe', 
-    title: 'Plush Pepe', 
-    tag: '#1208', 
-    collection: 'Plush Pepes',
-    imgSrc: '/1000010040.jpg', 
-    estValue: '4,500', 
-    fiatValue: '$6,210.52',
-    attributes: [
-        { name: 'Model', value: 'Genesis Drop', rarity: '2%', price: '4,350', rarityColor: 'text-[#3b82f6] bg-[#3b82f6]/10' },
-        { name: 'Symbol', value: 'Bull Market Red', rarity: '1.5%', price: '4,210', rarityColor: 'text-[#c084fc] bg-[#c084fc]/10' }
-    ],
-    owned: true,
-    gridPrice: '4,500'
-  },
-  { 
-    id: 'bunny1', 
-    title: 'Jelly Bunny', 
-    tag: '#4512', 
-    collection: 'Jelly Bunnies',
-    imgSrc: '/1000010039.jpg', 
-    estValue: '1.8', 
-    fiatValue: '$12.40',
-    attributes: [
-        { name: 'Model', value: 'Deep Blue Sea', rarity: '0.8%', price: '1.8', rarityColor: 'text-[#eab308] bg-[#eab308]/10' },
-        { name: 'Background', value: 'Mint Gray', rarity: '1.3%', price: '20.2', rarityColor: 'text-[#c084fc] bg-[#c084fc]/10' },
-        { name: 'Symbol', value: 'Phoenix', rarity: '2%', price: '0.5', rarityColor: 'text-[#3b82f6] bg-[#3b82f6]/10' }
-    ],
-    owned: false,
-    gridPrice: '1.8'
-  },
-  { 
-    id: 'bunny2', 
-    title: 'Jelly Bunny', 
-    tag: '#25231', 
-    collection: 'Jelly Bunnies',
-    imgSrc: '/1000010037.png', 
-    estValue: '0.5', 
-    fiatValue: '$3.50',
-    attributes: [
-        { name: 'Model', value: 'Classic Stone', rarity: '15%', price: '0.5', rarityColor: 'text-[#8e8e93] bg-[#8e8e93]/10' },
-        { name: 'Background', value: 'Dusty', rarity: '12%', price: '0.6', rarityColor: 'text-[#8e8e93] bg-[#8e8e93]/10' }
-    ],
-    owned: false,
-    gridPrice: '0.5'
-  },
-  { 
-    id: 'pepe2', 
-    title: 'Plush Pepe', 
-    tag: '#884', 
-    collection: 'Plush Pepes',
-    imgSrc: '/1000010040.jpg', 
-    estValue: '2,100', 
-    fiatValue: '$2,800.00',
-    attributes: [
-        { name: 'Model', value: 'Standard', rarity: '10%', price: '2,000', rarityColor: 'text-[#10b981] bg-[#10b981]/10' },
-    ],
-    owned: false,
-    gridPrice: '2,100'
-  },
-]
-
-// ── Opciones para Dropdowns de Filtros ──
-const FILTER_OPTIONS = {
-   sale: ['All', 'For sale', 'Not for sale'],
-   collections: ['All collections', 'Plush Pepes', 'Jelly Bunnies', 'Ginger Cookies'],
-   backdrop: ['All backdrops', 'Mint Gray', 'Dusty', 'Deep Blue Sea'],
-   symbol: ['All symbols', 'Bull Market Red', 'Phoenix', 'Classic Stone']
-}
-
-const animationStyles = `
-  @keyframes box-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-  .animate-box-float { animation: box-float 3.5s ease-in-out infinite; }
-  @keyframes shake-error { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); } }
-  .animate-shake { animation: shake-error 0.4s ease-in-out; }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-`;
-
-const LootboxVisual = ({ color, imgSrc, size = "normal" }: { color: string, imgSrc: string, size?: "normal" | "large" }) => {
-  const containerClass = size === "large" ? "h-[120px]" : "h-[90px]"
-  const imgClass = size === "large" ? "w-[100px] h-[100px]" : "w-[75px] h-[75px]"
-  return (
-    <div className={`relative w-full ${containerClass} flex flex-col items-center justify-center`}>
-      <div className="absolute w-[60px] h-[60px] opacity-30 rounded-full z-0" style={{ backgroundColor: color, filter: 'blur(15px)' }}></div>
-      <div className="relative z-10 animate-box-float">
-        <img src={imgSrc} alt="Lootbox" className={`${imgClass} object-contain mix-blend-screen pointer-events-none select-none`} />
-      </div>
-    </div>
-  )
-}
-
-export function MarketView() {
-  const ctx = useApp() as any
-  const { setCurrentView } = ctx
-  const myStars = 1500
-
-  // ── ESTADOS PRINCIPALES ──
-  const [isTopUpOpen, setIsTopUpOpen] = useState(false)
-  const [starInput, setStarInput] = useState("")
-  const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
-  
-  // ── ESTADOS DE PESTAÑAS Y VISTAS ──
-  const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Play')
-  const [viewingAuctionId, setViewingAuctionId] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
-
-  // ── ESTADOS DE FILTROS ──
-  const [openDropdown, setOpenDropdown] = useState<'sale' | 'collections' | 'backdrop' | 'symbol' | null>(null)
-  const [filters, setFilters] = useState({ sale: 'For sale', collections: 'Collections', backdrop: 'Backdrop', symbol: 'Symbol' })
-
-  // ── ESTADOS DE ADD GIFT (LISTING FLOW) ──
-  const [isAddGiftOpen, setIsAddGiftOpen] = useState(false)
-  const [addGiftStep, setAddGiftStep] = useState<'choose_type' | 'select_gift'>('choose_type')
-  const [listingType, setListingType] = useState<'fixed' | 'auction' | 'falling' | null>(null)
-
-  // ── ESTADOS DE LA RULETA EN LÍNEA ──
-  const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
-  const [isSpinningActive, setIsSpinningActive] = useState(false)
-  const [tracks, setTracks] = useState<Array<{ winner: any, items: any[] }>>([])
-
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpenDropdown(null)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
-
-  // ── NAVEGACIÓN NATIVA DE TELEGRAM (BACK BUTTON) ──
-  useEffect(() => {
-    const tg = (window as any).Telegram?.WebApp
-    if (!tg?.BackButton) return
-    
-    tg.BackButton.show()
-
-    const handleBack = () => {
-      if (isAddGiftOpen) {
-         if (addGiftStep === 'select_gift') {
-            setAddGiftStep('choose_type') 
-         } else {
-            setIsAddGiftOpen(false) 
-         }
-      } else if (viewingBoxId) {
-         setViewingBoxId(null) 
-      } else if (viewingAuctionId) {
-         setViewingAuctionId(null) 
-      } else if (activeTab === 'Auctions') {
-         setActiveTab('Play') 
-      } else {
-         setCurrentView("home") 
-         tg.BackButton.hide()
-      }
-    }
-
-    tg.BackButton.onClick(handleBack)
-    return () => tg.BackButton.offClick(handleBack)
-  }, [setCurrentView, viewingBoxId, viewingAuctionId, activeTab, isAddGiftOpen, addGiftStep])
-
-  const handleStarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value.replace(/\D/g, '') 
-    if (val === '') { setStarInput(''); return }
-    const num = parseInt(val, 10)
-    setStarInput(num > 150000 ? '150000' : num.toString())
-  }
-
-  const startRoulette = (count: number) => {
-    const newTracks = Array.from({ length: count }).map(() => {
-      const winner = INSIDE_ITEMS[Math.floor(Math.random() * INSIDE_ITEMS.length)]
-      const items = Array(35).fill({ type: 'dummy' })
-      items[25] = { type: 'winner', ...winner }
-      return { winner, items }
-    })
-
-    setTracks(newTracks)
-    setOpeningState('spinning')
-    setIsSpinningActive(false)
-
-    setTimeout(() => { setIsSpinningActive(true) }, 50)
-    setTimeout(() => { setOpeningState('result'); setIsSpinningActive(false) }, 6050)
-  }
-
-  const closeRoulette = () => {
-    setOpeningState('idle')
-    setTracks([])
-  }
-
-  const toggleExpandAuction = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    setExpandedAuctionId(prev => prev === id ? null : id)
-  }
-
-  const handleAddGiftSelection = (type: 'fixed' | 'auction' | 'falling') => {
-    setListingType(type)
-    setAddGiftStep('select_gift')
-  }
-
-  const numValue = starInput ? parseInt(starInput, 10) : 0
-  const isError = starInput !== "" && numValue < 15
-  const isValid = numValue >= 15 && numValue <= 150000
-  const displayValue = starInput ? numValue.toLocaleString('en-US') : ""
-  
-  const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
-  const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
-
-  return (
-    <div className="flex-1 flex flex-col h-full bg-black relative overflow-hidden" ref={dropdownRef}>
-      <style>{animationStyles}</style>
+      <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
 
       {/* ── PÍLDORA DE TOP UP FLOTANTE ── */}
       {activeTab === 'Play' && !viewingBoxId && (
@@ -687,70 +375,70 @@ export function MarketView() {
           </div>
           
         ) : viewingAuctionId && activeAuctionData ? (
-          /* ── VISTA DETALLE DE SUBASTA / NFT (Rediseñada estilo Imagen) ── */
-          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-20 flex flex-col gap-6">
+          /* ── VISTA DETALLE DE SUBASTA / NFT (Rediseño Limpio y Compacto) ── */
+          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-16 flex flex-col gap-6">
             
-            {/* 1. Contenedor de Imagen Cuadrado Centrado (Más Grande) */}
-            <div className="w-full max-w-[240px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center p-4 shadow-xl mb-2">
+            {/* 1. Contenedor de Imagen Cuadrado Centrado (Más Grande y más redondo) */}
+            <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center p-4 shadow-2xl mb-2">
                <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} className="w-full h-full object-contain drop-shadow-xl" />
                {activeAuctionData.owned && (
-                 <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/10 shadow-md">
+                 <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shadow-md">
                    <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#a855f7] border border-white/20" />
-                   <span className="text-white text-[11px] font-medium" style={{ fontFamily: SF }}>Owned by <span className="font-bold">you</span></span>
+                   <span className="text-white text-[12px] font-medium" style={{ fontFamily: SF }}>Owned by <span className="font-bold">you</span></span>
                  </div>
                )}
             </div>
 
             {/* 2. Información del NFT (Título/Colección) */}
-            <div className="flex flex-col items-center text-center px-5 mb-2">
-               <div className="flex items-center gap-1.5 text-[#8e8e93] text-[13px] mb-1 font-medium" style={{ fontFamily: SF }}>
-                  <BadgeCheck className="w-3.5 h-3.5 text-[#3b82f6]" />
+            <div className="flex flex-col items-center text-center px-5 mb-1">
+               <div className="flex items-center gap-1.5 text-[#8e8e93] text-[14px] mb-1.5 font-medium" style={{ fontFamily: SF }}>
+                  <BadgeCheck className="w-4 h-4 text-[#3b82f6]" />
                   {activeAuctionData.collection}
                </div>
-               <h3 className="text-white font-bold text-[24px] leading-tight" style={{ fontFamily: SFD }}>
+               <h3 className="text-white font-bold text-[26px] leading-tight" style={{ fontFamily: SFD }}>
                   {activeAuctionData.title} <span className="text-[#8e8e93] font-semibold">{activeAuctionData.tag}</span>
                </h3>
             </div>
 
-            {/* 3. Botones de Acción (Sin Contenedor de Fondo) */}
-            <div className="flex gap-3 mx-5 mb-4 px-1">
-               <button type="button" className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[14px] py-2.5 rounded-[14px] flex items-center justify-center gap-1.5 transition-colors shadow-[0_0_10px_rgba(59,130,246,0.3)] active:scale-95" style={{ fontFamily: SF }}>
+            {/* 3. Botones de Acción (Sin Contenedor Gris de Fondo) */}
+            <div className="flex gap-3 mx-5 mb-2 px-1">
+               <button type="button" className="flex-1 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.3)] active:scale-95" style={{ fontFamily: SF }}>
                   <ShoppingCart className="w-4 h-4" /> {activeAuctionData.owned ? 'Sell' : 'Buy Now'}
                </button>
-               <button type="button" className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white font-bold text-[14px] py-2.5 rounded-[14px] flex items-center justify-center gap-1.5 transition-colors border border-[#2c2c2e] active:scale-95" style={{ fontFamily: SF }}>
+               <button type="button" className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
                   <Gavel className="w-4 h-4 text-[#a1a1aa]" /> {activeAuctionData.owned ? 'Transfer' : 'Place Bid'}
                </button>
             </div>
 
             {/* 4. Valor Estimado (Ancho Más Reducido) */}
-            <div className="bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-5 flex justify-between items-center mx-5 mb-1 shadow-lg self-center w-[calc(100%-40px)] max-w-[340px]">
+            <div className="bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-5 flex justify-between items-center mx-auto shadow-lg w-[calc(100%-60px)] max-w-[340px] mb-2">
                <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5 text-[#8e8e93] text-[12px] font-medium mb-1">
-                     Est. value <Info className="w-3 h-3" />
+                  <div className="flex items-center gap-1.5 text-[#8e8e93] text-[13px] font-medium mb-1">
+                     Est. value <Info className="w-3.5 h-3.5" />
                   </div>
                   <div className="flex items-center gap-1.5 text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
                      <Gem className="w-4 h-4 text-[#3b82f6]" /> {activeAuctionData.estValue}
                   </div>
                </div>
                <div className="flex flex-col text-right">
-                  <span className="text-[#8e8e93] text-[12px] font-medium mb-1">Equal to</span>
-                  <span className="text-white font-bold text-[16px]" style={{ fontFamily: SFD }}>{activeAuctionData.fiatValue}</span>
+                  <span className="text-[#8e8e93] text-[13px] font-medium mb-1">Equal to</span>
+                  <span className="text-white font-bold text-[17px]" style={{ fontFamily: SFD }}>{activeAuctionData.fiatValue}</span>
                </div>
             </div>
 
-            {/* 5. Rarity & Attributes (Sin Contenedor Gris de Fondo) */}
-            <div className="p-5 mx-5 flex flex-col gap-2">
-               <h4 className="text-white font-bold text-[16px] mb-2" style={{ fontFamily: SFD }}>Rarity & Attributes</h4>
-               {/* Tabla de Atributos (Solo la tabla, sin contenedor gris de fondo) */}
-               <div className="w-full flex flex-col mt-3 gap-0">
+            {/* 5. Rarity & Attributes (Sin Contenedor Gris Externo) */}
+            <div className="px-5 flex flex-col gap-2">
+               <h4 className="text-white font-bold text-[18px] mb-2 px-1" style={{ fontFamily: SFD }}>Rarity & Attributes</h4>
+               {/* Tabla de Atributos Lista Limpia */}
+               <div className="w-full flex flex-col gap-1 px-1">
                   {activeAuctionData.attributes.map((attr, idx) => (
-                     <div key={idx} className={`flex items-center justify-between p-2.5 ${idx !== activeAuctionData.attributes.length - 1 ? 'border-b border-[#1c1c1e]' : ''}`}>
-                        <span className="text-[#8e8e93] text-[13px] w-[80px]" style={{ fontFamily: SF }}>{attr.name}</span>
+                     <div key={idx} className={`flex items-center justify-between py-3 ${idx !== activeAuctionData.attributes.length - 1 ? 'border-b border-[#1c1c1e]' : ''}`}>
+                        <span className="text-[#8e8e93] text-[14px] w-[90px]" style={{ fontFamily: SF }}>{attr.name}</span>
                         <div className="flex-1 flex items-center gap-2">
-                           <span className="text-white font-medium text-[13px]">{attr.value}</span>
-                           <span className={`${attr.rarityColor} text-[10px] font-bold px-1.5 py-0.5 rounded-md`}>{attr.rarity}</span>
+                           <span className="text-white font-medium text-[14px]">{attr.value}</span>
+                           <span className={`${attr.rarityColor} text-[11px] font-bold px-2 py-0.5 rounded-md`}>{attr.rarity}</span>
                         </div>
-                        <div className="flex items-center gap-1 bg-white/5 text-[#8e8e93] text-[11px] font-semibold px-2 py-1 rounded-lg">
+                        <div className="flex items-center gap-1 bg-[#111111] text-[#8e8e93] text-[12px] font-semibold px-2 py-1 rounded-lg border border-[#1c1c1e]">
                            <Gem className="w-3 h-3" /> {attr.price}
                         </div>
                      </div>
@@ -835,7 +523,7 @@ export function MarketView() {
                  </div>
                )}
 
-               {/* ── CONTENIDO: AUCTIONS (Controles Funcionales y Vistas) ── */}
+               {/* ── CONTENIDO: AUCTIONS ── */}
                {activeTab === 'Auctions' && (
                  <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
                     
@@ -866,15 +554,12 @@ export function MarketView() {
                        </button>
                     </div>
 
-                    {/* FILTROS FUNCIONALES */}
                     <div className="flex gap-2 w-full mb-4 relative">
                        <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
                           <SlidersHorizontal className="w-5 h-5" />
                        </button>
                        
                        <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar relative">
-                          
-                          {/* Botón Filtro "Sale" */}
                           <div className="relative shrink-0">
                              <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`min-w-[120px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                                 {filters.sale} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
@@ -887,8 +572,6 @@ export function MarketView() {
                                </div>
                              )}
                           </div>
-                          
-                          {/* Botón Filtro "Collections" */}
                           <div className="relative shrink-0">
                              <button type="button" onClick={() => setOpenDropdown(openDropdown === 'collections' ? null : 'collections')} className={`min-w-[140px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'collections' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                                 {filters.collections} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
@@ -901,8 +584,6 @@ export function MarketView() {
                                </div>
                              )}
                           </div>
-
-                          {/* Botón Filtro "Backdrop" */}
                           <div className="relative shrink-0">
                              <button type="button" onClick={() => setOpenDropdown(openDropdown === 'backdrop' ? null : 'backdrop')} className={`min-w-[130px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'backdrop' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                                 {filters.backdrop} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
@@ -915,8 +596,6 @@ export function MarketView() {
                                </div>
                              )}
                           </div>
-                          
-                          {/* Botón Filtro "Symbol" */}
                           <div className="relative shrink-0">
                              <button type="button" onClick={() => setOpenDropdown(openDropdown === 'symbol' ? null : 'symbol')} className={`min-w-[120px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'symbol' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                                 {filters.symbol} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
@@ -929,7 +608,6 @@ export function MarketView() {
                                </div>
                              )}
                           </div>
-
                        </div>
                     </div>
 
@@ -1031,25 +709,25 @@ export function MarketView() {
         )}
       </div>
 
-      {/* ── MODAL "ADD GIFT" (Estilo Lista Plana sin contenedores individuales) ── */}
+      {/* ── MODAL "ADD GIFT" (Estilo Original Lista Limpia) ── */}
       {isAddGiftOpen && (
         <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsAddGiftOpen(false)} />
           <div className="relative w-full bg-black rounded-t-[28px] px-5 pt-4 pb-[60px] border-t border-[#1c1c1e] flex flex-col max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300">
              
              {addGiftStep === 'choose_type' ? (
-                /* PASO 1: ELEGIR TIPO (Estilo Lista Plana sin contenedores individuales) */
+                /* PASO 1: ELEGIR TIPO (Lista Limpia sin Contenedores de Cajas) */
                 <>
                    <div className="w-10 h-1 bg-[#2c2c2e] rounded-full mx-auto mb-5 shrink-0" />
-                   <div className="flex justify-center items-center mb-6 relative px-10">
+                   <div className="flex justify-center items-center mb-6 relative">
                       <h2 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Choose a type</h2>
                    </div>
                    
-                   <div className="flex flex-col gap-0">
+                   <div className="flex flex-col gap-0 px-1">
                       <button type="button" onClick={() => handleAddGiftSelection('fixed')} className="w-full flex items-center justify-between py-4 border-b border-[#1c1c1e] active:bg-[#111111] transition-colors group">
                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-[14px] bg-[#3b82f6]/10 flex items-center justify-center text-[#3b82f6] shrink-0">
-                               <Tag className="w-6 h-6" />
+                            <div className="w-12 h-12 rounded-full bg-[#3b82f6] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
+                               <Tag className="w-5 h-5" />
                             </div>
                             <div className="flex flex-col text-left">
                                <span className="text-white font-bold text-[16px]" style={{ fontFamily: SF }}>Fixed Price</span>
@@ -1061,8 +739,8 @@ export function MarketView() {
 
                       <button type="button" onClick={() => handleAddGiftSelection('auction')} className="w-full flex items-center justify-between py-4 border-b border-[#1c1c1e] active:bg-[#111111] transition-colors group">
                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-[14px] bg-[#a855f7]/10 flex items-center justify-center text-[#a855f7] shrink-0">
-                               <Gavel className="w-6 h-6" />
+                            <div className="w-12 h-12 rounded-full bg-[#a855f7] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
+                               <Gavel className="w-5 h-5" />
                             </div>
                             <div className="flex flex-col text-left">
                                <span className="text-white font-bold text-[16px]" style={{ fontFamily: SF }}>Auction</span>
@@ -1074,8 +752,8 @@ export function MarketView() {
 
                       <button type="button" onClick={() => handleAddGiftSelection('falling')} className="w-full flex items-center justify-between py-4 active:bg-[#111111] transition-colors group">
                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-[14px] bg-[#14b8a6]/10 flex items-center justify-center text-[#14b8a6] shrink-0">
-                               <ArrowDown className="w-6 h-6" />
+                            <div className="w-12 h-12 rounded-full bg-[#14b8a6] flex items-center justify-center text-white shrink-0 group-active:scale-95 transition-transform">
+                               <ArrowDown className="w-5 h-5" />
                             </div>
                             <div className="flex flex-col text-left">
                                <span className="text-white font-bold text-[16px]" style={{ fontFamily: SF }}>Falling Price</span>
@@ -1098,11 +776,16 @@ export function MarketView() {
                       <div className="w-8" /> {/* Spacer */}
                    </div>
                    
-                   {/* EMPTY STATE */}
+                   {/* EMPTY STATE - Con Filtro de Color Profile View */}
                    <div className="flex-1 flex flex-col items-center justify-center py-10 text-center">
                       <div className="w-[120px] h-[120px] mb-6 relative">
-                         {/* Usa onError nulo para evitar bucles de carga si la imagen no existe */}
-                         <img src="/empty-gift.webp" alt="Empty" className="w-full h-full object-contain filter grayscale opacity-60" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/telegram-star-icon.png'; }} />
+                         <img 
+                           src="/empty-gift.gif" 
+                           alt="Empty" 
+                           className="w-full h-full object-contain pointer-events-none"
+                           style={{ filter: "invert(1) sepia(1) saturate(100) hue-rotate(200deg) brightness(0.85) contrast(1.5) opacity(0.3)" }} 
+                           onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/telegram-star-icon.png'; }}
+                         />
                       </div>
                       <h3 className="text-white font-bold text-[20px] mb-2" style={{ fontFamily: SFD }}>No gifts found</h3>
                       <p className="text-[#8e8e93] text-[14px] max-w-[250px] mx-auto" style={{ fontFamily: SF }}>
