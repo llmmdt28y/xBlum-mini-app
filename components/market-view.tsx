@@ -4,7 +4,8 @@ import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
 import { 
   LayoutGrid, SlidersHorizontal, User, 
-  Search, Sparkles, Loader2, Lock, Hexagon
+  Search, Sparkles, Loader2, Lock, Hexagon,
+  ShoppingBag, Heart, Clock
 } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -12,16 +13,16 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 
 // ── Base de Datos Visual ──
 const AIRDROP_CAPSULES = [
-  { id: 'weekly_bp', name: 'Community Cache', tag: '#001', currency: 'BP', price: 2500, supply: { current: '∞', max: '∞' }, color: '#3A3A3C', imageSrc: '/1000009369.png' },
-  { id: 'grok_node', name: 'Neural Node', tag: '#442', currency: 'STARS', price: 150, supply: { current: 142, max: 500 }, color: '#1A233A', imageSrc: '/1000009370.png' },
-  { id: 'vortx_vip', name: 'VortX Genesis', tag: '#089', currency: 'STARS', price: 1000, supply: { current: 0, max: 50 }, color: '#332714', imageSrc: '/1000009361.png' }
+  { id: 'weekly_bp', name: 'Community Cache', tag: '#001', currency: 'BP', price: 2500, supply: { current: '∞', max: '∞' }, imageSrc: '/1000009369.png' },
+  { id: 'grok_node', name: 'Neural Node', tag: '#442', currency: 'STARS', price: 150, supply: { current: 142, max: 500 }, imageSrc: '/1000009370.png' },
+  { id: 'vortx_vip', name: 'VortX Genesis', tag: '#089', currency: 'STARS', price: 1000, supply: { current: 0, max: 50 }, imageSrc: '/1000009361.png' }
 ]
 
 const AUCTION_ITEMS = [
-  { id: 'crystal_1', title: 'Crystal Ball', tag: '#11179', imgSrc: '/1000010040.jpg', price: '20', isSoldOut: false, bgColor: '#332714' },
-  { id: 'crystal_2', title: 'Incubus', tag: '#14640', imgSrc: '/1000010039.jpg', price: '80', isSoldOut: true, bgColor: '#1E1B2E' },
-  { id: 'crystal_3', title: 'Fuschia', tag: '#8842', imgSrc: '/1000010037.png', price: '45', isSoldOut: false, bgColor: '#2D1B2E' },
-  { id: 'crystal_4', title: 'Silver', tag: '#9921', imgSrc: '/1000010040.jpg', price: '15', isSoldOut: false, bgColor: '#2C2C2E' },
+  { id: 'crystal_1', title: 'Crystal Ball', tag: '#11179', imgSrc: '/1000010040.jpg', price: '20', isSoldOut: false },
+  { id: 'crystal_2', title: 'Incubus', tag: '#14640', imgSrc: '/1000010039.jpg', price: '80', isSoldOut: true },
+  { id: 'crystal_3', title: 'Fuschia', tag: '#8842', imgSrc: '/1000010037.png', price: '45', isSoldOut: false },
+  { id: 'crystal_4', title: 'Silver', tag: '#9921', imgSrc: '/1000010040.jpg', price: '15', isSoldOut: false },
 ]
 
 // ── CSS INYECTADO (Animaciones Glitch & Float) ──
@@ -32,7 +33,6 @@ const animationStyles = `
   }
   .animate-box-float { animation: box-float 4s ease-in-out infinite; }
   
-  /* Efecto de corrupción/pixelado rápido */
   @keyframes extreme-glitch {
     0% { transform: translate(0) scale(1) skewX(0deg); filter: blur(0px) contrast(1); opacity: 1; }
     10% { transform: translate(-4px, 2px) scale(1.05) skewX(-10deg); filter: blur(2px) contrast(2) hue-rotate(90deg); opacity: 0.8; }
@@ -43,10 +43,12 @@ const animationStyles = `
     100% { transform: translate(0) scale(1) skewX(0deg); filter: blur(0px) contrast(1); opacity: 1; }
   }
   .animate-extreme-glitch { animation: extreme-glitch 0.3s steps(2, end) infinite; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 `;
 
-// ── COMPONENTE: TARJETA EXACTA A LA IMAGEN ──
-const ExactCard = ({ item, isAirdrop = false, onClick }: any) => {
+// ── COMPONENTE: TARJETA LIMPIA (Sin contenedores de color de fondo) ──
+const CleanCard = ({ item, isAirdrop = false, onClick }: any) => {
   const isSoldOut = isAirdrop ? item.supply.current === 0 : item.isSoldOut;
   const title = isAirdrop ? item.name : item.title;
   const price = item.price;
@@ -54,58 +56,60 @@ const ExactCard = ({ item, isAirdrop = false, onClick }: any) => {
   return (
     <div 
       onClick={onClick}
-      className="relative rounded-[24px] p-3 flex flex-col overflow-hidden cursor-pointer active:scale-95 transition-all"
-      style={{ backgroundColor: isAirdrop ? item.color : item.bgColor }}
+      className="relative rounded-[28px] bg-[#161618] flex flex-col overflow-hidden cursor-pointer active:scale-95 transition-all border border-white/5"
     >
-      {/* Destellos decorativos (Sparkles) */}
-      <Sparkles className="absolute top-3 left-3 w-4 h-4 text-white/50" />
-      <Sparkles className="absolute top-8 right-4 w-3 h-3 text-white/30" />
-
-      {/* Ítem Central */}
-      <div className="w-full aspect-[4/3] flex items-center justify-center relative mb-2">
+      {/* Imagen Superior (Es la propia imagen la que da el color) */}
+      <div className="w-full aspect-square relative bg-[#1A1A1C]">
         <img 
            src={isAirdrop ? item.imageSrc : item.imgSrc} 
            alt={title} 
            draggable={false}
-           className={`w-[75%] h-[75%] object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-110 ${isSoldOut ? 'grayscale opacity-60' : 'animate-box-float'}`}
+           className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${isSoldOut ? 'grayscale opacity-50' : ''}`}
+           style={{ WebkitTouchCallout: "none" }}
         />
+        {/* Destellos opcionales */}
+        {!isSoldOut && <Sparkles className="absolute top-3 left-3 w-4 h-4 text-white/70 drop-shadow-md" />}
       </div>
 
-      {/* Título y Tag */}
-      <div className="flex items-center justify-between px-1 mb-2">
-        <span className="text-white font-bold text-[14px] truncate flex-1 pr-2" style={{ fontFamily: SFD }}>
-          {title}
-        </span>
-        <span className="text-white/60 text-[12px] font-medium shrink-0" style={{ fontFamily: SF }}>
-          {item.tag}
-        </span>
-      </div>
-
-      {/* Píldora Inferior (Estado / Precio) */}
-      <div className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[16px] backdrop-blur-md ${isSoldOut ? 'bg-black/30' : 'bg-black/20'}`}>
-        {/* Left Side: Status */}
-        <div className="flex items-center gap-1.5">
-           {isSoldOut ? (
-             <>
-               <Lock className="w-3.5 h-3.5 text-white/60" />
-               <span className="text-white/80 text-[12px] font-bold" style={{ fontFamily: SF }}>Sold out</span>
-             </>
-           ) : (
-             <>
-               <Hexagon className="w-3.5 h-3.5 text-white/90" />
-               <span className="text-white font-bold text-[12px]" style={{ fontFamily: SF }}>Listed</span>
-             </>
-           )}
+      {/* Contenedor Inferior Oscuro */}
+      <div className="flex flex-col p-3 bg-[#161618]">
+        {/* Título y Tag */}
+        <div className="flex items-center justify-between mb-3 px-1">
+          <span className="text-white font-bold text-[15px] truncate flex-1 pr-2 leading-tight" style={{ fontFamily: SFD }}>
+            {title}
+          </span>
+          <span className="text-[#8e8e93] text-[12px] font-medium shrink-0" style={{ fontFamily: SF }}>
+            {item.tag}
+          </span>
         </div>
 
-        {/* Right Side: Price */}
-        <div className="flex items-center gap-1">
-           <span className="text-white font-bold text-[13px]" style={{ fontFamily: SF }}>{price}</span>
-           {!isAirdrop || item.currency === 'STARS' ? (
-              <img src="/telegram-star-icon.png" className="w-3.5 h-3.5 opacity-90" alt="Star" />
-           ) : (
-              <span className="text-white/80 text-[11px] font-bold">BP</span>
-           )}
+        {/* Botón/Píldora Inferior Integrada */}
+        <div className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[16px] border ${isSoldOut ? 'bg-[#1C1C1E]/60 border-transparent' : 'bg-[#2C2C2E]/50 border-white/5'}`}>
+          <div className="flex items-center gap-1.5">
+             {isSoldOut ? (
+               <>
+                 <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-[#8e8e93]">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2"/>
+                    <path d="M12 8V12L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                 </svg>
+                 <span className="text-[#8e8e93] text-[12px] font-bold" style={{ fontFamily: SF }}>Sold out</span>
+               </>
+             ) : (
+               <>
+                 <Hexagon className="w-3.5 h-3.5 text-[#8e8e93]" />
+                 <span className="text-white font-bold text-[12px]" style={{ fontFamily: SF }}>Listed</span>
+               </>
+             )}
+          </div>
+
+          <div className="flex items-center gap-1">
+             <span className="text-white font-bold text-[14px]" style={{ fontFamily: SF }}>{price}</span>
+             {!isAirdrop || item.currency === 'STARS' ? (
+                <img src="/telegram-star-icon.png" className="w-3.5 h-3.5 opacity-90" alt="Star" />
+             ) : (
+                <span className="text-white/80 text-[11px] font-bold">BP</span>
+             )}
+          </div>
         </div>
       </div>
     </div>
@@ -149,10 +153,9 @@ export function MarketView() {
     if (openingState === 'spinning') {
       const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
       interval = setInterval(() => {
-        // Genera secuencias tipo: # 0x4F2A_SYS_ERR
-        const randStr = Array.from({length: 6}).map(() => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
-        setGlitchText(`# 0x${randStr}_DATA`);
-      }, 60);
+        const randStr = Array.from({length: 8}).map(() => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+        setGlitchText(`# 0x${randStr}_SYS`);
+      }, 50);
     } else if (openingState === 'idle') {
       setGlitchText("AWAITING_INPUT");
     }
@@ -164,60 +167,58 @@ export function MarketView() {
     setTimeout(() => {
       setWonItems([{ name: "5,000 BP", rarity: "Legendary", color: "#eab308" }])
       setOpeningState('result')
-    }, 2800) // 2.8s de animación de hackeo
+    }, 2800)
   }
 
   const activeBoxData = AIRDROP_CAPSULES.find(b => b.id === viewingBoxId)
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#111111] relative overflow-hidden select-none">
+    <div className="flex-1 flex flex-col h-full bg-[#0E0E10] relative overflow-hidden select-none">
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
       {viewingBoxId && (
         <style dangerouslySetInnerHTML={{ __html: `#main-nav-bar { display: none !important; }` }} />
       )}
 
-      {/* ── HEADER REPLICADO EXACTO ── */}
+      {/* ── HEADER CON BOTONES LARGOS BLUR ── */}
       {!viewingBoxId && (
-        <div className="sticky top-0 z-[100] w-full bg-[#111111]/90 backdrop-blur-xl pb-4 px-5 pt-8">
+        <div className="sticky top-0 z-40 w-full bg-[#0E0E10]/80 backdrop-blur-xl pb-4 px-5 pt-8 border-b border-white/5">
           
-          <div className="flex flex-col mb-6 mt-4">
-             {/* Saldo TON */}
-             <div className="flex items-center gap-2 mb-4">
-                <div className="w-[22px] h-[22px] rounded-full bg-[#0098EA] flex items-center justify-center">
-                   <svg viewBox="0 0 24 24" fill="none" className="w-[14px] h-[14px] text-white">
-                     <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2.5"/>
-                     <path d="M8 12L12 8L16 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                     <path d="M12 16V8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                   </svg>
-                </div>
-                <span className="text-white font-bold text-[28px] tracking-tight" style={{ fontFamily: SFD }}>
-                   {tonBalance} <span className="text-white/60 text-[20px] font-semibold">TON</span>
-                </span>
+          {/* Saldo TON */}
+          <div className="flex items-center gap-2 mb-5">
+             <div className="w-[28px] h-[28px] rounded-full bg-[#0098EA] flex items-center justify-center shadow-[0_0_15px_rgba(0,152,234,0.4)]">
+                <svg viewBox="0 0 24 24" fill="none" className="w-[16px] h-[16px] text-white">
+                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2.5"/>
+                  <path d="M8 12L12 8L16 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 16V8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
              </div>
-             
-             {/* Píldoras de Acción */}
-             <div className="flex gap-2.5">
-                <button className="bg-white/10 hover:bg-white/20 text-white/90 px-4 py-2 rounded-full text-[14px] font-semibold flex items-center gap-2 active:scale-95 transition-all">
-                   <LayoutGrid size={16} /> Collection
-                </button>
-                <button className="bg-white/10 hover:bg-white/20 text-white/90 px-4 py-2 rounded-full text-[14px] font-semibold flex items-center gap-2 active:scale-95 transition-all">
-                   <SlidersHorizontal size={16} /> Stats
-                </button>
-             </div>
+             <span className="text-white font-bold text-[32px] tracking-tight leading-none" style={{ fontFamily: SFD }}>
+                {tonBalance} <span className="text-white/50 text-[20px] font-semibold">TON</span>
+             </span>
+          </div>
+          
+          {/* Botones Anchos y Esmerilados */}
+          <div className="flex gap-3 mb-6">
+             <button className="flex-1 bg-white/10 backdrop-blur-md hover:bg-white/15 text-white py-3.5 rounded-[20px] text-[15px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-white/5 shadow-sm">
+                <LayoutGrid size={18} className="opacity-70" /> Collection
+             </button>
+             <button className="flex-1 bg-white/10 backdrop-blur-md hover:bg-white/15 text-white py-3.5 rounded-[20px] text-[15px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-white/5 shadow-sm">
+                <SlidersHorizontal size={18} className="opacity-70" /> Stats
+             </button>
           </div>
 
-          {/* Segment Control (Auction / Drops) */}
-          <div className="flex bg-white/5 p-1 rounded-full w-full max-w-[260px]">
+          {/* Segment Control Oscuro */}
+          <div className="flex bg-[#1C1C1E] p-1.5 rounded-full w-full">
              <button 
                onClick={() => setActiveTab('Play')}
-               className={`flex-1 py-1.5 rounded-full text-[14px] font-bold transition-all duration-300 ${activeTab === 'Play' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/70'}`}
+               className={`flex-1 py-2 rounded-full text-[14px] font-bold transition-all duration-300 ${activeTab === 'Play' ? 'bg-[#2C2C2E] text-white shadow-sm' : 'text-[#8e8e93] hover:text-white'}`}
              >
                Drops
              </button>
              <button 
                onClick={() => setActiveTab('Auctions')}
-               className={`flex-1 py-1.5 rounded-full text-[14px] font-bold transition-all duration-300 ${activeTab === 'Auctions' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/70'}`}
+               className={`flex-1 py-2 rounded-full text-[14px] font-bold transition-all duration-300 ${activeTab === 'Auctions' ? 'bg-[#2C2C2E] text-white shadow-sm' : 'text-[#8e8e93] hover:text-white'}`}
              >
                Auction
              </button>
@@ -226,66 +227,65 @@ export function MarketView() {
       )}
 
       {/* ── CONTENIDO PRINCIPAL ── */}
-      <div className="flex-1 overflow-y-auto pb-32">
+      <div className="flex-1 overflow-y-auto pb-40 pt-4">
         
-        {/* VISTA: UNBOXING (CON GLITCH) */}
+        {/* VISTA: UNBOXING (CON GLITCH PIXELADO) */}
         {viewingBoxId && activeBoxData ? (
-          <div className="animate-in slide-in-from-bottom-8 fade-in duration-500 min-h-screen flex flex-col bg-[#0A0A0C]">
+          <div className="animate-in slide-in-from-bottom-8 fade-in duration-500 min-h-[80vh] flex flex-col bg-[#0E0E10]">
              
              <div className="flex-1 flex flex-col items-center justify-center relative mt-[-10vh]">
                 
-                {/* Visual del Glitch o Resultado */}
+                {/* Contenedor Visual */}
                 <div className="relative z-20 w-[240px] h-[240px] flex items-center justify-center">
                   {openingState !== 'result' ? (
                     <img 
                       src={activeBoxData.imageSrc} 
                       alt="Box" 
                       draggable={false}
-                      /* Si está girando, aplicamos la animación extrema de distorsión */
-                      className={`w-full h-full object-contain pointer-events-none transition-all duration-300 ${openingState === 'spinning' ? 'animate-extreme-glitch opacity-80' : 'animate-box-float drop-shadow-2xl'}`} 
+                      className={`w-full h-full object-contain pointer-events-none transition-all duration-200 ${openingState === 'spinning' ? 'animate-extreme-glitch opacity-90' : 'animate-box-float drop-shadow-2xl'}`} 
                     />
                   ) : (
                     <div className="animate-in zoom-in-50 fade-in duration-500 flex flex-col items-center">
-                       <div className="w-[140px] h-[140px] rounded-[32px] bg-[#111] border-2 flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.5)] mb-6" style={{ borderColor: wonItems[0].color }}>
-                          <Sparkles className="w-16 h-16" style={{ color: wonItems[0].color }} />
+                       <div className="w-[140px] h-[140px] rounded-[32px] bg-[#161618] border-2 flex items-center justify-center shadow-[0_0_60px_rgba(0,0,0,0.6)] mb-6" style={{ borderColor: wonItems[0].color }}>
+                          <Sparkles className="w-16 h-16 drop-shadow-lg" style={{ color: wonItems[0].color }} />
                        </div>
                        <span className="text-white font-bold text-[28px] text-center" style={{ fontFamily: SFD }}>
                          {wonItems[0].name}
                        </span>
-                       <span className="text-[14px] font-bold mt-2 px-3 py-1 rounded-full border backdrop-blur-md" style={{ color: wonItems[0].color, backgroundColor: `${wonItems[0].color}15`, borderColor: `${wonItems[0].color}40` }}>
+                       <span className="text-[14px] font-bold mt-2 px-4 py-1.5 rounded-full border backdrop-blur-md" style={{ color: wonItems[0].color, backgroundColor: `${wonItems[0].color}15`, borderColor: `${wonItems[0].color}40` }}>
                          {wonItems[0].rarity}
                        </span>
                     </div>
                   )}
                 </div>
 
-                {/* Código de Terminal (Matriz/Hackeo) */}
+                {/* Código Hack/Terminal */}
                 {openingState !== 'result' && (
-                  <div className="mt-10 h-[40px] flex flex-col items-center justify-center bg-black/50 px-6 py-2 rounded-lg border border-red-500/20">
-                     <span className={`font-mono text-[16px] font-bold tracking-[0.2em] transition-colors ${openingState === 'spinning' ? 'text-red-500' : 'text-[#8e8e93]'}`}>
+                  <div className="mt-12 flex flex-col items-center justify-center bg-black/60 px-6 py-3 rounded-xl border border-[#3b82f6]/30 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                     <span className={`font-mono text-[18px] font-bold tracking-[0.2em] transition-colors ${openingState === 'spinning' ? 'text-[#3b82f6]' : 'text-[#8e8e93]'}`}>
                         {glitchText}
                      </span>
                      {openingState === 'spinning' && (
-                       <span className="text-red-500/50 text-[10px] font-mono mt-1 animate-pulse">BYPASSING SECURITY FIREWALL...</span>
+                       <span className="text-[#3b82f6]/60 text-[11px] font-mono mt-1.5 animate-pulse tracking-widest">DECRYPTING ARCHIVE...</span>
                      )}
                   </div>
                 )}
              </div>
 
-             {/* Controles */}
+             {/* Controles de Unboxing */}
              <div className="w-full px-5 pb-10">
                 {openingState === 'idle' && (
-                  <button onClick={handleOpenBox} className="w-full bg-[#3b82f6] text-white py-4 rounded-[20px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-95 transition-all">
-                     <Lock size={18} /> Initiate Override
+                  <button onClick={handleOpenBox} className="w-full bg-white/10 backdrop-blur-md border border-white/10 text-white py-4.5 rounded-[24px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-95 transition-all">
+                     <Lock size={20} /> Initiate Override
                   </button>
                 )}
                 {openingState === 'spinning' && (
-                  <button disabled className="w-full bg-red-600/20 text-red-500 border border-red-500/50 py-4 rounded-[20px] font-bold text-[18px] flex items-center justify-center gap-2 animate-pulse">
-                     <Loader2 className="w-5 h-5 animate-spin" /> EXTRACTING...
+                  <button disabled className="w-full bg-[#3b82f6]/20 text-[#3b82f6] border border-[#3b82f6]/50 py-4.5 rounded-[24px] font-bold text-[18px] flex items-center justify-center gap-2 animate-pulse">
+                     <Loader2 className="w-5 h-5 animate-spin" /> RUNNING SEQUENCE
                   </button>
                 )}
                 {openingState === 'result' && (
-                  <button onClick={() => { setViewingBoxId(null); setOpeningState('idle'); }} className="w-full bg-[#10b981] text-white py-4 rounded-[20px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-95 transition-all animate-in slide-in-from-bottom-4">
+                  <button onClick={() => { setViewingBoxId(null); setOpeningState('idle'); }} className="w-full bg-white text-black py-4.5 rounded-[24px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-95 transition-all animate-in slide-in-from-bottom-4">
                      Collect Data
                   </button>
                 )}
@@ -294,10 +294,10 @@ export function MarketView() {
 
         ) : activeTab === 'Play' ? (
           /* VISTA DROPS */
-          <div className="animate-in fade-in duration-300 px-5 pt-4">
-             <div className="grid grid-cols-2 gap-3 pb-10">
+          <div className="animate-in fade-in duration-300 px-5">
+             <div className="grid grid-cols-2 gap-4">
                 {AIRDROP_CAPSULES.map((box) => (
-                  <ExactCard 
+                  <CleanCard 
                     key={box.id} 
                     item={box} 
                     isAirdrop={true} 
@@ -308,15 +308,35 @@ export function MarketView() {
           </div>
         ) : (
           /* VISTA AUCTIONS */
-          <div className="animate-in fade-in duration-300 px-5 pt-4">
-              <div className="grid grid-cols-2 gap-3 pb-10">
+          <div className="animate-in fade-in duration-300 px-5">
+              <div className="grid grid-cols-2 gap-4">
                  {AUCTION_ITEMS.map((item) => (
-                    <ExactCard key={item.id} item={item} />
+                    <CleanCard key={item.id} item={item} />
                  ))}
               </div>
           </div>
         )}
       </div>
+
+      {/* ── MENÚ INFERIOR FLOTANTE CON EFECTO BLUR ── */}
+      {!viewingBoxId && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[85%] max-w-[340px] z-50">
+          <div className="bg-[#2C2C2E]/70 backdrop-blur-2xl border border-white/10 rounded-[32px] p-2 flex items-center justify-between shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+             <button className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 bg-white/10 rounded-[24px] shadow-sm">
+                <ShoppingBag size={20} className="text-white" />
+                <span className="text-white font-semibold text-[11px]">Store</span>
+             </button>
+             <button className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 text-[#8e8e93] hover:text-white transition-colors">
+                <Heart size={20} />
+                <span className="font-semibold text-[11px]">Saved</span>
+             </button>
+             <button className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 text-[#8e8e93] hover:text-white transition-colors">
+                <Clock size={20} />
+                <span className="font-semibold text-[11px]">Activity</span>
+             </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
