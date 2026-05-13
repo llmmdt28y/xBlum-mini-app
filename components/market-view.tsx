@@ -1,313 +1,951 @@
 "use client"
+import { useState, useEffect, useRef } from "react"
 
-import { useApp } from "@/lib/app-context"
-import { useEffect, useState } from "react"
-import { 
-  ShoppingBag, Heart, GalleryHorizontalEnd, 
-  Sparkles, LayoutGrid, ListFilter, Hexagon, Clock,
-  Loader2, Lock
-} from "lucide-react"
-
+// ─── Palette & Fonts ───────────────────────────────────────────────
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Base de Datos Visual (Degradados basados en tu imagen) ──
-const AIRDROP_CAPSULES = [
-  { id: 'weekly_bp', name: 'Community Cache', tag: '#001', currency: 'BP', price: 2500, supply: { current: '∞', max: '∞' }, color: 'linear-gradient(180deg, #3A3A3C 0%, #111111 100%)', imageSrc: '/1000009369.png' },
-  { id: 'grok_node', name: 'Neural Node', tag: '#442', currency: 'STARS', price: 150, supply: { current: 142, max: 500 }, color: 'linear-gradient(180deg, #1E3A8A 0%, #020617 100%)', imageSrc: '/1000009370.png' },
+// ─── Mock Data ─────────────────────────────────────────────────────
+const CRYSTAL_BALLS = [
+  {
+    id: 'lady-death',
+    name: 'Lady Death',
+    tag: '#11179',
+    status: 'listed',
+    price: 20,
+    bg: 'linear-gradient(135deg,#3a1060 0%,#6b21a8 60%,#a855f7 100%)',
+    glow: '#a855f7',
+    emoji: '💀',
+    ballColor: '#c084fc',
+    accent: '#e879f9',
+  },
+  {
+    id: 'death-wish',
+    name: 'Death Wish',
+    tag: '#14640',
+    status: 'sold_out',
+    price: 80,
+    bg: 'linear-gradient(135deg,#1a0a0a 0%,#7f1d1d 60%,#ef4444 100%)',
+    glow: '#ef4444',
+    emoji: '💫',
+    ballColor: '#f87171',
+    accent: '#fca5a5',
+  },
+  {
+    id: 'fuschia',
+    name: 'Fuschia',
+    tag: '#7821',
+    status: 'listed',
+    price: 20,
+    bg: 'linear-gradient(135deg,#3b0764 0%,#7c3aed 50%,#ec4899 100%)',
+    glow: '#ec4899',
+    emoji: '✨',
+    ballColor: '#f472b6',
+    accent: '#fbcfe8',
+  },
+  {
+    id: 'seeing-red',
+    name: 'Seeing Red',
+    tag: '#9302',
+    status: 'listed',
+    price: 35,
+    bg: 'linear-gradient(135deg,#450a0a 0%,#991b1b 50%,#f97316 100%)',
+    glow: '#f97316',
+    emoji: '🔥',
+    ballColor: '#fb923c',
+    accent: '#fed7aa',
+  },
+  {
+    id: 'silver',
+    name: 'Silver',
+    tag: '#3311',
+    status: 'listed',
+    price: 15,
+    bg: 'linear-gradient(135deg,#111827 0%,#374151 50%,#9ca3af 100%)',
+    glow: '#9ca3af',
+    emoji: '⚡',
+    ballColor: '#d1d5db',
+    accent: '#f3f4f6',
+  },
+  {
+    id: 'fortune',
+    name: 'Fortune',
+    tag: '#5541',
+    status: 'listed',
+    price: 45,
+    bg: 'linear-gradient(135deg,#451a03 0%,#92400e 50%,#f59e0b 100%)',
+    glow: '#f59e0b',
+    emoji: '🔮',
+    ballColor: '#fbbf24',
+    accent: '#fef08a',
+  },
+  {
+    id: 'teddy',
+    name: 'Teddy Bear',
+    tag: '#1122',
+    status: 'listed',
+    price: 25,
+    bg: 'linear-gradient(135deg,#1c0a00 0%,#78350f 50%,#d97706 100%)',
+    glow: '#d97706',
+    emoji: '🧸',
+    ballColor: '#c2410c',
+    accent: '#fed7aa',
+  },
+  {
+    id: 'incubus',
+    name: 'Incubus',
+    tag: '#8814',
+    status: 'listed',
+    price: 60,
+    bg: 'linear-gradient(135deg,#0c0014 0%,#4c0080 50%,#7c3aed 100%)',
+    glow: '#7c3aed',
+    emoji: '👿',
+    ballColor: '#8b5cf6',
+    accent: '#c4b5fd',
+  },
 ]
 
-const AUCTION_ITEMS = [
-  { id: 'crystal_1', title: 'Crystal Ball', tag: '#11179', imgSrc: '/1000010040.jpg', price: '20', isSoldOut: false, color: 'linear-gradient(180deg, #5A3E1B 0%, #1A1205 100%)' }, // Dorado
-  { id: 'crystal_2', title: 'Crystal Ball', tag: '#14640', imgSrc: '/1000010039.jpg', price: '80', isSoldOut: true,  color: 'linear-gradient(180deg, #2A2A3C 0%, #0F0F16 100%)' }, // Gris azulado oscuro
-  { id: 'crystal_3', title: 'Crystal Ball', tag: '#8842',  imgSrc: '/1000010037.png', price: '45', isSoldOut: false, color: 'linear-gradient(180deg, #4A1D4A 0%, #1A0A1A 100%)' }, // Púrpura
-  { id: 'crystal_4', title: 'Crystal Ball', tag: '#9921',  imgSrc: '/1000010040.jpg', price: '15', isSoldOut: false, color: 'linear-gradient(180deg, #3D1C1C 0%, #140808 100%)' }, // Rojizo oscuro
-]
+const NAV_TABS = ['Store', 'Saved', 'Activity']
+const CONTENT_TABS = ['Collection', 'Sale']
 
-// ── Animaciones ──
-const animationStyles = `
-  @keyframes extreme-glitch {
-    0% { transform: translate(0); filter: hue-rotate(0deg); opacity: 1; }
-    20% { transform: translate(-4px, 2px) skewX(-5deg); filter: hue-rotate(90deg) contrast(1.5); opacity: 0.8; }
-    40% { transform: translate(4px, -2px) skewX(5deg); filter: invert(0.2); opacity: 0.9; }
-    60% { transform: translate(-2px, 4px) scale(1.05); filter: hue-rotate(180deg) brightness(1.5); opacity: 0.7; }
-    80% { transform: translate(2px, -4px) scale(0.95); opacity: 1; }
-    100% { transform: translate(0); filter: hue-rotate(0deg); opacity: 1; }
-  }
-  .animate-extreme-glitch { animation: extreme-glitch 0.15s infinite; }
-  
-  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-  .animate-float { animation: float 3s ease-in-out infinite; }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-`;
+// ─── Animated Crystal Ball SVG ─────────────────────────────────────
+function CrystalBall({ item, size = 56 }) {
+  return (
+    <div style={{
+      width: size,
+      height: size,
+      position: 'relative',
+      flexShrink: 0,
+    }}>
+      {/* Glow */}
+      <div style={{
+        position: 'absolute',
+        inset: -4,
+        borderRadius: '50%',
+        background: item.glow,
+        opacity: 0.35,
+        filter: `blur(${size * 0.25}px)`,
+      }} />
+      {/* Ball body */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        borderRadius: '50%',
+        background: `radial-gradient(circle at 32% 30%, rgba(255,255,255,0.45) 0%, ${item.ballColor} 45%, ${item.accent}22 80%, #0a0010 100%)`,
+        boxShadow: `inset 0 -4px 12px rgba(0,0,0,0.6), inset 2px 3px 8px rgba(255,255,255,0.25), 0 4px 16px ${item.glow}55`,
+        border: '1px solid rgba(255,255,255,0.15)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: size * 0.38,
+        overflow: 'hidden',
+      }}>
+        <span style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>{item.emoji}</span>
+        {/* Specular highlight */}
+        <div style={{
+          position: 'absolute',
+          top: '12%',
+          left: '18%',
+          width: '32%',
+          height: '22%',
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.55)',
+          filter: 'blur(3px)',
+          transform: 'rotate(-20deg)',
+        }} />
+      </div>
+      {/* Base pedestal */}
+      <div style={{
+        position: 'absolute',
+        bottom: -size * 0.08,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '70%',
+        height: size * 0.15,
+        background: 'linear-gradient(180deg, rgba(120,60,180,0.6) 0%, rgba(40,20,80,0.9) 100%)',
+        borderRadius: '0 0 6px 6px',
+        clipPath: 'polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%)',
+      }} />
+    </div>
+  )
+}
 
-// ── ICONO DE MONEDA "V" EXACTO A LA IMAGEN ──
-const VIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-    <path d="M4 4l8 16l8-16" />
-  </svg>
-)
-
-// ── COMPONENTE: TARJETA RÉPLICA MILIMÉTRICA ──
-const ReplicaCard = ({ item, isAirdrop = false, onClick }: any) => {
-  const isSoldOut = isAirdrop ? item.supply.current === 0 : item.isSoldOut;
-  const title = isAirdrop ? item.name : item.title;
-  const price = item.price;
+// ─── NFT Card (Grid) ───────────────────────────────────────────────
+function NFTCard({ item, onClick }) {
+  const [liked, setLiked] = useState(false)
+  const isSold = item.status === 'sold_out'
 
   return (
-    <div 
+    <div
       onClick={onClick}
-      className="relative rounded-[28px] flex flex-col overflow-hidden cursor-pointer active:scale-95 transition-transform aspect-[3/4] shadow-xl"
-      style={{ background: item.color }}
+      style={{
+        background: '#111118',
+        borderRadius: 20,
+        border: '1px solid rgba(255,255,255,0.07)',
+        cursor: 'pointer',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: `0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)`,
+        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+        position: 'relative',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 8px 32px ${item.glow}33, inset 0 1px 0 rgba(255,255,255,0.08)` }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)` }}
     >
-      {/* Destellos superiores */}
-      {!isSoldOut && (
-        <>
-          <Sparkles className="absolute top-4 left-4 w-5 h-5 text-white drop-shadow-md" fill="currentColor" />
-          <Sparkles className="absolute top-1/4 right-3 w-4 h-4 text-yellow-400 drop-shadow-md" fill="currentColor" />
-        </>
-      )}
+      {/* Image area */}
+      <div style={{
+        width: '100%',
+        aspectRatio: '1 / 1',
+        background: item.bg,
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: '18px 18px 0 0',
+        overflow: 'hidden',
+      }}>
+        {/* Background pattern */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `radial-gradient(circle at 20% 80%, rgba(255,255,255,0.04) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 40%)`,
+        }} />
+        {/* Skull/bat watermark bg icons */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.12,
+          fontSize: 22,
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          alignItems: 'center',
+          justifyItems: 'center',
+          padding: 8,
+          gap: 4,
+          pointerEvents: 'none',
+        }}>
+          {Array(16).fill(0).map((_, i) => (
+            <span key={i}>{i % 3 === 0 ? '💀' : i % 3 === 1 ? '🦇' : '⭐'}</span>
+          ))}
+        </div>
 
-      {/* Imagen Principal centrada */}
-      <div className="flex-1 w-full relative flex items-center justify-center p-3 mt-4">
-        <img 
-           src={isAirdrop ? item.imageSrc : item.imgSrc} 
-           alt={title} 
-           draggable={false}
-           className={`w-[85%] h-[85%] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transition-transform duration-500 hover:scale-110 ${isSoldOut ? 'grayscale opacity-60' : 'animate-float'}`}
-        />
+        <CrystalBall item={item} size={80} />
+
+        {/* Sparkles */}
+        {[[-10, -8], [16, 4], [-4, 18]].map(([x, y], i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            top: `${30 + y}%`,
+            left: `${55 + x}%`,
+            width: i === 0 ? 6 : 4,
+            height: i === 0 ? 6 : 4,
+            background: '#fff',
+            borderRadius: '50%',
+            opacity: 0.7,
+            boxShadow: '0 0 6px 2px rgba(255,255,255,0.6)',
+          }} />
+        ))}
       </div>
 
-      {/* Contenedor Inferior: Textos y Píldora (Sin fondo extra) */}
-      <div className="w-full px-3 pb-3 flex flex-col gap-2">
-        
-        {/* Textos: Título a la izq, ID a la der */}
-        <div className="flex justify-between items-center px-1">
-           <span className="text-white font-bold text-[15px] tracking-tight" style={{ fontFamily: SFD }}>
-             {title}
-           </span>
-           <span className="text-white/60 text-[13px] font-medium" style={{ fontFamily: SF }}>
-             {item.tag}
-           </span>
+      {/* Info area */}
+      <div style={{ padding: '10px 12px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {/* Title row */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <div style={{ color: '#fff', fontWeight: 700, fontSize: 13, fontFamily: SFD, lineHeight: 1.2 }}>
+              {item.name}
+            </div>
+            <div style={{ color: '#636366', fontSize: 11, fontFamily: SF, fontWeight: 500, marginTop: 1 }}>
+              {item.tag}
+            </div>
+          </div>
         </div>
 
-        {/* Píldora de Precio bg-black/30 (ancho completo) */}
-        <div className="w-full flex items-center justify-between px-3 py-2.5 rounded-[16px] bg-black/30 backdrop-blur-sm">
-           <div className="flex items-center gap-1.5">
-              {isSoldOut ? (
-                <>
-                  <Clock className="w-3.5 h-3.5 text-white/50" />
-                  <span className="text-white/60 text-[13px] font-semibold" style={{ fontFamily: SF }}>Sold out</span>
-                </>
-              ) : (
-                <>
-                  <Hexagon className="w-3.5 h-3.5 text-white" />
-                  <span className="text-white font-bold text-[13px]" style={{ fontFamily: SF }}>Listed</span>
-                </>
-              )}
-           </div>
+        {/* Status + Price row */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: isSold ? 'rgba(239,68,68,0.08)' : 'rgba(59,130,246,0.08)',
+          border: `1px solid ${isSold ? 'rgba(239,68,68,0.2)' : 'rgba(59,130,246,0.2)'}`,
+          borderRadius: 10,
+          padding: '6px 10px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            {/* Status dot */}
+            <div style={{
+              width: 16,
+              height: 16,
+              borderRadius: '50%',
+              background: isSold ? '#ef4444' : '#3b82f6',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                {isSold
+                  ? <><line x1="2" y1="2" x2="6" y2="6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/><line x1="6" y1="2" x2="2" y2="6" stroke="white" strokeWidth="1.5" strokeLinecap="round"/></>
+                  : <><circle cx="4" cy="4" r="1.5" fill="white"/></>
+                }
+              </svg>
+            </div>
+            <span style={{
+              fontSize: 11,
+              fontWeight: 700,
+              fontFamily: SF,
+              color: isSold ? '#f87171' : '#60a5fa',
+            }}>
+              {isSold ? 'Sold out' : 'Listed'}
+            </span>
+          </div>
 
-           <div className="flex items-center gap-1">
-              <span className="text-white font-bold text-[14px]">{price}</span>
-              {/* Aquí usamos el icono V custom */}
-              <VIcon />
-           </div>
+          {/* Price */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ color: '#9ca3af', fontSize: 12, fontWeight: 700, fontFamily: SF }}>
+              {item.price}
+            </span>
+            {/* TON triangle */}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 20h20L12 2z" fill="#0088cc" />
+            </svg>
+          </div>
         </div>
-
       </div>
     </div>
   )
 }
 
-export function MarketView() {
-  const ctx = useApp() as any
-  const { setCurrentView } = ctx
-  const tonBalance = "988.52"
-
-  const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Auctions')
-  const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
-  
-  // Estados para Unboxing Glitch
-  const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
-  const [glitchText, setGlitchText] = useState("SYSTEM_READY")
-  const [wonItems, setWonItems] = useState<any[]>([])
-
-  useEffect(() => {
-    const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
-    if (!tg?.BackButton) return
-    tg.BackButton.show()
-
-    const handleBack = () => {
-      if (viewingBoxId) {
-         setViewingBoxId(null)
-         setOpeningState('idle')
-      } else {
-         setCurrentView("home") 
-         tg.BackButton.hide()
-      }
-    }
-    tg.BackButton.onClick(handleBack)
-    return () => tg.BackButton.offClick(handleBack)
-  }, [setCurrentView, viewingBoxId])
-
-  // Lógica Glitch
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (openingState === 'spinning') {
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
-      interval = setInterval(() => {
-        const randStr = Array.from({length: 8}).map(() => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
-        setGlitchText(`# 0x${randStr}_DATA`);
-      }, 50);
-    } else if (openingState === 'idle') {
-      setGlitchText("SYSTEM_READY");
-    }
-    return () => clearInterval(interval);
-  }, [openingState]);
-
-  const handleOpenBox = () => {
-    setOpeningState('spinning')
-    setTimeout(() => {
-      setWonItems([{ name: "5,000 BP", rarity: "Legendary", color: "#eab308" }])
-      setOpeningState('result')
-    }, 2800)
-  }
-
-  const activeBoxData = AIRDROP_CAPSULES.find(b => b.id === viewingBoxId)
-
+// ─── Sidebar Filter List Item ─────────────────────────────────────
+function FilterListItem({ item, onRemove, showRemove }) {
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#18181A] relative overflow-hidden select-none">
-      <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
-      
-      {/* ── HEADER (Réplica del Círculo Rojo Superior Izquierdo) ── */}
-      {!viewingBoxId && (
-        <div className="pt-12 px-5 pb-4 bg-gradient-to-b from-[#18181A] to-transparent z-40">
-          
-          {/* Saldo TON (Alineado a la izq) */}
-          <div className="flex items-center gap-2 mb-5">
-             {/* Squircle Azul TON */}
-             <div className="w-[28px] h-[28px] rounded-[8px] bg-[#0098EA] flex items-center justify-center">
-                <svg viewBox="0 0 24 24" fill="none" className="w-[14px] h-[14px] text-white">
-                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2.5"/>
-                  <path d="M8 12L12 8L16 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 16V8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-             </div>
-             <span className="text-white font-bold text-[28px] tracking-tight leading-none" style={{ fontFamily: SFD }}>
-                {tonBalance} <span className="text-white/60 text-[18px] font-semibold">TON</span>
-             </span>
-          </div>
-          
-          {/* Fila Botones: Collection (Píldora) + Filtro (Circular) */}
-          <div className="flex gap-2.5 mb-6">
-             <button className="bg-white/10 hover:bg-white/15 text-white px-4 py-2 rounded-full text-[14px] font-semibold flex items-center gap-2 active:scale-95 transition-all">
-                <LayoutGrid size={16} className="text-white/80" /> Collection
-             </button>
-             <button className="bg-white/10 hover:bg-white/15 text-white w-[38px] h-[38px] rounded-full flex items-center justify-center active:scale-95 transition-all">
-                <ListFilter size={18} className="text-white/80" />
-             </button>
-          </div>
-
-          {/* Segment Control Oscuro (Auction / Drops) */}
-          <div className="flex bg-[#252528] p-1 rounded-full w-full max-w-[260px]">
-             <button 
-               onClick={() => setActiveTab('Auctions')}
-               className={`flex-1 py-1.5 rounded-full text-[14px] font-bold transition-all duration-300 ${activeTab === 'Auctions' ? 'bg-[#3A3A3E] text-white shadow-sm' : 'text-[#8e8e93] hover:text-white/80'}`}
-             >
-               Auction
-             </button>
-             <button 
-               onClick={() => setActiveTab('Play')}
-               className={`flex-1 py-1.5 rounded-full text-[14px] font-bold transition-all duration-300 ${activeTab === 'Play' ? 'bg-[#3A3A3E] text-white shadow-sm' : 'text-[#8e8e93] hover:text-white/80'}`}
-             >
-               Drops
-             </button>
-          </div>
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      padding: '10px 16px',
+      borderBottom: '1px solid rgba(255,255,255,0.05)',
+      cursor: 'pointer',
+      transition: 'background 0.12s',
+    }}
+    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+    >
+      <CrystalBall item={item} size={40} />
+      <span style={{
+        color: '#fff',
+        fontWeight: 600,
+        fontSize: 15,
+        fontFamily: SF,
+        flex: 1,
+      }}>{item.name}</span>
+      {showRemove && (
+        <div style={{
+          width: 22,
+          height: 22,
+          borderRadius: '50%',
+          background: 'rgba(255,255,255,0.08)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          flexShrink: 0,
+        }}>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <line x1="2" y1="2" x2="8" y2="8" stroke="#636366" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="8" y1="2" x2="2" y2="8" stroke="#636366" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
         </div>
       )}
+    </div>
+  )
+}
 
-      {/* ── CONTENIDO PRINCIPAL ── */}
-      <div className="flex-1 overflow-y-auto pb-32">
-        
-        {/* VISTA UNBOXING (GLITCH) */}
-        {viewingBoxId && activeBoxData ? (
-           <div className="animate-in slide-in-from-bottom-8 fade-in duration-500 min-h-screen flex flex-col bg-[#0A0A0C] px-5">
-             
-             <div className="flex-1 flex flex-col items-center justify-center relative mt-[-5vh]">
-                <div className="relative z-20 w-[260px] h-[260px] flex items-center justify-center">
-                  {openingState !== 'result' ? (
-                    <img 
-                      src={activeBoxData.imageSrc} alt="Box" draggable={false}
-                      className={`w-full h-full object-contain pointer-events-none transition-all duration-100 ${openingState === 'spinning' ? 'animate-extreme-glitch' : 'animate-float'}`} 
-                    />
-                  ) : (
-                    <div className="animate-in zoom-in-50 fade-in duration-500 flex flex-col items-center">
-                       <div className="w-[140px] h-[140px] rounded-[32px] bg-[#161618] border-2 flex items-center justify-center shadow-[0_0_60px_rgba(0,0,0,0.6)] mb-6" style={{ borderColor: wonItems[0].color }}>
-                          <Sparkles className="w-16 h-16 drop-shadow-lg" style={{ color: wonItems[0].color }} />
-                       </div>
-                       <span className="text-white font-bold text-[28px] text-center">{wonItems[0].name}</span>
-                    </div>
-                  )}
-                </div>
+// ─── Bottom Nav ────────────────────────────────────────────────────
+function BottomNav({ activeNav, setActiveNav }) {
+  const icons = {
+    Store: (active) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? '#fff' : '#636366'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+    ),
+    Saved: (active) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? '#fff' : 'none'} stroke={active ? '#fff' : '#636366'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+      </svg>
+    ),
+    Activity: (active) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? '#fff' : '#636366'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+    ),
+  }
 
-                {/* Código Hack */}
-                {openingState !== 'result' && (
-                  <div className="mt-12 bg-black/60 px-6 py-3 rounded-xl border border-red-500/20 text-center">
-                     <span className={`font-mono text-[18px] font-bold tracking-[0.2em] transition-colors ${openingState === 'spinning' ? 'text-red-500' : 'text-[#8e8e93]'}`}>
-                        {glitchText}
-                     </span>
-                  </div>
-                )}
-             </div>
+  return (
+    <div style={{
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: 72,
+      background: 'rgba(18,18,22,0.95)',
+      backdropFilter: 'blur(20px)',
+      borderTop: '1px solid rgba(255,255,255,0.06)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      padding: '0 16px',
+      zIndex: 100,
+    }}>
+      {NAV_TABS.map(tab => (
+        <button
+          key={tab}
+          onClick={() => setActiveNav(tab)}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 4,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '8px 20px',
+            borderRadius: 14,
+            background: activeNav === tab ? 'rgba(255,255,255,0.07)' : 'transparent',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          {icons[tab](activeNav === tab)}
+          <span style={{
+            fontSize: 11,
+            fontWeight: activeNav === tab ? 700 : 500,
+            color: activeNav === tab ? '#fff' : '#636366',
+            fontFamily: SF,
+          }}>{tab}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
 
-             <div className="w-full pb-10">
-                {openingState === 'idle' && (
-                  <button onClick={handleOpenBox} className="w-full bg-[#3b82f6] text-white py-4.5 rounded-[20px] font-bold text-[18px] flex items-center justify-center gap-2">
-                     <Lock size={20} /> Initiate Override
-                  </button>
-                )}
-                {openingState === 'spinning' && (
-                  <button disabled className="w-full bg-red-500/20 text-red-500 border border-red-500/50 py-4.5 rounded-[20px] font-bold text-[18px] flex items-center justify-center gap-2 animate-pulse">
-                     <Loader2 className="w-5 h-5 animate-spin" /> CORRUPTING DATA...
-                  </button>
-                )}
-                {openingState === 'result' && (
-                  <button onClick={() => { setViewingBoxId(null); setOpeningState('idle'); }} className="w-full bg-white text-black py-4.5 rounded-[20px] font-bold text-[18px] flex items-center justify-center gap-2">
-                     Collect
-                  </button>
-                )}
-             </div>
+// ─── Main MarketView ───────────────────────────────────────────────
+export default function MarketView() {
+  const [activeNav, setActiveNav] = useState('Store')
+  const [activeTab, setActiveTab] = useState('Collection')
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [showAll, setShowAll] = useState(false)
+  const [viewMode, setViewMode] = useState('grid') // 'grid' | 'list'
+  const [isAuction, setIsAuction] = useState(false)
+
+  const balance = '988.52'
+  const displayItems = showAll ? CRYSTAL_BALLS : CRYSTAL_BALLS.slice(0, 4)
+
+  return (
+    <div style={{
+      width: '100%',
+      maxWidth: 390,
+      height: 844,
+      background: '#0d0d10',
+      borderRadius: 54,
+      overflow: 'hidden',
+      position: 'relative',
+      fontFamily: SF,
+      boxShadow: '0 40px 120px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.06)',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-4px); }
+        }
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.35; }
+          50% { opacity: 0.6; }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        .crystal-float { animation: float 3.5s ease-in-out infinite; }
+        .tab-active-indicator {
+          animation: shimmer 2s linear infinite;
+          background-size: 200% auto;
+        }
+        ::-webkit-scrollbar { display: none; }
+      `}</style>
+
+      {/* ── STATUS BAR ── */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '14px 28px 4px',
+        flexShrink: 0,
+      }}>
+        <span style={{ color: '#fff', fontWeight: 700, fontSize: 15, fontFamily: SFD }}>09:16</span>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {/* signal bars */}
+          <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 12 }}>
+            {[4, 6, 9, 12].map((h, i) => (
+              <div key={i} style={{ width: 3, height: h, background: '#fff', borderRadius: 2 }} />
+            ))}
           </div>
-        ) : (
-          /* GRID DE TARJETAS */
-          <div className="px-4 pt-2">
-             <div className="grid grid-cols-2 gap-3.5">
-                {activeTab === 'Auctions' 
-                  ? AUCTION_ITEMS.map((item) => <ReplicaCard key={item.id} item={item} />)
-                  : AIRDROP_CAPSULES.map((box) => <ReplicaCard key={box.id} item={box} isAirdrop={true} onClick={() => setViewingBoxId(box.id)} />)
-                }
-             </div>
+          {/* wifi */}
+          <svg width="16" height="12" viewBox="0 0 24 18" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
+            <path d="M1 7s5-6 11-6 11 6 11 6"/>
+            <path d="M5 11s3-3 7-3 7 3 7 3"/>
+            <circle cx="12" cy="15" r="1.5" fill="#fff" stroke="none"/>
+          </svg>
+          {/* battery */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <div style={{ width: 22, height: 11, border: '1.5px solid rgba(255,255,255,0.5)', borderRadius: 3, padding: 1.5 }}>
+              <div style={{ width: '80%', height: '100%', background: '#fff', borderRadius: 1.5 }} />
+            </div>
+            <div style={{ width: 2, height: 5, background: 'rgba(255,255,255,0.4)', borderRadius: 1 }} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── HEADER ── */}
+      <div style={{
+        padding: '8px 20px 0',
+        flexShrink: 0,
+      }}>
+        {/* Balance row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          {/* TON logo */}
+          <div style={{
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #0088cc, #0050aa)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(0,136,204,0.4)',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 20h20L12 2z" fill="white"/>
+            </svg>
+          </div>
+          <span style={{ color: '#fff', fontWeight: 700, fontSize: 20, fontFamily: SFD }}>
+            {balance} <span style={{ color: '#0088cc' }}>TON</span>
+          </span>
+        </div>
+
+        {/* Tab pills */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+          {/* Collection pill */}
+          <button
+            onClick={() => { setActiveTab('Collection'); setIsAuction(false) }}
+            style={{
+              background: activeTab === 'Collection' ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${activeTab === 'Collection' ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)'}`,
+              borderRadius: 20,
+              padding: '6px 14px',
+              color: activeTab === 'Collection' ? '#fff' : '#8e8e93',
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: SF,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              transition: 'all 0.2s',
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            Collection
+          </button>
+
+          {/* Sale/Auction toggle */}
+          <button
+            onClick={() => { setActiveTab('Sale'); setIsAuction(false) }}
+            style={{
+              background: activeTab === 'Sale' && !isAuction ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)',
+              border: `1px solid ${activeTab === 'Sale' && !isAuction ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)'}`,
+              borderRadius: 20,
+              padding: '6px 14px',
+              color: activeTab === 'Sale' && !isAuction ? '#fff' : '#8e8e93',
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: SF,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            Sale
+          </button>
+        </div>
+
+        {/* Auction toggle */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '10px 16px',
+          background: 'rgba(255,255,255,0.04)',
+          borderRadius: 16,
+          border: '1px solid rgba(255,255,255,0.06)',
+          marginBottom: 4,
+        }}>
+          <span style={{ color: '#fff', fontWeight: 600, fontSize: 15, fontFamily: SF }}>Auction</span>
+          {/* Toggle switch */}
+          <div
+            onClick={() => setIsAuction(v => !v)}
+            style={{
+              width: 44,
+              height: 26,
+              borderRadius: 13,
+              background: isAuction ? '#a855f7' : 'rgba(255,255,255,0.1)',
+              border: `1px solid ${isAuction ? '#7c3aed' : 'rgba(255,255,255,0.1)'}`,
+              position: 'relative',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              boxShadow: isAuction ? '0 0 12px rgba(168,85,247,0.5)' : 'none',
+            }}
+          >
+            <div style={{
+              position: 'absolute',
+              top: 3,
+              left: isAuction ? 20 : 3,
+              width: 18,
+              height: 18,
+              borderRadius: '50%',
+              background: '#fff',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+              transition: 'left 0.25s ease',
+            }} />
+          </div>
+        </div>
+      </div>
+
+      {/* ── SCROLLABLE CONTENT ── */}
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        paddingBottom: 80,
+      }}>
+        {activeNav === 'Store' && (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            
+            {/* Filter list (sidebar style) */}
+            <div style={{
+              background: 'rgba(255,255,255,0.02)',
+              borderBottom: '1px solid rgba(255,255,255,0.05)',
+            }}>
+              {/* Crystal Balls header item */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '10px 16px',
+                background: 'rgba(168,85,247,0.08)',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
+              }}>
+                <CrystalBall item={CRYSTAL_BALLS[0]} size={38} />
+                <span style={{ color: '#fff', fontWeight: 700, fontSize: 15, fontFamily: SF, flex: 1 }}>
+                  Crystal Balls
+                </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+
+              {/* Show first 4 items in list */}
+              {CRYSTAL_BALLS.slice(0, showAll ? CRYSTAL_BALLS.length : 5).map((item, idx) => (
+                <FilterListItem
+                  key={item.id}
+                  item={item}
+                  showRemove={idx >= 4}
+                />
+              ))}
+
+              {/* Show more */}
+              {!showAll && (
+                <button
+                  onClick={() => setShowAll(true)}
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: 'none',
+                    borderTop: '1px solid rgba(255,255,255,0.05)',
+                    color: '#fff',
+                    fontWeight: 600,
+                    fontSize: 15,
+                    fontFamily: SF,
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+                >
+                  Show more
+                </button>
+              )}
+            </div>
+
+            {/* ── NFT GRID ── */}
+            <div style={{ padding: '16px 16px 0' }}>
+              {/* Grid header */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 14,
+              }}>
+                <div>
+                  <div style={{ color: '#8e8e93', fontSize: 12, fontWeight: 500, fontFamily: SF, marginBottom: 2 }}>
+                    Crystal Balls
+                  </div>
+                  <div style={{ color: '#fff', fontSize: 20, fontWeight: 700, fontFamily: SFD }}>
+                    {CRYSTAL_BALLS.length} Items
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {/* Sort */}
+                  <button style={{
+                    width: 36,
+                    height: 36,
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                  }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" strokeWidth="2" strokeLinecap="round">
+                      <line x1="3" y1="6" x2="21" y2="6"/>
+                      <line x1="3" y1="12" x2="15" y2="12"/>
+                      <line x1="3" y1="18" x2="9" y2="18"/>
+                    </svg>
+                  </button>
+                  {/* View toggle */}
+                  <button
+                    onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
+                    style={{
+                      width: 36,
+                      height: 36,
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      borderRadius: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {viewMode === 'grid'
+                      ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                      : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    }
+                  </button>
+                </div>
+              </div>
+
+              {/* Grid */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: viewMode === 'grid' ? '1fr 1fr' : '1fr',
+                gap: viewMode === 'grid' ? 12 : 8,
+              }}>
+                {CRYSTAL_BALLS.map(item => (
+                  <NFTCard
+                    key={item.id}
+                    item={item}
+                    onClick={() => setSelectedItem(item)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeNav === 'Saved' && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 400, gap: 12, padding: 32 }}>
+            <div style={{ fontSize: 56, opacity: 0.3 }}>💜</div>
+            <div style={{ color: '#fff', fontSize: 18, fontWeight: 700, fontFamily: SFD }}>No Saved Items</div>
+            <div style={{ color: '#636366', fontSize: 14, fontFamily: SF, textAlign: 'center', lineHeight: 1.5 }}>Items you save will appear here. Tap the heart icon on any NFT.</div>
+          </div>
+        )}
+
+        {activeNav === 'Activity' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {CRYSTAL_BALLS.slice(0, 5).map((item, i) => (
+              <div key={item.id} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '14px 16px',
+                borderBottom: '1px solid rgba(255,255,255,0.04)',
+              }}>
+                <CrystalBall item={item} size={40} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: SF }}>{item.name} {item.tag}</div>
+                  <div style={{ color: '#636366', fontSize: 12, fontFamily: SF, marginTop: 2 }}>
+                    {i % 2 === 0 ? '🟢 Listed' : '🔴 Sold'} · {Math.floor(Math.random() * 24 + 1)}h ago
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span style={{ color: '#fff', fontSize: 14, fontWeight: 700 }}>{item.price}</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 20h20L12 2z" fill="#0088cc"/>
+                  </svg>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
-      {/* ── MENÚ FLOTANTE ── */}
-      {!viewingBoxId && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[340px] z-50">
-          <div className="bg-[#2C2C2E]/90 backdrop-blur-2xl rounded-[32px] p-1.5 flex items-center justify-between shadow-2xl">
-             <button className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 bg-white rounded-[28px]">
-                <ShoppingBag size={22} className="text-black" />
-                <span className="text-black font-bold text-[11px]">Store</span>
-             </button>
-             <button className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-white/50">
-                <Heart size={22} />
-                <span className="font-semibold text-[11px]">Saved</span>
-             </button>
-             <button className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-white/50">
-                <GalleryHorizontalEnd size={22} />
-                <span className="font-semibold text-[11px]">Activity</span>
-             </button>
+      {/* ── BOTTOM NAV ── */}
+      <BottomNav activeNav={activeNav} setActiveNav={setActiveNav} />
+
+      {/* ── DETAIL MODAL ── */}
+      {selectedItem && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 200,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          background: 'rgba(0,0,0,0.75)',
+          backdropFilter: 'blur(8px)',
+        }}
+        onClick={() => setSelectedItem(null)}
+        >
+          <div
+            style={{
+              background: '#111118',
+              borderRadius: '28px 28px 0 0',
+              padding: '20px 20px 40px',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderBottom: 'none',
+              maxHeight: '85%',
+              overflowY: 'auto',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Handle bar */}
+            <div style={{
+              width: 40,
+              height: 4,
+              background: 'rgba(255,255,255,0.15)',
+              borderRadius: 2,
+              margin: '0 auto 20px',
+            }} />
+
+            {/* Ball hero */}
+            <div style={{
+              width: '100%',
+              aspectRatio: '1/1',
+              maxWidth: 240,
+              margin: '0 auto 20px',
+              borderRadius: 28,
+              background: selectedItem.bg,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              overflow: 'hidden',
+              border: `1px solid ${selectedItem.glow}33`,
+              boxShadow: `0 0 60px ${selectedItem.glow}33`,
+            }}>
+              {/* bg pattern */}
+              <div style={{ position: 'absolute', inset: 0, opacity: 0.1, fontSize: 24, display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', alignItems:'center', justifyItems:'center', padding:12 }}>
+                {Array(16).fill(0).map((_,i) => <span key={i}>{i%2===0?'💀':'🦇'}</span>)}
+              </div>
+              <div className="crystal-float">
+                <CrystalBall item={selectedItem} size={140} />
+              </div>
+            </div>
+
+            {/* Info */}
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <div style={{ color: '#8e8e93', fontSize: 13, fontFamily: SF, marginBottom: 4 }}>Crystal Balls</div>
+              <div style={{ color: '#fff', fontSize: 24, fontWeight: 700, fontFamily: SFD }}>
+                {selectedItem.name} <span style={{ color: '#636366', fontSize: 18 }}>{selectedItem.tag}</span>
+              </div>
+            </div>
+
+            {/* Status card */}
+            <div style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: 18,
+              padding: '14px 18px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 14,
+            }}>
+              <div>
+                <div style={{ color: '#636366', fontSize: 12, fontFamily: SF, marginBottom: 4 }}>Status</div>
+                <div style={{
+                  color: selectedItem.status === 'sold_out' ? '#f87171' : '#4ade80',
+                  fontSize: 15,
+                  fontWeight: 700,
+                  fontFamily: SF,
+                }}>
+                  {selectedItem.status === 'sold_out' ? '● Sold Out' : '● Listed'}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ color: '#636366', fontSize: 12, fontFamily: SF, marginBottom: 4 }}>Price</div>
+                <div style={{ color: '#fff', fontSize: 20, fontWeight: 700, fontFamily: SFD, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {selectedItem.price}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 20h20L12 2z" fill="#0088cc"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA buttons */}
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button style={{
+                flex: 1,
+                height: 52,
+                background: selectedItem.status === 'sold_out' ? 'rgba(255,255,255,0.06)' : `linear-gradient(135deg, ${selectedItem.glow}, ${selectedItem.ballColor})`,
+                border: 'none',
+                borderRadius: 16,
+                color: selectedItem.status === 'sold_out' ? '#636366' : '#fff',
+                fontSize: 16,
+                fontWeight: 700,
+                fontFamily: SF,
+                cursor: selectedItem.status === 'sold_out' ? 'not-allowed' : 'pointer',
+                boxShadow: selectedItem.status !== 'sold_out' ? `0 4px 20px ${selectedItem.glow}44` : 'none',
+                transition: 'all 0.2s',
+              }}>
+                {selectedItem.status === 'sold_out' ? 'Sold Out' : 'Buy Now'}
+              </button>
+              <button style={{
+                flex: 1,
+                height: 52,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 16,
+                color: '#fff',
+                fontSize: 16,
+                fontWeight: 700,
+                fontFamily: SF,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}>
+                Make Offer
+              </button>
+            </div>
           </div>
         </div>
       )}
