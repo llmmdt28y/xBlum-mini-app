@@ -1,498 +1,504 @@
 "use client"
 
 import { useApp } from "@/lib/app-context"
-import { useEffect, useState } from "react"
-import { 
-  LayoutGrid, SlidersHorizontal, User, Package, 
-  Search, Sparkles, Loader2, Lock
-} from "lucide-react"
+import { useEffect, useState, useCallback, useRef, useMemo } from "react"
+import { Play, Send, UserPlus, ChevronRight, Loader2, Lock, Check, MessageSquare, Camera, CalendarCheck, Users, Sparkles, Store, Package } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Base de Datos Visual (Airdrops & Auctions) ──
-const AIRDROP_CAPSULES = [
-  { 
-    id: 'weekly_bp', 
-    name: 'Community Cache', 
-    currency: 'BP', 
-    price: 2500, 
-    supply: { current: '∞', max: '∞' }, 
-    color: '#8e8e93', 
-    imageSrc: '/1000009369.png' 
-  },
-  { 
-    id: 'grok_node', 
-    name: 'Neural Node', 
-    currency: 'STARS', 
-    price: 150, 
-    supply: { current: 142, max: 500 }, 
-    color: '#3b82f6', 
-    imageSrc: '/1000009370.png' 
-  },
-  { 
-    id: 'vortx_vip', 
-    name: 'VortX Genesis', 
-    currency: 'STARS', 
-    price: 1000, 
-    supply: { current: 0, max: 50 }, 
-    color: '#eab308', 
-    imageSrc: '/1000009361.png' 
+// ── Adsgram Types ─────────────────────────────────────────────────────
+interface ShowPromiseResult {
+  done: boolean
+  description: string
+  state: "load" | "render" | "playing" | "destroy"
+  error: boolean
+}
+interface AdController {
+  show: () => Promise<ShowPromiseResult>
+  destroy: () => void
+}
+declare global {
+  interface Window {
+    Adsgram?: { init: (params: { blockId: string; debug?: boolean; tgid?: string }) => AdController }
   }
+}
+
+// ── useAdsgram hook ───────────────────────────────────────────────────
+function useAdsgram({
+  blockId,
+  onReward,
+  onError,
+}: {
+  blockId: string
+  onReward: () => void
+  onError: (r: ShowPromiseResult) => void
+}) {
+  const adControllerRef = useRef<AdController | undefined>(undefined)
+
+  useEffect(() => {
+    const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
+    const userId = tg?.initDataUnsafe?.user?.id?.toString()
+
+    adControllerRef.current = window.Adsgram?.init({ 
+      blockId,
+      tgid: userId 
+    })
+    
+    return () => {
+      adControllerRef.current?.destroy()
+    }
+  }, [blockId])
+
+  return useCallback(() => {
+    if (!adControllerRef.current) {
+      onError({ done: false, description: "Adsgram not loaded", state: "load", error: true })
+      return
+    }
+    adControllerRef.current
+      .show()
+      .then((result: ShowPromiseResult) => {
+        if (result.done) onReward()
+        else onError(result)
+      })
+      .catch((result: ShowPromiseResult) => onError(result))
+  }, [onReward, onError])
+}
+
+// ── Configuración de los 12 Niveles ──
+const LEVEL_CONFIG = [
+  { lv: 1,  name: "Novice",    bp: 0,       color: "#82c3cd", pixels: [33, 23, 32, 34, 43] },
+  { lv: 2,  name: "Explorer",  bp: 1000,    color: "#a8e8a8", pixels: [22, 23, 24, 32, 33, 34, 42, 43, 44] },
+  { lv: 3,  name: "Advanced",  bp: 2500,    color: "#e8a8c1", pixels: [30, 21, 31, 41, 12, 22, 32, 42, 52, 3, 13, 23, 33, 43, 53, 63, 14, 24, 34, 44, 54, 25, 35, 45, 36] },
+  { lv: 4,  name: "Expert",    bp: 6000,    color: "#ffd9a8", pixels: [21, 31, 41, 12, 52, 13, 53, 14, 54, 25, 35, 45] },
+  { lv: 5,  name: "Specialist",bp: 12000,   color: "#a8c1e8", pixels: [30, 21, 41, 12, 32, 52, 3, 33, 63, 14, 34, 54, 25, 45, 36] },
+  { lv: 6,  name: "Elite",     bp: 25000,   color: "#d1a8e8", pixels: [21, 31, 41, 12, 32, 52, 13, 33, 53, 14, 34, 54, 25, 35, 45] },
+  { lv: 7,  name: "Veteran",   bp: 50000,   color: "#e8a8a8", pixels: [0, 60, 11, 51, 22, 42, 33, 24, 44, 15, 55, 6, 66] },
+  { lv: 8,  name: "Commander", bp: 100000,  color: "#f4f4f4", pixels: [30, 21, 31, 41, 3, 13, 23, 33, 43, 53, 63, 25, 35, 45, 36] },
+  { lv: 9,  name: "Legend",    bp: 250000,  color: "#ffd700", pixels: [30, 11, 51, 2, 32, 62, 13, 53, 4, 34, 64, 15, 55, 36] },
+  { lv: 10, name: "Oracle",    bp: 500000,  color: "#00ffcc", pixels: [11, 21, 31, 41, 51, 12, 52, 13, 53, 14, 54, 15, 25, 35, 45, 55] },
+  { lv: 11, name: "Visionary", bp: 1000000, color: "#ff007f", pixels: [30, 21, 31, 41, 2, 12, 22, 42, 52, 62, 33, 4, 14, 24, 44, 54, 64, 25, 35, 45, 36] },
+  { lv: 12, name: "Apex AI",   bp: 2500000, color: "#ffffff", pixels: [0, 10, 20, 30, 40, 50, 60, 1, 61, 2, 22, 32, 42, 62, 3, 23, 33, 43, 63, 4, 24, 34, 44, 64, 5, 65, 6, 16, 26, 36, 46, 56, 66] }
 ]
 
-const INSIDE_ITEMS = [
-  { id: 1, name: "5,000 BP", rarity: "Legendary", color: "#eab308", drop: "0.5%" },
-  { id: 2, name: "Grok 3 API Trial", rarity: "Legendary", color: "#a855f7", drop: "1.2%" },
-  { id: 3, name: "VortX VIP Badge", rarity: "Rare", color: "#3b82f6", drop: "15.0%" },
-  { id: 4, name: "100 Stars", rarity: "Rare", color: "#eab308", drop: "25.3%" },
-  { id: 5, name: "Dark Theme UI", rarity: "Common", color: "#c084fc", drop: "58.0%" },
+// ── Prompts Dinámicos ──
+const DYNAMIC_PROMPTS = [
+  "¿Cómo está el clima hoy?",
+  "¿Qué se celebra hoy?",
+  "Cuéntame un dato curioso sobre la IA.",
+  "¿Cuál es el precio actual del Bitcoin?",
+  "Resúmeme las noticias tecnológicas de hoy.",
+  "Dame una frase motivadora para empezar el día.",
+  "Dime un chiste corto de programadores.",
+  "¿Quién nació un día como hoy en la historia?",
+  "¿Cuál es el santoral de hoy?",
+  "Recomiéndame una película de ciencia ficción.",
+  "¿Qué eventos mundiales importantes hay hoy?",
+  "¿Cómo cerró el mercado de valores ayer?",
+  "¿Qué hay de nuevo en el ecosistema TON hoy?",
+  "Dame un consejo de salud para el trabajo remoto.",
+  "¿Cuál es la palabra del día y su significado?"
 ]
 
-const AUCTION_ITEMS = [
-  { 
-    id: 'crystal_1', title: 'Crystal Ball', tag: '#11179', collection: 'Crystal Balls',
-    imgSrc: '/1000010040.jpg', price: '20', isSoldOut: false, color: '#eab308'
-  },
-  { 
-    id: 'crystal_2', title: 'Incubus', tag: '#14640', collection: 'Crystal Balls',
-    imgSrc: '/1000010039.jpg', price: '80', isSoldOut: true, color: '#ef4444'
-  },
-  { 
-    id: 'crystal_3', title: 'Fuschia', tag: '#8842', collection: 'Crystal Balls',
-    imgSrc: '/1000010037.png', price: '45', isSoldOut: false, color: '#c084fc'
-  },
-  { 
-    id: 'crystal_4', title: 'Silver', tag: '#9921', collection: 'Crystal Balls',
-    imgSrc: '/1000010040.jpg', price: '15', isSoldOut: false, color: '#8e8e93'
-  },
-]
+// ── Componente Pixel Art ──
+const PixelObject = ({ pixels, color, size = 90 }: { pixels: number[], color: string, size?: number }) => {
+  return (
+    <svg viewBox="0 0 7 7" width={size} height={size} style={{ filter: `drop-shadow(0 0 12px ${color}66)` }}>
+      {pixels.map(pos => {
+        const x = Math.floor(pos / 10)
+        const y = pos % 10
+        return <rect key={pos} x={x} y={y} width="1" height="1" fill={color} />
+      })}
+      <rect x="3" y="3" width="1" height="1" fill="white" opacity="0.4" />
+    </svg>
+  )
+}
 
-// ── Estilos de Animación ──
-const animationStyles = `
-  @keyframes box-float { 
-    0%, 100% { transform: translateY(0); } 
-    50% { transform: translateY(-8px); } 
-  }
-  .animate-box-float { animation: box-float 4s ease-in-out infinite; }
-  
-  @keyframes matrix-glitch {
-    0% { opacity: 1; transform: scale(1); filter: hue-rotate(0deg); }
-    20% { opacity: 0.8; transform: scale(1.02) translate(2px, -2px); filter: hue-rotate(90deg); }
-    40% { opacity: 0.9; transform: scale(0.98) translate(-2px, 2px); filter: hue-rotate(180deg); }
-    60% { opacity: 1; transform: scale(1.05) translate(1px, 1px); filter: hue-rotate(270deg); }
-    80% { opacity: 0.8; transform: scale(0.95) translate(-1px, -1px); filter: hue-rotate(360deg); }
-    100% { opacity: 1; transform: scale(1); filter: hue-rotate(0deg); }
-  }
-  .animate-matrix { animation: matrix-glitch 0.2s linear infinite; }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-`;
+export function LevelsView() {
+  const ctx = useApp() as any
+  const { 
+    x_points: currentBP, 
+    ads_today: serverAdsToday, 
+    completed_missions, 
+    setCurrentView, 
+    claimMissionTokens, 
+    referralLink, 
+    refreshUserData,
+    openExploreTopic 
+  } = ctx
 
-// ── COMPONENTE: AIRDROP CARD ──
-const AirdropCard = ({ item, onClick }: { item: any, onClick: () => void }) => {
-  const isSoldOut = item.supply.current === 0;
+  const completed = completed_missions || []
+  const [localAdsToday, setLocalAdsToday] = useState(serverAdsToday || 0)
+  const [pendingTasks, setPendingTasks] = useState<Record<string, "started" | "verifying">>({})
+  const [loadingAd, setLoadingAd] = useState(false)
+  const [showAllOneTime, setShowAllOneTime] = useState(false)
+
+  // Seleccionar prompt dinámico según el día
+  const dailyPrompt = useMemo(() => {
+    const day = new Date().getDate()
+    return DYNAMIC_PROMPTS[day % DYNAMIC_PROMPTS.length]
+  }, [])
+
+  // Sincronizar anuncios
+  useEffect(() => {
+    setLocalAdsToday((prev: number) => (serverAdsToday > prev ? serverAdsToday : prev))
+  }, [serverAdsToday])
+
+  // Limpiar pending tasks
+  useEffect(() => {
+    setPendingTasks(prev => {
+      const next = { ...prev }
+      for (const mid of completed) delete next[mid]
+      return next
+    })
+  }, [completed])
+
+  const currentLevel = [...LEVEL_CONFIG].reverse().find(l => currentBP >= l.bp) || LEVEL_CONFIG[0]
+  const nextLevel = LEVEL_CONFIG[currentLevel.lv] || currentLevel
+  const progressPercent = Math.min(100, (currentBP / nextLevel.bp) * 100)
+
+  const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
+
+  // ── Adsgram Logic ──
+  const ADSGRAM_BLOCK_ID = process.env.NEXT_PUBLIC_ADSGRAM_BLOCK_ID ?? ""
+  const onAdReward = useCallback(async () => {
+    setLoadingAd(true)
+    setLocalAdsToday((prev: number) => prev + 1)
+    await new Promise(r => setTimeout(r, 2000))
+    if (refreshUserData) await refreshUserData()
+    tg?.showAlert(`✅ +300 BP earned!`)
+    setLoadingAd(false)
+  }, [tg, refreshUserData])
+
+  const onAdError = useCallback((result: ShowPromiseResult) => {
+    setLoadingAd(false)
+    if (result.error) tg?.showAlert("Ad not available right now. Try again later.")
+  }, [tg])
+
+  const showAd = useAdsgram({ blockId: ADSGRAM_BLOCK_ID, onReward: onAdReward, onError: onAdError })
+
+  const BOT     = process.env.NEXT_PUBLIC_BOT_USERNAME ?? "xBlumAI"
+  const CHANNEL = process.env.NEXT_PUBLIC_CHANNEL_USERNAME ?? "xBlumAI"
+
+  const handleAction = async (id: string, actionType: string, reward: number, extraData?: any) => {
+    if (actionType === "ads") {
+      if (localAdsToday >= 3 || loadingAd) {
+        tg?.showAlert("Daily ad limit reached (3/3). Come back tomorrow!")
+        return
+      }
+      showAd()
+      return
+    }
+
+    if (actionType === "chatAI") {
+      if (extraData?.prompt) {
+        await openExploreTopic(null, extraData.prompt)
+      } else {
+        setCurrentView("home")
+      }
+      return
+    }
+
+    if (actionType === "invite") {
+      const link = referralLink || `https://t.me/${BOT}?start=ref`
+      tg?.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=Join xBlum AI and earn BP! 🚀`)
+      return
+    }
+
+    const taskStatus = pendingTasks[id]
+
+    if (!taskStatus) {
+      if (actionType === "channel") tg?.openTelegramLink(`https://t.me/${CHANNEL}`)
+      if (actionType === "addChat") tg?.openTelegramLink(`https://t.me/${BOT}?startgroup=true`)
+      if (actionType === "story") {
+        if (tg?.shareToStory) {
+          tg.shareToStory(`https://t.me/${BOT}`, { text: "Join me on xBlum AI!", widget_link: { url: `https://t.me/${BOT}`, name: "Open xBlum" }})
+        } else {
+          tg?.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(`https://t.me/${BOT}`)}&text=Join xBlum AI 🚀`)
+        }
+      }
+      setPendingTasks(prev => ({ ...prev, [id]: "started" }))
+    } else if (taskStatus === "started") {
+      setPendingTasks(prev => ({ ...prev, [id]: "verifying" }))
+      const ok = await claimMissionTokens(actionType, reward)
+      if (ok) {
+        tg?.showAlert(`✅ +${reward} BP earned!`)
+      } else {
+        tg?.showAlert(actionType === "channel" ? "❌ You haven't joined the channel yet. Please join and try again." : "Already claimed or not ready.")
+      }
+      setPendingTasks(prev => { const n = { ...prev }; delete n[id]; return n })
+    }
+  }
+
+  useEffect(() => {
+    if (tg?.BackButton) {
+      tg.BackButton.show()
+      const handleBack = () => setCurrentView("home")
+      tg.BackButton.onClick(handleBack)
+      return () => {
+        tg.BackButton.offClick(handleBack)
+        tg.BackButton.hide()
+      }
+    }
+  }, [setCurrentView, tg])
 
   return (
-    <div 
-      onClick={onClick}
-      className="relative bg-[#0D0D0F] rounded-[28px] p-3 flex flex-col border border-white/5 overflow-hidden group cursor-pointer active:scale-95 transition-all shadow-lg"
-    >
-      {/* Glow de fondo */}
-      <div 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full opacity-[0.15] blur-[40px] rounded-full pointer-events-none transition-opacity group-hover:opacity-30"
-        style={{ backgroundColor: item.color }} 
-      />
+    <div className="flex-1 bg-[#060606] min-h-screen relative overflow-x-hidden pb-32 select-none animate-in fade-in duration-500">
+      
+      <div className="absolute inset-0 pointer-events-none opacity-40" style={{
+        backgroundImage: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+        backgroundSize: '80px 80px'
+      }} />
 
-      {/* Imagen Central */}
-      <div className="w-full aspect-square flex items-center justify-center relative z-10 mb-2">
-        <img 
-           src={item.imageSrc} 
-           alt={item.name} 
-           draggable={false}
-           className={`w-[70%] h-[70%] object-contain drop-shadow-2xl transition-transform duration-500 group-hover:scale-110 ${isSoldOut ? 'grayscale opacity-40' : 'animate-box-float'}`}
-           style={{ WebkitTouchCallout: "none" }}
-        />
+      {/* Header Título */}
+      <div className="sticky top-0 z-30 flex items-center justify-center w-full bg-black/80 backdrop-blur-md border-b border-white/5"
+           style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 24px)" }}>
+        <h2 className="text-[17px] font-bold text-white" style={{ fontFamily: SFD }}>Level {currentLevel.lv}</h2>
       </div>
 
-      {/* Textos y Etiquetas */}
-      <div className="relative z-10 flex items-end justify-between mt-auto px-1">
-        <div className="flex flex-col">
-          <span className="text-white font-bold text-[15px] leading-tight" style={{ fontFamily: SFD }}>
-            {item.name}
-          </span>
-          {!isSoldOut && item.supply.current !== '∞' && (
-            <span className="text-[#8e8e93] text-[11px] font-bold mt-0.5" style={{ fontFamily: SF }}>
-              {item.supply.current} / {item.supply.max} left
+      {/* Hero */}
+      <div className="flex flex-col items-center mt-8 mb-10 relative z-10 animate-in fade-in zoom-in-95 duration-700">
+        <div className="relative mb-6">
+          <div className="absolute inset-0 blur-[40px] opacity-20 rounded-full" style={{ background: currentLevel.color }} />
+          <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} />
+        </div>
+        <h1 className="text-[36px] font-bold text-white tracking-tight mb-2" style={{ fontFamily: SFD }}>
+          Level {currentLevel.lv}
+        </h1>
+        <p className="text-[12px] font-bold text-[#8e8e93] tracking-[0.2em] uppercase" style={{ fontFamily: SF }}>
+          {currentLevel.name}
+        </p>
+      </div>
+
+      {/* Tarjeta Progreso */}
+      <div className="px-5 mb-6 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
+        <div className="bg-[#141415] rounded-[22px] p-5 shadow-2xl">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2.5">
+              <PixelObject pixels={currentLevel.pixels} color={currentLevel.color} size={18} />
+              <span className="text-[16px] font-bold text-white" style={{ fontFamily: SFD }}>Level {currentLevel.lv}</span>
+            </div>
+            <span className="text-[14px] font-bold text-[#d1d1d6]" style={{ fontFamily: SF }}>
+              {currentBP.toLocaleString()}/{nextLevel.bp.toLocaleString()} BP
             </span>
-          )}
-          {item.supply.current === '∞' && (
-            <span className="text-[#8e8e93] text-[11px] font-bold mt-0.5" style={{ fontFamily: SF }}>
-              Unlimited
-            </span>
-          )}
+          </div>
+          <div className="flex items-center justify-between w-full mb-4 gap-[4px]">
+            {Array.from({ length: 24 }).map((_, i) => (
+              <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white' : 'bg-[#2c2c2e]'}`} />
+            ))}
+          </div>
+          <p className="text-[13px] text-[#8e8e93] leading-relaxed" style={{ fontFamily: SF }}>
+            You are currently at {currentLevel.name} rank. Accumulate more BP to evolve your AI core and unlock exclusive rewards.
+          </p>
+        </div>
+      </div>
+
+      {/* ── Banner: Acceso al Shop ── */}
+      <div className="px-5 mb-10 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 fill-mode-both">
+         <button 
+            onClick={() => setCurrentView("shop")}
+            className="w-full relative overflow-hidden bg-[#111] border border-[#2c2c2e] rounded-[20px] p-4 flex items-center justify-between active:scale-[0.98] transition-transform shadow-lg"
+         >
+            {/* Brillo de fondo */}
+            <div className="absolute inset-0 pointer-events-none opacity-20" style={{ background: "radial-gradient(circle at 10% 50%, rgba(168,85,247,0.5), transparent 70%)" }} />
+            
+            <div className="flex items-center gap-4 relative z-10">
+               <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
+                  <Package className="w-6 h-6 text-purple-400" />
+               </div>
+               <div className="text-left">
+                  <p className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>Marketplace & Drops</p>
+                  <p className="text-[#8e8e93] text-[13px] mt-0.5" style={{ fontFamily: SF }}>Spend BP on exclusive cosmetics</p>
+               </div>
+            </div>
+            
+            <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/10 relative z-10">
+               <ChevronRight className="w-4 h-4 text-white/50" />
+            </div>
+         </button>
+      </div>
+
+      {/* ── ONE-TIME / AI TASKS ── */}
+      <div className="relative z-10 px-5 w-full flex flex-col mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both">
+        <div className="flex items-center justify-between mb-6 px-1">
+          <h3 className="text-[18px] font-bold text-white" style={{ fontFamily: SFD }}>Tasks</h3>
+          <button 
+            onClick={() => setShowAllOneTime(!showAllOneTime)}
+            className="text-[13px] font-bold text-blue-400 active:opacity-60 transition-all"
+            style={{ fontFamily: SF }}
+          >
+            {showAllOneTime ? "Show Less" : "View All"}
+          </button>
         </div>
 
-        {/* Precio Pill */}
-        <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full border shadow-sm backdrop-blur-md ${isSoldOut ? 'bg-[#1c1c1e] border-white/5' : 'bg-white/10 border-white/10'}`}>
-          {isSoldOut ? (
-             <span className="text-[#8e8e93] text-[11px] font-bold">Sold out</span>
-          ) : (
-             <>
-               {item.currency === 'STARS' ? (
-                 <img src="/telegram-star-icon.png" className="w-3 h-3 pointer-events-none select-none" alt="Star" />
-               ) : (
-                 <Sparkles className="w-3 h-3 text-[#eab308]" />
-               )}
-               <span className="text-white text-[12px] font-bold">{item.price}</span>
-             </>
-          )}
-        </div>
+        <MissionTimelineCard 
+          id="dailyAI"
+          title="Ask AI Today" 
+          reward={300} 
+          desc={dailyPrompt}
+          icon={<Sparkles size={18} />}
+          isDone={false} // Dynamic prompt siempre disponible para interactuar
+          onClick={() => handleAction("dailyAI", "chatAI", 300, { prompt: dailyPrompt })}
+        />
+
+        <MissionTimelineCard 
+          id="chatAI"
+          title="Talk to xBlum AI" 
+          reward={500} 
+          desc="Send your first message to the AI and start exploring."
+          icon={<MessageSquare size={18} />}
+          isDone={completed.includes("chatAI")}
+          status={pendingTasks["chatAI"]}
+          onClick={() => handleAction("chatAI", "chatAI", 500)}
+        />
+
+        <MissionTimelineCard 
+          id="channel"
+          title="Join xBlum Channel" 
+          reward={1000} 
+          desc="Stay updated with the latest AI news and feature drops."
+          icon={<Send size={18} />}
+          isDone={completed.includes("channel")}
+          status={pendingTasks["channel"]}
+          onClick={() => handleAction("channel", "channel", 1000)}
+        />
+
+        {/* Tareas ocultas bajo View All */}
+        {showAllOneTime && (
+          <div className="animate-in fade-in slide-in-from-top-2 duration-400">
+            <MissionTimelineCard 
+              id="addChat"
+              title="Add xBlum to Group" 
+              reward={1500} 
+              desc="Bring the power of xBlum AI to your community chat."
+              icon={<Users size={18} />}
+              isDone={completed.includes("addChat")}
+              status={pendingTasks["addChat"]}
+              isLocked={!completed.includes("channel")}
+              onClick={() => handleAction("addChat", "addChat", 1500)}
+            />
+
+            <MissionTimelineCard 
+              id="story"
+              title="Share to Story" 
+              reward={500} 
+              desc="Let your Telegram contacts know about xBlum AI."
+              icon={<Camera size={18} />}
+              isDone={completed.includes("story")}
+              status={pendingTasks["story"]}
+              onClick={() => handleAction("story", "story", 500)}
+              isLast={true}
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="w-full border-t border-dashed border-[#2c2c2e] mb-8" />
+
+      {/* ── DAILY MISSIONS ── */}
+      <div className="relative z-10 px-5 w-full flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
+        <h3 className="text-[18px] font-bold text-white mb-6 px-1" style={{ fontFamily: SFD }}>Daily Missions</h3>
+
+        <MissionTimelineCard 
+          id="dailyCheck"
+          title="Daily Check-in" 
+          reward={200} 
+          desc="Open the app today and claim your free daily BP."
+          icon={<CalendarCheck size={18} />}
+          isDone={completed.includes("dailyCheck")}
+          status={pendingTasks["dailyCheck"]}
+          onClick={() => handleAction("dailyCheck", "dailyCheck", 200)}
+        />
+
+        <MissionTimelineCard 
+          id="ads"
+          title="Watch Ads" 
+          reward={300} 
+          desc="Support the project by watching short daily ads."
+          progress={`${localAdsToday}/3`} 
+          icon={<Play size={18} fill={localAdsToday >= 3 ? "none" : "currentColor"} />}
+          isDone={localAdsToday >= 3}
+          status={loadingAd ? "verifying" : undefined}
+          onClick={() => handleAction("ads", "ads", 300)}
+        />
+
+        <MissionTimelineCard 
+          id="invite"
+          title="Invite 1 Friend" 
+          reward={1000} 
+          desc="Invite a friend to the xBlum ecosystem."
+          icon={<UserPlus size={18} />}
+          isDone={false}
+          status={pendingTasks["invite"]}
+          onClick={() => handleAction("invite", "invite", 1000)}
+          isLast={true}
+        />
       </div>
     </div>
   )
 }
 
-export function MarketView() {
-  const ctx = useApp() as any
-  const { setCurrentView } = ctx
-  const tonBalance = "988.52"
+function MissionTimelineCard({ id, title, reward, desc, progress, icon, onClick, status, isDone, isLocked, isLast }: any) {
+  const loading = status === "verifying"
+  const started = status === "started"
 
-  // ── ESTADOS ──
-  const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Play')
-  const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
+  let buttonUI = { text: "Start", bg: "bg-[#2c2c2e] text-white", icon: <ChevronRight size={14} /> }
   
-  // Estados de Desencriptación (Unboxing)
-  const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
-  const [glitchText, setGlitchText] = useState("DECRYPT")
-  const [wonItems, setWonItems] = useState<any[]>([])
-
-  // ── BACK BUTTON TELEGRAM ──
-  useEffect(() => {
-    const tg = typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
-    if (!tg?.BackButton) return
-    tg.BackButton.show()
-
-    const handleBack = () => {
-      if (viewingBoxId) {
-         setViewingBoxId(null)
-         setOpeningState('idle')
-      } else {
-         setCurrentView("home") 
-         tg.BackButton.hide()
-      }
-    }
-    tg.BackButton.onClick(handleBack)
-    return () => tg.BackButton.offClick(handleBack)
-  }, [setCurrentView, viewingBoxId])
-
-  // ── LÓGICA DE DESENCRIPTACIÓN ──
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (openingState === 'spinning') {
-      interval = setInterval(() => {
-        setGlitchText(`0x${Math.random().toString(16).substring(2, 8).toUpperCase()}`);
-      }, 50);
-    } else if (openingState === 'idle') {
-      setGlitchText("DECRYPT");
-    }
-    return () => clearInterval(interval);
-  }, [openingState]);
-
-  const handleOpenBox = () => {
-    setOpeningState('spinning')
-    
-    // Simular el tiempo de hackeo/desencriptación
-    setTimeout(() => {
-      const randomItem = INSIDE_ITEMS[Math.floor(Math.random() * INSIDE_ITEMS.length)]
-      setWonItems([randomItem])
-      setOpeningState('result')
-    }, 2500)
+  if (isLocked) {
+    buttonUI = { text: "Locked", bg: "bg-transparent text-[#636366]", icon: <Lock size={12} /> }
+  } else if (isDone) {
+    buttonUI = { text: "Done", bg: "bg-transparent text-[#636366]", icon: <Check size={14} /> }
+  } else if (loading) {
+    buttonUI = { text: "Checking", bg: "bg-[#2c2c2e] text-white", icon: <Loader2 size={14} className="animate-spin" /> }
+  } else if (started) {
+    buttonUI = { text: "Check", bg: "bg-white text-black", icon: <Check size={14} /> }
+  } else if (id === "chatAI" || id === "invite" || id === "ads" || id === "dailyAI") {
+    buttonUI = { text: "Go", bg: "bg-white text-black", icon: <ChevronRight size={14} /> }
   }
 
-  const activeBoxData = AIRDROP_CAPSULES.find(b => b.id === viewingBoxId)
+  const opacityClass = isLocked || isDone ? "opacity-50" : "opacity-100"
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#060606] relative overflow-hidden select-none">
-      <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
-      
-      {/* Ocultar Navbar Global en Unboxing */}
-      {viewingBoxId && (
-        <style dangerouslySetInnerHTML={{ __html: `#main-nav-bar { display: none !important; }` }} />
-      )}
-
-      {/* ── HEADER PREMIUM (Balance & Tabs) ── */}
-      {!viewingBoxId && (
-        <div className="sticky top-0 z-[100] w-full bg-[#060606]/80 backdrop-blur-xl border-b border-white/5 pb-4 px-5 pt-8">
-          
-          <div className="flex items-center justify-between mb-6">
-             <div className="flex flex-col">
-                <div className="flex items-center gap-2">
-                   <div className="w-6 h-6 rounded-full bg-[#3b82f6] flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-                      <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-white">
-                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2"/>
-                        <path d="M8 12L12 8L16 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12 16V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                   </div>
-                   <span className="text-white font-bold text-[24px] tracking-tight" style={{ fontFamily: SFD }}>
-                      {tonBalance} <span className="text-[#8e8e93] text-[18px]">TON</span>
-                   </span>
-                </div>
-                
-                <div className="flex gap-2 mt-3">
-                   <button className="bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white px-3.5 py-1.5 rounded-full border border-white/5 text-[12px] font-bold flex items-center gap-1.5 active:scale-95 transition-all">
-                      <LayoutGrid size={13} className="text-[#8e8e93]" /> Collection
-                   </button>
-                   <button className="bg-[#1c1c1e] hover:bg-[#2c2c2e] text-white px-3.5 py-1.5 rounded-full border border-white/5 text-[12px] font-bold flex items-center gap-1.5 active:scale-95 transition-all">
-                      <SlidersHorizontal size={13} className="text-[#8e8e93]" /> Activity
-                   </button>
-                </div>
-             </div>
-             
-             <button className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#1c1c1e] to-[#2c2c2e] border border-white/10 flex items-center justify-center shadow-lg active:scale-95 transition-transform">
-                <User size={20} className="text-white" />
-             </button>
-          </div>
-
-          <div className="flex justify-center w-full">
-             <div className="flex bg-[#111111] p-1 rounded-[20px] w-full border border-white/5">
-                <button 
-                  onClick={() => setActiveTab('Play')}
-                  className={`flex-1 py-2.5 rounded-[16px] text-[14px] font-bold transition-all duration-300 ${activeTab === 'Play' ? 'bg-[#2c2c2e] text-white shadow-md' : 'text-[#8e8e93] hover:text-white'}`}
-                >
-                  Drops
-                </button>
-                <button 
-                  onClick={() => setActiveTab('Auctions')}
-                  className={`flex-1 py-2.5 rounded-[16px] text-[14px] font-bold transition-all duration-300 ${activeTab === 'Auctions' ? 'bg-[#2c2c2e] text-white shadow-md' : 'text-[#8e8e93] hover:text-white'}`}
-                >
-                  Auctions
-                </button>
-             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── CONTENIDO PRINCIPAL ── */}
-      <div className="flex-1 overflow-y-auto pb-32">
-        
-        {/* VISTA: UNBOXING (DESENCRIPTACIÓN) */}
-        {viewingBoxId && activeBoxData ? (
-          <div className="animate-in slide-in-from-bottom-8 fade-in duration-500 min-h-screen flex flex-col">
-             
-             <div className="flex items-center justify-center px-5 pt-10 pb-4 relative z-50">
-                <h2 className="text-white font-bold text-[24px]" style={{ fontFamily: SFD }}>
-                   System Extraction
-                </h2>
-             </div>
-
-             <div className="flex-1 flex flex-col items-center justify-center relative mt-[-10vh]">
-                {/* Glow de fondo central */}
-                <div 
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] blur-[100px] opacity-30 rounded-full pointer-events-none transition-all duration-700"
-                  style={{ 
-                    backgroundColor: activeBoxData.color,
-                    transform: openingState === 'spinning' ? 'translate(-50%, -50%) scale(1.5)' : 'translate(-50%, -50%) scale(1)'
-                  }} 
-                />
-
-                {/* Contenedor Visual de la Caja o Resultado */}
-                <div className="relative z-20 w-[220px] h-[220px] flex items-center justify-center">
-                  {openingState !== 'result' ? (
-                    <img 
-                      src={activeBoxData.imageSrc} 
-                      alt="Box" 
-                      draggable={false}
-                      className={`w-full h-full object-contain pointer-events-none transition-all duration-300 ${openingState === 'spinning' ? 'animate-matrix' : 'animate-box-float'}`} 
-                      style={{ WebkitTouchCallout: "none" }}
-                    />
-                  ) : (
-                    <div className="animate-in zoom-in-50 fade-in duration-500 flex flex-col items-center">
-                       <div 
-                         className="w-[140px] h-[140px] rounded-[32px] bg-[#111] border-2 flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.5)] mb-6"
-                         style={{ borderColor: wonItems[0].color, boxShadow: `0 0 40px ${wonItems[0].color}40` }}
-                       >
-                          <Sparkles className="w-16 h-16" style={{ color: wonItems[0].color }} />
-                       </div>
-                       <span className="text-white font-bold text-[28px] text-center leading-tight" style={{ fontFamily: SFD }}>
-                         {wonItems[0].name}
-                       </span>
-                       <span 
-                         className="text-[14px] font-bold mt-2 px-3 py-1 rounded-full border backdrop-blur-md" 
-                         style={{ color: wonItems[0].color, backgroundColor: `${wonItems[0].color}15`, borderColor: `${wonItems[0].color}40` }}
-                       >
-                         {wonItems[0].rarity}
-                       </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Terminal Glitch Text */}
-                {openingState !== 'result' && (
-                  <div className="mt-12 h-[30px] flex items-center justify-center">
-                     <span 
-                        className={`font-mono text-[20px] font-bold tracking-[0.3em] transition-colors ${openingState === 'spinning' ? 'text-red-500' : 'text-[#8e8e93]'}`}
-                     >
-                        {glitchText}
-                     </span>
-                  </div>
-                )}
-             </div>
-
-             {/* Controles Inferiores */}
-             <div className="w-full px-5 pb-10">
-                {openingState === 'idle' && (
-                  <button 
-                    onClick={handleOpenBox} 
-                    className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white py-4 rounded-[20px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]"
-                    style={{ fontFamily: SF }}
-                  >
-                     <Lock size={18} /> Initiate Protocol
-                  </button>
-                )}
-                {openingState === 'spinning' && (
-                  <button 
-                    disabled 
-                    className="w-full bg-[#ef4444] text-white py-4 rounded-[20px] font-bold text-[18px] flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(239,68,68,0.4)] animate-pulse"
-                  >
-                     <Loader2 className="w-5 h-5 animate-spin" /> Extracting Data...
-                  </button>
-                )}
-                {openingState === 'result' && (
-                  <button 
-                    onClick={() => { setViewingBoxId(null); setOpeningState('idle'); }} 
-                    className="w-full bg-[#10b981] text-white py-4 rounded-[20px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-in slide-in-from-bottom-4 duration-500"
-                  >
-                     Accept to Inventory
-                  </button>
-                )}
-             </div>
-          </div>
-
-        ) : activeTab === 'Play' ? (
-          /* VISTA: PLAY / DROPS */
-          <div className="animate-in fade-in duration-300">
-            
-            {/* FEATURED BANNER */}
-            <div className="px-5 py-6">
-               <div 
-                 onClick={() => setViewingBoxId('grok_node')}
-                 className="relative w-full h-[190px] rounded-[32px] overflow-hidden group cursor-pointer border border-white/10 shadow-2xl active:scale-[0.98] transition-transform"
-               >
-                  <div className="absolute inset-0 bg-[#0A0A0C]" />
-                  <div className="absolute -top-20 -right-10 w-72 h-72 bg-[#3b82f6]/20 blur-[80px] rounded-full pointer-events-none" />
-                  
-                  <div className="relative z-10 h-full flex flex-col justify-center px-6">
-                     <div className="bg-[#3b82f6]/20 border border-[#3b82f6]/30 text-[#3b82f6] px-3 py-1 rounded-full w-fit mb-3 flex items-center gap-1.5">
-                        <Sparkles size={12} />
-                        <span className="font-bold text-[10px] uppercase tracking-wider">Featured Drop</span>
-                     </div>
-                     <h3 className="text-white font-bold text-[28px] leading-tight max-w-[200px]" style={{ fontFamily: SFD }}>
-                        Neural Node
-                     </h3>
-                     <p className="text-[#8e8e93] text-[13px] mt-1 font-medium">High-yield API access codes.</p>
-                     
-                     <div className="absolute right-[-10px] top-1/2 -translate-y-1/2 w-[160px] h-[160px] animate-box-float pointer-events-none">
-                        <img src="/1000009370.png" draggable={false} className="w-full h-full object-contain drop-shadow-2xl" alt="Box" style={{ WebkitTouchCallout: "none" }} />
-                     </div>
-                  </div>
-               </div>
-            </div>
-
-            {/* AIRDROPS GRID */}
-            <div className="px-5 mb-8">
-               <div className="flex items-center justify-between mb-4 px-1">
-                  <h4 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>Available Drops</h4>
-               </div>
-               
-               <div className="grid grid-cols-2 gap-3">
-                  {AIRDROP_CAPSULES.map((box) => (
-                    <AirdropCard 
-                      key={box.id} 
-                      item={box} 
-                      onClick={() => (!box.supply.current || box.supply.current !== 0) ? setViewingBoxId(box.id) : null} 
-                    />
-                  ))}
-               </div>
-            </div>
-
-            {/* MY INVENTORY */}
-            <div className="px-5 pb-10">
-               <div className="flex items-center gap-2 mb-4 px-1">
-                  <Package size={20} className="text-[#8e8e93]" />
-                  <h4 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>My Inventory</h4>
-               </div>
-               
-               <div className="flex flex-col gap-3">
-                  <div className="bg-[#0D0D0F] border border-white/5 rounded-[24px] p-4 flex items-center justify-between active:scale-[0.98] transition-transform shadow-md">
-                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-[#111] rounded-[18px] flex items-center justify-center border border-white/10 relative overflow-hidden shrink-0">
-                           <div className="absolute inset-0 bg-[#8e8e93]/10 blur-xl" />
-                           <img src="/1000009369.png" draggable={false} className="w-10 h-10 object-contain drop-shadow-md relative z-10 pointer-events-none" alt="Box" style={{ WebkitTouchCallout: "none" }} />
-                        </div>
-                        <div className="flex flex-col">
-                           <span className="text-white font-bold text-[16px]" style={{ fontFamily: SFD }}>Community Cache</span>
-                           <span className="text-[#8e8e93] text-[12px] font-medium">Unopened • 1x</span>
-                        </div>
-                     </div>
-                     <button onClick={() => setViewingBoxId('weekly_bp')} className="bg-[#2c2c2e] hover:bg-[#3a3a3c] text-white font-bold text-[12px] px-4 py-2 rounded-full transition-colors">
-                        OPEN
-                     </button>
-                  </div>
-               </div>
-            </div>
-          </div>
-
-        ) : (
-          /* VISTA: AUCTIONS */
-          <div className="animate-in fade-in duration-300 px-5 pt-6">
-             <div className="flex gap-2 w-full mb-6 relative">
-                 <div className="flex-1 bg-[#111] rounded-[16px] flex items-center px-4 gap-2 border border-white/5 shadow-inner">
-                    <Search className="w-5 h-5 text-[#8e8e93]" />
-                    <input type="text" placeholder="Search collection..." className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#636366]" style={{ fontFamily: SF }} />
-                 </div>
-                 <button className="w-[48px] h-[48px] bg-[#111] rounded-[16px] flex items-center justify-center text-[#8e8e93] border border-white/5 active:scale-95 transition-transform shrink-0">
-                    <SlidersHorizontal className="w-5 h-5" />
-                 </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 pb-10">
-                 {AUCTION_ITEMS.map((item) => (
-                    <div key={item.id} className="relative bg-[#0D0D0F] rounded-[28px] p-3 flex flex-col border border-white/5 overflow-hidden cursor-pointer active:scale-95 transition-all">
-                       
-                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[100px] h-[100px] opacity-20 blur-[30px] rounded-full pointer-events-none" style={{ backgroundColor: item.color }} />
-
-                       <div className="w-full aspect-square bg-[#111] rounded-[20px] overflow-hidden relative flex items-center justify-center p-2 mb-3 border border-white/5">
-                          <img src={item.imgSrc} alt={item.title} draggable={false} className={`w-full h-full object-cover rounded-[16px] pointer-events-none ${item.isSoldOut ? 'grayscale opacity-50' : ''}`} style={{ WebkitTouchCallout: "none" }} />
-                       </div>
-                       
-                       <div className="flex flex-col px-1 mb-1">
-                          <span className="text-white font-bold text-[15px] truncate" style={{ fontFamily: SFD }}>
-                             {item.title} <span className="text-[#8e8e93] text-[13px]">{item.tag}</span>
-                          </span>
-                       </div>
-
-                       <div className="mt-auto px-1">
-                          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border w-fit ${item.isSoldOut ? 'bg-[#1c1c1e] border-white/5' : 'bg-white/10 border-white/10'}`}>
-                            {item.isSoldOut ? (
-                               <span className="text-[#8e8e93] text-[12px] font-bold">Sold out</span>
-                            ) : (
-                               <>
-                                 <svg viewBox="0 0 24 24" fill="none" className="w-3 h-3 text-[#3b82f6]">
-                                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2"/>
-                                 </svg>
-                                 <span className="text-white text-[13px] font-bold">{item.price}</span>
-                               </>
-                            )}
-                          </div>
-                       </div>
-                    </div>
-                 ))}
-              </div>
-          </div>
-        )}
+    <div className={`flex w-full ${opacityClass} transition-all duration-500`}>
+      <div className="w-[28px] flex-shrink-0 flex justify-center relative">
+         {!isLast && <div className="absolute top-[28px] bottom-[-24px] w-[2px] bg-[#2c2c2e]" />}
+         <div className={`absolute top-[28px] w-[7px] h-[7px] rounded-full z-10 transition-colors shadow-[0_0_8px_rgba(255,255,255,0.1)] 
+            ${isDone ? 'bg-green-500 shadow-green-500/30' : isLocked ? 'bg-[#2c2c2e]' : 'bg-[#e8a8c1]'}`} 
+         />
       </div>
+
+      <button 
+        onClick={onClick} 
+        disabled={loading || isDone || isLocked} 
+        className="flex-1 bg-[#141415] rounded-[22px] p-5 mb-5 text-left active:scale-[0.98] transition-all hover:bg-[#1c1c1e]/50"
+      >
+         <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2.5">
+               <div className={`opacity-90 ${isDone ? 'text-green-500' : isLocked ? 'text-[#636366]' : 'text-white'}`}>
+                  {isLocked ? <Lock size={18} /> : icon}
+               </div>
+               <span className="text-[16px] font-bold text-white" style={{ fontFamily: SFD }}>{title}</span>
+            </div>
+            <span className="text-[13px] font-bold" style={{ fontFamily: SF, color: isDone ? '#636366' : '#ffffff' }}>
+               +{reward} BP
+            </span>
+         </div>
+
+         <p className="text-[13px] text-[#8e8e93] leading-[1.4] mb-4" style={{ fontFamily: SF }}>
+           {isLocked ? "Complete previous missions to unlock this task." : desc}
+         </p>
+
+         <div className="flex items-center justify-between w-full">
+            <span className="text-[11px] font-bold text-[#636366] uppercase tracking-wider" style={{ fontFamily: SF }}>
+               {progress || (isDone ? "Completed" : isLocked ? "Locked" : "Pending")}
+            </span>
+            
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${buttonUI.bg} transition-all`}>
+               <span className="text-[11px] font-bold uppercase tracking-wide" style={{ fontFamily: SFD }}>{buttonUI.text}</span>
+               {buttonUI.icon}
+            </div>
+         </div>
+      </button>
     </div>
   )
 }
