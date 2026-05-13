@@ -3,33 +3,32 @@
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
 import { 
-  LayoutGrid, SlidersHorizontal, User, 
-  Search, Sparkles, Loader2, Lock, Hexagon,
-  ShoppingBag, Heart, Clock
+  ShoppingBag, Heart, GalleryHorizontalEnd, 
+  Sparkles, Loader2, Lock, Hexagon, AlignRight
 } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Base de Datos Visual ──
+// ── Base de Datos Visual (Colores basados en tu imagen) ──
 const AIRDROP_CAPSULES = [
-  { id: 'weekly_bp', name: 'Community Cache', tag: '#001', currency: 'BP', price: 2500, supply: { current: '∞', max: '∞' }, imageSrc: '/1000009369.png' },
-  { id: 'grok_node', name: 'Neural Node', tag: '#442', currency: 'STARS', price: 150, supply: { current: 142, max: 500 }, imageSrc: '/1000009370.png' },
-  { id: 'vortx_vip', name: 'VortX Genesis', tag: '#089', currency: 'STARS', price: 1000, supply: { current: 0, max: 50 }, imageSrc: '/1000009361.png' }
+  { id: 'weekly_bp', name: 'Community Cache', tag: '#001', currency: 'BP', price: 2500, supply: { current: '∞', max: '∞' }, color: 'linear-gradient(135deg, #2A2A2E, #1A1A1C)', imageSrc: '/1000009369.png' },
+  { id: 'grok_node', name: 'Neural Node', tag: '#442', currency: 'STARS', price: 150, supply: { current: 142, max: 500 }, color: 'linear-gradient(135deg, #1A233A, #0D1326)', imageSrc: '/1000009370.png' },
+  { id: 'vortx_vip', name: 'VortX Genesis', tag: '#089', currency: 'STARS', price: 1000, supply: { current: 0, max: 50 }, color: 'linear-gradient(135deg, #332714, #1A130A)', imageSrc: '/1000009361.png' }
 ]
 
 const AUCTION_ITEMS = [
-  { id: 'crystal_1', title: 'Crystal Ball', tag: '#11179', imgSrc: '/1000010040.jpg', price: '20', isSoldOut: false },
-  { id: 'crystal_2', title: 'Incubus', tag: '#14640', imgSrc: '/1000010039.jpg', price: '80', isSoldOut: true },
-  { id: 'crystal_3', title: 'Fuschia', tag: '#8842', imgSrc: '/1000010037.png', price: '45', isSoldOut: false },
-  { id: 'crystal_4', title: 'Silver', tag: '#9921', imgSrc: '/1000010040.jpg', price: '15', isSoldOut: false },
+  { id: 'crystal_1', title: 'Crystal Ball', tag: '#11179', imgSrc: '/1000010040.jpg', price: '20', isSoldOut: false, color: 'linear-gradient(135deg, #332714, #1A130A)' }, // Dorado
+  { id: 'crystal_2', title: 'Crystal Ball', tag: '#14640', imgSrc: '/1000010039.jpg', price: '80', isSoldOut: true, color: 'linear-gradient(135deg, #1E1B2E, #0F0D17)' }, // Oscuro/Gris
+  { id: 'crystal_3', title: 'Crystal Ball', tag: '#8842', imgSrc: '/1000010037.png', price: '45', isSoldOut: false, color: 'linear-gradient(135deg, #2D1B2E, #170D17)' }, // Púrpura
+  { id: 'crystal_4', title: 'Crystal Ball', tag: '#9921', imgSrc: '/1000010040.jpg', price: '15', isSoldOut: false, color: 'linear-gradient(135deg, #2A1A1A, #150D0D)' }, // Rojo sutil
 ]
 
 // ── CSS INYECTADO (Animaciones Glitch & Float) ──
 const animationStyles = `
   @keyframes box-float { 
     0%, 100% { transform: translateY(0); } 
-    50% { transform: translateY(-6px); } 
+    50% { transform: translateY(-8px); } 
   }
   .animate-box-float { animation: box-float 4s ease-in-out infinite; }
   
@@ -47,8 +46,8 @@ const animationStyles = `
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 `;
 
-// ── COMPONENTE: TARJETA LIMPIA (Sin contenedores de color de fondo) ──
-const CleanCard = ({ item, isAirdrop = false, onClick }: any) => {
+// ── COMPONENTE: TARJETA RÉPLICA EXACTA ──
+const ImageCard = ({ item, isAirdrop = false, onClick }: any) => {
   const isSoldOut = isAirdrop ? item.supply.current === 0 : item.isSoldOut;
   const title = isAirdrop ? item.name : item.title;
   const price = item.price;
@@ -56,58 +55,67 @@ const CleanCard = ({ item, isAirdrop = false, onClick }: any) => {
   return (
     <div 
       onClick={onClick}
-      className="relative rounded-[28px] bg-[#161618] flex flex-col overflow-hidden cursor-pointer active:scale-95 transition-all border border-white/5"
+      className="relative rounded-[28px] flex flex-col overflow-hidden cursor-pointer active:scale-[0.98] transition-transform aspect-[4/5] border border-white/5"
+      style={{ background: item.color }}
     >
-      {/* Imagen Superior (Es la propia imagen la que da el color) */}
-      <div className="w-full aspect-square relative bg-[#1A1A1C]">
+      {/* Destellos */}
+      {!isSoldOut && (
+        <>
+          <Sparkles className="absolute top-4 left-4 w-5 h-5 text-white/80 drop-shadow-md" fill="currentColor" />
+          <Sparkles className="absolute top-10 right-6 w-3 h-3 text-yellow-300/80 drop-shadow-md" fill="currentColor" />
+        </>
+      )}
+
+      {/* Imagen Principal (Flotando libremente) */}
+      <div className="flex-1 w-full relative flex items-center justify-center p-6">
         <img 
            src={isAirdrop ? item.imageSrc : item.imgSrc} 
            alt={title} 
            draggable={false}
-           className={`w-full h-full object-cover transition-transform duration-500 hover:scale-105 ${isSoldOut ? 'grayscale opacity-50' : ''}`}
+           className={`w-full h-full object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-110 ${isSoldOut ? 'grayscale opacity-60' : 'animate-box-float'}`}
            style={{ WebkitTouchCallout: "none" }}
         />
-        {/* Destellos opcionales */}
-        {!isSoldOut && <Sparkles className="absolute top-3 left-3 w-4 h-4 text-white/70 drop-shadow-md" />}
       </div>
 
-      {/* Contenedor Inferior Oscuro */}
-      <div className="flex flex-col p-3 bg-[#161618]">
-        {/* Título y Tag */}
-        <div className="flex items-center justify-between mb-3 px-1">
-          <span className="text-white font-bold text-[15px] truncate flex-1 pr-2 leading-tight" style={{ fontFamily: SFD }}>
+      {/* Información integrada en la parte inferior */}
+      <div className="w-full flex flex-col px-3 pb-3">
+        {/* Textos directamente sobre el fondo */}
+        <div className="flex items-center justify-between px-1 mb-3">
+          <span className="text-white font-bold text-[15px] tracking-tight leading-none" style={{ fontFamily: SFD }}>
             {title}
           </span>
-          <span className="text-[#8e8e93] text-[12px] font-medium shrink-0" style={{ fontFamily: SF }}>
+          <span className="text-white/60 text-[13px] font-medium leading-none" style={{ fontFamily: SF }}>
             {item.tag}
           </span>
         </div>
 
-        {/* Botón/Píldora Inferior Integrada */}
-        <div className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[16px] border ${isSoldOut ? 'bg-[#1C1C1E]/60 border-transparent' : 'bg-[#2C2C2E]/50 border-white/5'}`}>
+        {/* Píldora de Precio / Ancho Completo */}
+        <div className="w-full flex items-center justify-between px-4 py-3 rounded-[20px] bg-black/40 backdrop-blur-md border border-white/5">
           <div className="flex items-center gap-1.5">
              {isSoldOut ? (
                <>
-                 <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-[#8e8e93]">
+                 <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-white/60">
                     <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2"/>
                     <path d="M12 8V12L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                  </svg>
-                 <span className="text-[#8e8e93] text-[12px] font-bold" style={{ fontFamily: SF }}>Sold out</span>
+                 <span className="text-white/80 text-[13px] font-bold" style={{ fontFamily: SF }}>Sold out</span>
                </>
              ) : (
                <>
-                 <Hexagon className="w-3.5 h-3.5 text-[#8e8e93]" />
-                 <span className="text-white font-bold text-[12px]" style={{ fontFamily: SF }}>Listed</span>
+                 <Hexagon className="w-3.5 h-3.5 text-white/90" />
+                 <span className="text-white font-bold text-[13px]" style={{ fontFamily: SF }}>Listed</span>
                </>
              )}
           </div>
 
           <div className="flex items-center gap-1">
-             <span className="text-white font-bold text-[14px]" style={{ fontFamily: SF }}>{price}</span>
+             <span className="text-white font-bold text-[14px]">{price}</span>
              {!isAirdrop || item.currency === 'STARS' ? (
-                <img src="/telegram-star-icon.png" className="w-3.5 h-3.5 opacity-90" alt="Star" />
+                <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-white">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+                </svg>
              ) : (
-                <span className="text-white/80 text-[11px] font-bold">BP</span>
+                <span className="text-white/80 text-[12px] font-bold">BP</span>
              )}
           </div>
         </div>
@@ -121,7 +129,7 @@ export function MarketView() {
   const { setCurrentView } = ctx
   const tonBalance = "988.52"
 
-  const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Play')
+  const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Auctions')
   const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
   
   // Estados de Desencriptación
@@ -173,54 +181,58 @@ export function MarketView() {
   const activeBoxData = AIRDROP_CAPSULES.find(b => b.id === viewingBoxId)
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0E0E10] relative overflow-hidden select-none">
+    <div className="flex-1 flex flex-col h-full bg-[#1A1A1D] relative overflow-hidden select-none">
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
       {viewingBoxId && (
         <style dangerouslySetInnerHTML={{ __html: `#main-nav-bar { display: none !important; }` }} />
       )}
 
-      {/* ── HEADER CON BOTONES LARGOS BLUR ── */}
+      {/* ── HEADER CON BLUR SEMI-BLANCO (Réplica de la imagen) ── */}
       {!viewingBoxId && (
-        <div className="sticky top-0 z-40 w-full bg-[#0E0E10]/80 backdrop-blur-xl pb-4 px-5 pt-8 border-b border-white/5">
+        <div className="sticky top-0 z-40 w-full bg-white/[0.02] backdrop-blur-3xl pb-4 px-5 pt-12 border-b border-white/[0.05]">
           
           {/* Saldo TON */}
-          <div className="flex items-center gap-2 mb-5">
-             <div className="w-[28px] h-[28px] rounded-full bg-[#0098EA] flex items-center justify-center shadow-[0_0_15px_rgba(0,152,234,0.4)]">
-                <svg viewBox="0 0 24 24" fill="none" className="w-[16px] h-[16px] text-white">
+          <div className="flex items-center gap-2 mb-6">
+             <div className="w-[26px] h-[26px] rounded-full bg-[#0098EA] flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="none" className="w-[14px] h-[14px] text-white">
                   <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2.5"/>
                   <path d="M8 12L12 8L16 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M12 16V8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
              </div>
              <span className="text-white font-bold text-[32px] tracking-tight leading-none" style={{ fontFamily: SFD }}>
-                {tonBalance} <span className="text-white/50 text-[20px] font-semibold">TON</span>
+                {tonBalance} <span className="text-white/60 text-[22px] font-semibold">TON</span>
              </span>
           </div>
           
-          {/* Botones Anchos y Esmerilados */}
-          <div className="flex gap-3 mb-6">
-             <button className="flex-1 bg-white/10 backdrop-blur-md hover:bg-white/15 text-white py-3.5 rounded-[20px] text-[15px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-white/5 shadow-sm">
-                <LayoutGrid size={18} className="opacity-70" /> Collection
+          {/* Píldoras de Acción (Thin blur) */}
+          <div className="flex gap-2.5 mb-8">
+             <button className="bg-white/[0.08] backdrop-blur-xl text-white px-4 py-2 rounded-full text-[15px] font-semibold flex items-center gap-2 active:scale-95 transition-all">
+                <div className="w-4 h-4 grid grid-cols-2 gap-[2px] opacity-80">
+                   <div className="bg-current rounded-[3px]"></div><div className="bg-current rounded-[3px]"></div>
+                   <div className="bg-current rounded-[3px]"></div><div className="bg-current rounded-[3px]"></div>
+                </div>
+                Collection
              </button>
-             <button className="flex-1 bg-white/10 backdrop-blur-md hover:bg-white/15 text-white py-3.5 rounded-[20px] text-[15px] font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition-all border border-white/5 shadow-sm">
-                <SlidersHorizontal size={18} className="opacity-70" /> Stats
+             <button className="bg-white/[0.08] backdrop-blur-xl text-white px-3.5 py-2 rounded-full flex items-center justify-center active:scale-95 transition-all">
+                <AlignRight size={18} className="opacity-80" />
              </button>
           </div>
 
-          {/* Segment Control Oscuro */}
-          <div className="flex bg-[#1C1C1E] p-1.5 rounded-full w-full">
-             <button 
-               onClick={() => setActiveTab('Play')}
-               className={`flex-1 py-2 rounded-full text-[14px] font-bold transition-all duration-300 ${activeTab === 'Play' ? 'bg-[#2C2C2E] text-white shadow-sm' : 'text-[#8e8e93] hover:text-white'}`}
-             >
-               Drops
-             </button>
+          {/* Segment Control (Play | Auctions) */}
+          <div className="flex bg-white/[0.08] backdrop-blur-2xl p-1 rounded-full w-full max-w-[300px]">
              <button 
                onClick={() => setActiveTab('Auctions')}
-               className={`flex-1 py-2 rounded-full text-[14px] font-bold transition-all duration-300 ${activeTab === 'Auctions' ? 'bg-[#2C2C2E] text-white shadow-sm' : 'text-[#8e8e93] hover:text-white'}`}
+               className={`flex-1 py-1.5 rounded-full text-[15px] font-bold transition-all duration-300 ${activeTab === 'Auctions' ? 'bg-white/[0.15] text-white shadow-sm' : 'text-white/40 hover:text-white/70'}`}
              >
                Auction
+             </button>
+             <button 
+               onClick={() => setActiveTab('Play')}
+               className={`flex-1 py-1.5 rounded-full text-[15px] font-bold transition-all duration-300 ${activeTab === 'Play' ? 'bg-white/[0.15] text-white shadow-sm' : 'text-white/40 hover:text-white/70'}`}
+             >
+               Drops
              </button>
           </div>
         </div>
@@ -235,7 +247,6 @@ export function MarketView() {
              
              <div className="flex-1 flex flex-col items-center justify-center relative mt-[-10vh]">
                 
-                {/* Contenedor Visual */}
                 <div className="relative z-20 w-[240px] h-[240px] flex items-center justify-center">
                   {openingState !== 'result' ? (
                     <img 
@@ -272,7 +283,6 @@ export function MarketView() {
                 )}
              </div>
 
-             {/* Controles de Unboxing */}
              <div className="w-full px-5 pb-10">
                 {openingState === 'idle' && (
                   <button onClick={handleOpenBox} className="w-full bg-white/10 backdrop-blur-md border border-white/10 text-white py-4.5 rounded-[24px] font-bold text-[18px] flex items-center justify-center gap-2 active:scale-95 transition-all">
@@ -294,10 +304,10 @@ export function MarketView() {
 
         ) : activeTab === 'Play' ? (
           /* VISTA DROPS */
-          <div className="animate-in fade-in duration-300 px-5">
-             <div className="grid grid-cols-2 gap-4">
+          <div className="animate-in fade-in duration-300 px-4">
+             <div className="grid grid-cols-2 gap-3">
                 {AIRDROP_CAPSULES.map((box) => (
-                  <CleanCard 
+                  <ImageCard 
                     key={box.id} 
                     item={box} 
                     isAirdrop={true} 
@@ -308,31 +318,34 @@ export function MarketView() {
           </div>
         ) : (
           /* VISTA AUCTIONS */
-          <div className="animate-in fade-in duration-300 px-5">
-              <div className="grid grid-cols-2 gap-4">
+          <div className="animate-in fade-in duration-300 px-4">
+              <div className="grid grid-cols-2 gap-3">
                  {AUCTION_ITEMS.map((item) => (
-                    <CleanCard key={item.id} item={item} />
+                    <ImageCard key={item.id} item={item} />
                  ))}
               </div>
           </div>
         )}
       </div>
 
-      {/* ── MENÚ INFERIOR FLOTANTE CON EFECTO BLUR ── */}
+      {/* ── MENÚ INFERIOR FLOTANTE (ESTILO BLUR IMAGEN) ── */}
       {!viewingBoxId && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[85%] max-w-[340px] z-50">
-          <div className="bg-[#2C2C2E]/70 backdrop-blur-2xl border border-white/10 rounded-[32px] p-2 flex items-center justify-between shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
-             <button className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 bg-white/10 rounded-[24px] shadow-sm">
-                <ShoppingBag size={20} className="text-white" />
-                <span className="text-white font-semibold text-[11px]">Store</span>
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[360px] z-50">
+          <div className="bg-white/[0.12] backdrop-blur-3xl border border-white/[0.05] rounded-[32px] p-1.5 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+             {/* Pestaña Activa (Store) */}
+             <button className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 bg-white/[0.15] rounded-[28px] shadow-sm">
+                <ShoppingBag size={22} className="text-white" fill="currentColor" fillOpacity={0.2} />
+                <span className="text-white font-medium text-[12px] tracking-wide" style={{ fontFamily: SF }}>Store</span>
              </button>
-             <button className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 text-[#8e8e93] hover:text-white transition-colors">
-                <Heart size={20} />
-                <span className="font-semibold text-[11px]">Saved</span>
+             {/* Pestaña Inactiva */}
+             <button className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-white/50 hover:text-white/80 transition-colors">
+                <Heart size={22} fill="currentColor" fillOpacity={0} />
+                <span className="font-medium text-[12px] tracking-wide" style={{ fontFamily: SF }}>Saved</span>
              </button>
-             <button className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 text-[#8e8e93] hover:text-white transition-colors">
-                <Clock size={20} />
-                <span className="font-semibold text-[11px]">Activity</span>
+             {/* Pestaña Inactiva */}
+             <button className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-white/50 hover:text-white/80 transition-colors">
+                <GalleryHorizontalEnd size={22} />
+                <span className="font-medium text-[12px] tracking-wide" style={{ fontFamily: SF }}>Activity</span>
              </button>
           </div>
         </div>
