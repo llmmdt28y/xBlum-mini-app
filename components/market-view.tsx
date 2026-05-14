@@ -696,130 +696,124 @@ export function MarketView() {
 
                     {/* ── RENDERIZADO DEL GRID O LISTA ── */}
                     {viewMode === 'grid' ? (
+                       /* VISTA DE GRID */
                        <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-10 animate-in fade-in duration-300">
                           {AUCTION_ITEMS.map((item) => (
-                             <div 
-                                key={item.id} 
-                                onClick={() => setViewingAuctionId(item.id)}
-                                className="relative w-full mb-2 group cursor-pointer"
-                             >
-                                {/* Card Body: 
-                                    - Rounded más cuadrado (16px abajo).
-                                */}
-                                <div className="w-full aspect-[4/5] bg-[#161618] rounded-t-[32px] rounded-b-[16px] flex flex-col shadow-lg border border-white/[0.04] group-hover:bg-[#1c1c1e] transition-colors relative overflow-hidden">
-                                   
-                                   {/* Patrón repetitivo tenue de fondo */}
-                                   <div 
-                                     className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                                     style={{
-                                       backgroundImage: `radial-gradient(circle at 10px 10px, white 1px, transparent 0)`,
-                                       backgroundSize: '24px 24px'
-                                     }}
-                                   />
-
-                                   {/* Espacio limpio/transparente para la imagen central que se agregará después */}
-                                   <div className="flex-1 w-full relative z-10 flex items-center justify-center">
-                                   </div>
-
-                                   {/* Información de la Tarjeta (Título e ID) desplazada hacia arriba */}
+                             <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="relative w-full mb-2 group cursor-pointer">
+                                {/* Modificación: Tarjeta menos redondeada arriba y abajo (rounded-[16px]) y aspecto ligeramente más corto (aspect-[8/9]) */}
+                                <div className="w-full aspect-[8/9] bg-[#161618] rounded-[16px] flex flex-col shadow-lg border border-white/[0.04] group-hover:bg-[#1c1c1e] transition-colors relative overflow-hidden">
+                                   <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 10px 10px, white 1px, transparent 0)`, backgroundSize: '24px 24px' }} />
+                                   <div className="flex-1 w-full relative z-10 flex items-center justify-center"></div>
                                    <div className="w-full px-4 pb-10 flex justify-between items-end relative z-10">
-                                     <span 
-                                       className="text-white font-bold text-[15px] leading-tight tracking-wide truncate" 
-                                       style={{ fontFamily: SFD }}
-                                     >
-                                       {item.title}
-                                     </span>
-                                     <span 
-                                       className="text-white/60 font-medium text-[13px] leading-tight" 
-                                       style={{ fontFamily: SF }}
-                                     >
-                                       {item.tag}
-                                     </span>
+                                     <span className="text-white font-bold text-[15px] leading-tight tracking-wide truncate" style={{ fontFamily: SFD }}>{item.title}</span>
+                                     <span className="text-white/60 font-medium text-[13px] leading-tight" style={{ fontFamily: SF }}>{item.tag}</span>
                                    </div>
                                 </div>
-
-                                {/* Barra Inferior Flotante:
-                                    - Puesta con absolute para que sobresalga
-                                    - Rounded a 16px para hacerla más cuadrada
-                                */}
+                                {/* El botón flotante inferior mantiene su forma redondeada de 16px emparejando con la tarjeta */}
                                 <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-black/70 backdrop-blur-[24px] rounded-[16px] px-3 flex items-center justify-between shadow-[0_8px_24px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08] z-20">
-                                  
-                                  {/* Lado Izquierdo: Icono Moneda + Estado */}
                                   <div className="flex items-center gap-1.5 overflow-hidden">
                                     <div className="w-[20px] h-[20px] rounded-full bg-black/40 backdrop-blur-[24px] flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
                                        <div className="w-[12px] h-[12px] bg-white rounded-full flex items-center justify-center">
                                           <span className="text-black font-extrabold text-[8px] leading-none">$</span>
                                        </div>
                                     </div>
-                                    <span 
-                                      className="text-white/90 font-semibold text-[11px] truncate" 
-                                      style={{ fontFamily: SF }}
-                                    >
-                                      {item.owned ? "Sold out" : "Listed"}
-                                    </span>
+                                    <span className="text-white/90 font-semibold text-[11px] truncate" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
                                   </div>
-
-                                  {/* Lado Derecho: Precio + Símbolo Star */}
                                   <div className="flex items-center gap-1 shrink-0 pl-1">
-                                    <span 
-                                      className="text-white font-bold text-[13px]" 
-                                      style={{ fontFamily: SFD }}
-                                    >
-                                      {item.gridPrice}
-                                    </span>
-                                    <img 
-                                       src="/telegram-star-icon.png" 
-                                       alt="Star" 
-                                       draggable={false} 
-                                       className="w-[14px] h-[14px] object-contain pointer-events-none select-none drop-shadow-sm" 
-                                    />
+                                    <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
+                                    <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none drop-shadow-sm" />
                                   </div>
-
                                 </div>
-
                              </div>
                           ))}
                        </div>
                     ) : (
-                       <div className="flex flex-col gap-4 mt-2 animate-in fade-in duration-300">
+                       /* VISTA DE LISTA (Horizontal Premium) */
+                       <div className="flex flex-col gap-3 mt-2 pb-10 animate-in fade-in duration-300">
                           {AUCTION_ITEMS.map((item) => {
                              const isExpanded = expandedAuctionId === item.id;
                              return (
                                 <div 
                                    key={item.id} 
                                    onClick={() => setViewingAuctionId(item.id)}
-                                   className="w-full bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-4 flex flex-col shadow-lg cursor-pointer transition-all hover:bg-[#161618]"
+                                   className="w-full bg-[#161618] border border-white/[0.04] rounded-[24px] p-2 flex flex-col shadow-lg cursor-pointer transition-all hover:bg-[#1c1c1e] relative overflow-hidden group"
                                 >
-                                   <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-3">
-                                         <div className="w-14 h-14 bg-[#1c1c1e] rounded-[14px] border border-[#2c2c2e] overflow-hidden flex-shrink-0">
-                                            <img src={item.imgSrc} alt={item.title} draggable={false} className="w-full h-full object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                                   <div className="flex items-center gap-3">
+                                      {/* Contenedor Cuadrado Transparente */}
+                                      <div className="w-[88px] h-[88px] bg-[#111111] rounded-[18px] relative overflow-hidden flex-shrink-0 border border-white/[0.02]">
+                                         <div 
+                                           className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                                           style={{
+                                             backgroundImage: `radial-gradient(circle at 8px 8px, white 1px, transparent 0)`,
+                                             backgroundSize: '16px 16px'
+                                           }}
+                                         />
+                                         {/* Espacio limpio para la imagen */}
+                                         <div className="w-full h-full relative z-10 flex items-center justify-center"></div>
+                                      </div>
+
+                                      {/* Detalles a la derecha */}
+                                      <div className="flex flex-col flex-1 py-1 pr-1 h-full justify-between">
+                                         
+                                         {/* Título y Tag */}
+                                         <div className="flex justify-between items-start w-full">
+                                            <div className="flex flex-col">
+                                               <span className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>
+                                                  {item.title}
+                                               </span>
+                                               <span className="text-white/60 font-medium text-[13px] mt-0.5" style={{ fontFamily: SF }}>
+                                                  {item.tag}
+                                               </span>
+                                            </div>
+                                            
+                                            {/* Botón de Expansión Integrado */}
+                                            <button 
+                                               type="button"
+                                               onClick={(e) => toggleExpandAuction(item.id, e)} 
+                                               className="w-8 h-8 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full text-[#8e8e93] hover:text-white transition-colors border border-white/[0.08]"
+                                            >
+                                               {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                            </button>
                                          </div>
-                                         <div className="flex flex-col">
-                                            <span className="text-white font-bold text-[17px] leading-tight" style={{ fontFamily: SFD }}>
-                                               {item.title} <span className="text-[#8e8e93] font-semibold text-[14px]">{item.tag}</span>
-                                            </span>
-                                            <div className="flex items-center gap-1 text-[#8e8e93] text-[12px] font-medium mt-0.5" style={{ fontFamily: SF }}>
-                                               <BadgeCheck className="w-3.5 h-3.5 text-[#3b82f6]" /> {item.collection}
+
+                                         {/* Píldora Glassmorphism Adaptada para Lista */}
+                                         <div className="mt-2 w-full h-[38px] bg-black/70 backdrop-blur-[24px] rounded-[12px] px-3 flex items-center justify-between shadow-[0_4px_12px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08]">
+                                            {/* Left */}
+                                            <div className="flex items-center gap-1.5 overflow-hidden">
+                                              <div className="w-[18px] h-[18px] rounded-full bg-black/40 backdrop-blur-[24px] flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
+                                                 <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
+                                                    <span className="text-black font-extrabold text-[7px] leading-none">$</span>
+                                                 </div>
+                                              </div>
+                                              <span className="text-white/90 font-semibold text-[11px] truncate" style={{ fontFamily: SF }}>
+                                                {item.owned ? "Sold out" : "Listed"}
+                                              </span>
+                                            </div>
+
+                                            {/* Right */}
+                                            <div className="flex items-center gap-1 shrink-0 pl-1">
+                                              <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>
+                                                {item.gridPrice}
+                                              </span>
+                                              <img 
+                                                 src="/telegram-star-icon.png" 
+                                                 alt="Star" 
+                                                 draggable={false} 
+                                                 className="w-[13px] h-[13px] object-contain pointer-events-none select-none drop-shadow-sm" 
+                                              />
                                             </div>
                                          </div>
+
                                       </div>
-                                      
-                                      <button 
-                                         type="button"
-                                         onClick={(e) => toggleExpandAuction(item.id, e)} 
-                                         className="w-8 h-8 flex items-center justify-center bg-[#1c1c1e] rounded-full text-[#8e8e93] hover:text-white transition-colors border border-[#2c2c2e]"
-                                      >
-                                         {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                                      </button>
                                    </div>
 
+                                   {/* Atributos Expandibles Rediseñados */}
                                    {isExpanded && (
                                       <div 
-                                         className="flex flex-col mt-4 pt-3 border-t border-[#1c1c1e] animate-in fade-in slide-in-from-top-2 duration-300"
+                                         className="flex flex-col mt-3 pt-3 border-t border-white/[0.04] animate-in fade-in slide-in-from-top-2 duration-300 px-1 pb-1"
                                          onClick={(e) => e.stopPropagation()} 
                                       >
-                                         <div className="flex justify-between text-[#8e8e93] text-[12px] font-bold mb-2 uppercase tracking-wide" style={{ fontFamily: SF }}>
+                                         <div className="flex justify-between text-[#8e8e93] text-[11px] font-bold mb-2 uppercase tracking-wide" style={{ fontFamily: SF }}>
                                             <span>Attribute</span>
                                             <span>Floor price</span>
                                          </div>
@@ -832,7 +826,7 @@ export function MarketView() {
                                                   <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${attr.rarityColor}`}>{attr.rarity}</span>
                                                </div>
                                                <div className="flex items-center gap-1 text-[#a1a1aa] text-[13px] font-semibold" style={{ fontFamily: SF }}>
-                                                  <img src="/telegram-star-icon.png" className="w-3 h-3 pointer-events-none select-none grayscale opacity-70" draggable={false} alt="Star" /> {attr.price}
+                                                  <img src="/telegram-star-icon.png" className="w-[12px] h-[12px] pointer-events-none select-none drop-shadow-sm" draggable={false} alt="Star" /> {attr.price}
                                                </div>
                                             </div>
                                          ))}
