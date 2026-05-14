@@ -39,14 +39,14 @@ const AUCTION_ITEMS = [
     tag: '#1208', 
     collection: 'Plush Pepes',
     imgSrc: '/1000010040.jpg', 
-    estValue: '4,500', 
+    estValue: '100,000', 
     fiatValue: '$6,210.52',
     attributes: [
         { name: 'Model', value: 'Genesis Drop', rarity: '2%', price: '4,350', rarityColor: 'text-[#3b82f6] bg-[#3b82f6]/10' },
         { name: 'Symbol', value: 'Bull Market Red', rarity: '1.5%', price: '4,210', rarityColor: 'text-[#c084fc] bg-[#c084fc]/10' }
     ],
     owned: true,
-    gridPrice: '4,500'
+    gridPrice: '100,000'
   },
   { 
     id: 'bunny1', 
@@ -704,10 +704,9 @@ export function MarketView() {
                                 className="relative w-full mb-2 group cursor-pointer"
                              >
                                 {/* Card Body: 
-                                    - Termina adentro del botón con rounded-b-[24px].
-                                    - Su borde se pierde perfectamente detrás del botón que empieza donde inicia la curva inferior.
+                                    - Rounded más cuadrado (16px abajo).
                                 */}
-                                <div className="w-full aspect-[4/5] bg-[#161618] rounded-t-[32px] rounded-b-[24px] flex flex-col shadow-lg border border-white/[0.04] group-hover:bg-[#1c1c1e] transition-colors relative overflow-hidden">
+                                <div className="w-full aspect-[4/5] bg-[#161618] rounded-t-[32px] rounded-b-[16px] flex flex-col shadow-lg border border-white/[0.04] group-hover:bg-[#1c1c1e] transition-colors relative overflow-hidden">
                                    
                                    {/* Patrón repetitivo tenue de fondo */}
                                    <div 
@@ -741,40 +740,39 @@ export function MarketView() {
 
                                 {/* Barra Inferior Flotante:
                                     - Puesta con absolute para que sobresalga
-                                    - Top del botón choca exactamente donde empieza la curva del contenedor
+                                    - Rounded a 16px para hacerla más cuadrada
                                 */}
-                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[48px] bg-black/70 backdrop-blur-[24px] rounded-[32px] px-4 flex items-center justify-between shadow-[0_8px_24px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08] z-20">
+                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-black/70 backdrop-blur-[24px] rounded-[16px] px-3 flex items-center justify-between shadow-[0_8px_24px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08] z-20">
                                   
-                                  {/* Lado Izquierdo: Icono + Estado */}
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
-                                       {/* Mini icono del botón */}
-                                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white opacity-80">
-                                          <circle cx="12" cy="12" r="10"></circle>
-                                          <path d="M12 8v4l3 3"></path>
-                                       </svg>
+                                  {/* Lado Izquierdo: Icono Moneda + Estado */}
+                                  <div className="flex items-center gap-1.5 overflow-hidden">
+                                    <div className="w-[20px] h-[20px] rounded-full bg-black/40 backdrop-blur-[24px] flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
+                                       <div className="w-[12px] h-[12px] bg-white rounded-full flex items-center justify-center">
+                                          <span className="text-black font-extrabold text-[8px] leading-none">$</span>
+                                       </div>
                                     </div>
                                     <span 
-                                      className="text-white font-semibold text-[13px]" 
+                                      className="text-white/90 font-semibold text-[11px] truncate" 
                                       style={{ fontFamily: SF }}
                                     >
                                       {item.owned ? "Sold out" : "Listed"}
                                     </span>
                                   </div>
 
-                                  {/* Lado Derecho: Precio + Símbolo TON */}
-                                  <div className="flex items-center gap-1.5">
+                                  {/* Lado Derecho: Precio + Símbolo Star */}
+                                  <div className="flex items-center gap-1 shrink-0 pl-1">
                                     <span 
-                                      className="text-white font-bold text-[15px]" 
+                                      className="text-white font-bold text-[13px]" 
                                       style={{ fontFamily: SFD }}
                                     >
                                       {item.gridPrice}
                                     </span>
-                                    {/* Icono de TON minimalista */}
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white opacity-80">
-                                       <path d="M4 7l8 10 8-10H4z"></path>
-                                       <path d="M4 7l8-4 8 4"></path>
-                                    </svg>
+                                    <img 
+                                       src="/telegram-star-icon.png" 
+                                       alt="Star" 
+                                       draggable={false} 
+                                       className="w-[14px] h-[14px] object-contain pointer-events-none select-none drop-shadow-sm" 
+                                    />
                                   </div>
 
                                 </div>
