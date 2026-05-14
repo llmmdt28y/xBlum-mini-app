@@ -2,7 +2,13 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useRef } from "react"
-import { Plus, Star, ArrowDown, X, Info, Shield, Cpu, Sparkles, Loader2, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy, ChevronRight, ChevronLeft, Gift, Layers3, KeyRound } from "lucide-react"
+import { 
+  Plus, Star, ArrowDown, X, Info, Shield, Cpu, Sparkles, Loader2, 
+  Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, 
+  ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, 
+  MoreHorizontal, BadgeCheck, Copy, ChevronRight, ChevronLeft, 
+  Gift, Layers3, KeyRound 
+} from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -100,7 +106,6 @@ const FILTER_OPTIONS = {
    sale: ['All', 'For sale', 'Not for sale'],
 }
 
-// Estilos de animación inyectados de forma segura
 const animationStyles = `
   @keyframes box-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   .animate-box-float { animation: box-float 3.5s ease-in-out infinite; }
@@ -128,32 +133,27 @@ export function MarketView() {
   const { setCurrentView } = ctx
   const myStars = 1500
 
-  // ── ESTADOS PRINCIPALES ──
   const [isTopUpOpen, setIsTopUpOpen] = useState(false)
   const [starInput, setStarInput] = useState("")
   const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
   
-  // ── ESTADOS DE PESTAÑAS Y VISTAS ──
+  // ── ESTADOS DE PESTAÑAS ──
   const [activeTab, setActiveTab] = useState<'Explore' | 'Auctions' | 'Listed'>('Explore')
   const [viewingAuctionId, setViewingAuctionId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [boxViewMode, setBoxViewMode] = useState<'grid' | 'list'>('grid')
   const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
 
-  // ── ESTADOS DE FILTROS ──
   const [openDropdown, setOpenDropdown] = useState<'sale' | null>(null)
   const [filters, setFilters] = useState({ sale: 'For sale' })
 
-  // ── ESTADOS DE ADD GIFT (LISTING FLOW) ──
   const [isAddGiftOpen, setIsAddGiftOpen] = useState(false)
   const [addGiftStep, setAddGiftStep] = useState<'choose_type' | 'select_gift'>('choose_type')
   const [listingType, setListingType] = useState<'fixed' | 'auction' | 'falling' | null>(null)
 
-  // ── ESTADOS DE MAKE OFFER (BIDS) ──
   const [isMakeOfferOpen, setIsMakeOfferOpen] = useState(false)
   const [offerInput, setOfferInput] = useState("")
 
-  // ── ESTADOS DE LA RULETA EN LÍNEA ──
   const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
   const [isSpinningActive, setIsSpinningActive] = useState(false)
   const [tracks, setTracks] = useState<Array<{ winner: any, items: any[] }>>([])
@@ -170,37 +170,23 @@ export function MarketView() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  // ── NAVEGACIÓN NATIVA DE TELEGRAM (BACK BUTTON) ──
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
-    
     tg.BackButton.show()
-
     const handleBack = () => {
-      if (isMakeOfferOpen) {
-         setIsMakeOfferOpen(false)
-      } else if (isAddGiftOpen) {
-         if (addGiftStep === 'select_gift') {
-            setAddGiftStep('choose_type') 
-         } else {
-            setIsAddGiftOpen(false) 
-         }
-      } else if (viewingBoxId) {
-         setViewingBoxId(null) 
-      } else if (viewingAuctionId) {
-         setViewingAuctionId(null) 
-      } else if (activeTab === 'Auctions' || activeTab === 'Listed') {
-         setActiveTab('Explore') 
-      } else {
-         setCurrentView("home") 
-         tg.BackButton.hide()
+      if (isMakeOfferOpen) setIsMakeOfferOpen(false)
+      else if (isAddGiftOpen) {
+         if (addGiftStep === 'select_gift') setAddGiftStep('choose_type') 
+         else setIsAddGiftOpen(false) 
       }
+      else if (viewingBoxId) setViewingBoxId(null) 
+      else if (viewingAuctionId) setViewingAuctionId(null) 
+      else { setCurrentView("home"); tg.BackButton.hide() }
     }
-
     tg.BackButton.onClick(handleBack)
     return () => tg.BackButton.offClick(handleBack)
-  }, [setCurrentView, viewingBoxId, viewingAuctionId, activeTab, isAddGiftOpen, addGiftStep, isMakeOfferOpen])
+  }, [setCurrentView, viewingBoxId, viewingAuctionId, isAddGiftOpen, addGiftStep, isMakeOfferOpen])
 
   const handleStarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, '') 
@@ -223,35 +209,21 @@ export function MarketView() {
       items[25] = { type: 'winner', ...winner }
       return { winner, items }
     })
-
     setTracks(newTracks)
     setOpeningState('spinning')
     setIsSpinningActive(false)
-
     setTimeout(() => { setIsSpinningActive(true) }, 50)
     setTimeout(() => { setOpeningState('result'); setIsSpinningActive(false) }, 6050)
   }
 
-  const closeRoulette = () => {
-    setOpeningState('idle')
-    setTracks([])
-  }
-
-  const toggleExpandAuction = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    setExpandedAuctionId(prev => prev === id ? null : id)
-  }
-
-  const handleAddGiftSelection = (type: 'fixed' | 'auction' | 'falling') => {
-    setListingType(type)
-    setAddGiftStep('select_gift')
-  }
+  const closeRoulette = () => { setOpeningState('idle'); setTracks([]) }
+  const toggleExpandAuction = (id: string, e: React.MouseEvent) => { e.stopPropagation(); setExpandedAuctionId(prev => prev === id ? null : id) }
+  const handleAddGiftSelection = (type: 'fixed' | 'auction' | 'falling') => { setListingType(type); setAddGiftStep('select_gift') }
 
   const numValue = starInput ? parseInt(starInput, 10) : 0
   const isError = starInput !== "" && numValue < 15
   const isValid = numValue >= 15 && numValue <= 150000
   const displayValue = starInput ? numValue.toLocaleString('en-US') : ""
-
   const offerNumValue = offerInput ? parseInt(offerInput, 10) : 0
   const isOfferValid = offerNumValue > 0
   const serviceFee = offerNumValue ? (offerNumValue * 0.05).toFixed(1) : 0
@@ -260,7 +232,7 @@ export function MarketView() {
   const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
-  // ── COMPONENTE REUTILIZABLE: PÍLDORA TOP UP (ESTILO iOS TON) ──
+  // ── COMPONENTE: PÍLDORA TOP UP (Adaptada al Header iOS) ──
   const TopUpPill = () => (
     <button 
        type="button" 
@@ -278,12 +250,16 @@ export function MarketView() {
   )
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0a0a0c] relative overflow-hidden" ref={dropdownRef}>
+    <div className="flex-1 flex flex-col h-full bg-[#111214] relative overflow-hidden" ref={dropdownRef}>
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
-      {/* GLOW DE FONDO CINEMATOGRÁFICO iOS */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[40%] bg-white/[0.03] blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute top-[5%] right-[-5%] w-[40%] h-[30%] bg-amber-900/[0.05] blur-[100px] rounded-full pointer-events-none" />
+      {/* ── AMBIENT GLOWS - Paleta Desaturada iOS ── */}
+      {/* Azul grisáceo muy tenue (#2A2F3A) */}
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] bg-[#2A2F3A] opacity-20 blur-[120px] rounded-full pointer-events-none" />
+      {/* Ligero morado oscuro desaturado (#2B2633) */}
+      <div className="absolute top-[-5%] right-[-10%] w-[50%] h-[50%] bg-[#2B2633] opacity-20 blur-[120px] rounded-full pointer-events-none" />
+      {/* Gris carbón azulado (#1E1F24) central */}
+      <div className="absolute top-[15%] left-[20%] w-[40%] h-[40%] bg-[#1E1F24] opacity-20 blur-[100px] rounded-full pointer-events-none" />
 
       {/* Ocultar Navbar Global en Vistas Detalladas */}
       {(viewingBoxId || viewingAuctionId) && (
@@ -294,29 +270,18 @@ export function MarketView() {
         
         {/* ── VISTA DETALLE DE LOOTBOX (UNBOXING) ── */}
         {viewingBoxId && activeBoxData ? (
-          <div className="animate-in slide-in-from-right-8 fade-in duration-300 min-h-screen pb-20">
-            
-            {/* Header: Título Centrado y Píldora Top Up a la derecha */}
-            <div className="flex items-center justify-between px-5 pt-8 pb-4 relative z-50">
-               <div className="w-[80px]" />
-               <h2 className="text-white font-bold text-[24px] text-center" style={{ fontFamily: SFD }}>
-                  {activeBoxData.name}
-               </h2>
-               <div className="w-[80px] flex justify-end">
-                   <TopUpPill />
-               </div>
-            </div>
-
-            {/* Contenido principal movido más abajo (pt-12) */}
-            <div className="flex flex-col items-center pt-12">
-               
-               {/* ── CONTENEDOR DE LA RULETA (Flecha Superpuesta y Pegada) ── */}
-               <div className="w-full flex flex-col items-center relative py-4 px-5">
-                  {/* Flecha Blanca hacia abajo, sin brillo, superponiendo la tarjeta central */}
-                  <div className="absolute left-1/2 top-[24px] -translate-x-1/2 z-[60] w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[14px] border-t-white" />
-
-                  {openingState === 'idle' ? (
-                     <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden animate-in fade-in duration-500 rounded-[24px]">
+          <div className="animate-in slide-in-from-right-8 fade-in duration-300 min-h-screen pb-20 pt-8 px-5">
+             <div className="flex items-center justify-between mb-8">
+                <div className="w-8" />
+                <h2 className="text-white font-bold text-[24px] text-center" style={{ fontFamily: SFD }}>{activeBoxData.name}</h2>
+                <TopUpPill />
+             </div>
+             
+             <div className="flex flex-col items-center pt-12">
+                <div className="w-full flex flex-col items-center relative py-4 px-5">
+                   <div className="absolute left-1/2 top-[24px] -translate-x-1/2 z-[60] w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[14px] border-t-white" />
+                   {openingState === 'idle' ? (
+                      <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden animate-in fade-in duration-500 rounded-[24px]">
                         <div className="absolute z-10 w-[85px] h-[85px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[22px] -translate-x-[215px] flex items-center justify-center border border-[#1c1c1e] opacity-30">
                            <span className="text-white/30 font-bold text-3xl" style={{ fontFamily: SFD }}>?</span>
                         </div>
@@ -333,11 +298,10 @@ export function MarketView() {
                            <LootboxVisual color={activeBoxData.color} imgSrc={activeBoxData.image} size="large" />
                         </div>
                      </div>
-                  ) : (
-                     <div className="w-full flex flex-col gap-4 relative overflow-hidden py-2 animate-in fade-in duration-300 mt-2">
-                        <div className="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-black to-transparent z-40 pointer-events-none" />
-                        <div className="absolute right-0 top-0 bottom-0 w-[20%] bg-gradient-to-l from-black to-transparent z-40 pointer-events-none" />
-
+                   ) : (
+                      <div className="w-full flex flex-col gap-4 relative overflow-hidden py-2 animate-in fade-in duration-300 mt-2">
+                        <div className="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-[#111214] to-transparent z-40 pointer-events-none" />
+                        <div className="absolute right-0 top-0 bottom-0 w-[20%] bg-gradient-to-l from-[#111214] to-transparent z-40 pointer-events-none" />
                         {tracks.map((track, trackIdx) => (
                            <div key={trackIdx} className="w-full h-[110px] relative flex items-center overflow-visible">
                               <div
@@ -371,11 +335,10 @@ export function MarketView() {
                            </div>
                         ))}
                      </div>
-                  )}
-               </div>
-
-               {/* BOTONES DE APERTURA */}
-               <div className="w-full flex flex-col items-center min-h-[90px] justify-center px-5 mt-2 mb-10">
+                   )}
+                </div>
+                
+                <div className="w-full flex flex-col items-center min-h-[90px] justify-center px-5 mt-2 mb-10">
                   {openingState === 'idle' ? (
                      <>
                         <button type="button" onClick={() => startRoulette(1)} className="w-full bg-[#3b82f6] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-lg mb-3" style={{ fontFamily: SF }}>
@@ -398,10 +361,8 @@ export function MarketView() {
                   )}
                </div>
 
-               {/* ── SECCIÓN "WEAPON CASE" (Tarjetas Más Reducidas) ── */}
+               {/* SECCIÓN "WEAPON CASE" */}
                <div className="w-full flex flex-col px-5 border-t border-[#1c1c1e] pt-6">
-                  
-                  {/* Título y Controles */}
                   <div className="flex items-center justify-between mb-4">
                      <div className="flex flex-col">
                         <span className="text-[#8e8e93] text-[13px] font-medium mb-0.5" style={{ fontFamily: SF }}>What's Inside</span>
@@ -424,7 +385,6 @@ export function MarketView() {
                      <input type="text" placeholder="Search items..." className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#636366]" style={{ fontFamily: SF }} />
                   </div>
 
-                  {/* Renderizado de los Ítems (Tarjetas Mucho Más Compactas) */}
                   {boxViewMode === 'grid' ? (
                      <div className="grid grid-cols-2 gap-3 pb-8">
                         {INSIDE_ITEMS.map((item) => (
@@ -536,11 +496,12 @@ export function MarketView() {
           </div>
 
         ) : (
-          /* ── VISTA PRINCIPAL (NUEVO HEADER iOS PREMIUM) ── */
-          <div className="flex flex-col h-full pt-4">
-
-            {/* ── HEADER iOS PREMIUM ── */}
-            <div className="sticky top-0 z-[100] px-5 pb-6 pt-2 space-y-4 bg-transparent">
+          /* ── VISTA PRINCIPAL CON NUEVO HEADER iOS ── */
+          <div className="flex flex-col h-full pt-0">
+            
+            {/* ── HEADER iOS PREMIUM (STICKY) ── */}
+            {/* Gris carbón azulado translúcido con desenfoque extremo para mimetizarse al scrollear */}
+            <div className="sticky top-0 z-[100] px-5 pb-5 pt-6 space-y-4 bg-[#1E1F24]/10 backdrop-blur-[64px] border-b border-white/[0.03] shadow-[0_10px_40px_rgba(17,18,20,0.3)]">
                
                {/* Top Bar: Balance/TopUp */}
                <div className="flex items-center justify-start">
@@ -580,10 +541,11 @@ export function MarketView() {
 
             </div>
 
-            <div className="flex flex-col flex-1 pb-10">
+            <div className="flex-1 px-5 animate-in fade-in duration-500">
+               
                {/* ── CONTENIDO: EXPLORE (LOOTBOXES) ── */}
                {activeTab === 'Explore' && (
-                 <div className="animate-in fade-in slide-in-from-left-4 duration-300 pt-2 px-5">
+                 <div className="pt-4">
 
                    <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden mb-6">
                        <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
@@ -612,10 +574,10 @@ export function MarketView() {
                          <div 
                             key={box.id} 
                             onClick={() => setViewingBoxId(box.id)}
-                            className="bg-[#111111] rounded-[20px] p-2 flex flex-col border border-[#1c1c1e] shadow-lg cursor-pointer transition-all hover:bg-[#161618]"
+                            className="bg-[#161618] rounded-[20px] p-2 flex flex-col border border-white/[0.04] shadow-lg cursor-pointer transition-all hover:bg-[#1c1c1e]"
                          >
                             {/*imagen*/}
-                            <div className="w-full aspect-square bg-[#0a0a0b] rounded-[16px] overflow-hidden relative flex items-center justify-center border border-[#1c1c1e] p-0">
+                            <div className="w-full aspect-square bg-[#0a0a0b] rounded-[16px] overflow-hidden relative flex items-center justify-center border border-white/[0.02] p-0">
                                {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a]/80 backdrop-blur-sm text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30 border border-[#4a1a1a]">Sold out</div>}
                                <LootboxVisual color={box.color} imgSrc={box.image} size="normal" />
                             </div>
@@ -634,8 +596,8 @@ export function MarketView() {
                       ))}
                    </div>
 
-                   <div className="flex items-center gap-2 mb-5 px-1 pt-2 border-t border-[#1c1c1e]">
-                      <div className="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center border border-[#2c2c2e]">
+                   <div className="flex items-center gap-2 mb-5 px-1 pt-2 border-t border-white/[0.04]">
+                      <div className="w-10 h-10 rounded-full bg-[#1c1c1e] flex items-center justify-center border border-white/[0.04]">
                          <Gift className="w-5 h-5 text-[#3b82f6]" />
                       </div>
                       <div className="flex flex-col">
@@ -644,7 +606,7 @@ export function MarketView() {
                       </div>
                    </div>
 
-                   <div className="w-full bg-[#111111] rounded-[28px] p-6 flex items-center gap-5 border border-[#1c1c1e] shadow-inner mb-12 opacity-60">
+                   <div className="w-full bg-[#161618] rounded-[28px] p-6 flex items-center gap-5 border border-white/[0.04] shadow-inner mb-12 opacity-60">
                       <div className="w-[100px] h-[100px] relative flex justify-center items-center shrink-0">
                          <div className="absolute z-10 w-[60px] h-[60px] bg-[#0d0d0f] rounded-[18px] -translate-x-[40px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40 shadow-inner">
                             <LootboxVisual color={MARKET_BOXES[1].color} imgSrc={MARKET_BOXES[1].image} size="normal" />
@@ -659,7 +621,7 @@ export function MarketView() {
                       <div className="flex flex-col flex-1 items-start text-left">
                          <h4 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Unopened Boxes</h4>
                          <p className="text-[#8e8e93] text-[13px] mb-3 leading-tight" style={{ fontFamily: SF }}>Contains high value digital gifts. Open now to unlock rewards.</p>
-                         <button type="button" disabled className="w-full max-w-[140px] bg-[#1c1c1e] text-[#636366] font-bold text-[14px] py-2 rounded-[14px] transition-all border border-[#2c2c2e]" style={{ fontFamily: SF }}>Open Boxes</button>
+                         <button type="button" disabled className="w-full max-w-[140px] bg-black/40 text-[#636366] font-bold text-[14px] py-2 rounded-[14px] transition-all border border-white/[0.04]" style={{ fontFamily: SF }}>Open Boxes</button>
                       </div>
                    </div>
 
@@ -668,43 +630,43 @@ export function MarketView() {
 
                {/* ── CONTENIDO: AUCTIONS & LISTED ── */}
                {(activeTab === 'Auctions' || activeTab === 'Listed') && (
-                 <div className="flex flex-col w-full px-5 pt-2 animate-in fade-in slide-in-from-right-4 duration-300">
+                 <div className="flex flex-col w-full pt-4 animate-in fade-in slide-in-from-right-4 duration-300">
                      
                     <button type="button" onClick={() => setIsAddGiftOpen(true)} className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-6" style={{ fontFamily: SF }}>
                        <Plus className="w-5 h-5" /> Add Gift
                     </button>
 
                     <div className="flex gap-2 w-full mb-3 relative">
-                       <div className="flex-1 bg-[#1c1c1e] rounded-[16px] flex items-center px-4 gap-2 border border-[#2c2c2e]">
+                       <div className="flex-1 bg-black/40 backdrop-blur-md rounded-[16px] flex items-center px-4 gap-2 border border-white/[0.06]">
                           <Search className="w-5 h-5 text-[#8e8e93]" />
                           <input type="text" placeholder="Search" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#8e8e93]" style={{ fontFamily: SF }} />
                        </div>
                        
-                       <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
+                       <button type="button" className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.06] active:scale-95 transition-transform shrink-0">
                           <ArrowDownUp className="w-5 h-5" />
                        </button>
 
-                       <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
+                       <button type="button" className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.06] active:scale-95 transition-transform shrink-0">
                            <Copy className="w-5 h-5" />
                        </button>
 
                        <button 
                           type="button"
                           onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
-                          className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0 shadow-sm"
+                          className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0 shadow-sm"
                        >
                           {viewMode === 'grid' ? <List className="w-5 h-5" /> : <LayoutGrid className="w-5 h-5" />}
                        </button>
                     </div>
 
                     <div className="flex gap-2 w-full mb-4 relative">
-                       <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
+                       <button type="button" className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0">
                           <SlidersHorizontal className="w-5 h-5" />
                        </button>
                        
                        <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar relative">
                           <div className="relative shrink-0 w-full">
-                             <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`w-full h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-[#2c2c2e] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                             <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`w-full h-[44px] bg-black/40 backdrop-blur-md rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-white/[0.06] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                                 {filters.sale} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
                              </button>
                              {openDropdown === 'sale' && (
@@ -724,7 +686,6 @@ export function MarketView() {
                        <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-10 animate-in fade-in duration-300">
                           {AUCTION_ITEMS.map((item) => (
                              <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="relative w-full mb-2 group cursor-pointer">
-                                {/* Modificación: Tarjeta menos redondeada arriba y abajo (rounded-[16px]) y aspecto ligeramente más corto (aspect-[8/9]) */}
                                 <div className="w-full aspect-[8/9] bg-[#161618] rounded-[16px] flex flex-col shadow-lg border border-white/[0.04] group-hover:bg-[#1c1c1e] transition-colors relative overflow-hidden">
                                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 10px 10px, white 1px, transparent 0)`, backgroundSize: '24px 24px' }} />
                                    <div className="flex-1 w-full relative z-10 flex items-center justify-center"></div>
@@ -733,7 +694,6 @@ export function MarketView() {
                                      <span className="text-white/60 font-medium text-[13px] leading-tight" style={{ fontFamily: SF }}>{item.tag}</span>
                                    </div>
                                 </div>
-                                {/* El botón flotante inferior mantiene su forma redondeada de 16px emparejando con la tarjeta */}
                                 <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-black/70 backdrop-blur-[24px] rounded-[16px] px-3 flex items-center justify-between shadow-[0_8px_24px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08] z-20">
                                   <div className="flex items-center gap-1.5 overflow-hidden">
                                     <div className="w-[20px] h-[20px] rounded-full bg-black/40 backdrop-blur-[24px] flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
@@ -763,7 +723,6 @@ export function MarketView() {
                                    className="w-full bg-[#161618] border border-white/[0.04] rounded-[24px] p-2 flex flex-col shadow-lg cursor-pointer transition-all hover:bg-[#1c1c1e] relative overflow-hidden group"
                                 >
                                    <div className="flex items-center gap-3">
-                                      {/* Contenedor Cuadrado Transparente */}
                                       <div className="w-[88px] h-[88px] bg-[#111111] rounded-[18px] relative overflow-hidden flex-shrink-0 border border-white/[0.02]">
                                          <div 
                                            className="absolute inset-0 opacity-[0.03] pointer-events-none"
@@ -772,14 +731,10 @@ export function MarketView() {
                                              backgroundSize: '16px 16px'
                                            }}
                                          />
-                                         {/* Espacio limpio para la imagen */}
                                          <div className="w-full h-full relative z-10 flex items-center justify-center"></div>
                                       </div>
 
-                                      {/* Detalles a la derecha */}
                                       <div className="flex flex-col flex-1 py-1 pr-1 h-full justify-between">
-                                         
-                                         {/* Título y Tag */}
                                          <div className="flex justify-between items-start w-full">
                                             <div className="flex flex-col">
                                                <span className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>
@@ -790,7 +745,6 @@ export function MarketView() {
                                                </span>
                                             </div>
                                             
-                                            {/* Botón de Expansión Integrado */}
                                             <button 
                                                type="button"
                                                onClick={(e) => toggleExpandAuction(item.id, e)} 
@@ -800,9 +754,7 @@ export function MarketView() {
                                             </button>
                                          </div>
 
-                                         {/* Píldora Glassmorphism Adaptada para Lista */}
                                          <div className="mt-2 w-full h-[38px] bg-black/70 backdrop-blur-[24px] rounded-[12px] px-3 flex items-center justify-between shadow-[0_4px_12px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08]">
-                                            {/* Left */}
                                             <div className="flex items-center gap-1.5 overflow-hidden">
                                               <div className="w-[18px] h-[18px] rounded-full bg-black/40 backdrop-blur-[24px] flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
                                                  <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
@@ -814,7 +766,6 @@ export function MarketView() {
                                               </span>
                                             </div>
 
-                                            {/* Right */}
                                             <div className="flex items-center gap-1 shrink-0 pl-1">
                                               <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>
                                                 {item.gridPrice}
@@ -831,7 +782,6 @@ export function MarketView() {
                                       </div>
                                    </div>
 
-                                   {/* Atributos Expandibles Rediseñados */}
                                    {isExpanded && (
                                       <div 
                                          className="flex flex-col mt-3 pt-3 border-t border-white/[0.04] animate-in fade-in slide-in-from-top-2 duration-300 px-1 pb-1"
