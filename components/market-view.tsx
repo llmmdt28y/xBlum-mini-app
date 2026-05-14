@@ -696,44 +696,54 @@ export function MarketView() {
 
                     {/* ── RENDERIZADO DEL GRID O LISTA ── */}
                     {viewMode === 'grid' ? (
-                       <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-6 animate-in fade-in duration-300">
+                       <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-10 animate-in fade-in duration-300">
                           {AUCTION_ITEMS.map((item) => (
                              <div 
                                 key={item.id} 
                                 onClick={() => setViewingAuctionId(item.id)}
-                                className="relative w-full aspect-[4/5] bg-[#161618] rounded-[32px] flex flex-col shadow-lg border border-white/[0.04] cursor-pointer hover:bg-[#1c1c1e] transition-colors"
+                                className="relative w-full mb-2 group cursor-pointer"
                              >
-                                {/* Patrón repetitivo tenue de fondo */}
-                                <div 
-                                  className="absolute inset-0 opacity-[0.03] pointer-events-none rounded-[32px] overflow-hidden"
-                                  style={{
-                                    backgroundImage: `radial-gradient(circle at 10px 10px, white 1px, transparent 0)`,
-                                    backgroundSize: '24px 24px'
-                                  }}
-                                />
+                                {/* Card Body: 
+                                    - Termina adentro del botón con rounded-b-[24px].
+                                    - Su borde se pierde perfectamente detrás del botón que empieza donde inicia la curva inferior.
+                                */}
+                                <div className="w-full aspect-[4/5] bg-[#161618] rounded-t-[32px] rounded-b-[24px] flex flex-col shadow-lg border border-white/[0.04] group-hover:bg-[#1c1c1e] transition-colors relative overflow-hidden">
+                                   
+                                   {/* Patrón repetitivo tenue de fondo */}
+                                   <div 
+                                     className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                                     style={{
+                                       backgroundImage: `radial-gradient(circle at 10px 10px, white 1px, transparent 0)`,
+                                       backgroundSize: '24px 24px'
+                                     }}
+                                   />
 
-                                {/* Espacio limpio/transparente para la imagen central que se agregará después */}
-                                <div className="flex-1 w-full relative z-10 flex items-center justify-center">
+                                   {/* Espacio limpio/transparente para la imagen central que se agregará después */}
+                                   <div className="flex-1 w-full relative z-10 flex items-center justify-center">
+                                   </div>
+
+                                   {/* Información de la Tarjeta (Título e ID) desplazada hacia arriba */}
+                                   <div className="w-full px-4 pb-10 flex justify-between items-end relative z-10">
+                                     <span 
+                                       className="text-white font-bold text-[15px] leading-tight tracking-wide truncate" 
+                                       style={{ fontFamily: SFD }}
+                                     >
+                                       {item.title}
+                                     </span>
+                                     <span 
+                                       className="text-white/60 font-medium text-[13px] leading-tight" 
+                                       style={{ fontFamily: SF }}
+                                     >
+                                       {item.tag}
+                                     </span>
+                                   </div>
                                 </div>
 
-                                {/* Información de la Tarjeta (Título e ID) */}
-                                <div className="w-full px-4 pb-6 flex justify-between items-end relative z-10">
-                                  <span 
-                                    className="text-white font-bold text-[15px] leading-tight tracking-wide truncate" 
-                                    style={{ fontFamily: SFD }}
-                                  >
-                                    {item.title}
-                                  </span>
-                                  <span 
-                                    className="text-white/60 font-medium text-[13px] leading-tight" 
-                                    style={{ fontFamily: SF }}
-                                  >
-                                    {item.tag}
-                                  </span>
-                                </div>
-
-                                {/* Barra Inferior Flotante OCUPANDO TODO EL ANCHO Y MÁS ABAJO */}
-                                <div className="absolute -bottom-5 left-0 right-0 w-full bg-black/60 backdrop-blur-[24px] rounded-[32px] px-4 py-3 flex items-center justify-between shadow-[0_8px_20px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08] z-20">
+                                {/* Barra Inferior Flotante:
+                                    - Puesta con absolute para que sobresalga
+                                    - Top del botón choca exactamente donde empieza la curva del contenedor
+                                */}
+                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[48px] bg-black/70 backdrop-blur-[24px] rounded-[32px] px-4 flex items-center justify-between shadow-[0_8px_24px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08] z-20">
                                   
                                   {/* Lado Izquierdo: Icono + Estado */}
                                   <div className="flex items-center gap-2">
