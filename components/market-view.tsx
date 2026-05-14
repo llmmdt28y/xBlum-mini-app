@@ -106,6 +106,7 @@ const FILTER_OPTIONS = {
    sale: ['All', 'For sale', 'Not for sale'],
 }
 
+// Estilos de animación inyectados de forma segura
 const animationStyles = `
   @keyframes box-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   .animate-box-float { animation: box-float 3.5s ease-in-out infinite; }
@@ -133,27 +134,32 @@ export function MarketView() {
   const { setCurrentView } = ctx
   const myStars = 1500
 
+  // ── ESTADOS PRINCIPALES ──
   const [isTopUpOpen, setIsTopUpOpen] = useState(false)
   const [starInput, setStarInput] = useState("")
   const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
   
-  // ── ESTADOS DE PESTAÑAS ──
+  // ── ESTADOS DE PESTAÑAS Y VISTAS ──
   const [activeTab, setActiveTab] = useState<'Explore' | 'Auctions' | 'Listed'>('Explore')
   const [viewingAuctionId, setViewingAuctionId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [boxViewMode, setBoxViewMode] = useState<'grid' | 'list'>('grid')
   const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
 
+  // ── ESTADOS DE FILTROS ──
   const [openDropdown, setOpenDropdown] = useState<'sale' | null>(null)
   const [filters, setFilters] = useState({ sale: 'For sale' })
 
+  // ── ESTADOS DE ADD GIFT (LISTING FLOW) ──
   const [isAddGiftOpen, setIsAddGiftOpen] = useState(false)
   const [addGiftStep, setAddGiftStep] = useState<'choose_type' | 'select_gift'>('choose_type')
   const [listingType, setListingType] = useState<'fixed' | 'auction' | 'falling' | null>(null)
 
+  // ── ESTADOS DE MAKE OFFER (BIDS) ──
   const [isMakeOfferOpen, setIsMakeOfferOpen] = useState(false)
   const [offerInput, setOfferInput] = useState("")
 
+  // ── ESTADOS DE LA RULETA EN LÍNEA ──
   const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
   const [isSpinningActive, setIsSpinningActive] = useState(false)
   const [tracks, setTracks] = useState<Array<{ winner: any, items: any[] }>>([])
@@ -170,23 +176,37 @@ export function MarketView() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  // ── NAVEGACIÓN NATIVA DE TELEGRAM (BACK BUTTON) ──
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
+    
     tg.BackButton.show()
+
     const handleBack = () => {
-      if (isMakeOfferOpen) setIsMakeOfferOpen(false)
-      else if (isAddGiftOpen) {
-         if (addGiftStep === 'select_gift') setAddGiftStep('choose_type') 
-         else setIsAddGiftOpen(false) 
+      if (isMakeOfferOpen) {
+         setIsMakeOfferOpen(false)
+      } else if (isAddGiftOpen) {
+         if (addGiftStep === 'select_gift') {
+            setAddGiftStep('choose_type') 
+         } else {
+            setIsAddGiftOpen(false) 
+         }
+      } else if (viewingBoxId) {
+         setViewingBoxId(null) 
+      } else if (viewingAuctionId) {
+         setViewingAuctionId(null) 
+      } else if (activeTab === 'Auctions' || activeTab === 'Listed') {
+         setActiveTab('Explore') 
+      } else {
+         setCurrentView("home") 
+         tg.BackButton.hide()
       }
-      else if (viewingBoxId) setViewingBoxId(null) 
-      else if (viewingAuctionId) setViewingAuctionId(null) 
-      else { setCurrentView("home"); tg.BackButton.hide() }
     }
+
     tg.BackButton.onClick(handleBack)
     return () => tg.BackButton.offClick(handleBack)
-  }, [setCurrentView, viewingBoxId, viewingAuctionId, isAddGiftOpen, addGiftStep, isMakeOfferOpen])
+  }, [setCurrentView, viewingBoxId, viewingAuctionId, activeTab, isAddGiftOpen, addGiftStep, isMakeOfferOpen])
 
   const handleStarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, '') 
@@ -209,21 +229,35 @@ export function MarketView() {
       items[25] = { type: 'winner', ...winner }
       return { winner, items }
     })
+
     setTracks(newTracks)
     setOpeningState('spinning')
     setIsSpinningActive(false)
+
     setTimeout(() => { setIsSpinningActive(true) }, 50)
     setTimeout(() => { setOpeningState('result'); setIsSpinningActive(false) }, 6050)
   }
 
-  const closeRoulette = () => { setOpeningState('idle'); setTracks([]) }
-  const toggleExpandAuction = (id: string, e: React.MouseEvent) => { e.stopPropagation(); setExpandedAuctionId(prev => prev === id ? null : id) }
-  const handleAddGiftSelection = (type: 'fixed' | 'auction' | 'falling') => { setListingType(type); setAddGiftStep('select_gift') }
+  const closeRoulette = () => {
+    setOpeningState('idle')
+    setTracks([])
+  }
+
+  const toggleExpandAuction = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setExpandedAuctionId(prev => prev === id ? null : id)
+  }
+
+  const handleAddGiftSelection = (type: 'fixed' | 'auction' | 'falling') => {
+    setListingType(type)
+    setAddGiftStep('select_gift')
+  }
 
   const numValue = starInput ? parseInt(starInput, 10) : 0
   const isError = starInput !== "" && numValue < 15
   const isValid = numValue >= 15 && numValue <= 150000
   const displayValue = starInput ? numValue.toLocaleString('en-US') : ""
+
   const offerNumValue = offerInput ? parseInt(offerInput, 10) : 0
   const isOfferValid = offerNumValue > 0
   const serviceFee = offerNumValue ? (offerNumValue * 0.05).toFixed(1) : 0
@@ -232,20 +266,24 @@ export function MarketView() {
   const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
-  // ── COMPONENTE: PÍLDORA TOP UP (Adaptada al Header iOS) ──
+  // ── COMPONENTE PÍLDORA TOP UP (Estilo Star iOS optimizada) ──
   const TopUpPill = () => (
     <button 
        type="button" 
        onClick={() => setIsTopUpOpen(true)} 
-       className="bg-black/20 backdrop-blur-[24px] rounded-full px-3 py-1.5 flex items-center gap-2 border border-white/[0.05] shadow-[0_4px_12px_rgba(0,0,0,0.1)] transition-transform active:scale-95"
+       className="bg-black/30 backdrop-blur-md transform-gpu rounded-full px-3.5 py-2 flex items-center gap-2 border border-white/[0.06] shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-transform active:scale-95"
     >
-       <div className="w-[22px] h-[22px] rounded-full bg-[#0088CC] flex items-center justify-center shadow-[0_0_12px_rgba(0,136,204,0.4)] border border-white/10">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-             <path d="M4 7l8 10 8-10H4z"></path>
-             <path d="M4 7l8-4 8 4"></path>
-          </svg>
+       <div className="flex items-center justify-center">
+          <img 
+            src="/telegram-star-icon.png" 
+            alt="Stars" 
+            className="w-[18px] h-[18px] object-contain drop-shadow-[0_0_6px_rgba(250,204,21,0.5)] pointer-events-none select-none" 
+            style={{ WebkitTouchCallout: "none" }} 
+          />
        </div>
-       <span className="text-white font-semibold text-[16px]" style={{ fontFamily: SFD }}>{myStars.toLocaleString('en-US')} Stars</span>
+       <span className="text-[#facc15] font-bold text-[16px] leading-none" style={{ fontFamily: SFD }}>
+          {myStars.toLocaleString('en-US')} Stars
+       </span>
     </button>
   )
 
@@ -253,37 +291,34 @@ export function MarketView() {
     <div className="flex-1 flex flex-col h-full bg-[#111214] relative overflow-hidden" ref={dropdownRef}>
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
-      {/* ── AMBIENT GLOWS - Paleta Desaturada iOS fijada al fondo ── */}
-      {/* Azul grisáceo muy tenue (#2A2F3A) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] bg-[#2A2F3A] opacity-[0.15] blur-[120px] rounded-full pointer-events-none z-0" />
-      {/* Iluminación cálida marrón/morado (Basado en la referencia) (#4A3830) */}
-      <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] bg-[#4A3830] opacity-[0.15] blur-[120px] rounded-full pointer-events-none z-0" />
-      {/* Gris carbón azulado (#1E1F24) */}
-      <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] bg-[#1E1F24] opacity-[0.20] blur-[100px] rounded-full pointer-events-none z-0" />
-      {/* Morado desaturado inferior (#2B2633) */}
-      <div className="absolute bottom-[-10%] left-[10%] w-[70%] h-[40%] bg-[#2B2633] opacity-[0.15] blur-[120px] rounded-full pointer-events-none z-0" />
+      {/* ── AMBIENT GLOWS OPTIMIZADOS (0% LAG) ── */}
+      {/* Reemplazamos los costosos CSS 'blur' por 'radial-gradient' nativos que simulan el mismo efecto exacto */}
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(42,47,58,0.2) 0%, rgba(42,47,58,0) 70%)' }} />
+      <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.2) 0%, rgba(74,56,48,0) 70%)' }} />
+      <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(30,31,36,0.3) 0%, rgba(30,31,36,0) 70%)' }} />
+      <div className="absolute bottom-[-10%] left-[10%] w-[70%] h-[40%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(43,38,51,0.2) 0%, rgba(43,38,51,0) 70%)' }} />
 
       {/* Ocultar Navbar Global en Vistas Detalladas */}
       {(viewingBoxId || viewingAuctionId) && (
         <style dangerouslySetInnerHTML={{ __html: `#main-nav-bar { display: none !important; }` }} />
       )}
 
-      {/* ── HEADER iOS PREMIUM (FIXED - SIEMPRE VISIBLE AL SCROLLEAR) ── */}
+      {/* ── HEADER iOS PREMIUM (FIXED OPTIMIZADO) ── */}
       {!viewingBoxId && !viewingAuctionId && (
-        <div className="fixed top-0 left-0 right-0 z-[100] px-5 pb-4 pt-8 bg-[#111214]/60 backdrop-blur-[48px] border-b border-white/[0.04] shadow-[0_10px_40px_rgba(17,18,20,0.5)] pointer-events-auto">
+        <div className="fixed top-0 left-0 right-0 z-[100] px-5 pb-4 pt-8 bg-[#111214]/60 backdrop-blur-lg transform-gpu border-b border-white/[0.04] shadow-[0_10px_40px_rgba(17,18,20,0.5)] pointer-events-auto">
            
            {/* Top Bar: Balance Centrado */}
-           <div className="flex items-center justify-center mb-3">
+           <div className="flex items-center justify-center mb-4 mt-2">
               <TopUpPill />
            </div>
 
            {/* Selector Principal (Píldora iOS) */}
            <div className="w-full">
-              <div className="relative w-full h-[46px] bg-[#1C1C1E]/40 backdrop-blur-[36px] rounded-full border border-white/[0.06] flex items-center p-1.5 shadow-inner">
+              <div className="relative w-full h-[46px] bg-[#1C1C1E]/40 backdrop-blur-md transform-gpu rounded-full border border-white/[0.06] flex items-center p-1.5 shadow-inner">
                  
-                 {/* Indicador Animado (Mini píldora interior gris) */}
+                 {/* Indicador Animado */}
                  <div 
-                    className="absolute h-[34px] bg-[#2C2C2E]/80 backdrop-blur-md rounded-full transition-all duration-300 ease-out shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/[0.04]"
+                    className="absolute h-[34px] bg-[#2C2C2E]/80 backdrop-blur-md transform-gpu rounded-full transition-all duration-300 ease-out shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/[0.04]"
                     style={{ 
                        width: 'calc(33.33% - 4px)',
                        left: activeTab === 'Explore' ? '6px' : activeTab === 'Auctions' ? '33.33%' : 'calc(66.66% - 2px)'
@@ -303,7 +338,7 @@ export function MarketView() {
         
         {/* Espaciador invisible para que el contenido no quede oculto bajo el header fijo al inicio */}
         {!viewingBoxId && !viewingAuctionId && (
-           <div className="w-full h-[140px] shrink-0 pointer-events-none" />
+           <div className="w-full h-[150px] shrink-0 pointer-events-none" />
         )}
         
         {/* ── VISTA DETALLE DE LOOTBOX (UNBOXING) ── */}
@@ -471,7 +506,7 @@ export function MarketView() {
             <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center p-4 shadow-2xl mb-2">
                <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} draggable={false} className="w-full h-full object-contain drop-shadow-xl pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                {activeAuctionData.owned && (
-                 <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shadow-md z-10">
+                 <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md transform-gpu px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shadow-md z-10">
                    <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#a855f7] border border-white/20" />
                    <span className="text-white text-[12px] font-medium" style={{ fontFamily: SF }}>Owned by <span className="font-bold">you</span></span>
                  </div>
@@ -535,7 +570,7 @@ export function MarketView() {
 
         ) : (
           /* ── VISTAS PRINCIPALES DEL HEADER (DENTRO DEL ÁREA DE SCROLL) ── */
-          <div className="flex-1 px-5 animate-in fade-in duration-500">
+          <div className="flex-1 px-5 animate-in fade-in duration-500 relative z-10">
              
              {/* ── CONTENIDO: EXPLORE (LOOTBOXES) ── */}
              {activeTab === 'Explore' && (
@@ -572,7 +607,7 @@ export function MarketView() {
                        >
                           {/*imagen*/}
                           <div className="w-full aspect-square bg-[#0a0a0b] rounded-[16px] overflow-hidden relative flex items-center justify-center border border-white/[0.02] p-0">
-                             {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a]/80 backdrop-blur-sm text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30 border border-[#4a1a1a]">Sold out</div>}
+                             {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a]/80 backdrop-blur-sm transform-gpu text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30 border border-[#4a1a1a]">Sold out</div>}
                              <LootboxVisual color={box.color} imgSrc={box.image} size="normal" />
                           </div>
                           
@@ -631,36 +666,36 @@ export function MarketView() {
                   </button>
 
                   <div className="flex gap-2 w-full mb-3 relative">
-                     <div className="flex-1 bg-black/40 backdrop-blur-md rounded-[16px] flex items-center px-4 gap-2 border border-white/[0.06]">
+                     <div className="flex-1 bg-black/40 backdrop-blur-md transform-gpu rounded-[16px] flex items-center px-4 gap-2 border border-white/[0.06]">
                         <Search className="w-5 h-5 text-[#8e8e93]" />
                         <input type="text" placeholder="Search" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#8e8e93]" style={{ fontFamily: SF }} />
                      </div>
                      
-                     <button type="button" className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.06] active:scale-95 transition-transform shrink-0">
+                     <button type="button" className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.06] active:scale-95 transition-transform shrink-0">
                         <ArrowDownUp className="w-5 h-5" />
                      </button>
 
-                     <button type="button" className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.06] active:scale-95 transition-transform shrink-0">
+                     <button type="button" className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.06] active:scale-95 transition-transform shrink-0">
                          <Copy className="w-5 h-5" />
                      </button>
 
                      <button 
                         type="button"
                         onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
-                        className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0 shadow-sm"
+                        className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0 shadow-sm"
                      >
                         {viewMode === 'grid' ? <List className="w-5 h-5" /> : <LayoutGrid className="w-5 h-5" />}
                      </button>
                   </div>
 
                   <div className="flex gap-2 w-full mb-4 relative">
-                     <button type="button" className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0">
+                     <button type="button" className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0">
                         <SlidersHorizontal className="w-5 h-5" />
                      </button>
                      
                      <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar relative">
                         <div className="relative shrink-0 w-full">
-                           <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`w-full h-[44px] bg-black/40 backdrop-blur-md rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-white/[0.06] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                           <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`w-full h-[44px] bg-black/40 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-white/[0.06] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                               {filters.sale} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
                            </button>
                            {openDropdown === 'sale' && (
@@ -688,9 +723,9 @@ export function MarketView() {
                                    <span className="text-white/60 font-medium text-[13px] leading-tight" style={{ fontFamily: SF }}>{item.tag}</span>
                                  </div>
                               </div>
-                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-black/70 backdrop-blur-[24px] rounded-[16px] px-3 flex items-center justify-between shadow-[0_8px_24px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08] z-20">
+                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-black/70 backdrop-blur-md transform-gpu rounded-[16px] px-3 flex items-center justify-between shadow-[0_8px_24px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08] z-20">
                                 <div className="flex items-center gap-1.5 overflow-hidden">
-                                  <div className="w-[20px] h-[20px] rounded-full bg-black/40 backdrop-blur-[24px] flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
+                                  <div className="w-[20px] h-[20px] rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
                                      <div className="w-[12px] h-[12px] bg-white rounded-full flex items-center justify-center">
                                         <span className="text-black font-extrabold text-[8px] leading-none">$</span>
                                      </div>
@@ -742,15 +777,15 @@ export function MarketView() {
                                           <button 
                                              type="button"
                                              onClick={(e) => toggleExpandAuction(item.id, e)} 
-                                             className="w-8 h-8 flex items-center justify-center bg-black/40 backdrop-blur-md rounded-full text-[#8e8e93] hover:text-white transition-colors border border-white/[0.08]"
+                                             className="w-8 h-8 flex items-center justify-center bg-black/40 backdrop-blur-sm transform-gpu rounded-full text-[#8e8e93] hover:text-white transition-colors border border-white/[0.08]"
                                           >
                                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                                           </button>
                                        </div>
 
-                                       <div className="mt-2 w-full h-[38px] bg-black/70 backdrop-blur-[24px] rounded-[12px] px-3 flex items-center justify-between shadow-[0_4px_12px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08]">
+                                       <div className="mt-2 w-full h-[38px] bg-black/70 backdrop-blur-md transform-gpu rounded-[12px] px-3 flex items-center justify-between shadow-[0_4px_12px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08]">
                                           <div className="flex items-center gap-1.5 overflow-hidden">
-                                            <div className="w-[18px] h-[18px] rounded-full bg-black/40 backdrop-blur-[24px] flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
+                                            <div className="w-[18px] h-[18px] rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center shrink-0 border border-white/20 shadow-sm">
                                                <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
                                                   <span className="text-black font-extrabold text-[7px] leading-none">$</span>
                                                </div>
