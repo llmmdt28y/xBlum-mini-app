@@ -696,16 +696,16 @@ export function MarketView() {
 
                     {/* ── RENDERIZADO DEL GRID O LISTA ── */}
                     {viewMode === 'grid' ? (
-                       <div className="grid grid-cols-2 gap-3 mt-2 animate-in fade-in duration-300">
+                       <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-6 animate-in fade-in duration-300">
                           {AUCTION_ITEMS.map((item) => (
                              <div 
                                 key={item.id} 
                                 onClick={() => setViewingAuctionId(item.id)}
-                                className="relative w-full aspect-[4/5] bg-[#161618] rounded-[32px] p-3.5 flex flex-col overflow-hidden shadow-lg border border-white/[0.04] cursor-pointer hover:bg-[#1c1c1e] transition-colors"
+                                className="relative w-full aspect-[4/5] bg-[#161618] rounded-[32px] flex flex-col shadow-lg border border-white/[0.04] cursor-pointer hover:bg-[#1c1c1e] transition-colors"
                              >
                                 {/* Patrón repetitivo tenue de fondo */}
                                 <div 
-                                  className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                                  className="absolute inset-0 opacity-[0.03] pointer-events-none rounded-[32px] overflow-hidden"
                                   style={{
                                     backgroundImage: `radial-gradient(circle at 10px 10px, white 1px, transparent 0)`,
                                     backgroundSize: '24px 24px'
@@ -717,7 +717,7 @@ export function MarketView() {
                                 </div>
 
                                 {/* Información de la Tarjeta (Título e ID) */}
-                                <div className="flex justify-between items-end px-1 mb-3 relative z-10">
+                                <div className="w-full px-4 pb-6 flex justify-between items-end relative z-10">
                                   <span 
                                     className="text-white font-bold text-[15px] leading-tight tracking-wide truncate" 
                                     style={{ fontFamily: SFD }}
@@ -732,14 +732,14 @@ export function MarketView() {
                                   </span>
                                 </div>
 
-                                {/* Barra Inferior Flotante (Glassmorphism) */}
-                                <div className="relative z-10 w-full bg-black/40 backdrop-blur-[20px] rounded-[24px] px-3 py-2.5 flex items-center justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_12px_rgba(0,0,0,0.2)] border border-white/[0.06]">
+                                {/* Barra Inferior Flotante OCUPANDO TODO EL ANCHO Y MÁS ABAJO */}
+                                <div className="absolute -bottom-5 left-0 right-0 w-full bg-black/60 backdrop-blur-[24px] rounded-[32px] px-4 py-3 flex items-center justify-between shadow-[0_8px_20px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.08)] border border-white/[0.08] z-20">
                                   
                                   {/* Lado Izquierdo: Icono + Estado */}
                                   <div className="flex items-center gap-2">
-                                    <div className="w-[18px] h-[18px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
+                                    <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
                                        {/* Mini icono del botón */}
-                                       <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white opacity-80">
+                                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white opacity-80">
                                           <circle cx="12" cy="12" r="10"></circle>
                                           <path d="M12 8v4l3 3"></path>
                                        </svg>
@@ -755,13 +755,13 @@ export function MarketView() {
                                   {/* Lado Derecho: Precio + Símbolo TON */}
                                   <div className="flex items-center gap-1.5">
                                     <span 
-                                      className="text-white font-bold text-[14px]" 
+                                      className="text-white font-bold text-[15px]" 
                                       style={{ fontFamily: SFD }}
                                     >
                                       {item.gridPrice}
                                     </span>
                                     {/* Icono de TON minimalista */}
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white opacity-80">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white opacity-80">
                                        <path d="M4 7l8 10 8-10H4z"></path>
                                        <path d="M4 7l8-4 8 4"></path>
                                     </svg>
