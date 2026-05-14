@@ -2,7 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useRef } from "react"
-import { Plus, Star, ArrowDown, X, Info, Shield, Cpu, Sparkles, Loader2, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy, ChevronRight, ChevronLeft, Gift } from "lucide-react"
+import { Plus, Star, ArrowDown, X, Info, Shield, Cpu, Sparkles, Loader2, Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, MoreHorizontal, BadgeCheck, Copy, ChevronRight, ChevronLeft, Gift, Layers3, KeyRound } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -134,7 +134,7 @@ export function MarketView() {
   const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
   
   // ── ESTADOS DE PESTAÑAS Y VISTAS ──
-  const [activeTab, setActiveTab] = useState<'Play' | 'Auctions'>('Play')
+  const [activeTab, setActiveTab] = useState<'Explore' | 'Auctions' | 'Listed'>('Explore')
   const [viewingAuctionId, setViewingAuctionId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [boxViewMode, setBoxViewMode] = useState<'grid' | 'list'>('grid')
@@ -190,8 +190,8 @@ export function MarketView() {
          setViewingBoxId(null) 
       } else if (viewingAuctionId) {
          setViewingAuctionId(null) 
-      } else if (activeTab === 'Auctions') {
-         setActiveTab('Play') 
+      } else if (activeTab === 'Auctions' || activeTab === 'Listed') {
+         setActiveTab('Explore') 
       } else {
          setCurrentView("home") 
          tg.BackButton.hide()
@@ -260,28 +260,38 @@ export function MarketView() {
   const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
-  // ── COMPONENTE REUTILIZABLE: PÍLDORA TOP UP ──
+  // ── COMPONENTE REUTILIZABLE: PÍLDORA TOP UP (ESTILO iOS TON) ──
   const TopUpPill = () => (
     <button 
        type="button" 
        onClick={() => setIsTopUpOpen(true)} 
-       className="bg-[#1c1c1e]/85 backdrop-blur-md rounded-full px-3 py-1.5 flex items-center gap-1.5 border border-[#2c2c2e] shadow-lg shadow-black/40 transition-transform active:scale-95 z-[60]"
+       className="bg-black/40 backdrop-blur-[24px] rounded-full px-3 py-1.5 flex items-center gap-2 border border-white/[0.08] shadow-[0_4px_12px_rgba(0,0,0,0.2)] transition-transform active:scale-95"
     >
-       <img src="/telegram-star-icon.png" alt="Stars" draggable={false} className="w-[16px] h-[16px] object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
-       <span className="text-[#facc15] font-bold text-[14px] mt-[1px]" style={{ fontFamily: SF }}>{myStars.toLocaleString('en-US')}</span>
+       <div className="w-[20px] h-[20px] rounded-full bg-[#0088CC] flex items-center justify-center shadow-[0_0_10px_rgba(0,136,204,0.4)] border border-white/10">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+             <path d="M4 7l8 10 8-10H4z"></path>
+             <path d="M4 7l8-4 8 4"></path>
+          </svg>
+       </div>
+       <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SFD }}>{myStars.toLocaleString('en-US')} Stars</span>
     </button>
   )
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-black relative overflow-hidden" ref={dropdownRef}>
+    <div className="flex-1 flex flex-col h-full bg-[#0a0a0c] relative overflow-hidden" ref={dropdownRef}>
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
+      {/* GLOW DE FONDO CINEMATOGRÁFICO iOS */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[40%] bg-white/[0.03] blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-[5%] right-[-5%] w-[40%] h-[30%] bg-amber-900/[0.05] blur-[100px] rounded-full pointer-events-none" />
+
       {/* Ocultar Navbar Global en Vistas Detalladas */}
       {(viewingBoxId || viewingAuctionId) && (
         <style dangerouslySetInnerHTML={{ __html: `#main-nav-bar { display: none !important; }` }} />
       )}
 
-      <div className="flex-1 overflow-y-auto pb-32">
+      <div className="flex-1 overflow-y-auto pb-32 relative z-10">
+        
         {/* ── VISTA DETALLE DE LOOTBOX (UNBOXING) ── */}
         {viewingBoxId && activeBoxData ? (
           <div className="animate-in slide-in-from-right-8 fade-in duration-300 min-h-screen pb-20">
@@ -526,40 +536,54 @@ export function MarketView() {
           </div>
 
         ) : (
-          /* ── VISTA PRINCIPAL & AUCTIONS ── */
-          <div className="animate-in fade-in duration-300 flex flex-col h-full pt-8 pb-32">
+          /* ── VISTA PRINCIPAL (NUEVO HEADER iOS PREMIUM) ── */
+          <div className="flex flex-col h-full pt-4">
 
-            <div className="sticky top-0 z-50 px-5 pt-8 pb-3 bg-black/95 backdrop-blur-md border-b border-transparent">
-               <div className="w-full relative flex items-center justify-center min-h-[40px] mt-2">
-                   {/* Pestañas Centradas */}
-                   <div className="flex items-center bg-[#1c1c1e] rounded-full p-[3px] border border-[#2c2c2e]/50">
-                       <button 
-                         type="button"
-                         onClick={() => setActiveTab('Play')}
-                         className={`px-4 py-1.5 rounded-full text-[14px] font-medium transition-all ${activeTab === 'Play' ? 'bg-[#22C55E]/15 text-[#4ade80] shadow-sm' : 'text-[#8e8e93] hover:text-white bg-transparent'}`} style={{ fontFamily: SF }}>
-                           Play
-                       </button>
-                       <button 
-                         type="button"
-                         onClick={() => setActiveTab('Auctions')}
-                         className={`px-4 py-1.5 rounded-full text-[14px] font-medium transition-all ${activeTab === 'Auctions' ? 'bg-[#22C55E]/15 text-[#4ade80] shadow-sm' : 'text-[#8e8e93] hover:text-white bg-transparent'}`} style={{ fontFamily: SF }}>
-                           Auctions
-                       </button>
-                   </div>
-
-                   {/* Píldora de Top Up global a la derecha */}
-                   {activeTab === 'Play' && (
-                     <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
-                        <TopUpPill />
-                     </div>
-                   )}
+            {/* ── HEADER iOS PREMIUM ── */}
+            <div className="sticky top-0 z-[100] px-5 pb-6 pt-2 space-y-4 bg-transparent">
+               
+               {/* Top Bar: Balance/TopUp */}
+               <div className="flex items-center justify-start">
+                  <TopUpPill />
                </div>
+
+               {/* Botones Secundarios */}
+               <div className="flex items-center gap-2 pl-1">
+                  <button className="h-[34px] bg-black/40 backdrop-blur-[24px] border border-white/[0.06] rounded-full px-4 flex items-center gap-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.15)] active:scale-95 transition-transform">
+                     <Layers3 className="w-[14px] h-[14px] text-white/90" />
+                     <span className="text-white font-semibold text-[13px]" style={{ fontFamily: SF }}>Collection</span>
+                  </button>
+                  <button className="h-[34px] bg-black/40 backdrop-blur-[24px] border border-white/[0.06] rounded-full px-4 flex items-center gap-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.15)] active:scale-95 transition-transform">
+                     <KeyRound className="w-[14px] h-[14px] text-white/90" />
+                     <span className="text-white font-semibold text-[13px]" style={{ fontFamily: SF }}>Connect</span>
+                  </button>
+               </div>
+
+               {/* Selector Principal (Píldora iOS) */}
+               <div className="w-full pt-1">
+                  <div className="relative w-full h-[46px] bg-black/50 backdrop-blur-[36px] rounded-full border border-white/[0.08] flex items-center p-1.5 shadow-[0_0_24px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.05)]">
+                     
+                     {/* Indicador Animado (Mini píldora interior gris) */}
+                     <div 
+                        className="absolute h-[34px] bg-white/[0.12] backdrop-blur-md rounded-full transition-all duration-300 ease-out shadow-[0_2px_8px_rgba(0,0,0,0.2)] border border-white/[0.06]"
+                        style={{ 
+                           width: 'calc(33.33% - 4px)',
+                           left: activeTab === 'Explore' ? '6px' : activeTab === 'Auctions' ? '33.33%' : 'calc(66.66% - 2px)'
+                        }}
+                     />
+
+                     <button onClick={() => setActiveTab('Explore')} className={`relative z-10 flex-1 text-center text-[14px] font-semibold transition-colors duration-300 ${activeTab === 'Explore' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Explore</button>
+                     <button onClick={() => setActiveTab('Auctions')} className={`relative z-10 flex-1 text-center text-[14px] font-semibold transition-colors duration-300 ${activeTab === 'Auctions' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Auctions</button>
+                     <button onClick={() => setActiveTab('Listed')} className={`relative z-10 flex-1 text-center text-[14px] font-semibold transition-colors duration-300 ${activeTab === 'Listed' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Listed</button>
+                  </div>
+               </div>
+
             </div>
 
             <div className="flex flex-col flex-1 pb-10">
-               {/* ── CONTENIDO: PLAY (LOOTBOXES) ── */}
-               {activeTab === 'Play' && (
-                 <div className="animate-in fade-in slide-in-from-left-4 duration-300 pt-4 px-5">
+               {/* ── CONTENIDO: EXPLORE (LOOTBOXES) ── */}
+               {activeTab === 'Explore' && (
+                 <div className="animate-in fade-in slide-in-from-left-4 duration-300 pt-2 px-5">
 
                    <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden mb-6">
                        <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
@@ -642,9 +666,9 @@ export function MarketView() {
                  </div>
                )}
 
-               {/* ── CONTENIDO: AUCTIONS ── */}
-               {activeTab === 'Auctions' && (
-                 <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
+               {/* ── CONTENIDO: AUCTIONS & LISTED ── */}
+               {(activeTab === 'Auctions' || activeTab === 'Listed') && (
+                 <div className="flex flex-col w-full px-5 pt-2 animate-in fade-in slide-in-from-right-4 duration-300">
                      
                     <button type="button" onClick={() => setIsAddGiftOpen(true)} className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-6" style={{ fontFamily: SF }}>
                        <Plus className="w-5 h-5" /> Add Gift
