@@ -266,22 +266,22 @@ export function MarketView() {
   const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
-  // ── COMPONENTE PÍLDORA TOP UP OPTIMIZADA (Más estrecha y sin brillo) ──
+  // ── COMPONENTE PÍLDORA TOP UP OPTIMIZADA (Más ancha y adaptada) ──
   const TopUpPill = () => (
     <button 
        type="button" 
        onClick={() => setIsTopUpOpen(true)} 
-       className="bg-black/30 backdrop-blur-md transform-gpu translate-z-0 will-change-transform rounded-full px-2.5 py-1 flex items-center gap-1.5 border border-white/[0.06] shadow-sm transition-transform active:scale-95"
+       className="bg-black/30 backdrop-blur-md transform-gpu translate-z-0 will-change-transform rounded-full px-6 h-[36px] flex items-center justify-center gap-2 border border-white/[0.06] shadow-sm transition-transform active:scale-95"
     >
        <div className="flex items-center justify-center">
           <img 
             src="/telegram-star-icon.png" 
             alt="Stars" 
-            className="w-[14px] h-[14px] object-contain pointer-events-none select-none" 
+            className="w-[16px] h-[16px] object-contain pointer-events-none select-none" 
             style={{ WebkitTouchCallout: "none" }} 
           />
        </div>
-       <span className="text-[#facc15] font-bold text-[13px] leading-none mt-[1px]" style={{ fontFamily: SFD }}>
+       <span className="text-[#facc15] font-bold text-[14px] leading-none mt-[1px]" style={{ fontFamily: SFD }}>
           {myStars.toLocaleString('en-US')} Stars
        </span>
     </button>
