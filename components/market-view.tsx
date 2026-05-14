@@ -623,13 +623,13 @@ export function MarketView() {
                    <div className="w-full bg-[#111111] rounded-[28px] p-6 flex items-center gap-5 border border-[#1c1c1e] shadow-inner mb-12 opacity-60">
                       <div className="w-[100px] h-[100px] relative flex justify-center items-center shrink-0">
                          <div className="absolute z-10 w-[60px] h-[60px] bg-[#0d0d0f] rounded-[18px] -translate-x-[40px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40 shadow-inner">
-                             <LootboxVisual color={MARKET_BOXES[1].color} imgSrc={MARKET_BOXES[1].image} size="normal" />
+                            <LootboxVisual color={MARKET_BOXES[1].color} imgSrc={MARKET_BOXES[1].image} size="normal" />
                          </div>
                          <div className="absolute z-10 w-[60px] h-[60px] bg-[#0d0d0f] rounded-[18px] translate-x-[40px] rotate-[15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40 shadow-inner">
-                             <LootboxVisual color={MARKET_BOXES[2].color} imgSrc={MARKET_BOXES[2].image} size="normal" />
+                            <LootboxVisual color={MARKET_BOXES[2].color} imgSrc={MARKET_BOXES[2].image} size="normal" />
                          </div>
                          <div className="relative z-20 w-[80px] h-[80px] bg-[#141415] rounded-[22px] flex items-center justify-center border border-[#2c2c2e] shadow-xl">
-                             <LootboxVisual color={MARKET_BOXES[0].color} imgSrc={MARKET_BOXES[0].image} size="large" />
+                            <LootboxVisual color={MARKET_BOXES[0].color} imgSrc={MARKET_BOXES[0].image} size="large" />
                          </div>
                       </div>
                       <div className="flex flex-col flex-1 items-start text-left">
@@ -645,7 +645,7 @@ export function MarketView() {
                {/* ── CONTENIDO: AUCTIONS ── */}
                {activeTab === 'Auctions' && (
                  <div className="flex flex-col w-full px-5 pt-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                    
+                     
                     <button type="button" onClick={() => setIsAddGiftOpen(true)} className="w-full bg-[#3b82f6] text-white py-3.5 rounded-[16px] font-bold text-[16px] flex justify-center items-center gap-2 active:scale-95 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)] mb-6" style={{ fontFamily: SF }}>
                        <Plus className="w-5 h-5" /> Add Gift
                     </button>
@@ -661,7 +661,7 @@ export function MarketView() {
                        </button>
 
                        <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform shrink-0">
-                          <Copy className="w-5 h-5" />
+                           <Copy className="w-5 h-5" />
                        </button>
 
                        <button 
@@ -692,7 +692,7 @@ export function MarketView() {
                              )}
                           </div>
                        </div>
-                    </div>
+                     </div>
 
                     {/* ── RENDERIZADO DEL GRID O LISTA ── */}
                     {viewMode === 'grid' ? (
@@ -701,24 +701,74 @@ export function MarketView() {
                              <div 
                                 key={item.id} 
                                 onClick={() => setViewingAuctionId(item.id)}
-                                className="bg-[#111111] rounded-[20px] p-2 flex flex-col border border-[#1c1c1e] shadow-md cursor-pointer hover:bg-[#161618] transition-colors"
+                                className="relative w-full aspect-[4/5] bg-[#161618] rounded-[32px] p-3.5 flex flex-col overflow-hidden shadow-lg border border-white/[0.04] cursor-pointer hover:bg-[#1c1c1e] transition-colors"
                              >
-                                <div className="w-full aspect-square bg-[#1c1c1e] rounded-[16px] overflow-hidden relative flex items-center justify-center p-1">
-                                   <img src={item.imgSrc} alt={item.title} draggable={false} className="w-full h-full object-cover rounded-[12px] pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+                                {/* Patrón repetitivo tenue de fondo */}
+                                <div 
+                                  className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                                  style={{
+                                    backgroundImage: `radial-gradient(circle at 10px 10px, white 1px, transparent 0)`,
+                                    backgroundSize: '24px 24px'
+                                  }}
+                                />
+
+                                {/* Espacio limpio/transparente para la imagen central que se agregará después */}
+                                <div className="flex-1 w-full relative z-10 flex items-center justify-center">
                                 </div>
-                                <div className="flex justify-between items-center px-1 mt-3 mb-1.5">
-                                   <Heart className="w-[18px] h-[18px] text-[#636366] hover:text-[#ff3b30] transition-colors" />
-                                   <MoreHorizontal className="w-[18px] h-[18px] text-[#636366]" />
+
+                                {/* Información de la Tarjeta (Título e ID) */}
+                                <div className="flex justify-between items-end px-1 mb-3 relative z-10">
+                                  <span 
+                                    className="text-white font-bold text-[15px] leading-tight tracking-wide truncate" 
+                                    style={{ fontFamily: SFD }}
+                                  >
+                                    {item.title}
+                                  </span>
+                                  <span 
+                                    className="text-white/60 font-medium text-[13px] leading-tight" 
+                                    style={{ fontFamily: SF }}
+                                  >
+                                    {item.tag}
+                                  </span>
                                 </div>
-                                <span className="text-white text-[13px] font-bold px-1 truncate leading-tight" style={{ fontFamily: SFD }}>
-                                   {item.title} <span className="text-[#8e8e93] font-medium">{item.tag}</span>
-                                </span>
-                                <div className="flex items-center gap-1.5 px-1 mt-1.5 pb-1">
-                                   <div className="w-4 h-4 rounded-full bg-[#3b82f6] flex items-center justify-center">
-                                      <img src="/telegram-star-icon.png" className="w-2.5 h-2.5 pointer-events-none select-none" draggable={false} alt="Star" />
-                                   </div>
-                                   <span className="text-white font-bold text-[14px]" style={{ fontFamily: SF }}>{item.gridPrice}</span>
+
+                                {/* Barra Inferior Flotante (Glassmorphism) */}
+                                <div className="relative z-10 w-full bg-black/40 backdrop-blur-[20px] rounded-[24px] px-3 py-2.5 flex items-center justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.08),0_4px_12px_rgba(0,0,0,0.2)] border border-white/[0.06]">
+                                  
+                                  {/* Lado Izquierdo: Icono + Estado */}
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-[18px] h-[18px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
+                                       {/* Mini icono del botón */}
+                                       <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white opacity-80">
+                                          <circle cx="12" cy="12" r="10"></circle>
+                                          <path d="M12 8v4l3 3"></path>
+                                       </svg>
+                                    </div>
+                                    <span 
+                                      className="text-white font-semibold text-[13px]" 
+                                      style={{ fontFamily: SF }}
+                                    >
+                                      {item.owned ? "Sold out" : "Listed"}
+                                    </span>
+                                  </div>
+
+                                  {/* Lado Derecho: Precio + Símbolo TON */}
+                                  <div className="flex items-center gap-1.5">
+                                    <span 
+                                      className="text-white font-bold text-[14px]" 
+                                      style={{ fontFamily: SFD }}
+                                    >
+                                      {item.gridPrice}
+                                    </span>
+                                    {/* Icono de TON minimalista */}
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white opacity-80">
+                                       <path d="M4 7l8 10 8-10H4z"></path>
+                                       <path d="M4 7l8-4 8 4"></path>
+                                    </svg>
+                                  </div>
+
                                 </div>
+
                              </div>
                           ))}
                        </div>
@@ -942,7 +992,7 @@ export function MarketView() {
                          <ChevronLeft className="w-5 h-5" />
                       </button>
                       <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>Select a Gift</h2>
-                      <div className="w-8" /> {/* Spacer */}
+                       <div className="w-8" /> {/* Spacer */}
                    </div>
                    
                    {/* EMPTY STATE - Con Filtro de Color Profile View */}
