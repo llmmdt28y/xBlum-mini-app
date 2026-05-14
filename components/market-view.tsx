@@ -255,43 +255,30 @@ export function MarketView() {
       
       {/* ── AMBIENT GLOWS - Paleta Desaturada iOS fijada al fondo ── */}
       {/* Azul grisáceo muy tenue (#2A2F3A) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] bg-[#2A2F3A] opacity-[0.15] blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] bg-[#2A2F3A] opacity-[0.15] blur-[120px] rounded-full pointer-events-none z-0" />
       {/* Iluminación cálida marrón/morado (Basado en la referencia) (#4A3830) */}
-      <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] bg-[#4A3830] opacity-[0.15] blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] bg-[#4A3830] opacity-[0.15] blur-[120px] rounded-full pointer-events-none z-0" />
       {/* Gris carbón azulado (#1E1F24) */}
-      <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] bg-[#1E1F24] opacity-[0.20] blur-[100px] rounded-full pointer-events-none" />
+      <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] bg-[#1E1F24] opacity-[0.20] blur-[100px] rounded-full pointer-events-none z-0" />
       {/* Morado desaturado inferior (#2B2633) */}
-      <div className="absolute bottom-[-10%] left-[10%] w-[70%] h-[40%] bg-[#2B2633] opacity-[0.15] blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[10%] w-[70%] h-[40%] bg-[#2B2633] opacity-[0.15] blur-[120px] rounded-full pointer-events-none z-0" />
 
       {/* Ocultar Navbar Global en Vistas Detalladas */}
       {(viewingBoxId || viewingAuctionId) && (
         <style dangerouslySetInnerHTML={{ __html: `#main-nav-bar { display: none !important; }` }} />
       )}
 
-      {/* ── HEADER iOS PREMIUM (ABSOLUTO Y FIJO SUPERIOR) ── */}
-      {/* Este bloque se saca del flujo de scroll para que SIEMPRE se quede pegado arriba */}
+      {/* ── HEADER iOS PREMIUM (FIXED - SIEMPRE VISIBLE AL SCROLLEAR) ── */}
       {!viewingBoxId && !viewingAuctionId && (
-        <div className="absolute top-0 left-0 right-0 z-[100] px-5 pb-5 pt-10 space-y-4 bg-[#111214]/60 backdrop-blur-[48px] border-b border-white/[0.04] shadow-[0_10px_40px_rgba(17,18,20,0.5)] pointer-events-auto">
+        <div className="fixed top-0 left-0 right-0 z-[100] px-5 pb-4 pt-8 bg-[#111214]/60 backdrop-blur-[48px] border-b border-white/[0.04] shadow-[0_10px_40px_rgba(17,18,20,0.5)] pointer-events-auto">
            
-           {/* Top Bar: Balance/TopUp */}
-           <div className="flex items-center justify-start">
+           {/* Top Bar: Balance Centrado */}
+           <div className="flex items-center justify-center mb-3">
               <TopUpPill />
            </div>
 
-           {/* Botones Secundarios */}
-           <div className="flex items-center gap-2 pl-1">
-              <button className="h-[34px] bg-[#1C1C1E]/50 backdrop-blur-[24px] border border-white/[0.06] rounded-full px-4 flex items-center gap-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.15)] active:scale-95 transition-transform">
-                 <Layers3 className="w-[14px] h-[14px] text-white/90" />
-                 <span className="text-white font-semibold text-[13px]" style={{ fontFamily: SF }}>Collection</span>
-              </button>
-              <button className="h-[34px] bg-[#1C1C1E]/50 backdrop-blur-[24px] border border-white/[0.06] rounded-full px-4 flex items-center gap-1.5 shadow-[0_4px_12px_rgba(0,0,0,0.15)] active:scale-95 transition-transform">
-                 <KeyRound className="w-[14px] h-[14px] text-white/90" />
-                 <span className="text-white font-semibold text-[13px]" style={{ fontFamily: SF }}>Connect</span>
-              </button>
-           </div>
-
            {/* Selector Principal (Píldora iOS) */}
-           <div className="w-full pt-1">
+           <div className="w-full">
               <div className="relative w-full h-[46px] bg-[#1C1C1E]/40 backdrop-blur-[36px] rounded-full border border-white/[0.06] flex items-center p-1.5 shadow-inner">
                  
                  {/* Indicador Animado (Mini píldora interior gris) */}
@@ -308,7 +295,6 @@ export function MarketView() {
                  <button onClick={() => setActiveTab('Listed')} className={`relative z-10 flex-1 text-center text-[14px] font-semibold transition-colors duration-300 ${activeTab === 'Listed' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Listed</button>
               </div>
            </div>
-
         </div>
       )}
 
@@ -317,7 +303,7 @@ export function MarketView() {
         
         {/* Espaciador invisible para que el contenido no quede oculto bajo el header fijo al inicio */}
         {!viewingBoxId && !viewingAuctionId && (
-           <div className="w-full h-[180px] shrink-0 pointer-events-none" />
+           <div className="w-full h-[140px] shrink-0 pointer-events-none" />
         )}
         
         {/* ── VISTA DETALLE DE LOOTBOX (UNBOXING) ── */}
@@ -549,7 +535,7 @@ export function MarketView() {
 
         ) : (
           /* ── VISTAS PRINCIPALES DEL HEADER (DENTRO DEL ÁREA DE SCROLL) ── */
-          <div className="flex-1 px-5 animate-in fade-in duration-500 relative z-10">
+          <div className="flex-1 px-5 animate-in fade-in duration-500">
              
              {/* ── CONTENIDO: EXPLORE (LOOTBOXES) ── */}
              {activeTab === 'Explore' && (
