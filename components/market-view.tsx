@@ -13,12 +13,12 @@ import {
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Base de Datos Visual ──
+// ── Base de Datos Visual Mezclada (Mezcla de Reference + Original) ──
 const MARKET_BOXES = [
-  { id: 'secret', name: 'Secret', color: '#eab308', image: '/1000009369.png', isSoldOut: false, price: 150 },
-  { id: 'toxic', name: 'Toxic Whisper', color: '#c084fc', image: '/1000009370.png', isSoldOut: false, price: 300 },
-  { id: 'eternal', name: 'Eternal Beacon', color: '#a855f7', image: '/1000009371.png', isSoldOut: true, price: 500 },
-  { id: 'aureus', name: 'Aureus', color: '#facc15', image: '/1000009361.png', isSoldOut: false, price: 1000 }
+  { id: 'dragon', name: 'Dragon Lore', color: '#eab308', image: '/1000009369.png', isSoldOut: false, price: 150000, rarity: "HIGH TIER", rarityColor: "#eab308" },
+  { id: 'neo', name: 'Neo-Noir Case', color: '#c084fc', image: '/1000009370.png', isSoldOut: false, price: 500, rarity: "BESTSELLER", rarityColor: "#c084fc" },
+  { id: 'water', name: 'Water Element', color: '#3b82f6', image: '/1000009371.png', isSoldOut: true, price: 2100, rarity: "LIMITED", rarityColor: "#3b82f6" },
+  { id: 'vortx', name: 'VortX Prime', color: '#a855f7', image: '/1000009361.png', isSoldOut: false, price: 10000, rarity: "PREMIUM", rarityColor: "#a855f7" }
 ]
 
 const INSIDE_ITEMS = [
@@ -266,22 +266,22 @@ export function MarketView() {
   const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
-  // ── COMPONENTE PÍLDORA TOP UP OPTIMIZADA (Más ancha y adaptada) ──
+  // ── COMPONENTE PÍLDORA TOP UP OPTIMIZADA (Más estrecha y sin brillo) ──
   const TopUpPill = () => (
     <button 
        type="button" 
        onClick={() => setIsTopUpOpen(true)} 
-       className="bg-black/30 backdrop-blur-md transform-gpu translate-z-0 will-change-transform rounded-full px-6 h-[36px] flex items-center justify-center gap-2 border border-white/[0.06] shadow-sm transition-transform active:scale-95"
+       className="bg-black/30 backdrop-blur-md transform-gpu translate-z-0 will-change-transform rounded-full px-2.5 py-1 flex items-center gap-1.5 border border-white/[0.06] shadow-sm transition-transform active:scale-95"
     >
        <div className="flex items-center justify-center">
           <img 
             src="/telegram-star-icon.png" 
             alt="Stars" 
-            className="w-[16px] h-[16px] object-contain pointer-events-none select-none" 
+            className="w-[14px] h-[14px] object-contain pointer-events-none select-none" 
             style={{ WebkitTouchCallout: "none" }} 
           />
        </div>
-       <span className="text-[#facc15] font-bold text-[14px] leading-none mt-[1px]" style={{ fontFamily: SFD }}>
+       <span className="text-[#facc15] font-bold text-[13px] leading-none mt-[1px]" style={{ fontFamily: SFD }}>
           {myStars.toLocaleString('en-US')} Stars
        </span>
     </button>
@@ -291,7 +291,7 @@ export function MarketView() {
     <div className="flex-1 flex flex-col h-full bg-[#111214] relative overflow-hidden" ref={dropdownRef}>
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
-      {/* ── AMBIENT GLOWS OPTIMIZADOS (0% LAG) ── */}
+      {/* ── AMBIENT GLOWS OPTIMIZADOS (VortX Style desaturado) ── */}
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(42,47,58,0.2) 0%, rgba(42,47,58,0) 70%)' }} />
       <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.2) 0%, rgba(74,56,48,0) 70%)' }} />
       <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(30,31,36,0.3) 0%, rgba(30,31,36,0) 70%)' }} />
@@ -568,60 +568,91 @@ export function MarketView() {
           </div>
 
         ) : (
-          /* ── VISTAS PRINCIPALES (EXPLORE/AUCTIONS) ── */
+          /* ── VISTAS PRINCIPALES DEL HEADER (Explore, Auctions) ── */
           <div className="flex-1 px-5 animate-in fade-in duration-500 relative z-10">
              
-             {/* ── CONTENIDO: EXPLORE (LOOTBOXES) ── */}
+             {/* ── CONTENIDO: EXPLORE (LOOTBOXES REDISEÑADAS - REFERENCE MIX) ── */}
              {activeTab === 'Explore' && (
-               <div className="pt-2">
-
-                 <div className="w-full h-[160px] relative flex justify-center items-center overflow-hidden mb-6">
-                     <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] -translate-x-[130px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
-                         <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
+               <div className="pt-2 flex flex-col">
+                 
+                 {/* Empty cases visualizer simple */}
+                 <div className="w-full h-[140px] relative flex justify-center items-center overflow-hidden mb-6 border-b border-white/[0.03]">
+                     <div className="absolute z-10 w-[80px] h-[80px] bg-black/40 rounded-[20px] -translate-x-[110px] rotate-[-15deg] flex items-center justify-center border border-white/[0.03] opacity-50 shadow-inner">
+                         <span className="text-white/20 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
                      </div>
-                     <div className="absolute z-10 w-[100px] h-[100px] bg-gradient-to-b from-[#0a0a0b] to-[#000000] rounded-[24px] translate-x-[130px] rotate-[15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
-                         <span className="text-white/30 font-bold text-5xl" style={{ fontFamily: SFD }}>?</span>
+                     <div className="absolute z-10 w-[80px] h-[80px] bg-black/40 rounded-[20px] translate-x-[110px] rotate-[15deg] flex items-center justify-center border border-white/[0.03] opacity-50 shadow-inner">
+                         <span className="text-white/20 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
                      </div>
-                     <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] -translate-x-[70px] rotate-[-8deg] flex items-center justify-center border border-[#2c2c2e] shadow-xl">
-                         <span className="text-white/50 font-bold text-6xl" style={{ fontFamily: SFD }}>?</span>
-                     </div>
-                     <div className="absolute z-20 w-[120px] h-[120px] bg-[#0d0d0f] rounded-[28px] translate-x-[70px] rotate-[8deg] flex items-center justify-center border border-[#2c2c2e] shadow-xl">
-                         <span className="text-white/50 font-bold text-6xl" style={{ fontFamily: SFD }}>?</span>
-                     </div>
-                     <div className="relative z-30 w-[140px] h-[140px] bg-[#141415] rounded-[32px] flex items-center justify-center border border-[#3a3a3c] shadow-xl">
-                         <span className="text-white/80 font-bold text-7xl" style={{ fontFamily: SFD }}>?</span>
+                     <div className="relative z-30 w-[120px] h-[120px] bg-[#1a1a1c] rounded-[28px] flex items-center justify-center border border-[#3b82f6]/20 shadow-xl overflow-hidden group">
+                         <div className="absolute inset-0 opacity-[0.03] pointer-events-none group-hover:opacity-[0.05] transition-opacity" style={{ backgroundImage: `radial-gradient(circle at 10px 10px, white 1px, transparent 0)`, backgroundSize: '24px 24px' }} />
+                         <span className="relative z-10 text-white/80 font-bold text-7xl" style={{ fontFamily: SFD }}>?</span>
+                         {/* Internal glow VortX style localized inside */}
+                         <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-[#3b82f6]/20 blur-[20px] pointer-events-none z-0" />
+                         <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-[#a855f7]/20 blur-[20px] pointer-events-none z-0" />
                      </div>
                  </div>
 
-                 <div className="flex items-center justify-between gap-2 mb-4 px-1">
-                    <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Lootboxes <span className="text-[#8e8e93] font-medium text-[16px]">{MARKET_BOXES.length}</span></h3>
+                 <div className="flex items-center justify-between gap-2 mb-5 px-1">
+                    <div className="flex flex-col">
+                       <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Collections</h3>
+                       <p className="text-[#8e8e93] text-[13px] -mt-0.5" style={{ fontFamily: SF }}>Choose a case to find rare digital rewards</p>
+                    </div>
+                    <span className="text-[#636366] font-medium text-[16px]">{MARKET_BOXES.length}</span>
                  </div>
 
-                 <div className="grid grid-cols-2 gap-3 mt-2 mb-10">
+                 {/* GRID DE CAJAS REDISEÑADO CON NEÓN Y GLOW (REFERENCE STYLE MIX) */}
+                 <div className="grid grid-cols-2 gap-x-4 gap-y-6 mt-2 mb-10">
                     {MARKET_BOXES.map((box) => (
                        <div 
                           key={box.id} 
                           onClick={() => setViewingBoxId(box.id)}
-                          className="bg-[#161618] rounded-[20px] p-2 flex flex-col border border-white/[0.04] shadow-sm cursor-pointer transition-all hover:bg-[#1c1c1e]"
+                          className="relative flex flex-col group cursor-pointer animate-in fade-in zoom-in-95 duration-300"
                        >
-                          <div className="w-full aspect-square bg-[#0a0a0b] rounded-[16px] overflow-hidden relative flex items-center justify-center border border-white/[0.02] p-0">
-                             {box.isSoldOut && <div className="absolute top-2.5 left-2.5 bg-[#3a1a1a]/80 backdrop-blur-sm transform-gpu text-[#ff4d4d] px-[6px] py-[2px] rounded text-[10px] font-bold z-30 border border-[#4a1a1a]">Sold out</div>}
-                             <LootboxVisual color={box.color} imgSrc={box.image} size="normal" />
-                          </div>
-                          
-                          <div className="flex flex-col flex-1 pt-2 pb-1 items-center text-center px-1">
-                             <span className="text-white font-bold text-[14px] px-1 truncate leading-tight w-full" style={{ fontFamily: SFD }}>
-                                {box.name} Box
-                             </span>
-                             <div className="flex items-center justify-center gap-1.5 mt-2 bg-[#facc15]/10 px-3 py-1 rounded-full border border-[#facc15]/20 w-fit mx-auto">
-                                <img src="/telegram-star-icon.png" className="w-3.5 h-3.5 pointer-events-none select-none" draggable={false} alt="Star" />
-                                <span className="text-[#facc15] font-bold text-[13px]" style={{ fontFamily: SF }}>{box.price} Stars</span>
+                          {/* Contenedor Principal de la Tarjeta */}
+                          <div className="w-full bg-[#161618] rounded-[24px] p-2 flex flex-col border border-white/[0.04] transition-all hover:bg-[#1c1c1e] relative overflow-hidden shadow-lg transform-gpu active:scale-[0.98]">
+                             
+                             {/* Neon border effect with localized blur using box-shadow (Reference Case style) */}
+                             <div className="absolute inset-0 rounded-[24px] pointer-events-none transition-all duration-300 z-0" style={{ boxShadow: `inset 0 0 10px ${box.color}15`, border: `1px solid ${box.color}25` }} />
+                             
+                             {/* Badge de Rareza/Estado superior (Reference Case style) */}
+                             <div className="absolute top-2.5 left-2.5 z-40 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm transform-gpu px-2.5 py-[3px] rounded-full border border-white/10 shadow-md">
+                                {box.isSoldOut ? (
+                                   <span className="text-[#ff4d4d] text-[10px] font-bold uppercase tracking-wide">Sold out</span>
+                                ) : (
+                                   <>
+                                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: box.rarityColor }} />
+                                      <span className="text-white text-[10px] font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{box.rarity}</span>
+                                   </>
+                                )}
+                             </div>
+
+                             {/* Área de Imagen con Brillo Interno Intensificado (Reference Case style localized glow) */}
+                             <div className="w-full aspect-[1/1] bg-[#0d0d0f] rounded-[20px] overflow-hidden relative flex items-center justify-center border border-white/[0.02] p-0 shadow-inner z-10">
+                                {/* Localized Internal Glow VortX style behind the visual but matching Reference style case neon glows */}
+                                <div className="absolute inset-0 pointer-events-none transition-opacity duration-300 group-hover:opacity-100" style={{ background: `radial-gradient(circle, ${box.color}25 0%, ${box.color}00 70%)` }} />
+                                <div className="relative z-20 scale-105">
+                                   <LootboxVisual color={box.color} imgSrc={box.image} size="normal" />
+                                </div>
+                             </div>
+                             
+                             {/* Info Sección Inferior */}
+                             <div className="flex flex-col items-center pt-3 pb-1.5 text-center px-1 z-20">
+                                <span className="text-white font-bold text-[15px] px-1 truncate leading-tight w-full tracking-tight" style={{ fontFamily: SFD }}>
+                                   {box.name} Case
+                                </span>
+                                
+                                {/* Price Pill (Original iOS style VortX desaturado/temático) */}
+                                <div className="flex items-center justify-center gap-1.5 mt-2.5 bg-black/50 px-3 py-1.5 rounded-full border border-white/[0.06] w-fit mx-auto transition-colors group-hover:border-white/10 shadow-inner">
+                                   <img src="/telegram-star-icon.png" className="w-3.5 h-3.5 pointer-events-none select-none grayscale group-hover:grayscale-0 transition-all" draggable={false} alt="Star" />
+                                   <span className="text-white font-bold text-[13px] leading-none" style={{ fontFamily: SF }}>{box.price.toLocaleString()}</span>
+                                </div>
                              </div>
                           </div>
                        </div>
                     ))}
                  </div>
 
+                 {/* My Inventory section unchanged iOS style */}
                  <div className="flex items-center gap-2 mb-5 px-1 pt-2 border-t border-white/[0.04]">
                     <div className="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center border border-white/[0.04]">
                        <Gift className="w-5 h-5 text-[#3b82f6]" />
