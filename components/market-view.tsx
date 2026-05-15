@@ -596,8 +596,8 @@ export function MarketView() {
                     {MARKET_BOXES.map((box) => (
                        <div key={box.id} onClick={() => setViewingBoxId(box.id)} className="relative flex flex-col group cursor-pointer animate-in fade-in zoom-in-95 duration-300">
                           {box.id === 'free' ? (
-                             {/* TIPO 1: FREE CASE DESIGN HERO */}
                              <div className="w-full aspect-[4/5] rounded-[28px] bg-gradient-to-b from-[#ef4444] to-[#991b1b] p-4 flex flex-col relative overflow-hidden shadow-lg transform-gpu active:scale-[0.98] border border-white/10 transition-transform">
+                                {/* TIPO 1: FREE CASE DESIGN HERO */}
                                 <div className="absolute top-4 left-4 z-10">
                                    <span className="text-white font-black text-[26px] leading-[1.1] uppercase drop-shadow-md tracking-tight" style={{ fontFamily: SFD }}>FREE<br/>CASE</span>
                                 </div>
@@ -609,8 +609,8 @@ export function MarketView() {
                                 </div>
                              </div>
                           ) : (
-                             {/* TIPO 2: STANDARD CASE DESIGN */}
                              <div className="w-full aspect-[4/5] rounded-[28px] bg-[#161618] p-3 flex flex-col relative overflow-hidden shadow-lg transform-gpu active:scale-[0.98] border border-white/[0.04] transition-all hover:bg-[#1c1c1e]">
+                                {/* TIPO 2: STANDARD CASE DESIGN */}
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-60" style={{ background: `radial-gradient(circle, ${box.color}15 0%, transparent 60%)` }} />
                                 
                                 <div className="w-full text-center relative z-20 mt-2 px-1">
