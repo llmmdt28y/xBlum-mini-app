@@ -7,18 +7,18 @@ import {
   Tag, Gem, ChevronDown, ChevronUp, ShoppingCart, Gavel, Search, 
   ArrowDownUp, LayoutGrid, List, SlidersHorizontal, Heart, 
   MoreHorizontal, BadgeCheck, Copy, ChevronRight, ChevronLeft, 
-  Gift, Layers3, KeyRound 
+  Gift, Layers3, KeyRound, Users, Send
 } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Base de Datos Visual Mezclada (Mezcla de Reference + Original) ──
+// ── Base de Datos Visual (Adaptada al nuevo diseño de Cases) ──
 const MARKET_BOXES = [
-  { id: 'dragon', name: 'Dragon Lore', color: '#eab308', image: '/1000009369.png', isSoldOut: false, price: 150000, rarity: "HIGH TIER", rarityColor: "#eab308" },
-  { id: 'neo', name: 'Neo-Noir Case', color: '#c084fc', image: '/1000009370.png', isSoldOut: false, price: 500, rarity: "BESTSELLER", rarityColor: "#c084fc" },
-  { id: 'water', name: 'Water Element', color: '#3b82f6', image: '/1000009371.png', isSoldOut: true, price: 2100, rarity: "LIMITED", rarityColor: "#3b82f6" },
-  { id: 'vortx', name: 'VortX Prime', color: '#a855f7', image: '/1000009361.png', isSoldOut: false, price: 10000, rarity: "PREMIUM", rarityColor: "#a855f7" }
+  { id: 'free', name: 'Free', subName: 'Case', color: '#ef4444', image: '/1000009369.png', price: 'Open Free', type: 'hero' },
+  { id: 'mysterious', name: 'Mysterious Egg', subName: '', color: '#22c55e', image: '/1000009370.png', price: '1.80', type: 'standard' },
+  { id: 'marriage', name: 'Marriage', subName: 'Union', color: '#3b82f6', image: '/1000009371.png', price: '8.90', type: 'hero' },
+  { id: 'spider', name: "Spider's Life", subName: '', color: '#a855f7', image: '/1000009361.png', price: '12.45', type: 'standard' }
 ]
 
 const INSIDE_ITEMS = [
@@ -101,12 +101,10 @@ const AUCTION_ITEMS = [
   },
 ]
 
-// ── Opciones para Dropdowns de Filtros ──
 const FILTER_OPTIONS = {
    sale: ['All', 'For sale', 'Not for sale'],
 }
 
-// Estilos de animación inyectados de forma segura
 const animationStyles = `
   @keyframes box-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
   .animate-box-float { animation: box-float 3.5s ease-in-out infinite; }
@@ -134,32 +132,26 @@ export function MarketView() {
   const { setCurrentView } = ctx
   const myStars = 1500
 
-  // ── ESTADOS PRINCIPALES ──
   const [isTopUpOpen, setIsTopUpOpen] = useState(false)
   const [starInput, setStarInput] = useState("")
   const [viewingBoxId, setViewingBoxId] = useState<string | null>(null)
   
-  // ── ESTADOS DE PESTAÑAS Y VISTAS ──
   const [activeTab, setActiveTab] = useState<'Explore' | 'Auctions' | 'Listed'>('Explore')
   const [viewingAuctionId, setViewingAuctionId] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [boxViewMode, setBoxViewMode] = useState<'grid' | 'list'>('grid')
   const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
+  const [activeFilter, setActiveFilter] = useState<'All' | 'Free' | 'New' | 'Popular'>('All')
 
-  // ── ESTADOS DE FILTROS ──
   const [openDropdown, setOpenDropdown] = useState<'sale' | null>(null)
   const [filters, setFilters] = useState({ sale: 'For sale' })
 
-  // ── ESTADOS DE ADD GIFT (LISTING FLOW) ──
   const [isAddGiftOpen, setIsAddGiftOpen] = useState(false)
   const [addGiftStep, setAddGiftStep] = useState<'choose_type' | 'select_gift'>('choose_type')
   const [listingType, setListingType] = useState<'fixed' | 'auction' | 'falling' | null>(null)
 
-  // ── ESTADOS DE MAKE OFFER (BIDS) ──
   const [isMakeOfferOpen, setIsMakeOfferOpen] = useState(false)
   const [offerInput, setOfferInput] = useState("")
 
-  // ── ESTADOS DE LA RULETA EN LÍNEA ──
   const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
   const [isSpinningActive, setIsSpinningActive] = useState(false)
   const [tracks, setTracks] = useState<Array<{ winner: any, items: any[] }>>([])
@@ -176,37 +168,23 @@ export function MarketView() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  // ── NAVEGACIÓN NATIVA DE TELEGRAM (BACK BUTTON) ──
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
-    
     tg.BackButton.show()
-
     const handleBack = () => {
-      if (isMakeOfferOpen) {
-         setIsMakeOfferOpen(false)
-      } else if (isAddGiftOpen) {
-         if (addGiftStep === 'select_gift') {
-            setAddGiftStep('choose_type') 
-         } else {
-            setIsAddGiftOpen(false) 
-         }
-      } else if (viewingBoxId) {
-         setViewingBoxId(null) 
-      } else if (viewingAuctionId) {
-         setViewingAuctionId(null) 
-      } else if (activeTab === 'Auctions' || activeTab === 'Listed') {
-         setActiveTab('Explore') 
-      } else {
-         setCurrentView("home") 
-         tg.BackButton.hide()
+      if (isMakeOfferOpen) setIsMakeOfferOpen(false)
+      else if (isAddGiftOpen) {
+         if (addGiftStep === 'select_gift') setAddGiftStep('choose_type') 
+         else setIsAddGiftOpen(false) 
       }
+      else if (viewingBoxId) setViewingBoxId(null) 
+      else if (viewingAuctionId) setViewingAuctionId(null) 
+      else { setCurrentView("home"); tg.BackButton.hide() }
     }
-
     tg.BackButton.onClick(handleBack)
     return () => tg.BackButton.offClick(handleBack)
-  }, [setCurrentView, viewingBoxId, viewingAuctionId, activeTab, isAddGiftOpen, addGiftStep, isMakeOfferOpen])
+  }, [setCurrentView, viewingBoxId, viewingAuctionId, isAddGiftOpen, addGiftStep, isMakeOfferOpen])
 
   const handleStarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/\D/g, '') 
@@ -229,35 +207,21 @@ export function MarketView() {
       items[25] = { type: 'winner', ...winner }
       return { winner, items }
     })
-
     setTracks(newTracks)
     setOpeningState('spinning')
     setIsSpinningActive(false)
-
     setTimeout(() => { setIsSpinningActive(true) }, 50)
     setTimeout(() => { setOpeningState('result'); setIsSpinningActive(false) }, 6050)
   }
 
-  const closeRoulette = () => {
-    setOpeningState('idle')
-    setTracks([])
-  }
-
-  const toggleExpandAuction = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    setExpandedAuctionId(prev => prev === id ? null : id)
-  }
-
-  const handleAddGiftSelection = (type: 'fixed' | 'auction' | 'falling') => {
-    setListingType(type)
-    setAddGiftStep('select_gift')
-  }
+  const closeRoulette = () => { setOpeningState('idle'); setTracks([]) }
+  const toggleExpandAuction = (id: string, e: React.MouseEvent) => { e.stopPropagation(); setExpandedAuctionId(prev => prev === id ? null : id) }
+  const handleAddGiftSelection = (type: 'fixed' | 'auction' | 'falling') => { setListingType(type); setAddGiftStep('select_gift') }
 
   const numValue = starInput ? parseInt(starInput, 10) : 0
   const isError = starInput !== "" && numValue < 15
   const isValid = numValue >= 15 && numValue <= 150000
   const displayValue = starInput ? numValue.toLocaleString('en-US') : ""
-
   const offerNumValue = offerInput ? parseInt(offerInput, 10) : 0
   const isOfferValid = offerNumValue > 0
   const serviceFee = offerNumValue ? (offerNumValue * 0.05).toFixed(1) : 0
@@ -266,22 +230,22 @@ export function MarketView() {
   const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
-  // ── COMPONENTE PÍLDORA TOP UP OPTIMIZADA (Más estrecha y sin brillo) ──
+  // ── COMPONENTE PÍLDORA TOP UP ──
   const TopUpPill = () => (
     <button 
        type="button" 
        onClick={() => setIsTopUpOpen(true)} 
-       className="bg-black/30 backdrop-blur-md transform-gpu translate-z-0 will-change-transform rounded-full px-2.5 py-1 flex items-center gap-1.5 border border-white/[0.06] shadow-sm transition-transform active:scale-95"
+       className="bg-black/30 backdrop-blur-md transform-gpu translate-z-0 will-change-transform rounded-full px-6 h-[36px] flex items-center justify-center gap-2 border border-white/[0.06] shadow-sm transition-transform active:scale-95"
     >
        <div className="flex items-center justify-center">
           <img 
             src="/telegram-star-icon.png" 
             alt="Stars" 
-            className="w-[14px] h-[14px] object-contain pointer-events-none select-none" 
+            className="w-[16px] h-[16px] object-contain pointer-events-none select-none" 
             style={{ WebkitTouchCallout: "none" }} 
           />
        </div>
-       <span className="text-[#facc15] font-bold text-[13px] leading-none mt-[1px]" style={{ fontFamily: SFD }}>
+       <span className="text-[#facc15] font-bold text-[14px] leading-none mt-[1px]" style={{ fontFamily: SFD }}>
           {myStars.toLocaleString('en-US')} Stars
        </span>
     </button>
@@ -302,20 +266,15 @@ export function MarketView() {
         <style dangerouslySetInnerHTML={{ __html: `#main-nav-bar { display: none !important; }` }} />
       )}
 
-      {/* ── HEADER iOS PREMIUM (FIXED OPTIMIZADO) ── */}
+      {/* ── HEADER iOS PREMIUM (FIXED) ── */}
       {!viewingBoxId && !viewingAuctionId && (
         <div className="fixed top-0 left-0 right-0 z-[100] px-5 pb-4 pt-8 bg-[#111214]/60 backdrop-blur-lg transform-gpu translate-z-0 will-change-transform border-b border-white/[0.04] shadow-[0_10px_30px_rgba(17,18,20,0.5)] pointer-events-auto">
-           
-           {/* Top Bar: Balance Centrado */}
            <div className="flex items-center justify-center mb-4 mt-2">
               <TopUpPill />
            </div>
 
-           {/* Selector Principal (Píldora iOS) */}
            <div className="w-full">
               <div className="relative w-full h-[46px] bg-[#1C1C1E]/40 backdrop-blur-md transform-gpu translate-z-0 rounded-full border border-white/[0.06] flex items-center p-1.5 shadow-inner">
-                 
-                 {/* Indicador Animado Optimizado (Color Sólido translúcido en lugar de Blur anidado) */}
                  <div 
                     className="absolute h-[34px] bg-white/[0.12] rounded-full transition-transform duration-300 ease-out shadow-sm border border-white/[0.04] will-change-transform"
                     style={{ 
@@ -323,7 +282,6 @@ export function MarketView() {
                        transform: `translateX(${activeTab === 'Explore' ? '4px' : activeTab === 'Auctions' ? 'calc(100% + 4px)' : 'calc(200% + 4px)'})`
                     }}
                  />
-
                  <button onClick={() => setActiveTab('Explore')} className={`relative z-10 flex-1 text-center text-[14px] font-semibold transition-colors duration-300 ${activeTab === 'Explore' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Explore</button>
                  <button onClick={() => setActiveTab('Auctions')} className={`relative z-10 flex-1 text-center text-[14px] font-semibold transition-colors duration-300 ${activeTab === 'Auctions' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Auctions</button>
                  <button onClick={() => setActiveTab('Listed')} className={`relative z-10 flex-1 text-center text-[14px] font-semibold transition-colors duration-300 ${activeTab === 'Listed' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Listed</button>
@@ -335,7 +293,6 @@ export function MarketView() {
       {/* ── ÁREA DE SCROLL PRINCIPAL ── */}
       <div className="flex-1 overflow-y-auto relative z-10 w-full h-full pb-32">
         
-        {/* Espaciador invisible ajustado */}
         {!viewingBoxId && !viewingAuctionId && (
            <div className="w-full h-[140px] shrink-0 pointer-events-none" />
         )}
@@ -415,10 +372,10 @@ export function MarketView() {
                      <>
                         <button type="button" onClick={() => startRoulette(1)} className="w-full bg-[#3b82f6] text-white h-[54px] rounded-[16px] font-bold text-[18px] flex items-center justify-center gap-1.5 active:scale-[0.98] transition-transform shadow-md mb-3" style={{ fontFamily: SF }}>
                            <span>Open for {activeBoxData.price}</span> 
-                           <img src="/telegram-star-icon.png" draggable={false} className="w-[18px] h-[18px] object-contain -mt-[2px] pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} alt="Star" />
+                           {activeBoxData.type !== 'hero' && <img src="/telegram-star-icon.png" draggable={false} className="w-[18px] h-[18px] object-contain -mt-[2px] pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} alt="Star" />}
                         </button>
                         <button type="button" onClick={() => startRoulette(3)} className="text-[#3b82f6] font-semibold text-[14px] active:opacity-70 transition-opacity" style={{ fontFamily: SF }}>
-                           Open 3x for {activeBoxData.price * 3} Stars
+                           Open 3x for {typeof activeBoxData.price === 'number' ? activeBoxData.price * 3 : 'Free'}
                         </button>
                      </>
                   ) : openingState === 'spinning' ? (
@@ -571,117 +528,124 @@ export function MarketView() {
           /* ── VISTAS PRINCIPALES DEL HEADER (Explore, Auctions) ── */
           <div className="flex-1 px-5 animate-in fade-in duration-500 relative z-10">
              
-             {/* ── CONTENIDO: EXPLORE (LOOTBOXES REDISEÑADAS - REFERENCE MIX) ── */}
+             {/* ── CONTENIDO: EXPLORE (NUEVO DISEÑO CON BANNERS Y CASES) ── */}
              {activeTab === 'Explore' && (
-               <div className="pt-2 flex flex-col">
+               <div className="pt-2 flex flex-col pb-10">
                  
-                 {/* Empty cases visualizer simple */}
-                 <div className="w-full h-[140px] relative flex justify-center items-center overflow-hidden mb-6 border-b border-white/[0.03]">
-                     <div className="absolute z-10 w-[80px] h-[80px] bg-black/40 rounded-[20px] -translate-x-[110px] rotate-[-15deg] flex items-center justify-center border border-white/[0.03] opacity-50 shadow-inner">
-                         <span className="text-white/20 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
-                     </div>
-                     <div className="absolute z-10 w-[80px] h-[80px] bg-black/40 rounded-[20px] translate-x-[110px] rotate-[15deg] flex items-center justify-center border border-white/[0.03] opacity-50 shadow-inner">
-                         <span className="text-white/20 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
-                     </div>
-                     <div className="relative z-30 w-[120px] h-[120px] bg-[#1a1a1c] rounded-[28px] flex items-center justify-center border border-[#3b82f6]/20 shadow-xl overflow-hidden group">
-                         <div className="absolute inset-0 opacity-[0.03] pointer-events-none group-hover:opacity-[0.05] transition-opacity" style={{ backgroundImage: `radial-gradient(circle at 10px 10px, white 1px, transparent 0)`, backgroundSize: '24px 24px' }} />
-                         <span className="relative z-10 text-white/80 font-bold text-7xl" style={{ fontFamily: SFD }}>?</span>
-                         {/* Internal glow VortX style localized inside */}
-                         <div className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full bg-[#3b82f6]/20 blur-[20px] pointer-events-none z-0" />
-                         <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-[#a855f7]/20 blur-[20px] pointer-events-none z-0" />
-                     </div>
-                 </div>
-
-                 <div className="flex items-center justify-between gap-2 mb-5 px-1">
-                    <div className="flex flex-col">
-                       <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Collections</h3>
-                       <p className="text-[#8e8e93] text-[13px] -mt-0.5" style={{ fontFamily: SF }}>Choose a case to find rare digital rewards</p>
+                 {/* 1. BANNERS SUPERIORES (Referrals & Subscribe) */}
+                 <div className="flex flex-col gap-3 mb-6">
+                    
+                    {/* Referrals Banner */}
+                    <div className="relative w-full h-[76px] rounded-[20px] bg-gradient-to-r from-[#22c55e] to-[#15803d] overflow-hidden shadow-lg border border-white/10 p-4 flex flex-col justify-center cursor-pointer active:scale-[0.98] transition-transform">
+                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_60%)] pointer-events-none" />
+                       <div className="relative z-10">
+                          <h3 className="text-white font-black text-[18px] uppercase tracking-wide italic" style={{ fontFamily: SFD }}>Referrals</h3>
+                          <p className="text-white/90 font-medium text-[12px] -mt-0.5" style={{ fontFamily: SF }}>Get 10% cashbacks!</p>
+                       </div>
+                       {/* Placeholder for Character Image */}
+                       <div className="absolute right-0 bottom-0 h-full w-[100px] flex items-end justify-end pointer-events-none pr-3 pb-1">
+                           <Users className="w-16 h-16 text-white/20 drop-shadow-md" />
+                       </div>
                     </div>
-                    <span className="text-[#636366] font-medium text-[16px]">{MARKET_BOXES.length}</span>
+
+                    {/* Subscribe Banner */}
+                    <div className="relative w-full h-[76px] rounded-[20px] bg-gradient-to-r from-[#3b82f6] to-[#1d4ed8] overflow-hidden shadow-lg border border-white/10 p-4 flex flex-col justify-center cursor-pointer active:scale-[0.98] transition-transform">
+                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_60%)] pointer-events-none" />
+                       <div className="relative z-10">
+                          <h3 className="text-white font-black text-[18px] uppercase tracking-wide italic" style={{ fontFamily: SFD }}>Subscribe</h3>
+                          <p className="text-white/90 font-medium text-[12px] -mt-0.5" style={{ fontFamily: SF }}>Subscribe to our channel!</p>
+                       </div>
+                       {/* Placeholder for Telegram/Paper Plane Image */}
+                       <div className="absolute right-0 bottom-0 h-full w-[100px] flex items-center justify-end pointer-events-none pr-4">
+                           <Send className="w-12 h-12 text-white/20 drop-shadow-md transform -rotate-12" />
+                       </div>
+                    </div>
+
                  </div>
 
-                 {/* GRID DE CAJAS REDISEÑADO CON NEÓN Y GLOW (REFERENCE STYLE MIX) */}
-                 <div className="grid grid-cols-2 gap-x-4 gap-y-6 mt-2 mb-10">
+                 {/* 2. SELECTOR DE PESTAÑAS (Píldoras Flotantes) */}
+                 <div className="flex items-center gap-3 mb-5 overflow-x-auto no-scrollbar pb-2">
+                    {['All', 'Free', 'New', 'Popular'].map(filter => (
+                       <button 
+                          key={filter} 
+                          onClick={() => setActiveFilter(filter as any)}
+                          className={`px-4 py-2 rounded-full font-bold text-[13px] whitespace-nowrap transition-all duration-300 transform-gpu ${
+                             activeFilter === filter 
+                             ? 'bg-white/10 backdrop-blur-md text-white shadow-sm border border-white/10 scale-105' 
+                             : 'text-[#8e8e93] hover:text-white/80'
+                          }`}
+                          style={{ fontFamily: SF }}
+                       >
+                          {filter === 'All' && <img src="/telegram-star-icon.png" className="inline w-3.5 h-3.5 mr-1.5 -mt-0.5 opacity-80" alt="*" />}
+                          {filter}
+                       </button>
+                    ))}
+                 </div>
+
+                 {/* 3. GRID DE CAJAS REDISEÑADO CON NEÓN Y ESTILOS VORTX */}
+                 <div className="grid grid-cols-2 gap-x-4 gap-y-6 mt-2">
                     {MARKET_BOXES.map((box) => (
                        <div 
                           key={box.id} 
                           onClick={() => setViewingBoxId(box.id)}
                           className="relative flex flex-col group cursor-pointer animate-in fade-in zoom-in-95 duration-300"
                        >
-                          {/* Contenedor Principal de la Tarjeta */}
-                          <div className="w-full bg-[#161618] rounded-[24px] p-2 flex flex-col border border-white/[0.04] transition-all hover:bg-[#1c1c1e] relative overflow-hidden shadow-lg transform-gpu active:scale-[0.98]">
-                             
-                             {/* Neon border effect with localized blur using box-shadow (Reference Case style) */}
-                             <div className="absolute inset-0 rounded-[24px] pointer-events-none transition-all duration-300 z-0" style={{ boxShadow: `inset 0 0 10px ${box.color}15`, border: `1px solid ${box.color}25` }} />
-                             
-                             {/* Badge de Rareza/Estado superior (Reference Case style) */}
-                             <div className="absolute top-2.5 left-2.5 z-40 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm transform-gpu px-2.5 py-[3px] rounded-full border border-white/10 shadow-md">
-                                {box.isSoldOut ? (
-                                   <span className="text-[#ff4d4d] text-[10px] font-bold uppercase tracking-wide">Sold out</span>
-                                ) : (
-                                   <>
-                                      <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: box.rarityColor }} />
-                                      <span className="text-white text-[10px] font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>{box.rarity}</span>
-                                   </>
-                                )}
-                             </div>
-
-                             {/* Área de Imagen con Brillo Interno Intensificado (Reference Case style localized glow) */}
-                             <div className="w-full aspect-[1/1] bg-[#0d0d0f] rounded-[20px] overflow-hidden relative flex items-center justify-center border border-white/[0.02] p-0 shadow-inner z-10">
-                                {/* Localized Internal Glow VortX style behind the visual but matching Reference style case neon glows */}
-                                <div className="absolute inset-0 pointer-events-none transition-opacity duration-300 group-hover:opacity-100" style={{ background: `radial-gradient(circle, ${box.color}25 0%, ${box.color}00 70%)` }} />
-                                <div className="relative z-20 scale-105">
-                                   <LootboxVisual color={box.color} imgSrc={box.image} size="normal" />
-                                </div>
-                             </div>
-                             
-                             {/* Info Sección Inferior */}
-                             <div className="flex flex-col items-center pt-3 pb-1.5 text-center px-1 z-20">
-                                <span className="text-white font-bold text-[15px] px-1 truncate leading-tight w-full tracking-tight" style={{ fontFamily: SFD }}>
-                                   {box.name} Case
-                                </span>
+                          {/* Tipo 1: HERO CASE (Ej. Free, Marriage Union) - Fondo con texto gigante y botón ancho */}
+                          {box.type === 'hero' ? (
+                             <div className="w-full aspect-[3/4] bg-[#161618] rounded-[24px] p-2.5 flex flex-col border border-white/[0.04] transition-all hover:bg-[#1c1c1e] relative overflow-hidden shadow-lg transform-gpu active:scale-[0.98]">
+                                {/* Localized Neon Blur Background */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-80" style={{ background: `radial-gradient(circle, ${box.color}25 0%, transparent 65%)` }} />
                                 
-                                {/* Price Pill (Original iOS style VortX desaturado/temático) */}
-                                <div className="flex items-center justify-center gap-1.5 mt-2.5 bg-black/50 px-3 py-1.5 rounded-full border border-white/[0.06] w-fit mx-auto transition-colors group-hover:border-white/10 shadow-inner">
-                                   <img src="/telegram-star-icon.png" className="w-3.5 h-3.5 pointer-events-none select-none grayscale group-hover:grayscale-0 transition-all" draggable={false} alt="Star" />
-                                   <span className="text-white font-bold text-[13px] leading-none" style={{ fontFamily: SF }}>{box.price.toLocaleString()}</span>
+                                {/* Background Text (VortX Style Typography) */}
+                                <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80 pointer-events-none z-0 mt-4">
+                                   <span className="text-white font-black text-[36px] leading-[0.8] uppercase tracking-tighter drop-shadow-md" style={{ fontFamily: SFD }}>{box.name}</span>
+                                   <span className="font-black text-[36px] leading-[0.8] uppercase tracking-tighter drop-shadow-md" style={{ fontFamily: SFD, color: box.color }}>{box.subName}</span>
+                                </div>
+
+                                {/* Visual */}
+                                <div className="flex-1 w-full relative z-10 flex items-center justify-center pt-2">
+                                   <img src={box.image} className="w-[85%] h-[85%] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transform group-hover:scale-110 transition-transform duration-500" alt={box.name} />
+                                </div>
+
+                                {/* Full Width Button iOS Style */}
+                                <div className="w-full h-[40px] mt-2 bg-[#3b82f6] rounded-[14px] flex items-center justify-center text-white font-bold text-[14px] shadow-[0_4px_12px_rgba(59,130,246,0.3)] relative z-20" style={{ fontFamily: SF }}>
+                                   {box.price}
                                 </div>
                              </div>
-                          </div>
+                          ) : (
+                          /* Tipo 2: STANDARD CASE (Ej. Mysterious Egg) - Botón píldora y título superior */
+                             <div className="w-full aspect-[3/4] bg-[#161618] rounded-[24px] p-2.5 flex flex-col border border-white/[0.04] transition-all hover:bg-[#1c1c1e] relative overflow-hidden shadow-lg transform-gpu active:scale-[0.98]">
+                                {/* Localized Neon Blur Background */}
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-60" style={{ background: `radial-gradient(circle, ${box.color}20 0%, transparent 60%)` }} />
+                                
+                                {/* Title Top */}
+                                <div className="w-full text-center relative z-20 mt-1.5">
+                                   <span className="text-[#8e8e93] font-bold text-[13px] tracking-tight" style={{ fontFamily: SFD }}>{box.name}</span>
+                                </div>
+
+                                {/* Visual */}
+                                <div className="flex-1 w-full relative z-10 flex items-center justify-center -mt-2">
+                                   <img src={box.image} className="w-[85%] h-[85%] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transform group-hover:scale-110 transition-transform duration-500" alt={box.name} />
+                                </div>
+
+                                {/* Glassmorphism Pill Button (VortX Style) */}
+                                <div className="w-fit mx-auto h-[36px] px-4 mt-2 bg-black/40 backdrop-blur-md transform-gpu rounded-[12px] flex items-center justify-center gap-1.5 border border-white/10 shadow-sm relative z-20 group-hover:border-white/20 transition-colors">
+                                   <span className="text-white font-bold text-[13px] pt-0.5" style={{ fontFamily: SFD }}>{box.price}</span>
+                                   <img src="/telegram-star-icon.png" className="w-[14px] h-[14px] object-contain pointer-events-none select-none" alt="Star" />
+                                </div>
+                             </div>
+                          )}
+
+                          {/* Etiqueta de Rareza Global Compartida (Estilo iOS Premium) */}
+                          {box.id !== 'free' && (
+                             <div className="absolute -top-2.5 left-3 z-40 bg-black/60 backdrop-blur-md transform-gpu px-2.5 py-[4px] rounded-md border border-white/10 shadow-lg flex items-center gap-1.5">
+                                <div className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: box.color, color: box.color }} />
+                                <span className="text-white text-[9px] font-bold uppercase tracking-widest" style={{ fontFamily: SF }}>{box.type === 'standard' ? 'High Tier' : 'Popular'}</span>
+                             </div>
+                          )}
                        </div>
                     ))}
                  </div>
-
-                 {/* My Inventory section unchanged iOS style */}
-                 <div className="flex items-center gap-2 mb-5 px-1 pt-2 border-t border-white/[0.04]">
-                    <div className="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center border border-white/[0.04]">
-                       <Gift className="w-5 h-5 text-[#3b82f6]" />
-                    </div>
-                    <div className="flex flex-col">
-                       <h3 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>My Inventory</h3>
-                       <p className="text-[#8e8e93] text-[13px] -mt-0.5" style={{ fontFamily: SF }}>You currently have <span className="font-bold">0</span> unopened boxes</p>
-                    </div>
-                 </div>
-
-                 <div className="w-full bg-[#161618] rounded-[28px] p-6 flex items-center gap-5 border border-white/[0.04] shadow-sm mb-12 opacity-60">
-                    <div className="w-[100px] h-[100px] relative flex justify-center items-center shrink-0">
-                       <div className="absolute z-10 w-[60px] h-[60px] bg-[#0d0d0f] rounded-[18px] -translate-x-[40px] rotate-[-15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
-                          <LootboxVisual color={MARKET_BOXES[1].color} imgSrc={MARKET_BOXES[1].image} size="normal" />
-                       </div>
-                       <div className="absolute z-10 w-[60px] h-[60px] bg-[#0d0d0f] rounded-[18px] translate-x-[40px] rotate-[15deg] flex items-center justify-center border border-[#1c1c1e] opacity-40">
-                          <LootboxVisual color={MARKET_BOXES[2].color} imgSrc={MARKET_BOXES[2].image} size="normal" />
-                       </div>
-                       <div className="relative z-20 w-[80px] h-[80px] bg-[#141415] rounded-[22px] flex items-center justify-center border border-[#2c2c2e] shadow-md">
-                          <LootboxVisual color={MARKET_BOXES[0].color} imgSrc={MARKET_BOXES[0].image} size="large" />
-                       </div>
-                    </div>
-                    <div className="flex flex-col flex-1 items-start text-left">
-                       <h4 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Unopened Boxes</h4>
-                       <p className="text-[#8e8e93] text-[13px] mb-3 leading-tight" style={{ fontFamily: SF }}>Contains high value digital gifts. Open now to unlock rewards.</p>
-                       <button type="button" disabled className="w-full max-w-[140px] bg-black/40 text-[#636366] font-bold text-[14px] py-2 rounded-[14px] transition-all border border-white/[0.04]" style={{ fontFamily: SF }}>Open Boxes</button>
-                    </div>
-                 </div>
-
                </div>
              )}
 
@@ -712,7 +676,7 @@ export function MarketView() {
                         onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
                         className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0 shadow-sm"
                      >
-                        {viewMode === 'grid' ? <List className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
+                        {viewMode === 'grid' ? <List className="w-5 h-5" /> : <LayoutGrid className="w-5 h-5" />}
                      </button>
                   </div>
 
