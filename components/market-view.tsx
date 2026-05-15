@@ -291,7 +291,7 @@ export function MarketView() {
     <div className="flex-1 flex flex-col h-full bg-[#111214] relative overflow-hidden" ref={dropdownRef}>
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
-      {/* ── AMBIENT GLOWS OPTIMIZADOS (VortX Style desaturado) ── */}
+      {/* ── AMBIENT GLOWS OPTIMIZADOS (0% LAG) ── */}
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(42,47,58,0.2) 0%, rgba(42,47,58,0) 70%)' }} />
       <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.2) 0%, rgba(74,56,48,0) 70%)' }} />
       <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(30,31,36,0.3) 0%, rgba(30,31,36,0) 70%)' }} />
@@ -712,7 +712,7 @@ export function MarketView() {
                         onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
                         className="w-[44px] h-[44px] bg-black/40 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0 shadow-sm"
                      >
-                        {viewMode === 'grid' ? <List className="w-5 h-5" /> : <LayoutGrid className="w-5 h-5" />}
+                        {viewMode === 'grid' ? <List className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
                      </button>
                   </div>
 
