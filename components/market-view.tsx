@@ -102,7 +102,7 @@ const AUCTION_ITEMS = [
 ]
 
 const FILTER_OPTIONS = {
-   sale: ['All', 'For sale', 'Not for sale'],
+   sale: ['All', 'Free', 'New', 'Popular'],
 }
 
 const animationStyles = `
@@ -538,13 +538,14 @@ export function MarketView() {
                <div className="pt-2 flex flex-col pb-10">
                  
                  {/* 0. INVENTORY/BUFF ITEMS HORIZONTAL SCROLL */}
-                 <div className="flex gap-3 overflow-x-auto no-scrollbar mb-5 px-1 py-1">
+                 <div className="flex gap-3 overflow-x-auto no-scrollbar mb-6 px-5 -mx-5 py-1 relative z-20">
                     {[1, 2, 3, 4, 5].map((i) => (
                        <div key={i} className="w-[72px] h-[72px] shrink-0 bg-[#161618] rounded-[20px] border border-white/[0.04] flex items-center justify-center relative overflow-hidden shadow-sm hover:bg-[#1c1c1e] transition-colors cursor-pointer">
                           <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
                           <img src={`/item-icon-${i}.png`} className="w-[55%] h-[55%] object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]" alt={`Item ${i}`} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/telegram-star-icon.png'; }} />
                        </div>
                     ))}
+                    <div className="w-1 shrink-0" />
                  </div>
 
                  {/* 1. BANNERS SUPERIORES (Referrals & Subscribe) */}
@@ -573,7 +574,7 @@ export function MarketView() {
                  </div>
 
                  {/* 2. SELECTOR DE PESTAÑAS (Píldoras Flotantes) */}
-                 <div className="flex items-center gap-3 mb-5 overflow-x-auto no-scrollbar pb-2 px-1">
+                 <div className="flex items-center gap-3 mb-5 overflow-x-auto no-scrollbar pb-2 px-5 -mx-5 relative z-20">
                     {['All', 'Free', 'New', 'Popular'].map(filter => (
                        <button 
                           key={filter} 
@@ -589,43 +590,55 @@ export function MarketView() {
                           {filter}
                         </button>
                     ))}
+                    <div className="w-1 shrink-0" />
                  </div>
 
-                 {/* 3. GRID DE CAJAS REDISEÑADO CON NEÓN Y ESTILOS VORTX */}
-                 <div className="grid grid-cols-2 gap-x-3 gap-y-4 mt-2">
+                 {/* 3. GRID DE CAJAS REDISEÑADO (ESTILO AUCTIONS BOTÓN FLOTANTE) */}
+                 <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-6">
                     {MARKET_BOXES.map((box) => (
                        <div key={box.id} onClick={() => setViewingBoxId(box.id)} className="relative flex flex-col group cursor-pointer animate-in fade-in zoom-in-95 duration-300">
                           {box.id === 'free' ? (
-                             <div className="w-full aspect-[4/5] rounded-[28px] bg-gradient-to-b from-[#ef4444] to-[#991b1b] p-4 flex flex-col relative overflow-hidden shadow-lg transform-gpu active:scale-[0.98] border border-white/10 transition-transform">
-                                {/* TIPO 1: FREE CASE DESIGN HERO */}
-                                <div className="absolute top-4 left-4 z-10">
-                                   <span className="text-white font-black text-[26px] leading-[1.1] uppercase drop-shadow-md tracking-tight" style={{ fontFamily: SFD }}>FREE<br/>CASE</span>
+                             <>
+                                <div className="w-full aspect-[8/9] rounded-[24px] bg-gradient-to-b from-[#ef4444] to-[#991b1b] p-4 flex flex-col relative overflow-hidden shadow-lg border border-white/10 transition-transform hover:brightness-110">
+                                   <div className="absolute top-4 left-4 z-10">
+                                      <span className="text-white font-black text-[26px] leading-[1.1] uppercase drop-shadow-md tracking-tight" style={{ fontFamily: SFD }}>FREE<br/>CASE</span>
+                                   </div>
+                                   <div className="flex-1 w-full relative z-10 flex items-center justify-center mt-6">
+                                      <img src="/free-gift-box.png" className="w-[120%] h-[120%] object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.4)]" alt="Free Case" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = box.image; }} />
+                                   </div>
                                 </div>
-                                <div className="flex-1 w-full relative z-10 flex items-center justify-center mt-8">
-                                   <img src="/free-gift-box.png" className="w-[120%] h-[120%] object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.4)]" alt="Free Case" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = box.image; }} />
+                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-[#2563eb] transform-gpu will-change-transform rounded-[16px] px-3 flex items-center justify-center shadow-[0_4px_15px_rgba(37,99,235,0.4)] z-20 border border-white/10">
+                                   <span className="text-white font-bold text-[15px]" style={{ fontFamily: SFD }}>{box.price}</span>
                                 </div>
-                                <div className="w-full h-[46px] mt-2 bg-[#2563eb] rounded-[16px] flex items-center justify-center text-white font-bold text-[16px] shadow-[0_4px_15px_rgba(37,99,235,0.4)] relative z-20" style={{ fontFamily: SF }}>
-                                   {box.price}
-                                </div>
-                             </div>
+                             </>
                           ) : (
-                             <div className="w-full aspect-[4/5] rounded-[28px] bg-[#161618] p-3 flex flex-col relative overflow-hidden shadow-lg transform-gpu active:scale-[0.98] border border-white/[0.04] transition-all hover:bg-[#1c1c1e]">
-                                {/* TIPO 2: STANDARD CASE DESIGN */}
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-60" style={{ background: `radial-gradient(circle, ${box.color}15 0%, transparent 60%)` }} />
+                             <>
+                                <div className="w-full aspect-[8/9] rounded-[24px] bg-[#161618] p-3 flex flex-col relative overflow-hidden shadow-lg border border-white/[0.04] transition-all hover:bg-[#1c1c1e]">
+                                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-60" style={{ background: `radial-gradient(circle, ${box.color}15 0%, transparent 60%)` }} />
+                                   
+                                   <div className="w-full text-center relative z-20 mt-2 px-1">
+                                      <span className="text-white/50 font-bold text-[12px] uppercase tracking-widest truncate block w-full" style={{ fontFamily: SFD }}>{box.name}</span>
+                                   </div>
+
+                                   <div className="flex-1 w-full relative z-10 flex items-center justify-center pb-2">
+                                      <img src={box.image} className="w-[85%] h-[85%] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transform group-hover:scale-110 transition-transform duration-500" alt={box.name} />
+                                   </div>
+                                </div>
                                 
-                                <div className="w-full text-center relative z-20 mt-2 px-1">
-                                   <span className="text-white/50 font-bold text-[12px] uppercase tracking-widest truncate block w-full" style={{ fontFamily: SFD }}>{box.name}</span>
+                                {/* Botón estilo Auctions para los Cases Standard */}
+                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-[#0a0a0b]/80 backdrop-blur-md transform-gpu will-change-transform rounded-[16px] px-3 flex items-center justify-between shadow-sm border border-white/[0.08] z-20">
+                                   <div className="flex items-center gap-1.5 overflow-hidden">
+                                      <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
+                                         <Gift className="w-[10px] h-[10px] text-white" />
+                                      </div>
+                                      <span className="text-white/90 font-semibold text-[11px] uppercase tracking-wider" style={{ fontFamily: SF }}>Open</span>
+                                   </div>
+                                   <div className="flex items-center gap-1 shrink-0 pl-1">
+                                      <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{box.price}</span>
+                                      <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none" />
+                                   </div>
                                 </div>
-
-                                <div className="flex-1 w-full relative z-10 flex items-center justify-center">
-                                   <img src={box.image} className="w-[85%] h-[85%] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transform group-hover:scale-110 transition-transform duration-500" alt={box.name} />
-                                </div>
-
-                                <div className="w-[85%] mx-auto h-[40px] mt-1 bg-[#000000]/60 backdrop-blur-md rounded-[14px] flex items-center justify-center gap-1.5 border border-white/[0.06] shadow-sm relative z-20 group-hover:border-white/10 transition-colors">
-                                   <span className="text-white font-bold text-[14px]" style={{ fontFamily: SFD }}>{box.price}</span>
-                                   <img src="/telegram-star-icon.png" className="w-[16px] h-[16px] object-contain pointer-events-none select-none" alt="Star" />
-                                </div>
-                             </div>
+                             </>
                           )}
 
                           {box.id !== 'free' && (
