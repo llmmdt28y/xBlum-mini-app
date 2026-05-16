@@ -15,7 +15,7 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 
 // ── Base de Datos Visual ──
 const MARKET_BOXES = [
-  { id: 'free', name: 'Free', subName: 'Case', color: '#ef4444', image: '/free-gift-box.png', price: 'Open Free', type: 'hero' },
+  { id: 'free', name: 'Free Case', subName: '', color: '#ef4444', image: '/free-gift-box.png', price: 'Open Free', type: 'hero' },
   { id: 'blum_rocket', name: 'xBlum Starship', subName: '', color: '#3b82f6', image: '/1000010769.png', price: '5.00', type: 'standard' },
   { id: 'purple_void', name: 'Violet Void', subName: '', color: '#a855f7', image: '/1000010760.png', price: '10.00', type: 'standard' },
   { id: 'crimson_core', name: 'Crimson Core', subName: '', color: '#ef4444', image: '/1000010761.png', price: '25.00', type: 'standard' }
@@ -119,8 +119,8 @@ const LootboxVisual = ({ color, imgSrc, size = "normal" }: { color: string, imgS
   const imgClass = size === "large" ? "w-[100px] h-[100px]" : "w-[75px] h-[75px]"
   return (
     <div className={`relative w-full ${containerClass} flex flex-col items-center justify-center`}>
-      <div className="absolute w-[60px] h-[60px] opacity-30 rounded-full z-0 pointer-events-none" style={{ backgroundColor: color, filter: 'blur(15px)' }}></div>
-      <div className="relative z-10 animate-box-float pointer-events-none">
+      <div className="absolute w-[60px] h-[60px] opacity-30 rounded-full z-0" style={{ backgroundColor: color, filter: 'blur(15px)' }}></div>
+      <div className="relative z-10 animate-box-float">
         <img src={imgSrc} alt="Lootbox" draggable={false} className={`${imgClass} object-contain mix-blend-screen pointer-events-none select-none`} style={{ WebkitTouchCallout: "none" }} />
       </div>
     </div>
@@ -233,12 +233,11 @@ export function MarketView() {
   const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
-  // ── LIQUID GLASS COMPONENTE: PÍLDORA TOP UP ──
   const TopUpPill = () => (
     <button 
        type="button" 
        onClick={() => setIsTopUpOpen(true)} 
-       className="bg-black/30 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-full px-6 h-[36px] flex items-center justify-center gap-2 border border-white/10 shadow-sm transition-transform active:scale-95"
+       className="bg-[#000000]/60 backdrop-blur-md transform-gpu translate-z-0 will-change-transform rounded-full px-6 h-[36px] flex items-center justify-center gap-2 border border-white/[0.06] shadow-sm transition-transform active:scale-95"
     >
        <div className="flex items-center justify-center">
           <img 
@@ -255,31 +254,28 @@ export function MarketView() {
   )
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#111214] relative overflow-hidden" ref={dropdownRef}>
+    <div className="flex-1 flex flex-col h-full bg-[#0a0a0b] relative overflow-hidden" ref={dropdownRef}>
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
-      {/* ── AMBIENT GLOWS OPTIMIZADOS (0% LAG) ── */}
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(42,47,58,0.2) 0%, rgba(42,47,58,0) 70%)' }} />
       <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.2) 0%, rgba(74,56,48,0) 70%)' }} />
       <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(30,31,36,0.3) 0%, rgba(30,31,36,0) 70%)' }} />
       <div className="absolute bottom-[-10%] left-[10%] w-[70%] h-[40%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(43,38,51,0.2) 0%, rgba(43,38,51,0) 70%)' }} />
 
-      {/* Ocultar Navbar Global en Vistas Detalladas */}
       {(viewingBoxId || viewingAuctionId) && (
         <style dangerouslySetInnerHTML={{ __html: `#main-nav-bar { display: none !important; }` }} />
       )}
 
-      {/* ── HEADER iOS LIQUID GLASS (FIXED) ── */}
       {!viewingBoxId && !viewingAuctionId && (
-        <div className="fixed top-0 left-0 right-0 z-[100] px-5 pb-4 pt-8 bg-[#111214]/60 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] border-b border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.3)] pointer-events-auto">
+        <div className="fixed top-0 left-0 right-0 z-[100] px-5 pb-4 pt-8 bg-[#0a0a0b]/80 backdrop-blur-lg transform-gpu translate-z-0 will-change-transform border-b border-white/[0.04] shadow-[0_10px_30px_rgba(10,10,11,0.7)] pointer-events-auto">
            <div className="flex items-center justify-center mb-4 mt-2">
              <TopUpPill />
            </div>
 
            <div className="w-full">
-              <div className="relative w-full h-[46px] bg-white/5 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-full border border-white/10 flex items-center p-1.5 shadow-inner">
+              <div className="relative w-full h-[46px] bg-[#161618]/60 backdrop-blur-md transform-gpu translate-z-0 rounded-full border border-white/[0.04] flex items-center p-1.5 shadow-inner">
                  <div 
-                    className="absolute h-[34px] bg-white/10 backdrop-blur-md transform-gpu rounded-full transition-transform duration-300 ease-out shadow-sm border border-white/10 will-change-[transform,backdrop-filter]"
+                    className="absolute h-[34px] bg-[#2c2c2e] rounded-full transition-transform duration-300 ease-out shadow-sm border border-white/[0.04] will-change-transform"
                     style={{ 
                        width: 'calc(33.33% - 4px)',
                        transform: `translateX(${activeTab === 'Explore' ? '4px' : activeTab === 'Auctions' ? 'calc(100% + 4px)' : 'calc(200% + 4px)'})`
@@ -293,14 +289,12 @@ export function MarketView() {
         </div>
       )}
 
-      {/* ── ÁREA DE SCROLL PRINCIPAL ── */}
       <div className="flex-1 overflow-y-auto relative z-10 w-full h-full pb-32">
         
         {!viewingBoxId && !viewingAuctionId && (
            <div className="w-full h-[140px] shrink-0 pointer-events-none" />
         )}
         
-        {/* ── VISTA DETALLE DE LOOTBOX (UNBOXING) ── */}
         {viewingBoxId && activeBoxData ? (
           <div className="animate-in slide-in-from-right-8 fade-in duration-300 min-h-screen pb-20 pt-8 px-5">
              <div className="flex items-center justify-between mb-8">
@@ -333,8 +327,8 @@ export function MarketView() {
                      </div>
                    ) : (
                       <div className="w-full flex flex-col gap-4 relative overflow-hidden py-2 animate-in fade-in duration-300 mt-2">
-                        <div className="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-[#111214] to-transparent z-40 pointer-events-none" />
-                        <div className="absolute right-0 top-0 bottom-0 w-[20%] bg-gradient-to-l from-[#111214] to-transparent z-40 pointer-events-none" />
+                        <div className="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-[#0a0a0b] to-transparent z-40 pointer-events-none" />
+                        <div className="absolute right-0 top-0 bottom-0 w-[20%] bg-gradient-to-l from-[#0a0a0b] to-transparent z-40 pointer-events-none" />
                         {tracks.map((track, trackIdx) => (
                           <div key={trackIdx} className="w-full h-[110px] relative flex items-center overflow-visible">
                               <div
@@ -404,10 +398,10 @@ export function MarketView() {
                         </h3>
                      </div>
                       <div className="flex gap-2">
-                        <button type="button" onClick={() => setBoxViewMode(v => v === 'grid' ? 'list' : 'grid')} className="w-[38px] h-[38px] bg-white/5 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[12px] flex items-center justify-center text-white border border-white/10 active:scale-95 transition-transform shadow-sm">
+                        <button type="button" onClick={() => setBoxViewMode(v => v === 'grid' ? 'list' : 'grid')} className="w-[38px] h-[38px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center text-white border border-[#2c2c2e] active:scale-95 transition-transform shadow-sm">
                            {boxViewMode === 'grid' ? <List className="w-4 h-4" /> : <LayoutGrid className="w-4 h-4" />}
                         </button>
-                        <button type="button" className="w-[38px] h-[38px] bg-white/5 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[12px] flex items-center justify-center text-[#8e8e93] border border-white/10 active:scale-95 transition-transform shadow-sm">
+                        <button type="button" className="w-[38px] h-[38px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center text-[#8e8e93] border border-[#2c2c2e] active:scale-95 transition-transform">
                            <ArrowDownUp className="w-4 h-4" />
                         </button>
                      </div>
@@ -465,7 +459,7 @@ export function MarketView() {
             <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center p-4 shadow-xl mb-2">
                <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} draggable={false} className="w-full h-full object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                {activeAuctionData.owned && (
-                 <div className="absolute bottom-4 left-4 bg-black/40 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shadow-sm z-10">
+                 <div className="absolute bottom-4 left-4 bg-[#0a0a0b]/80 backdrop-blur-md transform-gpu translate-z-0 px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/10 shadow-sm z-10">
                    <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#a855f7] border border-white/20" />
                    <span className="text-white text-[12px] font-medium" style={{ fontFamily: SF }}>Owned by <span className="font-bold">you</span></span>
                  </div>
@@ -565,15 +559,14 @@ export function MarketView() {
                     </div>
                  </div>
 
-                 {/* LIQUID GLASS: Filtros ("All", "Free", etc.) */}
                  <div className="flex items-center gap-3 mb-5 overflow-x-auto no-scrollbar pb-2 px-5 -mx-5 relative z-20">
                     {FILTER_OPTIONS.sale.map(filter => (
                        <button 
                           key={filter} 
                           onClick={() => setActiveFilter(filter as any)}
-                          className={`px-4 py-2 rounded-full font-bold text-[13px] whitespace-nowrap transition-all duration-300 transform-gpu translate-z-0 will-change-[transform,backdrop-filter] ${
+                          className={`px-4 py-2 rounded-full font-bold text-[13px] whitespace-nowrap transition-all duration-300 transform-gpu ${
                              activeFilter === filter 
-                             ? 'bg-white/10 backdrop-blur-xl text-white shadow-sm border border-white/10 scale-105' 
+                             ? 'bg-white/10 backdrop-blur-md text-white shadow-sm border border-white/10 scale-105' 
                              : 'text-[#8e8e93] hover:text-white/80'
                           }`}
                           style={{ fontFamily: SF }}
@@ -585,55 +578,56 @@ export function MarketView() {
                     <div className="w-1 shrink-0" />
                  </div>
 
-                 <div className="grid grid-cols-2 gap-x-4 gap-y-6 mt-2 pb-6">
+                 <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-6">
                     {MARKET_BOXES.map((box) => (
-                       <div 
-                          key={box.id} 
-                          onClick={() => setViewingBoxId(box.id)}
-                          className="relative flex flex-col group cursor-pointer animate-in fade-in zoom-in-95 duration-300"
-                       >
-                          {box.type === 'hero' ? (
-                             <div className="w-full aspect-[3/4] bg-[#161618] rounded-[24px] p-2.5 flex flex-col border border-white/[0.04] transition-all hover:bg-[#1c1c1e] relative overflow-hidden shadow-lg transform-gpu active:scale-[0.98]">
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-80" style={{ background: `radial-gradient(circle, ${box.color}25 0%, transparent 65%)` }} />
-                                
-                                <div className="absolute inset-0 flex flex-col items-center justify-center opacity-80 pointer-events-none z-0 mt-4">
-                                   <span className="text-white font-black text-[36px] leading-[0.8] uppercase tracking-tighter drop-shadow-md" style={{ fontFamily: SFD }}>{box.name}</span>
-                                   <span className="font-black text-[36px] leading-[0.8] uppercase tracking-tighter drop-shadow-md" style={{ fontFamily: SFD, color: box.color }}>{box.subName}</span>
+                       <div key={box.id} onClick={() => setViewingBoxId(box.id)} className="relative flex flex-col group cursor-pointer animate-in fade-in zoom-in-95 duration-300">
+                          {box.id === 'free' ? (
+                             <>
+                                <div className="w-full aspect-[8/9] rounded-[24px] bg-gradient-to-b from-[#ef4444] to-[#991b1b] p-4 flex flex-col relative overflow-hidden shadow-lg border border-white/10 transition-transform hover:brightness-110">
+                                   <div className="absolute top-4 left-4 z-10">
+                                      <span className="text-white font-black text-[26px] leading-[1.1] uppercase drop-shadow-md tracking-tight" style={{ fontFamily: SFD }}>FREE<br/>CASE</span>
+                                   </div>
+                                   <div className="flex-1 w-full relative z-10 flex items-center justify-center mt-6 animate-box-float">
+                                      <img src="/free-gift-box.png" className="w-[120%] h-[120%] object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.4)]" alt="Free Case" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = box.image; }} />
+                                   </div>
                                 </div>
-
-                                <div className="flex-1 w-full relative z-10 flex items-center justify-center pt-2">
-                                   <img src={box.image} className="w-[85%] h-[85%] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transform group-hover:scale-110 transition-transform duration-500" alt={box.name} />
+                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-[#2563eb] transform-gpu will-change-transform rounded-[16px] px-3 flex items-center justify-center shadow-[0_4px_15px_rgba(37,99,235,0.4)] z-20 border border-white/10 hover:bg-[#3b82f6] transition-colors">
+                                   <span className="text-white font-bold text-[15px]" style={{ fontFamily: SFD }}>{box.price}</span>
                                 </div>
-
-                                <div className="w-full h-[40px] mt-2 bg-[#3b82f6] rounded-[14px] flex items-center justify-center text-white font-bold text-[14px] shadow-[0_4px_12px_rgba(59,130,246,0.3)] relative z-20" style={{ fontFamily: SF }}>
-                                   {box.price}
-                                </div>
-                             </div>
+                             </>
                           ) : (
-                             <div className="w-full aspect-[3/4] bg-[#161618] rounded-[24px] p-2.5 flex flex-col border border-white/[0.04] transition-all hover:bg-[#1c1c1e] relative overflow-hidden shadow-lg transform-gpu active:scale-[0.98]">
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] pointer-events-none transition-opacity duration-300 group-hover:opacity-100 opacity-60" style={{ background: `radial-gradient(circle, ${box.color}20 0%, transparent 60%)` }} />
+                             <>
+                                <div className="w-full aspect-[8/9] rounded-[24px] bg-[#161618] p-3 flex flex-col relative overflow-hidden shadow-lg border border-white/[0.04] transition-all group-hover:bg-[#1c1c1e] group-hover:border-white/10">
+                                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] pointer-events-none transition-all duration-300 group-hover:opacity-100 opacity-60 group-hover:scale-110" style={{ background: `radial-gradient(circle, ${box.color}25 0%, transparent 65%)` }} />
+                                   
+                                   <div className="w-full text-center relative z-20 mt-2 px-1">
+                                      <span className="text-white font-bold text-[12px] uppercase tracking-widest truncate block w-full drop-shadow-sm" style={{ fontFamily: SFD }}>{box.name}</span>
+                                   </div>
+
+                                   <div className="flex-1 w-full relative z-10 flex items-center justify-center pb-2">
+                                      <img src={box.image} className="w-[90%] h-[90%] object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.6)] transform transition-transform duration-500" alt={box.name} />
+                                   </div>
+                                </div>
                                 
-                                <div className="w-full text-center relative z-20 mt-1.5">
-                                   <span className="text-[#8e8e93] font-bold text-[13px] tracking-tight" style={{ fontFamily: SFD }}>{box.name}</span>
+                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-[#0a0a0b]/90 backdrop-blur-md transform-gpu will-change-transform rounded-[16px] px-3.5 flex items-center justify-between shadow-lg border border-white/[0.08] z-20 transition-all group-hover:border-white/15 group-hover:bg-[#0a0a0b]">
+                                   <div className="flex items-center gap-1.5 overflow-hidden">
+                                      <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
+                                         <Gift className="w-[10px] h-[10px] text-white" />
+                                      </div>
+                                      <span className="text-white/90 font-semibold text-[11px] uppercase tracking-wider" style={{ fontFamily: SF }}>Open</span>
+                                   </div>
+                                   <div className="flex items-center gap-1 shrink-0 pl-1">
+                                      <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{box.price}</span>
+                                      <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none" />
+                                   </div>
                                 </div>
-
-                                <div className="flex-1 w-full relative z-10 flex items-center justify-center -mt-2">
-                                   <img src={box.image} className="w-[85%] h-[85%] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transform group-hover:scale-110 transition-transform duration-500" alt={box.name} />
-                                </div>
-
-                                {/* LIQUID GLASS: Botones flotantes (Píldora interior de cajas Standard) */}
-                                <div className="w-fit mx-auto h-[36px] px-4 mt-2 bg-black/40 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[12px] flex items-center justify-center gap-1.5 border border-white/10 shadow-sm relative z-20 group-hover:border-white/20 transition-colors">
-                                   <span className="text-white font-bold text-[13px] pt-0.5" style={{ fontFamily: SFD }}>{box.price}</span>
-                                   <img src="/telegram-star-icon.png" className="w-[14px] h-[14px] object-contain pointer-events-none select-none" alt="Star" />
-                                </div>
-                             </div>
+                             </>
                           )}
 
-                          {/* LIQUID GLASS: Etiquetas Superiores */}
                           {box.id !== 'free' && (
-                             <div className="absolute -top-2.5 left-3 z-40 bg-black/40 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] px-2.5 py-[4px] rounded-md border border-white/10 shadow-lg flex items-center gap-1.5">
+                             <div className="absolute -top-2.5 left-3 z-40 bg-[#0a0a0b]/80 backdrop-blur-md transform-gpu px-2.5 py-[4px] rounded-md border border-white/10 shadow-lg flex items-center gap-1.5 transition-all group-hover:border-white/20">
                                 <div className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: box.color, color: box.color }} />
-                                <span className="text-white text-[9px] font-bold uppercase tracking-widest" style={{ fontFamily: SF }}>{box.type === 'standard' ? 'High Tier' : 'Popular'}</span>
+                                <span className="text-white text-[9px] font-bold uppercase tracking-widest" style={{ fontFamily: SF }}>{box.id === 'blum_rocket' ? 'Featured' : 'High Tier'}</span>
                              </div>
                           )}
                        </div>
@@ -649,38 +643,37 @@ export function MarketView() {
                      <Plus className="w-5 h-5" /> Add Gift
                   </button>
 
-                  {/* LIQUID GLASS: Barras de Búsqueda y Botones de Acción */}
                   <div className="flex gap-2 w-full mb-3 relative">
-                     <div className="flex-1 bg-white/5 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[16px] flex items-center px-4 gap-2 border border-white/10 shadow-sm">
+                     <div className="flex-1 bg-[#161618]/80 backdrop-blur-md transform-gpu rounded-[16px] flex items-center px-4 gap-2 border border-white/[0.06]">
                         <Search className="w-5 h-5 text-[#8e8e93]" />
                         <input type="text" placeholder="Search" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#8e8e93]" style={{ fontFamily: SF }} />
                      </div>
                      
-                     <button type="button" className="w-[44px] h-[44px] bg-white/5 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/10 active:scale-95 transition-transform shrink-0 shadow-sm">
+                     <button type="button" className="w-[44px] h-[44px] bg-[#161618]/80 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.06] active:scale-95 transition-transform shrink-0">
                         <ArrowDownUp className="w-5 h-5" />
                      </button>
 
-                     <button type="button" className="w-[44px] h-[44px] bg-white/5 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/10 active:scale-95 transition-transform shrink-0 shadow-sm">
+                     <button type="button" className="w-[44px] h-[44px] bg-[#161618]/80 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.06] active:scale-95 transition-transform shrink-0">
                          <Copy className="w-5 h-5" />
                      </button>
 
                      <button 
                         type="button"
                         onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')}
-                        className="w-[44px] h-[44px] bg-white/5 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[14px] flex items-center justify-center text-white border border-white/10 active:scale-95 transition-transform shrink-0 shadow-sm"
+                        className="w-[44px] h-[44px] bg-[#161618]/80 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0 shadow-sm"
                      >
                         {viewMode === 'grid' ? <List className="w-5 h-5" /> : <LayoutGrid className="w-5 h-5" />}
                      </button>
                   </div>
 
                   <div className="flex gap-2 w-full mb-4 relative">
-                     <button type="button" className="w-[44px] h-[44px] bg-white/5 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[14px] flex items-center justify-center text-white border border-white/10 active:scale-95 transition-transform shrink-0 shadow-sm">
+                     <button type="button" className="w-[44px] h-[44px] bg-[#161618]/80 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0">
                         <SlidersHorizontal className="w-5 h-5" />
                      </button>
                      
                      <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar relative">
                         <div className="relative shrink-0 w-full">
-                           <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`w-full h-[44px] bg-white/5 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] shadow-sm border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-white/10 text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                           <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`w-full h-[44px] bg-[#161618]/80 backdrop-blur-md transform-gpu rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-white/[0.06] text-white'} transition-colors`} style={{ fontFamily: SF }}>
                               {filters.sale} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
                            </button>
                            {openDropdown === 'sale' && (
@@ -706,9 +699,7 @@ export function MarketView() {
                                    <span className="text-white/60 font-medium text-[13px] leading-tight" style={{ fontFamily: SF }}>{item.tag}</span>
                                  </div>
                                </div>
-                               
-                              {/* LIQUID GLASS: Botón/Precio inferior Subastas */}
-                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-black/40 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[16px] px-3 flex items-center justify-between shadow-sm border border-white/10 z-20">
+                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-[#0a0a0b]/80 backdrop-blur-md transform-gpu will-change-transform rounded-[16px] px-3 flex items-center justify-between shadow-sm border border-white/[0.08] z-20">
                                 <div className="flex items-center gap-1.5 overflow-hidden">
                                   <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                      <div className="w-[12px] h-[12px] bg-white rounded-full flex items-center justify-center">
@@ -767,8 +758,7 @@ export function MarketView() {
                                           </button>
                                        </div>
 
-                                        {/* LIQUID GLASS: Botón interior en vista lista */}
-                                        <div className="mt-2 w-full h-[38px] bg-black/40 backdrop-blur-xl transform-gpu translate-z-0 will-change-[transform,backdrop-filter] rounded-[12px] px-3 flex items-center justify-between shadow-sm border border-white/10">
+                                        <div className="mt-2 w-full h-[38px] bg-[#0a0a0b]/80 backdrop-blur-md transform-gpu will-change-transform rounded-[12px] px-3 flex items-center justify-between shadow-sm border border-white/[0.08]">
                                           <div className="flex items-center gap-1.5 overflow-hidden">
                                              <div className="w-[18px] h-[18px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                                <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
@@ -830,7 +820,6 @@ export function MarketView() {
         )}
       </div>
 
-      {/* ── MODAL "MAKE OFFER" (PLACE BID) ── */}
       {isMakeOfferOpen && activeAuctionData && (
          <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsMakeOfferOpen(false)} />
@@ -913,7 +902,6 @@ export function MarketView() {
          </div>
       )}
 
-      {/* ── MODAL "ADD GIFT" ── */}
       {isAddGiftOpen && (
         <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsAddGiftOpen(false)} />
@@ -1000,11 +988,10 @@ export function MarketView() {
         </div>
       )}
 
-      {/* ── MODAL TOP UP ── */}
       {isTopUpOpen && (
         <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsTopUpOpen(false)} />
-          <div className="relative w-full bg-black rounded-t-[28px] px-5 pt-4 pb-[60px] border-t border-[#1c1c1e] flex flex-col max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 transform-gpu">
+          <div className="relative w-full bg-[#0a0a0b] rounded-t-[28px] px-5 pt-4 pb-[60px] border-t border-[#1c1c1e] flex flex-col max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 transform-gpu">
             <div className="w-10 h-1 bg-[#2c2c2e] rounded-full mx-auto mb-5" />
             <h2 className="text-white font-bold text-center text-[22px] mb-8" style={{ fontFamily: SFD }}>Top UP</h2>
             <div className="flex flex-col items-center mb-8">
