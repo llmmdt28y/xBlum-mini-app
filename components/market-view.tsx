@@ -88,7 +88,7 @@ const AUCTION_ITEMS = [
 ]
 
 const FILTER_OPTIONS = {
-   sale: ['All Collections', 'Plush Pepes', 'Jelly Bunnies', 'Starships'],
+   sale: ['All', 'Free', 'New', 'Popular'],
 }
 
 const animationStyles = `
@@ -127,8 +127,9 @@ export function MarketView() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
 
-  const [openDropdown, setOpenDropdown] = useState<'sale' | null>(null)
-  const [filters, setFilters] = useState({ sale: 'Collection' })
+  // OPTIMIZADO: Estado original de filtros restaurado
+  const [activeFilter, setActiveFilter] = useState<'All' | 'Free' | 'New' | 'Popular'>('All')
+  
   const [boxViewMode, setBoxViewMode] = useState<'grid' | 'list'>('grid')
 
   const [isAddGiftOpen, setIsAddGiftOpen] = useState(false)
@@ -141,18 +142,6 @@ export function MarketView() {
   const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
   const [isSpinningActive, setIsSpinningActive] = useState(false)
   const [tracks, setTracks] = useState<Array<{ winner: any, items: any[] }>>([])
-
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setOpenDropdown(null)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
 
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
@@ -216,7 +205,6 @@ export function MarketView() {
   const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
-  // OPTIMIZADO: Píldora con Liquid Glass aislado para 0 lag
   const TopUpPill = () => (
     <button 
        type="button" 
@@ -234,14 +222,12 @@ export function MarketView() {
   )
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0a0a0b] relative overflow-hidden" ref={dropdownRef}>
+    <div className="flex-1 flex flex-col h-full bg-[#0a0a0b] relative overflow-hidden">
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
-      {/* Background radial blurs */}
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(42,47,58,0.2) 0%, rgba(42,47,58,0) 70%)', contain: 'paint' }} />
       <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.2) 0%, rgba(74,56,48,0) 70%)', contain: 'paint' }} />
 
-      {/* OPTIMIZADO: Header superior con Fake Vibrancy 0 lag */}
       {!viewingBoxId && !viewingAuctionId && (
         <div className="fixed top-0 left-0 right-0 z-[100] px-5 pb-4 pt-8 pointer-events-auto">
            <div className="absolute inset-0 bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
@@ -534,7 +520,7 @@ export function MarketView() {
                     </div>
                  </div>
 
-                 {/* OPTIMIZADO: Filtros imitando a la imagen (Collection, Model, etc.) */}
+                 {/* OPTIMIZADO: Filtros restaurados a píldoras seleccionables horizontales */}
                  <div className="flex items-center gap-2 mb-5 overflow-x-auto no-scrollbar pb-2 px-5 -mx-5 relative z-20">
                     <button type="button" className="h-[38px] w-[38px] bg-[#1c1c1e] rounded-full flex items-center justify-center text-[#8e8e93] border border-white/[0.04] active:scale-95 transition-transform shrink-0">
                        <Filter className="w-4 h-4" />
@@ -545,25 +531,22 @@ export function MarketView() {
 
                     <div className="w-[1px] h-[20px] bg-white/[0.06] self-center mx-1 shrink-0" />
 
-                    <div className="relative shrink-0">
-                       <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`h-[38px] bg-[#1c1c1e] rounded-full flex items-center justify-between px-4 gap-2 font-semibold text-[13px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-white/[0.04] text-[#e5e5ea]'} transition-colors shrink-0`} style={{ fontFamily: SF }}>
-                          {filters.sale} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
+                    {FILTER_OPTIONS.sale.map(filter => (
+                       <button 
+                          key={filter} 
+                          onClick={() => setActiveFilter(filter as any)}
+                          className={`h-[38px] rounded-full flex items-center justify-center px-4 font-semibold text-[13px] transition-all shrink-0 active:scale-95 ${
+                             activeFilter === filter 
+                             ? 'bg-[#3b82f6] text-white border border-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.2)]' 
+                             : 'bg-[#1c1c1e] border border-white/[0.04] text-[#8e8e93] hover:text-[#e5e5ea]'
+                          }`}
+                          style={{ fontFamily: SF }}
+                       >
+                          {filter === 'All' && activeFilter === filter && <img src="/telegram-star-icon.png" className="inline w-3.5 h-3.5 mr-1.5 opacity-90" alt="*" />}
+                          {filter === 'All' && activeFilter !== filter && <img src="/telegram-star-icon.png" className="inline w-3.5 h-3.5 mr-1.5 opacity-50 grayscale" alt="*" />}
+                          {filter}
                        </button>
-                       {openDropdown === 'sale' && (
-                          <div className="absolute top-[44px] left-0 bg-[#2c2c2e] border border-[#3a3a3c] rounded-[16px] shadow-lg w-[180px] py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
-                             {FILTER_OPTIONS.sale.map(opt => (
-                                <div key={opt} onClick={() => { setFilters({...filters, sale: opt}); setOpenDropdown(null) }} className="px-4 py-2.5 text-white text-[13px] font-medium hover:bg-[#3a3a3c] cursor-pointer transition-colors">{opt}</div>
-                             ))}
-                          </div>
-                       )}
-                    </div>
-                    
-                    <button type="button" className="h-[38px] bg-[#1c1c1e] rounded-full flex items-center justify-between px-4 gap-2 font-semibold text-[13px] border border-white/[0.04] text-[#e5e5ea] transition-colors shrink-0" style={{ fontFamily: SF }}>
-                       Model <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
-                    </button>
-                    <button type="button" className="h-[38px] bg-[#1c1c1e] rounded-full flex items-center justify-between px-4 gap-2 font-semibold text-[13px] border border-white/[0.04] text-[#e5e5ea] transition-colors shrink-0" style={{ fontFamily: SF }}>
-                       Background <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
-                    </button>
+                    ))}
                     <div className="w-1 shrink-0" />
                  </div>
 
@@ -596,7 +579,6 @@ export function MarketView() {
                                    </div>
                                 </div>
                                 
-                                {/* OPTIMIZADO: Barra de apertura con Liquid Glass aislado */}
                                 <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] relative flex items-center justify-between px-3.5 shadow-lg rounded-[16px] overflow-hidden group z-20">
                                    <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] transition-all group-hover:bg-[#0a0a0b] group-hover:border-white/15" style={{ contain: 'paint' }} />
                                    <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
@@ -632,7 +614,6 @@ export function MarketView() {
                   </button>
 
                   <div className="flex gap-2 w-full mb-3 relative">
-                     {/* OPTIMIZADO: Barras sólidas o de blur bajo perfil */}
                      <div className="flex-1 bg-[#1c1c1e] rounded-[16px] flex items-center px-4 gap-2 border border-white/[0.04]">
                         <Search className="w-5 h-5 text-[#8e8e93]" />
                         <input type="text" placeholder="Search" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#8e8e93]" style={{ fontFamily: SF }} />
@@ -648,6 +629,29 @@ export function MarketView() {
                      </button>
                   </div>
 
+                  {/* OPTIMIZADO: Filtros de subastas también como píldoras seleccionables */}
+                  <div className="flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar relative">
+                     <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-white/[0.04] active:scale-95 transition-transform shrink-0">
+                        <SlidersHorizontal className="w-5 h-5" />
+                     </button>
+                     
+                     {FILTER_OPTIONS.sale.map(filter => (
+                        <button 
+                           key={filter} 
+                           onClick={() => setActiveFilter(filter as any)}
+                           className={`h-[44px] rounded-[14px] flex items-center justify-center px-4 font-bold text-[14px] transition-all shrink-0 active:scale-95 ${
+                              activeFilter === filter 
+                              ? 'bg-[#3b82f6] text-white border border-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.2)]' 
+                              : 'bg-[#1c1c1e] border border-white/[0.04] text-[#8e8e93] hover:text-[#e5e5ea]'
+                           }`}
+                           style={{ fontFamily: SF }}
+                        >
+                           {filter}
+                        </button>
+                     ))}
+                     <div className="w-1 shrink-0" />
+                   </div>
+
                   {viewMode === 'grid' ? (
                      <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-10 animate-in fade-in duration-300">
                         {AUCTION_ITEMS.map((item) => (
@@ -660,7 +664,6 @@ export function MarketView() {
                                    <span className="text-white/60 font-medium text-[13px] leading-tight" style={{ fontFamily: SF }}>{item.tag}</span>
                                  </div>
                               </div>
-                              {/* OPTIMIZADO: Liquid glass aislado */}
                               <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] relative px-3 flex items-center justify-between shadow-sm overflow-hidden z-20 rounded-[16px]">
                                 <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08]" style={{ contain: 'paint' }} />
                                 <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
@@ -700,7 +703,6 @@ export function MarketView() {
                                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                                           </button>
                                        </div>
-                                       {/* OPTIMIZADO */}
                                        <div className="mt-2 w-full h-[38px] relative px-3 flex items-center justify-between shadow-sm overflow-hidden rounded-[12px]">
                                           <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08]" style={{ contain: 'paint' }} />
                                           <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
@@ -922,11 +924,9 @@ export function MarketView() {
         </div>
       )}
 
-      {/* OPTIMIZADO: Bottom Nav Liquid Glass "Fake Vibrancy" 0 Lag simulando la imagen */}
       <div className="fixed bottom-0 left-0 right-0 h-[80px] z-[90] pointer-events-auto">
         <div className="absolute inset-0 bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-t border-white/[0.04]" style={{ contain: 'paint' }} />
         
-        {/* Luces simuladas incrustadas (No cuestan rendimiento a la GPU) */}
         <div className="absolute bottom-0 left-[30%] -translate-x-1/2 w-[60px] h-[40px] bg-[#3b82f6]/20 blur-[24px] rounded-full pointer-events-none" />
         <div className="absolute bottom-0 left-[70%] -translate-x-1/2 w-[60px] h-[40px] bg-[#eab308]/15 blur-[24px] rounded-full pointer-events-none" />
 
