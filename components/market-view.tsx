@@ -100,6 +100,17 @@ const animationStyles = `
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 `;
 
+// 🌟 El Estilo Definitivo de True Liquid Glass 🌟
+// Alta transparencia, altos contrastes para la luz, y filtro SVG para la distorsión tipo lupa.
+const TRUE_LIQUID_GLASS = {
+  background: 'rgba(255, 255, 255, 0.03)', // Casi totalmente transparente
+  boxShadow: 'inset 0px 1px 1px rgba(255, 255, 255, 0.2), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.3)',
+  backdropFilter: 'url(#liquid-refraction) blur(10px) saturate(200%) brightness(1.2) contrast(1.1)',
+  WebkitBackdropFilter: 'blur(10px) saturate(200%) brightness(1.2) contrast(1.1)', // Fallback para iOS
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+  contain: 'paint'
+}
+
 const LootboxVisual = ({ color, imgSrc, size = "normal" }: { color: string, imgSrc: string, size?: "normal" | "large" }) => {
   const containerClass = size === "large" ? "h-[120px]" : "h-[90px]"
   const imgClass = size === "large" ? "w-[100px] h-[100px]" : "w-[75px] h-[75px]"
@@ -222,9 +233,9 @@ export function MarketView() {
     <button 
        type="button" 
        onClick={() => setIsTopUpOpen(true)} 
-       className="relative rounded-full px-5 h-[36px] flex items-center justify-center shadow-sm transition-transform active:scale-95 group overflow-hidden"
+       className="relative rounded-full px-5 h-[36px] flex items-center justify-center transition-transform active:scale-95 group overflow-hidden transform-gpu"
     >
-       <div className="absolute inset-0 bg-[#1c1c1e]/70 backdrop-blur-[10px] backdrop-saturate-[150%] border border-white/[0.06] rounded-full pointer-events-none" style={{ contain: 'paint' }} />
+       <div className="absolute inset-0 rounded-full pointer-events-none" style={TRUE_LIQUID_GLASS} />
        <div className="relative z-10 flex items-center justify-center gap-1.5">
           <img src="/telegram-star-icon.png" alt="Stars" className="w-[16px] h-[16px] object-contain pointer-events-none select-none" />
           <span className="text-[#facc15] font-bold text-[14px] leading-none mt-[1px]" style={{ fontFamily: SFD }}>
@@ -238,12 +249,21 @@ export function MarketView() {
     <div className="flex-1 flex flex-col h-full bg-[#0a0a0b] relative overflow-hidden" ref={dropdownRef}>
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
-      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(42,47,58,0.2) 0%, rgba(42,47,58,0) 70%)', contain: 'paint' }} />
-      <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.2) 0%, rgba(74,56,48,0) 70%)', contain: 'paint' }} />
+      {/* 🔮 El Filtro Matemático de Refracción SVG oculto (El secreto del Liquid Glass real) */}
+      <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
+        <filter id="liquid-refraction" colorInterpolationFilters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="1" result="glass_noise" />
+          <feColorMatrix type="matrix" values="1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 0.5 0" in="glass_noise" result="soft_noise" />
+          <feDisplacementMap in="SourceGraphic" in2="soft_noise" scale="4" xChannelSelector="R" yChannelSelector="G" result="refracted" />
+        </filter>
+      </svg>
+      
+      <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(42,47,58,0.3) 0%, rgba(42,47,58,0) 70%)', contain: 'paint' }} />
+      <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.3) 0%, rgba(74,56,48,0) 70%)', contain: 'paint' }} />
 
-      {/* OPTIMIZADO: Header dividido. Blur arriba, píldora abajo con su propio efecto. */}
       {!viewingBoxId && !viewingAuctionId && (
         <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none">
+           {/* Header: Termina justo antes de las píldoras */}
            <div className="relative w-full pt-8 pb-3 px-5 flex items-center justify-center pointer-events-auto">
               <div className="absolute inset-0 bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
               <div className="relative z-10 mb-1 mt-2">
@@ -252,12 +272,12 @@ export function MarketView() {
            </div>
 
            <div className="relative w-full px-5 pt-3 pointer-events-auto">
-              {/* Píldora más delgada (h-[38px]) con su propio Liquid Glass */}
-              <div className="relative w-full h-[38px] rounded-full p-1 flex items-center shadow-inner overflow-hidden border border-white/[0.04]">
-                 <div className="absolute inset-0 bg-[#161618]/50 backdrop-blur-[12px] backdrop-saturate-[150%] rounded-full pointer-events-none" style={{ contain: 'paint' }} />
+              {/* Píldora Explore/Auctions: Más delgada y con Liquid Glass Genuino */}
+              <div className="relative w-full h-[38px] rounded-full p-1 flex items-center shadow-inner overflow-hidden transform-gpu">
+                 <div className="absolute inset-0 rounded-full pointer-events-none" style={TRUE_LIQUID_GLASS} />
                  
                  <div 
-                    className="absolute h-[30px] bg-[#2c2c2e] rounded-full shadow-sm border border-white/[0.04]"
+                    className="absolute h-[30px] bg-[#ffffff]/10 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.2)] border border-white/20 backdrop-blur-md"
                     style={{ 
                        width: 'calc(33.33% - 2.66px)',
                        transform: `translateX(${activeTab === 'Explore' ? '2px' : activeTab === 'Auctions' ? 'calc(100% + 4px)' : 'calc(200% + 6px)'})`,
@@ -272,7 +292,7 @@ export function MarketView() {
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto relative z-10 w-full h-full pb-32">
+      <div className="flex-1 overflow-y-auto relative z-10 w-full h-full pb-10">
         {!viewingBoxId && !viewingAuctionId && (
            <div className="w-full h-[140px] shrink-0 pointer-events-none" />
         )}
@@ -434,8 +454,8 @@ export function MarketView() {
             <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center p-4 shadow-xl mb-2">
                <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} draggable={false} className="w-full h-full object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                {activeAuctionData.owned && (
-                 <div className="absolute bottom-4 left-4 relative rounded-full px-3 py-1.5 flex items-center gap-2 shadow-sm z-10 overflow-hidden">
-                   <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/10 rounded-full" style={{ contain: 'paint' }} />
+                 <div className="absolute bottom-4 left-4 relative rounded-full px-3 py-1.5 flex items-center gap-2 z-10 overflow-hidden transform-gpu">
+                   <div className="absolute inset-0 rounded-full pointer-events-none" style={TRUE_LIQUID_GLASS} />
                    <div className="relative z-10 flex items-center gap-2">
                      <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#a855f7] border border-white/20" />
                      <span className="text-white text-[12px] font-medium" style={{ fontFamily: SF }}>Owned by <span className="font-bold">you</span></span>
@@ -537,7 +557,7 @@ export function MarketView() {
                     </div>
                  </div>
 
-                 {/* Explore Filters: Píldoras horizontales deslizables con indicador seleccionado */}
+                 {/* Explore Filters */}
                  <div className="flex items-center gap-2 mb-5 overflow-x-auto no-scrollbar pb-2 px-5 -mx-5 relative z-20">
                     <button type="button" className="h-[38px] w-[38px] bg-[#1c1c1e] rounded-full flex items-center justify-center text-[#8e8e93] border border-white/[0.04] active:scale-95 transition-transform shrink-0">
                        <Filter className="w-4 h-4" />
@@ -596,18 +616,18 @@ export function MarketView() {
                                    </div>
                                 </div>
                                 
-                                {/* OPTIMIZADO: Barra inferior superpuesta a la caja con posición original y Liquid Glass aislado */}
-                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3.5 flex items-center justify-between shadow-lg z-20 group">
-                                   <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] rounded-[16px] transition-all group-hover:bg-[#0a0a0b] group-hover:border-white/15" style={{ contain: 'paint' }} />
+                                {/* Barra inferior con True Liquid Glass */}
+                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3.5 flex items-center justify-between z-20 group overflow-hidden transform-gpu">
+                                   <div className="absolute inset-0 rounded-[16px] pointer-events-none" style={TRUE_LIQUID_GLASS} />
                                    <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
-                                      <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
+                                      <div className="w-[20px] h-[20px] rounded-full bg-white/20 flex items-center justify-center shrink-0 border border-white/30 shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
                                          <Gift className="w-[10px] h-[10px] text-white" />
                                       </div>
-                                      <span className="text-white/90 font-semibold text-[11px] uppercase tracking-wider" style={{ fontFamily: SF }}>Open</span>
+                                      <span className="text-white font-semibold text-[11px] uppercase tracking-wider drop-shadow-sm" style={{ fontFamily: SF }}>Open</span>
                                    </div>
                                    <div className="relative z-10 flex items-center gap-1 shrink-0 pl-1">
-                                      <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{box.price}</span>
-                                      <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none" />
+                                      <span className="text-white font-bold text-[13px] drop-shadow-sm" style={{ fontFamily: SFD }}>{box.price}</span>
+                                      <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none drop-shadow-sm" />
                                    </div>
                                 </div>
                              </>
@@ -647,7 +667,7 @@ export function MarketView() {
                      </button>
                   </div>
 
-                  {/* OPTIMIZADO: Filtros de subasta restaurados al original (con el menú dropdown) */}
+                  {/* Filtros de subasta (Menú Dropdown Original) */}
                   <div className="flex gap-2 w-full mb-4 relative">
                      <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-white/[0.04] active:scale-95 transition-transform shrink-0">
                         <SlidersHorizontal className="w-5 h-5" />
@@ -681,20 +701,20 @@ export function MarketView() {
                                    <span className="text-white/60 font-medium text-[13px] leading-tight" style={{ fontFamily: SF }}>{item.tag}</span>
                                  </div>
                               </div>
-                              {/* Barra de subastas inferior en posición original con Liquid Glass aislado */}
-                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3 flex items-center justify-between shadow-sm z-20 group">
-                                <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] rounded-[16px]" style={{ contain: 'paint' }} />
+                              {/* Tarjetas Grid con True Liquid Glass */}
+                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3 flex items-center justify-between group overflow-hidden transform-gpu">
+                                <div className="absolute inset-0 rounded-[16px] pointer-events-none" style={TRUE_LIQUID_GLASS} />
                                 <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
-                                  <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
+                                  <div className="w-[20px] h-[20px] rounded-full bg-white/20 flex items-center justify-center shrink-0 border border-white/30 shadow-sm">
                                      <div className="w-[12px] h-[12px] bg-white rounded-full flex items-center justify-center">
                                        <span className="text-black font-extrabold text-[8px] leading-none">$</span>
                                      </div>
                                   </div>
-                                  <span className="text-white/90 font-semibold text-[11px] truncate" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
+                                  <span className="text-white font-semibold text-[11px] truncate drop-shadow-sm" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
                                 </div>
                                 <div className="relative z-10 flex items-center gap-1 shrink-0 pl-1">
-                                  <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
-                                  <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none" />
+                                  <span className="text-white font-bold text-[13px] drop-shadow-sm" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
+                                  <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none drop-shadow-sm" />
                                 </div>
                               </div>
                            </div>
@@ -721,19 +741,20 @@ export function MarketView() {
                                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                                           </button>
                                        </div>
-                                       <div className="mt-2 w-full h-[38px] relative rounded-[12px] px-3 flex items-center justify-between shadow-sm">
-                                          <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] rounded-[12px]" style={{ contain: 'paint' }} />
+                                       {/* Tarjetas de Lista con True Liquid Glass */}
+                                       <div className="mt-2 w-full h-[38px] relative rounded-[12px] px-3 flex items-center justify-between overflow-hidden transform-gpu">
+                                          <div className="absolute inset-0 rounded-[12px] pointer-events-none" style={TRUE_LIQUID_GLASS} />
                                           <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
-                                            <div className="w-[18px] h-[18px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
+                                            <div className="w-[18px] h-[18px] rounded-full bg-white/20 flex items-center justify-center shrink-0 border border-white/30">
                                                <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
                                                  <span className="text-black font-extrabold text-[7px] leading-none">$</span>
                                                </div>
                                             </div>
-                                            <span className="text-white/90 font-semibold text-[11px] truncate" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
+                                            <span className="text-white font-semibold text-[11px] truncate drop-shadow-sm" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
                                           </div>
                                           <div className="relative z-10 flex items-center gap-1 shrink-0 pl-1">
-                                            <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
-                                            <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[13px] h-[13px] object-contain pointer-events-none select-none" />
+                                            <span className="text-white font-bold text-[13px] drop-shadow-sm" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
+                                            <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[13px] h-[13px] object-contain pointer-events-none select-none drop-shadow-sm" />
                                           </div>
                                        </div>
                                     </div>
