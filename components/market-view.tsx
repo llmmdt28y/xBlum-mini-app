@@ -127,8 +127,9 @@ export function MarketView() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [expandedAuctionId, setExpandedAuctionId] = useState<string | null>(null)
 
-  // OPTIMIZADO: Estado original de filtros restaurado
   const [activeFilter, setActiveFilter] = useState<'All' | 'Free' | 'New' | 'Popular'>('All')
+  const [openDropdown, setOpenDropdown] = useState<'sale' | null>(null)
+  const [filters, setFilters] = useState({ sale: 'For sale' })
   
   const [boxViewMode, setBoxViewMode] = useState<'grid' | 'list'>('grid')
 
@@ -142,6 +143,18 @@ export function MarketView() {
   const [openingState, setOpeningState] = useState<'idle' | 'spinning' | 'result'>('idle')
   const [isSpinningActive, setIsSpinningActive] = useState(false)
   const [tracks, setTracks] = useState<Array<{ winner: any, items: any[] }>>([])
+
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
@@ -222,34 +235,38 @@ export function MarketView() {
   )
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0a0a0b] relative overflow-hidden">
+    <div className="flex-1 flex flex-col h-full bg-[#0a0a0b] relative overflow-hidden" ref={dropdownRef}>
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(42,47,58,0.2) 0%, rgba(42,47,58,0) 70%)', contain: 'paint' }} />
       <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.2) 0%, rgba(74,56,48,0) 70%)', contain: 'paint' }} />
 
+      {/* OPTIMIZADO: Header dividido. Blur arriba, píldora abajo con su propio efecto. */}
       {!viewingBoxId && !viewingAuctionId && (
-        <div className="fixed top-0 left-0 right-0 z-[100] px-5 pb-4 pt-8 pointer-events-auto">
-           <div className="absolute inset-0 bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
-           
-           <div className="relative z-10 flex items-center justify-center mb-4 mt-2">
-             <TopUpPill />
+        <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none">
+           <div className="relative w-full pt-8 pb-3 px-5 flex items-center justify-center pointer-events-auto">
+              <div className="absolute inset-0 bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
+              <div className="relative z-10 mb-1 mt-2">
+                 <TopUpPill />
+              </div>
            </div>
 
-           <div className="relative z-10 w-full">
-              <div className="relative w-full h-[46px] rounded-full p-1.5 flex items-center shadow-inner overflow-hidden">
-                 <div className="absolute inset-0 bg-[#161618]/70 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.04] rounded-full pointer-events-none" style={{ contain: 'paint' }} />
+           <div className="relative w-full px-5 pt-3 pointer-events-auto">
+              {/* Píldora más delgada (h-[38px]) con su propio Liquid Glass */}
+              <div className="relative w-full h-[38px] rounded-full p-1 flex items-center shadow-inner overflow-hidden border border-white/[0.04]">
+                 <div className="absolute inset-0 bg-[#161618]/50 backdrop-blur-[12px] backdrop-saturate-[150%] rounded-full pointer-events-none" style={{ contain: 'paint' }} />
+                 
                  <div 
-                    className="absolute h-[34px] bg-[#2c2c2e] rounded-full shadow-sm border border-white/[0.04]"
+                    className="absolute h-[30px] bg-[#2c2c2e] rounded-full shadow-sm border border-white/[0.04]"
                     style={{ 
-                       width: 'calc(33.33% - 4px)',
-                       transform: `translateX(${activeTab === 'Explore' ? '4px' : activeTab === 'Auctions' ? 'calc(100% + 4px)' : 'calc(200% + 4px)'})`,
+                       width: 'calc(33.33% - 2.66px)',
+                       transform: `translateX(${activeTab === 'Explore' ? '2px' : activeTab === 'Auctions' ? 'calc(100% + 4px)' : 'calc(200% + 6px)'})`,
                        transition: 'transform 300ms cubic-bezier(0.4, 0, 0.2, 1)'
                     }}
                  />
-                 <button onClick={() => setActiveTab('Explore')} className={`relative z-10 flex-1 text-center text-[14px] font-semibold transition-colors duration-300 ${activeTab === 'Explore' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Explore</button>
-                 <button onClick={() => setActiveTab('Auctions')} className={`relative z-10 flex-1 text-center text-[14px] font-semibold transition-colors duration-300 ${activeTab === 'Auctions' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Auctions</button>
-                 <button onClick={() => setActiveTab('Listed')} className={`relative z-10 flex-1 text-center text-[14px] font-semibold transition-colors duration-300 ${activeTab === 'Listed' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Listed</button>
+                 <button onClick={() => setActiveTab('Explore')} className={`relative z-10 flex-1 text-center text-[13px] font-semibold transition-colors duration-300 ${activeTab === 'Explore' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Explore</button>
+                 <button onClick={() => setActiveTab('Auctions')} className={`relative z-10 flex-1 text-center text-[13px] font-semibold transition-colors duration-300 ${activeTab === 'Auctions' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Auctions</button>
+                 <button onClick={() => setActiveTab('Listed')} className={`relative z-10 flex-1 text-center text-[13px] font-semibold transition-colors duration-300 ${activeTab === 'Listed' ? 'text-white' : 'text-[#8e8e93] hover:text-white/80'}`} style={{ fontFamily: SF }}>Listed</button>
               </div>
            </div>
         </div>
@@ -520,7 +537,7 @@ export function MarketView() {
                     </div>
                  </div>
 
-                 {/* OPTIMIZADO: Filtros restaurados a píldoras seleccionables horizontales */}
+                 {/* Explore Filters: Píldoras horizontales deslizables con indicador seleccionado */}
                  <div className="flex items-center gap-2 mb-5 overflow-x-auto no-scrollbar pb-2 px-5 -mx-5 relative z-20">
                     <button type="button" className="h-[38px] w-[38px] bg-[#1c1c1e] rounded-full flex items-center justify-center text-[#8e8e93] border border-white/[0.04] active:scale-95 transition-transform shrink-0">
                        <Filter className="w-4 h-4" />
@@ -579,8 +596,9 @@ export function MarketView() {
                                    </div>
                                 </div>
                                 
-                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] relative flex items-center justify-between px-3.5 shadow-lg rounded-[16px] overflow-hidden group z-20">
-                                   <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] transition-all group-hover:bg-[#0a0a0b] group-hover:border-white/15" style={{ contain: 'paint' }} />
+                                {/* OPTIMIZADO: Barra inferior superpuesta a la caja con posición original y Liquid Glass aislado */}
+                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3.5 flex items-center justify-between shadow-lg z-20 group">
+                                   <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] rounded-[16px] transition-all group-hover:bg-[#0a0a0b] group-hover:border-white/15" style={{ contain: 'paint' }} />
                                    <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
                                       <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                          <Gift className="w-[10px] h-[10px] text-white" />
@@ -629,27 +647,26 @@ export function MarketView() {
                      </button>
                   </div>
 
-                  {/* OPTIMIZADO: Filtros de subastas también como píldoras seleccionables */}
-                  <div className="flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar relative">
+                  {/* OPTIMIZADO: Filtros de subasta restaurados al original (con el menú dropdown) */}
+                  <div className="flex gap-2 w-full mb-4 relative">
                      <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-white/[0.04] active:scale-95 transition-transform shrink-0">
                         <SlidersHorizontal className="w-5 h-5" />
                      </button>
                      
-                     {FILTER_OPTIONS.sale.map(filter => (
-                        <button 
-                           key={filter} 
-                           onClick={() => setActiveFilter(filter as any)}
-                           className={`h-[44px] rounded-[14px] flex items-center justify-center px-4 font-bold text-[14px] transition-all shrink-0 active:scale-95 ${
-                              activeFilter === filter 
-                              ? 'bg-[#3b82f6] text-white border border-[#3b82f6] shadow-[0_0_10px_rgba(59,130,246,0.2)]' 
-                              : 'bg-[#1c1c1e] border border-white/[0.04] text-[#8e8e93] hover:text-[#e5e5ea]'
-                           }`}
-                           style={{ fontFamily: SF }}
-                        >
-                           {filter}
-                        </button>
-                     ))}
-                     <div className="w-1 shrink-0" />
+                     <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar relative">
+                        <div className="relative shrink-0 w-full">
+                           <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`w-full h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-white/[0.04] text-[#e5e5ea]'} transition-colors`} style={{ fontFamily: SF }}>
+                              {filters.sale} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
+                           </button>
+                           {openDropdown === 'sale' && (
+                              <div className="absolute top-[50px] left-0 bg-[#2c2c2e] border border-[#3a3a3c] rounded-[12px] shadow-lg w-full py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                                 {FILTER_OPTIONS.sale.map(opt => (
+                                    <div key={opt} onClick={() => { setFilters({...filters, sale: opt}); setOpenDropdown(null) }} className="px-4 py-2.5 text-white text-[13px] font-medium hover:bg-[#3a3a3c] cursor-pointer">{opt}</div>
+                                 ))}
+                              </div>
+                           )}
+                        </div>
+                     </div>
                    </div>
 
                   {viewMode === 'grid' ? (
@@ -664,8 +681,9 @@ export function MarketView() {
                                    <span className="text-white/60 font-medium text-[13px] leading-tight" style={{ fontFamily: SF }}>{item.tag}</span>
                                  </div>
                               </div>
-                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] relative px-3 flex items-center justify-between shadow-sm overflow-hidden z-20 rounded-[16px]">
-                                <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08]" style={{ contain: 'paint' }} />
+                              {/* Barra de subastas inferior en posición original con Liquid Glass aislado */}
+                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3 flex items-center justify-between shadow-sm z-20 group">
+                                <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] rounded-[16px]" style={{ contain: 'paint' }} />
                                 <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
                                   <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                      <div className="w-[12px] h-[12px] bg-white rounded-full flex items-center justify-center">
@@ -703,8 +721,8 @@ export function MarketView() {
                                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                                           </button>
                                        </div>
-                                       <div className="mt-2 w-full h-[38px] relative px-3 flex items-center justify-between shadow-sm overflow-hidden rounded-[12px]">
-                                          <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08]" style={{ contain: 'paint' }} />
+                                       <div className="mt-2 w-full h-[38px] relative rounded-[12px] px-3 flex items-center justify-between shadow-sm">
+                                          <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] rounded-[12px]" style={{ contain: 'paint' }} />
                                           <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
                                             <div className="w-[18px] h-[18px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                                <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
@@ -923,40 +941,6 @@ export function MarketView() {
           </div>
         </div>
       )}
-
-      <div className="fixed bottom-0 left-0 right-0 h-[80px] z-[90] pointer-events-auto">
-        <div className="absolute inset-0 bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-t border-white/[0.04]" style={{ contain: 'paint' }} />
-        
-        <div className="absolute bottom-0 left-[30%] -translate-x-1/2 w-[60px] h-[40px] bg-[#3b82f6]/20 blur-[24px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-[70%] -translate-x-1/2 w-[60px] h-[40px] bg-[#eab308]/15 blur-[24px] rounded-full pointer-events-none" />
-
-        <div className="relative z-10 flex items-center justify-around h-full px-2 pb-2">
-           <button className="flex flex-col items-center justify-center gap-1 w-[64px] text-[#8e8e93] active:scale-95 transition-transform">
-             <div className="w-8 h-8 flex items-center justify-center"><LayoutGrid className="w-6 h-6" /></div>
-             <span className="text-[10px] font-semibold">Games</span>
-           </button>
-           <button className="flex flex-col items-center justify-center gap-1 w-[64px] text-white active:scale-95 transition-transform">
-             <div className="w-14 h-8 bg-[#3b82f6]/20 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.3)] border border-[#3b82f6]/30">
-               <ShoppingCart className="w-4 h-4 text-[#3b82f6]" />
-             </div>
-             <span className="text-[10px] font-semibold">Store</span>
-           </button>
-           <button className="flex flex-col items-center justify-center gap-1 w-[64px] text-[#8e8e93] active:scale-95 transition-transform">
-             <div className="w-8 h-8 flex items-center justify-center"><Gift className="w-6 h-6" /></div>
-             <span className="text-[10px] font-semibold">My gifts</span>
-           </button>
-           <button className="flex flex-col items-center justify-center gap-1 w-[64px] text-[#8e8e93] active:scale-95 transition-transform">
-             <div className="w-8 h-8 flex items-center justify-center"><Star className="w-6 h-6" /></div>
-             <span className="text-[10px] font-semibold">Season</span>
-           </button>
-           <button className="flex flex-col items-center justify-center gap-1 w-[64px] active:scale-95 transition-transform">
-             <div className="w-7 h-7 rounded-full border-[1.5px] border-[#8e8e93] overflow-hidden p-[1px]">
-                <div className="w-full h-full rounded-full bg-[#1c1c1e]" />
-             </div>
-             <span className="text-[10px] font-semibold text-[#8e8e93]">Profile</span>
-           </button>
-        </div>
-      </div>
 
     </div>
   )
