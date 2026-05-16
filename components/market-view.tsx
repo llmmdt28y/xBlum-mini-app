@@ -89,6 +89,7 @@ const AUCTION_ITEMS = [
 
 const FILTER_OPTIONS = {
    sale: ['All', 'Free', 'New', 'Popular'],
+   auctions: ['Collection', 'Model', 'Background']
 }
 
 const animationStyles = `
@@ -99,17 +100,6 @@ const animationStyles = `
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 `;
-
-// 🌟 El Estilo Definitivo de True Liquid Glass 🌟
-// Alta transparencia, altos contrastes para la luz, y filtro SVG para la distorsión tipo lupa.
-const TRUE_LIQUID_GLASS = {
-  background: 'rgba(255, 255, 255, 0.03)', // Casi totalmente transparente
-  boxShadow: 'inset 0px 1px 1px rgba(255, 255, 255, 0.2), inset 0px -1px 1px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.3)',
-  backdropFilter: 'url(#liquid-refraction) blur(10px) saturate(200%) brightness(1.2) contrast(1.1)',
-  WebkitBackdropFilter: 'blur(10px) saturate(200%) brightness(1.2) contrast(1.1)', // Fallback para iOS
-  border: '1px solid rgba(255, 255, 255, 0.1)',
-  contain: 'paint'
-}
 
 const LootboxVisual = ({ color, imgSrc, size = "normal" }: { color: string, imgSrc: string, size?: "normal" | "large" }) => {
   const containerClass = size === "large" ? "h-[120px]" : "h-[90px]"
@@ -140,7 +130,6 @@ export function MarketView() {
 
   const [activeFilter, setActiveFilter] = useState<'All' | 'Free' | 'New' | 'Popular'>('All')
   const [openDropdown, setOpenDropdown] = useState<'sale' | null>(null)
-  const [filters, setFilters] = useState({ sale: 'For sale' })
   
   const [boxViewMode, setBoxViewMode] = useState<'grid' | 'list'>('grid')
 
@@ -229,13 +218,14 @@ export function MarketView() {
   const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
+  // La píldora superior de estrellas con un desenfoque elegante
   const TopUpPill = () => (
     <button 
        type="button" 
        onClick={() => setIsTopUpOpen(true)} 
        className="relative rounded-full px-5 h-[36px] flex items-center justify-center transition-transform active:scale-95 group overflow-hidden transform-gpu"
     >
-       <div className="absolute inset-0 rounded-full pointer-events-none" style={TRUE_LIQUID_GLASS} />
+       <div className="absolute inset-0 bg-white/[0.05] backdrop-blur-[20px] backdrop-saturate-[180%] border border-white/[0.08] rounded-full pointer-events-none" />
        <div className="relative z-10 flex items-center justify-center gap-1.5">
           <img src="/telegram-star-icon.png" alt="Stars" className="w-[16px] h-[16px] object-contain pointer-events-none select-none" />
           <span className="text-[#facc15] font-bold text-[14px] leading-none mt-[1px]" style={{ fontFamily: SFD }}>
@@ -249,35 +239,29 @@ export function MarketView() {
     <div className="flex-1 flex flex-col h-full bg-[#0a0a0b] relative overflow-hidden" ref={dropdownRef}>
       <style dangerouslySetInnerHTML={{ __html: animationStyles }} />
       
-      {/* 🔮 El Filtro Matemático de Refracción SVG oculto (El secreto del Liquid Glass real) */}
-      <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
-        <filter id="liquid-refraction" colorInterpolationFilters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="1" result="glass_noise" />
-          <feColorMatrix type="matrix" values="1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 0.5 0" in="glass_noise" result="soft_noise" />
-          <feDisplacementMap in="SourceGraphic" in2="soft_noise" scale="4" xChannelSelector="R" yChannelSelector="G" result="refracted" />
-        </filter>
-      </svg>
-      
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(42,47,58,0.3) 0%, rgba(42,47,58,0) 70%)', contain: 'paint' }} />
       <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.3) 0%, rgba(74,56,48,0) 70%)', contain: 'paint' }} />
 
       {!viewingBoxId && !viewingAuctionId && (
         <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none">
-           {/* Header: Termina justo antes de las píldoras */}
+           {/* Glows traseros simulando las estrellas de la imagen 1000010780 */}
+           <div className="absolute top-8 left-[20%] w-[80px] h-[40px] bg-[#eab308]/30 blur-[30px] rounded-full pointer-events-none" />
+           <div className="absolute top-8 left-[50%] -translate-x-1/2 w-[100px] h-[40px] bg-[#f59e0b]/20 blur-[30px] rounded-full pointer-events-none" />
+           <div className="absolute top-8 right-[20%] w-[80px] h-[40px] bg-[#eab308]/30 blur-[30px] rounded-full pointer-events-none" />
+
            <div className="relative w-full pt-8 pb-3 px-5 flex items-center justify-center pointer-events-auto">
-              <div className="absolute inset-0 bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
               <div className="relative z-10 mb-1 mt-2">
                  <TopUpPill />
               </div>
            </div>
 
            <div className="relative w-full px-5 pt-3 pointer-events-auto">
-              {/* Píldora Explore/Auctions: Más delgada y con Liquid Glass Genuino */}
-              <div className="relative w-full h-[38px] rounded-full p-1 flex items-center shadow-inner overflow-hidden transform-gpu">
-                 <div className="absolute inset-0 rounded-full pointer-events-none" style={TRUE_LIQUID_GLASS} />
+              {/* Píldora de Pestañas: Liquid Glass Premium (Deep Blur) */}
+              <div className="relative w-full h-[38px] rounded-full p-1 flex items-center overflow-hidden transform-gpu">
+                 <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-[24px] backdrop-saturate-[180%] border border-white/[0.06] rounded-full pointer-events-none shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" />
                  
                  <div 
-                    className="absolute h-[30px] bg-[#ffffff]/10 rounded-full shadow-[0_2px_10px_rgba(0,0,0,0.2)] border border-white/20 backdrop-blur-md"
+                    className="absolute h-[30px] bg-[#2c2c2e]/90 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.4)] border border-white/[0.08]"
                     style={{ 
                        width: 'calc(33.33% - 2.66px)',
                        transform: `translateX(${activeTab === 'Explore' ? '2px' : activeTab === 'Auctions' ? 'calc(100% + 4px)' : 'calc(200% + 6px)'})`,
@@ -334,7 +318,7 @@ export function MarketView() {
                         {tracks.map((track, trackIdx) => (
                           <div key={trackIdx} className="w-full h-[110px] relative flex items-center overflow-visible">
                               <div
-                                className="flex gap-3 absolute left-1/2"
+                                className="flex gap-3 absolute left-1/2 transform-gpu will-change-transform"
                                 style={{
                                   transform: openingState === 'spinning' && isSpinningActive ? `translate3d(calc(-50px - ${25 * 112}px), 0, 0)` : openingState === 'result' ? `translate3d(calc(-50px - ${25 * 112}px), 0, 0)` : `translate3d(-50px, 0, 0)`,
                                   transition: isSpinningActive ? `transform 6s cubic-bezier(0.15, 0.85, 0.15, 1)` : 'none',
@@ -344,7 +328,7 @@ export function MarketView() {
                                    const isWinnerCard = idx === 25;
                                    const isResult = openingState === 'result';
                                    return (
-                                     <div key={idx} className={`w-[100px] h-[100px] flex-shrink-0 flex flex-col items-center justify-center rounded-[24px] border transition-all duration-700 ${isResult && !isWinnerCard ? 'opacity-0 scale-50' : isResult && isWinnerCard ? 'opacity-100 scale-110 bg-[#111111] border border-[#3b82f6] shadow-lg z-50' : 'bg-[#0d0d0f] border border-[#2c2c2e] opacity-80 shadow-sm'}`}>
+                                     <div key={idx} className={`w-[100px] h-[100px] flex-shrink-0 flex flex-col items-center justify-center rounded-[24px] border transition-all duration-700 transform-gpu ${isResult && !isWinnerCard ? 'opacity-0 scale-50' : isResult && isWinnerCard ? 'opacity-100 scale-110 bg-[#111111] border border-[#3b82f6] shadow-lg z-50' : 'bg-[#0d0d0f] border border-[#2c2c2e] opacity-80 shadow-sm'}`}>
                                         {item.type === 'dummy' ? (
                                          <span className="text-white/30 font-bold text-4xl" style={{ fontFamily: SFD }}>?</span>
                                         ) : (
@@ -455,7 +439,7 @@ export function MarketView() {
                <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} draggable={false} className="w-full h-full object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                {activeAuctionData.owned && (
                  <div className="absolute bottom-4 left-4 relative rounded-full px-3 py-1.5 flex items-center gap-2 z-10 overflow-hidden transform-gpu">
-                   <div className="absolute inset-0 rounded-full pointer-events-none" style={TRUE_LIQUID_GLASS} />
+                   <div className="absolute inset-0 bg-white/[0.05] backdrop-blur-[24px] backdrop-saturate-[180%] border border-white/[0.08] pointer-events-none" />
                    <div className="relative z-10 flex items-center gap-2">
                      <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#a855f7] border border-white/20" />
                      <span className="text-white text-[12px] font-medium" style={{ fontFamily: SF }}>Owned by <span className="font-bold">you</span></span>
@@ -557,7 +541,7 @@ export function MarketView() {
                     </div>
                  </div>
 
-                 {/* Explore Filters */}
+                 {/* Filtros Explore: Exactos a la imagen 1000010780 */}
                  <div className="flex items-center gap-2 mb-5 overflow-x-auto no-scrollbar pb-2 px-5 -mx-5 relative z-20">
                     <button type="button" className="h-[38px] w-[38px] bg-[#1c1c1e] rounded-full flex items-center justify-center text-[#8e8e93] border border-white/[0.04] active:scale-95 transition-transform shrink-0">
                        <Filter className="w-4 h-4" />
@@ -580,7 +564,6 @@ export function MarketView() {
                           style={{ fontFamily: SF }}
                        >
                           {filter === 'All' && activeFilter === filter && <img src="/telegram-star-icon.png" className="inline w-3.5 h-3.5 mr-1.5 opacity-90" alt="*" />}
-                          {filter === 'All' && activeFilter !== filter && <img src="/telegram-star-icon.png" className="inline w-3.5 h-3.5 mr-1.5 opacity-50 grayscale" alt="*" />}
                           {filter}
                        </button>
                     ))}
@@ -592,7 +575,7 @@ export function MarketView() {
                        <div key={box.id} onClick={() => setViewingBoxId(box.id)} className="relative flex flex-col group cursor-pointer animate-in fade-in zoom-in-95 duration-300">
                           {box.id === 'free' ? (
                              <>
-                                <div className="w-full aspect-[8/9] rounded-[24px] bg-gradient-to-b from-[#ef4444] to-[#991b1b] p-4 flex flex-col relative overflow-hidden shadow-lg border border-white/10 transition-transform hover:brightness-110">
+                                <div className="w-full aspect-[8/9] rounded-[24px] bg-[#ef4444] p-4 flex flex-col relative overflow-hidden shadow-lg border border-white/10 transition-transform hover:brightness-110">
                                    <div className="absolute top-4 left-4 z-10">
                                       <span className="text-white font-black text-[26px] leading-[1.1] uppercase drop-shadow-md tracking-tight" style={{ fontFamily: SFD }}>FREE<br/>CASE</span>
                                    </div>
@@ -600,7 +583,7 @@ export function MarketView() {
                                       <img src="/free-gift-box.png" className="w-[120%] h-[120%] object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.4)]" alt="Free Case" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = box.image; }} />
                                    </div>
                                 </div>
-                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-[#2563eb] rounded-[16px] px-3 flex items-center justify-center shadow-[0_4px_15px_rgba(37,99,235,0.4)] z-20 border border-white/10 hover:bg-[#3b82f6] transition-colors">
+                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-[#2563eb] transform-gpu will-change-transform rounded-[16px] px-3 flex items-center justify-center shadow-[0_4px_15px_rgba(37,99,235,0.4)] z-20 border border-white/10 hover:bg-[#3b82f6] transition-colors">
                                    <span className="text-white font-bold text-[15px]" style={{ fontFamily: SFD }}>{box.price}</span>
                                 </div>
                              </>
@@ -608,35 +591,37 @@ export function MarketView() {
                              <>
                                 <div className="w-full aspect-[8/9] rounded-[24px] bg-[#161618] p-3 flex flex-col relative overflow-hidden shadow-lg border border-white/[0.04] transition-all group-hover:bg-[#1c1c1e] group-hover:border-white/10">
                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] pointer-events-none transition-all duration-300 group-hover:opacity-100 opacity-60 group-hover:scale-110" style={{ background: `radial-gradient(circle, ${box.color}25 0%, transparent 65%)` }} />
+                                   
                                    <div className="w-full text-center relative z-20 mt-2 px-1">
                                       <span className="text-white font-bold text-[12px] uppercase tracking-widest truncate block w-full drop-shadow-sm" style={{ fontFamily: SFD }}>{box.name}</span>
                                    </div>
+
                                    <div className="flex-1 w-full relative z-10 flex items-center justify-center pb-2">
                                       <img src={box.image} className="w-[90%] h-[90%] object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.6)] transform transition-transform duration-500" alt={box.name} />
                                    </div>
                                 </div>
                                 
-                                {/* Barra inferior con True Liquid Glass */}
-                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3.5 flex items-center justify-between z-20 group overflow-hidden transform-gpu">
-                                   <div className="absolute inset-0 rounded-[16px] pointer-events-none" style={TRUE_LIQUID_GLASS} />
+                                <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] relative flex items-center justify-between px-3.5 shadow-lg rounded-[16px] overflow-hidden group z-20 border border-white/[0.08]">
+                                   <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[24px] backdrop-saturate-[180%] transition-all group-hover:bg-white/[0.05]" />
                                    <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
-                                      <div className="w-[20px] h-[20px] rounded-full bg-white/20 flex items-center justify-center shrink-0 border border-white/30 shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+                                      <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                          <Gift className="w-[10px] h-[10px] text-white" />
                                       </div>
-                                      <span className="text-white font-semibold text-[11px] uppercase tracking-wider drop-shadow-sm" style={{ fontFamily: SF }}>Open</span>
+                                      <span className="text-white/90 font-semibold text-[11px] uppercase tracking-wider" style={{ fontFamily: SF }}>Open</span>
                                    </div>
                                    <div className="relative z-10 flex items-center gap-1 shrink-0 pl-1">
-                                      <span className="text-white font-bold text-[13px] drop-shadow-sm" style={{ fontFamily: SFD }}>{box.price}</span>
-                                      <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none drop-shadow-sm" />
+                                      <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{box.price}</span>
+                                      <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none" />
                                    </div>
                                 </div>
                              </>
                           )}
 
                           {box.id !== 'free' && (
-                             <div className="absolute -top-2.5 left-3 z-40 bg-[#0a0a0b] px-2.5 py-[4px] rounded-md border border-white/10 shadow-lg flex items-center gap-1.5 transition-all group-hover:border-white/20">
-                                <div className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: box.color, color: box.color }} />
-                                <span className="text-white text-[9px] font-bold uppercase tracking-widest" style={{ fontFamily: SF }}>{box.id === 'blum_rocket' ? 'Featured' : 'High Tier'}</span>
+                             <div className="absolute -top-2.5 left-3 z-40 relative px-2.5 py-[4px] rounded-md border border-white/10 shadow-lg flex items-center gap-1.5 transition-all group-hover:border-white/20 overflow-hidden transform-gpu">
+                                <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-[20px] backdrop-saturate-[150%]" />
+                                <div className="relative z-10 w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: box.color, color: box.color }} />
+                                <span className="relative z-10 text-white text-[9px] font-bold uppercase tracking-widest" style={{ fontFamily: SF }}>{box.id === 'blum_rocket' ? 'Featured' : 'High Tier'}</span>
                              </div>
                           )}
                        </div>
@@ -652,41 +637,47 @@ export function MarketView() {
                   </button>
 
                   <div className="flex gap-2 w-full mb-3 relative">
-                     <div className="flex-1 bg-[#1c1c1e] rounded-[16px] flex items-center px-4 gap-2 border border-white/[0.04]">
-                        <Search className="w-5 h-5 text-[#8e8e93]" />
-                        <input type="text" placeholder="Search" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#8e8e93]" style={{ fontFamily: SF }} />
+                     <div className="flex-1 relative overflow-hidden rounded-[16px] flex items-center px-4 gap-2 border border-white/[0.06]">
+                        <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[24px] backdrop-saturate-[150%]" />
+                        <Search className="w-5 h-5 text-[#8e8e93] relative z-10" />
+                        <input type="text" placeholder="Search" className="w-full bg-transparent outline-none text-white text-[15px] font-medium placeholder:text-[#8e8e93] relative z-10" style={{ fontFamily: SF }} />
                      </div>
-                     <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.04] active:scale-95 transition-transform shrink-0">
-                        <ArrowDownUp className="w-5 h-5" />
+                     <button type="button" className="w-[44px] h-[44px] relative overflow-hidden rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.06] active:scale-95 transition-transform shrink-0">
+                        <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[24px] backdrop-saturate-[150%]" />
+                        <ArrowDownUp className="w-5 h-5 relative z-10" />
                      </button>
-                     <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.04] active:scale-95 transition-transform shrink-0">
-                        <Copy className="w-5 h-5" />
+                     <button type="button" className="w-[44px] h-[44px] relative overflow-hidden rounded-[14px] flex items-center justify-center text-[#8e8e93] border border-white/[0.06] active:scale-95 transition-transform shrink-0">
+                        <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[24px] backdrop-saturate-[150%]" />
+                        <Copy className="w-5 h-5 relative z-10" />
                      </button>
-                     <button onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')} className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-white/[0.04] active:scale-95 transition-transform shrink-0 shadow-sm">
-                        {viewMode === 'grid' ? <List className="w-5 h-5" /> : <LayoutGrid className="w-5 h-5" />}
+                     <button onClick={() => setViewMode(v => v === 'grid' ? 'list' : 'grid')} className="w-[44px] h-[44px] relative overflow-hidden rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0 shadow-sm">
+                        <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[24px] backdrop-saturate-[150%]" />
+                        {viewMode === 'grid' ? <List className="w-5 h-5 relative z-10" /> : <LayoutGrid className="w-5 h-5 relative z-10" />}
                      </button>
                   </div>
 
-                  {/* Filtros de subasta (Menú Dropdown Original) */}
-                  <div className="flex gap-2 w-full mb-4 relative">
-                     <button type="button" className="w-[44px] h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-center text-white border border-white/[0.04] active:scale-95 transition-transform shrink-0">
-                        <SlidersHorizontal className="w-5 h-5" />
+                  {/* Filtros Subasta: Como en la imagen 1000010777 */}
+                  <div className="flex gap-2 w-full mb-4 relative overflow-x-auto no-scrollbar">
+                     <button type="button" className="w-[44px] h-[44px] relative overflow-hidden rounded-[14px] flex items-center justify-center text-white border border-white/[0.06] active:scale-95 transition-transform shrink-0">
+                        <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[24px] backdrop-saturate-[150%]" />
+                        <SlidersHorizontal className="w-5 h-5 relative z-10" />
                      </button>
                      
-                     <div className="flex-1 flex gap-2 overflow-x-auto no-scrollbar relative">
-                        <div className="relative shrink-0 w-full">
-                           <button type="button" onClick={() => setOpenDropdown(openDropdown === 'sale' ? null : 'sale')} className={`w-full h-[44px] bg-[#1c1c1e] rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === 'sale' ? 'border-[#3b82f6] text-white' : 'border-white/[0.04] text-[#e5e5ea]'} transition-colors`} style={{ fontFamily: SF }}>
-                              {filters.sale} <ChevronDown className="w-4 h-4 text-[#8e8e93]" />
+                     {FILTER_OPTIONS.auctions.map(opt => (
+                        <div key={opt} className="relative shrink-0">
+                           <button type="button" onClick={() => setOpenDropdown(openDropdown === opt as any ? null : opt as any)} className={`h-[44px] relative overflow-hidden rounded-[14px] flex items-center justify-between px-4 font-bold text-[14px] border ${openDropdown === opt ? 'border-[#3b82f6] text-white' : 'border-white/[0.06] text-white'} transition-colors`} style={{ fontFamily: SF }}>
+                              <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[24px] backdrop-saturate-[150%]" />
+                              <span className="relative z-10 flex items-center gap-2">{opt} <ChevronDown className="w-4 h-4 text-[#8e8e93]" /></span>
                            </button>
-                           {openDropdown === 'sale' && (
+                           {openDropdown === opt && (
                               <div className="absolute top-[50px] left-0 bg-[#2c2c2e] border border-[#3a3a3c] rounded-[12px] shadow-lg w-full py-1 z-50 animate-in fade-in zoom-in-95 duration-100">
-                                 {FILTER_OPTIONS.sale.map(opt => (
-                                    <div key={opt} onClick={() => { setFilters({...filters, sale: opt}); setOpenDropdown(null) }} className="px-4 py-2.5 text-white text-[13px] font-medium hover:bg-[#3a3a3c] cursor-pointer">{opt}</div>
-                                 ))}
+                                 <div className="px-4 py-2.5 text-white text-[13px] font-medium hover:bg-[#3a3a3c] cursor-pointer">Opción 1</div>
+                                 <div className="px-4 py-2.5 text-white text-[13px] font-medium hover:bg-[#3a3a3c] cursor-pointer">Opción 2</div>
                               </div>
                            )}
                         </div>
-                     </div>
+                     ))}
+                     <div className="w-1 shrink-0" />
                    </div>
 
                   {viewMode === 'grid' ? (
@@ -701,20 +692,19 @@ export function MarketView() {
                                    <span className="text-white/60 font-medium text-[13px] leading-tight" style={{ fontFamily: SF }}>{item.tag}</span>
                                  </div>
                               </div>
-                              {/* Tarjetas Grid con True Liquid Glass */}
-                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3 flex items-center justify-between group overflow-hidden transform-gpu">
-                                <div className="absolute inset-0 rounded-[16px] pointer-events-none" style={TRUE_LIQUID_GLASS} />
+                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] relative px-3 flex items-center justify-between shadow-sm overflow-hidden z-20 rounded-[16px] border border-white/[0.08]">
+                                <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[24px] backdrop-saturate-[150%]" />
                                 <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
-                                  <div className="w-[20px] h-[20px] rounded-full bg-white/20 flex items-center justify-center shrink-0 border border-white/30 shadow-sm">
+                                  <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                      <div className="w-[12px] h-[12px] bg-white rounded-full flex items-center justify-center">
                                        <span className="text-black font-extrabold text-[8px] leading-none">$</span>
                                      </div>
                                   </div>
-                                  <span className="text-white font-semibold text-[11px] truncate drop-shadow-sm" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
+                                  <span className="text-white/90 font-semibold text-[11px] truncate" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
                                 </div>
                                 <div className="relative z-10 flex items-center gap-1 shrink-0 pl-1">
-                                  <span className="text-white font-bold text-[13px] drop-shadow-sm" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
-                                  <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none drop-shadow-sm" />
+                                  <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
+                                  <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none" />
                                 </div>
                               </div>
                            </div>
@@ -741,20 +731,19 @@ export function MarketView() {
                                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                                           </button>
                                        </div>
-                                       {/* Tarjetas de Lista con True Liquid Glass */}
-                                       <div className="mt-2 w-full h-[38px] relative rounded-[12px] px-3 flex items-center justify-between overflow-hidden transform-gpu">
-                                          <div className="absolute inset-0 rounded-[12px] pointer-events-none" style={TRUE_LIQUID_GLASS} />
+                                       <div className="mt-2 w-full h-[38px] relative rounded-[12px] px-3 flex items-center justify-between shadow-sm overflow-hidden border border-white/[0.08]">
+                                          <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[24px] backdrop-saturate-[150%]" />
                                           <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
-                                            <div className="w-[18px] h-[18px] rounded-full bg-white/20 flex items-center justify-center shrink-0 border border-white/30">
+                                            <div className="w-[18px] h-[18px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                                <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
                                                  <span className="text-black font-extrabold text-[7px] leading-none">$</span>
                                                </div>
                                             </div>
-                                            <span className="text-white font-semibold text-[11px] truncate drop-shadow-sm" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
+                                            <span className="text-white/90 font-semibold text-[11px] truncate" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
                                           </div>
                                           <div className="relative z-10 flex items-center gap-1 shrink-0 pl-1">
-                                            <span className="text-white font-bold text-[13px] drop-shadow-sm" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
-                                            <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[13px] h-[13px] object-contain pointer-events-none select-none drop-shadow-sm" />
+                                            <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
+                                            <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[13px] h-[13px] object-contain pointer-events-none select-none" />
                                           </div>
                                        </div>
                                     </div>
@@ -790,6 +779,7 @@ export function MarketView() {
         )}
       </div>
 
+      {/* Los modales se mantienen idénticos */}
       {isMakeOfferOpen && activeAuctionData && (
          <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsMakeOfferOpen(false)} />
@@ -962,6 +952,43 @@ export function MarketView() {
           </div>
         </div>
       )}
+
+      {/* Navbar Inferior idéntica a la imagen 1000010777 */}
+      <div className="fixed bottom-0 left-0 right-0 h-[80px] z-[90] pointer-events-auto border-t border-white/[0.04] overflow-hidden transform-gpu">
+        {/* Glows simulando las luces led de la imagen */}
+        <div className="absolute bottom-0 left-[30%] -translate-x-1/2 w-[80px] h-[50px] bg-[#3b82f6]/30 blur-[30px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-[70%] -translate-x-1/2 w-[80px] h-[50px] bg-[#eab308]/20 blur-[30px] rounded-full pointer-events-none" />
+        
+        {/* Cristal de la Navbar */}
+        <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-[24px] backdrop-saturate-[180%]" />
+
+        <div className="relative z-10 flex items-center justify-around h-full px-2 pb-2">
+           <button className="flex flex-col items-center justify-center gap-1 w-[64px] text-[#8e8e93] active:scale-95 transition-transform">
+             <div className="w-8 h-8 flex items-center justify-center"><LayoutGrid className="w-6 h-6" /></div>
+             <span className="text-[10px] font-semibold">Games</span>
+           </button>
+           <button className="flex flex-col items-center justify-center gap-1 w-[64px] text-white active:scale-95 transition-transform">
+             <div className="w-14 h-8 bg-[#3b82f6]/20 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.3)] border border-[#3b82f6]/30">
+               <ShoppingCart className="w-4 h-4 text-[#3b82f6]" />
+             </div>
+             <span className="text-[10px] font-semibold">Store</span>
+           </button>
+           <button className="flex flex-col items-center justify-center gap-1 w-[64px] text-[#8e8e93] active:scale-95 transition-transform">
+             <div className="w-8 h-8 flex items-center justify-center"><Gift className="w-6 h-6" /></div>
+             <span className="text-[10px] font-semibold">My gifts</span>
+           </button>
+           <button className="flex flex-col items-center justify-center gap-1 w-[64px] text-[#8e8e93] active:scale-95 transition-transform">
+             <div className="w-8 h-8 flex items-center justify-center"><Star className="w-6 h-6" /></div>
+             <span className="text-[10px] font-semibold">Season</span>
+           </button>
+           <button className="flex flex-col items-center justify-center gap-1 w-[64px] active:scale-95 transition-transform">
+             <div className="w-7 h-7 rounded-full border-[1.5px] border-[#8e8e93] overflow-hidden p-[1px]">
+                <div className="w-full h-full rounded-full bg-[#1c1c1e]" />
+             </div>
+             <span className="text-[10px] font-semibold text-[#8e8e93]">Profile</span>
+           </button>
+        </div>
+      </div>
 
     </div>
   )
