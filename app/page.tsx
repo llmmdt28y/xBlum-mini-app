@@ -18,7 +18,7 @@ import { Home, Target, Store, CircleUser, Loader2 } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = { 
-  id: number; 
+  id: number;
   first_name?: string; 
   last_name?: string; 
   username?: string; 
@@ -107,83 +107,113 @@ function NavBar() {
     if (user.photo_url) setPhotoUrl(user.photo_url)
   }, [])
 
-  type Tab = { id: string; label: string; icon: any; disabled?: boolean }
-  
-  const tabs: Tab[] = [
-    { id: "home",      label: "Home",      icon: Home },
-    { id: "levels",    label: "BP Levels", icon: Target }, 
-    { id: "market",    label: "Market",    icon: Store }, 
-    { id: "profile",   label: "Profile",   icon: CircleUser },
-  ]
+  // Verificamos si estamos en alguna de las vistas de Market para cambiar la lógica
+  const isMarketView = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
 
-  const mainViews = ["home", "levels", "market", "profile"] 
-  const activeTab = mainViews.includes(currentView) ? currentView : "home"
+  const handleLeftActionButton = () => {
+    if (isMarketView) {
+      // Si estamos en Market, el botón de la izquierda nos lleva a Home
+      setCurrentView('home' as any)
+    } else {
+      // Si no estamos en Market, el botón nos lleva a Market
+      setCurrentView('market' as any)
+    }
+  }
 
-  function handleTab(id: string) {
-    setCurrentView(id as any)
+  // Pestañas dinámicas para la píldora central dependiendo de dónde estemos
+  const centerTabs = isMarketView 
+    ? [
+        { id: "market", label: "Market", icon: Store, disabled: false },
+        { id: "shop", label: "Shop", icon: Target, disabled: false },
+        { id: "levels", label: "BP Levels", icon: Target, disabled: false },
+      ]
+    : [
+        { id: "home", label: "Home", icon: Home, disabled: false },
+        { id: "none1", label: "None", icon: null, disabled: true },
+        { id: "none2", label: "None", icon: null, disabled: true },
+      ]
+
+  // Estilo base Liquid Glass optimizado para evitar lag (filtros más bajos)
+  const liquidGlassStyle = {
+    background: "rgba(20, 20, 20, 0.65)",
+    backdropFilter: "blur(16px) saturate(180%)",
+    WebkitBackdropFilter: "blur(16px) saturate(180%)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
   }
 
   return (
     <div
       id="main-nav-bar"
-      className="fixed left-0 right-0 z-50 flex justify-center pointer-events-none transition-opacity duration-200"
+      className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none transition-opacity duration-200"
       style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 24px)" }}
     >
-      <div
-        className="pointer-events-auto flex items-center"
-        style={{
-          borderRadius: "100px",
-          padding: "6px",
-          gap: "4px",
-          background: "rgba(15, 15, 15, 0.75)",
-          backdropFilter: "blur(40px) saturate(200%) brightness(1.1)",
-          WebkitBackdropFilter: "blur(40px) saturate(200%) brightness(1.1)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          boxShadow: "0 12px 40px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1)",
-        }}
+      
+      {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
+      <button
+        onClick={handleLeftActionButton}
+        className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-300 active:scale-95 shrink-0"
+        style={{ ...liquidGlassStyle, width: "60px", height: "60px", borderRadius: "100px" }}
       >
-        {tabs.map(tab => {
-          const isActive   = activeTab === tab.id
+        {isMarketView ? (
+          <>
+            <Home size={22} color="rgba(255,255,255,0.85)" strokeWidth={1.8} />
+            <span className="text-white text-[10px] mt-1 font-medium opacity-80 tracking-wide">Home</span>
+          </>
+        ) : (
+          <>
+            <Store size={22} color="rgba(255,255,255,0.85)" strokeWidth={1.8} />
+            <span className="text-white text-[10px] mt-1 font-medium opacity-80 tracking-wide">Market</span>
+          </>
+        )}
+      </button>
+
+      {/* ── PÍLDORA CENTRAL: Opciones ── */}
+      <div
+        className="pointer-events-auto flex items-center justify-around flex-1 mx-3"
+        style={{ ...liquidGlassStyle, borderRadius: "100px", height: "60px", padding: "6px" }}
+      >
+        {centerTabs.map((tab, idx) => {
+          const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
           const isDisabled = !!tab.disabled
-          const Icon       = tab.icon
+          const Icon = tab.icon
 
           return (
             <button
-              key={tab.id}
+              key={`${tab.id}-${idx}`}
               disabled={isDisabled}
-              onClick={() => handleTab(tab.id)}
-              className="relative flex items-center justify-center transition-all duration-300 active:scale-95"
+              onClick={() => !isDisabled && setCurrentView(tab.id as any)}
+              className="relative flex items-center justify-center transition-all duration-300"
               style={{
-                opacity: isDisabled ? 0.25 : 1,
+                opacity: isDisabled ? 0.15 : 1,
                 pointerEvents: isDisabled ? "none" : "auto",
-                minWidth: isActive ? "105px" : "56px",
-                height: "48px",
+                width: isActive ? "auto" : "48px",
+                height: "100%",
+                flex: isActive ? "1" : "none",
+                maxWidth: isActive ? "120px" : "48px",
               }}
             >
-              {isActive ? (
+              {isActive && Icon ? (
                 <div
-                  className="flex items-center gap-2 px-5 h-full w-full justify-center"
+                  className="flex items-center gap-2 px-4 h-full w-full justify-center"
                   style={{
                     borderRadius: "100px",
                     background: "#ffffff",
                     boxShadow: "0 4px 15px rgba(255,255,255,0.2)",
                   }}
                 >
-                  {tab.id === "profile" && photoUrl ? (
-                    <img src={photoUrl} alt="" className="w-5 h-5 rounded-full object-cover" />
-                  ) : (
-                    <Icon size={18} color="#000000" strokeWidth={2.5} />
-                  )}
-                  <span className="text-black font-bold" style={{ fontSize: "14px", letterSpacing: "-0.02em" }}>
+                  <Icon size={18} color="#000000" strokeWidth={2.5} />
+                  <span className="text-black font-bold truncate" style={{ fontSize: "14px", letterSpacing: "-0.02em" }}>
                     {tab.label}
                   </span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center">
-                  {tab.id === "profile" && photoUrl ? (
-                    <img src={photoUrl} alt="" className="w-6 h-6 rounded-full object-cover" />
-                  ) : (
+                  {Icon ? (
                     <Icon size={22} color="rgba(255,255,255,0.45)" strokeWidth={1.8} />
+                  ) : (
+                    // Círculo decorativo vacío para los tabs que están en 'None'
+                    <div className="w-[6px] h-[6px] rounded-full bg-white/20"></div>
                   )}
                 </div>
               )}
@@ -191,6 +221,20 @@ function NavBar() {
           )
         })}
       </div>
+
+      {/* ── BOTÓN DERECHO: Profile ── */}
+      <button
+        onClick={() => setCurrentView('profile')}
+        className="pointer-events-auto flex items-center justify-center transition-all duration-300 active:scale-95 shrink-0 relative"
+        style={{ ...liquidGlassStyle, width: "60px", height: "60px", borderRadius: "100px" }}
+      >
+        {photoUrl ? (
+          <img src={photoUrl} alt="User" className="w-[50px] h-[50px] rounded-full object-cover shadow-inner" />
+        ) : (
+          <CircleUser size={26} color="rgba(255,255,255,0.85)" strokeWidth={1.8} />
+        )}
+      </button>
+
     </div>
   )
 }
@@ -198,7 +242,7 @@ function NavBar() {
 // ── App shell ──────────────────────────────────────────
 function AppContent() {
   const { currentView, isLoading } = useApp()
-  const showNav = ["home", "levels", "market", "profile"].includes(currentView)
+  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards"].includes(currentView)
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
