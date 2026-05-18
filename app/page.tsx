@@ -100,6 +100,9 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  
+  // Nuevo estado para recordar en qué "modo" estamos, independientemente de si abrimos el perfil
+  const [navMode, setNavMode] = useState<'home' | 'market'>('home')
 
   useEffect(() => {
     const user = getTgUser()
@@ -107,19 +110,26 @@ function NavBar() {
     if (user.photo_url) setPhotoUrl(user.photo_url)
   }, [])
 
-  // Verificamos si estamos en alguna de las vistas de Market para cambiar la lógica
-  const isMarketView = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
+  // Sincronizar el modo de navegación cuando cambiamos a vistas principales
+  useEffect(() => {
+    if (currentView === 'market' || currentView === 'shop' || currentView === 'levels') {
+      setNavMode('market')
+    } else if (currentView === 'home') {
+      setNavMode('home')
+    }
+    // Si currentView es 'profile', NO cambiamos el navMode, así recuerda la sección anterior.
+  }, [currentView])
 
   const handleLeftActionButton = () => {
-    if (isMarketView) {
+    if (navMode === 'market') {
       setCurrentView('home' as any)
     } else {
       setCurrentView('market' as any)
     }
   }
 
-  // Pestañas dinámicas para la píldora central
-  const centerTabs = isMarketView 
+  // Pestañas dinámicas basadas en el MODO, no en la vista actual
+  const centerTabs = navMode === 'market' 
     ? [
         { id: "market", label: "Market", icon: Store, disabled: false },
         { id: "shop", label: "Shop", icon: Target, disabled: false },
@@ -133,18 +143,16 @@ function NavBar() {
 
   // Estilo exacto de Telegram con el borde iluminado y sombra interior
   const liquidGlassStyle = {
-    background: "rgba(28, 28, 30, 0.75)", // Gris oscuro característico de Telegram/iOS
+    background: "rgba(28, 28, 30, 0.75)", 
     backdropFilter: "blur(25px) saturate(200%)",
     WebkitBackdropFilter: "blur(25px) saturate(200%)",
-    // Aquí está el truco del borde: 1px de blanco casi transparente
     border: "1px solid rgba(255, 255, 255, 0.08)",
-    // Sombra exterior suave + Sombra interior blanca en la parte superior para dar volumen
     boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
     transform: "translateZ(0)", 
     WebkitTransform: "translateZ(0)",
   }
 
-  // Color azul de Telegram
+  // Colores de interfaz
   const telegramBlue = "#3390ec"
   const inactiveGray = "#8e8e93"
 
@@ -155,16 +163,16 @@ function NavBar() {
       style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)" }}
     >
       
-      {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
+      {/* ── BOTÓN IZQUIERDO: Market / Home (Sin color azul) ── */}
       <button
         onClick={handleLeftActionButton}
         className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
         style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
       >
-        {isMarketView ? (
+        {navMode === 'market' ? (
           <>
-            <Home size={22} color={telegramBlue} strokeWidth={2.2} />
-            <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: telegramBlue }}>Home</span>
+            <Home size={22} color={inactiveGray} strokeWidth={1.8} />
+            <span className="text-[11px] mt-1 font-medium tracking-tight" style={{ color: inactiveGray }}>Home</span>
           </>
         ) : (
           <>
@@ -192,7 +200,6 @@ function NavBar() {
               className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[100px] flex-1 h-[56px]"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
-                // Fondo sutilmente azul para el elemento activo, como en Telegram
                 background: isActive ? "rgba(51, 144, 236, 0.15)" : "transparent",
               }}
             >
