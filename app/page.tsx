@@ -131,14 +131,14 @@ function NavBar() {
         { id: "none2", label: "None", icon: null, disabled: true },
       ]
 
-  // Estilo Liquid Glass Premium (Más transparente, mate, optimizado nativamente con GPU)
+  // Estilo Liquid Glass estilo Telegram Premium (Ultra translúcido y súper saturado)
   const liquidGlassStyle = {
-    background: "rgba(20, 20, 20, 0.42)",
-    backdropFilter: "blur(24px) saturate(170%) contrast(105%)",
-    WebkitBackdropFilter: "blur(24px) saturate(170%) contrast(105%)",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
-    boxShadow: "0 12px 36px rgba(0, 0, 0, 0.45)",
-    transform: "translateZ(0)", // Fuerza la renderización por GPU (Cero lag en Telegram Android)
+    background: "rgba(0, 0, 0, 0.25)",
+    backdropFilter: "blur(20px) saturate(180%)",
+    WebkitBackdropFilter: "blur(20px) saturate(180%)",
+    border: "1px solid rgba(255, 255, 255, 0.06)",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+    transform: "translateZ(0)", 
     WebkitTransform: "translateZ(0)",
   }
 
@@ -149,7 +149,7 @@ function NavBar() {
       style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)" }}
     >
       
-      {/* ── BOTÓN IZQUIERDO: Market / Home (Estilo Vertical) ── */}
+      {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
       <button
         onClick={handleLeftActionButton}
         className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
@@ -157,8 +157,8 @@ function NavBar() {
       >
         {isMarketView ? (
           <>
-            <Home size={20} color="#24a1de" strokeWidth={2.2} />
-            <span className="text-[#24a1de] text-[11px] mt-1 font-bold tracking-tight">Home</span>
+            <Home size={20} color="#33b5f7" strokeWidth={2.2} />
+            <span className="text-[#33b5f7] text-[11px] mt-1 font-bold tracking-tight">Home</span>
           </>
         ) : (
           <>
@@ -168,7 +168,7 @@ function NavBar() {
         )}
       </button>
 
-      {/* ── PÍLDORA CENTRAL: Módulos Fijos (Sin expansión, overlay azul transparente sin borde) ── */}
+      {/* ── PÍLDORA CENTRAL: Módulos Fijos (Radio de 100px, sin bordes de selección) ── */}
       <div
         className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-2"
         style={{ ...liquidGlassStyle, borderRadius: "100px", height: "64px" }}
@@ -186,7 +186,6 @@ function NavBar() {
               className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[100px] flex-1 h-[52px]"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
-                // Overlay azul más sutil y transparente, sin borde
                 background: isActive ? "rgba(36, 161, 222, 0.12)" : "transparent",
               }}
             >
@@ -199,13 +198,12 @@ function NavBar() {
                   />
                   <span 
                     className="mt-1 font-bold tracking-tight text-[11px]"
-                    style={{ color: isActive ? "#ffffff" : "rgba(255,255,255,0.45)" }}
+                    style={{ color: isActive ? "#33b5f7" : "rgba(255,255,255,0.45)" }}
                   >
                     {tab.label}
                   </span>
                 </>
               ) : (
-                // Indicador minimalista y elegante para los slots vacíos (None)
                 <div className="w-[6px] h-[6px] rounded-full bg-white/15"></div>
               )}
             </button>
@@ -213,17 +211,17 @@ function NavBar() {
         })}
       </div>
 
-      {/* ── BOTÓN DERECHO: Profile (Liquid Glass Frame) ── */}
+      {/* ── BOTÓN DERECHO: Profile ── */}
       <button
         onClick={() => setCurrentView('profile')}
-        className="pointer-events-auto flex items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
+        className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
         style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
       >
         {photoUrl ? (
           <div 
             className="rounded-full overflow-hidden p-[2px]" 
             style={{ 
-              background: currentView === 'profile' ? "rgba(36, 161, 222, 0.12)" : "rgba(255,255,255,0.1)",
+              background: currentView === 'profile' ? "rgba(36, 161, 222, 0.12)" : "transparent",
             }}
           >
             <img src={photoUrl} alt="User" className="w-[46px] h-[46px] rounded-full object-cover" />
@@ -237,7 +235,7 @@ function NavBar() {
             />
             <span 
               className="text-[11px] mt-1 font-medium tracking-tight"
-              style={{ color: currentView === 'profile' ? "#ffffff" : "rgba(255,255,255,0.7)" }}
+              style={{ color: currentView === 'profile' ? "#33b5f7" : "rgba(255,255,255,0.7)" }}
             >
               Perfil
             </span>
