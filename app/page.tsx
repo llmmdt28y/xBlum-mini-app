@@ -131,16 +131,22 @@ function NavBar() {
         { id: "none2", label: "None", icon: null, disabled: true },
       ]
 
-  // Estilo Liquid Glass estilo Telegram Premium (Ultra translúcido y súper saturado)
+  // Estilo exacto de Telegram con el borde iluminado y sombra interior
   const liquidGlassStyle = {
-    background: "rgba(0, 0, 0, 0.25)",
-    backdropFilter: "blur(20px) saturate(180%)",
-    WebkitBackdropFilter: "blur(20px) saturate(180%)",
-    border: "1px solid rgba(255, 255, 255, 0.06)",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+    background: "rgba(28, 28, 30, 0.75)", // Gris oscuro característico de Telegram/iOS
+    backdropFilter: "blur(25px) saturate(200%)",
+    WebkitBackdropFilter: "blur(25px) saturate(200%)",
+    // Aquí está el truco del borde: 1px de blanco casi transparente
+    border: "1px solid rgba(255, 255, 255, 0.08)",
+    // Sombra exterior suave + Sombra interior blanca en la parte superior para dar volumen
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
     transform: "translateZ(0)", 
     WebkitTransform: "translateZ(0)",
   }
+
+  // Color azul de Telegram
+  const telegramBlue = "#3390ec"
+  const inactiveGray = "#8e8e93"
 
   return (
     <div
@@ -157,20 +163,20 @@ function NavBar() {
       >
         {isMarketView ? (
           <>
-            <Home size={20} color="#33b5f7" strokeWidth={2.2} />
-            <span className="text-[#33b5f7] text-[11px] mt-1 font-bold tracking-tight">Home</span>
+            <Home size={22} color={telegramBlue} strokeWidth={2.2} />
+            <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: telegramBlue }}>Home</span>
           </>
         ) : (
           <>
-            <Store size={20} color="rgba(255,255,255,0.85)" strokeWidth={1.8} />
-            <span className="text-white text-[11px] mt-1 font-medium opacity-70 tracking-tight">Market</span>
+            <Store size={22} color={inactiveGray} strokeWidth={1.8} />
+            <span className="text-[11px] mt-1 font-medium tracking-tight" style={{ color: inactiveGray }}>Market</span>
           </>
         )}
       </button>
 
-      {/* ── PÍLDORA CENTRAL: Módulos Fijos (Radio de 100px, sin bordes de selección) ── */}
+      {/* ── PÍLDORA CENTRAL: Módulos Fijos ── */}
       <div
-        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-2"
+        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
         style={{ ...liquidGlassStyle, borderRadius: "100px", height: "64px" }}
       >
         {centerTabs.map((tab, idx) => {
@@ -183,28 +189,30 @@ function NavBar() {
               key={`${tab.id}-${idx}`}
               disabled={isDisabled}
               onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-              className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[100px] flex-1 h-[52px]"
+              className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[100px] flex-1 h-[56px]"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
-                background: isActive ? "rgba(36, 161, 222, 0.12)" : "transparent",
+                // Fondo sutilmente azul para el elemento activo, como en Telegram
+                background: isActive ? "rgba(51, 144, 236, 0.15)" : "transparent",
               }}
             >
               {Icon ? (
                 <>
                   <Icon 
-                    size={20} 
-                    color={isActive ? "#33b5f7" : "rgba(255,255,255,0.45)"} 
-                    strokeWidth={isActive ? 2.3 : 1.8} 
+                    size={22} 
+                    color={isActive ? telegramBlue : inactiveGray} 
+                    strokeWidth={isActive ? 2.2 : 1.8} 
+                    className={isActive ? "drop-shadow-sm" : ""}
                   />
                   <span 
-                    className="mt-1 font-bold tracking-tight text-[11px]"
-                    style={{ color: isActive ? "#33b5f7" : "rgba(255,255,255,0.45)" }}
+                    className={`mt-1 tracking-tight text-[11px] ${isActive ? "font-semibold" : "font-medium"}`}
+                    style={{ color: isActive ? telegramBlue : inactiveGray }}
                   >
                     {tab.label}
                   </span>
                 </>
               ) : (
-                <div className="w-[6px] h-[6px] rounded-full bg-white/15"></div>
+                <div className="w-[6px] h-[6px] rounded-full bg-white/10"></div>
               )}
             </button>
           )
@@ -221,21 +229,21 @@ function NavBar() {
           <div 
             className="rounded-full overflow-hidden p-[2px]" 
             style={{ 
-              background: currentView === 'profile' ? "rgba(36, 161, 222, 0.12)" : "transparent",
+              background: currentView === 'profile' ? "rgba(51, 144, 236, 0.2)" : "transparent",
             }}
           >
-            <img src={photoUrl} alt="User" className="w-[46px] h-[46px] rounded-full object-cover" />
+            <img src={photoUrl} alt="User" className="w-[48px] h-[48px] rounded-full object-cover" />
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center">
             <CircleUser 
-              size={20} 
-              color={currentView === 'profile' ? "#33b5f7" : "rgba(255,255,255,0.85)"} 
+              size={22} 
+              color={currentView === 'profile' ? telegramBlue : inactiveGray} 
               strokeWidth={currentView === 'profile' ? 2.2 : 1.8} 
             />
             <span 
-              className="text-[11px] mt-1 font-medium tracking-tight"
-              style={{ color: currentView === 'profile' ? "#33b5f7" : "rgba(255,255,255,0.7)" }}
+              className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-semibold" : "font-medium"}`}
+              style={{ color: currentView === 'profile' ? telegramBlue : inactiveGray }}
             >
               Perfil
             </span>
