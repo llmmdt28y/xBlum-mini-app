@@ -171,21 +171,20 @@ function NavBar() {
         { id: "none2", label: "None", icon: null, disabled: true },
       ]
 
-  // ── ESTILO CRISTAL ÓPTICO REALISTA (Basado en la captura) ──
+  // ── ESTILO CRISTAL ÓPTICO REALISTA ──
   const liquidGlassStyle = {
-    background: "rgba(30, 30, 30, 0.35)", // Más transparente para dejar pasar el color
-    backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", // Brightness actúa como lupa de luz
+    background: "rgba(30, 30, 30, 0.35)", 
+    backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", 
     WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(1.1)",
-    border: "1px solid rgba(255, 255, 255, 0.12)", // Borde afilado
-    // Sombra exterior difusa + Reflejo blanco nítido en el borde superior interno (el bisel)
+    border: "1px solid rgba(255, 255, 255, 0.12)", 
     boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
     transform: "translateZ(0)", 
     WebkitTransform: "translateZ(0)",
   }
 
-  // Colores de interfaz (Ajustados a la captura)
-  const neonBlue = "#33b5f7" // Azul más vibrante
-  const inactiveGlassText = "rgba(255, 255, 255, 0.6)" // Gris más luminoso e integrado
+  // Colores de interfaz 
+  const neonBlue = "#33b5f7" 
+  const inactiveGlassText = "rgba(255, 255, 255, 0.6)" 
 
   return (
     <div
@@ -233,10 +232,11 @@ function NavBar() {
               className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[100px] flex-1 h-[54px]"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
-                // El detalle maestro: La píldora oscura incrustada para el activo
-                background: isActive ? "rgba(18, 18, 18, 0.85)" : "transparent",
-                border: isActive ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid transparent",
-                boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
+                // Fondo oscurecido transparente (profundidad en el cristal)
+                background: isActive ? "rgba(0, 0, 0, 0.4)" : "transparent",
+                border: "none",
+                // La magia: Sombra paralela suave + Sombra interior blanca desplazada hacia abajo 1.5px (Abarca curva superior sin bajar por lados)
+                boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)" : "none",
               }}
             >
               {Icon ? (
@@ -262,14 +262,13 @@ function NavBar() {
         })}
       </div>
 
-      {/* ── BOTÓN DERECHO: Profile (Efecto de Anillo Convexo) ── */}
+      {/* ── BOTÓN DERECHO: Profile ── */}
       <button
         onClick={() => setCurrentView('profile')}
         className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
         style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
       >
         {photoUrl ? (
-          // El avatar es más pequeño que el botón, permitiendo ver el "anillo" de cristal
           <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
             <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
           </div>
@@ -380,7 +379,6 @@ function AppContent() {
         </div>
       )}
 
-      {/* Padding de 100px eliminado tal como solicitaste */}
       <div 
         className="bg-black flex flex-col relative" 
         style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
