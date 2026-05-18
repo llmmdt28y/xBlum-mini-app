@@ -23,6 +23,19 @@ const liquidGlassStyle = {
   transform: "translateZ(0)", 
   WebkitTransform: "translateZ(0)",
 }
+
+// ── LIQUID GLASS OPTIMIZADO PARA LISTAS (CERO LAG) ──
+const cardLiquidGlassStyle = {
+  background: "rgba(30, 30, 30, 0.45)", // Un poco de oscuridad extra para contraste
+  backdropFilter: "blur(10px) saturate(160%) brightness(1.1)", // Blur reducido a 10px para evitar lag en listas
+  WebkitBackdropFilter: "blur(10px) saturate(160%) brightness(1.1)",
+  border: "1px solid rgba(255, 255, 255, 0.12)", 
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
+  transform: "translateZ(0)", 
+  WebkitTransform: "translateZ(0)",
+  willChange: "transform", // Obliga al navegador a usar la GPU
+}
+
 const neonBlue = "#33b5f7" 
 const inactiveGlassText = "rgba(255, 255, 255, 0.6)"
 
@@ -458,7 +471,6 @@ export function MarketView() {
           <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-16 flex flex-col gap-6">
             
             <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center shadow-xl mb-2 overflow-hidden">
-               {/* Imagen adaptada para que llene todo el marco con object-cover */}
                <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} draggable={false} className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                {activeAuctionData.owned && (
                  <div className="absolute bottom-4 left-4 relative rounded-full px-3 py-1.5 flex items-center gap-2 shadow-sm z-10 overflow-hidden">
@@ -699,30 +711,31 @@ export function MarketView() {
                         {AUCTION_ITEMS.map((item) => (
                            <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="relative w-full mb-2 group cursor-pointer">
                               {/* ── TARJETA GRID CON IMAGEN FULL-COVER ── */}
-                              <div className="w-full aspect-[8/9] bg-[#161618] rounded-[16px] flex flex-col shadow-sm border border-white/[0.04] group-hover:border-white/10 transition-colors relative overflow-hidden">
-                                 {/* Imagen ocupando toda la tarjeta con object-cover */}
+                              <div className="w-full aspect-[8/9] bg-[#161618] rounded-[16px] shadow-sm border border-white/[0.04] group-hover:border-white/10 transition-colors relative overflow-hidden flex flex-col justify-end">
+                                 {/* Imagen ocupando toda la tarjeta con object-cover. Sin gradiente superpuesto */}
                                  <img src={item.imgSrc} alt={item.title} draggable={false} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ WebkitTouchCallout: "none" }} />
-                                 {/* Gradiente oscuro inferior para legibilidad del texto */}
-                                 <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b]/90 via-[#0a0a0b]/20 to-transparent pointer-events-none" />
                                  
-                                 <div className="w-full px-4 pb-10 pt-4 flex flex-col justify-end items-start relative z-10 h-full">
-                                    <span className="text-white font-bold text-[15px] leading-tight tracking-wide truncate w-full drop-shadow-md" style={{ fontFamily: SFD }}>{item.title}</span>
-                                   <span className="text-white/80 font-medium text-[13px] leading-tight drop-shadow-md" style={{ fontFamily: SF }}>{item.tag}</span>
+                                 {/* Título y Tag reubicados abajo y más chicos (alineados con el botón) */}
+                                 <div className="w-full px-3 pb-[28px] pt-4 flex flex-row justify-between items-center relative z-10">
+                                    <span className="text-white font-bold text-[13px] leading-tight truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" style={{ fontFamily: SFD }}>{item.title}</span>
+                                   <span className="text-white/90 font-medium text-[12px] leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" style={{ fontFamily: SF }}>{item.tag}</span>
                                  </div>
                               </div>
-                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3 flex items-center justify-between shadow-sm z-20 group">
-                                <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] rounded-[16px]" style={{ contain: 'paint' }} />
+                              
+                              {/* ── PÍLDORA INFERIOR (Liquid Glass Optimizado Cero Lag) ── */}
+                              <div className="absolute -bottom-[16px] left-0 right-0 w-full h-[38px] rounded-[100px] px-3 flex items-center justify-between z-20 group"
+                                   style={cardLiquidGlassStyle}>
                                 <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
-                                   <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
-                                     <div className="w-[12px] h-[12px] bg-white rounded-full flex items-center justify-center">
-                                        <span className="text-black font-extrabold text-[8px] leading-none">$</span>
+                                   <div className="w-[18px] h-[18px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
+                                     <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
+                                        <span className="text-black font-extrabold text-[7px] leading-none">$</span>
                                      </div>
                                   </div>
                                   <span className="text-white/90 font-semibold text-[11px] truncate" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
                                 </div>
                                 <div className="relative z-10 flex items-center gap-1 shrink-0 pl-1">
                                   <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
-                                  <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none" />
+                                  <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[12px] h-[12px] object-contain pointer-events-none select-none" />
                                 </div>
                               </div>
                            </div>
@@ -749,8 +762,10 @@ export function MarketView() {
                                              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                                           </button>
                                        </div>
-                                       <div className="mt-2 w-full h-[38px] relative rounded-[12px] px-3 flex items-center justify-between shadow-sm">
-                                          <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] rounded-[12px]" style={{ contain: 'paint' }} />
+                                       
+                                       {/* ── PÍLDORA INTERNA (Liquid Glass Optimizado) ── */}
+                                       <div className="mt-2 w-full h-[38px] rounded-[12px] px-3 flex items-center justify-between"
+                                            style={cardLiquidGlassStyle}>
                                           <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
                                             <div className="w-[18px] h-[18px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                                 <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
@@ -810,7 +825,6 @@ export function MarketView() {
              </div>
              <div className="flex items-center gap-3 bg-[#111111] border border-[#1c1c1e] p-3 rounded-[16px] mb-4">
                 <div className="w-12 h-12 rounded-[10px] bg-[#1c1c1e] overflow-hidden flex items-center justify-center shrink-0">
-                  {/* Imagen de miniatura en el modal de oferta también corregida */}
                   <img src={activeAuctionData.imgSrc} draggable={false} className="w-full h-full object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: 'none' }} alt="NFT" />
                 </div>
                 <div className="flex flex-col">
