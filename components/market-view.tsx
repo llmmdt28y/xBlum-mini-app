@@ -26,7 +26,7 @@ const liquidGlassStyle = {
 
 // ── LIQUID GLASS AMARILLO PARA EL BOTÓN TOP-UP ──
 const yellowLiquidGlassStyle = {
-  background: "rgba(234, 179, 8, 0.20)", // Fondo amarillo más evidente pero translúcido
+  background: "rgba(234, 179, 8, 0.18)", // Fondo un poco amarillo/dorado
   backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", 
   WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(1.1)",
   border: "1px solid rgba(250, 204, 21, 0.25)", 
@@ -264,13 +264,13 @@ export function MarketView() {
        className={`relative px-4 flex items-center justify-center transition-transform active:scale-95 group shadow-sm ${className}`}
        style={{
            ...yellowLiquidGlassStyle,
-           height: "38px", // Ahora es del mismo tamaño de altura (delgado) que la píldora selectora
-           borderRadius: "100px" // Redondeado de píldora
+           height: "38px", // Ahora es del mismo tamaño (delgada) que la píldora selectora
+           borderRadius: "100px" 
        }}
     >
        <div className="relative z-10 flex items-center justify-center gap-1.5">
-          <img src="/telegram-star-icon.png" alt="Stars" className="w-[16px] h-[16px] object-contain pointer-events-none select-none drop-shadow-sm" />
-          <span className="text-[#facc15] font-bold text-[14px] leading-none mt-[1px] drop-shadow-md" style={{ fontFamily: SFD }}>
+          <img src="/telegram-star-icon.png" alt="Stars" className="w-[14px] h-[14px] object-contain pointer-events-none select-none drop-shadow-sm" />
+          <span className="text-[#facc15] font-bold text-[13px] leading-none mt-[1px] drop-shadow-md" style={{ fontFamily: SFD }}>
              {myStars.toLocaleString('en-US')} Stars
           </span>
        </div>
@@ -285,54 +285,55 @@ export function MarketView() {
       <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.2) 0%, rgba(74,56,48,0) 70%)', contain: 'paint' }} />
 
       {!viewingBoxId && !viewingAuctionId && (
-        <>
-           {/* RENDERIZADO GLOBAL DEL BOTÓN FIXED */}
-           <TopUpPill className="fixed top-[14px] left-1/2 -translate-x-1/2 z-[120]" />
+        <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none">
+           
+           {/* 1. BLUR OPTIMIZADO: Termina justo después de las píldoras */}
+           <div className="absolute top-0 left-0 right-0 h-[154px] bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
 
-           <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none">
-              {/* Blur del header extendido ligeramente hacia abajo (h-[72px]) para cubrir todo */}
-              <div className="absolute top-0 left-0 right-0 h-[72px] bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
+           {/* 2. TOP UP PILL: Posición alineada con el botón Back nativo de Telegram */}
+           <div className="absolute top-[58px] left-0 right-0 flex justify-center pointer-events-auto">
+              <TopUpPill />
+           </div>
 
-              {/* Píldora selectora movida hacia arriba, justo debajo del blur */}
-              <div className="absolute top-[80px] left-0 right-0 px-5 pointer-events-auto">
-                 <div
-                   className="relative w-full flex items-center justify-between p-1"
-                   style={{ ...liquidGlassStyle, borderRadius: "100px", height: "38px" }}
-                 >
-                   {(['Explore', 'Auctions', 'Listed'] as const).map((tab, idx) => {
-                     const isActive = activeTab === tab
+           {/* 3. PÍLDORA SELECTORA: Movida más arriba y más pegada al botón de saldo */}
+           <div className="absolute top-[108px] left-0 right-0 px-5 pointer-events-auto">
+              <div
+                className="relative w-full flex items-center justify-between p-1"
+                style={{ ...liquidGlassStyle, borderRadius: "100px", height: "38px" }}
+              >
+                {(['Explore', 'Auctions', 'Listed'] as const).map((tab, idx) => {
+                  const isActive = activeTab === tab
 
-                     return (
-                       <button
-                         key={`${tab}-${idx}`}
-                         onClick={() => setActiveTab(tab)}
-                         className="relative flex flex-col items-center justify-center transition-all duration-300 ease-out rounded-full flex-1 h-full"
-                         style={{
-                           pointerEvents: "auto",
-                           background: isActive ? "rgba(0, 0, 0, 0.4)" : "transparent",
-                           border: "none",
-                           boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)" : "none",
-                         }}
-                       >
-                         <span 
-                           className={`tracking-tight text-[13px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
-                           style={{ color: isActive ? neonBlue : inactiveGlassText, fontFamily: SF }}
-                         >
-                           {tab}
-                         </span>
-                       </button>
-                     )
-                   })}
-                 </div>
+                  return (
+                    <button
+                      key={`${tab}-${idx}`}
+                      onClick={() => setActiveTab(tab)}
+                      className="relative flex flex-col items-center justify-center transition-all duration-300 ease-out rounded-full flex-1 h-full"
+                      style={{
+                        pointerEvents: "auto",
+                        background: isActive ? "rgba(0, 0, 0, 0.4)" : "transparent",
+                        border: "none",
+                        boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)" : "none",
+                      }}
+                    >
+                      <span 
+                        className={`tracking-tight text-[13px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
+                        style={{ color: isActive ? neonBlue : inactiveGlassText, fontFamily: SF }}
+                      >
+                        {tab}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
            </div>
-        </>
+        </div>
       )}
 
       <div className="flex-1 overflow-y-auto relative z-10 w-full h-full pb-32">
-        {/* Separador ajustado al nuevo layout más comprimido */}
+        {/* Separador superior dinámico para que el contenido pase por debajo del blur suavemente */}
         {!viewingBoxId && !viewingAuctionId && (
-           <div className="w-full h-[132px] shrink-0 pointer-events-none" />
+           <div className="w-full h-[164px] shrink-0 pointer-events-none" />
         )}
         
         {viewingBoxId && activeBoxData ? (
@@ -340,7 +341,8 @@ export function MarketView() {
              <div className="flex items-center justify-between mb-8">
                 <div className="w-8" />
                 <h2 className="text-white font-bold text-[24px] text-center" style={{ fontFamily: SFD }}>{activeBoxData.name}</h2>
-                <TopUpPill />
+                {/* En esta vista la pill usa su versión relativa normal */}
+                <TopUpPill className="h-[38px] w-auto" />
               </div>
              
              <div className="flex flex-col items-center pt-12">
@@ -487,7 +489,7 @@ export function MarketView() {
           </div>
           
         ) : viewingAuctionId && activeAuctionData ? (
-          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-16 flex flex-col gap-6">
+          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-20 flex flex-col gap-6">
             
             <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center shadow-xl mb-2 overflow-hidden">
                <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} draggable={false} className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
@@ -595,7 +597,7 @@ export function MarketView() {
                     </div>
                  </div>
 
-                 {/* Explore Filters: Píldoras horizontales deslizables con indicador seleccionado */}
+                 {/* Explore Filters */}
                  <div className="flex items-center gap-2 mb-5 overflow-x-auto no-scrollbar pb-2 px-5 -mx-5 relative z-20">
                     <button type="button" className="h-[38px] w-[38px] bg-[#1c1c1e] rounded-full flex items-center justify-center text-[#8e8e93] border border-white/[0.04] active:scale-95 transition-transform shrink-0">
                        <Filter className="w-4 h-4" />
