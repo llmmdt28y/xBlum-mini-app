@@ -112,15 +112,13 @@ function NavBar() {
 
   const handleLeftActionButton = () => {
     if (isMarketView) {
-      // Si estamos en Market, el botón de la izquierda nos lleva a Home
       setCurrentView('home' as any)
     } else {
-      // Si no estamos en Market, el botón nos lleva a Market
       setCurrentView('market' as any)
     }
   }
 
-  // Pestañas dinámicas para la píldora central dependiendo de dónde estemos
+  // Pestañas dinámicas para la píldora central (Sin alterar tamaños ni expansiones)
   const centerTabs = isMarketView 
     ? [
         { id: "market", label: "Market", icon: Store, disabled: false },
@@ -133,45 +131,47 @@ function NavBar() {
         { id: "none2", label: "None", icon: null, disabled: true },
       ]
 
-  // Estilo base Liquid Glass optimizado para evitar lag (filtros más bajos)
+  // Estilo Liquid Glass Premium (Más transparente, mate, optimizado nativamente con GPU)
   const liquidGlassStyle = {
-    background: "rgba(20, 20, 20, 0.65)",
-    backdropFilter: "blur(16px) saturate(180%)",
-    WebkitBackdropFilter: "blur(16px) saturate(180%)",
-    border: "1px solid rgba(255,255,255,0.08)",
-    boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+    background: "rgba(20, 20, 20, 0.42)",
+    backdropFilter: "blur(24px) saturate(170%) contrast(105%)",
+    WebkitBackdropFilter: "blur(24px) saturate(170%) contrast(105%)",
+    border: "1px solid rgba(255, 255, 255, 0.08)",
+    boxShadow: "0 12px 36px rgba(0, 0, 0, 0.45)",
+    transform: "translateZ(0)", // Fuerza la renderización por GPU (Cero lag en Telegram Android)
+    WebkitTransform: "translateZ(0)",
   }
 
   return (
     <div
       id="main-nav-bar"
       className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none transition-opacity duration-200"
-      style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 24px)" }}
+      style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)" }}
     >
       
-      {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
+      {/* ── BOTÓN IZQUIERDO: Market / Home (Estilo Vertical) ── */}
       <button
         onClick={handleLeftActionButton}
-        className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-300 active:scale-95 shrink-0"
-        style={{ ...liquidGlassStyle, width: "60px", height: "60px", borderRadius: "100px" }}
+        className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
+        style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "18px" }}
       >
         {isMarketView ? (
           <>
-            <Home size={22} color="rgba(255,255,255,0.85)" strokeWidth={1.8} />
-            <span className="text-white text-[10px] mt-1 font-medium opacity-80 tracking-wide">Home</span>
+            <Home size={20} color="#24a1de" strokeWidth={2.2} />
+            <span className="text-[#24a1de] text-[11px] mt-1 font-bold tracking-tight">Home</span>
           </>
         ) : (
           <>
-            <Store size={22} color="rgba(255,255,255,0.85)" strokeWidth={1.8} />
-            <span className="text-white text-[10px] mt-1 font-medium opacity-80 tracking-wide">Market</span>
+            <Store size={20} color="rgba(255,255,255,0.85)" strokeWidth={1.8} />
+            <span className="text-white text-[11px] mt-1 font-medium opacity-70 tracking-tight">Market</span>
           </>
         )}
       </button>
 
-      {/* ── PÍLDORA CENTRAL: Opciones ── */}
+      {/* ── PÍLDORA CENTRAL: Módulos Fijos (Sin expansión, con overlay azul traslúcido) ── */}
       <div
-        className="pointer-events-auto flex items-center justify-around flex-1 mx-3"
-        style={{ ...liquidGlassStyle, borderRadius: "100px", height: "60px", padding: "6px" }}
+        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-2"
+        style={{ ...liquidGlassStyle, borderRadius: "20px", height: "64px" }}
       >
         {centerTabs.map((tab, idx) => {
           const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
@@ -183,55 +183,67 @@ function NavBar() {
               key={`${tab.id}-${idx}`}
               disabled={isDisabled}
               onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-              className="relative flex items-center justify-center transition-all duration-300"
+              className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[14px] flex-1 h-[52px]"
               style={{
-                opacity: isDisabled ? 0.15 : 1,
                 pointerEvents: isDisabled ? "none" : "auto",
-                width: isActive ? "auto" : "48px",
-                height: "100%",
-                flex: isActive ? "1" : "none",
-                maxWidth: isActive ? "120px" : "48px",
+                // Overlay azul con opacidad sobre la sección actual sin alterar las dimensiones
+                background: isActive ? "rgba(36, 161, 222, 0.22)" : "transparent",
+                border: isActive ? "1px solid rgba(36, 161, 222, 0.2)" : "1px solid transparent",
               }}
             >
-              {isActive && Icon ? (
-                <div
-                  className="flex items-center gap-2 px-4 h-full w-full justify-center"
-                  style={{
-                    borderRadius: "100px",
-                    background: "#ffffff",
-                    boxShadow: "0 4px 15px rgba(255,255,255,0.2)",
-                  }}
-                >
-                  <Icon size={18} color="#000000" strokeWidth={2.5} />
-                  <span className="text-black font-bold truncate" style={{ fontSize: "14px", letterSpacing: "-0.02em" }}>
+              {Icon ? (
+                <>
+                  <Icon 
+                    size={20} 
+                    color={isActive ? "#33b5f7" : "rgba(255,255,255,0.45)"} 
+                    strokeWidth={isActive ? 2.3 : 1.8} 
+                  />
+                  <span 
+                    className="mt-1 font-bold tracking-tight text-[11px]"
+                    style={{ color: isActive ? "#ffffff" : "rgba(255,255,255,0.45)" }}
+                  >
                     {tab.label}
                   </span>
-                </div>
+                </>
               ) : (
-                <div className="flex flex-col items-center justify-center">
-                  {Icon ? (
-                    <Icon size={22} color="rgba(255,255,255,0.45)" strokeWidth={1.8} />
-                  ) : (
-                    // Círculo decorativo vacío para los tabs que están en 'None'
-                    <div className="w-[6px] h-[6px] rounded-full bg-white/20"></div>
-                  )}
-                </div>
+                // Indicador minimalista y elegante para los slots vacíos (None)
+                <div className="w-[6px] h-[6px] rounded-full bg-white/15"></div>
               )}
             </button>
           )
         })}
       </div>
 
-      {/* ── BOTÓN DERECHO: Profile ── */}
+      {/* ── BOTÓN DERECHO: Profile (Liquid Glass Frame) ── */}
       <button
         onClick={() => setCurrentView('profile')}
-        className="pointer-events-auto flex items-center justify-center transition-all duration-300 active:scale-95 shrink-0 relative"
-        style={{ ...liquidGlassStyle, width: "60px", height: "60px", borderRadius: "100px" }}
+        className="pointer-events-auto flex items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
+        style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "18px" }}
       >
         {photoUrl ? (
-          <img src={photoUrl} alt="User" className="w-[50px] h-[50px] rounded-full object-cover shadow-inner" />
+          <div 
+            className="rounded-full overflow-hidden p-[2px]" 
+            style={{ 
+              background: currentView === 'profile' ? "rgba(36, 161, 222, 0.4)" : "rgba(255,255,255,0.1)",
+              border: currentView === 'profile' ? "1px solid #33b5f7" : "1px solid transparent"
+            }}
+          >
+            <img src={photoUrl} alt="User" className="w-[46px] h-[46px] rounded-full object-cover" />
+          </div>
         ) : (
-          <CircleUser size={26} color="rgba(255,255,255,0.85)" strokeWidth={1.8} />
+          <div className="flex flex-col items-center justify-center">
+            <CircleUser 
+              size={20} 
+              color={currentView === 'profile' ? "#33b5f7" : "rgba(255,255,255,0.85)"} 
+              strokeWidth={currentView === 'profile' ? 2.2 : 1.8} 
+            />
+            <span 
+              className="text-[11px] mt-1 font-medium tracking-tight"
+              style={{ color: currentView === 'profile' ? "#ffffff" : "rgba(255,255,255,0.7)" }}
+            >
+              Perfil
+            </span>
+          </div>
         )}
       </button>
 
