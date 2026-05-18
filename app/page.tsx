@@ -118,7 +118,7 @@ function NavBar() {
     }
   }
 
-  // Pestañas dinámicas para la píldora central (Sin alterar tamaños ni expansiones)
+  // Pestañas dinámicas para la píldora central
   const centerTabs = isMarketView 
     ? [
         { id: "market", label: "Market", icon: Store, disabled: false },
@@ -153,7 +153,7 @@ function NavBar() {
       <button
         onClick={handleLeftActionButton}
         className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
-        style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "18px" }}
+        style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
       >
         {isMarketView ? (
           <>
@@ -168,10 +168,10 @@ function NavBar() {
         )}
       </button>
 
-      {/* ── PÍLDORA CENTRAL: Módulos Fijos (Sin expansión, con overlay azul traslúcido) ── */}
+      {/* ── PÍLDORA CENTRAL: Módulos Fijos (Sin expansión, overlay azul transparente sin borde) ── */}
       <div
         className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-2"
-        style={{ ...liquidGlassStyle, borderRadius: "20px", height: "64px" }}
+        style={{ ...liquidGlassStyle, borderRadius: "100px", height: "64px" }}
       >
         {centerTabs.map((tab, idx) => {
           const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
@@ -183,12 +183,11 @@ function NavBar() {
               key={`${tab.id}-${idx}`}
               disabled={isDisabled}
               onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-              className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[14px] flex-1 h-[52px]"
+              className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[100px] flex-1 h-[52px]"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
-                // Overlay azul con opacidad sobre la sección actual sin alterar las dimensiones
-                background: isActive ? "rgba(36, 161, 222, 0.22)" : "transparent",
-                border: isActive ? "1px solid rgba(36, 161, 222, 0.2)" : "1px solid transparent",
+                [span_2](start_span)[span_3](start_span)// Overlay azul más sutil y transparente, sin borde[span_2](end_span)[span_3](end_span)
+                background: isActive ? "rgba(36, 161, 222, 0.12)" : "transparent",
               }}
             >
               {Icon ? (
@@ -218,14 +217,13 @@ function NavBar() {
       <button
         onClick={() => setCurrentView('profile')}
         className="pointer-events-auto flex items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
-        style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "18px" }}
+        style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
       >
         {photoUrl ? (
           <div 
             className="rounded-full overflow-hidden p-[2px]" 
             style={{ 
-              background: currentView === 'profile' ? "rgba(36, 161, 222, 0.4)" : "rgba(255,255,255,0.1)",
-              border: currentView === 'profile' ? "1px solid #33b5f7" : "1px solid transparent"
+              background: currentView === 'profile' ? "rgba(36, 161, 222, 0.12)" : "rgba(255,255,255,0.1)",
             }}
           >
             <img src={photoUrl} alt="User" className="w-[46px] h-[46px] rounded-full object-cover" />
