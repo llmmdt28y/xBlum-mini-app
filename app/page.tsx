@@ -186,7 +186,7 @@ function NavBar() {
               className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[100px] flex-1 h-[52px]"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
-                [span_2](start_span)[span_3](start_span)// Overlay azul más sutil y transparente, sin borde[span_2](end_span)[span_3](end_span)
+                // Overlay azul más sutil y transparente, sin borde
                 background: isActive ? "rgba(36, 161, 222, 0.12)" : "transparent",
               }}
             >
