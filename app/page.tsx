@@ -133,7 +133,6 @@ function NavBar() {
       setLastScrollY(currentScrollY)
     }
 
-    // Usamos passive: true para que el listener no bloquee el hilo de renderizado (mejor optimización)
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [lastScrollY])
@@ -186,12 +185,6 @@ function NavBar() {
   const neonBlue = "#33b5f7" 
   const inactiveGlassText = "rgba(255, 255, 255, 0.6)" 
 
-  // ── LÓGICA DE ANIMACIÓN DE LA GOTA ──
-  // Encontramos el índice de la pestaña activa para mover la gota.
-  const activeIndex = centerTabs.findIndex(tab => currentView === tab.id || (tab.id === 'home' && currentView === 'home'))
-  const safeActiveIndex = activeIndex >= 0 ? activeIndex : 0
-  const showIndicator = activeIndex >= 0 // Ocultar si estamos en profile
-
   return (
     <div
       id="main-nav-bar"
@@ -222,26 +215,9 @@ function NavBar() {
 
       {/* ── PÍLDORA CENTRAL: Módulos Fijos ── */}
       <div
-        className="pointer-events-auto relative flex items-center justify-between flex-1 mx-3 px-1.5"
+        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
         style={{ ...liquidGlassStyle, borderRadius: "100px", height: "64px" }}
       >
-        {/* ── INDICADOR FLOTANTE (LA GOTA ANIMADA) ── */}
-        <div
-          className="absolute top-[5px] bottom-[5px] rounded-[100px] pointer-events-none"
-          style={{
-            left: "6px", // Empieza alineado con el padding de px-1.5
-            width: "calc((100% - 12px) / 3)", // Ocupa un tercio del espacio exacto
-            transform: `translateX(calc(${safeActiveIndex * 100}%))`, // Mueve el ancho entero X veces
-            // Curva fluida tipo gota (bouncy cubic-bezier)
-            transition: "transform 0.45s cubic-bezier(0.34, 1.15, 0.64, 1), opacity 0.3s ease",
-            opacity: showIndicator ? 1 : 0,
-            background: "rgba(18, 18, 18, 0.85)", // Fondo oscuro incrustado
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)",
-            zIndex: 0,
-          }}
-        />
-
         {centerTabs.map((tab, idx) => {
           const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
           const isDisabled = !!tab.disabled
@@ -252,13 +228,15 @@ function NavBar() {
               key={`${tab.id}-${idx}`}
               disabled={isDisabled}
               onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-              // z-10 para asegurar que el texto/icono queden por encima de la "gota" flotante
-              className="relative z-10 flex flex-col items-center justify-center transition-all duration-200 rounded-[100px] flex-1 h-[54px]"
+              // Aumentamos el tiempo de transición para que el escalado sea fluido (ease-out)
+              className="relative flex flex-col items-center justify-center transition-all duration-300 ease-out rounded-[100px] flex-1 h-[54px]"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
-                background: "transparent",
-                border: "none",
-                boxShadow: "none",
+                // Fondo oscurecido transparente restaurado con la sombra interior del bisel blanco superior
+                background: isActive ? "rgba(0, 0, 0, 0.4)" : "transparent",
+                boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)" : "none",
+                // Animación de crecimiento del botón (Gota/Lupa)
+                transform: isActive ? "scale(1.08)" : "scale(1)", 
               }}
             >
               {Icon ? (
@@ -267,7 +245,6 @@ function NavBar() {
                     size={22} 
                     color={isActive ? neonBlue : inactiveGlassText} 
                     strokeWidth={isActive ? 2.5 : 2} 
-                    // Transición de color suave para acompañar a la gota
                     className={`transition-colors duration-300 ${isActive ? "drop-shadow-md" : ""}`}
                   />
                   <span 
