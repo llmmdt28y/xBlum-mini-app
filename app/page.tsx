@@ -101,8 +101,12 @@ function NavBar() {
   const { currentView, setCurrentView } = useApp()
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   
-  // Nuevo estado para recordar en qué "modo" estamos, independientemente de si abrimos el perfil
-  const [navMode, setNavMode] = useState<'home' | 'market'>('home')
+  // Memoria del modo de navegación para cuando el usuario abra el Perfil
+  const [storedNavMode, setStoredNavMode] = useState<'home' | 'market'>('home')
+
+  // Estados para ocultar/mostrar la barra al hacer scroll
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
 
   useEffect(() => {
     const user = getTgUser()
@@ -110,26 +114,52 @@ function NavBar() {
     if (user.photo_url) setPhotoUrl(user.photo_url)
   }, [])
 
-  // Sincronizar el modo de navegación cuando cambiamos a vistas principales
+  // ── LÓGICA DE SCROLL PARA OCULTAR/MOSTRAR LA BARRA ──
   useEffect(() => {
-    if (currentView === 'market' || currentView === 'shop' || currentView === 'levels') {
-      setNavMode('market')
-    } else if (currentView === 'home') {
-      setNavMode('home')
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+
+      // Umbral para ignorar pequeños rebotes (bounces) y no activar la animación por error
+      if (Math.abs(currentScrollY - lastScrollY) < 10) return
+
+      // Si hacemos scroll hacia abajo y hemos pasado un margen de 50px
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setIsVisible(false)
+      } else {
+        // Si hacemos scroll hacia arriba o estamos en la cima
+        setIsVisible(true)
+      }
+      
+      setLastScrollY(currentScrollY)
     }
-    // Si currentView es 'profile', NO cambiamos el navMode, así recuerda la sección anterior.
-  }, [currentView])
+
+    // Usamos passive: true para que el listener no bloquee el hilo de renderizado (mejor optimización)
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [lastScrollY])
+
+  // Determinamos el modo síncronamente durante el render
+  const isMarketSection = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
+  const isHomeSection = currentView === 'home'
+  
+  const activeNavMode = isMarketSection ? 'market' : (isHomeSection ? 'home' : storedNavMode)
+
+  useEffect(() => {
+    if (activeNavMode !== storedNavMode) {
+      setStoredNavMode(activeNavMode)
+    }
+  }, [activeNavMode, storedNavMode])
 
   const handleLeftActionButton = () => {
-    if (navMode === 'market') {
+    if (activeNavMode === 'market') {
       setCurrentView('home' as any)
     } else {
       setCurrentView('market' as any)
     }
   }
 
-  // Pestañas dinámicas basadas en el MODO, no en la vista actual
-  const centerTabs = navMode === 'market' 
+  // Pestañas dinámicas basadas en el MODO ACTIVO
+  const centerTabs = activeNavMode === 'market' 
     ? [
         { id: "market", label: "Market", icon: Store, disabled: false },
         { id: "shop", label: "Shop", icon: Target, disabled: false },
@@ -141,7 +171,7 @@ function NavBar() {
         { id: "none2", label: "None", icon: null, disabled: true },
       ]
 
-  // Estilo exacto de Telegram con el borde iluminado y sombra interior
+  // Estilo exacto de Telegram
   const liquidGlassStyle = {
     background: "rgba(28, 28, 30, 0.75)", 
     backdropFilter: "blur(25px) saturate(200%)",
@@ -152,24 +182,26 @@ function NavBar() {
     WebkitTransform: "translateZ(0)",
   }
 
-  // Colores de interfaz
   const telegramBlue = "#3390ec"
   const inactiveGray = "#8e8e93"
 
   return (
     <div
       id="main-nav-bar"
-      className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none transition-opacity duration-200"
+      // Aquí se agrega el translate-y para ocultar la barra empujándola hacia abajo
+      className={`fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none transition-transform duration-300 ease-in-out ${
+        isVisible ? "translate-y-0" : "translate-y-[150px]"
+      }`}
       style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)" }}
     >
       
-      {/* ── BOTÓN IZQUIERDO: Market / Home (Sin color azul) ── */}
+      {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
       <button
         onClick={handleLeftActionButton}
         className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
         style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
       >
-        {navMode === 'market' ? (
+        {activeNavMode === 'market' ? (
           <>
             <Home size={22} color={inactiveGray} strokeWidth={1.8} />
             <span className="text-[11px] mt-1 font-medium tracking-tight" style={{ color: inactiveGray }}>Home</span>
@@ -182,13 +214,13 @@ function NavBar() {
         )}
       </button>
 
-      {/* ── PÍLDORA CENTRAL: Módulos Fijos ── */}
+      {/* ── PÍLDORA CENTRAL ── */}
       <div
         className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
         style={{ ...liquidGlassStyle, borderRadius: "100px", height: "64px" }}
       >
         {centerTabs.map((tab, idx) => {
-          const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
+          const isActive = currentView === tab.id
           const isDisabled = !!tab.disabled
           const Icon = tab.icon
 
@@ -348,9 +380,10 @@ function AppContent() {
         </div>
       )}
 
+      {/* Padding optimizado para no solapar vistas inferiores */}
       <div 
         className="bg-black flex flex-col relative" 
-        style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
+        style={{ minHeight: "var(--tg-viewport-height, 100dvh)", paddingBottom: "100px" }}
       >
         {/* Renderizado de Vistas */}
         {currentView === "home" && (<><Header /><HomeView /></>)}
