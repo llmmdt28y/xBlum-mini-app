@@ -24,16 +24,28 @@ const liquidGlassStyle = {
   WebkitTransform: "translateZ(0)",
 }
 
-// ── NUEVO: MATTE BLUR OPTIMIZADO PARA TARJETAS (CERO LAG) ──
+// ── NUEVO: LIQUID GLASS AMARILLO PARA EL BOTÓN TOP-UP ──
+const yellowLiquidGlassStyle = {
+  background: "rgba(234, 179, 8, 0.15)", // Fondo un poco amarillo
+  backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", 
+  WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(1.1)",
+  border: "1px solid rgba(250, 204, 21, 0.25)", // Borde amarillento sutil
+  boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.3)", // Bisel interno
+  transform: "translateZ(0)", 
+  WebkitTransform: "translateZ(0)",
+  willChange: "transform",
+}
+
+// ── MATTE BLUR OPTIMIZADO PARA TARJETAS (CERO LAG) ──
 const cardLiquidGlassStyle = {
   background: "rgba(42, 42, 44, 0.85)", // Más opaco y mate
   backdropFilter: "blur(12px) saturate(150%)", // Desenfoque optimizado para listas
   WebkitBackdropFilter: "blur(12px) saturate(150%)",
-  border: "1px solid rgba(255, 255, 255, 0.12)", // Mismo borde de la nav bar
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)", // Mismo bisel interno blanco
+  border: "1px solid rgba(255, 255, 255, 0.12)", 
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)", 
   transform: "translateZ(0)", 
   WebkitTransform: "translateZ(0)",
-  willChange: "transform", // Obliga el uso de GPU para evitar lag en el scroll
+  willChange: "transform", 
 }
 
 const neonBlue = "#33b5f7" 
@@ -244,16 +256,21 @@ export function MarketView() {
   const activeBoxData = MARKET_BOXES.find(b => b.id === viewingBoxId)
   const activeAuctionData = AUCTION_ITEMS.find(a => a.id === viewingAuctionId)
 
+  // ── BOTÓN TOP-UP REPOSICIONADO A FIXED CON LIQUID GLASS AMARILLO ──
   const TopUpPill = () => (
     <button 
        type="button" 
        onClick={() => setIsTopUpOpen(true)} 
-       className="relative rounded-full px-5 h-[36px] flex items-center justify-center shadow-sm transition-transform active:scale-95 group overflow-hidden"
+       className="fixed top-[10px] left-1/2 -translate-x-1/2 z-[120] px-4 flex items-center justify-center transition-transform active:scale-95 group shadow-sm"
+       style={{
+           ...yellowLiquidGlassStyle,
+           height: "44px", // Altura recomendada para header nativo
+           borderRadius: "22px" // Border radius de cápsula
+       }}
     >
-       <div className="absolute inset-0 bg-[#1c1c1e]/70 backdrop-blur-[10px] backdrop-saturate-[150%] border border-white/[0.06] rounded-full pointer-events-none" style={{ contain: 'paint' }} />
        <div className="relative z-10 flex items-center justify-center gap-1.5">
-          <img src="/telegram-star-icon.png" alt="Stars" className="w-[16px] h-[16px] object-contain pointer-events-none select-none" />
-          <span className="text-[#facc15] font-bold text-[14px] leading-none mt-[1px]" style={{ fontFamily: SFD }}>
+          <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain pointer-events-none select-none drop-shadow-sm" />
+          <span className="text-[#facc15] font-bold text-[15px] leading-none mt-[1px] drop-shadow-md" style={{ fontFamily: SFD }}>
              {myStars.toLocaleString('en-US')} Stars
           </span>
        </div>
@@ -267,17 +284,16 @@ export function MarketView() {
       <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(42,47,58,0.2) 0%, rgba(42,47,58,0) 70%)', contain: 'paint' }} />
       <div className="absolute top-[0%] right-[-10%] w-[60%] h-[50%] pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(74,56,48,0.2) 0%, rgba(74,56,48,0) 70%)', contain: 'paint' }} />
 
+      {/* RENDERIZADO GLOBAL DEL BOTÓN FIXED */}
+      <TopUpPill />
+
       {!viewingBoxId && !viewingAuctionId && (
         <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none">
-           <div className="relative w-full pt-8 pb-3 px-5 flex items-center justify-center pointer-events-auto">
-              <div className="absolute inset-0 bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
-              <div className="relative z-10 mb-1 mt-2">
-                 <TopUpPill />
-              </div>
-           </div>
+           {/* Blur del header termina antes para dar espacio */}
+           <div className="absolute top-0 left-0 right-0 h-[64px] bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
 
-           <div className="relative w-full px-5 pt-3 pointer-events-auto">
-              {/* ── PÍLDORA SELECTORA (DIMENSIONES ORIGINALES Y LIQUID GLASS) ── */}
+           {/* Píldora selectora movida hacia arriba */}
+           <div className="absolute top-[76px] left-0 right-0 px-5 pointer-events-auto">
               <div
                 className="relative w-full flex items-center justify-between p-1"
                 style={{ ...liquidGlassStyle, borderRadius: "100px", height: "38px" }}
@@ -312,16 +328,17 @@ export function MarketView() {
       )}
 
       <div className="flex-1 overflow-y-auto relative z-10 w-full h-full pb-32">
+        {/* Separador ajustado para el nuevo layout del header */}
         {!viewingBoxId && !viewingAuctionId && (
-           <div className="w-full h-[140px] shrink-0 pointer-events-none" />
+           <div className="w-full h-[126px] shrink-0 pointer-events-none" />
         )}
         
         {viewingBoxId && activeBoxData ? (
-          <div className="animate-in slide-in-from-right-8 fade-in duration-300 min-h-screen pb-20 pt-8 px-5">
+          <div className="animate-in slide-in-from-right-8 fade-in duration-300 min-h-screen pb-20 pt-16 px-5">
              <div className="flex items-center justify-between mb-8">
                 <div className="w-8" />
                 <h2 className="text-white font-bold text-[24px] text-center" style={{ fontFamily: SFD }}>{activeBoxData.name}</h2>
-                <TopUpPill />
+                <div className="w-8" />
               </div>
              
              <div className="flex flex-col items-center pt-12">
@@ -468,7 +485,7 @@ export function MarketView() {
           </div>
           
         ) : viewingAuctionId && activeAuctionData ? (
-          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-16 flex flex-col gap-6">
+          <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-20 flex flex-col gap-6">
             
             <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center shadow-xl mb-2 overflow-hidden">
                <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} draggable={false} className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
@@ -710,19 +727,15 @@ export function MarketView() {
                      <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-10 animate-in fade-in duration-300">
                         {AUCTION_ITEMS.map((item) => (
                            <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="relative w-full mb-4 group cursor-pointer">
-                              {/* ── TARJETA GRID CON IMAGEN FULL-COVER ── */}
                               <div className="w-full aspect-[8/9] bg-[#161618] rounded-[16px] shadow-sm border border-white/[0.04] group-hover:border-white/10 transition-colors relative overflow-hidden flex flex-col justify-end">
-                                 {/* Imagen ocupando toda la tarjeta con object-cover. Sin gradiente oscuro */}
                                  <img src={item.imgSrc} alt={item.title} draggable={false} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ WebkitTouchCallout: "none" }} />
                                  
-                                 {/* Título y Tag reubicados abajo justo sobre el botón y más chicos */}
                                  <div className="w-full px-3 pb-[28px] pt-4 flex flex-row justify-between items-end relative z-10 h-full">
                                     <span className="text-white font-bold text-[13px] leading-tight truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" style={{ fontFamily: SFD }}>{item.title}</span>
                                    <span className="text-white/90 font-medium text-[11px] leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" style={{ fontFamily: SF }}>{item.tag}</span>
                                  </div>
                               </div>
                               
-                              {/* ── PÍLDORA INFERIOR (Matte Blur Optimizado Cero Lag) ── */}
                               <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[44px] rounded-[22px] px-3.5 flex items-center justify-between z-20 group"
                                    style={cardLiquidGlassStyle}>
                                 <div className="relative z-10 flex items-center gap-2 overflow-hidden">
@@ -748,7 +761,6 @@ export function MarketView() {
                            return (
                               <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="w-full bg-[#161618] border border-white/[0.04] rounded-[24px] p-2 flex flex-col shadow-sm cursor-pointer transition-all hover:bg-[#1c1c1e] relative overflow-hidden group">
                                  <div className="flex items-center gap-3">
-                                    {/* ── TARJETA LISTA CON IMAGEN FULL-COVER ── */}
                                     <div className="w-[88px] h-[88px] bg-[#111111] rounded-[18px] relative overflow-hidden flex-shrink-0 border border-white/[0.02]">
                                        <img src={item.imgSrc} alt={item.title} draggable={false} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ WebkitTouchCallout: "none" }} />
                                     </div>
@@ -763,7 +775,6 @@ export function MarketView() {
                                           </button>
                                        </div>
                                        
-                                       {/* ── PÍLDORA INTERNA (Matte Blur Optimizado) ── */}
                                        <div className="mt-2 w-full h-[42px] rounded-[14px] px-3.5 flex items-center justify-between"
                                             style={cardLiquidGlassStyle}>
                                           <div className="relative z-10 flex items-center gap-2 overflow-hidden">
