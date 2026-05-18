@@ -13,7 +13,7 @@ import {
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── CONSTANTES DE ESTILO LIQUID GLASS REAL ──
+// ── CONSTANTES DE ESTILO LIQUID GLASS REAL (NAV BAR Y PÍLDORAS) ──
 const liquidGlassStyle = {
   background: "rgba(30, 30, 30, 0.35)", 
   backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", 
@@ -24,16 +24,16 @@ const liquidGlassStyle = {
   WebkitTransform: "translateZ(0)",
 }
 
-// ── LIQUID GLASS OPTIMIZADO PARA LISTAS (CERO LAG) ──
+// ── NUEVO: MATTE BLUR OPTIMIZADO PARA TARJETAS (CERO LAG) ──
 const cardLiquidGlassStyle = {
-  background: "rgba(30, 30, 30, 0.45)", // Un poco de oscuridad extra para contraste
-  backdropFilter: "blur(10px) saturate(160%) brightness(1.1)", // Blur reducido a 10px para evitar lag en listas
-  WebkitBackdropFilter: "blur(10px) saturate(160%) brightness(1.1)",
-  border: "1px solid rgba(255, 255, 255, 0.12)", 
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
+  background: "rgba(42, 42, 44, 0.85)", // Más opaco y mate
+  backdropFilter: "blur(12px) saturate(150%)", // Desenfoque optimizado para listas
+  WebkitBackdropFilter: "blur(12px) saturate(150%)",
+  border: "1px solid rgba(255, 255, 255, 0.12)", // Mismo borde de la nav bar
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)", // Mismo bisel interno blanco
   transform: "translateZ(0)", 
   WebkitTransform: "translateZ(0)",
-  willChange: "transform", // Obliga al navegador a usar la GPU
+  willChange: "transform", // Obliga el uso de GPU para evitar lag en el scroll
 }
 
 const neonBlue = "#33b5f7" 
@@ -277,7 +277,7 @@ export function MarketView() {
            </div>
 
            <div className="relative w-full px-5 pt-3 pointer-events-auto">
-              {/* ── PÍLDORA SELECTORA DE MÓDULOS CON DIMENSIONES ORIGINALES Y ESTILO LIQUID GLASS REAL ── */}
+              {/* ── PÍLDORA SELECTORA (DIMENSIONES ORIGINALES Y LIQUID GLASS) ── */}
               <div
                 className="relative w-full flex items-center justify-between p-1"
                 style={{ ...liquidGlassStyle, borderRadius: "100px", height: "38px" }}
@@ -709,33 +709,33 @@ export function MarketView() {
                   {viewMode === 'grid' ? (
                      <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-10 animate-in fade-in duration-300">
                         {AUCTION_ITEMS.map((item) => (
-                           <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="relative w-full mb-2 group cursor-pointer">
+                           <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="relative w-full mb-4 group cursor-pointer">
                               {/* ── TARJETA GRID CON IMAGEN FULL-COVER ── */}
                               <div className="w-full aspect-[8/9] bg-[#161618] rounded-[16px] shadow-sm border border-white/[0.04] group-hover:border-white/10 transition-colors relative overflow-hidden flex flex-col justify-end">
-                                 {/* Imagen ocupando toda la tarjeta con object-cover. Sin gradiente superpuesto */}
+                                 {/* Imagen ocupando toda la tarjeta con object-cover. Sin gradiente oscuro */}
                                  <img src={item.imgSrc} alt={item.title} draggable={false} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ WebkitTouchCallout: "none" }} />
                                  
-                                 {/* Título y Tag reubicados abajo y más chicos (alineados con el botón) */}
-                                 <div className="w-full px-3 pb-[28px] pt-4 flex flex-row justify-between items-center relative z-10">
+                                 {/* Título y Tag reubicados abajo justo sobre el botón y más chicos */}
+                                 <div className="w-full px-3 pb-[28px] pt-4 flex flex-row justify-between items-end relative z-10 h-full">
                                     <span className="text-white font-bold text-[13px] leading-tight truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" style={{ fontFamily: SFD }}>{item.title}</span>
-                                   <span className="text-white/90 font-medium text-[12px] leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" style={{ fontFamily: SF }}>{item.tag}</span>
+                                   <span className="text-white/90 font-medium text-[11px] leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" style={{ fontFamily: SF }}>{item.tag}</span>
                                  </div>
                               </div>
                               
-                              {/* ── PÍLDORA INFERIOR (Liquid Glass Optimizado Cero Lag) ── */}
-                              <div className="absolute -bottom-[16px] left-0 right-0 w-full h-[38px] rounded-[100px] px-3 flex items-center justify-between z-20 group"
+                              {/* ── PÍLDORA INFERIOR (Matte Blur Optimizado Cero Lag) ── */}
+                              <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[44px] rounded-[22px] px-3.5 flex items-center justify-between z-20 group"
                                    style={cardLiquidGlassStyle}>
-                                <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
-                                   <div className="w-[18px] h-[18px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
+                                <div className="relative z-10 flex items-center gap-2 overflow-hidden">
+                                   <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                      <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
                                         <span className="text-black font-extrabold text-[7px] leading-none">$</span>
                                      </div>
                                   </div>
-                                  <span className="text-white/90 font-semibold text-[11px] truncate" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
+                                  <span className="text-white/90 font-semibold text-[12px] truncate" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
                                 </div>
-                                <div className="relative z-10 flex items-center gap-1 shrink-0 pl-1">
-                                  <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
-                                  <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[12px] h-[12px] object-contain pointer-events-none select-none" />
+                                <div className="relative z-10 flex items-center gap-1.5 shrink-0 pl-1">
+                                  <span className="text-white font-bold text-[14px]" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
+                                  <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[14px] h-[14px] object-contain pointer-events-none select-none" />
                                 </div>
                               </div>
                            </div>
@@ -763,19 +763,19 @@ export function MarketView() {
                                           </button>
                                        </div>
                                        
-                                       {/* ── PÍLDORA INTERNA (Liquid Glass Optimizado) ── */}
-                                       <div className="mt-2 w-full h-[38px] rounded-[12px] px-3 flex items-center justify-between"
+                                       {/* ── PÍLDORA INTERNA (Matte Blur Optimizado) ── */}
+                                       <div className="mt-2 w-full h-[42px] rounded-[14px] px-3.5 flex items-center justify-between"
                                             style={cardLiquidGlassStyle}>
-                                          <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
+                                          <div className="relative z-10 flex items-center gap-2 overflow-hidden">
                                             <div className="w-[18px] h-[18px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                                 <div className="w-[10px] h-[10px] bg-white rounded-full flex items-center justify-center">
                                                  <span className="text-black font-extrabold text-[7px] leading-none">$</span>
                                                </div>
                                             </div>
-                                            <span className="text-white/90 font-semibold text-[11px] truncate" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
+                                            <span className="text-white/90 font-semibold text-[12px] truncate" style={{ fontFamily: SF }}>{item.owned ? "Sold out" : "Listed"}</span>
                                           </div>
-                                          <div className="relative z-10 flex items-center gap-1 shrink-0 pl-1">
-                                            <span className="text-white font-bold text-[13px]" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
+                                          <div className="relative z-10 flex items-center gap-1.5 shrink-0 pl-1">
+                                            <span className="text-white font-bold text-[14px]" style={{ fontFamily: SFD }}>{item.gridPrice}</span>
                                             <img src="/telegram-star-icon.png" alt="Star" draggable={false} className="w-[13px] h-[13px] object-contain pointer-events-none select-none" />
                                           </div>
                                        </div>
