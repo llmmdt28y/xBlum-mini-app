@@ -171,24 +171,25 @@ function NavBar() {
         { id: "none2", label: "None", icon: null, disabled: true },
       ]
 
-  // Estilo exacto de Telegram
+  // ── ESTILO CRISTAL ÓPTICO REALISTA (Basado en la captura) ──
   const liquidGlassStyle = {
-    background: "rgba(28, 28, 30, 0.75)", 
-    backdropFilter: "blur(25px) saturate(200%)",
-    WebkitBackdropFilter: "blur(25px) saturate(200%)",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+    background: "rgba(30, 30, 30, 0.35)", // Más transparente para dejar pasar el color
+    backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", // Brightness actúa como lupa de luz
+    WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(1.1)",
+    border: "1px solid rgba(255, 255, 255, 0.12)", // Borde afilado
+    // Sombra exterior difusa + Reflejo blanco nítido en el borde superior interno (el bisel)
+    boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
     transform: "translateZ(0)", 
     WebkitTransform: "translateZ(0)",
   }
 
-  const telegramBlue = "#3390ec"
-  const inactiveGray = "#8e8e93"
+  // Colores de interfaz (Ajustados a la captura)
+  const neonBlue = "#33b5f7" // Azul más vibrante
+  const inactiveGlassText = "rgba(255, 255, 255, 0.6)" // Gris más luminoso e integrado
 
   return (
     <div
       id="main-nav-bar"
-      // Aquí se agrega el translate-y para ocultar la barra empujándola hacia abajo
       className={`fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none transition-transform duration-300 ease-in-out ${
         isVisible ? "translate-y-0" : "translate-y-[150px]"
       }`}
@@ -203,20 +204,20 @@ function NavBar() {
       >
         {activeNavMode === 'market' ? (
           <>
-            <Home size={22} color={inactiveGray} strokeWidth={1.8} />
-            <span className="text-[11px] mt-1 font-medium tracking-tight" style={{ color: inactiveGray }}>Home</span>
+            <Home size={22} color={inactiveGlassText} strokeWidth={2} />
+            <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Home</span>
           </>
         ) : (
           <>
-            <Store size={22} color={inactiveGray} strokeWidth={1.8} />
-            <span className="text-[11px] mt-1 font-medium tracking-tight" style={{ color: inactiveGray }}>Market</span>
+            <Store size={22} color={inactiveGlassText} strokeWidth={2} />
+            <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Market</span>
           </>
         )}
       </button>
 
-      {/* ── PÍLDORA CENTRAL ── */}
+      {/* ── PÍLDORA CENTRAL: Módulos Fijos ── */}
       <div
-        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
+        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
         style={{ ...liquidGlassStyle, borderRadius: "100px", height: "64px" }}
       >
         {centerTabs.map((tab, idx) => {
@@ -229,23 +230,26 @@ function NavBar() {
               key={`${tab.id}-${idx}`}
               disabled={isDisabled}
               onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-              className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[100px] flex-1 h-[56px]"
+              className="relative flex flex-col items-center justify-center transition-all duration-200 rounded-[100px] flex-1 h-[54px]"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
-                background: isActive ? "rgba(51, 144, 236, 0.15)" : "transparent",
+                // El detalle maestro: La píldora oscura incrustada para el activo
+                background: isActive ? "rgba(18, 18, 18, 0.85)" : "transparent",
+                border: isActive ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid transparent",
+                boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3)" : "none",
               }}
             >
               {Icon ? (
                 <>
                   <Icon 
                     size={22} 
-                    color={isActive ? telegramBlue : inactiveGray} 
-                    strokeWidth={isActive ? 2.2 : 1.8} 
-                    className={isActive ? "drop-shadow-sm" : ""}
+                    color={isActive ? neonBlue : inactiveGlassText} 
+                    strokeWidth={isActive ? 2.5 : 2} 
+                    className={isActive ? "drop-shadow-md" : ""}
                   />
                   <span 
-                    className={`mt-1 tracking-tight text-[11px] ${isActive ? "font-semibold" : "font-medium"}`}
-                    style={{ color: isActive ? telegramBlue : inactiveGray }}
+                    className={`mt-1 tracking-tight text-[11px] ${isActive ? "font-bold" : "font-semibold"}`}
+                    style={{ color: isActive ? neonBlue : inactiveGlassText }}
                   >
                     {tab.label}
                   </span>
@@ -258,33 +262,29 @@ function NavBar() {
         })}
       </div>
 
-      {/* ── BOTÓN DERECHO: Profile ── */}
+      {/* ── BOTÓN DERECHO: Profile (Efecto de Anillo Convexo) ── */}
       <button
         onClick={() => setCurrentView('profile')}
         className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
         style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
       >
         {photoUrl ? (
-          <div 
-            className="rounded-full overflow-hidden p-[2px]" 
-            style={{ 
-              background: currentView === 'profile' ? "rgba(51, 144, 236, 0.2)" : "transparent",
-            }}
-          >
-            <img src={photoUrl} alt="User" className="w-[48px] h-[48px] rounded-full object-cover" />
+          // El avatar es más pequeño que el botón, permitiendo ver el "anillo" de cristal
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
+            <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center">
             <CircleUser 
               size={22} 
-              color={currentView === 'profile' ? telegramBlue : inactiveGray} 
-              strokeWidth={currentView === 'profile' ? 2.2 : 1.8} 
+              color={currentView === 'profile' ? neonBlue : inactiveGlassText} 
+              strokeWidth={currentView === 'profile' ? 2.5 : 2} 
             />
             <span 
-              className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-semibold" : "font-medium"}`}
-              style={{ color: currentView === 'profile' ? telegramBlue : inactiveGray }}
+              className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
+              style={{ color: currentView === 'profile' ? neonBlue : inactiveGlassText }}
             >
-              Perfil
+              Profile
             </span>
           </div>
         )}
@@ -380,10 +380,10 @@ function AppContent() {
         </div>
       )}
 
-      {/* Padding optimizado para no solapar vistas inferiores */}
+      {/* Padding de 100px eliminado tal como solicitaste */}
       <div 
         className="bg-black flex flex-col relative" 
-        style={{ minHeight: "var(--tg-viewport-height, 100dvh)", paddingBottom: "100px" }}
+        style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
       >
         {/* Renderizado de Vistas */}
         {currentView === "home" && (<><Header /><HomeView /></>)}
