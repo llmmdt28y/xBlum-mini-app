@@ -264,10 +264,10 @@ export function MarketView() {
            </div>
 
            <div className="relative w-full px-5 pt-3 pointer-events-auto">
-              {/* ── PÍLDORA SELECTORA DE MÓDULOS CON ESTILO LIQUID GLASS REAL ── */}
+              {/* ── PÍLDORA SELECTORA DE MÓDULOS CON DIMENSIONES ORIGINALES Y ESTILO LIQUID GLASS REAL ── */}
               <div
-                className="relative w-full flex items-center justify-between px-1.5"
-                style={{ ...liquidGlassStyle, borderRadius: "100px", height: "56px" }}
+                className="relative w-full flex items-center justify-between p-1"
+                style={{ ...liquidGlassStyle, borderRadius: "100px", height: "38px" }}
               >
                 {(['Explore', 'Auctions', 'Listed'] as const).map((tab, idx) => {
                   const isActive = activeTab === tab
@@ -276,13 +276,12 @@ export function MarketView() {
                     <button
                       key={`${tab}-${idx}`}
                       onClick={() => setActiveTab(tab)}
-                      className="relative flex flex-col items-center justify-center transition-all duration-300 ease-out rounded-[100px] flex-1 h-[46px]"
+                      className="relative flex flex-col items-center justify-center transition-all duration-300 ease-out rounded-full flex-1 h-full"
                       style={{
                         pointerEvents: "auto",
                         background: isActive ? "rgba(0, 0, 0, 0.4)" : "transparent",
                         border: "none",
                         boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)" : "none",
-                        transform: isActive ? "scale(1.05)" : "scale(1)", 
                       }}
                     >
                       <span 
@@ -458,8 +457,9 @@ export function MarketView() {
         ) : viewingAuctionId && activeAuctionData ? (
           <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-16 flex flex-col gap-6">
             
-            <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center p-4 shadow-xl mb-2">
-               <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} draggable={false} className="w-full h-full object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+            <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center shadow-xl mb-2 overflow-hidden">
+               {/* Imagen adaptada para que llene todo el marco con object-cover */}
+               <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} draggable={false} className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                {activeAuctionData.owned && (
                  <div className="absolute bottom-4 left-4 relative rounded-full px-3 py-1.5 flex items-center gap-2 shadow-sm z-10 overflow-hidden">
                    <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/10 rounded-full" style={{ contain: 'paint' }} />
@@ -698,14 +698,16 @@ export function MarketView() {
                      <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-10 animate-in fade-in duration-300">
                         {AUCTION_ITEMS.map((item) => (
                            <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="relative w-full mb-2 group cursor-pointer">
-                              <div className="w-full aspect-[8/9] bg-[#161618] rounded-[16px] flex flex-col shadow-sm border border-white/[0.04] group-hover:bg-[#1c1c1e] transition-colors relative overflow-hidden">
-                                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ background: `radial-gradient(circle at 10px 10px, white 1px, transparent 0)`, backgroundSize: '24px 24px' }} />
-                                 <div className="flex-1 w-full relative z-10 flex items-center justify-center">
-                                    <img src={item.imgSrc} alt={item.title} draggable={false} className="w-[70%] h-[70%] object-contain drop-shadow-md" style={{ WebkitTouchCallout: "none" }} />
-                                 </div>
-                                 <div className="w-full px-4 pb-10 flex justify-between items-end relative z-10">
-                                    <span className="text-white font-bold text-[15px] leading-tight tracking-wide truncate" style={{ fontFamily: SFD }}>{item.title}</span>
-                                   <span className="text-white/60 font-medium text-[13px] leading-tight" style={{ fontFamily: SF }}>{item.tag}</span>
+                              {/* ── TARJETA GRID CON IMAGEN FULL-COVER ── */}
+                              <div className="w-full aspect-[8/9] bg-[#161618] rounded-[16px] flex flex-col shadow-sm border border-white/[0.04] group-hover:border-white/10 transition-colors relative overflow-hidden">
+                                 {/* Imagen ocupando toda la tarjeta con object-cover */}
+                                 <img src={item.imgSrc} alt={item.title} draggable={false} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ WebkitTouchCallout: "none" }} />
+                                 {/* Gradiente oscuro inferior para legibilidad del texto */}
+                                 <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0b]/90 via-[#0a0a0b]/20 to-transparent pointer-events-none" />
+                                 
+                                 <div className="w-full px-4 pb-10 pt-4 flex flex-col justify-end items-start relative z-10 h-full">
+                                    <span className="text-white font-bold text-[15px] leading-tight tracking-wide truncate w-full drop-shadow-md" style={{ fontFamily: SFD }}>{item.title}</span>
+                                   <span className="text-white/80 font-medium text-[13px] leading-tight drop-shadow-md" style={{ fontFamily: SF }}>{item.tag}</span>
                                  </div>
                               </div>
                               <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3 flex items-center justify-between shadow-sm z-20 group">
@@ -733,11 +735,9 @@ export function MarketView() {
                            return (
                               <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="w-full bg-[#161618] border border-white/[0.04] rounded-[24px] p-2 flex flex-col shadow-sm cursor-pointer transition-all hover:bg-[#1c1c1e] relative overflow-hidden group">
                                  <div className="flex items-center gap-3">
+                                    {/* ── TARJETA LISTA CON IMAGEN FULL-COVER ── */}
                                     <div className="w-[88px] h-[88px] bg-[#111111] rounded-[18px] relative overflow-hidden flex-shrink-0 border border-white/[0.02]">
-                                       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ background: `radial-gradient(circle at 8px 8px, white 1px, transparent 0)`, backgroundSize: '16px 16px' }} />
-                                       <div className="w-full h-full relative z-10 flex items-center justify-center">
-                                           <img src={item.imgSrc} alt={item.title} draggable={false} className="w-[80%] h-[80%] object-contain" style={{ WebkitTouchCallout: "none" }} />
-                                       </div>
+                                       <img src={item.imgSrc} alt={item.title} draggable={false} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ WebkitTouchCallout: "none" }} />
                                     </div>
                                     <div className="flex flex-col flex-1 py-1 pr-1 h-full justify-between">
                                        <div className="flex justify-between items-start w-full">
@@ -810,7 +810,8 @@ export function MarketView() {
              </div>
              <div className="flex items-center gap-3 bg-[#111111] border border-[#1c1c1e] p-3 rounded-[16px] mb-4">
                 <div className="w-12 h-12 rounded-[10px] bg-[#1c1c1e] overflow-hidden flex items-center justify-center shrink-0">
-                  <img src={activeAuctionData.imgSrc} draggable={false} className="w-full h-full object-contain pointer-events-none select-none" style={{ WebkitTouchCallout: 'none' }} alt="NFT" />
+                  {/* Imagen de miniatura en el modal de oferta también corregida */}
+                  <img src={activeAuctionData.imgSrc} draggable={false} className="w-full h-full object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: 'none' }} alt="NFT" />
                 </div>
                 <div className="flex flex-col">
                    <span className="text-white font-bold text-[15px] leading-tight" style={{ fontFamily: SF }}>{activeAuctionData.title} <span className="text-[#8e8e93] font-medium">{activeAuctionData.tag}</span></span>
