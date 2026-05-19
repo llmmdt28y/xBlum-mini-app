@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Loader2, Sparkles, Shield, Workflow, 
-  ChevronRight, BarChart3, Check, MessageSquare, Bot, ChevronDown
+  ChevronRight, BarChart3, Check, MessageSquare, Bot, User, FileText, Book
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -41,7 +41,6 @@ const AutoResizeTextarea = ({
       newVal = newVal.slice(0, MAX_CHARS)
     }
     setVal(newVal)
-    // El ajuste síncrono previene los "brincos" al hacer muchos espacios
     adjustHeight()
   }
 
@@ -50,25 +49,22 @@ const AutoResizeTextarea = ({
   const counterColor = charsLeft <= 100 ? "#ef4444" : "#8e8e93"
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full h-full flex flex-col">
       <textarea
         ref={textRef}
         value={val}
         onChange={handleChange}
         onBlur={() => onBlurSave(val)}
         placeholder={placeholder}
-        className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none resize-none transition-colors"
+        className="w-full p-4 rounded-[10px] text-white placeholder:text-[#636366] focus:outline-none resize-none transition-colors"
         style={{ 
-          background: "#111", 
-          border: "1px solid #1c1c1e", 
+          background: "#1c1c1e", 
           fontFamily: SF, 
-          fontSize: "15px", 
-          minHeight: "100px",
+          fontSize: "16px", 
+          minHeight: "200px",
           paddingBottom: showCounter ? "32px" : "16px",
           boxSizing: "border-box"
         }}
-        onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
-        onBlurCapture={e => (e.target.style.borderColor = "transparent")}
       />
       {showCounter && (
         <div 
@@ -82,21 +78,23 @@ const AutoResizeTextarea = ({
   )
 }
 
-// ── COMPONENTES REUTILIZABLES (ESTILO SETTINGS-VIEW NATIVO) ──
+// ── COMPONENTES REUTILIZABLES (ESTILO TELEGRAM iOS NATIVO) ──
 
-const Block = ({ title, children, footerHint, overflowVisible = false }: { title?: string, children: React.ReactNode, footerHint?: string, overflowVisible?: boolean }) => (
-  <div className="mb-6">
-    <div className={`rounded-2xl w-full relative ${overflowVisible ? '' : 'overflow-hidden'}`} style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-      {title && (
-        <div className="flex items-center justify-between px-5 pt-3 pb-1">
-          <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF, textTransform: "uppercase" }}>{title}</p>
-        </div>
-      )}
+const SubHeader = ({ title }: { title: string }) => (
+  <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3 pt-4" style={{ background: "#000000" }}>
+    <h2 className="font-semibold text-white tracking-tight" style={{ fontSize: "17px", fontFamily: SF }}>
+      {title}
+    </h2>
+  </div>
+)
+
+const Section = ({ header, footer, children }: { header?: string, footer?: string, children: React.ReactNode }) => (
+  <div className="mb-6 w-full">
+    {header && <p className="px-4 mb-1.5 text-[#636366] uppercase font-medium" style={{ fontSize: "13px", fontFamily: SF, letterSpacing: "0.03em" }}>{header}</p>}
+    <div className="rounded-[10px] overflow-hidden" style={{ background: "#1c1c1e" }}>
       {children}
     </div>
-    {footerHint && (
-      <p className="px-4 mt-2" style={{ fontSize: "13px", color: "#636366", fontFamily: SF }}>{footerHint}</p>
-    )}
+    {footer && <p className="px-4 mt-2 text-[#636366]" style={{ fontSize: "13px", fontFamily: SF }}>{footer}</p>}
   </div>
 )
 
@@ -108,68 +106,78 @@ const Row = ({
   <>
     <div
       onClick={onClick}
-      className={`w-full flex items-center gap-4 px-5 transition-colors ${onClick ? 'active:bg-white/5 cursor-pointer' : ''}`}
-      style={{ paddingTop: "14px", paddingBottom: "14px" }}
+      className={`w-full flex items-center gap-[14px] px-4 py-[10px] transition-colors ${onClick ? 'active:bg-white/5 cursor-pointer' : ''}`}
     >
       {icon && (
-        <div className={`shrink-0 flex items-center justify-center w-[28px] h-[28px] rounded-lg text-white ${iconBg || ''}`}>
+        <div className={`shrink-0 flex items-center justify-center w-[30px] h-[30px] rounded-[8px] text-white ${iconBg || ''}`}>
           {icon}
         </div>
       )}
-      <div className="flex-1 text-left min-w-0">
-        <p className="text-white truncate" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+      <div className="flex-1 text-left min-w-0 py-0.5">
+        <p className="text-white truncate font-medium tracking-tight" style={{ fontSize: "16px", fontFamily: SF }}>
           {label}
         </p>
         {sublabel && (
-          <div className="mt-0.5 leading-snug" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
+          <p className="mt-[1px] leading-snug truncate" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
             {sublabel}
-          </div>
+          </p>
         )}
       </div>
       {right && <div className="shrink-0 ml-2">{right}</div>}
     </div>
-    {!last && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: icon ? "56px" : "20px" }} />}
+    {!last && <div style={{ height: "1px", background: "#2c2c2e", marginLeft: icon ? "60px" : "16px" }} />}
   </>
 )
 
-const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
+const TelegramToggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
   <button
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
-    className="relative rounded-full transition-all duration-200 shrink-0"
-    style={{ width: "44px", height: "26px", background: on ? "#34c759" : "#3a3a3c" }}
+    className="relative rounded-full transition-colors duration-300 shrink-0"
+    style={{ width: "51px", height: "31px", background: on ? "#3b82f6" : "#39393d" }}
   >
     <span
-      className="absolute top-[2px] rounded-full shadow-sm transition-transform duration-200"
+      className="absolute rounded-full shadow-sm transition-all duration-300 bg-white"
       style={{
-        width: "22px", height: "22px",
-        background: "#ffffff",
-        left: on ? "20px" : "2px",
+        width: "27px", height: "27px",
+        top: "2px",
+        left: on ? "22px" : "2px",
       }}
     />
   </button>
 )
 
-const PillSelector = ({ options, selected, onSelect }: { options: string[], selected: string, onSelect: (v: string) => void }) => (
-  <div className="px-5 pb-4 pt-1 flex flex-wrap gap-2">
-    {options.map((opt) => (
-      <button
-        key={opt}
-        onClick={() => onSelect(opt)}
-        className="px-3.5 py-1.5 rounded-full capitalize transition-colors shrink-0"
-        style={{ 
-          fontSize: "14px", 
-          fontWeight: 500, 
-          fontFamily: SF,
-          background: selected === opt ? "#ffffff" : "#1c1c1e",
-          color: selected === opt ? "#000000" : "#8e8e93",
-          border: selected === opt ? "1px solid #ffffff" : "1px solid #2c2c2e"
-        }}
-      >
-        {opt}
-      </button>
-    ))}
-  </div>
+const RadioRow = ({ label, selected, onClick, last }: { label: string, selected: boolean, onClick: () => void, last?: boolean }) => (
+  <>
+    <div onClick={onClick} className="flex items-center justify-between px-4 py-[14px] active:bg-white/5 transition-colors cursor-pointer">
+      <span className="text-white tracking-tight" style={{ fontSize: "16px", fontFamily: SF }}>{label}</span>
+      <div className={`w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors ${selected ? 'border-[#3b82f6]' : 'border-[#48484a]'}`}>
+        {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#3b82f6]" />}
+      </div>
+    </div>
+    {!last && <div style={{ height: "1px", background: "#2c2c2e", marginLeft: "16px" }} />}
+  </>
 )
+
+const BottomSheet = ({ isOpen, onClose, onSave, title, description, children }: any) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col justify-end">
+      <div className="absolute inset-0 bg-black/60 animate-in fade-in duration-200" onClick={onClose} />
+      <div className="relative border-t border-[#2c2c2e] rounded-t-[20px] w-full max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-300" style={{ background: "#000000" }}>
+        {/* Header (Cancel / Title / Save) */}
+        <div className="flex items-center justify-between px-4 py-3">
+          <button onClick={onClose} className="text-[#3b82f6] font-normal tracking-tight" style={{ fontSize: "17px", fontFamily: SF }}>Cancel</button>
+          <h3 className="text-white font-semibold tracking-tight" style={{ fontSize: "17px", fontFamily: SF }}>{title}</h3>
+          <button onClick={onSave} className="text-[#3b82f6] font-semibold tracking-tight" style={{ fontSize: "17px", fontFamily: SF }}>Save</button>
+        </div>
+        <div className="p-4 overflow-y-auto pb-8">
+          {description && <p className="text-[#8e8e93] text-center mb-6 leading-snug" style={{ fontSize: "14px", fontFamily: SF }}>{description}</p>}
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ── VISTA PRINCIPAL ──
 
@@ -186,9 +194,11 @@ export function BusinessAutomationView({
 }: BusinessAutomationViewProps) {
   
   const [loading, setLoading] = useState(true)
-  const [activeView, setActiveView] = useState<'main' | 'chat_access' | 'persona' | 'workflows' | 'safety' | 'reports'>('main')
+  const [activePage, setActivePage] = useState<'main' | 'chat_access' | 'persona' | 'workflows' | 'safety' | 'reports' | 'persona_prompt' | 'persona_kb'>('main')
   
-  const [showHourDropdown, setShowHourDropdown] = useState(false)
+  // Estados para Modales
+  const [activeModal, setActiveModal] = useState<string | null>(null)
+  const [tempVal, setTempVal] = useState<any>("")
 
   const [config, setConfig] = useState({
     auto_reply_filter: "everyone", 
@@ -214,7 +224,6 @@ export function BusinessAutomationView({
 
   const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
 
-  // ── MOTOR DE AUTO-GUARDADO ──
   const saveConfigToServer = useCallback(async (currentConfig: typeof config) => {
     try {
       const tg = getTg()
@@ -244,10 +253,12 @@ export function BusinessAutomationView({
 
     tg.BackButton.show()
     const handleBackAction = () => {
-      if (activeView === 'main') {
+      if (activePage === 'main') {
         onClose()
+      } else if (activePage === 'persona_prompt' || activePage === 'persona_kb') {
+        setActivePage('persona')
       } else {
-        setActiveView('main')
+        setActivePage('main')
       }
     }
 
@@ -255,7 +266,7 @@ export function BusinessAutomationView({
     return () => {
       tg.BackButton.offClick(handleBackAction)
     }
-  }, [activeView, onClose])
+  }, [activePage, onClose])
 
   useEffect(() => {
     async function loadInitial() {
@@ -285,313 +296,383 @@ export function BusinessAutomationView({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] bg-[#000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-200">
       
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pb-20 w-full" style={{ background: "#000" }}>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full">
         
         {/* ── MENÚ PRINCIPAL ── */}
-        {activeView === 'main' && (
-          <div className="animate-in fade-in duration-200 w-full">
-            
-            <div className="flex flex-col items-center text-center pt-20 mb-10">
+        {activePage === 'main' && (
+          <div className="animate-in fade-in duration-200 w-full px-4">
+            <SubHeader title="Chat Automation" />
+            <div className="flex flex-col items-center text-center pt-8 mb-8">
               <img 
                 src={agentGifUrl} 
                 alt="Agent" 
                 className="w-[140px] h-[140px] object-contain mb-6 pointer-events-none select-none" 
               />
-              <h1 className="text-white font-bold mb-2 tracking-tight" style={{ fontSize: "32px", fontFamily: SFD }}>
-                Chat Automation
-              </h1>
-              <p style={{ fontSize: "16px", color: "#8e8e93", fontFamily: SF, maxWidth: "320px", lineHeight: "1.4" }}>
+              <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "320px", lineHeight: "1.4" }}>
                 Assign an intelligent agent to handle your interactions automatically.
               </p>
             </div>
 
-            <Block title="Settings">
+            <Section>
               <Row 
-                icon={<MessageSquare className="w-4 h-4 text-white" />} iconBg="bg-[#0a84ff]"
+                icon={<MessageSquare className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
                 label="Chat Access Scope" 
-                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
-                onClick={() => setActiveView('chat_access')}
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                onClick={() => setActivePage('chat_access')}
               />
               <Row 
-                icon={<Bot className="w-4 h-4 text-white" />} iconBg="bg-[#bf5af2]"
+                icon={<Bot className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#bf5af2]"
                 label="AI Persona & Knowledge" 
-                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
-                onClick={() => setActiveView('persona')}
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                onClick={() => setActivePage('persona')}
               />
               <Row 
-                icon={<Workflow className="w-4 h-4 text-white" />} iconBg="bg-[#ff9f0a]"
+                icon={<Workflow className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#ff9f0a]"
                 label="Automated Workflows" 
-                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
-                onClick={() => setActiveView('workflows')}
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                onClick={() => setActivePage('workflows')}
               />
               <Row 
-                icon={<Shield className="w-4 h-4 text-white" />} iconBg="bg-[#ff453a]"
+                icon={<Shield className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#ff453a]"
                 label="Safety & Protection" 
-                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
-                onClick={() => setActiveView('safety')}
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                onClick={() => setActivePage('safety')}
                 last
               />
-            </Block>
+            </Section>
 
-            <Block title="Analytics">
+            <Section header="ANALYTICS">
               <Row 
-                icon={<BarChart3 className="w-4 h-4 text-white" />} iconBg="bg-[#32ade6]"
+                icon={<BarChart3 className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#32ade6]"
                 label="Performance Diagnostics" 
-                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
-                onClick={() => setActiveView('reports')}
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                onClick={() => setActivePage('reports')}
                 last
               />
-            </Block>
-
-          </div>
-        )}
-
-        {/* ── CHAT ACCESS SCOPE ── */}
-        {activeView === 'chat_access' && (
-          <div className="pt-6 animate-in slide-in-from-right duration-200 w-full">
-            <h2 className="text-white font-bold tracking-tight px-1 mb-6" style={{ fontSize: "28px", fontFamily: SFD }}>Chat Access Scope</h2>
-            
-            <Block title="Allowed Conversations" footerHint="You can configure your whitelists using the main xBlum bot interface.">
-              <Row 
-                label="All private chats except exclusions"
-                onClick={() => setAndSave('auto_reply_filter', 'everyone')}
-                right={config.auto_reply_filter === 'everyone' ? <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} /> : null}
-              />
-              <Row 
-                label="Only whitelisted conversations"
-                onClick={() => setAndSave('auto_reply_filter', 'whitelist')}
-                right={config.auto_reply_filter === 'whitelist' ? <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} /> : null}
-                last
-              />
-            </Block>
+            </Section>
           </div>
         )}
 
         {/* ── AI PERSONA & KNOWLEDGE ── */}
-        {activeView === 'persona' && (
-          <div className="pt-6 animate-in slide-in-from-right duration-200 w-full">
-            <h2 className="text-white font-bold tracking-tight px-1 mb-6" style={{ fontSize: "28px", fontFamily: SFD }}>AI Persona</h2>
+        {activePage === 'persona' && (
+          <div className="animate-in slide-in-from-right duration-200 w-full px-4">
+            <SubHeader title="Persona" />
+            <p className="px-4 mt-2 mb-8 text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
+              Define how your AI assistant represents your brand and communicates with your audience.
+            </p>
             
-            <Block title="Intelligence">
+            <Section>
               <Row 
+                icon={<Sparkles className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
                 label="AI Auto-Reply Processing"
                 sublabel="Process inbound messages using Grok 4.1."
-                right={<Toggle on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} />}
+                right={<TelegramToggle on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} />}
                 last
               />
-            </Block>
+            </Section>
 
             {config.ai_autoreply_enabled && (
               <div className="animate-in fade-in duration-300 w-full">
-                <Block title="Identity Blueprint">
-                  <div className="px-5 pt-3 pb-1">
-                    <p className="text-white" style={{ fontSize: "15px", fontFamily: SF }}>Account Role</p>
-                  </div>
-                  <PillSelector 
-                    options={['personal', 'sales', 'support', 'community']}
-                    selected={config.use_case}
-                    onSelect={(v) => setAndSave('use_case', v)}
+                <Section header="IDENTITY">
+                  <Row 
+                    icon={<User className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
+                    label="Account Role"
+                    sublabel="Define the main role your assistant plays."
+                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    onClick={() => { setTempVal(config.use_case); setActiveModal('role'); }}
+                    last
                   />
-                  <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "20px" }} />
-                  <div className="px-5 pt-3 pb-1">
-                    <p className="text-white" style={{ fontSize: "15px", fontFamily: SF }}>Tone Register</p>
-                  </div>
-                  <PillSelector 
-                    options={['adaptive', 'casual', 'formal', 'empathetic']}
-                    selected={config.tone}
-                    onSelect={(v) => setAndSave('tone', v)}
+                </Section>
+                
+                <Section header="TONE">
+                  <Row 
+                    icon={<MessageSquare className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#bf5af2]"
+                    label="Tone Register"
+                    sublabel="Set the default tone of your responses."
+                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    onClick={() => { setTempVal(config.tone); setActiveModal('tone'); }}
+                    last
                   />
-                </Block>
+                </Section>
 
-                <Block title="System Prompt">
-                  <div className="px-5 pb-5 pt-1 w-full">
-                    <AutoResizeTextarea
-                      defaultValue={config.ai_persona_hint}
-                      onBlurSave={(v) => setAndSave('ai_persona_hint', v)}
-                      placeholder="E.g., Act as concise tech support..."
-                    />
-                  </div>
-                </Block>
+                <Section header="COMMUNICATION GUIDE">
+                  <Row 
+                    icon={<FileText className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
+                    label="System Prompt"
+                    sublabel="Guide how the AI should behave and respond."
+                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    onClick={() => setActivePage('persona_prompt')}
+                    last
+                  />
+                </Section>
 
-                <Block title="Knowledge Base Context">
-                  <div className="px-5 pb-5 pt-1 w-full">
-                    <AutoResizeTextarea
-                      defaultValue={config.kb_text}
-                      onBlurSave={(v) => setAndSave('kb_text', v)}
-                      placeholder="Pricing, URLs, operational data..."
-                    />
-                  </div>
-                </Block>
+                <Section header="KNOWLEDGE BASE">
+                  <Row 
+                    icon={<Book className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#34c759]"
+                    label="Knowledge Base Context"
+                    sublabel="Add the information your assistant should use."
+                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    onClick={() => setActivePage('persona_kb')}
+                    last
+                  />
+                </Section>
               </div>
             )}
           </div>
         )}
 
-        {/* ── AUTOMATED WORKFLOWS ── */}
-        {activeView === 'workflows' && (
-          <div className="pt-6 animate-in slide-in-from-right duration-200 w-full">
-            <h2 className="text-white font-bold tracking-tight px-1 mb-6" style={{ fontSize: "28px", fontFamily: SFD }}>Workflows</h2>
-            
-            <Block title="Engagement Loops">
-              <Row 
-                label="Smart Follow-up Matrix"
-                sublabel="Trigger automated follow-ups if user drops engagement."
-                right={<Toggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
-                last={!config.followup_enabled}
-              />
-              {config.followup_enabled && (
-                <div className="px-5 py-4 flex gap-4 w-full" style={{ background: "rgba(255,255,255,0.02)" }}>
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontSize: "12px", color: "#8e8e93", fontFamily: SF, marginBottom: "4px" }}>Delay (Hours)</p>
-                    <input 
-                      type="number" 
-                      key="delay_h"
-                      defaultValue={config.followup_delay_h} 
-                      onBlur={(e) => setAndSave('followup_delay_h', parseInt(e.target.value) || 0)} 
-                      className="w-full bg-transparent text-white outline-none border-b border-[#2c2c2e] pb-1" 
-                      style={{ fontSize: "16px", fontFamily: SF }} 
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p style={{ fontSize: "12px", color: "#8e8e93", fontFamily: SF, marginBottom: "4px" }}>Max Retries</p>
-                    <input 
-                      type="number" 
-                      key="max_retries"
-                      defaultValue={config.followup_max} 
-                      onBlur={(e) => setAndSave('followup_max', parseInt(e.target.value) || 1)} 
-                      className="w-full bg-transparent text-white outline-none border-b border-[#2c2c2e] pb-1" 
-                      style={{ fontSize: "16px", fontFamily: SF }} 
-                    />
-                  </div>
-                </div>
-              )}
-            </Block>
+        {/* ── TEXT EDITOR VIEWS (Prompt & KB) ── */}
+        {activePage === 'persona_prompt' && (
+          <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-4">
+            <SubHeader title="System Prompt" />
+            <p className="px-2 mb-4 text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+              Detailed instructions for behavior and character.
+            </p>
+            <AutoResizeTextarea
+              defaultValue={config.ai_persona_hint}
+              onBlurSave={(v) => setAndSave('ai_persona_hint', v)}
+              placeholder="E.g., Act as concise tech support..."
+            />
+          </div>
+        )}
 
-            <Block title="Inline Agent">
-              <Row 
-                label="Passive Mentions"
-                sublabel="Agent replies when its name is mentioned in groups."
-                right={<Toggle on={config.invocation_enabled} onToggle={() => setAndSave('invocation_enabled', !config.invocation_enabled)} />}
-                last={!config.invocation_enabled}
-              />
-              {config.invocation_enabled && (
-                <div className="w-full px-5 py-3.5" style={{ background: "rgba(255,255,255,0.02)" }}>
-                  <input 
-                    type="text" 
-                    key="bot_names"
-                    defaultValue={config.bot_names}
-                    onBlur={(e) => setAndSave('bot_names', e.target.value)}
-                    placeholder="Trigger keywords (e.g., agent, bot)"
-                    className="w-full bg-transparent text-white outline-none placeholder:text-[#636366]"
-                    style={{ fontSize: "15px", fontFamily: SF }}
+        {activePage === 'persona_kb' && (
+          <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-4">
+            <SubHeader title="Knowledge Base Context" />
+            <p className="px-2 mb-4 text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+              Specific data, FAQs, URLs, and pricing info.
+            </p>
+            <AutoResizeTextarea
+              defaultValue={config.kb_text}
+              onBlurSave={(v) => setAndSave('kb_text', v)}
+              placeholder="Store your business data here..."
+            />
+          </div>
+        )}
+
+        {/* ── OTRAS VISTAS (Convertidas a la nueva estética) ── */}
+        {activePage === 'chat_access' && (
+          <div className="animate-in slide-in-from-right duration-200 w-full px-4">
+            <SubHeader title="Chat Access Scope" />
+            <div className="pt-6">
+              <Section header="ALLOWED CONVERSATIONS" footer="Configure exclusions in the main bot interface.">
+                <Row 
+                  label="All private chats except..."
+                  onClick={() => setAndSave('auto_reply_filter', 'everyone')}
+                  right={config.auto_reply_filter === 'everyone' ? <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} /> : null}
+                />
+                <Row 
+                  label="Only selected chats"
+                  onClick={() => setAndSave('auto_reply_filter', 'whitelist')}
+                  right={config.auto_reply_filter === 'whitelist' ? <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} /> : null}
+                  last
+                />
+              </Section>
+            </div>
+          </div>
+        )}
+
+        {activePage === 'workflows' && (
+          <div className="animate-in slide-in-from-right duration-200 w-full px-4">
+            <SubHeader title="Workflows" />
+            <div className="pt-6">
+              <Section header="ENGAGEMENT LOOPS">
+                <Row 
+                  label="Smart Follow-up Matrix"
+                  sublabel="Trigger automated follow-ups if user drops engagement."
+                  right={<TelegramToggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
+                  last={!config.followup_enabled}
+                />
+                {config.followup_enabled && (
+                  <div className="px-4 py-3 flex gap-4 w-full border-t border-[#2c2c2e]">
+                    <div className="flex-1">
+                      <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "4px" }}>Delay (Hours)</p>
+                      <input 
+                        type="number" defaultValue={config.followup_delay_h} onBlur={(e) => setAndSave('followup_delay_h', parseInt(e.target.value) || 0)} 
+                        className="w-full bg-transparent text-white outline-none" style={{ fontSize: "16px", fontFamily: SF }} 
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "4px" }}>Max Retries</p>
+                      <input 
+                        type="number" defaultValue={config.followup_max} onBlur={(e) => setAndSave('followup_max', parseInt(e.target.value) || 1)} 
+                        className="w-full bg-transparent text-white outline-none" style={{ fontSize: "16px", fontFamily: SF }} 
+                      />
+                    </div>
+                  </div>
+                )}
+              </Section>
+
+              <Section header="INLINE AGENT">
+                <Row 
+                  label="Passive Mentions"
+                  sublabel="Replies when its name is mentioned in groups."
+                  right={<TelegramToggle on={config.invocation_enabled} onToggle={() => setAndSave('invocation_enabled', !config.invocation_enabled)} />}
+                  last={!config.invocation_enabled}
+                />
+                {config.invocation_enabled && (
+                  <div className="w-full px-4 py-[14px] border-t border-[#2c2c2e]">
+                    <input 
+                      type="text" defaultValue={config.bot_names} onBlur={(e) => setAndSave('bot_names', e.target.value)}
+                      placeholder="Trigger keywords (e.g., agent, bot)"
+                      className="w-full bg-transparent text-white outline-none placeholder:text-[#636366]"
+                      style={{ fontSize: "16px", fontFamily: SF }}
+                    />
+                  </div>
+                )}
+              </Section>
+            </div>
+          </div>
+        )}
+
+        {activePage === 'safety' && (
+          <div className="animate-in slide-in-from-right duration-200 w-full px-4">
+            <SubHeader title="Safety" />
+            <div className="pt-6">
+              <Section header="SPAM FILTERING">
+                <Row 
+                  label="Active Anti-Spam S2S"
+                  sublabel="Identify and delete malicious links and ads."
+                  right={<TelegramToggle on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} />}
+                  last={!config.spam_filter_enabled}
+                />
+                {config.spam_filter_enabled && (
+                  <Row 
+                    label="Sensitivity"
+                    sublabel={config.spam_sensitivity.charAt(0).toUpperCase() + config.spam_sensitivity.slice(1)}
+                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    onClick={() => { setTempVal(config.spam_sensitivity); setActiveModal('spam_sens'); }}
+                    last
                   />
-                </div>
-              )}
-            </Block>
+                )}
+              </Section>
+
+              <Section header="EMULATION & ALERTS">
+                <Row 
+                  label="Humanized Typing"
+                  sublabel="Inject artificial typing delays for organic rhythm."
+                  right={<TelegramToggle on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} />}
+                />
+                <Row 
+                  label="Emergency Alerts"
+                  sublabel="Receive DM logs on structural anomalies."
+                  right={<TelegramToggle on={config.urgency_notify} onToggle={() => setAndSave('urgency_notify', !config.urgency_notify)} />}
+                  last
+                />
+              </Section>
+            </div>
           </div>
         )}
 
-        {/* ── SAFETY & PROTECTION ── */}
-        {activeView === 'safety' && (
-          <div className="pt-6 animate-in slide-in-from-right duration-200 w-full">
-            <h2 className="text-white font-bold tracking-tight px-1 mb-6" style={{ fontSize: "28px", fontFamily: SFD }}>Safety</h2>
-            
-            <Block title="Spam Filtering">
-              <Row 
-                label="Active Anti-Spam S2S"
-                sublabel="Identify and delete malicious links and ads."
-                right={<Toggle on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} />}
-                last={!config.spam_filter_enabled}
-              />
-              {config.spam_filter_enabled && (
-                <div className="w-full animate-in fade-in duration-200">
-                  <div className="px-5 pt-3 pb-1" style={{ background: "rgba(255,255,255,0.02)" }}>
-                    <p className="text-white" style={{ fontSize: "15px", fontFamily: SF }}>Aggressiveness Threshold</p>
-                  </div>
-                  <div style={{ background: "rgba(255,255,255,0.02)" }}>
-                    <PillSelector 
-                      options={['low', 'medium', 'high']}
-                      selected={config.spam_sensitivity}
-                      onSelect={(v) => setAndSave('spam_sensitivity', v)}
-                    />
-                  </div>
-                </div>
-              )}
-            </Block>
-
-            <Block title="Emulation & Alerts">
-              <Row 
-                label="Humanized Typing"
-                sublabel="Inject artificial typing delays for organic rhythm."
-                right={<Toggle on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} />}
-              />
-              <Row 
-                label="Emergency Alerts"
-                sublabel="Receive DM logs on structural anomalies."
-                right={<Toggle on={config.urgency_notify} onToggle={() => setAndSave('urgency_notify', !config.urgency_notify)} />}
-                last
-              />
-            </Block>
-          </div>
-        )}
-
-        {/* ── ANALYTICS ── */}
-        {activeView === 'reports' && (
-          <div className="pt-6 animate-in slide-in-from-right duration-200 w-full">
-            <h2 className="text-white font-bold tracking-tight px-1 mb-6" style={{ fontSize: "28px", fontFamily: SFD }}>Analytics</h2>
-            
-            <Block title="Diagnostics" overflowVisible={true}>
-              <Row 
-                label="24-Hour Metrics Digest"
-                sublabel="Receive daily performance reports directly."
-                right={<Toggle on={config.daily_digest} onToggle={() => setAndSave('daily_digest', !config.daily_digest)} />}
-                last={!config.daily_digest}
-              />
-              {config.daily_digest && (
-                <div className="px-5 py-5 w-full animate-in fade-in duration-200" style={{ background: "rgba(255,255,255,0.02)" }}>
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowHourDropdown(!showHourDropdown)}
-                      className="w-full flex items-center justify-between px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
-                      style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}>
-                      
-                      <div className="flex items-center gap-3">
-                        <span className="text-white font-medium" style={{ fontSize: "15px", fontFamily: SF }}>
-                          {config.daily_digest_hour.toString().padStart(2, '0')}:00 UTC
-                        </span>
-                      </div>
-                      <ChevronDown
-                        className={`w-5 h-5 transition-transform ${showHourDropdown ? "rotate-180" : ""}`}
-                        style={{ color: "#8e8e93" }} />
-                    </button>
-                    
-                    {showHourDropdown && (
-                      <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-y-auto z-10 border border-[#2c2c2e] shadow-xl max-h-[220px]"
-                           style={{ background: "#1c1c1e" }}>
-                        {Array.from({ length: 24 }).map((_, h) => (
-                          <button
-                            key={h}
-                            onClick={() => { 
-                              setAndSave('daily_digest_hour', h);
-                              setShowHourDropdown(false);
-                            }}
-                            className={`w-full px-5 py-3.5 text-left text-[15px] font-medium active:bg-[#2c2c2e] transition-colors ${config.daily_digest_hour === h ? "text-white" : "text-[#8e8e93]"}`}
-                            style={{ fontFamily: SF }}>
-                            {h.toString().padStart(2, '0')}:00 UTC
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </Block>
+        {activePage === 'reports' && (
+          <div className="animate-in slide-in-from-right duration-200 w-full px-4">
+            <SubHeader title="Analytics" />
+            <div className="pt-6">
+              <Section header="DIAGNOSTICS">
+                <Row 
+                  label="24-Hour Metrics Digest"
+                  sublabel="Receive daily performance reports directly."
+                  right={<TelegramToggle on={config.daily_digest} onToggle={() => setAndSave('daily_digest', !config.daily_digest)} />}
+                  last={!config.daily_digest}
+                />
+                {config.daily_digest && (
+                  <Row 
+                    label="Dispatch Window"
+                    sublabel={`${config.daily_digest_hour.toString().padStart(2, '0')}:00 UTC`}
+                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    onClick={() => { setTempVal(config.daily_digest_hour); setActiveModal('digest_hour'); }}
+                    last
+                  />
+                )}
+              </Section>
+            </div>
           </div>
         )}
 
       </div>
+
+      {/* ── MODALES INFERIORES (BOTTOM SHEETS) ── */}
+      <BottomSheet
+        isOpen={activeModal === 'role'}
+        onClose={() => setActiveModal(null)}
+        onSave={() => { setAndSave('use_case', tempVal); setActiveModal(null); }}
+        title="Account Role"
+        description="Choose which chats the bot can access and manage."
+      >
+        <p className="px-4 mb-2 text-[#3b82f6] uppercase font-medium" style={{ fontSize: "13px", fontFamily: SF, letterSpacing: "0.03em" }}>Chats the bot can access</p>
+        <div className="bg-[#1c1c1e] rounded-[10px] overflow-hidden">
+          {['personal', 'sales', 'support', 'community'].map((opt, i, arr) => (
+            <RadioRow
+              key={opt}
+              label={opt.charAt(0).toUpperCase() + opt.slice(1)}
+              selected={tempVal === opt}
+              onClick={() => setTempVal(opt)}
+              last={i === arr.length - 1}
+            />
+          ))}
+        </div>
+        <p className="px-4 mt-2 text-[#636366]" style={{ fontSize: "13px", fontFamily: SF }}>Select the primary persona role for your assistant.</p>
+      </BottomSheet>
+
+      <BottomSheet
+        isOpen={activeModal === 'tone'}
+        onClose={() => setActiveModal(null)}
+        onSave={() => { setAndSave('tone', tempVal); setActiveModal(null); }}
+        title="Tone Register"
+      >
+        <div className="bg-[#1c1c1e] rounded-[10px] overflow-hidden">
+          {['adaptive', 'casual', 'formal', 'empathetic'].map((opt, i, arr) => (
+            <RadioRow
+              key={opt}
+              label={opt.charAt(0).toUpperCase() + opt.slice(1)}
+              selected={tempVal === opt}
+              onClick={() => setTempVal(opt)}
+              last={i === arr.length - 1}
+            />
+          ))}
+        </div>
+      </BottomSheet>
+
+      <BottomSheet
+        isOpen={activeModal === 'spam_sens'}
+        onClose={() => setActiveModal(null)}
+        onSave={() => { setAndSave('spam_sensitivity', tempVal); setActiveModal(null); }}
+        title="Aggressiveness Threshold"
+      >
+        <div className="bg-[#1c1c1e] rounded-[10px] overflow-hidden">
+          {['low', 'medium', 'high'].map((opt, i, arr) => (
+            <RadioRow
+              key={opt}
+              label={opt.charAt(0).toUpperCase() + opt.slice(1)}
+              selected={tempVal === opt}
+              onClick={() => setTempVal(opt)}
+              last={i === arr.length - 1}
+            />
+          ))}
+        </div>
+      </BottomSheet>
+
+      <BottomSheet
+        isOpen={activeModal === 'digest_hour'}
+        onClose={() => setActiveModal(null)}
+        onSave={() => { setAndSave('daily_digest_hour', tempVal); setActiveModal(null); }}
+        title="Dispatch Window"
+      >
+        <div className="bg-[#1c1c1e] rounded-[10px] overflow-hidden">
+          {Array.from({ length: 24 }).map((_, h) => (
+            <RadioRow
+              key={h}
+              label={`${h.toString().padStart(2, '0')}:00 UTC`}
+              selected={tempVal === h}
+              onClick={() => setTempVal(h)}
+              last={h === 23}
+            />
+          ))}
+        </div>
+      </BottomSheet>
+
     </div>
   )
 }
