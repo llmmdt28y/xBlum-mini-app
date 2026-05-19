@@ -24,12 +24,17 @@ const AutoResizeTextarea = ({
   const textRef = useRef<HTMLTextAreaElement>(null)
   const [val, setVal] = useState(defaultValue || "")
 
-  useEffect(() => {
+  const adjustHeight = () => {
     if (textRef.current) {
       textRef.current.style.height = "auto"
       textRef.current.style.height = `${textRef.current.scrollHeight}px`
     }
-  }, [val])
+  }
+
+  // Ajustar altura inicial al montar
+  useEffect(() => {
+    adjustHeight()
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     let newVal = e.target.value
@@ -37,6 +42,8 @@ const AutoResizeTextarea = ({
       newVal = newVal.slice(0, MAX_CHARS)
     }
     setVal(newVal)
+    // El ajuste síncrono previene los "brincos" en pantalla
+    adjustHeight()
   }
 
   const charsLeft = MAX_CHARS - val.length
@@ -51,14 +58,15 @@ const AutoResizeTextarea = ({
         onChange={handleChange}
         onBlur={() => onBlurSave(val)}
         placeholder={placeholder}
-        className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none resize-none transition-colors overflow-hidden"
+        className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none resize-none transition-colors"
         style={{ 
           background: "#111", 
           border: "1px solid #1c1c1e", 
           fontFamily: SF, 
           fontSize: "15px", 
           minHeight: "100px",
-          paddingBottom: showCounter ? "32px" : "16px" // Espacio extra para el contador
+          paddingBottom: showCounter ? "32px" : "16px", // Espacio extra para el contador
+          boxSizing: "border-box"
         }}
         onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
         onBlurCapture={e => (e.target.style.borderColor = "transparent")}
@@ -77,12 +85,13 @@ const AutoResizeTextarea = ({
 
 // ── COMPONENTES REUTILIZABLES (ESTILO SETTINGS-VIEW NATIVO) ──
 
-const Block = ({ title, children, footerHint }: { title?: string, children: React.ReactNode, footerHint?: string }) => (
+const Block = ({ title, children, footerHint, overflowVisible = false }: { title?: string, children: React.ReactNode, footerHint?: string, overflowVisible?: boolean }) => (
   <div className="mb-6">
-    <div className="rounded-2xl overflow-hidden w-full" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+    {/* Removido el overflow-hidden cuando necesitamos menús desplegables */}
+    <div className={`rounded-2xl w-full relative ${overflowVisible ? '' : 'overflow-hidden'}`} style={{ background: "#111", border: "1px solid #1c1c1e" }}>
       {title && (
         <div className="flex items-center justify-between px-5 pt-3 pb-1">
-          <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>{title}</p>
+          <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF, textTransform: "uppercase" }}>{title}</p>
         </div>
       )}
       {children}
@@ -94,9 +103,9 @@ const Block = ({ title, children, footerHint }: { title?: string, children: Reac
 )
 
 const Row = ({ 
-  icon, label, sublabel, right, onClick, last 
+  icon, iconBg, label, sublabel, right, onClick, last 
 }: { 
-  icon?: React.ReactNode, label: string, sublabel?: React.ReactNode, right?: React.ReactNode, onClick?: () => void, last?: boolean 
+  icon?: React.ReactNode, iconBg?: string, label: string, sublabel?: React.ReactNode, right?: React.ReactNode, onClick?: () => void, last?: boolean 
 }) => (
   <>
     <div
@@ -105,7 +114,7 @@ const Row = ({
       style={{ paddingTop: "14px", paddingBottom: "14px" }}
     >
       {icon && (
-        <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
+        <div className={`shrink-0 flex items-center justify-center w-[28px] h-[28px] rounded-lg text-white ${iconBg || ''}`}>
           {icon}
         </div>
       )}
@@ -129,13 +138,13 @@ const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
   <button
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
     className="relative rounded-full transition-all duration-200 shrink-0"
-    style={{ width: "44px", height: "26px", background: on ? "#ffffff" : "#3a3a3c" }}
+    style={{ width: "44px", height: "26px", background: on ? "#34c759" : "#3a3a3c" }}
   >
     <span
       className="absolute top-[2px] rounded-full shadow-sm transition-transform duration-200"
       style={{
         width: "22px", height: "22px",
-        background: on ? "#000000" : "#ffffff",
+        background: "#ffffff",
         left: on ? "20px" : "2px",
       }}
     />
@@ -153,9 +162,8 @@ const PillSelector = ({ options, selected, onSelect }: { options: string[], sele
           fontSize: "14px", 
           fontWeight: 500, 
           fontFamily: SF,
-          background: selected === opt ? "#ffffff" : "#1c1c1e",
-          color: selected === opt ? "#000000" : "#8e8e93",
-          border: selected === opt ? "1px solid #ffffff" : "1px solid #2c2c2e"
+          background: selected === opt ? "#3b82f6" : "#1c1c1e",
+          color: selected === opt ? "#fff" : "#8e8e93"
         }}
       >
         {opt}
@@ -270,7 +278,6 @@ export function BusinessAutomationView({
     loadInitial()
   }, [apiBaseUrl])
 
-
   if (loading) {
     return (
       <div className="fixed inset-0 z-[60] bg-[#000] flex items-center justify-center w-full h-full">
@@ -288,43 +295,43 @@ export function BusinessAutomationView({
         {activeView === 'main' && (
           <div className="animate-in fade-in duration-200 w-full">
             
-            <div className="flex flex-col items-center text-center pt-20 mb-10">
+            <div className="flex flex-col items-center text-center pt-20 mb-6">
               <img 
                 src={agentGifUrl} 
                 alt="Agent" 
-                className="w-[140px] h-[140px] object-contain mb-6 pointer-events-none select-none" 
+                className="w-[120px] h-[120px] object-contain mb-4 pointer-events-none select-none" 
               />
-              <h1 className="text-white font-bold mb-2 tracking-tight" style={{ fontSize: "32px", fontFamily: SFD }}>
+              <h1 className="text-white font-bold mb-1" style={{ fontSize: "24px", fontFamily: SFD }}>
                 Chat Automation
               </h1>
-              <p style={{ fontSize: "16px", color: "#8e8e93", fontFamily: SF, maxWidth: "320px", lineHeight: "1.4" }}>
+              <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, maxWidth: "280px", lineHeight: "1.3" }}>
                 Assign an intelligent agent to handle your interactions automatically.
               </p>
             </div>
 
             <Block title="Settings">
               <Row 
-                icon={<MessageSquare className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
+                icon={<MessageSquare className="w-4 h-4 text-white" />} iconBg="bg-[#0a84ff]"
                 label="Chat Access Scope" 
-                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
                 onClick={() => setActiveView('chat_access')}
               />
               <Row 
-                icon={<Bot className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
+                icon={<Sparkles className="w-4 h-4 text-white" />} iconBg="bg-[#bf5af2]"
                 label="AI Persona & Knowledge" 
-                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
                 onClick={() => setActiveView('persona')}
               />
               <Row 
-                icon={<Workflow className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
+                icon={<Workflow className="w-4 h-4 text-white" />} iconBg="bg-[#ff9f0a]"
                 label="Automated Workflows" 
-                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
                 onClick={() => setActiveView('workflows')}
               />
               <Row 
-                icon={<Shield className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
+                icon={<Shield className="w-4 h-4 text-white" />} iconBg="bg-[#ff453a]"
                 label="Safety & Protection" 
-                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
                 onClick={() => setActiveView('safety')}
                 last
               />
@@ -332,9 +339,9 @@ export function BusinessAutomationView({
 
             <Block title="Analytics">
               <Row 
-                icon={<BarChart3 className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
+                icon={<BarChart3 className="w-4 h-4 text-white" />} iconBg="bg-[#32ade6]"
                 label="Performance Diagnostics" 
-                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
                 onClick={() => setActiveView('reports')}
                 last
               />
@@ -401,7 +408,7 @@ export function BusinessAutomationView({
                 </Block>
 
                 <Block title="System Prompt">
-                  <div className="px-5 pb-5 pt-1">
+                  <div className="px-5 pb-5 pt-1 w-full">
                     <AutoResizeTextarea
                       defaultValue={config.ai_persona_hint}
                       onBlurSave={(v) => setAndSave('ai_persona_hint', v)}
@@ -411,7 +418,7 @@ export function BusinessAutomationView({
                 </Block>
 
                 <Block title="Knowledge Base Context">
-                  <div className="px-5 pb-5 pt-1">
+                  <div className="px-5 pb-5 pt-1 w-full">
                     <AutoResizeTextarea
                       defaultValue={config.kb_text}
                       onBlurSave={(v) => setAndSave('kb_text', v)}
@@ -537,7 +544,8 @@ export function BusinessAutomationView({
           <div className="pt-6 animate-in slide-in-from-right duration-200 w-full">
             <h2 className="text-white font-bold tracking-tight px-1 mb-6" style={{ fontSize: "28px", fontFamily: SFD }}>Analytics</h2>
             
-            <Block title="Diagnostics">
+            {/* Agregado overflowVisible para permitir que el menú desplegable salga del contenedor */}
+            <Block title="Diagnostics" overflowVisible={true}>
               <Row 
                 label="24-Hour Metrics Digest"
                 sublabel="Receive daily performance reports directly."
