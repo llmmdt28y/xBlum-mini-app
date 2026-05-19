@@ -1,13 +1,79 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
 import { 
-  Loader2, Sparkles, ShieldCheck, Workflow, 
-  ChevronRight, BarChart3, Check, MessageSquare
+  Loader2, Sparkles, Shield, Workflow, 
+  ChevronRight, BarChart3, Check, MessageSquare, Bot, ChevronDown
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+
+// ── COMPONENTE DE TEXTO CON AUTO-RESIZE Y LÍMITE ──
+const MAX_CHARS = 4092;
+
+const AutoResizeTextarea = ({ 
+  defaultValue, 
+  onBlurSave, 
+  placeholder 
+}: { 
+  defaultValue: string; 
+  onBlurSave: (val: string) => void; 
+  placeholder: string;
+}) => {
+  const textRef = useRef<HTMLTextAreaElement>(null)
+  const [val, setVal] = useState(defaultValue || "")
+
+  useEffect(() => {
+    if (textRef.current) {
+      textRef.current.style.height = "auto"
+      textRef.current.style.height = `${textRef.current.scrollHeight}px`
+    }
+  }, [val])
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    let newVal = e.target.value
+    if (newVal.length > MAX_CHARS) {
+      newVal = newVal.slice(0, MAX_CHARS)
+    }
+    setVal(newVal)
+  }
+
+  const charsLeft = MAX_CHARS - val.length
+  const showCounter = charsLeft <= 500
+  const counterColor = charsLeft <= 100 ? "#ef4444" : "#8e8e93"
+
+  return (
+    <div className="relative w-full">
+      <textarea
+        ref={textRef}
+        value={val}
+        onChange={handleChange}
+        onBlur={() => onBlurSave(val)}
+        placeholder={placeholder}
+        className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none resize-none transition-colors overflow-hidden"
+        style={{ 
+          background: "#111", 
+          border: "1px solid #1c1c1e", 
+          fontFamily: SF, 
+          fontSize: "15px", 
+          minHeight: "100px",
+          paddingBottom: showCounter ? "32px" : "16px" // Espacio extra para el contador
+        }}
+        onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
+        onBlurCapture={e => (e.target.style.borderColor = "transparent")}
+      />
+      {showCounter && (
+        <div 
+          className="absolute bottom-3 right-4 font-medium" 
+          style={{ fontSize: "12px", color: counterColor, fontFamily: SF }}
+        >
+          {charsLeft} restantes
+        </div>
+      )}
+    </div>
+  )
+}
 
 // ── COMPONENTES REUTILIZABLES (ESTILO SETTINGS-VIEW NATIVO) ──
 
@@ -16,7 +82,7 @@ const Block = ({ title, children, footerHint }: { title?: string, children: Reac
     <div className="rounded-2xl overflow-hidden w-full" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
       {title && (
         <div className="flex items-center justify-between px-5 pt-3 pb-1">
-          <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF, textTransform: "uppercase" }}>{title}</p>
+          <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>{title}</p>
         </div>
       )}
       {children}
@@ -28,9 +94,9 @@ const Block = ({ title, children, footerHint }: { title?: string, children: Reac
 )
 
 const Row = ({ 
-  icon, iconBg, label, sublabel, right, onClick, last 
+  icon, label, sublabel, right, onClick, last 
 }: { 
-  icon?: React.ReactNode, iconBg?: string, label: string, sublabel?: React.ReactNode, right?: React.ReactNode, onClick?: () => void, last?: boolean 
+  icon?: React.ReactNode, label: string, sublabel?: React.ReactNode, right?: React.ReactNode, onClick?: () => void, last?: boolean 
 }) => (
   <>
     <div
@@ -39,7 +105,7 @@ const Row = ({
       style={{ paddingTop: "14px", paddingBottom: "14px" }}
     >
       {icon && (
-        <div className={`shrink-0 flex items-center justify-center w-[28px] h-[28px] rounded-lg text-white ${iconBg}`}>
+        <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
           {icon}
         </div>
       )}
@@ -63,13 +129,13 @@ const Toggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
   <button
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
     className="relative rounded-full transition-all duration-200 shrink-0"
-    style={{ width: "44px", height: "26px", background: on ? "#34c759" : "#3a3a3c" }}
+    style={{ width: "44px", height: "26px", background: on ? "#ffffff" : "#3a3a3c" }}
   >
     <span
       className="absolute top-[2px] rounded-full shadow-sm transition-transform duration-200"
       style={{
         width: "22px", height: "22px",
-        background: "#ffffff",
+        background: on ? "#000000" : "#ffffff",
         left: on ? "20px" : "2px",
       }}
     />
@@ -87,8 +153,9 @@ const PillSelector = ({ options, selected, onSelect }: { options: string[], sele
           fontSize: "14px", 
           fontWeight: 500, 
           fontFamily: SF,
-          background: selected === opt ? "#3b82f6" : "#1c1c1e",
-          color: selected === opt ? "#fff" : "#8e8e93"
+          background: selected === opt ? "#ffffff" : "#1c1c1e",
+          color: selected === opt ? "#000000" : "#8e8e93",
+          border: selected === opt ? "1px solid #ffffff" : "1px solid #2c2c2e"
         }}
       >
         {opt}
@@ -113,8 +180,10 @@ export function BusinessAutomationView({
   
   const [loading, setLoading] = useState(true)
   const [activeView, setActiveView] = useState<'main' | 'chat_access' | 'persona' | 'workflows' | 'safety' | 'reports'>('main')
+  
+  // Estado para el menú desplegable del reporte en Analytics
+  const [showHourDropdown, setShowHourDropdown] = useState(false)
 
-  // Estado limpio: se removió bot_username que no pertenece a telegram business
   const [config, setConfig] = useState({
     auto_reply_filter: "everyone", 
     ai_autoreply_enabled: true,
@@ -211,51 +280,51 @@ export function BusinessAutomationView({
   }
 
   return (
-    // overflow-hidden y max-w-full previenen el scroll horizontal
     <div className="fixed inset-0 z-[60] bg-[#000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-200">
       
-      {/* overflow-x-hidden mata el vacío hacia la derecha */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 pb-20 w-full" style={{ background: "#000" }}>
         
         {/* ── MENÚ PRINCIPAL ── */}
         {activeView === 'main' && (
           <div className="animate-in fade-in duration-200 w-full">
             
-            <div className="flex flex-col items-center text-center pt-16 mb-6">
+            <div className="flex flex-col items-center text-center pt-20 mb-10">
               <img 
                 src={agentGifUrl} 
                 alt="Agent" 
-                className="w-[120px] h-[120px] object-contain mb-4 pointer-events-none select-none" 
+                className="w-[140px] h-[140px] object-contain mb-6 pointer-events-none select-none" 
               />
-              <h1 className="text-white font-bold mb-1" style={{ fontSize: "24px", fontFamily: SFD }}>Chat Automation</h1>
-              <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, maxWidth: "280px", lineHeight: "1.3" }}>
+              <h1 className="text-white font-bold mb-2 tracking-tight" style={{ fontSize: "32px", fontFamily: SFD }}>
+                Chat Automation
+              </h1>
+              <p style={{ fontSize: "16px", color: "#8e8e93", fontFamily: SF, maxWidth: "320px", lineHeight: "1.4" }}>
                 Assign an intelligent agent to handle your interactions automatically.
               </p>
             </div>
 
             <Block title="Settings">
               <Row 
-                icon={<MessageSquare className="w-4 h-4 text-white" />} iconBg="bg-[#0a84ff]"
+                icon={<MessageSquare className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
                 label="Chat Access Scope" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
                 onClick={() => setActiveView('chat_access')}
               />
               <Row 
-                icon={<Sparkles className="w-4 h-4 text-white" />} iconBg="bg-[#bf5af2]"
+                icon={<Bot className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
                 label="AI Persona & Knowledge" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
                 onClick={() => setActiveView('persona')}
               />
               <Row 
-                icon={<Workflow className="w-4 h-4 text-white" />} iconBg="bg-[#ff9f0a]"
+                icon={<Workflow className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
                 label="Automated Workflows" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
                 onClick={() => setActiveView('workflows')}
               />
               <Row 
-                icon={<ShieldCheck className="w-4 h-4 text-white" />} iconBg="bg-[#ff453a]"
+                icon={<Shield className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
                 label="Safety & Protection" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
                 onClick={() => setActiveView('safety')}
                 last
               />
@@ -263,9 +332,9 @@ export function BusinessAutomationView({
 
             <Block title="Analytics">
               <Row 
-                icon={<BarChart3 className="w-4 h-4 text-white" />} iconBg="bg-[#32ade6]"
+                icon={<BarChart3 className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
                 label="Performance Diagnostics" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
                 onClick={() => setActiveView('reports')}
                 last
               />
@@ -283,12 +352,12 @@ export function BusinessAutomationView({
               <Row 
                 label="All private chats except exclusions"
                 onClick={() => setAndSave('auto_reply_filter', 'everyone')}
-                right={config.auto_reply_filter === 'everyone' ? <Check className="w-5 h-5 text-[#3b82f6]" /> : null}
+                right={config.auto_reply_filter === 'everyone' ? <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} /> : null}
               />
               <Row 
                 label="Only whitelisted conversations"
                 onClick={() => setAndSave('auto_reply_filter', 'whitelist')}
-                right={config.auto_reply_filter === 'whitelist' ? <Check className="w-5 h-5 text-[#3b82f6]" /> : null}
+                right={config.auto_reply_filter === 'whitelist' ? <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} /> : null}
                 last
               />
             </Block>
@@ -309,7 +378,6 @@ export function BusinessAutomationView({
               />
             </Block>
 
-            {/* SE DESAPARECE COMPLETAMENTE SI ESTÁ APAGADO */}
             {config.ai_autoreply_enabled && (
               <div className="animate-in fade-in duration-300 w-full">
                 <Block title="Identity Blueprint">
@@ -334,30 +402,20 @@ export function BusinessAutomationView({
 
                 <Block title="System Prompt">
                   <div className="px-5 pb-5 pt-1">
-                    <textarea
-                      key="persona_hint"
+                    <AutoResizeTextarea
                       defaultValue={config.ai_persona_hint}
-                      onBlur={(e) => setAndSave('ai_persona_hint', e.target.value)}
+                      onBlurSave={(v) => setAndSave('ai_persona_hint', v)}
                       placeholder="E.g., Act as concise tech support..."
-                      className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none min-h-[100px] resize-none transition-colors"
-                      style={{ background: "#111", border: "1px solid #1c1c1e", fontFamily: SF, fontSize: "15px" }}
-                      onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
-                      onBlurCapture={e => (e.target.style.borderColor = "transparent")}
                     />
                   </div>
                 </Block>
 
                 <Block title="Knowledge Base Context">
                   <div className="px-5 pb-5 pt-1">
-                    <textarea
-                      key="kb_text"
+                    <AutoResizeTextarea
                       defaultValue={config.kb_text}
-                      onBlur={(e) => setAndSave('kb_text', e.target.value)}
+                      onBlurSave={(v) => setAndSave('kb_text', v)}
                       placeholder="Pricing, URLs, operational data..."
-                      className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none min-h-[120px] resize-none transition-colors"
-                      style={{ background: "#111", border: "1px solid #1c1c1e", fontFamily: SF, fontSize: "15px" }}
-                      onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
-                      onBlurCapture={e => (e.target.style.borderColor = "transparent")}
                     />
                   </div>
                 </Block>
@@ -378,7 +436,6 @@ export function BusinessAutomationView({
                 right={<Toggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
                 last={!config.followup_enabled}
               />
-              {/* DESAPARECE COMPLETAMENTE */}
               {config.followup_enabled && (
                 <div className="px-5 py-4 flex gap-4 w-full" style={{ background: "rgba(255,255,255,0.02)" }}>
                   <div className="flex-1 min-w-0">
@@ -414,7 +471,6 @@ export function BusinessAutomationView({
                 right={<Toggle on={config.invocation_enabled} onToggle={() => setAndSave('invocation_enabled', !config.invocation_enabled)} />}
                 last={!config.invocation_enabled}
               />
-              {/* DESAPARECE COMPLETAMENTE */}
               {config.invocation_enabled && (
                 <div className="w-full px-5 py-3.5" style={{ background: "rgba(255,255,255,0.02)" }}>
                   <input 
@@ -444,7 +500,6 @@ export function BusinessAutomationView({
                 right={<Toggle on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} />}
                 last={!config.spam_filter_enabled}
               />
-              {/* DESAPARECE COMPLETAMENTE */}
               {config.spam_filter_enabled && (
                 <div className="w-full animate-in fade-in duration-200">
                   <div className="px-5 pt-3 pb-1" style={{ background: "rgba(255,255,255,0.02)" }}>
@@ -489,20 +544,42 @@ export function BusinessAutomationView({
                 right={<Toggle on={config.daily_digest} onToggle={() => setAndSave('daily_digest', !config.daily_digest)} />}
                 last={!config.daily_digest}
               />
-              {/* DESAPARECE COMPLETAMENTE */}
               {config.daily_digest && (
-                <div className="px-5 py-4 flex items-center justify-between w-full animate-in fade-in duration-200" style={{ background: "rgba(255,255,255,0.02)" }}>
-                  <p className="text-white" style={{ fontSize: "15px", fontFamily: SF }}>Dispatch Window</p>
-                  <select 
-                    value={config.daily_digest_hour}
-                    onChange={(e) => setAndSave('daily_digest_hour', parseInt(e.target.value) || 0)}
-                    className="bg-transparent text-[#3b82f6] font-medium outline-none"
-                    style={{ fontSize: "15px", fontFamily: SF }}
-                  >
-                    {Array.from({ length: 24 }).map((_, h) => (
-                      <option key={h} value={h} className="bg-[#111] text-white">{h.toString().padStart(2, '0')}:00 UTC</option>
-                    ))}
-                  </select>
+                <div className="px-5 py-5 w-full animate-in fade-in duration-200" style={{ background: "rgba(255,255,255,0.02)" }}>
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowHourDropdown(!showHourDropdown)}
+                      className="w-full flex items-center justify-between px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
+                      style={{ background: "#1c1c1e", border: "1px solid #2c2c2e" }}>
+                      
+                      <div className="flex items-center gap-3">
+                        <span className="text-white font-medium" style={{ fontSize: "15px", fontFamily: SF }}>
+                          {config.daily_digest_hour.toString().padStart(2, '0')}:00 UTC
+                        </span>
+                      </div>
+                      <ChevronDown
+                        className={`w-5 h-5 transition-transform ${showHourDropdown ? "rotate-180" : ""}`}
+                        style={{ color: "#8e8e93" }} />
+                    </button>
+                    
+                    {showHourDropdown && (
+                      <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl overflow-y-auto z-10 border border-[#2c2c2e] shadow-xl max-h-[220px]"
+                           style={{ background: "#1c1c1e" }}>
+                        {Array.from({ length: 24 }).map((_, h) => (
+                          <button
+                            key={h}
+                            onClick={() => { 
+                              setAndSave('daily_digest_hour', h);
+                              setShowHourDropdown(false);
+                            }}
+                            className={`w-full px-5 py-3.5 text-left text-[15px] font-medium active:bg-[#2c2c2e] transition-colors ${config.daily_digest_hour === h ? "text-white" : "text-[#8e8e93]"}`}
+                            style={{ fontFamily: SF }}>
+                            {h.toString().padStart(2, '0')}:00 UTC
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </Block>
