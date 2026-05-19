@@ -10,22 +10,22 @@ import {
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── DATOS DE LOS PRESETS ──
+// ── DATOS DE LOS PRESETS CON COLORES TEMÁTICOS ──
 const PRESETS_DATA = [
   { 
-    id: 'max', name: 'Max', emoji: '🧊', tagline: 'Silent presence', 
+    id: 'max', name: 'Max', emoji: '🧊', theme: '#32ade6', tagline: 'Silent presence', 
     desc: 'Welcome & Away messages only. AI is off. Perfect when you just want automated greetings without any AI involvement.' 
   },
   { 
-    id: 'ravage', name: 'Ravage', emoji: '⚡', tagline: 'Smart replies, zero setup', 
+    id: 'ravage', name: 'Ravage', emoji: '⚡', theme: '#ffcc00', tagline: 'Smart replies, zero setup', 
     desc: 'AI autoreply on with a natural human feel. Spam protection active. Great default for personal or casual business use.' 
   },
   { 
-    id: 'blaze', name: 'Blaze', emoji: '🔥', tagline: 'Sales mode', 
+    id: 'blaze', name: 'Blaze', emoji: '🔥', theme: '#ff9f0a', tagline: 'Sales mode', 
     desc: 'Sales persona, aggressive spam filter, automatic follow-ups, and daily activity digest. Built to convert leads.' 
   },
   { 
-    id: 'beast', name: 'Beast', emoji: '💀', tagline: 'Full control, max automation', 
+    id: 'beast', name: 'Beast', emoji: '💀', theme: '#ff453a', tagline: 'Full control, max automation', 
     desc: 'Every feature on. Ultra-natural replies, tight spam shield, 3-touch follow-up sequences, blacklist filtering, early morning digest.' 
   }
 ];
@@ -102,7 +102,7 @@ const AutoResizeTextarea = ({
 // ── COMPONENTES REUTILIZABLES (ESTILO iOS MODERNO PREMIUM) ──
 
 const SubHeader = ({ title }: { title: string }) => (
-  // Header movido un poco más abajo (pt-8 en lugar de pt-6)
+  // Header ajustado
   <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-4 pt-8" style={{ background: "#000000" }}>
     <h2 className="font-semibold text-white tracking-tight" style={{ fontSize: "18px", fontFamily: SF }}>
       {title}
@@ -183,11 +183,11 @@ const TextPreviewBubble = ({ title, icon, iconBg, placeholder, value, onClick }:
   </div>
 );
 
-const TelegramToggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
+const TelegramToggle = ({ on, onToggle, activeColor = "#3b82f6" }: { on: boolean; onToggle: () => void; activeColor?: string }) => (
   <button
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
     className="relative rounded-full transition-colors duration-300 shrink-0"
-    style={{ width: "51px", height: "31px", background: on ? "#3b82f6" : "#2c2c2e" }}
+    style={{ width: "51px", height: "31px", background: on ? activeColor : "#2c2c2e" }}
   >
     <span
       className="absolute rounded-full shadow-md transition-all duration-300 bg-white"
@@ -213,7 +213,7 @@ const RadioRow = ({ label, selected, onClick, last }: { label: string, selected:
 )
 
 // ── BOTÓN CON BRILLO SÓLO EN ESQUINAS OPUESTAS (Top-Left & Bottom-Right) ──
-const ShinyActionButton = ({ label, onClick, className = "", secondary = false }: { label: string, onClick: () => void, className?: string, secondary?: boolean }) => (
+const ShinyActionButton = ({ label, onClick, className = "", secondary = false, themeColor = "#3b82f6" }: { label: string, onClick: () => void, className?: string, secondary?: boolean, themeColor?: string }) => (
   <button
     onClick={onClick}
     className={`relative rounded-full px-5 py-2.5 transition-all active:scale-[0.97] group overflow-hidden ${className}`}
@@ -232,9 +232,9 @@ const ShinyActionButton = ({ label, onClick, className = "", secondary = false }
 
     {/* Sombra activa interna central */}
     <div className="absolute inset-0 rounded-full opacity-0 group-active:opacity-100 transition-opacity duration-300 pointer-events-none" 
-         style={{ background: "radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, rgba(2c, 2c, 2e, 0) 70%)" }} />
+         style={{ background: `radial-gradient(circle at center, ${themeColor}30 0%, rgba(2c, 2c, 2e, 0) 70%)` }} />
     
-    <span className={`relative z-10 ${secondary ? 'text-[#8e8e93]' : 'text-[#3b82f6]'} font-semibold`} style={{ fontSize: "16px" }}>
+    <span className={`relative z-10 font-semibold`} style={{ fontSize: "16px", color: secondary ? '#8e8e93' : themeColor }}>
       {label}
     </span>
   </button>
@@ -415,9 +415,23 @@ export function BusinessAutomationView({
     )
   }
 
+  const currentTheme = PRESETS_DATA.find(p => p.id === selectedPresetId)?.theme || "#3b82f6";
+  const currentPresetName = PRESETS_DATA.find(p => p.id === selectedPresetId)?.name || "Preset";
+
   return (
     <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-200">
       
+      {/* Ocultamos el scrollbar nativo mediante una etiqueta style global para este componente */}
+      <style>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-4">
         
         {/* ── MAIN MENU ── */}
@@ -485,16 +499,21 @@ export function BusinessAutomationView({
         {activePage === 'presets' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Agent Presets" />
-            <p className="px-5 mt-4 mb-8 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
+            <p className="px-5 mt-4 mb-6 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
               Quickly apply predefined behaviors. You can customize details later.
             </p>
 
-            <div className="grid grid-cols-2 gap-3 mb-6">
+            {/* Scroll Horizontal de 4 contenedores */}
+            <div className="flex overflow-x-auto gap-3 mb-6 pb-2 snap-x hide-scrollbar">
               {PRESETS_DATA.map(p => (
                  <button 
                     key={p.id}
                     onClick={() => setSelectedPresetTab(p.id)} 
-                    className={`flex flex-col items-center justify-center p-4 rounded-3xl border transition-all ${selectedPresetId === p.id ? 'border-[#3b82f6] bg-[#3b82f6]/10' : 'border-[#1c1c1e] bg-[#121214]'}`}
+                    className="flex flex-col items-center justify-center p-4 rounded-3xl border transition-all min-w-[110px] shrink-0 snap-center"
+                    style={{
+                      borderColor: selectedPresetId === p.id ? p.theme : '#1c1c1e',
+                      backgroundColor: selectedPresetId === p.id ? `${p.theme}15` : '#121214'
+                    }}
                  >
                     <div className="text-3xl mb-2">{p.emoji}</div>
                     <div className="text-white font-semibold tracking-tight" style={{ fontFamily: SF, fontSize: "16px" }}>{p.name}</div>
@@ -511,30 +530,35 @@ export function BusinessAutomationView({
                </p>
                
                <div className="mt-6">
-                 <ShinyActionButton label={`Apply ${PRESETS_DATA.find(p => p.id === selectedPresetId)?.name} Preset`} onClick={applyPreset} />
+                 <ShinyActionButton 
+                   label={`Apply ${currentPresetName} Preset`} 
+                   onClick={applyPreset} 
+                   themeColor={currentTheme}
+                 />
                </div>
             </div>
 
-            <Section header="QUICK ADJUSTMENTS" footer="Changes here override the preset automatically. Detailed settings are in the main menu.">
+            {/* Tabla de configuraciones con colores de acuerdo al Preset seleccionado */}
+            <Section header={`${currentPresetName.toUpperCase()} CONFIGURATION`} footer="Changes here override the preset automatically. Detailed settings are in the main menu.">
               <Row 
                 icon={<Sparkles className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
                 label="AI Auto-Reply"
-                right={<TelegramToggle on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} />}
+                right={<TelegramToggle on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} activeColor={currentTheme} />}
               />
               <Row 
                 icon={<Shield className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#ff453a]"
                 label="Spam Filtering"
-                right={<TelegramToggle on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} />}
+                right={<TelegramToggle on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} activeColor={currentTheme} />}
               />
               <Row 
                 icon={<MessageSquare className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#bf5af2]"
                 label="Simulate Typing"
-                right={<TelegramToggle on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} />}
+                right={<TelegramToggle on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} activeColor={currentTheme} />}
               />
               <Row 
                 icon={<Workflow className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#34c759]"
                 label="Smart Follow-ups"
-                right={<TelegramToggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
+                right={<TelegramToggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} activeColor={currentTheme} />}
                 last
               />
             </Section>
