@@ -9,25 +9,17 @@ import {
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── NATIVE SETTINGS STYLING (Basado exactamente en tu settings-view) ──
-const settingsContainer = {
-  background: "#1c1c1e",
-  borderRadius: "12px",
-  overflow: "hidden" as const,
-}
-
-const inputSettingsStyle = {
-  background: "transparent",
-  color: "#ffffff",
-  outline: "none",
-  width: "100%",
+interface BusinessAutomationViewProps {
+  onClose: () => void
+  apiBaseUrl?: string
+  agentGifUrl?: string 
 }
 
 export function BusinessAutomationView({ 
   onClose, 
   apiBaseUrl = "", 
   agentGifUrl = "/agent-robot.gif" 
-}: { onClose: () => void; apiBaseUrl?: string; agentGifUrl?: string }) {
+}: BusinessAutomationViewProps) {
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -58,7 +50,7 @@ export function BusinessAutomationView({
 
   const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
 
-  // Configuración del botón Back nativo de Telegram
+  // Native Telegram Back Button
   useEffect(() => {
     const tg = getTg()
     if (!tg?.BackButton) return
@@ -107,326 +99,416 @@ export function BusinessAutomationView({
     }
   }
 
-  // ── REUSABLE UI COMPONENTS (NATIVE SETTINGS STYLE) ──
+  // ── REUSABLE UI COMPONENTS EXACTLY LIKE SETTINGS-VIEW ──
 
-  // El título azul dentro del contenedor
-  const SectionHeader = ({ title }: { title: string }) => (
-    <div className="px-4 pt-4 pb-1.5 text-[#3b82f6] text-[13px] font-semibold uppercase tracking-wide" style={{ fontFamily: SF }}>
-      {title}
-    </div>
-  )
-
-  const renderToggleRow = (label: string, subLabel: string, value: boolean, onChange: (val: boolean) => void) => (
-    <div className="flex items-center justify-between px-4 py-3 border-b border-[#2c2c2e]/50 last:border-b-0 cursor-pointer active:bg-white/5 transition-colors" onClick={() => onChange(!value)}>
-      <div className="flex flex-col pr-4 flex-1">
-        <span className="text-white text-[16px]" style={{ fontFamily: SF }}>{label}</span>
-        {subLabel && <span className="text-[#8e8e93] text-[13px] mt-0.5 leading-snug">{subLabel}</span>}
+  const Block = ({ title, children, footerHint }: { title?: string, children: React.ReactNode, footerHint?: string }) => (
+    <div className="mb-6">
+      <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+        {title && (
+          <div className="flex items-center justify-between px-5 pt-3 pb-1">
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF, textTransform: "uppercase" }}>{title}</p>
+          </div>
+        )}
+        {children}
       </div>
-      <button 
-        type="button"
-        className="shrink-0 w-[50px] h-[30px] rounded-full p-0.5 transition-colors duration-200 relative focus:outline-none"
-        style={{ backgroundColor: value ? "#34c759" : "#3a3a3c" }}
-      >
-        <div 
-          className="w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform duration-200 ease-out" 
-          style={{ transform: value ? "translateX(20px)" : "translateX(0)" }}
-        />
-      </button>
+      {footerHint && (
+        <p className="px-4 mt-2" style={{ fontSize: "13px", color: "#636366", fontFamily: SF }}>{footerHint}</p>
+      )}
     </div>
   )
 
-  const renderRadioRow = (label: string, uniqueKey: string, currentVal: string, onClick: () => void) => {
-    const isSelected = currentVal === uniqueKey
-    return (
-      <button 
-        type="button"
+  const Row = ({ 
+    icon, label, sublabel, right, onClick, last 
+  }: { 
+    icon?: React.ReactNode, label: string, sublabel?: React.ReactNode, right?: React.ReactNode, onClick?: () => void, last?: boolean 
+  }) => (
+    <>
+      <div
         onClick={onClick}
-        className="w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left border-b border-[#2c2c2e]/50 last:border-b-0"
+        className={`w-full flex items-center gap-4 px-5 transition-colors ${onClick ? 'active:bg-white/5 cursor-pointer' : ''}`}
+        style={{ paddingTop: "14px", paddingBottom: "14px" }}
       >
-        <span className="text-white text-[16px]" style={{ fontFamily: SF }}>{label}</span>
-        {isSelected && <Check className="w-5 h-5 text-[#3b82f6]" />}
-      </button>
-    )
-  }
-
-  // Row para el menú principal con iconos a la izquierda y flechas a la derecha
-  const renderMenuRow = (label: string, icon: React.ReactNode, targetView: typeof activeView, iconBg: string) => (
-    <button
-      type="button"
-      onClick={() => setActiveView(targetView)}
-      className="w-full flex items-center justify-between pl-4 pr-3 py-3 border-b border-[#2c2c2e]/50 last:border-b-0 active:bg-white/5 transition-colors focus:outline-none"
-    >
-      <div className="flex items-center gap-3.5">
-        <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-white ${iconBg}`}>
-          {icon}
+        {icon && (
+          <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
+            {icon}
+          </div>
+        )}
+        <div className="flex-1 text-left">
+          <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+            {label}
+          </p>
+          {sublabel && (
+            <div className="mt-0.5 leading-snug" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
+              {sublabel}
+            </div>
+          )}
         </div>
-        <span className="text-white text-[16px]" style={{ fontFamily: SF }}>{label}</span>
+        {right && <div className="shrink-0 ml-2">{right}</div>}
       </div>
-      <ChevronRight className="w-5 h-5 text-[#545458]" />
+      {!last && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: icon ? "56px" : "20px" }} />}
+    </>
+  )
+
+  const Toggle = ({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) => (
+    <button
+      onClick={onToggle}
+      disabled={disabled}
+      className={"relative rounded-full transition-all duration-200 shrink-0 " + (disabled ? "opacity-50" : "")}
+      style={{ width: "44px", height: "26px", background: on ? "#ffffff" : "#3a3a3c" }}
+    >
+      <span
+        className="absolute top-[2px] rounded-full shadow-sm transition-transform duration-200"
+        style={{
+          width: "22px", height: "22px",
+          background: on ? "#000000" : "#ffffff",
+          left: on ? "20px" : "2px",
+        }}
+      />
     </button>
+  )
+
+  const InputRow = ({ value, onChange, placeholder, last }: { value: string, onChange: (v: string) => void, placeholder: string, last?: boolean }) => (
+    <>
+      <div className="w-full px-5 py-3.5">
+        <input 
+          type="text" 
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full bg-transparent text-white outline-none"
+          style={{ fontSize: "16px", fontFamily: SF }}
+        />
+      </div>
+      {!last && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "20px" }} />}
+    </>
+  )
+
+  const TextAreaBlock = ({ value, onChange, placeholder }: { value: string, onChange: (v: string) => void, placeholder: string }) => (
+    <div className="px-5 pb-5 pt-2">
+      <textarea
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none min-h-[120px] resize-none transition-colors"
+        style={{ background: "#111", border: "1px solid #1c1c1e", fontFamily: SF, fontSize: "16px" }}
+        onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
+        onBlur={e => (e.target.style.borderColor = "1px solid #1c1c1e")}
+      />
+    </div>
+  )
+
+  const PillSelector = ({ options, selected, onSelect }: { options: string[], selected: string, onSelect: (v: string) => void }) => (
+    <div className="px-5 pb-4 pt-1 flex flex-wrap gap-2">
+      {options.map((opt) => (
+        <button
+          key={opt}
+          onClick={() => onSelect(opt)}
+          className="px-3 py-1.5 rounded-full capitalize transition-colors"
+          style={{ 
+            fontSize: "14px", 
+            fontWeight: 500, 
+            fontFamily: SF,
+            background: selected === opt ? "#3b82f6" : "#1c1c1e",
+            color: selected === opt ? "#fff" : "#8e8e93"
+          }}
+        >
+          {opt}
+        </button>
+      ))}
+    </div>
   )
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center">
+      <div className="fixed inset-0 z-[60] bg-[#000] flex items-center justify-center">
         <Loader2 className="w-7 h-7 text-[#3b82f6] animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex flex-col overflow-hidden animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[60] bg-[#000] flex flex-col overflow-hidden animate-in fade-in duration-200">
       
-      {/* Scrollable Frame */}
-      <div className="flex-1 overflow-y-auto px-4 pb-40 no-scrollbar">
+      <div className="flex-1 overflow-y-auto px-4 pb-40" style={{ background: "#000" }}>
         
         {/* ── MAIN VIEWS / INDEX PAGE ── */}
         {activeView === 'main' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="animate-in fade-in duration-200">
             
-            {/* Centered Gif, Title, Small Description */}
-            <div className="flex flex-col items-center text-center pt-16 mb-4">
+            <div className="flex flex-col items-center text-center pt-16 mb-8">
               <img 
                 src={agentGifUrl} 
-                alt="Automation Hub" 
+                alt="Agent" 
                 className="w-[120px] h-[120px] object-contain mb-4" 
               />
-              <h1 className="text-white text-[22px] font-bold mb-1.5" style={{ fontFamily: SFD }}>Chat Automation</h1>
-              <p className="text-[#8e8e93] text-[15px] max-w-[280px] leading-snug" style={{ fontFamily: SF }}>
+              <h1 className="text-white font-bold mb-1" style={{ fontSize: "24px", fontFamily: SFD }}>Chat Automation</h1>
+              <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "280px", lineHeight: "1.3" }}>
                 Assign an intelligent agent to handle your interactions automatically.
               </p>
             </div>
 
-            {/* Container 1: Settings Block */}
-            <div style={settingsContainer}>
-              <SectionHeader title="Settings" />
-              {renderMenuRow("Bot Integration", <Bot className="w-4 h-4" />, 'integration', "bg-[#0a84ff]")}
-              {renderMenuRow("AI Persona & Knowledge", <Sparkles className="w-4 h-4" />, 'persona', "bg-[#bf5af2]")}
-              {renderMenuRow("Automated Workflows", <Workflow className="w-4 h-4" />, 'workflows', "bg-[#ff9f0a]")}
-              {renderMenuRow("Safety & Spam Protection", <ShieldCheck className="w-4 h-4" />, 'safety', "bg-[#ff453a]")}
-            </div>
+            <Block title="SETTINGS">
+              <Row 
+                icon={<Bot className="text-[#3b82f6]" />} 
+                label="Bot Integration" 
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                onClick={() => setActiveView('integration')}
+              />
+              <Row 
+                icon={<Sparkles className="text-[#bf5af2]" />} 
+                label="AI Persona & Knowledge" 
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                onClick={() => setActiveView('persona')}
+              />
+              <Row 
+                icon={<Workflow className="text-[#ff9f0a]" />} 
+                label="Automated Workflows" 
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                onClick={() => setActiveView('workflows')}
+              />
+              <Row 
+                icon={<ShieldCheck className="text-[#ff453a]" />} 
+                label="Safety & Protection" 
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                onClick={() => setActiveView('safety')}
+                last
+              />
+            </Block>
 
-            {/* Container 2: Reports Block */}
-            <div style={settingsContainer}>
-              <SectionHeader title="Analytics" />
-              {renderMenuRow("Performance Diagnostics", <BarChart3 className="w-4 h-4" />, 'reports', "bg-[#32ade6]")}
-            </div>
+            <Block title="ANALYTICS">
+              <Row 
+                icon={<BarChart3 className="text-[#32ade6]" />} 
+                label="Performance Diagnostics" 
+                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                onClick={() => setActiveView('reports')}
+                last
+              />
+            </Block>
 
           </div>
         )}
 
         {/* ── PAGE: BOT INTEGRATION ── */}
         {activeView === 'integration' && (
-          <div className="space-y-6 pt-6 animate-in slide-in-from-right duration-200">
-            <h2 className="text-white text-[28px] font-bold tracking-tight px-1 mb-2" style={{ fontFamily: SFD }}>Bot Integration</h2>
+          <div className="pt-6 animate-in slide-in-from-right duration-200">
+            <h2 className="text-white font-bold tracking-tight px-1 mb-4" style={{ fontSize: "28px", fontFamily: SFD }}>Bot Integration</h2>
             
-            <div style={settingsContainer}>
-              <SectionHeader title="Connection" />
-              <div className="px-4 py-3 border-t border-[#2c2c2e]/50">
-                <input 
-                  type="text" 
-                  placeholder="Bot @username or url" 
-                  value={config.bot_username}
-                  onChange={(e) => setConfig({...config, bot_username: e.target.value})}
-                  className="text-[16px] placeholder:text-[#636366]"
-                  style={{ ...inputSettingsStyle, fontFamily: SF }}
-                />
-              </div>
-            </div>
+            <Block title="CONNECTION" footerHint="Enter the username of the bot you created via BotFather.">
+              <InputRow 
+                value={config.bot_username}
+                onChange={(v) => setConfig({...config, bot_username: v})}
+                placeholder="Bot @username or url"
+                last
+              />
+            </Block>
 
-            <div style={settingsContainer}>
-              <SectionHeader title="Chat Access Scope" />
-              <div className="border-t border-[#2c2c2e]/50">
-                {renderRadioRow("All private chats except exclusions", "everyone", config.auto_reply_filter, () => setConfig({...config, auto_reply_filter: 'everyone'}))}
-                {renderRadioRow("Only whitelisted conversations", "whitelist", config.auto_reply_filter, () => setConfig({...config, auto_reply_filter: 'whitelist'}))}
-              </div>
-            </div>
+            <Block title="CHAT ACCESS SCOPE">
+              <Row 
+                label="All private chats except exclusions"
+                onClick={() => setConfig({...config, auto_reply_filter: 'everyone'})}
+                right={config.auto_reply_filter === 'everyone' ? <Check className="w-5 h-5 text-[#3b82f6]" /> : null}
+              />
+              <Row 
+                label="Only whitelisted conversations"
+                onClick={() => setConfig({...config, auto_reply_filter: 'whitelist'})}
+                right={config.auto_reply_filter === 'whitelist' ? <Check className="w-5 h-5 text-[#3b82f6]" /> : null}
+                last
+              />
+            </Block>
           </div>
         )}
 
         {/* ── PAGE: AI PERSONA & KNOWLEDGE ── */}
         {activeView === 'persona' && (
-          <div className="space-y-6 pt-6 animate-in slide-in-from-right duration-200">
-            <h2 className="text-white text-[28px] font-bold tracking-tight px-1 mb-2" style={{ fontFamily: SFD }}>AI Persona & Knowledge</h2>
+          <div className="pt-6 animate-in slide-in-from-right duration-200">
+            <h2 className="text-white font-bold tracking-tight px-1 mb-4" style={{ fontSize: "28px", fontFamily: SFD }}>AI Persona</h2>
             
-            <div style={settingsContainer}>
-              <SectionHeader title="Intelligence" />
-              <div className="border-t border-[#2c2c2e]/50">
-                {renderToggleRow("AI Auto-Reply Processing", "Process inbound messages using Grok 4.1.", config.ai_autoreply_enabled, (val) => setConfig({...config, ai_autoreply_enabled: val}))}
+            <Block title="INTELLIGENCE">
+              <Row 
+                label="AI Auto-Reply Processing"
+                sublabel="Process inbound messages using Grok 4.1."
+                right={<Toggle on={config.ai_autoreply_enabled} onToggle={() => setConfig({...config, ai_autoreply_enabled: !config.ai_autoreply_enabled})} />}
+                last
+              />
+            </Block>
+
+            <Block title="IDENTITY BLUEPRINT">
+              <div className="px-5 pt-3 pb-1">
+                <p className="text-white" style={{ fontSize: "16px", fontFamily: SF }}>Account Role</p>
               </div>
+              <PillSelector 
+                options={['personal', 'sales', 'support', 'community']}
+                selected={config.use_case}
+                onSelect={(v) => setConfig({...config, use_case: v})}
+              />
+              <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "20px" }} />
+              <div className="px-5 pt-3 pb-1">
+                <p className="text-white" style={{ fontSize: "16px", fontFamily: SF }}>Tone Register</p>
+              </div>
+              <PillSelector 
+                options={['adaptive', 'casual', 'formal', 'empathetic']}
+                selected={config.tone}
+                onSelect={(v) => setConfig({...config, tone: v})}
+              />
+            </Block>
+
+            <div className="mb-6">
+              <div className="px-5 pt-3 pb-1">
+                <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF, textTransform: "uppercase" }}>SYSTEM PROMPT</p>
+              </div>
+              <TextAreaBlock 
+                value={config.ai_persona_hint}
+                onChange={(v) => setConfig({...config, ai_persona_hint: v})}
+                placeholder="E.g., Act as concise tech support..."
+              />
             </div>
 
-            <div style={settingsContainer}>
-              <SectionHeader title="Identity Blueprint" />
-              <div className="px-4 py-3 border-t border-[#2c2c2e]/50 space-y-3">
-                <span className="text-white text-[15px]" style={{ fontFamily: SF }}>Account Role</span>
-                <div className="grid grid-cols-2 gap-2">
-                  {['personal', 'sales', 'support', 'community'].map((uc) => (
-                    <button key={uc} onClick={() => setConfig({...config, use_case: uc})} className={`py-2 rounded-lg text-[14px] font-medium capitalize transition-colors ${config.use_case === uc ? 'bg-[#3b82f6] text-white' : 'bg-[#2c2c2e] text-[#8e8e93]'}`}>{uc}</button>
-                  ))}
-                </div>
+            <div className="mb-6">
+              <div className="px-5 pt-3 pb-1">
+                <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF, textTransform: "uppercase" }}>KNOWLEDGE BASE CONTEXT</p>
               </div>
-              <div className="px-4 py-3 border-t border-[#2c2c2e]/50 space-y-3">
-                <span className="text-white text-[15px]" style={{ fontFamily: SF }}>Tone Register</span>
-                <div className="flex flex-wrap gap-2">
-                  {['adaptive', 'casual', 'formal', 'empathetic'].map((t) => (
-                    <button key={t} onClick={() => setConfig({...config, tone: t})} className={`px-4 py-1.5 rounded-full text-[14px] font-medium capitalize transition-colors ${config.tone === t ? 'bg-[#3b82f6] text-white' : 'bg-[#2c2c2e] text-[#8e8e93]'}`}>{t}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div style={settingsContainer}>
-              <SectionHeader title="Instructions & Memory" />
-              <div className="px-4 py-3 border-t border-[#2c2c2e]/50">
-                <textarea 
-                  value={config.ai_persona_hint}
-                  onChange={(e) => setConfig({...config, ai_persona_hint: e.target.value})}
-                  placeholder="System Prompt (e.g., Act as concise tech support...)"
-                  className="text-[15px] placeholder:text-[#636366] min-h-[80px] resize-none py-1"
-                  style={{ ...inputSettingsStyle, fontFamily: SF }}
-                />
-              </div>
-              <div className="px-4 py-3 border-t border-[#2c2c2e]/50">
-                <textarea 
-                  value={config.kb_text}
-                  onChange={(e) => setConfig({...config, kb_text: e.target.value})}
-                  placeholder="Knowledge Base Context (Pricing, URLs, operational data...)"
-                  className="text-[15px] placeholder:text-[#636366] min-h-[100px] resize-none py-1"
-                  style={{ ...inputSettingsStyle, fontFamily: SF }}
-                />
-              </div>
+              <TextAreaBlock 
+                value={config.kb_text}
+                onChange={(v) => setConfig({...config, kb_text: v})}
+                placeholder="Pricing, URLs, operational data..."
+              />
             </div>
           </div>
         )}
 
         {/* ── PAGE: AUTOMATED WORKFLOWS ── */}
         {activeView === 'workflows' && (
-          <div className="space-y-6 pt-6 animate-in slide-in-from-right duration-200">
-            <h2 className="text-white text-[28px] font-bold tracking-tight px-1 mb-2" style={{ fontFamily: SFD }}>Automated Workflows</h2>
+          <div className="pt-6 animate-in slide-in-from-right duration-200">
+            <h2 className="text-white font-bold tracking-tight px-1 mb-4" style={{ fontSize: "28px", fontFamily: SFD }}>Workflows</h2>
             
-            <div style={settingsContainer}>
-              <SectionHeader title="Engagement Loops" />
-              <div className="border-t border-[#2c2c2e]/50">
-                {renderToggleRow("Smart Follow-up Matrix", "Trigger automated follow-ups if user drops engagement.", config.followup_enabled, (val) => setConfig({...config, followup_enabled: val}))}
-              </div>
+            <Block title="ENGAGEMENT LOOPS">
+              <Row 
+                label="Smart Follow-up Matrix"
+                sublabel="Trigger automated follow-ups if user drops engagement."
+                right={<Toggle on={config.followup_enabled} onToggle={() => setConfig({...config, followup_enabled: !config.followup_enabled})} />}
+                last={!config.followup_enabled}
+              />
               {config.followup_enabled && (
-                <div className="px-4 py-3 border-t border-[#2c2c2e]/50 bg-[#161618]">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-[#8e8e93] text-[13px] mb-1 block">Delay (Hours)</span>
-                      <input type="number" value={config.followup_delay_h} onChange={(e) => setConfig({...config, followup_delay_h: parseInt(e.target.value) || 0})} className="text-[16px] w-full border-b border-[#2c2c2e] pb-1" style={inputSettingsStyle} />
-                    </div>
-                    <div>
-                      <span className="text-[#8e8e93] text-[13px] mb-1 block">Max Retries</span>
-                      <input type="number" value={config.followup_max} onChange={(e) => setConfig({...config, followup_max: parseInt(e.target.value) || 1})} className="text-[16px] w-full border-b border-[#2c2c2e] pb-1" style={inputSettingsStyle} />
-                    </div>
+                <div className="px-5 py-4 flex gap-4" style={{ background: "rgba(255,255,255,0.02)" }}>
+                  <div className="flex-1">
+                    <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "4px" }}>Delay (Hours)</p>
+                    <input type="number" value={config.followup_delay_h} onChange={(e) => setConfig({...config, followup_delay_h: parseInt(e.target.value) || 0})} className="w-full bg-transparent text-white outline-none border-b border-[#2c2c2e] pb-1" style={{ fontSize: "16px", fontFamily: SF }} />
+                  </div>
+                  <div className="flex-1">
+                    <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "4px" }}>Max Retries</p>
+                    <input type="number" value={config.followup_max} onChange={(e) => setConfig({...config, followup_max: parseInt(e.target.value) || 1})} className="w-full bg-transparent text-white outline-none border-b border-[#2c2c2e] pb-1" style={{ fontSize: "16px", fontFamily: SF }} />
                   </div>
                 </div>
               )}
-            </div>
+            </Block>
 
-            <div style={settingsContainer}>
-              <SectionHeader title="Inline Agent" />
-              <div className="border-t border-[#2c2c2e]/50">
-                {renderToggleRow("Passive Mentions", "Agent replies when its name is mentioned in groups.", config.invocation_enabled, (val) => setConfig({...config, invocation_enabled: val}))}
-              </div>
+            <Block title="INLINE AGENT">
+              <Row 
+                label="Passive Mentions"
+                sublabel="Agent replies when its name is mentioned in groups."
+                right={<Toggle on={config.invocation_enabled} onToggle={() => setConfig({...config, invocation_enabled: !config.invocation_enabled})} />}
+                last={!config.invocation_enabled}
+              />
               {config.invocation_enabled && (
-                <div className="px-4 py-3 border-t border-[#2c2c2e]/50 bg-[#161618]">
-                  <span className="text-[#8e8e93] text-[13px] mb-1 block">Trigger Keywords</span>
-                  <input 
-                    type="text" 
-                    value={config.bot_names}
-                    onChange={(e) => setConfig({...config, bot_names: e.target.value})}
-                    placeholder="E.g., xblum, agent"
-                    className="text-[16px]"
-                    style={inputSettingsStyle}
-                  />
-                </div>
+                <InputRow 
+                  value={config.bot_names}
+                  onChange={(v) => setConfig({...config, bot_names: v})}
+                  placeholder="Trigger keywords (e.g., agent, bot)"
+                  last
+                />
               )}
-            </div>
+            </Block>
           </div>
         )}
 
-        {/* ── PAGE: SAFETY & SPAM PROTECTION ── */}
+        {/* ── PAGE: SAFETY & PROTECTION ── */}
         {activeView === 'safety' && (
-          <div className="space-y-6 pt-6 animate-in slide-in-from-right duration-200">
-            <h2 className="text-white text-[28px] font-bold tracking-tight px-1 mb-2" style={{ fontFamily: SFD }}>Safety & Protection</h2>
+          <div className="pt-6 animate-in slide-in-from-right duration-200">
+            <h2 className="text-white font-bold tracking-tight px-1 mb-4" style={{ fontSize: "28px", fontFamily: SFD }}>Safety</h2>
             
-            <div style={settingsContainer}>
-              <SectionHeader title="Spam Filtering" />
-              <div className="border-t border-[#2c2c2e]/50">
-                {renderToggleRow("Active Anti-Spam S2S", "Identify and delete malicious links and ads.", config.spam_filter_enabled, (val) => setConfig({...config, spam_filter_enabled: val}))}
-              </div>
+            <Block title="SPAM FILTERING">
+              <Row 
+                label="Active Anti-Spam S2S"
+                sublabel="Identify and delete malicious links and ads."
+                right={<Toggle on={config.spam_filter_enabled} onToggle={() => setConfig({...config, spam_filter_enabled: !config.spam_filter_enabled})} />}
+                last={!config.spam_filter_enabled}
+              />
               {config.spam_filter_enabled && (
-                <div className="px-4 py-3 border-t border-[#2c2c2e]/50 bg-[#161618]">
-                  <span className="text-white text-[14px] mb-3 block" style={{ fontFamily: SF }}>Aggressiveness Threshold</span>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['low', 'medium', 'high'].map((lvl) => (
-                      <button key={lvl} onClick={() => setConfig({...config, spam_sensitivity: lvl})} className={`py-1.5 rounded-lg text-[13px] font-medium capitalize transition-colors ${config.spam_sensitivity === lvl ? 'bg-[#ff453a] text-white' : 'bg-[#2c2c2e] text-[#8e8e93]'}`}>{lvl}</button>
-                    ))}
+                <>
+                  <div className="px-5 pt-3 pb-1">
+                    <p className="text-white" style={{ fontSize: "16px", fontFamily: SF }}>Aggressiveness Threshold</p>
                   </div>
-                </div>
+                  <PillSelector 
+                    options={['low', 'medium', 'high']}
+                    selected={config.spam_sensitivity}
+                    onSelect={(v) => setConfig({...config, spam_sensitivity: v})}
+                  />
+                </>
               )}
-            </div>
+            </Block>
 
-            <div style={settingsContainer}>
-              <SectionHeader title="Emulation & Alerts" />
-              <div className="border-t border-[#2c2c2e]/50">
-                {renderToggleRow("Humanized Typing", "Inject artificial typing delays for organic rhythm.", config.humanize_enabled, (val) => setConfig({...config, humanize_enabled: val}))}
-              </div>
-              <div className="border-t border-[#2c2c2e]/50">
-                {renderToggleRow("Emergency Alerts", "Receive DM logs on structural anomalies.", config.urgency_notify, (val) => setConfig({...config, urgency_notify: val}))}
-              </div>
-            </div>
+            <Block title="EMULATION & ALERTS">
+              <Row 
+                label="Humanized Typing"
+                sublabel="Inject artificial typing delays for organic rhythm."
+                right={<Toggle on={config.humanize_enabled} onToggle={() => setConfig({...config, humanize_enabled: !config.humanize_enabled})} />}
+              />
+              <Row 
+                label="Emergency Alerts"
+                sublabel="Receive DM logs on structural anomalies."
+                right={<Toggle on={config.urgency_notify} onToggle={() => setConfig({...config, urgency_notify: !config.urgency_notify})} />}
+                last
+              />
+            </Block>
           </div>
         )}
 
-        {/* ── PAGE: ANALYTICS & REPORTS ── */}
+        {/* ── PAGE: ANALYTICS ── */}
         {activeView === 'reports' && (
-          <div className="space-y-6 pt-6 animate-in slide-in-from-right duration-200">
-            <h2 className="text-white text-[28px] font-bold tracking-tight px-1 mb-2" style={{ fontFamily: SFD }}>Analytics & Reports</h2>
+          <div className="pt-6 animate-in slide-in-from-right duration-200">
+            <h2 className="text-white font-bold tracking-tight px-1 mb-4" style={{ fontSize: "28px", fontFamily: SFD }}>Analytics</h2>
             
-            <div style={settingsContainer}>
-              <SectionHeader title="Diagnostics" />
-              <div className="border-t border-[#2c2c2e]/50">
-                {renderToggleRow("24-Hour Metrics Digest", "Receive daily performance reports directly.", config.daily_digest, (val) => setConfig({...config, daily_digest: val}))}
-              </div>
+            <Block title="DIAGNOSTICS">
+              <Row 
+                label="24-Hour Metrics Digest"
+                sublabel="Receive daily performance reports directly."
+                right={<Toggle on={config.daily_digest} onToggle={() => setConfig({...config, daily_digest: !config.daily_digest})} />}
+                last={!config.daily_digest}
+              />
               {config.daily_digest && (
-                <div className="px-4 py-3 border-t border-[#2c2c2e]/50 bg-[#161618] flex items-center justify-between">
-                  <span className="text-white text-[15px]" style={{ fontFamily: SF }}>Dispatch Window</span>
+                <div className="px-5 py-4 flex items-center justify-between" style={{ background: "rgba(255,255,255,0.02)" }}>
+                  <p className="text-white" style={{ fontSize: "16px", fontFamily: SF }}>Dispatch Window</p>
                   <select 
                     value={config.daily_digest_hour}
                     onChange={(e) => setConfig({...config, daily_digest_hour: parseInt(e.target.value) || 0})}
-                    className="bg-[#2c2c2e] text-white font-medium px-3 py-1.5 rounded-lg outline-none text-[14px]"
+                    className="bg-transparent text-[#3b82f6] font-semibold outline-none"
+                    style={{ fontSize: "16px", fontFamily: SF }}
                   >
                     {Array.from({ length: 24 }).map((_, h) => (
-                      <option key={h} value={h}>{h.toString().padStart(2, '0')}:00 UTC</option>
+                      <option key={h} value={h} className="bg-[#111] text-white">{h.toString().padStart(2, '0')}:00 UTC</option>
                     ))}
                   </select>
                 </div>
               )}
-            </div>
+            </Block>
           </div>
         )}
 
       </div>
 
-      {/* ── PERSISTENT ACTIONS FLOORBAR (Only in sub-pages) ── */}
+      {/* ── PERSISTENT ACTIONS (Only in sub-pages) ── */}
       {activeView !== 'main' && (
-        <div className="absolute bottom-0 left-0 right-0 z-50 px-5 pb-8 pt-4 bg-gradient-to-t from-black via-black/95 to-transparent">
-          <div className="flex gap-3 max-w-md mx-auto">
-            <button 
-              type="button" 
-              onClick={handleSave} 
-              disabled={saving} 
-              className="flex-1 bg-[#3b82f6] text-white font-bold h-[50px] rounded-[12px] text-[16px] active:scale-95 transition-transform flex items-center justify-center gap-2"
-              style={{ fontFamily: SF }}
-            >
-              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-              Save Settings
-            </button>
-          </div>
+        <div className="absolute bottom-0 left-0 right-0 z-50 px-5 pb-8 pt-4 bg-gradient-to-t from-black via-black/90 to-transparent">
+          <button 
+            type="button" 
+            onClick={handleSave} 
+            disabled={saving} 
+            className="w-full bg-[#3b82f6] text-white h-[50px] rounded-2xl active:scale-95 transition-transform flex items-center justify-center gap-2"
+            style={{ fontSize: "17px", fontWeight: 600, fontFamily: SF }}
+          >
+            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+            Save Settings
+          </button>
         </div>
       )}
 
