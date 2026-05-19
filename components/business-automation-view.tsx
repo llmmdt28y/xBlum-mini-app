@@ -31,7 +31,6 @@ const AutoResizeTextarea = ({
     }
   }
 
-  // Ajustar altura inicial al montar
   useEffect(() => {
     adjustHeight()
   }, [])
@@ -42,7 +41,7 @@ const AutoResizeTextarea = ({
       newVal = newVal.slice(0, MAX_CHARS)
     }
     setVal(newVal)
-    // El ajuste síncrono previene los "brincos" en pantalla
+    // El ajuste síncrono previene los "brincos" al hacer muchos espacios
     adjustHeight()
   }
 
@@ -65,7 +64,7 @@ const AutoResizeTextarea = ({
           fontFamily: SF, 
           fontSize: "15px", 
           minHeight: "100px",
-          paddingBottom: showCounter ? "32px" : "16px", // Espacio extra para el contador
+          paddingBottom: showCounter ? "32px" : "16px",
           boxSizing: "border-box"
         }}
         onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
@@ -87,7 +86,6 @@ const AutoResizeTextarea = ({
 
 const Block = ({ title, children, footerHint, overflowVisible = false }: { title?: string, children: React.ReactNode, footerHint?: string, overflowVisible?: boolean }) => (
   <div className="mb-6">
-    {/* Removido el overflow-hidden cuando necesitamos menús desplegables */}
     <div className={`rounded-2xl w-full relative ${overflowVisible ? '' : 'overflow-hidden'}`} style={{ background: "#111", border: "1px solid #1c1c1e" }}>
       {title && (
         <div className="flex items-center justify-between px-5 pt-3 pb-1">
@@ -162,8 +160,9 @@ const PillSelector = ({ options, selected, onSelect }: { options: string[], sele
           fontSize: "14px", 
           fontWeight: 500, 
           fontFamily: SF,
-          background: selected === opt ? "#3b82f6" : "#1c1c1e",
-          color: selected === opt ? "#fff" : "#8e8e93"
+          background: selected === opt ? "#ffffff" : "#1c1c1e",
+          color: selected === opt ? "#000000" : "#8e8e93",
+          border: selected === opt ? "1px solid #ffffff" : "1px solid #2c2c2e"
         }}
       >
         {opt}
@@ -189,7 +188,6 @@ export function BusinessAutomationView({
   const [loading, setLoading] = useState(true)
   const [activeView, setActiveView] = useState<'main' | 'chat_access' | 'persona' | 'workflows' | 'safety' | 'reports'>('main')
   
-  // Estado para el menú desplegable del reporte en Analytics
   const [showHourDropdown, setShowHourDropdown] = useState(false)
 
   const [config, setConfig] = useState({
@@ -295,16 +293,16 @@ export function BusinessAutomationView({
         {activeView === 'main' && (
           <div className="animate-in fade-in duration-200 w-full">
             
-            <div className="flex flex-col items-center text-center pt-20 mb-6">
+            <div className="flex flex-col items-center text-center pt-20 mb-10">
               <img 
                 src={agentGifUrl} 
                 alt="Agent" 
-                className="w-[120px] h-[120px] object-contain mb-4 pointer-events-none select-none" 
+                className="w-[140px] h-[140px] object-contain mb-6 pointer-events-none select-none" 
               />
-              <h1 className="text-white font-bold mb-1" style={{ fontSize: "24px", fontFamily: SFD }}>
+              <h1 className="text-white font-bold mb-2 tracking-tight" style={{ fontSize: "32px", fontFamily: SFD }}>
                 Chat Automation
               </h1>
-              <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, maxWidth: "280px", lineHeight: "1.3" }}>
+              <p style={{ fontSize: "16px", color: "#8e8e93", fontFamily: SF, maxWidth: "320px", lineHeight: "1.4" }}>
                 Assign an intelligent agent to handle your interactions automatically.
               </p>
             </div>
@@ -313,25 +311,25 @@ export function BusinessAutomationView({
               <Row 
                 icon={<MessageSquare className="w-4 h-4 text-white" />} iconBg="bg-[#0a84ff]"
                 label="Chat Access Scope" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
                 onClick={() => setActiveView('chat_access')}
               />
               <Row 
-                icon={<Sparkles className="w-4 h-4 text-white" />} iconBg="bg-[#bf5af2]"
+                icon={<Bot className="w-4 h-4 text-white" />} iconBg="bg-[#bf5af2]"
                 label="AI Persona & Knowledge" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
                 onClick={() => setActiveView('persona')}
               />
               <Row 
                 icon={<Workflow className="w-4 h-4 text-white" />} iconBg="bg-[#ff9f0a]"
                 label="Automated Workflows" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
                 onClick={() => setActiveView('workflows')}
               />
               <Row 
                 icon={<Shield className="w-4 h-4 text-white" />} iconBg="bg-[#ff453a]"
                 label="Safety & Protection" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
                 onClick={() => setActiveView('safety')}
                 last
               />
@@ -341,7 +339,7 @@ export function BusinessAutomationView({
               <Row 
                 icon={<BarChart3 className="w-4 h-4 text-white" />} iconBg="bg-[#32ade6]"
                 label="Performance Diagnostics" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />} 
                 onClick={() => setActiveView('reports')}
                 last
               />
@@ -544,7 +542,6 @@ export function BusinessAutomationView({
           <div className="pt-6 animate-in slide-in-from-right duration-200 w-full">
             <h2 className="text-white font-bold tracking-tight px-1 mb-6" style={{ fontSize: "28px", fontFamily: SFD }}>Analytics</h2>
             
-            {/* Agregado overflowVisible para permitir que el menú desplegable salga del contenedor */}
             <Block title="Diagnostics" overflowVisible={true}>
               <Row 
                 label="24-Hour Metrics Digest"
