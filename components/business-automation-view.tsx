@@ -56,19 +56,19 @@ const AutoResizeTextarea = ({
         onChange={handleChange}
         onBlur={() => onBlurSave(val)}
         placeholder={placeholder}
-        className="w-full p-4 rounded-[10px] text-white placeholder:text-[#636366] focus:outline-none resize-none transition-colors"
+        className="w-full p-5 text-white placeholder:text-[#636366] focus:outline-none resize-none transition-colors rounded-3xl"
         style={{ 
-          background: "#1c1c1e", 
+          background: "#1a1a1c", // Un gris muy oscuro sutil
           fontFamily: SF, 
           fontSize: "16px", 
-          minHeight: "200px",
-          paddingBottom: showCounter ? "32px" : "16px",
+          minHeight: "220px",
+          paddingBottom: showCounter ? "36px" : "20px",
           boxSizing: "border-box"
         }}
       />
       {showCounter && (
         <div 
-          className="absolute bottom-3 right-4 font-medium" 
+          className="absolute bottom-4 right-5 font-medium" 
           style={{ fontSize: "12px", color: counterColor, fontFamily: SF }}
         >
           {charsLeft} restantes
@@ -78,10 +78,10 @@ const AutoResizeTextarea = ({
   )
 }
 
-// ── COMPONENTES REUTILIZABLES (ESTILO TELEGRAM iOS NATIVO) ──
+// ── COMPONENTES REUTILIZABLES (ESTILO iOS MODERNO PREMIUM) ──
 
 const SubHeader = ({ title }: { title: string }) => (
-  <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3 pt-4" style={{ background: "#000000" }}>
+  <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-4 pt-5" style={{ background: "#000000" }}>
     <h2 className="font-semibold text-white tracking-tight" style={{ fontSize: "17px", fontFamily: SF }}>
       {title}
     </h2>
@@ -89,12 +89,12 @@ const SubHeader = ({ title }: { title: string }) => (
 )
 
 const Section = ({ header, footer, children }: { header?: string, footer?: string, children: React.ReactNode }) => (
-  <div className="mb-6 w-full">
-    {header && <p className="px-4 mb-1.5 text-[#636366] uppercase font-medium" style={{ fontSize: "13px", fontFamily: SF, letterSpacing: "0.03em" }}>{header}</p>}
-    <div className="rounded-[10px] overflow-hidden" style={{ background: "#1c1c1e" }}>
+  <div className="mb-8 w-full">
+    {header && <p className="px-5 mb-2 text-[#8e8e93] uppercase font-medium" style={{ fontSize: "13px", fontFamily: SF, letterSpacing: "0.03em" }}>{header}</p>}
+    <div className="rounded-3xl overflow-hidden" style={{ background: "#121214" }}> {/* Gris más oscuro */}
       {children}
     </div>
-    {footer && <p className="px-4 mt-2 text-[#636366]" style={{ fontSize: "13px", fontFamily: SF }}>{footer}</p>}
+    {footer && <p className="px-5 mt-2.5 text-[#636366]" style={{ fontSize: "13px", fontFamily: SF }}>{footer}</p>}
   </div>
 )
 
@@ -106,7 +106,7 @@ const Row = ({
   <>
     <div
       onClick={onClick}
-      className={`w-full flex items-center gap-[14px] px-4 py-[10px] transition-colors ${onClick ? 'active:bg-white/5 cursor-pointer' : ''}`}
+      className={`w-full flex items-center gap-[15px] px-5 py-[12px] transition-colors ${onClick ? 'active:bg-white/5 cursor-pointer' : ''}`}
     >
       {icon && (
         <div className={`shrink-0 flex items-center justify-center w-[30px] h-[30px] rounded-[8px] text-white ${iconBg || ''}`}>
@@ -125,7 +125,7 @@ const Row = ({
       </div>
       {right && <div className="shrink-0 ml-2">{right}</div>}
     </div>
-    {!last && <div style={{ height: "1px", background: "#2c2c2e", marginLeft: icon ? "60px" : "16px" }} />}
+    {!last && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: icon ? "60px" : "20px" }} />}
   </>
 )
 
@@ -133,10 +133,10 @@ const TelegramToggle = ({ on, onToggle }: { on: boolean; onToggle: () => void })
   <button
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
     className="relative rounded-full transition-colors duration-300 shrink-0"
-    style={{ width: "51px", height: "31px", background: on ? "#3b82f6" : "#39393d" }}
+    style={{ width: "51px", height: "31px", background: on ? "#3b82f6" : "#2c2c2e" }}
   >
     <span
-      className="absolute rounded-full shadow-sm transition-all duration-300 bg-white"
+      className="absolute rounded-full shadow-md transition-all duration-300 bg-white"
       style={{
         width: "27px", height: "27px",
         top: "2px",
@@ -148,30 +148,58 @@ const TelegramToggle = ({ on, onToggle }: { on: boolean; onToggle: () => void })
 
 const RadioRow = ({ label, selected, onClick, last }: { label: string, selected: boolean, onClick: () => void, last?: boolean }) => (
   <>
-    <div onClick={onClick} className="flex items-center justify-between px-4 py-[14px] active:bg-white/5 transition-colors cursor-pointer">
+    <div onClick={onClick} className="flex items-center justify-between px-5 py-[16px] active:bg-white/5 transition-colors cursor-pointer">
       <span className="text-white tracking-tight" style={{ fontSize: "16px", fontFamily: SF }}>{label}</span>
-      <div className={`w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors ${selected ? 'border-[#3b82f6]' : 'border-[#48484a]'}`}>
+      <div className={`w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors ${selected ? 'border-[#3b82f6]' : 'border-[#3a3a3c]'}`}>
         {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#3b82f6]" />}
       </div>
     </div>
-    {!last && <div style={{ height: "1px", background: "#2c2c2e", marginLeft: "16px" }} />}
+    {!last && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "20px" }} />}
   </>
+)
+
+// COMPONENTE DE BOTÓN PREMIUM (Gris Redondo con Brillo en bordes)
+const ShinyActionButton = ({ label, onClick, className = "", secondary = false }: { label: string, onClick: () => void, className?: string, secondary?: boolean }) => (
+  <button
+    onClick={onClick}
+    className={`relative rounded-full px-5 py-2.5 transition-all active:scale-[0.97] group overflow-hidden ${className}`}
+    style={{ 
+      background: "#2c2c2e", // Gris del botón
+      fontFamily: SF,
+      border: "1px solid rgba(255, 255, 255, 0.1)", // Borde sutil brillante inicial
+    }}
+  >
+    {/* Efecto de brillo de gradiente radial superior (Simula luz de esquinas/bordes) */}
+    <div className="absolute inset-0 rounded-full opacity-0 group-active:opacity-100 transition-opacity duration-300" 
+         style={{ background: "radial-gradient(circle at top, rgba(255, 255, 255, 0.15) 0%, rgba(2c, 2c, 2e, 0) 70%)" }} />
+    
+    {/* Borde brillante extra superior (before element simulation) */}
+    <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+
+    <span className={`relative z-10 ${secondary ? 'text-[#8e8e93]' : 'text-[#3b82f6]'} font-semibold`} style={{ fontSize: "16px" }}>
+      {label}
+    </span>
+  </button>
 )
 
 const BottomSheet = ({ isOpen, onClose, onSave, title, description, children }: any) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[100] flex flex-col justify-end">
-      <div className="absolute inset-0 bg-black/60 animate-in fade-in duration-200" onClick={onClose} />
-      <div className="relative border-t border-[#2c2c2e] rounded-t-[20px] w-full max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-300" style={{ background: "#000000" }}>
-        {/* Header (Cancel / Title / Save) */}
-        <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={onClose} className="text-[#3b82f6] font-normal tracking-tight" style={{ fontSize: "17px", fontFamily: SF }}>Cancel</button>
-          <h3 className="text-white font-semibold tracking-tight" style={{ fontSize: "17px", fontFamily: SF }}>{title}</h3>
-          <button onClick={onSave} className="text-[#3b82f6] font-semibold tracking-tight" style={{ fontSize: "17px", fontFamily: SF }}>Save</button>
+      <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={onClose} />
+      <div className="relative border-t border-[#1c1c1e] rounded-t-[32px] w-full max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-400" style={{ background: "#000000" }}>
+        
+        {/* Header Premium con Botones Shiny */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-4">
+          <ShinyActionButton label="Cancel" onClick={onClose} secondary className="px-4 py-2" />
+          <h3 className="text-white font-bold tracking-tight text-center flex-1 mx-2" style={{ fontSize: "18px", fontFamily: SFD }}>
+            {title}
+          </h3>
+          <ShinyActionButton label="Save" onClick={onSave} className="px-5 py-2" />
         </div>
-        <div className="p-4 overflow-y-auto pb-8">
-          {description && <p className="text-[#8e8e93] text-center mb-6 leading-snug" style={{ fontSize: "14px", fontFamily: SF }}>{description}</p>}
+
+        <div className="p-5 overflow-y-auto pb-10">
+          {description && <p className="text-[#8e8e93] text-center mb-7 leading-snug px-3" style={{ fontSize: "14px", fontFamily: SF }}>{description}</p>}
           {children}
         </div>
       </div>
@@ -298,19 +326,19 @@ export function BusinessAutomationView({
   return (
     <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-200">
       
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-4">
         
         {/* ── MENÚ PRINCIPAL ── */}
         {activePage === 'main' && (
-          <div className="animate-in fade-in duration-200 w-full px-4">
+          <div className="animate-in fade-in duration-200 w-full px-1">
             <SubHeader title="Chat Automation" />
-            <div className="flex flex-col items-center text-center pt-8 mb-8">
+            <div className="flex flex-col items-center text-center pt-8 mb-9">
               <img 
                 src={agentGifUrl} 
                 alt="Agent" 
-                className="w-[140px] h-[140px] object-contain mb-6 pointer-events-none select-none" 
+                className="w-[140px] h-[140px] object-contain mb-7 pointer-events-none select-none" 
               />
-              <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "320px", lineHeight: "1.4" }}>
+              <p style={{ fontSize: "16px", color: "#8e8e93", fontFamily: SF, maxWidth: "320px", lineHeight: "1.4" }}>
                 Assign an intelligent agent to handle your interactions automatically.
               </p>
             </div>
@@ -319,25 +347,25 @@ export function BusinessAutomationView({
               <Row 
                 icon={<MessageSquare className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
                 label="Chat Access Scope" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
                 onClick={() => setActivePage('chat_access')}
               />
               <Row 
                 icon={<Bot className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#bf5af2]"
                 label="AI Persona & Knowledge" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
                 onClick={() => setActivePage('persona')}
               />
               <Row 
                 icon={<Workflow className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#ff9f0a]"
                 label="Automated Workflows" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
                 onClick={() => setActivePage('workflows')}
               />
               <Row 
                 icon={<Shield className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#ff453a]"
                 label="Safety & Protection" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
                 onClick={() => setActivePage('safety')}
                 last
               />
@@ -347,7 +375,7 @@ export function BusinessAutomationView({
               <Row 
                 icon={<BarChart3 className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#32ade6]"
                 label="Performance Diagnostics" 
-                right={<ChevronRight className="w-5 h-5 text-[#48484a]" />} 
+                right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
                 onClick={() => setActivePage('reports')}
                 last
               />
@@ -357,9 +385,9 @@ export function BusinessAutomationView({
 
         {/* ── AI PERSONA & KNOWLEDGE ── */}
         {activePage === 'persona' && (
-          <div className="animate-in slide-in-from-right duration-200 w-full px-4">
+          <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Persona" />
-            <p className="px-4 mt-2 mb-8 text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
+            <p className="px-5 mt-2 mb-9 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
               Define how your AI assistant represents your brand and communicates with your audience.
             </p>
             
@@ -380,7 +408,7 @@ export function BusinessAutomationView({
                     icon={<User className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
                     label="Account Role"
                     sublabel="Define the main role your assistant plays."
-                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />}
                     onClick={() => { setTempVal(config.use_case); setActiveModal('role'); }}
                     last
                   />
@@ -391,7 +419,7 @@ export function BusinessAutomationView({
                     icon={<MessageSquare className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#bf5af2]"
                     label="Tone Register"
                     sublabel="Set the default tone of your responses."
-                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />}
                     onClick={() => { setTempVal(config.tone); setActiveModal('tone'); }}
                     last
                   />
@@ -402,7 +430,7 @@ export function BusinessAutomationView({
                     icon={<FileText className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
                     label="System Prompt"
                     sublabel="Guide how the AI should behave and respond."
-                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />}
                     onClick={() => setActivePage('persona_prompt')}
                     last
                   />
@@ -413,7 +441,7 @@ export function BusinessAutomationView({
                     icon={<Book className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#34c759]"
                     label="Knowledge Base Context"
                     sublabel="Add the information your assistant should use."
-                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />}
                     onClick={() => setActivePage('persona_kb')}
                     last
                   />
@@ -425,9 +453,9 @@ export function BusinessAutomationView({
 
         {/* ── TEXT EDITOR VIEWS (Prompt & KB) ── */}
         {activePage === 'persona_prompt' && (
-          <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-4">
+          <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-1">
             <SubHeader title="System Prompt" />
-            <p className="px-2 mb-4 text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+            <p className="px-4 mb-5 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
               Detailed instructions for behavior and character.
             </p>
             <AutoResizeTextarea
@@ -439,9 +467,9 @@ export function BusinessAutomationView({
         )}
 
         {activePage === 'persona_kb' && (
-          <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-4">
+          <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-1">
             <SubHeader title="Knowledge Base Context" />
-            <p className="px-2 mb-4 text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+            <p className="px-4 mb-5 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
               Specific data, FAQs, URLs, and pricing info.
             </p>
             <AutoResizeTextarea
@@ -452,9 +480,9 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── OTRAS VISTAS (Convertidas a la nueva estética) ── */}
+        {/* ── CHAT ACCESS SCOPE ── */}
         {activePage === 'chat_access' && (
-          <div className="animate-in slide-in-from-right duration-200 w-full px-4">
+          <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Chat Access Scope" />
             <div className="pt-6">
               <Section header="ALLOWED CONVERSATIONS" footer="Configure exclusions in the main bot interface.">
@@ -474,8 +502,9 @@ export function BusinessAutomationView({
           </div>
         )}
 
+        {/* ── WORKFLOWS ── */}
         {activePage === 'workflows' && (
-          <div className="animate-in slide-in-from-right duration-200 w-full px-4">
+          <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Workflows" />
             <div className="pt-6">
               <Section header="ENGAGEMENT LOOPS">
@@ -486,7 +515,7 @@ export function BusinessAutomationView({
                   last={!config.followup_enabled}
                 />
                 {config.followup_enabled && (
-                  <div className="px-4 py-3 flex gap-4 w-full border-t border-[#2c2c2e]">
+                  <div className="px-5 py-3.5 flex gap-5 w-full border-t border-[#1c1c1e]">
                     <div className="flex-1">
                       <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "4px" }}>Delay (Hours)</p>
                       <input 
@@ -513,7 +542,7 @@ export function BusinessAutomationView({
                   last={!config.invocation_enabled}
                 />
                 {config.invocation_enabled && (
-                  <div className="w-full px-4 py-[14px] border-t border-[#2c2c2e]">
+                  <div className="w-full px-5 py-[16px] border-t border-[#1c1c1e]">
                     <input 
                       type="text" defaultValue={config.bot_names} onBlur={(e) => setAndSave('bot_names', e.target.value)}
                       placeholder="Trigger keywords (e.g., agent, bot)"
@@ -527,8 +556,9 @@ export function BusinessAutomationView({
           </div>
         )}
 
+        {/* ── SAFETY ── */}
         {activePage === 'safety' && (
-          <div className="animate-in slide-in-from-right duration-200 w-full px-4">
+          <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Safety" />
             <div className="pt-6">
               <Section header="SPAM FILTERING">
@@ -542,7 +572,7 @@ export function BusinessAutomationView({
                   <Row 
                     label="Sensitivity"
                     sublabel={config.spam_sensitivity.charAt(0).toUpperCase() + config.spam_sensitivity.slice(1)}
-                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />}
                     onClick={() => { setTempVal(config.spam_sensitivity); setActiveModal('spam_sens'); }}
                     last
                   />
@@ -566,8 +596,9 @@ export function BusinessAutomationView({
           </div>
         )}
 
+        {/* ── REPORTS ── */}
         {activePage === 'reports' && (
-          <div className="animate-in slide-in-from-right duration-200 w-full px-4">
+          <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Analytics" />
             <div className="pt-6">
               <Section header="DIAGNOSTICS">
@@ -581,7 +612,7 @@ export function BusinessAutomationView({
                   <Row 
                     label="Dispatch Window"
                     sublabel={`${config.daily_digest_hour.toString().padStart(2, '0')}:00 UTC`}
-                    right={<ChevronRight className="w-5 h-5 text-[#48484a]" />}
+                    right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />}
                     onClick={() => { setTempVal(config.daily_digest_hour); setActiveModal('digest_hour'); }}
                     last
                   />
@@ -593,16 +624,15 @@ export function BusinessAutomationView({
 
       </div>
 
-      {/* ── MODALES INFERIORES (BOTTOM SHEETS) ── */}
+      {/* ── MODALES INFERIORES (BOTTOM SHEETS PREMIUM) ── */}
       <BottomSheet
         isOpen={activeModal === 'role'}
         onClose={() => setActiveModal(null)}
         onSave={() => { setAndSave('use_case', tempVal); setActiveModal(null); }}
         title="Account Role"
-        description="Choose which chats the bot can access and manage."
+        description="Select the primary persona role for your assistant."
       >
-        <p className="px-4 mb-2 text-[#3b82f6] uppercase font-medium" style={{ fontSize: "13px", fontFamily: SF, letterSpacing: "0.03em" }}>Chats the bot can access</p>
-        <div className="bg-[#1c1c1e] rounded-[10px] overflow-hidden">
+        <div className="bg-[#121214] rounded-3xl overflow-hidden">
           {['personal', 'sales', 'support', 'community'].map((opt, i, arr) => (
             <RadioRow
               key={opt}
@@ -613,7 +643,6 @@ export function BusinessAutomationView({
             />
           ))}
         </div>
-        <p className="px-4 mt-2 text-[#636366]" style={{ fontSize: "13px", fontFamily: SF }}>Select the primary persona role for your assistant.</p>
       </BottomSheet>
 
       <BottomSheet
@@ -622,7 +651,7 @@ export function BusinessAutomationView({
         onSave={() => { setAndSave('tone', tempVal); setActiveModal(null); }}
         title="Tone Register"
       >
-        <div className="bg-[#1c1c1e] rounded-[10px] overflow-hidden">
+        <div className="bg-[#121214] rounded-3xl overflow-hidden">
           {['adaptive', 'casual', 'formal', 'empathetic'].map((opt, i, arr) => (
             <RadioRow
               key={opt}
@@ -641,7 +670,7 @@ export function BusinessAutomationView({
         onSave={() => { setAndSave('spam_sensitivity', tempVal); setActiveModal(null); }}
         title="Aggressiveness Threshold"
       >
-        <div className="bg-[#1c1c1e] rounded-[10px] overflow-hidden">
+        <div className="bg-[#121214] rounded-3xl overflow-hidden">
           {['low', 'medium', 'high'].map((opt, i, arr) => (
             <RadioRow
               key={opt}
@@ -660,7 +689,7 @@ export function BusinessAutomationView({
         onSave={() => { setAndSave('daily_digest_hour', tempVal); setActiveModal(null); }}
         title="Dispatch Window"
       >
-        <div className="bg-[#1c1c1e] rounded-[10px] overflow-hidden">
+        <div className="bg-[#121214] rounded-3xl overflow-hidden">
           {Array.from({ length: 24 }).map((_, h) => (
             <RadioRow
               key={h}
