@@ -4,11 +4,31 @@ import React, { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Loader2, Sparkles, Shield, Workflow, 
   ChevronRight, BarChart3, Check, MessageSquare, Bot, User, FileText, Book,
-  Clock, MessageSquarePlus, Eye
+  Clock, MessageSquarePlus, Eye, Zap
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+
+// ── DATOS DE LOS PRESETS ──
+const PRESETS_DATA = [
+  { 
+    id: 'max', name: 'Max', emoji: '🧊', tagline: 'Silent presence', 
+    desc: 'Welcome & Away messages only. AI is off. Perfect when you just want automated greetings without any AI involvement.' 
+  },
+  { 
+    id: 'ravage', name: 'Ravage', emoji: '⚡', tagline: 'Smart replies, zero setup', 
+    desc: 'AI autoreply on with a natural human feel. Spam protection active. Great default for personal or casual business use.' 
+  },
+  { 
+    id: 'blaze', name: 'Blaze', emoji: '🔥', tagline: 'Sales mode', 
+    desc: 'Sales persona, aggressive spam filter, automatic follow-ups, and daily activity digest. Built to convert leads.' 
+  },
+  { 
+    id: 'beast', name: 'Beast', emoji: '💀', tagline: 'Full control, max automation', 
+    desc: 'Every feature on. Ultra-natural replies, tight spam shield, 3-touch follow-up sequences, blacklist filtering, early morning digest.' 
+  }
+];
 
 // ── COMPONENTE DE TEXTO CON AUTO-RESIZE Y LÍMITE ──
 const MAX_CHARS = 4092;
@@ -82,8 +102,8 @@ const AutoResizeTextarea = ({
 // ── COMPONENTES REUTILIZABLES (ESTILO iOS MODERNO PREMIUM) ──
 
 const SubHeader = ({ title }: { title: string }) => (
-  // Header ajustado un poco más arriba (pt-6 en lugar de pt-10)
-  <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-4 pt-6" style={{ background: "#000000" }}>
+  // Header movido un poco más abajo (pt-8 en lugar de pt-6)
+  <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-4 pt-8" style={{ background: "#000000" }}>
     <h2 className="font-semibold text-white tracking-tight" style={{ fontSize: "18px", fontFamily: SF }}>
       {title}
     </h2>
@@ -192,7 +212,7 @@ const RadioRow = ({ label, selected, onClick, last }: { label: string, selected:
   </>
 )
 
-// ── BOTÓN CON BRILLO SÓLO EN ESQUINAS OPUESTAS ──
+// ── BOTÓN CON BRILLO SÓLO EN ESQUINAS OPUESTAS (Top-Left & Bottom-Right) ──
 const ShinyActionButton = ({ label, onClick, className = "", secondary = false }: { label: string, onClick: () => void, className?: string, secondary?: boolean }) => (
   <button
     onClick={onClick}
@@ -260,14 +280,14 @@ export function BusinessAutomationView({
   
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState<
-    'main' | 'chat_access' | 'agent_profile' | 'workflows' | 'safety' | 'reports' | 
+    'main' | 'presets' | 'chat_access' | 'agent_profile' | 'workflows' | 'safety' | 'reports' | 
     'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg'
   >('main')
   
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [tempVal, setTempVal] = useState<any>("")
+  const [selectedPresetId, setSelectedPresetTab] = useState<string>('ravage')
 
-  // Estado unificado acorde al backend real
   const [config, setConfig] = useState({
     auto_reply_filter: "everyone", 
     ai_autoreply_enabled: true,
@@ -321,6 +341,28 @@ export function BusinessAutomationView({
       saveConfigToServer(next)
       return next
     })
+  }
+
+  const applyPreset = () => {
+    let updates = {};
+    if (selectedPresetId === 'max') {
+        updates = { ai_autoreply_enabled: false, greeting_enabled: true, away_enabled: true, read_enabled: true, humanize_enabled: false, spam_filter_enabled: false, followup_enabled: false, daily_digest: false, urgency_notify: false, use_case: 'personal', tone: 'casual' };
+    } else if (selectedPresetId === 'ravage') {
+        updates = { ai_autoreply_enabled: true, greeting_enabled: true, away_enabled: false, read_enabled: true, humanize_enabled: true, humanize_speed: 'normal', spam_filter_enabled: true, spam_sensitivity: 'medium', followup_enabled: false, daily_digest: false, urgency_notify: true, use_case: 'personal', tone: 'adaptive' };
+    } else if (selectedPresetId === 'blaze') {
+        updates = { ai_autoreply_enabled: true, greeting_enabled: true, away_enabled: true, read_enabled: true, humanize_enabled: true, spam_filter_enabled: true, spam_sensitivity: 'high', followup_enabled: true, followup_delay_h: 24, followup_max: 2, daily_digest: true, daily_digest_hour: 9, urgency_notify: true, use_case: 'sales', tone: 'formal' };
+    } else if (selectedPresetId === 'beast') {
+        updates = { ai_autoreply_enabled: true, greeting_enabled: true, away_enabled: true, read_enabled: true, humanize_enabled: true, humanize_speed: 'slow', spam_filter_enabled: true, spam_sensitivity: 'high', followup_enabled: true, followup_delay_h: 12, followup_max: 3, daily_digest: true, daily_digest_hour: 8, urgency_notify: true, auto_reply_filter: 'blacklist_exclude', use_case: 'assistant', tone: 'adaptive' };
+    }
+    
+    setConfig(prev => {
+        const next = { ...prev, ...updates };
+        saveConfigToServer(next);
+        return next;
+    });
+    
+    const tg = getTg()
+    tg?.HapticFeedback?.notificationOccurred('success')
   }
 
   useEffect(() => {
@@ -395,6 +437,12 @@ export function BusinessAutomationView({
 
             <Section>
               <Row 
+                icon={<Zap className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#ff9f0a]"
+                label="Agent Presets" 
+                right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
+                onClick={() => setActivePage('presets')}
+              />
+              <Row 
                 icon={<MessageSquare className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
                 label="Chat Access Scope" 
                 right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
@@ -407,7 +455,7 @@ export function BusinessAutomationView({
                 onClick={() => setActivePage('agent_profile')}
               />
               <Row 
-                icon={<Workflow className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#ff9f0a]"
+                icon={<Workflow className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#34c759]"
                 label="Messages & Workflows" 
                 right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
                 onClick={() => setActivePage('workflows')}
@@ -427,6 +475,66 @@ export function BusinessAutomationView({
                 label="Performance Diagnostics" 
                 right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
                 onClick={() => setActivePage('reports')}
+                last
+              />
+            </Section>
+          </div>
+        )}
+
+        {/* ── AGENT PRESETS ── */}
+        {activePage === 'presets' && (
+          <div className="animate-in slide-in-from-right duration-200 w-full px-1">
+            <SubHeader title="Agent Presets" />
+            <p className="px-5 mt-4 mb-8 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
+              Quickly apply predefined behaviors. You can customize details later.
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {PRESETS_DATA.map(p => (
+                 <button 
+                    key={p.id}
+                    onClick={() => setSelectedPresetTab(p.id)} 
+                    className={`flex flex-col items-center justify-center p-4 rounded-3xl border transition-all ${selectedPresetId === p.id ? 'border-[#3b82f6] bg-[#3b82f6]/10' : 'border-[#1c1c1e] bg-[#121214]'}`}
+                 >
+                    <div className="text-3xl mb-2">{p.emoji}</div>
+                    <div className="text-white font-semibold tracking-tight" style={{ fontFamily: SF, fontSize: "16px" }}>{p.name}</div>
+                 </button>
+              ))}
+            </div>
+
+            <div className="w-full flex flex-col items-center mb-8 px-2 text-center animate-in fade-in duration-300" key={selectedPresetId}>
+               <h3 className="text-white font-bold text-lg mb-1" style={{ fontFamily: SFD }}>
+                 {PRESETS_DATA.find(p => p.id === selectedPresetId)?.tagline}
+               </h3>
+               <p className="text-[#8e8e93]" style={{ fontSize: "14px", fontFamily: SF, lineHeight: "1.4" }}>
+                 {PRESETS_DATA.find(p => p.id === selectedPresetId)?.desc}
+               </p>
+               
+               <div className="mt-6">
+                 <ShinyActionButton label={`Apply ${PRESETS_DATA.find(p => p.id === selectedPresetId)?.name} Preset`} onClick={applyPreset} />
+               </div>
+            </div>
+
+            <Section header="QUICK ADJUSTMENTS" footer="Changes here override the preset automatically. Detailed settings are in the main menu.">
+              <Row 
+                icon={<Sparkles className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
+                label="AI Auto-Reply"
+                right={<TelegramToggle on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} />}
+              />
+              <Row 
+                icon={<Shield className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#ff453a]"
+                label="Spam Filtering"
+                right={<TelegramToggle on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} />}
+              />
+              <Row 
+                icon={<MessageSquare className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#bf5af2]"
+                label="Simulate Typing"
+                right={<TelegramToggle on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} />}
+              />
+              <Row 
+                icon={<Workflow className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#34c759]"
+                label="Smart Follow-ups"
+                right={<TelegramToggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
                 last
               />
             </Section>
