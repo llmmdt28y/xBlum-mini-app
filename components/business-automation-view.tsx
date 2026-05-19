@@ -58,7 +58,7 @@ const AutoResizeTextarea = ({
         placeholder={placeholder}
         className="w-full p-5 text-white placeholder:text-[#636366] focus:outline-none resize-none transition-colors rounded-3xl"
         style={{ 
-          background: "#1a1a1c", // Un gris muy oscuro sutil
+          background: "#1a1a1c", 
           fontFamily: SF, 
           fontSize: "16px", 
           minHeight: "220px",
@@ -81,8 +81,9 @@ const AutoResizeTextarea = ({
 // ── COMPONENTES REUTILIZABLES (ESTILO iOS MODERNO PREMIUM) ──
 
 const SubHeader = ({ title }: { title: string }) => (
-  <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-4 pt-5" style={{ background: "#000000" }}>
-    <h2 className="font-semibold text-white tracking-tight" style={{ fontSize: "17px", fontFamily: SF }}>
+  // Se bajó el header con pt-10
+  <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-4 pt-10" style={{ background: "#000000" }}>
+    <h2 className="font-semibold text-white tracking-tight" style={{ fontSize: "18px", fontFamily: SF }}>
       {title}
     </h2>
   </div>
@@ -91,7 +92,7 @@ const SubHeader = ({ title }: { title: string }) => (
 const Section = ({ header, footer, children }: { header?: string, footer?: string, children: React.ReactNode }) => (
   <div className="mb-8 w-full">
     {header && <p className="px-5 mb-2 text-[#8e8e93] uppercase font-medium" style={{ fontSize: "13px", fontFamily: SF, letterSpacing: "0.03em" }}>{header}</p>}
-    <div className="rounded-3xl overflow-hidden" style={{ background: "#121214" }}> {/* Gris más oscuro */}
+    <div className="rounded-3xl overflow-hidden" style={{ background: "#121214" }}>
       {children}
     </div>
     {footer && <p className="px-5 mt-2.5 text-[#636366]" style={{ fontSize: "13px", fontFamily: SF }}>{footer}</p>}
@@ -129,6 +130,40 @@ const Row = ({
   </>
 )
 
+// NUEVO: Globo de vista previa para System Prompt / KB
+const TextPreviewBubble = ({ title, icon, iconBg, placeholder, value, onClick }: any) => (
+  <div className="px-5 py-[16px] w-full cursor-pointer active:bg-white/5 transition-colors" onClick={onClick}>
+    <div className="flex items-center gap-[15px] mb-3">
+      <div className={`shrink-0 flex items-center justify-center w-[30px] h-[30px] rounded-[8px] text-white ${iconBg}`}>
+        {icon}
+      </div>
+      <div className="flex-1 text-left min-w-0 py-0.5">
+        <p className="text-white truncate font-medium tracking-tight" style={{ fontSize: "16px", fontFamily: SF }}>
+          {title}
+        </p>
+      </div>
+      <ChevronRight className="w-5 h-5 text-[#3a3a3c] shrink-0" />
+    </div>
+    <div className="w-full bg-[#1a1a1c] rounded-2xl p-4 border border-[#2c2c2e] min-h-[90px] flex flex-col relative overflow-hidden shadow-inner">
+        <p 
+          className="text-[15px] leading-snug w-full" 
+          style={{ 
+            fontFamily: SF, 
+            color: value ? "#ffffff" : "#636366",
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden"
+          }}
+        >
+          {value || placeholder}
+        </p>
+        {/* Sombra de desvanecimiento para texto largo */}
+        {value && <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-[#1a1a1c] to-transparent pointer-events-none" />}
+    </div>
+  </div>
+);
+
 const TelegramToggle = ({ on, onToggle }: { on: boolean; onToggle: () => void }) => (
   <button
     onClick={(e) => { e.stopPropagation(); onToggle(); }}
@@ -158,24 +193,19 @@ const RadioRow = ({ label, selected, onClick, last }: { label: string, selected:
   </>
 )
 
-// COMPONENTE DE BOTÓN PREMIUM (Gris Redondo con Brillo en bordes)
 const ShinyActionButton = ({ label, onClick, className = "", secondary = false }: { label: string, onClick: () => void, className?: string, secondary?: boolean }) => (
   <button
     onClick={onClick}
     className={`relative rounded-full px-5 py-2.5 transition-all active:scale-[0.97] group overflow-hidden ${className}`}
     style={{ 
-      background: "#2c2c2e", // Gris del botón
+      background: "#2c2c2e", 
       fontFamily: SF,
-      border: "1px solid rgba(255, 255, 255, 0.1)", // Borde sutil brillante inicial
+      border: "1px solid rgba(255, 255, 255, 0.1)", 
     }}
   >
-    {/* Efecto de brillo de gradiente radial superior (Simula luz de esquinas/bordes) */}
     <div className="absolute inset-0 rounded-full opacity-0 group-active:opacity-100 transition-opacity duration-300" 
          style={{ background: "radial-gradient(circle at top, rgba(255, 255, 255, 0.15) 0%, rgba(2c, 2c, 2e, 0) 70%)" }} />
-    
-    {/* Borde brillante extra superior (before element simulation) */}
     <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
     <span className={`relative z-10 ${secondary ? 'text-[#8e8e93]' : 'text-[#3b82f6]'} font-semibold`} style={{ fontSize: "16px" }}>
       {label}
     </span>
@@ -189,7 +219,6 @@ const BottomSheet = ({ isOpen, onClose, onSave, title, description, children }: 
       <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={onClose} />
       <div className="relative border-t border-[#1c1c1e] rounded-t-[32px] w-full max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-400" style={{ background: "#000000" }}>
         
-        {/* Header Premium con Botones Shiny */}
         <div className="flex items-center justify-between px-5 pt-5 pb-4">
           <ShinyActionButton label="Cancel" onClick={onClose} secondary className="px-4 py-2" />
           <h3 className="text-white font-bold tracking-tight text-center flex-1 mx-2" style={{ fontSize: "18px", fontFamily: SFD }}>
@@ -224,7 +253,6 @@ export function BusinessAutomationView({
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState<'main' | 'chat_access' | 'persona' | 'workflows' | 'safety' | 'reports' | 'persona_prompt' | 'persona_kb'>('main')
   
-  // Estados para Modales
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [tempVal, setTempVal] = useState<any>("")
 
@@ -274,7 +302,6 @@ export function BusinessAutomationView({
     })
   }
 
-  // ── CICLO DE VIDA ──
   useEffect(() => {
     const tg = getTg()
     if (!tg?.BackButton) return
@@ -332,7 +359,8 @@ export function BusinessAutomationView({
         {activePage === 'main' && (
           <div className="animate-in fade-in duration-200 w-full px-1">
             <SubHeader title="Chat Automation" />
-            <div className="flex flex-col items-center text-center pt-8 mb-9">
+            {/* Se bajó el contenido inicial con pt-10 */}
+            <div className="flex flex-col items-center text-center pt-10 mb-9">
               <img 
                 src={agentGifUrl} 
                 alt="Agent" 
@@ -387,7 +415,7 @@ export function BusinessAutomationView({
         {activePage === 'persona' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Persona" />
-            <p className="px-5 mt-2 mb-9 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
+            <p className="px-5 mt-4 mb-10 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
               Define how your AI assistant represents your brand and communicates with your audience.
             </p>
             
@@ -426,24 +454,24 @@ export function BusinessAutomationView({
                 </Section>
 
                 <Section header="COMMUNICATION GUIDE">
-                  <Row 
-                    icon={<FileText className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
-                    label="System Prompt"
-                    sublabel="Guide how the AI should behave and respond."
-                    right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />}
+                  <TextPreviewBubble 
+                    title="System Prompt"
+                    icon={<FileText className="w-[18px] h-[18px] text-white" fill="currentColor" />}
+                    iconBg="bg-[#0a84ff]"
+                    placeholder="Click to set how the AI should behave and respond. E.g., Act as concise tech support..."
+                    value={config.ai_persona_hint}
                     onClick={() => setActivePage('persona_prompt')}
-                    last
                   />
                 </Section>
 
                 <Section header="KNOWLEDGE BASE">
-                  <Row 
-                    icon={<Book className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#34c759]"
-                    label="Knowledge Base Context"
-                    sublabel="Add the information your assistant should use."
-                    right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />}
+                  <TextPreviewBubble 
+                    title="Knowledge Base Context"
+                    icon={<Book className="w-[18px] h-[18px] text-white" fill="currentColor" />}
+                    iconBg="bg-[#34c759]"
+                    placeholder="Click to add the information your assistant should use (Pricing, URLs, FAQ...)"
+                    value={config.kb_text}
                     onClick={() => setActivePage('persona_kb')}
-                    last
                   />
                 </Section>
               </div>
@@ -455,7 +483,7 @@ export function BusinessAutomationView({
         {activePage === 'persona_prompt' && (
           <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-1">
             <SubHeader title="System Prompt" />
-            <p className="px-4 mb-5 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
+            <p className="px-4 mb-6 mt-2 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
               Detailed instructions for behavior and character.
             </p>
             <AutoResizeTextarea
@@ -469,7 +497,7 @@ export function BusinessAutomationView({
         {activePage === 'persona_kb' && (
           <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-1">
             <SubHeader title="Knowledge Base Context" />
-            <p className="px-4 mb-5 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
+            <p className="px-4 mb-6 mt-2 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
               Specific data, FAQs, URLs, and pricing info.
             </p>
             <AutoResizeTextarea
@@ -484,7 +512,7 @@ export function BusinessAutomationView({
         {activePage === 'chat_access' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Chat Access Scope" />
-            <div className="pt-6">
+            <div className="pt-8">
               <Section header="ALLOWED CONVERSATIONS" footer="Configure exclusions in the main bot interface.">
                 <Row 
                   label="All private chats except..."
@@ -506,7 +534,7 @@ export function BusinessAutomationView({
         {activePage === 'workflows' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Workflows" />
-            <div className="pt-6">
+            <div className="pt-8">
               <Section header="ENGAGEMENT LOOPS">
                 <Row 
                   label="Smart Follow-up Matrix"
@@ -560,7 +588,7 @@ export function BusinessAutomationView({
         {activePage === 'safety' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Safety" />
-            <div className="pt-6">
+            <div className="pt-8">
               <Section header="SPAM FILTERING">
                 <Row 
                   label="Active Anti-Spam S2S"
@@ -600,7 +628,7 @@ export function BusinessAutomationView({
         {activePage === 'reports' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
             <SubHeader title="Analytics" />
-            <div className="pt-6">
+            <div className="pt-8">
               <Section header="DIAGNOSTICS">
                 <Row 
                   label="24-Hour Metrics Digest"
