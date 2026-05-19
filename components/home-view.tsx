@@ -4,8 +4,11 @@ import { useApp } from "@/lib/app-context"
 import { 
   Image, Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
   ChevronRight, Loader2, CalendarDays, Search, ShieldCheck, Github, 
-  Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2, Sparkles
+  Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2, Sparkles,
+  Briefcase, Bot, Settings2, Save, Power, Zap
 } from "lucide-react"
+
+import { BusinessAutomationView } from "./business-automation-view"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -143,7 +146,39 @@ function formatTimeRelative(fireAt: string) {
   }
 }
 
+// Estilos añadidos de market-view
+const liquidGlassStyle = {
+  background: "rgba(30, 30, 30, 0.35)", 
+  backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", 
+  WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(1.1)",
+  border: "1px solid rgba(255, 255, 255, 0.12)", 
+  boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
+  transform: "translateZ(0)", 
+  WebkitTransform: "translateZ(0)",
+}
+
+const cardLiquidGlassStyle = {
+  background: "rgba(42, 42, 44, 0.85)", 
+  backdropFilter: "blur(12px) saturate(150%)", 
+  WebkitBackdropFilter: "blur(12px) saturate(150%)",
+  border: "1px solid rgba(255, 255, 255, 0.12)", 
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)", 
+  transform: "translateZ(0)", 
+  WebkitTransform: "translateZ(0)",
+  willChange: "transform", 
+}
+
 export function HomeView() {
+  const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false)
+  const [isBotIntModalOpen, setIsBotIntModalOpen] = useState(false)
+  
+  const [botIntConfig, setBotIntConfig] = useState({
+    enabled: true,
+    moderation_react: true,
+    auto_execute_mod: false,
+    file_summarize: true
+  })
+
   const {
     t, selectedModel, setCurrentView, isPremium,
     isThrottled, minutesUntilReset, sendChatMessage
@@ -483,10 +518,42 @@ export function HomeView() {
             {/* Card 2: My Tools */}
             <div className="shrink-0 w-[85vw] max-w-[320px] rounded-[24px] snap-center p-4 flex flex-col" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>My Tools</h3>
+                <div className="flex flex-col">
+                  <h3 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>My Tools</h3>
+                  <p className="text-[#8e8e93] text-[13px] mt-0.5" style={{ fontFamily: SF }}>Automate your workflow</p>
+                </div>
               </div>
-              <div className="flex-1 flex items-center justify-center min-h-[140px]">
-                <p className="text-[#48484a] text-[15px] font-medium" style={{ fontFamily: SF }}>Coming soon...</p>
+              
+              <div className="flex flex-col gap-3">
+                {/* Botón Business Agent */}
+                <button 
+                  onClick={() => setIsBusinessModalOpen(true)} 
+                  className="flex items-center gap-3 p-2 rounded-2xl active:bg-white/5 transition-colors text-left"
+                >
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#3b82f6]/10 border border-[#3b82f6]/20">
+                    <Briefcase className="w-5 h-5 text-[#3b82f6]" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white text-[15px] font-medium leading-tight" style={{ fontFamily: SF }}>Business Agent</p>
+                    <p className="text-[#8e8e93] text-[12px] mt-0.5">Auto-reply & spam filter</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#48484a]" />
+                </button>
+
+                {/* Botón Bot Interaction */}
+                <button 
+                  onClick={() => setIsBotIntModalOpen(true)} 
+                  className="flex items-center gap-3 p-2 rounded-2xl active:bg-white/5 transition-colors text-left"
+                >
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#a855f7]/10 border border-[#a855f7]/20">
+                    <Bot className="w-5 h-5 text-[#a855f7]" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white text-[15px] font-medium leading-tight" style={{ fontFamily: SF }}>Bot Interaction</p>
+                    <p className="text-[#8e8e93] text-[12px] mt-0.5">AI agent for groups</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-[#48484a]" />
+                </button>
               </div>
             </div>
 
@@ -591,6 +658,89 @@ export function HomeView() {
           </div>
         </div>
       )}
-    </div>
+    
+      {/* ── VISTA EXTERNA: BUSINESS AUTOMATION ── */}
+      {isBusinessModalOpen && (
+        <BusinessAutomationView onClose={() => setIsBusinessModalOpen(false)} />
+      )}
+
+      {/* ── MODAL TEMPORAL: BOT INTERACTION ── */}
+      {isBotIntModalOpen && (
+         <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsBotIntModalOpen(false)} />
+          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#2c2c2e] flex flex-col max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 transform-gpu">
+             <div className="w-10 h-1 bg-[#3a3a3c] rounded-full mx-auto mb-5 shrink-0" />
+             
+             <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-[#a855f7]/20 flex items-center justify-center border border-[#a855f7]/30">
+                    <Bot className="w-4 h-4 text-[#a855f7]" />
+                  </div>
+                  <h2 className="text-white font-bold text-[24px]" style={{ fontFamily: SFD }}>Group Agent</h2>
+                </div>
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-white active:scale-95 transition-transform">
+                   <X className="w-5 h-5" />
+                </button>
+             </div>
+
+             <div className="w-full h-[76px] rounded-[22px] px-4 flex items-center justify-between mb-6 shadow-lg" style={cardLiquidGlassStyle}>
+                <div className="flex flex-col">
+                  <span className="text-white font-bold text-[16px]" style={{ fontFamily: SFD }}>Interaction Hub</span>
+                  <span className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>
+                    {botIntConfig.enabled ? "Listening to other bots" : "Ignoring bots"}
+                  </span>
+                </div>
+                <button 
+                  onClick={() => setBotIntConfig({...botIntConfig, enabled: !botIntConfig.enabled})}
+                  className={`w-[50px] h-[30px] rounded-full p-1 transition-colors duration-300 ${botIntConfig.enabled ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}
+                >
+                  <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${botIntConfig.enabled ? 'translate-x-[20px]' : 'translate-x-0'}`} />
+                </button>
+             </div>
+
+             <div className="bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
+                <div className="flex items-center justify-between p-3 border-b border-[#1c1c1e]">
+                  <div className="flex flex-col">
+                    <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
+                    <span className="text-[#8e8e93] text-[12px]">Comments on bans/mutes</span>
+                  </div>
+                  <button onClick={() => setBotIntConfig({...botIntConfig, moderation_react: !botIntConfig.moderation_react})} className={`w-[44px] h-[26px] rounded-full p-1 transition-colors ${botIntConfig.moderation_react ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}>
+                    <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${botIntConfig.moderation_react ? 'translate-x-[18px]' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between p-3 border-b border-[#1c1c1e]">
+                  <div className="flex flex-col pr-4">
+                    <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Auto-Execute Mod</span>
+                    <span className="text-[#8e8e93] text-[12px]">Agent can run /ban /mute commands automatically</span>
+                  </div>
+                  <button onClick={() => setBotIntConfig({...botIntConfig, auto_execute_mod: !botIntConfig.auto_execute_mod})} className={`w-[44px] h-[26px] rounded-full p-1 transition-colors ${botIntConfig.auto_execute_mod ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}>
+                    <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${botIntConfig.auto_execute_mod ? 'translate-x-[18px]' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between p-3">
+                  <div className="flex flex-col">
+                    <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>File Summarize</span>
+                    <span className="text-[#8e8e93] text-[12px]">Reads PDFs sent by bots</span>
+                  </div>
+                  <button onClick={() => setBotIntConfig({...botIntConfig, file_summarize: !botIntConfig.file_summarize})} className={`w-[44px] h-[26px] rounded-full p-1 transition-colors ${botIntConfig.file_summarize ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}>
+                    <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${botIntConfig.file_summarize ? 'translate-x-[18px]' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+             </div>
+
+             <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95" style={{ fontFamily: SF }}>
+                   <Save className="w-4 h-4" /> Apply to Group
+                </button>
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
+                   Cancel
+                </button>
+             </div>
+          </div>
+         </div>
+      )}
+</div>
   )
 }
