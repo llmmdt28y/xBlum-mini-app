@@ -71,7 +71,7 @@ const AutoResizeTextarea = ({
           className="absolute bottom-4 right-5 font-medium" 
           style={{ fontSize: "12px", color: counterColor, fontFamily: SF }}
         >
-          {charsLeft} restantes
+          {charsLeft} remaining
         </div>
       )}
     </div>
@@ -81,7 +81,6 @@ const AutoResizeTextarea = ({
 // ── COMPONENTES REUTILIZABLES (ESTILO iOS MODERNO PREMIUM) ──
 
 const SubHeader = ({ title }: { title: string }) => (
-  // Se bajó el header con pt-10
   <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-4 pt-10" style={{ background: "#000000" }}>
     <h2 className="font-semibold text-white tracking-tight" style={{ fontSize: "18px", fontFamily: SF }}>
       {title}
@@ -130,7 +129,6 @@ const Row = ({
   </>
 )
 
-// NUEVO: Globo de vista previa para System Prompt / KB
 const TextPreviewBubble = ({ title, icon, iconBg, placeholder, value, onClick }: any) => (
   <div className="px-5 py-[16px] w-full cursor-pointer active:bg-white/5 transition-colors" onClick={onClick}>
     <div className="flex items-center gap-[15px] mb-3">
@@ -158,7 +156,6 @@ const TextPreviewBubble = ({ title, icon, iconBg, placeholder, value, onClick }:
         >
           {value || placeholder}
         </p>
-        {/* Sombra de desvanecimiento para texto largo */}
         {value && <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-[#1a1a1c] to-transparent pointer-events-none" />}
     </div>
   </div>
@@ -251,7 +248,7 @@ export function BusinessAutomationView({
 }: BusinessAutomationViewProps) {
   
   const [loading, setLoading] = useState(true)
-  const [activePage, setActivePage] = useState<'main' | 'chat_access' | 'persona' | 'workflows' | 'safety' | 'reports' | 'persona_prompt' | 'persona_kb'>('main')
+  const [activePage, setActivePage] = useState<'main' | 'chat_access' | 'agent_profile' | 'workflows' | 'safety' | 'reports' | 'system_instructions' | 'knowledge_base'>('main')
   
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [tempVal, setTempVal] = useState<any>("")
@@ -310,8 +307,8 @@ export function BusinessAutomationView({
     const handleBackAction = () => {
       if (activePage === 'main') {
         onClose()
-      } else if (activePage === 'persona_prompt' || activePage === 'persona_kb') {
-        setActivePage('persona')
+      } else if (activePage === 'system_instructions' || activePage === 'knowledge_base') {
+        setActivePage('agent_profile')
       } else {
         setActivePage('main')
       }
@@ -355,11 +352,10 @@ export function BusinessAutomationView({
       
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-4">
         
-        {/* ── MENÚ PRINCIPAL ── */}
+        {/* ── MAIN MENU ── */}
         {activePage === 'main' && (
           <div className="animate-in fade-in duration-200 w-full px-1">
             <SubHeader title="Chat Automation" />
-            {/* Se bajó el contenido inicial con pt-10 */}
             <div className="flex flex-col items-center text-center pt-10 mb-9">
               <img 
                 src={agentGifUrl} 
@@ -380,9 +376,9 @@ export function BusinessAutomationView({
               />
               <Row 
                 icon={<Bot className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#bf5af2]"
-                label="AI Persona & Knowledge" 
+                label="Agent Profile" 
                 right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
-                onClick={() => setActivePage('persona')}
+                onClick={() => setActivePage('agent_profile')}
               />
               <Row 
                 icon={<Workflow className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#ff9f0a]"
@@ -392,14 +388,14 @@ export function BusinessAutomationView({
               />
               <Row 
                 icon={<Shield className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#ff453a]"
-                label="Safety & Protection" 
+                label="Safety & Guardrails" 
                 right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
                 onClick={() => setActivePage('safety')}
                 last
               />
             </Section>
 
-            <Section header="ANALYTICS">
+            <Section header="ANALYTICS & LOGS">
               <Row 
                 icon={<BarChart3 className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#32ade6]"
                 label="Performance Diagnostics" 
@@ -411,12 +407,12 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── AI PERSONA & KNOWLEDGE ── */}
-        {activePage === 'persona' && (
+        {/* ── AGENT PROFILE ── */}
+        {activePage === 'agent_profile' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
-            <SubHeader title="Persona" />
+            <SubHeader title="Agent Profile" />
             <p className="px-5 mt-4 mb-10 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
-              Define how your AI assistant represents your brand and communicates with your audience.
+              Configure your agent's identity, behavior rules, and reference knowledge.
             </p>
             
             <Section>
@@ -431,47 +427,47 @@ export function BusinessAutomationView({
 
             {config.ai_autoreply_enabled && (
               <div className="animate-in fade-in duration-300 w-full">
-                <Section header="IDENTITY">
+                <Section header="AGENT IDENTITY">
                   <Row 
                     icon={<User className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
                     label="Account Role"
-                    sublabel="Define the main role your assistant plays."
+                    sublabel="Define the primary function of your assistant."
                     right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />}
                     onClick={() => { setTempVal(config.use_case); setActiveModal('role'); }}
                     last
                   />
                 </Section>
                 
-                <Section header="TONE">
+                <Section header="TONE & STYLE">
                   <Row 
                     icon={<MessageSquare className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#bf5af2]"
                     label="Tone Register"
-                    sublabel="Set the default tone of your responses."
+                    sublabel="Set the default communication tone."
                     right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />}
                     onClick={() => { setTempVal(config.tone); setActiveModal('tone'); }}
                     last
                   />
                 </Section>
 
-                <Section header="COMMUNICATION GUIDE">
+                <Section header="SYSTEM INSTRUCTIONS">
                   <TextPreviewBubble 
-                    title="System Prompt"
+                    title="System Instructions"
                     icon={<FileText className="w-[18px] h-[18px] text-white" fill="currentColor" />}
                     iconBg="bg-[#0a84ff]"
-                    placeholder="Click to set how the AI should behave and respond. E.g., Act as concise tech support..."
+                    placeholder="Click to set core behavior and guardrails. E.g., You are a helpful support agent..."
                     value={config.ai_persona_hint}
-                    onClick={() => setActivePage('persona_prompt')}
+                    onClick={() => setActivePage('system_instructions')}
                   />
                 </Section>
 
                 <Section header="KNOWLEDGE BASE">
                   <TextPreviewBubble 
-                    title="Knowledge Base Context"
+                    title="Knowledge Base"
                     icon={<Book className="w-[18px] h-[18px] text-white" fill="currentColor" />}
                     iconBg="bg-[#34c759]"
-                    placeholder="Click to add the information your assistant should use (Pricing, URLs, FAQ...)"
+                    placeholder="Click to add custom context, FAQs, or pricing details."
                     value={config.kb_text}
-                    onClick={() => setActivePage('persona_kb')}
+                    onClick={() => setActivePage('knowledge_base')}
                   />
                 </Section>
               </div>
@@ -479,31 +475,31 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── TEXT EDITOR VIEWS (Prompt & KB) ── */}
-        {activePage === 'persona_prompt' && (
+        {/* ── TEXT EDITOR VIEWS (System Instructions & KB) ── */}
+        {activePage === 'system_instructions' && (
           <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-1">
-            <SubHeader title="System Prompt" />
+            <SubHeader title="System Instructions" />
             <p className="px-4 mb-6 mt-2 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
-              Detailed instructions for behavior and character.
+              Detailed instructions guiding the model's responses and constraints.
             </p>
             <AutoResizeTextarea
               defaultValue={config.ai_persona_hint}
               onBlurSave={(v) => setAndSave('ai_persona_hint', v)}
-              placeholder="E.g., Act as concise tech support..."
+              placeholder="E.g., You are a strictly concise technical support assistant..."
             />
           </div>
         )}
 
-        {activePage === 'persona_kb' && (
+        {activePage === 'knowledge_base' && (
           <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-1">
-            <SubHeader title="Knowledge Base Context" />
+            <SubHeader title="Knowledge Base" />
             <p className="px-4 mb-6 mt-2 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
-              Specific data, FAQs, URLs, and pricing info.
+              Provide specific business data, product specs, or FAQs to ground responses.
             </p>
             <AutoResizeTextarea
               defaultValue={config.kb_text}
               onBlurSave={(v) => setAndSave('kb_text', v)}
-              placeholder="Store your business data here..."
+              placeholder="Store your business context data here..."
             />
           </div>
         )}
@@ -584,10 +580,10 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── SAFETY ── */}
+        {/* ── SAFETY & GUARDRAILS ── */}
         {activePage === 'safety' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
-            <SubHeader title="Safety" />
+            <SubHeader title="Safety & Guardrails" />
             <div className="pt-8">
               <Section header="SPAM FILTERING">
                 <Row 
@@ -627,7 +623,7 @@ export function BusinessAutomationView({
         {/* ── REPORTS ── */}
         {activePage === 'reports' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
-            <SubHeader title="Analytics" />
+            <SubHeader title="Analytics & Logs" />
             <div className="pt-8">
               <Section header="DIAGNOSTICS">
                 <Row 
@@ -652,7 +648,7 @@ export function BusinessAutomationView({
 
       </div>
 
-      {/* ── MODALES INFERIORES (BOTTOM SHEETS PREMIUM) ── */}
+      {/* ── BOTTOM SHEETS ── */}
       <BottomSheet
         isOpen={activeModal === 'role'}
         onClose={() => setActiveModal(null)}
