@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Loader2, Sparkles, Shield, Workflow, 
-  ChevronRight, BarChart3, Check, MessageSquare, Bot, User, FileText, Book
+  ChevronRight, BarChart3, Check, MessageSquare, Bot, User, FileText, Book,
+  Clock, MessageSquarePlus, Eye
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -81,7 +82,8 @@ const AutoResizeTextarea = ({
 // ── COMPONENTES REUTILIZABLES (ESTILO iOS MODERNO PREMIUM) ──
 
 const SubHeader = ({ title }: { title: string }) => (
-  <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-4 pt-10" style={{ background: "#000000" }}>
+  // Header ajustado un poco más arriba (pt-6 en lugar de pt-10)
+  <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-4 pt-6" style={{ background: "#000000" }}>
     <h2 className="font-semibold text-white tracking-tight" style={{ fontSize: "18px", fontFamily: SF }}>
       {title}
     </h2>
@@ -190,6 +192,7 @@ const RadioRow = ({ label, selected, onClick, last }: { label: string, selected:
   </>
 )
 
+// ── BOTÓN CON BRILLO SÓLO EN ESQUINAS OPUESTAS ──
 const ShinyActionButton = ({ label, onClick, className = "", secondary = false }: { label: string, onClick: () => void, className?: string, secondary?: boolean }) => (
   <button
     onClick={onClick}
@@ -197,12 +200,20 @@ const ShinyActionButton = ({ label, onClick, className = "", secondary = false }
     style={{ 
       background: "#2c2c2e", 
       fontFamily: SF,
-      border: "1px solid rgba(255, 255, 255, 0.1)", 
     }}
   >
-    <div className="absolute inset-0 rounded-full opacity-0 group-active:opacity-100 transition-opacity duration-300" 
-         style={{ background: "radial-gradient(circle at top, rgba(255, 255, 255, 0.15) 0%, rgba(2c, 2c, 2e, 0) 70%)" }} />
-    <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+    {/* Brillo Top-Left */}
+    <div className="absolute top-0 left-0 w-4 h-[1px] bg-gradient-to-r from-white/50 to-transparent pointer-events-none" />
+    <div className="absolute top-0 left-0 w-[1px] h-4 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
+    
+    {/* Brillo Bottom-Right */}
+    <div className="absolute bottom-0 right-0 w-4 h-[1px] bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
+    <div className="absolute bottom-0 right-0 w-[1px] h-4 bg-gradient-to-t from-white/50 to-transparent pointer-events-none" />
+
+    {/* Sombra activa interna central */}
+    <div className="absolute inset-0 rounded-full opacity-0 group-active:opacity-100 transition-opacity duration-300 pointer-events-none" 
+         style={{ background: "radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, rgba(2c, 2c, 2e, 0) 70%)" }} />
+    
     <span className={`relative z-10 ${secondary ? 'text-[#8e8e93]' : 'text-[#3b82f6]'} font-semibold`} style={{ fontSize: "16px" }}>
       {label}
     </span>
@@ -248,11 +259,15 @@ export function BusinessAutomationView({
 }: BusinessAutomationViewProps) {
   
   const [loading, setLoading] = useState(true)
-  const [activePage, setActivePage] = useState<'main' | 'chat_access' | 'agent_profile' | 'workflows' | 'safety' | 'reports' | 'system_instructions' | 'knowledge_base'>('main')
+  const [activePage, setActivePage] = useState<
+    'main' | 'chat_access' | 'agent_profile' | 'workflows' | 'safety' | 'reports' | 
+    'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg'
+  >('main')
   
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [tempVal, setTempVal] = useState<any>("")
 
+  // Estado unificado acorde al backend real
   const [config, setConfig] = useState({
     auto_reply_filter: "everyone", 
     ai_autoreply_enabled: true,
@@ -260,17 +275,26 @@ export function BusinessAutomationView({
     tone: "adaptive", 
     ai_persona_hint: "",
     kb_text: "",
+    
+    greeting_enabled: false,
+    greeting_text: "",
+    away_enabled: false,
+    away_text: "",
+    read_enabled: true,
+
     spam_filter_enabled: true,
     spam_sensitivity: "medium", 
     urgency_notify: true,
     humanize_enabled: true,
     humanize_speed: "normal", 
+    
     followup_enabled: false,
     followup_delay_h: 24,
     followup_max: 2,
     followup_text: "",
     invocation_enabled: true,
     bot_names: "xblum, blum",
+    
     daily_digest: false,
     daily_digest_hour: 9
   })
@@ -309,6 +333,8 @@ export function BusinessAutomationView({
         onClose()
       } else if (activePage === 'system_instructions' || activePage === 'knowledge_base') {
         setActivePage('agent_profile')
+      } else if (activePage === 'greeting_msg' || activePage === 'away_msg') {
+        setActivePage('workflows')
       } else {
         setActivePage('main')
       }
@@ -356,7 +382,7 @@ export function BusinessAutomationView({
         {activePage === 'main' && (
           <div className="animate-in fade-in duration-200 w-full px-1">
             <SubHeader title="Chat Automation" />
-            <div className="flex flex-col items-center text-center pt-10 mb-9">
+            <div className="flex flex-col items-center text-center pt-8 mb-9">
               <img 
                 src={agentGifUrl} 
                 alt="Agent" 
@@ -382,7 +408,7 @@ export function BusinessAutomationView({
               />
               <Row 
                 icon={<Workflow className="w-5 h-5 text-white" fill="currentColor" />} iconBg="bg-[#ff9f0a]"
-                label="Automated Workflows" 
+                label="Messages & Workflows" 
                 right={<ChevronRight className="w-5 h-5 text-[#3a3a3c]" />} 
                 onClick={() => setActivePage('workflows')}
               />
@@ -418,8 +444,8 @@ export function BusinessAutomationView({
             <Section>
               <Row 
                 icon={<Sparkles className="w-[18px] h-[18px] text-white" fill="currentColor" />} iconBg="bg-[#0a84ff]"
-                label="AI Auto-Reply Processing"
-                sublabel="Process inbound messages using Grok 4.1."
+                label="AI Auto-Reply"
+                sublabel="Let the AI handle standard inbound messages."
                 right={<TelegramToggle on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} />}
                 last
               />
@@ -475,7 +501,7 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── TEXT EDITOR VIEWS (System Instructions & KB) ── */}
+        {/* ── TEXT EDITOR VIEWS ── */}
         {activePage === 'system_instructions' && (
           <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-1">
             <SubHeader title="System Instructions" />
@@ -504,6 +530,34 @@ export function BusinessAutomationView({
           </div>
         )}
 
+        {activePage === 'greeting_msg' && (
+          <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-1">
+            <SubHeader title="Welcome Message" />
+            <p className="px-4 mb-6 mt-2 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
+              This message is sent automatically to users contacting you for the first time.
+            </p>
+            <AutoResizeTextarea
+              defaultValue={config.greeting_text}
+              onBlurSave={(v) => setAndSave('greeting_text', v)}
+              placeholder="E.g., Hi there! How can I help you today?"
+            />
+          </div>
+        )}
+
+        {activePage === 'away_msg' && (
+          <div className="animate-in slide-in-from-right duration-200 w-full h-[80vh] flex flex-col px-1">
+            <SubHeader title="Away Message" />
+            <p className="px-4 mb-6 mt-2 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
+              Sent automatically when you are scheduled as away or out of office.
+            </p>
+            <AutoResizeTextarea
+              defaultValue={config.away_text}
+              onBlurSave={(v) => setAndSave('away_text', v)}
+              placeholder="E.g., I'm currently away but will reply as soon as possible."
+            />
+          </div>
+        )}
+
         {/* ── CHAT ACCESS SCOPE ── */}
         {activePage === 'chat_access' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
@@ -526,14 +580,66 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── WORKFLOWS ── */}
+        {/* ── MESSAGES & WORKFLOWS ── */}
         {activePage === 'workflows' && (
           <div className="animate-in slide-in-from-right duration-200 w-full px-1">
-            <SubHeader title="Workflows" />
+            <SubHeader title="Messages & Workflows" />
             <div className="pt-8">
+
+              <Section header="BASIC BEHAVIORS">
+                <Row 
+                  icon={<Eye className="w-[18px] h-[18px] text-white" />} iconBg="bg-[#32ade6]"
+                  label="Mark messages as read"
+                  sublabel="Automatically mark inbound messages as read."
+                  right={<TelegramToggle on={config.read_enabled} onToggle={() => setAndSave('read_enabled', !config.read_enabled)} />}
+                  last
+                />
+              </Section>
+
+              <Section header="AUTO-REPLIES">
+                <Row 
+                  icon={<MessageSquarePlus className="w-[18px] h-[18px] text-white" />} iconBg="bg-[#34c759]"
+                  label="Welcome Message"
+                  sublabel="Greet first-time contacts automatically."
+                  right={<TelegramToggle on={config.greeting_enabled} onToggle={() => setAndSave('greeting_enabled', !config.greeting_enabled)} />}
+                  last={!config.greeting_enabled}
+                />
+                {config.greeting_enabled && (
+                  <TextPreviewBubble 
+                    title="Edit Welcome Message"
+                    icon={<FileText className="w-[18px] h-[18px] text-white" fill="currentColor" />}
+                    iconBg="bg-[#34c759]"
+                    placeholder="Click to write your greeting message..."
+                    value={config.greeting_text}
+                    onClick={() => setActivePage('greeting_msg')}
+                  />
+                )}
+
+                <div className="h-[1px] w-full bg-[#1c1c1e] my-1" />
+
+                <Row 
+                  icon={<Clock className="w-[18px] h-[18px] text-white" />} iconBg="bg-[#ff9f0a]"
+                  label="Away Message"
+                  sublabel="Reply when you are out of office."
+                  right={<TelegramToggle on={config.away_enabled} onToggle={() => setAndSave('away_enabled', !config.away_enabled)} />}
+                  last={!config.away_enabled}
+                />
+                {config.away_enabled && (
+                  <TextPreviewBubble 
+                    title="Edit Away Message"
+                    icon={<FileText className="w-[18px] h-[18px] text-white" fill="currentColor" />}
+                    iconBg="bg-[#ff9f0a]"
+                    placeholder="Click to write your away message..."
+                    value={config.away_text}
+                    onClick={() => setActivePage('away_msg')}
+                  />
+                )}
+              </Section>
+
               <Section header="ENGAGEMENT LOOPS">
                 <Row 
-                  label="Smart Follow-up Matrix"
+                  icon={<Workflow className="w-[18px] h-[18px] text-white" />} iconBg="bg-[#0a84ff]"
+                  label="Smart Follow-ups"
                   sublabel="Trigger automated follow-ups if user drops engagement."
                   right={<TelegramToggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
                   last={!config.followup_enabled}
@@ -605,7 +711,7 @@ export function BusinessAutomationView({
 
               <Section header="EMULATION & ALERTS">
                 <Row 
-                  label="Humanized Typing"
+                  label="Simulate Typing"
                   sublabel="Inject artificial typing delays for organic rhythm."
                   right={<TelegramToggle on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} />}
                 />
