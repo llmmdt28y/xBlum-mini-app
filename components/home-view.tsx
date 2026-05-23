@@ -105,19 +105,18 @@ export function HomeView() {
       `}} />
 
       {/* --- SECCIÓN HERO UNIFICADA (IMAGEN) --- */}
-      <div className="w-full relative z-0">
+      {/* Añadido mt-6 para bajar la imagen y modificado el object-center para un mejor encuadre */}
+      <div className="w-full relative z-0 mt-6">
         <img 
           src="/noirhand.png" 
           alt="Noir Hand Background" 
-          className="w-full h-[320px] sm:h-[380px] object-cover object-bottom" 
+          className="w-full h-[300px] sm:h-[340px] object-cover object-center" 
           draggable={false}
         />
-        {/* Un gradiente sutil para difuminar la parte de abajo de la imagen con el fondo negro de la app */}
         <div className="absolute bottom-0 w-full h-24 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
       </div>
 
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
-      {/* El -mt-10 empuja las tarjetas un poco hacia arriba para superponerse con la imagen */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-10">
         
         {/* Tarjeta Schedules */}
@@ -146,26 +145,26 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Carrusel Horizontal */}
+        {/* Carrusel Horizontal - TARJETAS REDUCIDAS */}
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
           
-          {/* Connectors Card */}
-          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-5 border border-white/5 flex flex-col shadow-lg">
-            <h2 className="text-[19px] font-bold text-white mb-1" style={{ fontFamily: SFD }}>Connectors</h2>
-            <p className="text-[13px] text-[#8e8e93] mb-5" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
+          {/* Connectors Card (Reducida verticalmente) */}
+          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
+            <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>Connectors</h2>
+            <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               {CONNECTORS_DB.slice(0, 3).map((c) => (
-                <div key={c.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                  <div className="flex items-center gap-3.5">
-                    {c.id === 'gmail' && <img src="/gmail.png" alt="Gmail" className="w-7 h-7 object-contain" />}
-                    {c.id === 'drive' && <img src="/google-drive.png" alt="Google Drive" className="w-7 h-7 object-contain" />}
-                    {c.id === 'calendar' && <img src="/google-calendar.png" alt="Google Calendar" className="w-7 h-7 object-contain" />}
-                    <span className="text-[15px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
+                <div key={c.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                  <div className="flex items-center gap-3">
+                    {c.id === 'gmail' && <img src="/gmail.png" alt="Gmail" className="w-6 h-6 object-contain" />}
+                    {c.id === 'drive' && <img src="/google-drive.png" alt="Google Drive" className="w-6 h-6 object-contain" />}
+                    {c.id === 'calendar' && <img src="/google-calendar.png" alt="Google Calendar" className="w-6 h-6 object-contain" />}
+                    <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
                   </div>
                   <button 
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                    className="px-4 py-1.5 rounded-full border border-[#333] text-white text-[13px] font-medium hover:bg-[#222] transition-colors" style={{ fontFamily: SF }}
+                    className="px-3 py-1 rounded-full border border-[#333] text-white text-[12px] font-medium hover:bg-[#222] transition-colors" style={{ fontFamily: SF }}
                   >
                     View
                   </button>
@@ -175,44 +174,44 @@ export function HomeView() {
 
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
-              className="mt-4 w-full py-3.5 flex items-center justify-center gap-2 text-[15px] font-medium text-white hover:opacity-70 transition-opacity" style={{ fontFamily: SF }}
+              className="mt-3 w-full py-2.5 flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:opacity-70 transition-opacity bg-white/5 rounded-[16px]" style={{ fontFamily: SF }}
             >
               <Plus className="w-4 h-4 text-[#8e8e93]" /> Add connection
             </button>
           </div>
 
-          {/* My Tools Card */}
-          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-5 border border-white/5 flex flex-col shadow-lg relative">
-            <h2 className="text-[19px] font-bold text-white mb-1" style={{ fontFamily: SFD }}>My Tools</h2>
-            <p className="text-[13px] text-[#8e8e93] mb-5" style={{ fontFamily: SF }}>Automate your workflow</p>
+          {/* My Tools Card (Reducida verticalmente) */}
+          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg relative">
+            <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>My Tools</h2>
+            <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Automate your workflow</p>
             
-            <div className="flex flex-col gap-2">
-                <button onClick={() => setIsBusinessModalOpen(true)} className="flex items-center gap-3.5 py-2 hover:opacity-70 transition-opacity text-left">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#3b82f6]/10 border border-[#3b82f6]/20">
-                    <Briefcase className="w-5 h-5 text-[#3b82f6]" />
+            <div className="flex flex-col gap-1">
+                <button onClick={() => setIsBusinessModalOpen(true)} className="flex items-center gap-3 py-1.5 hover:opacity-70 transition-opacity text-left">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center bg-[#3b82f6]/10 border border-[#3b82f6]/20">
+                    <Briefcase className="w-4 h-4 text-[#3b82f6]" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-white text-[15px] font-medium" style={{ fontFamily: SF }}>Business Agent</p>
-                    <p className="text-[#8e8e93] text-[12px]">Auto-reply & spam filter</p>
+                    <p className="text-white text-[14px] font-medium" style={{ fontFamily: SF }}>Business Agent</p>
+                    <p className="text-[#8e8e93] text-[11px]">Auto-reply & spam filter</p>
                   </div>
                 </button>
 
-                <button onClick={() => setIsBotIntModalOpen(true)} className="flex items-center gap-3.5 py-2 hover:opacity-70 transition-opacity text-left mt-2">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-[#a855f7]/10 border border-[#a855f7]/20">
-                    <Bot className="w-5 h-5 text-[#a855f7]" />
+                <button onClick={() => setIsBotIntModalOpen(true)} className="flex items-center gap-3 py-1.5 hover:opacity-70 transition-opacity text-left mt-1">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center bg-[#a855f7]/10 border border-[#a855f7]/20">
+                    <Bot className="w-4 h-4 text-[#a855f7]" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-white text-[15px] font-medium" style={{ fontFamily: SF }}>Group Agent</p>
-                    <p className="text-[#8e8e93] text-[12px]">AI bot interactions</p>
+                    <p className="text-white text-[14px] font-medium" style={{ fontFamily: SF }}>Group Agent</p>
+                    <p className="text-[#8e8e93] text-[11px]">AI bot interactions</p>
                   </div>
                 </button>
             </div>
 
-            <div className="absolute right-[-24px] top-1/2 -translate-y-1/2 w-[12px] h-[100px] bg-[#1a1a1c] rounded-l-[24px] border border-white/5 p-2 flex flex-col gap-3 items-center justify-center">
+            <div className="absolute right-[-24px] top-1/2 -translate-y-1/2 w-[12px] h-[80px] bg-[#1a1a1c] rounded-l-[24px] border border-white/5 p-2 flex flex-col gap-2.5 items-center justify-center">
               <span className="text-white text-[10px] font-bold">M</span>
               <span className="text-[#8e8e93] text-[8px]">Auto</span>
-              <Settings2 className="w-3 h-3 text-[#333]" />
-              <ImageIcon className="w-3 h-3 text-[#333]" />
+              <Settings2 className="w-[10px] h-[10px] text-[#333]" />
+              <ImageIcon className="w-[10px] h-[10px] text-[#333]" />
             </div>
           </div>
 
