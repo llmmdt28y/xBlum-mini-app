@@ -102,9 +102,9 @@ const CONNECTORS_DB = [
 
 function getTg() { return (window as any).Telegram?.WebApp }
 
-// --- COMPONENTE MONEDA INTERACTIVA 3D ---
+// --- COMPONENTE MONEDA INTERACTIVA 3D CORREGIDO ---
 const InteractiveCoin = () => {
-  // Estado inicial: inclinada de superior izquierda a inferior derecha
+  // Estado inicial: inclinada
   const [rotation, setRotation] = useState({ x: -25, y: -35 }); 
   const isDragging = useRef(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
@@ -114,7 +114,7 @@ const InteractiveCoin = () => {
     isDragging.current = true;
     dragStartPos.current = { x: e.clientX, y: e.clientY };
     if (coinRef.current) {
-      coinRef.current.style.transition = 'none'; // Quitar transición al arrastrar para más fluidez
+      coinRef.current.style.transition = 'none'; // Fluidez al arrastrar
     }
   };
 
@@ -123,7 +123,7 @@ const InteractiveCoin = () => {
     const deltaX = e.clientX - dragStartPos.current.x;
     const deltaY = e.clientY - dragStartPos.current.y;
     
-    const sensitivity = 0.8; // Sensibilidad del giro del dedo
+    const sensitivity = 0.8;
     
     setRotation(prev => ({
       x: prev.x - deltaY * sensitivity,
@@ -136,62 +136,61 @@ const InteractiveCoin = () => {
   const handlePointerUp = () => {
     isDragging.current = false;
     if (coinRef.current) {
-      coinRef.current.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)'; // Suavizar al soltar
+      coinRef.current.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
     }
   };
 
   return (
     <div
       className="flex items-center justify-center w-full relative z-0 -translate-y-2"
-      style={{ height: '360px', touchAction: 'none', perspective: '1200px' }}
+      style={{ height: '320px', touchAction: 'none', perspective: '1200px' }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
     >
-      {/* Brillo de fondo sutil radial */}
+      {/* Brillo de fondo */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] bg-white/5 rounded-full blur-[70px] pointer-events-none" />
 
-      {/* Difuminado inferior con el fondo de la app */}
-      <div className="absolute bottom-0 w-full h-28 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none z-10" />
-
-      {/* Contenedor principal de la moneda con Fake 3D */}
+      {/* Contenedor principal de la moneda */}
       <div
         ref={coinRef}
-        className="relative w-[200px] h-[200px] cursor-grab active:cursor-grabbing"
+        className="relative w-[180px] h-[180px] cursor-grab active:cursor-grabbing"
         style={{
           transformStyle: 'preserve-3d',
           transition: 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)',
           transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`
         }}
       >
-        {/* Generar el "Cilindro" (El grosor de la moneda creado con capas apiladas) */}
+        {/* Grosor del cilindro (16 capas finas) */}
         {Array.from({ length: 16 }).map((_, i) => (
           <div
             key={i}
-            className="absolute inset-0 rounded-full border border-black/30"
+            className="absolute inset-0 rounded-full border border-white/10"
             style={{
-              background: 'linear-gradient(135deg, #3a3a3c 0%, #161618 50%, #3a3a3c 100%)',
-              transform: `translateZ(${i - 8}px)`, // Distribuye de -8px a +7px
-              boxShadow: i === 8 ? '0 0 50px rgba(0,0,0,0.9)' : 'none'
+              background: '#0a0a0c', // Color oscuro sólido para el borde
+              transform: `translateZ(${i - 8}px)`,
+              boxShadow: i === 8 ? '0 0 40px rgba(0,0,0,0.8)' : 'none'
             }}
           />
         ))}
 
         {/* Cara Frontal */}
         <div
-          className="absolute inset-0 rounded-full flex items-center justify-center bg-[#0e0e10] overflow-hidden border border-white/10"
-          style={{ backfaceVisibility: 'hidden', transform: 'translateZ(8.5px)', boxShadow: 'inset 0 0 25px rgba(255,255,255,0.05)' }}
+          className="absolute inset-0 rounded-full flex items-center justify-center bg-black overflow-hidden border border-white/20"
+          style={{ backfaceVisibility: 'hidden', transform: 'translateZ(8.5px)' }}
         >
-          <img src="/1000011073.png" alt="Coin Front" draggable={false} className="w-[85%] h-[85%] object-contain select-none pointer-events-none" style={imageProtectionStyle} />
+          {/* Zoom scale-[1.4] para ocultar el borde cuadrado del PNG original */}
+          <img src="/1000011073.png" alt="Coin Front" draggable={false} className="w-full h-full object-cover scale-[1.4] select-none pointer-events-none" style={imageProtectionStyle} />
         </div>
 
         {/* Cara Trasera */}
         <div
-          className="absolute inset-0 rounded-full flex items-center justify-center bg-[#0e0e10] overflow-hidden border border-white/10"
-          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg) translateZ(8.5px)', boxShadow: 'inset 0 0 25px rgba(255,255,255,0.05)' }}
+          className="absolute inset-0 rounded-full flex items-center justify-center bg-black overflow-hidden border border-white/20"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg) translateZ(8.5px)' }}
         >
-          <img src="/1000011073.png" alt="Coin Back" draggable={false} className="w-[85%] h-[85%] object-contain select-none pointer-events-none" style={imageProtectionStyle} />
+           {/* Zoom scale-[1.4] para ocultar el borde cuadrado del PNG original */}
+          <img src="/1000011073.png" alt="Coin Back" draggable={false} className="w-full h-full object-cover scale-[1.4] select-none pointer-events-none" style={imageProtectionStyle} />
         </div>
       </div>
     </div>
@@ -238,7 +237,7 @@ export function HomeView() {
       <InteractiveCoin />
 
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
+      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-10">
         
         {/* Tarjeta Schedules */}
         <div className="bg-[#111111] rounded-[24px] p-4 border border-white/5 shadow-lg relative">
