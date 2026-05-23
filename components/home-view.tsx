@@ -23,7 +23,19 @@ const ICON_COLORS: Record<string, string> = {
   Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b"
 }
 
-// --- Connectors Database (Mantenida intacta) ---
+// --- Estilos de Liquid Glass originales ---
+const cardLiquidGlassStyle = {
+  background: "rgba(42, 42, 44, 0.85)", 
+  backdropFilter: "blur(12px) saturate(150%)", 
+  WebkitBackdropFilter: "blur(12px) saturate(150%)",
+  border: "1px solid rgba(255, 255, 255, 0.12)", 
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)", 
+  transform: "translateZ(0)", 
+  WebkitTransform: "translateZ(0)",
+  willChange: "transform", 
+}
+
+// --- Connectors Database ---
 const CONNECTORS_DB = [
   { 
     id: "gmail", name: "Gmail", category: "Featured", src: "/gmail.png", detailCategory: "Productivity",
@@ -48,7 +60,7 @@ const CONNECTORS_DB = [
     description: "Keep track of your schedule and meetings.", isConnected: false, userEmail: "",
     features: [
       { icon: <Calendar className="w-5 h-5 text-[#8e8e93]" />, title: "Search your calendar", desc: "Check today's agenda, find upcoming events and get meeting details." },
-      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your schedule is private. We do not use event data for AI training." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train models", desc: "Your schedule is private. We do not use event data for AI training." },
       { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your events stay in Calendar", desc: "We only read your calendar data to provide real-time information." }
     ]
   }
@@ -57,7 +69,6 @@ const CONNECTORS_DB = [
 function getTg() { return (window as any).Telegram?.WebApp }
 
 export function HomeView() {
-  // Estados para los modales y lógica
   const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false)
   const [isBotIntModalOpen, setIsBotIntModalOpen] = useState(false)
   const [botIntConfig, setBotIntConfig] = useState({ enabled: true, moderation_react: true, auto_execute_mod: false, file_summarize: true })
@@ -66,7 +77,6 @@ export function HomeView() {
 
   const { setCurrentView } = useApp()
 
-  // Manejo del botón "Atrás" de Telegram
   useEffect(() => {
     const tg = getTg()
     if (!tg?.BackButton) return
@@ -89,7 +99,7 @@ export function HomeView() {
   return (
     <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-28">
       
-      {/* ── ESTILOS CSS INYECTADOS PARA LA ANIMACIÓN 3D ── */}
+      {/* ── ESTILOS CSS INYECTADOS ── */}
       <style dangerouslySetInnerHTML={{__html: `
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         
@@ -117,13 +127,23 @@ export function HomeView() {
           background-size: contain;
           background-position: center;
           background-repeat: no-repeat;
-          background-image: url('NOIR-COIN.png'); 
+          background-image: url('/NOIR-COIN.png'); 
           animation: floatCoin 4s ease-in-out infinite, simulate3DTurn 6s ease-in-out infinite;
+        }
+
+        .starry-dust-bg {
+          position: absolute;
+          inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+          opacity: 0.12;
+          z-index: 1;
+          pointer-events: none;
+          mix-blend-mode: overlay;
         }
       `}} />
 
       {/* --- HEADER SUPERIOR --- */}
-      <div className="flex justify-between items-center px-5 pt-6 pb-2 w-full max-w-md mx-auto">
+      <div className="flex justify-between items-center px-5 pt-6 pb-2 w-full max-w-md mx-auto relative z-50">
         <button className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors">
           <X className="w-5 h-5" />
           <span className="text-[16px] font-medium" style={{ fontFamily: SF }}>close</span>
@@ -136,23 +156,23 @@ export function HomeView() {
 
       {/* --- SECCIÓN HERO 3D --- */}
       <div className="relative w-full h-[360px] flex justify-center items-end overflow-visible mt-2">
-        {/* Resplandor radial de fondo */}
-        <div className="absolute bottom-[-30px] left-1/2 -translate-x-1/2 w-[280px] h-[280px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.08)_0%,rgba(0,0,0,0)_70%)] z-0 pointer-events-none"></div>
+        <div className="starry-dust-bg"></div>
+        <div className="absolute bottom-[-30px] left-1/2 -translate-x-1/2 w-[280px] h-[280px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.08)_0%,rgba(0,0,0,0)_70%)] z-1 pointer-events-none"></div>
         
-        {/* Mano de partículas */}
-        <img src="https://i.imgur.com/vH9x1qE.png" alt="Hand" className="w-full max-w-[320px] max-h-[260px] object-contain relative z-10 opacity-90 pointer-events-none" />
+        {/* Imagen de la mano local */}
+        <img src="/Hand-dots.png" alt="Hand" className="w-full max-w-[320px] max-h-[260px] object-contain relative z-10 opacity-90 pointer-events-none" />
         
-        {/* Contenedor de la moneda con perspectiva */}
+        {/* Moneda local con el efecto 3D */}
         <div className="absolute top-[30px] z-20 w-[150px] h-[150px]" style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
           <div className="w-full h-full coin-3d"></div>
         </div>
       </div>
 
-      {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 mt-2 z-30 relative">
+      {/* --- CONTENIDO PRINCIPAL --- */}
+      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 mt-2 z-30 relative pb-28">
         
         {/* Tarjeta Schedules */}
-        <div className="bg-[#111111] rounded-[24px] p-5 border border-white/5 shadow-lg">
+        <div className="bg-[#111111] rounded-[24px] p-5 border border-white/5 shadow-lg relative">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-[46px] h-[46px] bg-[#1a1a1c] rounded-full flex items-center justify-center">
@@ -167,18 +187,17 @@ export function HomeView() {
                 </p>
               </div>
             </div>
-            <button onClick={() => setCurrentView("schedule")} className="w-10 h-10 bg-[#1a1a1c] rounded-full flex items-center justify-center text-[#8e8e93] hover:bg-[#222] transition-colors">
+            <button onClick={() => setCurrentView("schedule")} className="w-10 h-10 bg-[#1a1a1c] rounded-full flex items-center justify-center text-[#8e8e93] hover:bg-[#222] transition-colors relative z-10">
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
-          {/* Paginación Dots */}
           <div className="flex justify-center gap-1.5 mt-5">
             <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
             <div className="w-1.5 h-1.5 rounded-full bg-[#333]"></div>
           </div>
         </div>
 
-        {/* Carrusel Horizontal de Connectors y My Tools */}
+        {/* Carrusel Horizontal */}
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
           
           {/* Connectors Card */}
@@ -190,7 +209,9 @@ export function HomeView() {
               {CONNECTORS_DB.slice(0, 3).map((c) => (
                 <div key={c.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                   <div className="flex items-center gap-3.5">
-                    <img src={c.src} alt={c.name} className="w-7 h-7 object-contain" />
+                    {c.id === 'gmail' && <img src="/gmail.png" alt="Gmail" className="w-7 h-7 object-contain" />}
+                    {c.id === 'drive' && <img src="/google-drive.png" alt="Google Drive" className="w-7 h-7 object-contain" />}
+                    {c.id === 'calendar' && <img src="/google-calendar.png" alt="Google Calendar" className="w-7 h-7 object-contain" />}
                     <span className="text-[15px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
                   </div>
                   <button 
@@ -211,8 +232,8 @@ export function HomeView() {
             </button>
           </div>
 
-          {/* My Tools Card (El que se asoma a la derecha) */}
-          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-5 border border-white/5 flex flex-col shadow-lg">
+          {/* My Tools Card */}
+          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-5 border border-white/5 flex flex-col shadow-lg relative">
             <h2 className="text-[19px] font-bold text-white mb-1" style={{ fontFamily: SFD }}>My Tools</h2>
             <p className="text-[13px] text-[#8e8e93] mb-5" style={{ fontFamily: SF }}>Automate your workflow</p>
             
@@ -237,19 +258,25 @@ export function HomeView() {
                   </div>
                 </button>
             </div>
+
+            <div className="absolute right-[-24px] top-1/2 -translate-y-1/2 w-[12px] h-[100px] bg-[#1a1a1c] rounded-l-[24px] border border-white/5 p-2 flex flex-col gap-3 items-center justify-center">
+              <span className="text-white text-[10px] font-bold">M</span>
+              <span className="text-[#8e8e93] text-[8px]">Auto</span>
+              <Settings2 className="w-3 h-3 text-[#333]" />
+              <ImageIcon className="w-3 h-3 text-[#333]" />
+            </div>
           </div>
 
         </div>
       </div>
 
-      {/* --- EMERGENT MODALS (Mantenidos de tu código original para no romper funcionalidad) --- */}
+      {/* --- EMERGENT MODALS --- */}
       {modalState.view !== "closed" && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={() => setModalState({ view: "closed", connectorId: null })} />
 
           <div className="relative w-full max-w-md rounded-t-[24px] animate-in slide-in-from-bottom duration-300 flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e", maxHeight: "85vh" }}>
             
-            {/* View List */}
             {modalState.view === "list" && (
                 <div className="flex flex-col p-4 h-full">
                     <div className="flex items-center justify-between mb-6">
@@ -269,7 +296,9 @@ export function HomeView() {
                     <div className="overflow-y-auto hide-scrollbar pb-8 space-y-2 flex-1">
                         {filteredConnectors.map(c => (
                             <button key={c.id} onClick={() => setModalState({ view: "detail", connectorId: c.id })} className="w-full flex items-center gap-4 p-3 rounded-2xl active:bg-white/5 transition-colors text-left" style={{ border: "1px solid #1c1c1e" }}>
-                                <img src={c.src} alt="" draggable={false} className="w-8 h-8 object-contain" />
+                                {c.id === 'gmail' && <img src="/gmail.png" alt="Gmail" className="w-8 h-8 object-contain" />}
+                                {c.id === 'drive' && <img src="/google-drive.png" alt="Google Drive" className="w-8 h-8 object-contain" />}
+                                {c.id === 'calendar' && <img src="/google-calendar.png" alt="Google Calendar" className="w-8 h-8 object-contain" />}
                                 <div className="flex-1">
                                     <p className="text-white font-medium">{c.name}</p>
                                     <p className="text-[#8e8e93] text-[12px]">{c.isConnected ? "Active" : "Tap to connect"}</p>
@@ -281,13 +310,14 @@ export function HomeView() {
                 </div>
             )}
 
-            {/* View Detail */}
             {modalState.view === "detail" && activeConnectorData && (
               <div className="flex flex-col overflow-hidden h-full">
                 <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e]">
                   <div className="flex items-center gap-3">
                     <button onClick={() => setModalState({ view: "list", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full active:bg-[#1c1c1e] transition-colors"><ArrowLeft className="w-5 h-5 text-[#8e8e93]" /></button>
-                    <img src={activeConnectorData.src} alt="" className="w-7 h-7 object-contain" />
+                    {activeConnectorData.id === 'gmail' && <img src="/gmail.png" alt="Gmail" className="w-7 h-7 object-contain" />}
+                    {activeConnectorData.id === 'drive' && <img src="/google-drive.png" alt="Google Drive" className="w-7 h-7 object-contain" />}
+                    {activeConnectorData.id === 'calendar' && <img src="/google-calendar.png" alt="Google Calendar" className="w-7 h-7 object-contain" />}
                     <h2 className="text-white font-bold text-[17px]">{activeConnectorData.name}</h2>
                   </div>
                   {activeConnectorData.isConnected ? (
@@ -333,21 +363,84 @@ export function HomeView() {
       {/* ── VISTA EXTERNA: BUSINESS AUTOMATION ── */}
       {isBusinessModalOpen && <BusinessAutomationView onClose={() => setIsBusinessModalOpen(false)} />}
 
-      {/* ── MODAL TEMPORAL: BOT INTERACTION ── */}
+      {/* ── MODAL TEMPORAL: BOT INTERACTION COMPLETAMENTE RESTAURADO ── */}
       {isBotIntModalOpen && (
          <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsBotIntModalOpen(false)} />
-          {/* ... (Contenido del modal Bot Interaction omitido por brevedad visual, pero la lógica sigue aquí si la necesitas agregar de vuelta, lo he recortado para mantener el código limpio ya que no estaba en el nuevo diseño principal) ... */}
-          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#2c2c2e] flex flex-col">
-             <div className="flex justify-between items-center mb-4">
-                 <h2 className="text-white font-bold text-[20px]">Group Agent</h2>
-                 <button onClick={() => setIsBotIntModalOpen(false)}><X className="w-6 h-6 text-white"/></button>
+          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#2c2c2e] flex flex-col max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 transform-gpu">
+             <div className="w-10 h-1 bg-[#3a3a3c] rounded-full mx-auto mb-5 shrink-0" />
+             
+             <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-[#a855f7]/20 flex items-center justify-center border border-[#a855f7]/30">
+                    <Bot className="w-4 h-4 text-[#a855f7]" />
+                  </div>
+                   <h2 className="text-white font-bold text-[24px]" style={{ fontFamily: SFD }}>Group Agent</h2>
+                </div>
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-white active:scale-95 transition-transform">
+                   <X className="w-5 h-5" />
+                 </button>
              </div>
-             <p className="text-[#8e8e93] mb-4">Settings for your AI bot interactions...</p>
-             <button onClick={() => setIsBotIntModalOpen(false)} className="w-full bg-[#a855f7] text-white py-3 rounded-[16px] font-bold">Save Settings</button>
+
+             <div className="w-full h-[76px] rounded-[22px] px-4 flex items-center justify-between mb-6 shadow-lg" style={cardLiquidGlassStyle}>
+                <div className="flex flex-col">
+                  <span className="text-white font-bold text-[16px]" style={{ fontFamily: SFD }}>Interaction Hub</span>
+                  <span className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>
+                    {botIntConfig.enabled ? "Listening to other bots" : "Ignoring bots"}
+                  </span>
+                </div>
+                <button 
+                  onClick={() => setBotIntConfig({...botIntConfig, enabled: !botIntConfig.enabled})}
+                  className={`w-[50px] h-[30px] rounded-full p-1 transition-colors duration-300 ${botIntConfig.enabled ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}
+                >
+                  <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${botIntConfig.enabled ? 'translate-x-[20px]' : 'translate-x-0'}`} />
+                </button>
+             </div>
+
+             <div className="bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
+                <div className="flex items-center justify-between p-3 border-b border-[#1c1c1e]">
+                  <div className="flex flex-col">
+                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
+                    <span className="text-[#8e8e93] text-[12px]">Comments on bans/mutes</span>
+                  </div>
+                  <button onClick={() => setBotIntConfig({...botIntConfig, moderation_react: !botIntConfig.moderation_react})} className={`w-[44px] h-[26px] rounded-full p-1 transition-colors ${botIntConfig.moderation_react ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}>
+                    <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${botIntConfig.moderation_react ? 'translate-x-[18px]' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between p-3 border-b border-[#1c1c1e]">
+                  <div className="flex flex-col pr-4">
+                    <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Auto-Execute Mod</span>
+                    <span className="text-[#8e8e93] text-[12px]">Agent can run /ban /mute commands automatically</span>
+                  </div>
+                  <button onClick={() => setBotIntConfig({...botIntConfig, auto_execute_mod: !botIntConfig.auto_execute_mod})} className={`w-[44px] h-[26px] rounded-full p-1 transition-colors ${botIntConfig.auto_execute_mod ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}>
+                    <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${botIntConfig.auto_execute_mod ? 'translate-x-[18px]' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between p-3">
+                  <div className="flex flex-col">
+                    <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>File Summarize</span>
+                    <span className="text-[#8e8e93] text-[12px]">Reads PDFs sent by bots</span>
+                  </div>
+                  <button onClick={() => setBotIntConfig({...botIntConfig, file_summarize: !botIntConfig.file_summarize})} className={`w-[44px] h-[26px] rounded-full p-1 transition-colors ${botIntConfig.file_summarize ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}>
+                    <div className={`w-4 h-4 bg-white rounded-full transform transition-transform ${botIntConfig.file_summarize ? 'translate-x-[18px]' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+             </div>
+
+             <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95" style={{ fontFamily: SF }}>
+                   <Save className="w-4 h-4" /> Apply to Group
+                </button>
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
+                    Cancel
+                </button>
+             </div>
           </div>
          </div>
       )}
+
     </div>
   )
 }
