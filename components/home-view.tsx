@@ -105,20 +105,20 @@ export function HomeView() {
       `}} />
 
       {/* --- SECCIÓN HERO UNIFICADA (IMAGEN) --- */}
-      <div className="w-full relative z-0">
+      <div className="w-full relative z-0 pt-10 translate-y-4">
         <img 
           src="/noirhand.png" 
           alt="Noir Hand Background" 
-          className="w-full h-[320px] sm:h-[380px] object-cover object-bottom" 
+          className="w-full h-[450px] sm:h-[500px] object-cover object-[center_bottom] scale-110 origin-bottom" 
           draggable={false}
         />
         {/* Un gradiente sutil para difuminar la parte de abajo de la imagen con el fondo negro de la app */}
-        <div className="absolute bottom-0 w-full h-24 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
+        <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
       </div>
 
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
-      {/* El -mt-10 empuja las tarjetas un poco hacia arriba para superponerse con la imagen */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-10">
+      {/* Ajuste de margen para superponerse con la imagen ahora más grande y baja */}
+      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-28">
         
         {/* Tarjeta Schedules */}
         <div className="bg-[#111111] rounded-[24px] p-5 border border-white/5 shadow-lg relative">
@@ -147,10 +147,10 @@ export function HomeView() {
         </div>
 
         {/* Carrusel Horizontal */}
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
+        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
           
           {/* Connectors Card */}
-          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-5 border border-white/5 flex flex-col shadow-lg">
+          <div className="min-w-[85%] snap-center bg-[#111111] rounded-[24px] p-5 border border-white/5 flex flex-col shadow-lg">
             <h2 className="text-[19px] font-bold text-white mb-1" style={{ fontFamily: SFD }}>Connectors</h2>
             <p className="text-[13px] text-[#8e8e93] mb-5" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
 
@@ -182,7 +182,7 @@ export function HomeView() {
           </div>
 
           {/* My Tools Card */}
-          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-5 border border-white/5 flex flex-col shadow-lg relative">
+          <div className="min-w-[85%] snap-center bg-[#111111] rounded-[24px] p-5 border border-white/5 flex flex-col shadow-lg relative">
             <h2 className="text-[19px] font-bold text-white mb-1" style={{ fontFamily: SFD }}>My Tools</h2>
             <p className="text-[13px] text-[#8e8e93] mb-5" style={{ fontFamily: SF }}>Automate your workflow</p>
             
@@ -335,7 +335,7 @@ export function HomeView() {
                 <div className="flex flex-col">
                   <span className="text-white font-bold text-[16px]" style={{ fontFamily: SFD }}>Interaction Hub</span>
                   <span className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>
-                    {botIntConfig.enabled ? "Listening to other bots" : "Ignoring bots"}
+                     {botIntConfig.enabled ? "Listening to other bots" : "Ignoring bots"}
                   </span>
                 </div>
                 <button 
@@ -349,7 +349,7 @@ export function HomeView() {
              <div className="bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
                 <div className="flex items-center justify-between p-3 border-b border-[#1c1c1e]">
                   <div className="flex flex-col">
-                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
+                    <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
                     <span className="text-[#8e8e93] text-[12px]">Comments on bans/mutes</span>
                   </div>
                   <button onClick={() => setBotIntConfig({...botIntConfig, moderation_react: !botIntConfig.moderation_react})} className={`w-[44px] h-[26px] rounded-full p-1 transition-colors ${botIntConfig.moderation_react ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}>
