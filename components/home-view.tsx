@@ -35,11 +35,24 @@ const cardLiquidGlassStyle = {
   willChange: "transform", 
 }
 
-// --- Connectors Database ---
+// --- Estilos de Protección de Imágenes ---
+const imageProtectionStyle = {
+  WebkitTouchCallout: 'none',
+  WebkitUserSelect: 'none',
+  userSelect: 'none' as any,
+}
+
+// --- Connectors Database (Restaurado completamente) ---
 const CONNECTORS_DB = [
   { 
-    id: "gmail", name: "Gmail", category: "Featured", src: "/gmail.png", detailCategory: "Productivity",
-    description: "Connect your Gmail to manage your inbox with AI.", isConnected: true, userEmail: "user@gmail.com",
+    id: "gmail", 
+    name: "Gmail", 
+    category: "Featured", 
+    src: "/gmail.png",
+    detailCategory: "Productivity",
+    description: "Connect your Gmail to manage your inbox with AI.",
+    isConnected: true,
+    userEmail: "user@gmail.com",
     features: [
       { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, summarize unread emails and find messages from specific people." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your personal data remains private and is never used for training purposes." },
@@ -47,8 +60,14 @@ const CONNECTORS_DB = [
     ]
   },
   { 
-    id: "drive", name: "Google Drive", category: "Featured", src: "/google-drive.png", detailCategory: "Productivity",
-    description: "Access and analyze your cloud documents seamlessly.", isConnected: false, userEmail: "",
+    id: "drive", 
+    name: "Google Drive", 
+    category: "Featured", 
+    src: "/google-drive.png",
+    detailCategory: "Productivity",
+    description: "Access and analyze your cloud documents seamlessly.",
+    isConnected: false,
+    userEmail: "",
     features: [
       { icon: <HardDrive className="w-5 h-5 text-[#8e8e93]" />, title: "Access your files", desc: "Search documents, summarize presentations and ask questions about your Google Drive files." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your files are accessed only when you request it, with zero training usage." },
@@ -56,12 +75,63 @@ const CONNECTORS_DB = [
     ]
   },
   { 
-    id: "calendar", name: "Google Calendar", category: "Featured", src: "/google-calendar.png", detailCategory: "Productivity",
-    description: "Keep track of your schedule and meetings.", isConnected: false, userEmail: "",
+    id: "calendar", 
+    name: "Google Calendar", 
+    category: "Featured", 
+    src: "/google-calendar.png",
+    detailCategory: "Productivity",
+    description: "Keep track of your schedule and meetings.",
+    isConnected: false,
+    userEmail: "",
     features: [
       { icon: <Calendar className="w-5 h-5 text-[#8e8e93]" />, title: "Search your calendar", desc: "Check today's agenda, find upcoming events and get meeting details." },
-      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train models", desc: "Your schedule is private. We do not use event data for AI training." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your schedule is private. We do not use event data for AI training." },
       { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your events stay in Calendar", desc: "We only read your calendar data to provide real-time information." }
+    ]
+  },
+  { 
+    id: "outlook", 
+    name: "Outlook", 
+    category: "Productivity", 
+    src: "/outlook.png",
+    detailCategory: "Microsoft 365",
+    description: "Integrate your Microsoft outlook account.",
+    isConnected: false,
+    userEmail: "",
+    features: [
+      { icon: <Mail className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, find emails from specific people and summarize email threads." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Enterprise-grade privacy ensures your data is never used for training." },
+      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your emails stay in Outlook", desc: "Secure real-time access without permanent data storage." }
+    ]
+  },
+  { 
+    id: "github", 
+    name: "GitHub", 
+    category: "Featured", 
+    src: "/github-icon.png",
+    detailCategory: "Development",
+    description: "Connect to your repositories and manage your code.",
+    isConnected: false,
+    userEmail: "",
+    features: [
+      { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search repositories", desc: "Find issues, pull requests, and analyze your codebase." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your code remains yours. We do not train on private repositories." },
+      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Secure access", desc: "Access is granted via secure OAuth tokens." }
+    ]
+  },
+  { 
+    id: "notion", 
+    name: "Notion", 
+    category: "Featured", 
+    src: "/notion-icon.png",
+    detailCategory: "Productivity",
+    description: "Access your workspaces and databases.",
+    isConnected: false,
+    userEmail: "",
+    features: [
+      { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search your workspaces", desc: "Find pages, summarize databases, and query your notes." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your workspace content is entirely excluded from model training." },
+      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your data stays in Notion", desc: "Real-time API queries mean we don't duplicate your databases." }
     ]
   }
 ];
@@ -105,19 +175,19 @@ export function HomeView() {
       `}} />
 
       {/* --- SECCIÓN HERO UNIFICADA (IMAGEN) --- */}
-      <div className="w-full relative z-0">
+      <div className="w-full relative z-0 -translate-y-2">
         <img 
           src="/noirhand.png" 
           alt="Noir Hand Background" 
-          className="w-full h-[380px] sm:h-[400px] object-cover object-[center_top] scale-105 origin-bottom" 
+          className="w-full h-[360px] sm:h-[380px] object-cover object-[center_top] scale-105 origin-bottom select-none pointer-events-none" 
           draggable={false}
+          style={imageProtectionStyle}
         />
         {/* Un gradiente sutil para difuminar la parte de abajo de la imagen con el fondo negro de la app */}
         <div className="absolute bottom-0 w-full h-28 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
       </div>
 
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
-      {/* Ajuste de margen para sobreponerse adecuadamente con la imagen */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
         
         {/* Tarjeta Schedules */}
@@ -146,11 +216,11 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Carrusel Horizontal */}
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
+        {/* Carrusel Horizontal - Min-w y Gaps Restaurados */}
+        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
           
           {/* Connectors Card */}
-          <div className="min-w-[85%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
+          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
             <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>Connectors</h2>
             <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
 
@@ -158,9 +228,7 @@ export function HomeView() {
               {CONNECTORS_DB.slice(0, 3).map((c) => (
                 <div key={c.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
                   <div className="flex items-center gap-3">
-                    {c.id === 'gmail' && <img src="/gmail.png" alt="Gmail" className="w-6 h-6 object-contain" />}
-                    {c.id === 'drive' && <img src="/google-drive.png" alt="Google Drive" className="w-6 h-6 object-contain" />}
-                    {c.id === 'calendar' && <img src="/google-calendar.png" alt="Google Calendar" className="w-6 h-6 object-contain" />}
+                    <img src={c.src} alt={c.name} className="w-6 h-6 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                     <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
                   </div>
                   <button 
@@ -173,7 +241,7 @@ export function HomeView() {
               ))}
             </div>
 
-            {/* Nuevo diseño de botón Add connection (estilo bloque oscuro) */}
+            {/* Diseño de botón Add connection */}
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
               className="mt-3 w-full py-3 bg-black border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#0a0a0c] transition-colors" style={{ fontFamily: SF }}
@@ -183,7 +251,7 @@ export function HomeView() {
           </div>
 
           {/* My Tools Card */}
-          <div className="min-w-[85%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg relative">
+          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg relative">
             <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>My Tools</h2>
             <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Automate your workflow</p>
             
@@ -210,8 +278,8 @@ export function HomeView() {
             </div>
 
             <div className="absolute right-[-20px] top-1/2 -translate-y-1/2 w-[12px] h-[90px] bg-[#1a1a1c] rounded-l-[24px] border border-white/5 p-2 flex flex-col gap-2 items-center justify-center">
-              <span className="text-white text-[9px] font-bold">M</span>
-              <span className="text-[#8e8e93] text-[7px]">Auto</span>
+              <span className="text-white text-[9px] font-bold select-none" style={imageProtectionStyle}>M</span>
+              <span className="text-[#8e8e93] text-[7px] select-none" style={imageProtectionStyle}>Auto</span>
               <Settings2 className="w-2.5 h-2.5 text-[#333]" />
               <ImageIcon className="w-2.5 h-2.5 text-[#333]" />
             </div>
@@ -246,9 +314,7 @@ export function HomeView() {
                     <div className="overflow-y-auto hide-scrollbar pb-8 space-y-2 flex-1">
                         {filteredConnectors.map(c => (
                             <button key={c.id} onClick={() => setModalState({ view: "detail", connectorId: c.id })} className="w-full flex items-center gap-4 p-3 rounded-2xl active:bg-white/5 transition-colors text-left" style={{ border: "1px solid #1c1c1e" }}>
-                                {c.id === 'gmail' && <img src="/gmail.png" alt="Gmail" className="w-8 h-8 object-contain" />}
-                                {c.id === 'drive' && <img src="/google-drive.png" alt="Google Drive" className="w-8 h-8 object-contain" />}
-                                {c.id === 'calendar' && <img src="/google-calendar.png" alt="Google Calendar" className="w-8 h-8 object-contain" />}
+                                <img src={c.src} alt={c.name} className="w-8 h-8 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                                 <div className="flex-1">
                                     <p className="text-white font-medium">{c.name}</p>
                                     <p className="text-[#8e8e93] text-[12px]">{c.isConnected ? "Active" : "Tap to connect"}</p>
@@ -265,9 +331,7 @@ export function HomeView() {
                 <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e]">
                   <div className="flex items-center gap-3">
                     <button onClick={() => setModalState({ view: "list", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full active:bg-[#1c1c1e] transition-colors"><ArrowLeft className="w-5 h-5 text-[#8e8e93]" /></button>
-                    {activeConnectorData.id === 'gmail' && <img src="/gmail.png" alt="Gmail" className="w-7 h-7 object-contain" />}
-                    {activeConnectorData.id === 'drive' && <img src="/google-drive.png" alt="Google Drive" className="w-7 h-7 object-contain" />}
-                    {activeConnectorData.id === 'calendar' && <img src="/google-calendar.png" alt="Google Calendar" className="w-7 h-7 object-contain" />}
+                    <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-7 h-7 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                     <h2 className="text-white font-bold text-[17px]">{activeConnectorData.name}</h2>
                   </div>
                   {activeConnectorData.isConnected ? (
