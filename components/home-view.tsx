@@ -23,6 +23,7 @@ const ICON_COLORS: Record<string, string> = {
   Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b"
 }
 
+// --- Estilos de Liquid Glass originales ---
 const cardLiquidGlassStyle = {
   background: "rgba(42, 42, 44, 0.85)", 
   backdropFilter: "blur(12px) saturate(150%)", 
@@ -34,17 +35,24 @@ const cardLiquidGlassStyle = {
   willChange: "transform", 
 }
 
+// --- Estilos de Protección de Imágenes ---
 const imageProtectionStyle = {
   WebkitTouchCallout: 'none',
   WebkitUserSelect: 'none',
   userSelect: 'none' as any,
 }
 
-// --- Connectors Database Completo ---
+// --- Connectors Database (Restaurado completamente) ---
 const CONNECTORS_DB = [
   { 
-    id: "gmail", name: "Gmail", category: "Featured", src: "/gmail.png", detailCategory: "Productivity",
-    description: "Connect your Gmail to manage your inbox with AI.", isConnected: true, userEmail: "user@gmail.com",
+    id: "gmail", 
+    name: "Gmail", 
+    category: "Featured", 
+    src: "/gmail.png",
+    detailCategory: "Productivity",
+    description: "Connect your Gmail to manage your inbox with AI.",
+    isConnected: true,
+    userEmail: "user@gmail.com",
     features: [
       { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, summarize unread emails and find messages from specific people." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your personal data remains private and is never used for training purposes." },
@@ -52,8 +60,14 @@ const CONNECTORS_DB = [
     ]
   },
   { 
-    id: "drive", name: "Google Drive", category: "Featured", src: "/google-drive.png", detailCategory: "Productivity",
-    description: "Access and analyze your cloud documents seamlessly.", isConnected: false, userEmail: "",
+    id: "drive", 
+    name: "Google Drive", 
+    category: "Featured", 
+    src: "/google-drive.png",
+    detailCategory: "Productivity",
+    description: "Access and analyze your cloud documents seamlessly.",
+    isConnected: false,
+    userEmail: "",
     features: [
       { icon: <HardDrive className="w-5 h-5 text-[#8e8e93]" />, title: "Access your files", desc: "Search documents, summarize presentations and ask questions about your Google Drive files." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your files are accessed only when you request it, with zero training usage." },
@@ -61,17 +75,29 @@ const CONNECTORS_DB = [
     ]
   },
   { 
-    id: "calendar", name: "Google Calendar", category: "Featured", src: "/google-calendar.png", detailCategory: "Productivity",
-    description: "Keep track of your schedule and meetings.", isConnected: false, userEmail: "",
+    id: "calendar", 
+    name: "Google Calendar", 
+    category: "Featured", 
+    src: "/google-calendar.png",
+    detailCategory: "Productivity",
+    description: "Keep track of your schedule and meetings.",
+    isConnected: false,
+    userEmail: "",
     features: [
       { icon: <Calendar className="w-5 h-5 text-[#8e8e93]" />, title: "Search your calendar", desc: "Check today's agenda, find upcoming events and get meeting details." },
-      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train models", desc: "Your schedule is private. We do not use event data for AI training." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your schedule is private. We do not use event data for AI training." },
       { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your events stay in Calendar", desc: "We only read your calendar data to provide real-time information." }
     ]
   },
   { 
-    id: "outlook", name: "Outlook", category: "Productivity", src: "/outlook.png", detailCategory: "Microsoft 365",
-    description: "Integrate your Microsoft outlook account.", isConnected: false, userEmail: "",
+    id: "outlook", 
+    name: "Outlook", 
+    category: "Productivity", 
+    src: "/outlook.png",
+    detailCategory: "Microsoft 365",
+    description: "Integrate your Microsoft outlook account.",
+    isConnected: false,
+    userEmail: "",
     features: [
       { icon: <Mail className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, find emails from specific people and summarize email threads." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Enterprise-grade privacy ensures your data is never used for training." },
@@ -79,8 +105,14 @@ const CONNECTORS_DB = [
     ]
   },
   { 
-    id: "github", name: "GitHub", category: "Featured", src: "/github-icon.png", detailCategory: "Development",
-    description: "Connect to your repositories and manage your code.", isConnected: false, userEmail: "",
+    id: "github", 
+    name: "GitHub", 
+    category: "Featured", 
+    src: "/github-icon.png",
+    detailCategory: "Development",
+    description: "Connect to your repositories and manage your code.",
+    isConnected: false,
+    userEmail: "",
     features: [
       { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search repositories", desc: "Find issues, pull requests, and analyze your codebase." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your code remains yours. We do not train on private repositories." },
@@ -88,8 +120,14 @@ const CONNECTORS_DB = [
     ]
   },
   { 
-    id: "notion", name: "Notion", category: "Featured", src: "/notion-icon.png", detailCategory: "Productivity",
-    description: "Access your workspaces and databases.", isConnected: false, userEmail: "",
+    id: "notion", 
+    name: "Notion", 
+    category: "Featured", 
+    src: "/notion-icon.png",
+    detailCategory: "Productivity",
+    description: "Access your workspaces and databases.",
+    isConnected: false,
+    userEmail: "",
     features: [
       { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search your workspaces", desc: "Find pages, summarize databases, and query your notes." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your workspace content is entirely excluded from model training." },
@@ -99,95 +137,6 @@ const CONNECTORS_DB = [
 ];
 
 function getTg() { return (window as any).Telegram?.WebApp }
-
-// --- COMPONENTE MONEDA PIXELADA (Sprite Stacking) ---
-const InteractivePixelCoin = () => {
-  const [rotation, setRotation] = useState({ x: -20, y: -30 }); 
-  const isDragging = useRef(false);
-  const dragStartPos = useRef({ x: 0, y: 0 });
-  const coinRef = useRef<HTMLDivElement>(null);
-
-  const numLayers = 24; // Grosor de la moneda (cantidad de copias apiladas)
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    isDragging.current = true;
-    dragStartPos.current = { x: e.clientX, y: e.clientY };
-    if (coinRef.current) {
-      coinRef.current.style.transition = 'none';
-    }
-  };
-
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!isDragging.current) return;
-    const deltaX = e.clientX - dragStartPos.current.x;
-    const deltaY = e.clientY - dragStartPos.current.y;
-    
-    const sensitivity = 0.8;
-    
-    setRotation(prev => ({
-      x: prev.x - deltaY * sensitivity,
-      y: prev.y + deltaX * sensitivity
-    }));
-    
-    dragStartPos.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handlePointerUp = () => {
-    isDragging.current = false;
-    if (coinRef.current) {
-      coinRef.current.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
-    }
-  };
-
-  return (
-    <div
-      className="flex items-center justify-center w-full relative z-0 -translate-y-2"
-      style={{ height: '320px', touchAction: 'none', perspective: '1500px' }}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-    >
-      {/* Brillo de fondo */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] bg-white/5 rounded-full blur-[80px] pointer-events-none" />
-
-      {/* Contenedor principal de la moneda con Fake 3D (Voxel/Stacking) */}
-      <div
-        ref={coinRef}
-        className="relative w-[180px] h-[180px] cursor-grab active:cursor-grabbing"
-        style={{
-          transformStyle: 'preserve-3d',
-          transition: 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
-          transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`
-        }}
-      >
-        {/* Generar las capas apiladas para extrusión */}
-        {Array.from({ length: numLayers }).map((_, i) => {
-          // Determina si es la capa delantera (0), la trasera (numLayers - 1), o los bordes internos.
-          const isFront = i === 0;
-          const isBack = i === numLayers - 1;
-          const isEdge = !isFront && !isBack;
-          
-          return (
-            <img
-              key={i}
-              src="/1000011086.png" // RECUERDA: Usar aquí un PNG plano frontal con transparencia
-              alt=""
-              draggable={false}
-              className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
-              style={{
-                transform: `translateZ(${(i - numLayers / 2) * 1.5}px) ${isBack ? 'rotateY(180deg)' : ''}`, // Multiplicador 1.5 para dar más espacio entre capas si se necesita
-                // Oscurecemos las capas intermedias para crear la ilusión de profundidad/sombra
-                filter: isEdge ? 'brightness(0.15) drop-shadow(0 0 2px rgba(0,0,0,0.5))' : 'drop-shadow(0px 0px 5px rgba(255,255,255,0.1))',
-                ...imageProtectionStyle
-              }}
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
-};
 
 export function HomeView() {
   const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false)
@@ -225,11 +174,21 @@ export function HomeView() {
         .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}} />
 
-      {/* --- SECCIÓN HERO 3D (SPRITE STACKING PIXELADO) --- */}
-      <InteractivePixelCoin />
+      {/* --- SECCIÓN HERO UNIFICADA (IMAGEN) --- */}
+      <div className="w-full relative z-0 -translate-y-2">
+        <img 
+          src="/noirhand.png" 
+          alt="Noir Hand Background" 
+          className="w-full h-[360px] sm:h-[380px] object-cover object-[center_top] scale-105 origin-bottom select-none pointer-events-none" 
+          draggable={false}
+          style={imageProtectionStyle}
+        />
+        {/* Un gradiente sutil para difuminar la parte de abajo de la imagen con el fondo negro de la app */}
+        <div className="absolute bottom-0 w-full h-28 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
+      </div>
 
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-10">
+      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
         
         {/* Tarjeta Schedules */}
         <div className="bg-[#111111] rounded-[24px] p-4 border border-white/5 shadow-lg relative">
@@ -257,7 +216,7 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Carrusel Horizontal */}
+        {/* Carrusel Horizontal - Min-w y Gaps Restaurados */}
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
           
           {/* Connectors Card */}
@@ -282,6 +241,7 @@ export function HomeView() {
               ))}
             </div>
 
+            {/* Diseño de botón Add connection */}
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
               className="mt-3 w-full py-3 bg-black border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#0a0a0c] transition-colors" style={{ fontFamily: SF }}
