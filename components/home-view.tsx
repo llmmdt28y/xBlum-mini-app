@@ -1,360 +1,194 @@
-import React, { useRef, useState, useEffect } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  ImageBackground,
-  Dimensions,
-  Animated,
-  PanResponder,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Asegúrate de instalar esta librería
-// Para el modelo 3D, necesitarás configurar una librería como react-native-gl-model-view o similar.
-// Este código es conceptual para la integración y la interactividad.
+"use client"
 
-const { width, height } = Dimensions.get('window');
+import React, { useState, useEffect } from "react"
+import { useApp } from "@/lib/app-context"
+import { 
+  Bell, 
+  PlusCircle, 
+  ArrowUpCircle, 
+  ScanLine, 
+  ArrowDownToLine,
+  Home, 
+  CreditCard, 
+  Clock, 
+  User, 
+  Plus,
+  Building
+} from "lucide-react"
 
-// Rutas de activos (Asegúrate de tener estos archivos en tu proyecto)
-const handGraphic = require('./assets/hand_with_points.png');
-const coinTexture = require('./assets/coin_texture.png'); // Si usas textura para el modelo 3D
+// Definición de tipos para el componente model-viewer (para evitar errores de TypeScript)
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'model-viewer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        src?: string;
+        'auto-rotate'?: boolean;
+        'camera-controls'?: boolean;
+        'disable-zoom'?: boolean;
+        'shadow-intensity'?: string;
+        'environment-image'?: string;
+        'rotation-per-second'?: string;
+        'interaction-prompt'?: string;
+      };
+    }
+  }
+}
 
-const HomeView = () => {
-  const [activeTab, setActiveTab] = useState('Home');
+export function HomeView() {
+  const { t, setCurrentView } = useApp()
+  const [activeTab, setActiveTab] = useState('Home')
 
-  // Estado y PanResponder para la rotación de la moneda
-  const rotation = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: Animated.event([
-        null,
-        { dx: rotation.x, dy: rotation.y },
-      ], { useNativeDriver: false }),
-      onPanResponderRelease: () => {
-        // Opcional: animar de vuelta a la posición original o dejar que se detenga
-        // Animated.spring(rotation, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-      },
-    })
-  ).current;
+  // Efecto para cargar el script de model-viewer dinámicamente si no está presente
+  useEffect(() => {
+    if (typeof window !== "undefined" && !customElements.get("model-viewer")) {
+      const script = document.createElement("script")
+      script.type = "module"
+      script.src = "https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"
+      document.head.appendChild(script)
+    }
+  }, [])
 
-  // Interpolar la rotación para usar en transformaciones
-  const rotateX = rotation.y.interpolate({
-    inputRange: [-height / 2, height / 2],
-    outputRange: ['-180deg', '180deg'],
-  });
-  const rotateY = rotation.x.interpolate({
-    inputRange: [-width / 2, width / 2],
-    outputRange: ['-180deg', '180deg'],
-  });
-
+  // Datos mock para la UI
   const actionButtons = [
-    { name: 'Recargar', icon: 'plus-circle-outline' },
-    { name: 'Enviar', icon: 'arrow-up-circle-outline' },
-    { name: 'Pagar', icon: 'qrcode-scan' },
-    { name: 'Retirar', icon: 'tray-arrow-down' },
-  ];
+    { name: 'Recargar', icon: PlusCircle },
+    { name: 'Enviar', icon: ArrowUpCircle },
+    { name: 'Pagar', icon: ScanLine },
+    { name: 'Retirar', icon: ArrowDownToLine },
+  ]
 
   const recentActivity = [
-    { id: 1, title: 'Pago de servicio', subtitle: 'Martes, 11 de Mayo', amount: '-$50.00' },
-    { id: 2, title: 'Transferencia recibida', subtitle: 'Lunes, 10 de Mayo', amount: '+$100.00' },
-  ];
+    { id: 1, title: 'Pago de servicio', subtitle: 'Martes, 11 de Mayo', amount: '-$50.00', positive: false },
+    { id: 2, title: 'Transferencia recibida', subtitle: 'Lunes, 10 de Mayo', amount: '+$100.00', positive: true },
+    { id: 3, title: 'Compra Restaurante', subtitle: 'Lunes, 10 de Mayo', amount: '-$35.20', positive: false },
+  ]
 
   const navItems = [
-    { name: 'Home', icon: 'home-variant' },
-    { name: 'Tarjetas', icon: 'credit-card-outline' },
-    { name: 'Actividad', icon: 'clock-outline' },
-    { name: 'Perfil', icon: 'account-outline' },
-  ];
+    { name: 'Home', icon: Home },
+    { name: 'Tarjetas', icon: CreditCard },
+    { name: 'Actividad', icon: Clock },
+    { name: 'Perfil', icon: User },
+  ]
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Encabezado */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Home</Text>
-          <TouchableOpacity style={styles.iconButton}>
-            <Icon name="bell-outline" size={26} color="#fff" />
-          </TouchableOpacity>
-        </View>
+    // Contenedor principal con fondo oscuro
+    <div className="flex flex-col min-h-screen bg-neutral-950 text-white font-sans pb-[90px]">
+      
+      {/* --- Header --- */}
+      <header className="flex justify-between items-center p-6 mt-2">
+        <h1 className="text-3xl font-bold tracking-tight">Home1</h1>
+        <button className="p-2 bg-neutral-800 rounded-full hover:bg-neutral-700 transition-colors">
+          <Bell className="w-6 h-6 text-white" />
+        </button>
+      </header>
 
-        {/* Contenedor Principal de Balance */}
-        <View style={styles.balanceContainer}>
-          <View style={styles.balanceTextContainer}>
-            <Text style={styles.balanceLabel}>Total balance</Text>
-            <Text style={styles.balanceAmount}>$150</Text>
-            <View style={styles.balanceChangeRow}>
-              <Icon name="arrow-up" size={14} color="#4CAF50" />
-              <Text style={styles.balanceChangeText}>+ $2.50 vs yesterday</Text>
-            </View>
-          </View>
+      {/* --- Contenedor de Balance (Tarjeta Blanca) --- */}
+      <div className="mx-6 relative bg-white rounded-3xl h-[190px] flex overflow-hidden shadow-xl shadow-black/20">
+        
+        {/* Sección de texto (Izquierda) */}
+        <div className="flex-1 flex flex-col justify-center p-7 z-10 text-neutral-900">
+          <p className="text-sm font-medium text-neutral-500">Total balance</p>
+          <h2 className="text-5xl font-extrabold mt-1 tracking-tighter">$150</h2>
+          <div className="flex items-center gap-1.5 mt-2.5">
+            <div className="bg-emerald-100 text-emerald-600 rounded-full p-0.5">
+              <Plus className="w-3.5 h-3.5" strokeWidth={3} />
+            </div>
+            <span className="text-emerald-600 text-sm font-bold">
+              $2.50 vs yesterday
+            </span>
+          </div>
+        </div>
 
-          {/* Sección de la Mano, Puntos y Moneda 3D Giratoria */}
-          <View style={styles.graphicSection}>
-            <ImageBackground source={handGraphic} style={styles.handAndPoints} resizeMode="contain">
-              <Animated.View
-                style={[
-                  styles.coinWrapper,
-                  {
-                    transform: [
-                      { rotateX: rotateX },
-                      { rotateY: rotateY },
-                    ],
-                  },
-                ]}
-                {...panResponder.panHandlers}
-              >
-                {/* Aquí integrarías tu componente de modelo 3D con react-native-gl-model-view o similar */}
-                {/* Por ejemplo: <ModelView source={{ zip: 'coin.obj.zip' }} texture={coinTexture} ... /> */}
-                {/* Como marcador de posición, usamos una vista coloreada */}
-                <View style={styles.coinModelPlaceholder} />
-              </Animated.View>
-            </ImageBackground>
-          </View>
-        </View>
+        {/* Sección Gráfica (Derecha) con Mano y Moneda 3D Giratoria */}
+        <div className="w-[160px] relative bg-sky-500 flex items-center justify-center">
+          {/* Imagen de fondo (Mano y puntos). Colocar en public/hand_graphic.png */}
+          <div 
+            className="absolute inset-0 z-0 bg-no-repeat bg-contain bg-center opacity-90"
+            style={{ backgroundImage: "url('/hand_graphic.png')" }}
+          />
 
-        {/* Botones de Acción Rápida */}
-        <View style={styles.actionsContainer}>
-          {actionButtons.map((btn, index) => (
-            <TouchableOpacity key={index} style={styles.actionButton}>
-              <View style={styles.actionIconCircle}>
-                <Icon name={btn.icon} size={28} color="#007AFF" />
-              </View>
-              <Text style={styles.actionText}>{btn.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+          {/* --- Moneda 3D Interactiva --- */}
+          {/* Requiere archivo en public/coin.glb. Auto-rota y permite control manual */}
+          <div className="absolute w-[140px] h-[140px] z-10 -top-2">
+            <model-viewer
+              src="/coin.glb" 
+              auto-rotate
+              camera-controls
+              disable-zoom
+              shadow-intensity="1"
+              environment-image="neutral"
+              rotation-per-second="30deg"
+              interaction-prompt="none"
+              style={{ width: '100%', height: '100%', backgroundColor: 'transparent', outline: 'none' }}
+            ></model-viewer>
+          </div>
+        </div>
+      </div>
 
-        {/* Sección de Última Actividad */}
-        <View style={styles.activityContainer}>
-          <View style={styles.activityHeader}>
-            <Text style={styles.activityTitle}>Última actividad</Text>
-            <TouchableOpacity>
-              <Text style={styles.verMasText}>Ver más</Text>
-            </TouchableOpacity>
-          </View>
-          {recentActivity.map(item => (
-            <View key={item.id} style={styles.activityItem}>
-              <View style={styles.activityIconCircle}>
-                <Icon name="bank-outline" size={22} color="#555" />
-              </View>
-              <View style={styles.activityItemTextContainer}>
-                <Text style={styles.activityItemTitle}>{item.title}</Text>
-                <Text style={styles.activityItemSubtitle}>{item.subtitle}</Text>
-              </View>
-              <Text style={[styles.activityItemAmount, { color: item.amount.startsWith('+') ? '#4CAF50' : '#FF3B30' }]}>
-                {item.amount}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-
-      {/* Barra de Navegación Inferior */}
-      <View style={styles.bottomNav}>
-        {navItems.map(item => (
-          <TouchableOpacity
-            key={item.name}
-            style={styles.navItem}
-            onPress={() => setActiveTab(item.name)}
-          >
-            <Icon
-              name={item.icon}
-              size={24}
-              color={activeTab === item.name ? '#007AFF' : '#A0A0A0'}
-            />
-            <Text style={[styles.navText, { color: activeTab === item.name ? '#007AFF' : '#A0A0A0' }]}>
-              {item.name}
-            </Text>
-          </TouchableOpacity>
+      {/* --- Botones de Acción Rápida (Circulares) --- */}
+      <div className="flex justify-between px-6 mt-9 mb-6 gap-2">
+        {actionButtons.map((btn, index) => (
+          <button key={index} className="flex flex-col items-center gap-3 active:scale-95 transition-transform group">
+            <div className="w-[64px] h-[64px] rounded-full bg-white flex items-center justify-center shadow-md group-hover:bg-neutral-100 transition-colors">
+              <btn.icon className="w-8 h-8 text-sky-600" strokeWidth={2} />
+            </div>
+            <span className="text-white text-xs font-medium tracking-wide group-hover:text-sky-400 transition-colors">
+              {btn.name}
+            </span>
+          </button>
         ))}
-      </View>
-    </SafeAreaView>
-  );
-};
+      </div>
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121212', // Color de fondo oscuro exacto
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 100, // Espacio para la navegación inferior
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 15,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  iconButton: {
-    padding: 5,
-  },
-  balanceContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#fff', // Fondo blanco para el contenedor
-    borderRadius: 20,
-    padding: 20,
-    marginVertical: 10,
-    height: 180, // Altura aproximada
-  },
-  balanceTextContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  balanceLabel: {
-    fontSize: 14,
-    color: '#555',
-  },
-  balanceAmount: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#000',
-    marginTop: 5,
-  },
-  balanceChangeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  balanceChangeText: {
-    fontSize: 14,
-    color: '#4CAF50', // Color verde exacto
-    marginLeft: 3,
-  },
-  graphicSection: {
-    width: 120, // Ancho aproximado para la sección de gráficos
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  handAndPoints: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  coinWrapper: {
-    width: 80, // Tamaño de la moneda
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  coinModelPlaceholder: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#FFD700', // Color dorado para el marcador de posición
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 20,
-  },
-  actionButton: {
-    alignItems: 'center',
-    width: (width - 60) / 4, // Ancho igual para 4 botones con espacio
-  },
-  actionIconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3, // Sombra para Android
-    shadowColor: '#000', // Sombra para iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  actionText: {
-    fontSize: 12,
-    color: '#fff',
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  activityContainer: {
-    marginVertical: 10,
-  },
-  activityHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  activityTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  verMasText: {
-    fontSize: 14,
-    color: '#007AFF', // Color azul exacto
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 15,
-    marginBottom: 10,
-  },
-  activityIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F0F0F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  activityItemTextContainer: {
-    flex: 1,
-    paddingHorizontal: 15,
-  },
-  activityItemTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#000',
-  },
-  activityItemSubtitle: {
-    fontSize: 12,
-    color: '#777',
-    marginTop: 2,
-  },
-  activityItemAmount: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  bottomNav: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 80,
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navText: {
-    fontSize: 10,
-    marginTop: 4,
-  },
-});
+      {/* --- Sección de Última Actividad --- */}
+      <div className="flex-1 px-6 mt-6">
+        <div className="flex justify-between items-center mb-5">
+          <h3 className="text-xl font-bold text-white">Última actividad1</h3>
+          <button className="text-sky-500 text-sm font-semibold hover:text-sky-400">
+            Ver más
+          </button>
+        </div>
 
-export default HomeView;
+        {/* Lista de items de actividad */}
+        <div className="space-y-3.5">
+          {recentActivity.map(item => (
+            <div key={item.id} className="flex items-center bg-white p-4.5 rounded-2xl shadow-sm hover:bg-neutral-50 transition-colors cursor-pointer">
+              <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center shrink-0">
+                <Building className="w-6 h-6 text-neutral-600" />
+              </div>
+              
+              <div className="flex-1 px-4 min-w-0">
+                <p className="text-neutral-950 font-semibold text-base truncate">{item.title}</p>
+                <p className="text-neutral-500 text-sm mt-0.5">{item.subtitle}</p>
+              </div>
+              
+              <div className="shrink-0 text-right">
+                <p className={`font-bold text-lg ${item.positive ? 'text-emerald-600' : 'text-neutral-950'}`}>
+                  {item.amount}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* --- Barra de Navegación Inferior (Blanca, Fija) --- */}
+      <nav className="fixed bottom-0 left-0 w-full bg-white h-[85px] rounded-t-[28px] flex justify-around items-start pt-3.5 px-3 z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
+        {navItems.map((item) => (
+          <button
+            key={item.name}
+            onClick={() => setActiveTab(item.name)}
+            className="flex flex-col items-center gap-1.5 w-[70px] active:scale-95 transition-transform"
+          >
+            <item.icon 
+              className={`w-6 h-6 ${activeTab === item.name ? 'text-sky-600' : 'text-neutral-400'}`} 
+              strokeWidth={activeTab === item.name ? 2.5 : 2}
+            />
+            <span className={`text-[11px] font-semibold ${activeTab === item.name ? 'text-sky-600' : 'text-neutral-400'}`}>
+              {item.name}
+            </span>
+          </button>
+        ))}
+      </nav>
+      
+    </div>
+  )
+}
