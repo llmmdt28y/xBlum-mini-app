@@ -23,7 +23,6 @@ const ICON_COLORS: Record<string, string> = {
   Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b"
 }
 
-// --- Estilos de Liquid Glass originales ---
 const cardLiquidGlassStyle = {
   background: "rgba(42, 42, 44, 0.85)", 
   backdropFilter: "blur(12px) saturate(150%)", 
@@ -35,7 +34,6 @@ const cardLiquidGlassStyle = {
   willChange: "transform", 
 }
 
-// --- Estilos de Protección de Imágenes ---
 const imageProtectionStyle = {
   WebkitTouchCallout: 'none',
   WebkitUserSelect: 'none',
@@ -102,19 +100,20 @@ const CONNECTORS_DB = [
 
 function getTg() { return (window as any).Telegram?.WebApp }
 
-// --- COMPONENTE MONEDA INTERACTIVA 3D CORREGIDO ---
-const InteractiveCoin = () => {
-  // Estado inicial: inclinada
-  const [rotation, setRotation] = useState({ x: -25, y: -35 }); 
+// --- COMPONENTE MONEDA PIXELADA (Sprite Stacking) ---
+const InteractivePixelCoin = () => {
+  const [rotation, setRotation] = useState({ x: -20, y: -30 }); 
   const isDragging = useRef(false);
   const dragStartPos = useRef({ x: 0, y: 0 });
   const coinRef = useRef<HTMLDivElement>(null);
+
+  const numLayers = 24; // Grosor de la moneda (cantidad de copias apiladas)
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     isDragging.current = true;
     dragStartPos.current = { x: e.clientX, y: e.clientY };
     if (coinRef.current) {
-      coinRef.current.style.transition = 'none'; // Fluidez al arrastrar
+      coinRef.current.style.transition = 'none';
     }
   };
 
@@ -136,62 +135,55 @@ const InteractiveCoin = () => {
   const handlePointerUp = () => {
     isDragging.current = false;
     if (coinRef.current) {
-      coinRef.current.style.transition = 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+      coinRef.current.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
     }
   };
 
   return (
     <div
       className="flex items-center justify-center w-full relative z-0 -translate-y-2"
-      style={{ height: '320px', touchAction: 'none', perspective: '1200px' }}
+      style={{ height: '320px', touchAction: 'none', perspective: '1500px' }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
     >
       {/* Brillo de fondo */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] bg-white/5 rounded-full blur-[70px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[220px] h-[220px] bg-white/5 rounded-full blur-[80px] pointer-events-none" />
 
-      {/* Contenedor principal de la moneda */}
+      {/* Contenedor principal de la moneda con Fake 3D (Voxel/Stacking) */}
       <div
         ref={coinRef}
         className="relative w-[180px] h-[180px] cursor-grab active:cursor-grabbing"
         style={{
           transformStyle: 'preserve-3d',
-          transition: 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)',
+          transition: 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
           transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`
         }}
       >
-        {/* Grosor del cilindro (16 capas finas) */}
-        {Array.from({ length: 16 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute inset-0 rounded-full border border-white/10"
-            style={{
-              background: '#0a0a0c', // Color oscuro sólido para el borde
-              transform: `translateZ(${i - 8}px)`,
-              boxShadow: i === 8 ? '0 0 40px rgba(0,0,0,0.8)' : 'none'
-            }}
-          />
-        ))}
-
-        {/* Cara Frontal */}
-        <div
-          className="absolute inset-0 rounded-full flex items-center justify-center bg-black overflow-hidden border border-white/20"
-          style={{ backfaceVisibility: 'hidden', transform: 'translateZ(8.5px)' }}
-        >
-          {/* Zoom scale-[1.4] para ocultar el borde cuadrado del PNG original */}
-          <img src="/1000011073.png" alt="Coin Front" draggable={false} className="w-full h-full object-cover scale-[1.4] select-none pointer-events-none" style={imageProtectionStyle} />
-        </div>
-
-        {/* Cara Trasera */}
-        <div
-          className="absolute inset-0 rounded-full flex items-center justify-center bg-black overflow-hidden border border-white/20"
-          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg) translateZ(8.5px)' }}
-        >
-           {/* Zoom scale-[1.4] para ocultar el borde cuadrado del PNG original */}
-          <img src="/1000011073.png" alt="Coin Back" draggable={false} className="w-full h-full object-cover scale-[1.4] select-none pointer-events-none" style={imageProtectionStyle} />
-        </div>
+        {/* Generar las capas apiladas para extrusión */}
+        {Array.from({ length: numLayers }).map((_, i) => {
+          // Determina si es la capa delantera (0), la trasera (numLayers - 1), o los bordes internos.
+          const isFront = i === 0;
+          const isBack = i === numLayers - 1;
+          const isEdge = !isFront && !isBack;
+          
+          return (
+            <img
+              key={i}
+              src="/1000011086.png" // RECUERDA: Usar aquí un PNG plano frontal con transparencia
+              alt=""
+              draggable={false}
+              className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+              style={{
+                transform: `translateZ(${(i - numLayers / 2) * 1.5}px) ${isBack ? 'rotateY(180deg)' : ''}`, // Multiplicador 1.5 para dar más espacio entre capas si se necesita
+                // Oscurecemos las capas intermedias para crear la ilusión de profundidad/sombra
+                filter: isEdge ? 'brightness(0.15) drop-shadow(0 0 2px rgba(0,0,0,0.5))' : 'drop-shadow(0px 0px 5px rgba(255,255,255,0.1))',
+                ...imageProtectionStyle
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );
@@ -233,8 +225,8 @@ export function HomeView() {
         .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}} />
 
-      {/* --- SECCIÓN HERO 3D (MONEDA INTERACTIVA) --- */}
-      <InteractiveCoin />
+      {/* --- SECCIÓN HERO 3D (SPRITE STACKING PIXELADO) --- */}
+      <InteractivePixelCoin />
 
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-10">
