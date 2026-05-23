@@ -99,77 +99,26 @@ export function HomeView() {
   return (
     <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-28">
       
-      {/* ── ESTILOS CSS INYECTADOS ── */}
+      {/* ── ESTILOS PARA OCULTAR SCROLLBAR ── */}
       <style dangerouslySetInnerHTML={{__html: `
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        
-        @keyframes floatCoin {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-15px); }
-        }
-        
-        @keyframes simulate3DTurn {
-          0%, 100% { 
-            transform: rotateY(0deg) rotateX(0deg); 
-            filter: brightness(1) drop-shadow(0 0 10px rgba(255, 255, 255, 0.1));
-          }
-          25% { 
-            transform: rotateY(-15deg) rotateX(-2deg); 
-            filter: brightness(1.1); 
-          }
-          75% { 
-            transform: rotateY(15deg) rotateX(2deg); 
-            filter: brightness(0.95);
-          }
-        }
-
-        .coin-3d {
-          background-size: contain;
-          background-position: center;
-          background-repeat: no-repeat;
-          background-image: url('/NOIR-COIN.png'); 
-          animation: floatCoin 4s ease-in-out infinite, simulate3DTurn 6s ease-in-out infinite;
-        }
-
-        .starry-dust-bg {
-          position: absolute;
-          inset: 0;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-          opacity: 0.12;
-          z-index: 1;
-          pointer-events: none;
-          mix-blend-mode: overlay;
-        }
       `}} />
 
-      {/* --- HEADER SUPERIOR --- */}
-      <div className="flex justify-between items-center px-5 pt-6 pb-2 w-full max-w-md mx-auto relative z-50">
-        <button className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors">
-          <X className="w-5 h-5" />
-          <span className="text-[16px] font-medium" style={{ fontFamily: SF }}>close</span>
-        </button>
-        <div className="flex items-center gap-4">
-          <button className="text-white hover:text-gray-300"><ChevronRight className="w-5 h-5 rotate-90" /></button>
-          <button className="text-white hover:text-gray-300"><div className="flex flex-col gap-1"><span className="w-1 h-1 bg-white rounded-full"></span><span className="w-1 h-1 bg-white rounded-full"></span><span className="w-1 h-1 bg-white rounded-full"></span></div></button>
-        </div>
+      {/* --- SECCIÓN HERO UNIFICADA (IMAGEN) --- */}
+      <div className="w-full relative z-0">
+        <img 
+          src="/noirhand.png" 
+          alt="Noir Hand Background" 
+          className="w-full h-[320px] sm:h-[380px] object-cover object-bottom" 
+          draggable={false}
+        />
+        {/* Un gradiente sutil para difuminar la parte de abajo de la imagen con el fondo negro de la app */}
+        <div className="absolute bottom-0 w-full h-24 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
       </div>
 
-      {/* --- SECCIÓN HERO 3D --- */}
-      <div className="relative w-full h-[360px] flex justify-center items-end overflow-visible mt-2">
-        <div className="starry-dust-bg"></div>
-        <div className="absolute bottom-[-30px] left-1/2 -translate-x-1/2 w-[280px] h-[280px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.08)_0%,rgba(0,0,0,0)_70%)] z-1 pointer-events-none"></div>
-        
-        {/* Imagen de la mano local */}
-        <img src="/Hand-dots.png" alt="Hand" className="w-full max-w-[320px] max-h-[260px] object-contain relative z-10 opacity-90 pointer-events-none" />
-        
-        {/* Moneda local con el efecto 3D */}
-        <div className="absolute top-[30px] z-20 w-[150px] h-[150px]" style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
-          <div className="w-full h-full coin-3d"></div>
-        </div>
-      </div>
-
-      {/* --- CONTENIDO PRINCIPAL --- */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 mt-2 z-30 relative pb-28">
+      {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
+      {/* El -mt-10 empuja las tarjetas un poco hacia arriba para superponerse con la imagen */}
+      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-10">
         
         {/* Tarjeta Schedules */}
         <div className="bg-[#111111] rounded-[24px] p-5 border border-white/5 shadow-lg relative">
@@ -363,7 +312,7 @@ export function HomeView() {
       {/* ── VISTA EXTERNA: BUSINESS AUTOMATION ── */}
       {isBusinessModalOpen && <BusinessAutomationView onClose={() => setIsBusinessModalOpen(false)} />}
 
-      {/* ── MODAL TEMPORAL: BOT INTERACTION COMPLETAMENTE RESTAURADO ── */}
+      {/* ── MODAL TEMPORAL: BOT INTERACTION ── */}
       {isBotIntModalOpen && (
          <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsBotIntModalOpen(false)} />
