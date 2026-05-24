@@ -299,6 +299,15 @@ export function SettingsView() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [displayName, setDisplayName] = useState("")
 
+  // Estados para los campos de Account Setup
+  const [nameField, setNameField] = useState("")
+  const [genderField, setGenderField] = useState("")
+  const [ageField, setAgeField] = useState("")
+  const [cityField, setCityField] = useState("")
+  const [timezoneField, setTimezoneField] = useState("")
+  const [occupationField, setOccupationField] = useState("")
+  const [interestsField, setInterestsField] = useState("")
+
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
   const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
 
@@ -308,10 +317,19 @@ export function SettingsView() {
     if (!user) return
     if (user.photo_url) setPhotoUrl(user.photo_url)
     const full = [user.first_name, user.last_name].filter(Boolean).join(" ")
-    setDisplayName(full || user.username || "User")
+    const defaultName = full || user.username || "User"
+    setDisplayName(defaultName)
+    if (!nameField) setNameField(defaultName)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
+
+  // Calculo de porcentaje de completado
+  const completionFields = [nameField, genderField, ageField, cityField, timezoneField, occupationField, interestsField];
+  const filledFields = completionFields.filter(field => field.trim().length > 0).length;
+  const completionPct = Math.round((filledFields / 7) * 100);
+  const circleOffset = 295 - (295 * completionPct) / 100;
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -508,27 +526,52 @@ export function SettingsView() {
           
           {/* Item: Name */}
           <div className="flex items-center w-full py-4 border-b border-[#1c1c1e]">
-            <span className="w-[100px] text-white text-[16px] font-medium" style={{ fontFamily: SF }}>Name<span className="text-[#ef4444]">*</span></span>
-            <span className="text-[#555558] text-[16px] flex-1" style={{ fontFamily: SF }}>Enter name</span>
+            <span className="w-[75px] text-white text-[16px] font-medium shrink-0" style={{ fontFamily: SF }}>Name<span className="text-[#ef4444]">*</span></span>
+            <input 
+              value={nameField}
+              onChange={(e) => setNameField(e.target.value)}
+              placeholder="Enter name"
+              className="bg-transparent text-white text-[16px] flex-1 outline-none placeholder:text-[#555558]"
+              style={{ fontFamily: SF }}
+            />
           </div>
 
           {/* Item: Gender */}
-          <button className="flex items-center w-full py-4 border-b border-[#1c1c1e] active:opacity-70 transition-opacity text-left">
-            <span className="w-[100px] text-white text-[16px] font-medium" style={{ fontFamily: SF }}>Gender</span>
-            <span className="text-[#555558] text-[16px] flex-1" style={{ fontFamily: SF }}>Select gender</span>
+          <div className="flex items-center w-full py-4 border-b border-[#1c1c1e]">
+            <span className="w-[75px] text-white text-[16px] font-medium shrink-0" style={{ fontFamily: SF }}>Gender</span>
+            <input 
+              value={genderField}
+              onChange={(e) => setGenderField(e.target.value)}
+              placeholder="Select gender"
+              className="bg-transparent text-white text-[16px] flex-1 outline-none placeholder:text-[#555558]"
+              style={{ fontFamily: SF }}
+            />
             <IoChevronForward className="w-5 h-5 text-[#555558] shrink-0" />
-          </button>
+          </div>
 
           {/* Item: Age */}
           <div className="flex items-center w-full py-4 border-b border-[#1c1c1e]">
-            <span className="w-[100px] text-white text-[16px] font-medium" style={{ fontFamily: SF }}>Age</span>
-            <span className="text-[#555558] text-[16px] flex-1" style={{ fontFamily: SF }}>Enter age</span>
+            <span className="w-[75px] text-white text-[16px] font-medium shrink-0" style={{ fontFamily: SF }}>Age</span>
+            <input 
+              type="number"
+              value={ageField}
+              onChange={(e) => setAgeField(e.target.value)}
+              placeholder="Enter age"
+              className="bg-transparent text-white text-[16px] flex-1 outline-none placeholder:text-[#555558]"
+              style={{ fontFamily: SF }}
+            />
           </div>
 
           {/* Item: City */}
           <div className="flex items-center w-full py-4">
-            <span className="w-[100px] text-white text-[16px] font-medium" style={{ fontFamily: SF }}>City</span>
-            <span className="text-[#555558] text-[16px] flex-1" style={{ fontFamily: SF }}>Enter city</span>
+            <span className="w-[75px] text-white text-[16px] font-medium shrink-0" style={{ fontFamily: SF }}>City</span>
+            <input 
+              value={cityField}
+              onChange={(e) => setCityField(e.target.value)}
+              placeholder="Enter city"
+              className="bg-transparent text-white text-[16px] flex-1 outline-none placeholder:text-[#555558]"
+              style={{ fontFamily: SF }}
+            />
           </div>
 
         </div>
@@ -562,24 +605,44 @@ export function SettingsView() {
       <div className="px-4 pt-6 space-y-4">
         
         {/* Item: Time zone */}
-        <button className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 active:opacity-70 transition-opacity text-left">
-          <span className="text-[#3b82f6] text-[14px] font-medium mb-3" style={{ fontFamily: SF }}>Time zone</span>
+        <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 text-left">
+          <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-3" style={{ fontFamily: SF }}>Time zone</h2>
           <div className="flex items-center justify-between w-full">
-            <span className="text-[#555558] text-[16px]" style={{ fontFamily: SF }}>Select time zone</span>
+            <input 
+              value={timezoneField}
+              onChange={(e) => setTimezoneField(e.target.value)}
+              placeholder="Select time zone"
+              className="bg-transparent text-white text-[16px] flex-1 outline-none placeholder:text-[#555558]"
+              style={{ fontFamily: SF }}
+            />
             <IoChevronForward className="w-5 h-5 text-[#555558]" />
           </div>
-        </button>
+        </div>
 
         {/* Item: Occupation */}
-        <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 pb-12 text-left">
-          <span className="text-[#3b82f6] text-[14px] font-medium mb-3" style={{ fontFamily: SF }}>Occupation</span>
-          <span className="text-[#555558] text-[16px]" style={{ fontFamily: SF }}>Enter occupation</span>
+        <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 text-left">
+          <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-3" style={{ fontFamily: SF }}>Occupation</h2>
+          <textarea 
+            value={occupationField}
+            onChange={(e) => setOccupationField(e.target.value)}
+            placeholder="Enter occupation"
+            rows={3}
+            className="bg-transparent text-white text-[16px] w-full outline-none placeholder:text-[#555558] resize-none"
+            style={{ fontFamily: SF }}
+          />
         </div>
 
         {/* Item: Interests */}
-        <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 pb-12 text-left">
-          <span className="text-[#3b82f6] text-[14px] font-medium mb-3" style={{ fontFamily: SF }}>Interests</span>
-          <span className="text-[#555558] text-[16px]" style={{ fontFamily: SF }}>Enter interests</span>
+        <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 text-left">
+          <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-3" style={{ fontFamily: SF }}>Interests</h2>
+          <textarea 
+            value={interestsField}
+            onChange={(e) => setInterestsField(e.target.value)}
+            placeholder="Enter interests"
+            rows={3}
+            className="bg-transparent text-white text-[16px] w-full outline-none placeholder:text-[#555558] resize-none"
+            style={{ fontFamily: SF }}
+          />
         </div>
 
         {/* Action Buttons (Cancel / Update) */}
@@ -621,8 +684,14 @@ export function SettingsView() {
           <svg className="absolute inset-0 w-full h-full transform -rotate-90 z-20 pointer-events-none" viewBox="0 0 100 100">
             {/* Círculo de fondo oscuro */}
             <circle cx="50" cy="50" r="47" stroke="#1c1c1e" strokeWidth="4" fill="none" />
-            {/* Círculo de progreso azul (25%) */}
-            <circle cx="50" cy="50" r="47" stroke="#3b82f6" strokeWidth="4" fill="none" strokeDasharray="295" strokeDashoffset="221" strokeLinecap="round" />
+            {/* Círculo de progreso azul dinámico */}
+            <circle 
+               cx="50" cy="50" r="47" stroke="#3b82f6" strokeWidth="4" fill="none" 
+               strokeDasharray="295" 
+               strokeDashoffset={circleOffset} 
+               strokeLinecap="round" 
+               style={{ transition: "stroke-dashoffset 0.5s ease-in-out" }}
+            />
           </svg>
           
           {/* Foto de Perfil o Iniciales */}
@@ -645,14 +714,16 @@ export function SettingsView() {
             </div>
           </div>
 
-          {/* Etiqueta 25% superpuesta */}
-          <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-[#3b82f6] text-white text-[12px] font-bold px-3 py-0.5 rounded-full border-[4px] border-black z-30 shadow-sm" style={{ fontFamily: SF }}>
-            25%
+          {/* Etiqueta Porcentaje superpuesta */}
+          <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-[#3b82f6] text-white text-[12px] font-bold px-3 py-0.5 rounded-full border-[4px] border-black z-30 shadow-sm transition-all" style={{ fontFamily: SF }}>
+            {completionPct}%
           </div>
         </div>
         
         <h1 className="text-[22px] font-bold text-white mb-1.5 mt-2" style={{ fontFamily: SFD }}>Set Up Your Account</h1>
-        <p className="text-[#3b82f6] font-semibold text-[17px] mb-2" style={{ fontFamily: SF }}>3 steps left</p>
+        <p className="text-[#3b82f6] font-semibold text-[17px] mb-2" style={{ fontFamily: SF }}>
+          {filledFields < 7 ? `${7 - filledFields} steps left` : "Profile Complete!"}
+        </p>
         <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
       </div>
 
