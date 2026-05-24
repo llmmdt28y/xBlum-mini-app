@@ -114,7 +114,7 @@ function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string,
   )
 }
 
-// Nuevo componente Icon3D completamente redondo para Setup Account
+// Componente Icon3D completamente redondo para Setup Account
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: string, bgTo: string }) {
   return (
@@ -696,7 +696,7 @@ export function SettingsView() {
       <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
 
       {/* Título Principal y Gráfico Circular */}
-      <div className="flex flex-col items-center mt-2 mb-8 animate-in fade-in duration-300 ease-in-out relative z-10">
+      <div className="flex flex-col items-center mt-2 mb-6 animate-in fade-in duration-300 ease-in-out relative z-10">
         
         {/* Gráfico circular con la foto de perfil en medio */}
         <div className="relative w-[130px] h-[130px] flex items-center justify-center rounded-full mb-6 mt-8">
@@ -741,63 +741,63 @@ export function SettingsView() {
           </div>
         </div>
         
-        <h1 className="text-[24px] font-bold text-white mb-2 mt-2" style={{ fontFamily: SFD }}>Set Up Your Account</h1>
-        <p className="text-[#60a5fa] font-semibold text-[19px] mb-2" style={{ fontFamily: SF }}>
+        <h1 className="text-[24px] font-bold text-white mb-0.5 mt-2" style={{ fontFamily: SFD }}>Set Up Your Account</h1>
+        <p className="text-[#60a5fa] font-bold text-[22px] mb-1.5" style={{ fontFamily: SF }}>
           {filledFields < 7 ? `${7 - filledFields} steps left` : "Profile Complete!"}
         </p>
-        <p className="text-[#8e8e93] text-[16px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
+        <p className="text-[#8e8e93] text-[15px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
       </div>
 
-      <div className="px-5 w-full pb-10 mt-4">
-         <h3 className="text-[#8e8e93] text-[15px] font-medium mb-5" style={{ fontFamily: SF }}>Profile Setup</h3>
+      <div className="px-5 w-full pb-10 mt-2">
+         <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-4" style={{ fontFamily: SF }}>Profile Setup</h3>
 
-         <div className="relative flex flex-col mb-4">
-            {/* Línea vertical conectora centrada con el tamaño aumentado del ícono */}
-            <div className="absolute left-[21px] top-[22px] bottom-[22px] w-[2px] bg-[#1c1c1e] z-0" />
+         <div className="relative flex flex-col">
+            {/* Línea vertical conectora central */}
+            <div className="absolute left-[21px] top-[26px] bottom-[26px] w-[2px] bg-[#1c1c1e] z-0" />
             
             {/* Step 1: Basic Information */}
-            <div className="w-full relative z-10 mb-6">
-              <button onClick={() => setPage("basic_info")} className="flex items-center w-full active:opacity-70 transition-opacity text-left">
-                 <Icon3DCircular icon={IoPersonOutline} bgFrom="#4ade80" bgTo="#16a34a" />
-                 <div className="ml-4 flex-1 flex items-center justify-between">
-                    <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
-                    <div className="w-[24px] h-[24px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
-                      <IoCheckmark className="w-[15px] h-[15px] text-white font-bold stroke-[2px]" />
-                    </div>
-                 </div>
-              </button>
-              <div className="ml-[60px] mt-6 border-b border-[#1c1c1e]" />
-            </div>
+            <button onClick={() => setPage("basic_info")} className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
+               <div className="py-2.5 flex items-center shrink-0">
+                  <Icon3DCircular icon={IoPersonOutline} bgFrom="#4ade80" bgTo="#16a34a" />
+               </div>
+               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e]">
+                  <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
+                  <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
+                    <IoCheckmark className="w-[14px] h-[14px] text-white font-bold stroke-[2px]" />
+                  </div>
+               </div>
+            </button>
             
             {/* Step 2: Additional Details */}
-            <div className="w-full relative z-10 mb-6">
-              <button onClick={() => setPage("additional_details")} className="flex items-center w-full active:opacity-70 transition-opacity text-left">
-                 <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
-                 <div className="ml-4 flex-1 flex items-center justify-between">
-                    <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
-                    <IoChevronForward className="w-5 h-5 text-[#555558]" />
-                 </div>
-              </button>
-              <div className="ml-[60px] mt-6 border-b border-[#1c1c1e]" />
-            </div>
+            <button onClick={() => setPage("additional_details")} className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
+               <div className="py-2.5 flex items-center shrink-0">
+                  <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
+               </div>
+               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e]">
+                  <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
+                  <IoChevronForward className="w-5 h-5 text-[#555558]" />
+               </div>
+            </button>
 
             {/* Step 3: Add Personal Data */}
-            <div className="w-full relative z-10 mb-2">
-              <div className="flex items-center w-full">
-                 <Icon3DCircular icon={IoPersonOutline} bgFrom="#4b5563" bgTo="#374151" />
-                 <div className="ml-4 flex-1 flex items-center justify-between">
-                    <p className="text-[17px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
-                 </div>
-              </div>
+            <div className="w-full relative z-10 flex items-stretch">
+               <div className="py-2.5 flex items-center shrink-0">
+                  <Icon3DCircular icon={IoPersonOutline} bgFrom="#4b5563" bgTo="#374151" />
+               </div>
+               <div className="ml-4 flex-1 flex items-center justify-between">
+                  <p className="text-[17px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
+               </div>
             </div>
          </div>
 
-         <h3 className="text-[#8e8e93] text-[15px] font-medium mb-5 mt-10" style={{ fontFamily: SF }}>Account Security</h3>
+         <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-8" style={{ fontFamily: SF }}>Account Security</h3>
 
          <div className="relative flex flex-col">
             {/* Step 1: Set Up Passcode */}
-            <button className="flex items-center w-full relative z-10 mb-6 active:opacity-70 transition-opacity text-left">
-               <Icon3DCircular icon={IoLockClosedOutline} bgFrom="#c084fc" bgTo="#9333ea" />
+            <button className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
+               <div className="py-2.5 flex items-center shrink-0">
+                  <Icon3DCircular icon={IoLockClosedOutline} bgFrom="#c084fc" bgTo="#9333ea" />
+               </div>
                <div className="ml-4 flex-1 flex items-center justify-between">
                   <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
                   <IoChevronForward className="w-5 h-5 text-[#555558]" />
