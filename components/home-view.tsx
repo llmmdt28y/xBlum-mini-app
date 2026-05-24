@@ -322,10 +322,10 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* LÍNEAS INDICADORAS DE PÁGINA - FUERA, MÁS CHICAS Y MÁS ARRIBA */}
-        <div className="flex justify-center gap-1.5 mt-1 mb-3">
-          <div className="w-3 h-[3px] rounded-full bg-white" /> {/* Línea activa */}
-          <div className="w-3 h-[3px] rounded-full bg-[#333]" /> {/* Línea inactiva */}
+        {/* PUNTOS INDICADORES DE PÁGINA - FUERA, MÁS ARRIBA Y TIPO CÁPSULA */}
+        <div className="flex justify-center items-center gap-1.5 mt-0 mb-4">
+          <div className="w-4 h-1.5 rounded-full bg-[#3b82f6]" /> {/* Cápsula activa azul */}
+          <div className="w-1.5 h-1.5 rounded-full bg-[#333]" /> {/* Punto inactivo */}
         </div>
 
         {/* Carrusel Horizontal - Con min-w-[80%] para Connectors más cortos */}
@@ -346,10 +346,10 @@ export function HomeView() {
                     </div>
                     <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
                   </div>
-                  {/* Botón View cambiado a Gris claro con texto blanco */}
+                  {/* Botón View cambiado a Blanco con texto negro */}
                   <button 
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                    className="px-3.5 py-1.5 rounded-[14px] bg-[#1c1c1e] text-white text-[12px] font-bold hover:bg-[#202022] transition-colors" style={{ fontFamily: SF }}
+                    className="px-3.5 py-1.5 rounded-[14px] bg-white text-black text-[12px] font-bold hover:bg-neutral-200 transition-colors" style={{ fontFamily: SF }}
                   >
                     View
                   </button>
