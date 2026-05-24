@@ -127,7 +127,8 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
       {/* Contenedor flex para centrar verticalmente el valor y la flecha juntos */}
       <div className="flex items-center gap-1">
         {value && (
-          <span className="text-[15px]" style={{ fontFamily: SF, color: "#8e8e93" }}>
+          // Mismo color (#555558) que la flecha para crear coherencia visual
+          <span className="text-[16px] font-medium" style={{ fontFamily: SF, color: "#555558" }}>
             {value}
           </span>
         )}
@@ -245,14 +246,11 @@ function TokenBar({ pct }: { pct: number }) {
   )
 }
 
+// Cabecera estática (sin líneas, sin blur, no sticky)
 function SubHeader({ title }: { title: string }) {
   return (
-    <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3" style={{
-      paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)",
-      background: "rgba(0,0,0,0.92)",
-      backdropFilter: "blur(20px)",
-      WebkitBackdropFilter: "blur(20px)",
-      borderBottom: "1px solid rgba(255,255,255,0.05)",
+    <div className="flex items-center justify-center px-4 pb-3" style={{
+      paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
     }}>
       <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
         {title}
@@ -353,11 +351,10 @@ export function SettingsView() {
 
   // ── Model page ─────────────────────────────────────────────────────────────
   if (page === "model") return (
-    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300"
+    <div className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-300 ease-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 space-y-4">
-        {/* Actualizado con el mismo diseño y colores de Section */}
         <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
           <div className="flex items-center justify-between px-4 pt-4 pb-1">
             <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Select Model</h2>
@@ -451,7 +448,7 @@ export function SettingsView() {
 
   // ── Lang page ──────────────────────────────────────────────────────────────
   if (page === "lang") return (
-    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300"
+    <div className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-300 ease-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 space-y-2">
@@ -476,7 +473,7 @@ export function SettingsView() {
 
   // ── Prefs page ─────────────────────────────────────────────────────────────
   if (page === "prefs") return (
-    <div className="flex-1 flex flex-col animate-in fade-in slide-in-from-right-4 duration-300"
+    <div className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-300 ease-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Preferences" />
       <div className="px-4 pt-6 space-y-5">
@@ -524,12 +521,10 @@ export function SettingsView() {
 
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
-    <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
-      <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3" style={{
-        paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)",
-        background: "rgba(0,0,0,0.92)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
+    <div className="flex-1 overflow-y-auto animate-in fade-in zoom-in-[0.98] duration-300 ease-out" style={{ background: "#000" }}>
+      {/* Cabecera principal estática */}
+      <div className="flex items-center justify-center px-4 pb-3" style={{
+        paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
       }}>
         <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
           Settings
@@ -579,7 +574,7 @@ export function SettingsView() {
         <Section title="Profile">
           <Row
             leftNode={<Icon3D icon={IoColorWand} bgFrom="#f9a8d4" bgTo="#ec4899" />}
-            label="LLM model"
+            label="LLM Model"
             value={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
