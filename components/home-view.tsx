@@ -3,7 +3,7 @@
 import { useApp } from "@/lib/app-context"
 import { 
   Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
-  ChevronRight, Loader2, CalendarDays, Search, ShieldCheck, Github, 
+  ChevronRight, ChevronDown, Loader2, CalendarDays, Search, ShieldCheck, Github, 
   Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2, Sparkles,
   Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight
 } from "lucide-react"
@@ -42,7 +42,7 @@ const imageProtectionStyle = {
   userSelect: 'none' as any,
 }
 
-// --- Connectors Database (Restaurado completamente) ---
+// --- Connectors Database ---
 const CONNECTORS_DB = [
   { 
     id: "gmail", 
@@ -141,6 +141,7 @@ function getTg() { return (window as any).Telegram?.WebApp }
 export function HomeView() {
   const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false)
   const [isBotIntModalOpen, setIsBotIntModalOpen] = useState(false)
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false)
   const [botIntConfig, setBotIntConfig] = useState({ enabled: true, moderation_react: true, auto_execute_mod: false, file_summarize: true })
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
@@ -183,49 +184,90 @@ export function HomeView() {
           draggable={false}
           style={imageProtectionStyle}
         />
-        {/* Un gradiente sutil para difuminar la parte de abajo de la imagen con el fondo negro de la app */}
         <div className="absolute bottom-0 w-full h-28 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
       </div>
 
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
         
-        {/* Píldora de Complete Account */}
-        <button 
-          className="flex items-center gap-3 rounded-full p-1.5 pr-4 self-start active:scale-95 transition-transform" 
-          style={{ 
-            ...cardLiquidGlassStyle, 
-            background: "rgba(22, 28, 36, 0.85)" 
-          }}
-        >
-          {/* Anillo de Progreso */}
-          <div className="relative flex items-center justify-center w-[36px] h-[36px] shrink-0 bg-black/20 rounded-full">
-            <svg className="w-full h-full -rotate-90 transform absolute inset-0">
-              <circle cx="18" cy="18" r="15" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" fill="none" />
-              <circle 
-                cx="18" 
-                cy="18" 
-                r="15" 
-                stroke="#3b82f6" 
-                strokeWidth="2.5" 
-                fill="none" 
-                strokeDasharray="94.2" 
-                strokeDashoffset="70.65" 
-                strokeLinecap="round" 
-              />
-            </svg>
-            <span className="text-[11px] font-bold text-[#3b82f6]">1/4</span>
-          </div>
+        {/* Contenedor Fila Superior (Complete Account + Stacked Right Pills) */}
+        <div className="w-full flex items-center justify-between gap-2 relative">
           
-          {/* Textos */}
-          <div className="flex flex-col items-start pr-2">
-            <span className="text-white text-[14px] font-bold leading-tight" style={{ fontFamily: SFD }}>Complete account</span>
-            <span className="text-[#8e8e93] text-[12px] font-medium mt-0.5" style={{ fontFamily: SF }}>It will take 2 minutes</span>
+          {/* Píldora de Complete Account (Izquierda) */}
+          <button 
+            className="flex items-center gap-2.5 rounded-full p-1.5 pr-3.5 active:scale-95 transition-transform" 
+            style={{ 
+              ...cardLiquidGlassStyle, 
+              background: "rgba(22, 28, 36, 0.85)" 
+            }}
+          >
+            {/* Anillo de Progreso */}
+            <div className="relative flex items-center justify-center w-[34px] h-[34px] shrink-0 bg-black/20 rounded-full">
+              <svg className="w-full h-full -rotate-90 transform absolute inset-0">
+                <circle cx="17" cy="17" r="14" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" fill="none" />
+                <circle 
+                  cx="17" 
+                  cy="17" 
+                  r="14" 
+                  stroke="#3b82f6" 
+                  strokeWidth="2.5" 
+                  fill="none" 
+                  strokeDasharray="87.96" 
+                  strokeDashoffset="65.97" 
+                  strokeLinecap="round" 
+                />
+              </svg>
+              <span className="text-[10px] font-bold text-[#3b82f6]">1/4</span>
+            </div>
+            
+            {/* Textos */}
+            <div className="flex flex-col items-start">
+              <span className="text-white text-[13px] font-bold leading-tight" style={{ fontFamily: SFD }}>Complete account</span>
+              <span className="text-[#8e8e93] text-[11px] font-medium mt-0.5" style={{ fontFamily: SF }}>It will take 2 minutes</span>
+            </div>
+            
+            <ChevronRight className="w-3.5 h-3.5 text-[#636366] ml-0.5" />
+          </button>
+
+          {/* Bloque Derecho: 2 Píldoras delgadas apiladas verticalmente */}
+          <div className="flex flex-col gap-1 items-end shrink-0 relative">
+            
+            {/* Píldora Superior: Selector de Modelos */}
+            <button 
+              onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+              className="flex items-center justify-between gap-2 rounded-full px-2.5 py-1 bg-black border border-white/10 active:scale-95 transition-all text-[11px] h-[24px] min-w-[125px]"
+              style={{ fontFamily: SF }}
+            >
+              <span className="text-[#8e8e93] font-medium">Model</span>
+              <div className="flex items-center gap-0.5">
+                <span className="text-white font-bold">Grok 4.3</span>
+                <ChevronDown className={`w-3 h-3 text-[#8e8e93] transition-transform duration-200 ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </button>
+
+            {/* Píldora Inferior: Vacía */}
+            <div className="rounded-full bg-black border border-white/10 h-[24px] min-w-[125px]" />
+
+            {/* Contenedor desplegable de Modelos */}
+            {isModelDropdownOpen && (
+              <div 
+                className="absolute top-[28px] right-0 z-50 w-[135px] rounded-xl p-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150 border border-white/10 shadow-2xl"
+                style={{ ...cardLiquidGlassStyle, background: "rgba(15, 15, 16, 0.95)" }}
+              >
+                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-semibold text-white bg-white/5 transition-colors">
+                  Grok 4.3
+                </button>
+                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-white hover:bg-white/5 transition-colors">
+                  Grok 3 Mini
+                </button>
+                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-white hover:bg-white/5 transition-colors">
+                  Claude 3.5
+                </button>
+              </div>
+            )}
           </div>
-          
-          {/* Icono */}
-          <ChevronRight className="w-4 h-4 text-[#636366] ml-1" />
-        </button>
+
+        </div>
 
         {/* Tarjeta Schedules */}
         <div className="bg-[#111111] rounded-[24px] p-4 border border-white/5 shadow-lg relative">
@@ -253,11 +295,11 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Carrusel Horizontal - Min-w y Gaps Restaurados */}
+        {/* Carrusel Horizontal - Con min-w-[80%] para Connectors más cortos */}
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
           
-          {/* Connectors Card */}
-          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
+          {/* Connectors Card (Más corto horizontalmente) */}
+          <div className="min-w-[80%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
             <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>Connectors</h2>
             <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
 
@@ -265,12 +307,16 @@ export function HomeView() {
               {CONNECTORS_DB.slice(0, 3).map((c) => (
                 <div key={c.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
                   <div className="flex items-center gap-3">
-                    <img src={c.src} alt={c.name} className="w-6 h-6 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                    {/* Contenedor cuadrado con bordes redondeados para el icono */}
+                    <div className="w-9 h-9 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0 border border-white/5">
+                      <img src={c.src} alt={c.name} className="w-5 h-5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                    </div>
                     <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
                   </div>
+                  {/* Botón View cambiado a Blanco con texto negro */}
                   <button 
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                    className="px-3.5 py-1.5 rounded-[14px] border border-transparent bg-[#1c1c1e] text-white text-[12px] font-medium hover:bg-[#2c2c2e] transition-colors" style={{ fontFamily: SF }}
+                    className="px-3.5 py-1.5 rounded-[14px] bg-white text-black text-[12px] font-bold hover:bg-neutral-200 transition-colors" style={{ fontFamily: SF }}
                   >
                     View
                   </button>
@@ -278,17 +324,17 @@ export function HomeView() {
               ))}
             </div>
 
-            {/* Diseño de botón Add connection */}
+            {/* Botón Add connection rediseñado a un estilo más gris */}
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
-              className="mt-3 w-full py-3 bg-black border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#0a0a0c] transition-colors" style={{ fontFamily: SF }}
+              className="mt-3 w-full py-2.5 bg-[#18181a] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-[#636366] hover:bg-[#202022] hover:text-[#8e8e93] transition-colors" style={{ fontFamily: SF }}
             >
-              <Plus className="w-4 h-4 text-[#8e8e93]" /> Add connection
+              <Plus className="w-4 h-4 text-[#555558]" /> Add connection
             </button>
           </div>
 
           {/* My Tools Card */}
-          <div className="min-w-[88%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg relative">
+          <div className="min-w-[80%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg relative">
             <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>My Tools</h2>
             <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Automate your workflow</p>
             
