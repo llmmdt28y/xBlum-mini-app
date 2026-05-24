@@ -5,7 +5,9 @@ import {
   IoChevronForward, IoCheckmark, IoGlobe, IoColorWand, IoPerson, 
   IoLockClosed, IoServer, IoDocumentText, IoShieldCheckmark, 
   IoChatbubble, IoChevronDown, IoClose, IoTrash, IoSync, IoSparkles,
-  IoWalletOutline, IoCall, IoPersonOutline, IoLockClosedOutline
+  IoWalletOutline, IoCall, IoPersonOutline, IoLockClosedOutline,
+  IoMaleFemaleOutline, IoCalendarOutline, IoLocationOutline,
+  IoTimeOutline, IoBriefcaseOutline, IoHeartOutline
 } from "react-icons/io5"
 import { useState, useEffect } from "react"
 import React from "react"
@@ -294,7 +296,7 @@ export function SettingsView() {
   const [submittingReport, setSubmittingReport] = useState(false)
   const [reportSent, setReportSent] = useState(false)
 
-  // Estados para el perfil del usuario (copiados de profile-view)
+  // Estados para el perfil del usuario
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [displayName, setDisplayName] = useState("")
 
@@ -543,66 +545,137 @@ export function SettingsView() {
         </div>
         
         <h1 className="text-[22px] font-bold text-white mb-1.5 mt-2" style={{ fontFamily: SFD }}>Set Up Your Account</h1>
-        <p className="text-[#3b82f6] font-semibold text-[17px] mb-2" style={{ fontFamily: SF }}>3 steps left</p>
-        <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
+        <p className="text-[#8e8e93] text-[14px] text-center max-w-[280px]" style={{ fontFamily: SF }}>Update your profile details below to personalize your experience.</p>
       </div>
 
       <div className="px-5 w-full pb-10">
-         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4" style={{ fontFamily: SF }}>Wallet Setup</h3>
+         {/* ── SECCIÓN 1: Basic Information ── */}
+         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4" style={{ fontFamily: SF }}>Basic Information</h3>
 
          <div className="relative flex flex-col mb-4">
-            {/* Línea vertical conectora (queda escondida detrás de los bordes negros de los iconos) */}
+            {/* Línea vertical conectora */}
             <div className="absolute left-[18px] top-[20px] bottom-[20px] w-[2px] bg-[#1c1c1e] z-0" />
             
-            {/* Step 1: Create Wallet */}
-            <div className="flex items-start w-full relative z-10">
-               <div className="w-10 h-10 rounded-full bg-[#22c55e] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoWalletOutline className="w-[18px] h-[18px] text-white ml-0.5" />
-               </div>
-               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
-                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Create Wallet</p>
-                  <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
-                     <IoCheckmark className="w-[14px] h-[14px] text-white font-bold stroke-[2px]" />
-                  </div>
-               </div>
-            </div>
-            
-            {/* Step 2: Share Phone Number */}
+            {/* Item: Name */}
             <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
                <div className="w-10 h-10 rounded-full bg-[#3b82f6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoCall className="w-[18px] h-[18px] text-white" />
+                  <IoPersonOutline className="w-[18px] h-[18px] text-white" />
                </div>
-               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
-                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Share Phone Number</p>
-                  <IoChevronForward className="w-5 h-5 text-[#555558]" />
+               <div className="ml-4 flex-1 flex flex-col justify-center border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
+                  <div className="flex items-center justify-between">
+                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Name<span className="text-[#ef4444]">*</span></p>
+                     <span className="text-[#555558] text-[15px]" style={{ fontFamily: SF }}>Enter name</span>
+                  </div>
+               </div>
+            </button>
+            
+            {/* Item: Gender */}
+            <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#8b5cf6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoMaleFemaleOutline className="w-[18px] h-[18px] text-white" />
+               </div>
+               <div className="ml-4 flex-1 flex flex-col justify-center border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
+                  <div className="flex items-center justify-between">
+                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Gender</p>
+                     <div className="flex items-center gap-1 text-[#555558]">
+                        <span className="text-[15px]" style={{ fontFamily: SF }}>Select gender</span>
+                        <IoChevronForward className="w-4 h-4" />
+                     </div>
+                  </div>
                </div>
             </button>
 
-            {/* Step 3: Add Personal Data */}
-            <div className="flex items-center w-full relative z-10 mb-2">
-               <div className="w-10 h-10 rounded-full bg-[#2c2c2e] border-[4px] border-black flex items-center justify-center shrink-0">
-                  <IoPersonOutline className="w-[18px] h-[18px] text-[#8e8e93]" />
+            {/* Item: Age */}
+            <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#f59e0b] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoCalendarOutline className="w-[18px] h-[18px] text-white" />
+               </div>
+               <div className="ml-4 flex-1 flex flex-col justify-center border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
+                  <div className="flex items-center justify-between">
+                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Age</p>
+                     <span className="text-[#555558] text-[15px]" style={{ fontFamily: SF }}>Enter age</span>
+                  </div>
+               </div>
+            </button>
+
+            {/* Item: City */}
+            <button className="flex items-center w-full relative z-10 mb-2 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#10b981] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoLocationOutline className="w-[18px] h-[18px] text-white" />
                </div>
                <div className="ml-4 flex-1 flex items-center justify-between min-h-[40px]">
-                  <p className="text-[16px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
-               </div>
-            </div>
-         </div>
-
-         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4 mt-8" style={{ fontFamily: SF }}>Account Security</h3>
-
-         <div className="relative flex flex-col">
-            {/* Step 1: Set Up Passcode */}
-            <button className="flex items-center w-full relative z-10 mb-6 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#3b82f6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoLockClosedOutline className="w-[18px] h-[18px] text-white" />
-               </div>
-               <div className="ml-4 flex-1 flex items-center justify-between min-h-[40px]">
-                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
-                  <IoChevronForward className="w-5 h-5 text-[#555558]" />
+                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>City</p>
+                  <span className="text-[#555558] text-[15px]" style={{ fontFamily: SF }}>Enter city</span>
                </div>
             </button>
          </div>
+
+         {/* ── SECCIÓN 2: Additional Details ── */}
+         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4 mt-8" style={{ fontFamily: SF }}>Additional Details</h3>
+
+         <div className="relative flex flex-col mb-6">
+            {/* Línea vertical conectora */}
+            <div className="absolute left-[18px] top-[20px] bottom-[20px] w-[2px] bg-[#1c1c1e] z-0" />
+           
+            {/* Item: Time zone */}
+            <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#0ea5e9] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoTimeOutline className="w-[18px] h-[18px] text-white" />
+               </div>
+               <div className="ml-4 flex-1 flex flex-col justify-center border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
+                  <div className="flex items-center justify-between">
+                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Time zone</p>
+                     <div className="flex items-center gap-1 text-[#555558]">
+                        <span className="text-[15px]" style={{ fontFamily: SF }}>Select time zone</span>
+                        <IoChevronForward className="w-4 h-4" />
+                     </div>
+                  </div>
+               </div>
+            </button>
+
+            {/* Item: Occupation */}
+            <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#ec4899] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoBriefcaseOutline className="w-[18px] h-[18px] text-white" />
+               </div>
+               <div className="ml-4 flex-1 flex flex-col justify-center border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
+                  <div className="flex items-center justify-between">
+                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Occupation</p>
+                     <span className="text-[#555558] text-[15px]" style={{ fontFamily: SF }}>Enter occupation</span>
+                  </div>
+               </div>
+            </button>
+
+            {/* Item: Interests */}
+            <button className="flex items-center w-full relative z-10 mb-2 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#ef4444] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoHeartOutline className="w-[18px] h-[18px] text-white" />
+               </div>
+               <div className="ml-4 flex-1 flex items-center justify-between min-h-[40px]">
+                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Interests</p>
+                  <span className="text-[#555558] text-[15px]" style={{ fontFamily: SF }}>Enter interests</span>
+               </div>
+            </button>
+         </div>
+
+         {/* ── Action Buttons (Cancel / Update) ── */}
+         <div className="flex items-center gap-4 mt-8 w-full">
+            <button 
+               onClick={() => setPage("main")} 
+               className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
+               style={{ fontFamily: SF, fontSize: "16px" }}
+            >
+               Cancel
+            </button>
+            <button 
+               onClick={() => setPage("main")} 
+               className="flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+            >
+               Update
+            </button>
+         </div>
+
       </div>
     </div>
   )
@@ -639,11 +712,11 @@ export function SettingsView() {
                           background: "radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)",
                           border: "1px solid rgba(245,158,11,0.08)" }} />
             <div className="relative z-10 px-5 py-5 flex flex-col gap-2">
-              <div className="flex items-center gap-2">
+               <div className="flex items-center gap-2">
                 <p className="text-white font-bold text-[18px] leading-tight"
                    style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500"
-                      style={{ background: "rgba(245,158,11,0.15)", fontFamily: SF }}>PRO</span>
+                   style={{ background: "rgba(245,158,11,0.15)", fontFamily: SF }}>PRO</span>
               </div>
               <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
                 Upgrade your plan to enjoy full features
@@ -771,7 +844,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                  onClick={async () => {
+                   onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -796,7 +869,7 @@ export function SettingsView() {
             </div>
 
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
-              {reportSent ? (
+               {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
                        style={{ background: "rgba(52,199,89,0.1)" }}>
