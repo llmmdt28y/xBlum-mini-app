@@ -198,7 +198,7 @@ export function HomeView() {
             className="flex items-center gap-2.5 rounded-full p-1.5 pr-3.5 active:scale-95 transition-transform" 
             style={{ 
               ...cardLiquidGlassStyle, 
-              background: "rgba(20, 40, 80, 0.85)" 
+              background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)" // Azul eléctrico más claro
             }}
           >
             {/* Anillo de Progreso */}
@@ -217,7 +217,7 @@ export function HomeView() {
                   strokeLinecap="round" 
                 />
               </svg>
-              <span className="text-[10px] font-bold text-[#3b82f6]">1/4</span>
+              <span className="text-[10px] font-bold text-white">1/4</span>
             </div>
             
             {/* Textos */}
@@ -226,7 +226,7 @@ export function HomeView() {
               <span className="text-[#8e8e93] text-[11px] font-medium mt-0.5" style={{ fontFamily: SF }}>It will take 2 minutes</span>
             </div>
             
-            <ChevronRight className="w-3.5 h-3.5 text-[#636366] ml-0.5" />
+            <ChevronRight className="w-3.5 h-3.5 text-white/50 ml-0.5" />
           </button>
 
           {/* Bloque Derecho: 2 Píldoras apiladas verticalmente */}
@@ -279,7 +279,7 @@ export function HomeView() {
 
         </div>
 
-        {/* Tarjeta Schedules */}
+        {/* Tarjeta Schedules - RECORTADA */}
         <div className="bg-[#111111] rounded-[24px] p-4 border border-white/5 shadow-lg relative">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -299,10 +299,13 @@ export function HomeView() {
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
-          <div className="flex justify-center gap-1.5 mt-4">
-            <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-            <div className="w-1.5 h-1.5 rounded-full bg-[#333]"></div>
-          </div>
+          {/* Puntos eliminados de aquí */}
+        </div>
+
+        {/* PUNTOS INDICADORES DE PÁGINA - FUERA Y ABAJO */}
+        <div className="flex justify-center gap-1.5 my-3">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#1c1c1e]" /> {/* Punto inactivo */}
+          <div className="w-1.5 h-1.5 rounded-full bg-[#3a3a3c]" /> {/* Punto activo */}
         </div>
 
         {/* Carrusel Horizontal - Con min-w-[80%] para Connectors más cortos */}
@@ -323,10 +326,10 @@ export function HomeView() {
                     </div>
                     <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
                   </div>
-                  {/* Botón View cambiado a Blanco con texto negro */}
+                  {/* Botón View cambiado a Gris claro con texto blanco */}
                   <button 
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                    className="px-3.5 py-1.5 rounded-[14px] bg-white text-black text-[12px] font-bold hover:bg-neutral-200 transition-colors" style={{ fontFamily: SF }}
+                    className="px-3.5 py-1.5 rounded-[14px] bg-[#1c1c1e] text-white text-[12px] font-bold hover:bg-[#202022] transition-colors" style={{ fontFamily: SF }}
                   >
                     View
                   </button>
@@ -334,12 +337,12 @@ export function HomeView() {
               ))}
             </div>
 
-            {/* Botón Add connection modificado a estilo Blanco */}
+            {/* Botón Add connection modificado a estilo Gris Claro */}
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
-              className="mt-3 w-full py-2.5 bg-white border border-white/10 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-bold text-black hover:bg-neutral-200 transition-colors" style={{ fontFamily: SF }}
+              className="mt-3 w-full py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-[#8e8e93] hover:bg-[#202022] hover:text-[#e5e5ea] transition-colors" style={{ fontFamily: SF }}
             >
-              <Plus className="w-4 h-4 text-black" /> Add connection
+              <Plus className="w-4 h-4 text-[#555558]" /> Add connection
             </button>
           </div>
 
@@ -369,13 +372,7 @@ export function HomeView() {
                   </div>
                 </button>
             </div>
-
-            <div className="absolute right-[-20px] top-1/2 -translate-y-1/2 w-[12px] h-[90px] bg-[#1a1a1c] rounded-l-[24px] border border-white/5 p-2 flex flex-col gap-2 items-center justify-center">
-              <span className="text-white text-[9px] font-bold select-none" style={imageProtectionStyle}>M</span>
-              <span className="text-[#8e8e93] text-[7px] select-none" style={imageProtectionStyle}>Auto</span>
-              <Settings2 className="w-2.5 h-2.5 text-[#333]" />
-              <ImageIcon className="w-2.5 h-2.5 text-[#333]" />
-            </div>
+            {/* Bloque de puntos extraño eliminado de aquí */}
           </div>
 
         </div>
