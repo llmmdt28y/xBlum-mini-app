@@ -1,7 +1,12 @@
 "use client"
 
 import { useApp, type ModelName } from "@/lib/app-context"
-import { ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, X, ExternalLink, AlertCircle, Trash2, Loader2, Sparkles } from "lucide-react"
+// Importamos Ionicons 5 (variante filled) en lugar de lucide-react
+import { 
+  IoChevronForward, IoCheckmark, IoGlobe, IoColorWand, IoPerson, 
+  IoLockClosed, IoServer, IoDocumentText, IoShieldCheckmark, 
+  IoChatbubble, IoChevronDown, IoClose, IoTrash, IoSync, IoSparkles 
+} from "react-icons/io5"
 import { useState, useEffect } from "react"
 import React from "react"
 
@@ -75,10 +80,23 @@ const LANGS = [
 
 // ── Nuevos Componentes UI para la Vista Principal ──
 
-function IconBox({ icon, bg }: { icon: React.ReactNode; bg: string }) {
+// Reemplazamos IconBox por Icon3D para el efecto iOS
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string, bgTo: string, spin?: boolean }) {
   return (
-    <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0 shadow-sm" style={{ backgroundColor: bg }}>
-      {React.cloneElement(icon as React.ReactElement, { className: "w-[16px] h-[16px] text-white" })}
+    <div
+      className="shrink-0 flex items-center justify-center shadow-sm"
+      style={{
+        width: "30px",
+        height: "30px",
+        borderRadius: "8px",
+        background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
+        // Efecto 3D: Sombra paralela + Brillo interno superior + Sombra interna inferior
+        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
+        color: "white"
+      }}
+    >
+      <Icon className={`w-[16px] h-[16px] ${spin ? "animate-spin" : ""}`} />
     </div>
   )
 }
@@ -118,7 +136,7 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
       )}
       
       {rightNode ? rightNode : (!hideArrow && !danger && (
-        <ChevronRight className="w-5 h-5 text-[#555558]" strokeWidth={2.5} />
+        <IoChevronForward className="w-5 h-5 text-[#555558]" />
       ))}
     </>
   );
@@ -189,7 +207,7 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
   if (locked)
     return (
       <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-        <Lock className="w-4 h-4" style={{ color: "#636366" }} />
+        <IoLockClosed className="w-5 h-5" style={{ color: "#636366" }} />
       </div>
     )
 
@@ -433,9 +451,9 @@ export function SettingsView() {
 
                 <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
                   {saving === "model" && active ? (
-                    <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8e8e93" }} />
+                    <IoSync className="w-5 h-5 animate-spin" style={{ color: "#8e8e93" }} />
                   ) : active && !isDisabled ? (
-                    <Check className="w-5 h-5" style={{ color: "#3b82f6" }} strokeWidth={2.5} />
+                    <IoCheckmark className="w-6 h-6" style={{ color: "#3b82f6" }} />
                   ) : null}
                 </div>
               </button>
@@ -463,7 +481,7 @@ export function SettingsView() {
                   <span className="text-[22px]">{lang.flag}</span>
                   <p className="text-white" style={{ fontFamily: SF, fontSize: "16px" }}>{lang.name}</p>
                 </div>
-                {language === lang.code && <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} />}
+                {language === lang.code && <IoCheckmark className="w-6 h-6 text-[#3b82f6]" />}
               </button>
               {i < arr.length - 1 && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />}
             </div>
@@ -577,21 +595,21 @@ export function SettingsView() {
         {/* ── Profile ── */}
         <Section title="Profile">
           <Row
-            leftNode={<IconBox icon={<Sparkles />} bg="#ec4899" />}
+            leftNode={<Icon3D icon={IoColorWand} bgFrom="#f9a8d4" bgTo="#ec4899" />}
             label="LLM model"
             value={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
           <Divider />
           <Row
-            leftNode={<IconBox icon={<Globe />} bg="#a855f7" />}
+            leftNode={<Icon3D icon={IoGlobe} bgFrom="#d8b4fe" bgTo="#a855f7" />}
             label="Language"
             value={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
           />
           <Divider />
           <Row
-            leftNode={<IconBox icon={<User />} bg="#3b82f6" />}
+            leftNode={<Icon3D icon={IoPerson} bgFrom="#93c5fd" bgTo="#3b82f6" />}
             label="About You"
             value={userPreferences.name || "Edit"}
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
@@ -601,13 +619,13 @@ export function SettingsView() {
         {/* ── Data & Privacy ── */}
         <Section title="Data & Privacy">
           <Row
-            leftNode={<IconBox icon={<Database />} bg="#f59e0b" />}
+            leftNode={<Icon3D icon={IoServer} bgFrom="#fcd34d" bgTo="#f59e0b" />}
             label="Personalize Memories"
             rightNode={<Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
           />
           <Divider />
           <Row
-            leftNode={<IconBox icon={<Bot />} bg="#10b981" />}
+            leftNode={<Icon3D icon={IoSparkles} bgFrom="#6ee7b7" bgTo="#10b981" />}
             label="Improve Model"
             rightNode={<Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />}
           />
@@ -617,8 +635,8 @@ export function SettingsView() {
         <Section title="Danger Zone">
           <Row
             leftNode={saving === "del_mem"
-              ? <IconBox icon={<Loader2 className="animate-spin" />} bg="#ef4444" />
-              : <IconBox icon={<Trash2 />} bg="#ef4444" />}
+              ? <Icon3D icon={IoSync} bgFrom="#fca5a5" bgTo="#ef4444" spin />
+              : <Icon3D icon={IoTrash} bgFrom="#fca5a5" bgTo="#ef4444" />}
             label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
             onClick={handleDeleteMemories}
             danger
@@ -627,8 +645,8 @@ export function SettingsView() {
           <Divider />
           <Row
             leftNode={saving === "del_hist"
-              ? <IconBox icon={<Loader2 className="animate-spin" />} bg="#ef4444" />
-              : <IconBox icon={<Trash2 />} bg="#ef4444" />}
+              ? <Icon3D icon={IoSync} bgFrom="#fca5a5" bgTo="#ef4444" spin />
+              : <Icon3D icon={IoTrash} bgFrom="#fca5a5" bgTo="#ef4444" />}
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
@@ -641,20 +659,20 @@ export function SettingsView() {
           <Row
             isLink
             href="https://xblum.gitbook.io/home/xblum/terms"
-            leftNode={<IconBox icon={<FileText />} bg="#64748b" />}
+            leftNode={<Icon3D icon={IoDocumentText} bgFrom="#cbd5e1" bgTo="#64748b" />}
             label="Terms of Use"
           />
           <Divider />
           <Row
             isLink
             href="https://xblum.gitbook.io/home/xblum/privacy"
-            leftNode={<IconBox icon={<Shield />} bg="#64748b" />}
+            leftNode={<Icon3D icon={IoShieldCheckmark} bgFrom="#cbd5e1" bgTo="#64748b" />}
             label="Privacy Policy"
           />
           <Divider />
           <Row
             onClick={() => setShowReportModal(true)}
-            leftNode={<IconBox icon={<MessageSquare />} bg="#8b5cf6" />}
+            leftNode={<Icon3D icon={IoChatbubble} bgFrom="#c4b5fd" bgTo="#8b5cf6" />}
             label="Feedback & Support"
           />
         </Section>
@@ -674,7 +692,7 @@ export function SettingsView() {
                 onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
                 className="w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity"
                 style={{ background: "#1c1c1e" }}>
-                <X className="w-4 h-4 text-white" />
+                <IoClose className="w-5 h-5 text-white" />
               </button>
               <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Feedback & Support
@@ -685,7 +703,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                   onClick={async () => {
+                  onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -710,11 +728,11 @@ export function SettingsView() {
             </div>
 
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
-               {reportSent ? (
+              {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
                        style={{ background: "rgba(52,199,89,0.1)" }}>
-                    <Check className="w-8 h-8 text-[#34c759]" />
+                    <IoCheckmark className="w-8 h-8 text-[#34c759]" />
                   </div>
                   <p className="text-white font-bold" style={{ fontSize: "18px", fontFamily: SFD }}>Thank you!</p>
                   <p className="text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
@@ -728,11 +746,11 @@ export function SettingsView() {
                       onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
                       className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
                       style={{ background: "#1c1c1e" }}>
-                      <MessageSquare className="w-5 h-5" style={{ color: "#8e8e93" }} />
+                      <IoChatbubble className="w-5 h-5" style={{ color: "#8e8e93" }} />
                       <span className="flex-1 text-left text-white font-medium" style={{ fontSize: "15px", fontFamily: SF }}>
                         {reportType}
                       </span>
-                      <ChevronDown
+                      <IoChevronDown
                         className={`w-5 h-5 transition-transform ${showReportTypeDropdown ? "rotate-180" : ""}`}
                         style={{ color: "#8e8e93" }} />
                     </button>
