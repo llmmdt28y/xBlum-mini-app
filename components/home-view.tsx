@@ -229,29 +229,39 @@ export function HomeView() {
             <ChevronRight className="w-3.5 h-3.5 text-[#636366] ml-0.5" />
           </button>
 
-          {/* Bloque Derecho: 2 Píldoras delgadas apiladas verticalmente */}
-          <div className="flex flex-col gap-1 items-end shrink-0 relative">
+          {/* Bloque Derecho: 2 Píldoras apiladas verticalmente */}
+          <div className="flex flex-col gap-1.5 items-end shrink-0 relative">
             
             {/* Píldora Superior: Selector de Modelos */}
             <button 
               onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-              className="flex items-center justify-between gap-2 rounded-full px-2.5 py-1 bg-black border border-white/10 active:scale-95 transition-all text-[11px] h-[24px] min-w-[125px]"
-              style={{ fontFamily: SF }}
+              className="flex items-center justify-between gap-2 rounded-full px-3 py-1 active:scale-95 transition-all text-[12px] h-[28px] w-[160px]"
+              style={{ 
+                ...cardLiquidGlassStyle,
+                background: "rgba(0, 0, 0, 0.85)",
+                fontFamily: SF 
+              }}
             >
               <span className="text-[#8e8e93] font-medium">Model</span>
-              <div className="flex items-center gap-0.5">
+              <div className="flex items-center gap-1">
                 <span className="text-white font-bold">Grok 4.3</span>
-                <ChevronDown className={`w-3 h-3 text-[#8e8e93] transition-transform duration-200 ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-200 ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
               </div>
             </button>
 
             {/* Píldora Inferior: Vacía */}
-            <div className="rounded-full bg-black border border-white/10 h-[24px] min-w-[125px]" />
+            <div 
+              className="rounded-full w-[160px] h-[28px]" 
+              style={{ 
+                ...cardLiquidGlassStyle,
+                background: "rgba(0, 0, 0, 0.85)"
+              }}
+            />
 
             {/* Contenedor desplegable de Modelos */}
             {isModelDropdownOpen && (
               <div 
-                className="absolute top-[28px] right-0 z-50 w-[135px] rounded-xl p-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150 border border-white/10 shadow-2xl"
+                className="absolute top-[32px] right-0 z-50 w-[160px] rounded-xl p-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150 border border-white/10 shadow-2xl"
                 style={{ ...cardLiquidGlassStyle, background: "rgba(15, 15, 16, 0.95)" }}
               >
                 <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-semibold text-white bg-white/5 transition-colors">
