@@ -6,8 +6,7 @@ import {
   IoLockClosed, IoServer, IoDocumentText, IoShieldCheckmark, 
   IoChatbubble, IoChevronDown, IoClose, IoTrash, IoSync, IoSparkles,
   IoWalletOutline, IoCall, IoPersonOutline, IoLockClosedOutline,
-  IoMaleFemaleOutline, IoCalendarOutline, IoLocationOutline,
-  IoTimeOutline, IoBriefcaseOutline, IoHeartOutline
+  IoListOutline
 } from "react-icons/io5"
 import { useState, useEffect } from "react"
 import React from "react"
@@ -120,7 +119,7 @@ function Divider() {
 }
 
 interface RowProps {
-  label: string;
+  label: string | React.ReactNode;
   value?: string;
   onClick?: () => void;
   leftNode?: React.ReactNode;
@@ -285,7 +284,7 @@ export function SettingsView() {
     refreshModelTokenStatus,
   } = useApp()
 
-  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs">("main")
+  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details">("main")
   const [tempPrefs, setTempPrefs] = useState(userPreferences)
   const [improveModel, setImproveModel] = useState(false)
   const [saving, setSaving] = useState("")
@@ -320,7 +319,8 @@ export function SettingsView() {
     if (!tg?.BackButton) return
     tg.BackButton.show()
     const handleBack = () => {
-      if (page !== "main") setPage("main")
+      if (page === "basic_info" || page === "additional_details") setPage("prefs")
+      else if (page !== "main") setPage("main")
       else { setCurrentView("profile"); tg.BackButton.hide() }
     }
     tg.BackButton.onClick(handleBack)
@@ -496,6 +496,95 @@ export function SettingsView() {
     </div>
   )
 
+  // ── Basic Information Sub-page ─────────────────────────────────────────────
+  if (page === "basic_info") return (
+    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
+         style={{ background: "#000", minHeight: "100vh" }}>
+      <SubHeader title="Basic Information" />
+      <div className="px-4 pt-6 space-y-4">
+        <Section>
+          <Row 
+            label={<>Name<span className="text-[#ef4444]">*</span></>} 
+            value="Enter name" 
+            hideArrow 
+          />
+          <Divider />
+          <Row 
+            label="Gender" 
+            value="Select gender" 
+          />
+          <Divider />
+          <Row 
+            label="Age" 
+            value="Enter age" 
+            hideArrow 
+          />
+          <Divider />
+          <Row 
+            label="City" 
+            value="Enter city" 
+            hideArrow 
+          />
+        </Section>
+
+        {/* Action Buttons (Cancel / Update) */}
+        <div className="flex items-center gap-4 mt-8 w-full">
+            <button 
+              onClick={() => setPage("prefs")} 
+              className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
+              style={{ fontFamily: SF, fontSize: "16px" }}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => setPage("prefs")} 
+              className="flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+            >
+              Update
+            </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  // ── Additional Details Sub-page ────────────────────────────────────────────
+  if (page === "additional_details") return (
+    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
+         style={{ background: "#000", minHeight: "100vh" }}>
+      <SubHeader title="Additional Details" />
+      <div className="px-4 pt-6 space-y-4">
+        <Section title="Time zone">
+          <Row label="Time zone" value="Select time zone" />
+        </Section>
+        <Section title="Occupation">
+          <Row label="Occupation" value="Enter occupation" hideArrow />
+        </Section>
+        <Section title="Interests">
+          <Row label="Interests" value="Enter interests" hideArrow />
+        </Section>
+
+        {/* Action Buttons (Cancel / Update) */}
+        <div className="flex items-center gap-4 mt-8 w-full">
+            <button 
+              onClick={() => setPage("prefs")} 
+              className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
+              style={{ fontFamily: SF, fontSize: "16px" }}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => setPage("prefs")} 
+              className="flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+            >
+              Update
+            </button>
+        </div>
+      </div>
+    </div>
+  )
+
   // ── Prefs page (Account Setup) ─────────────────────────────────────────────
   if (page === "prefs") return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out overflow-y-auto scrollbar-native"
@@ -545,137 +634,66 @@ export function SettingsView() {
         </div>
         
         <h1 className="text-[22px] font-bold text-white mb-1.5 mt-2" style={{ fontFamily: SFD }}>Set Up Your Account</h1>
-        <p className="text-[#8e8e93] text-[14px] text-center max-w-[280px]" style={{ fontFamily: SF }}>Update your profile details below to personalize your experience.</p>
+        <p className="text-[#3b82f6] font-semibold text-[17px] mb-2" style={{ fontFamily: SF }}>3 steps left</p>
+        <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
       </div>
 
       <div className="px-5 w-full pb-10">
-         {/* ── SECCIÓN 1: Basic Information ── */}
-         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4" style={{ fontFamily: SF }}>Basic Information</h3>
+         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4" style={{ fontFamily: SF }}>Profile Setup</h3>
 
          <div className="relative flex flex-col mb-4">
             {/* Línea vertical conectora */}
             <div className="absolute left-[18px] top-[20px] bottom-[20px] w-[2px] bg-[#1c1c1e] z-0" />
             
-            {/* Item: Name */}
-            <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#3b82f6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+            {/* Step 1: Basic Information */}
+            <button onClick={() => setPage("basic_info")} className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#22c55e] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
                   <IoPersonOutline className="w-[18px] h-[18px] text-white" />
                </div>
-               <div className="ml-4 flex-1 flex flex-col justify-center border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
-                  <div className="flex items-center justify-between">
-                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Name<span className="text-[#ef4444]">*</span></p>
-                     <span className="text-[#555558] text-[15px]" style={{ fontFamily: SF }}>Enter name</span>
+               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
+                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
+                  <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
+                    <IoCheckmark className="w-[14px] h-[14px] text-white font-bold stroke-[2px]" />
                   </div>
                </div>
             </button>
             
-            {/* Item: Gender */}
-            <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#8b5cf6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoMaleFemaleOutline className="w-[18px] h-[18px] text-white" />
+            {/* Step 2: Additional Details */}
+            <button onClick={() => setPage("additional_details")} className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#3b82f6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoListOutline className="w-[18px] h-[18px] text-white" />
                </div>
-               <div className="ml-4 flex-1 flex flex-col justify-center border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
-                  <div className="flex items-center justify-between">
-                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Gender</p>
-                     <div className="flex items-center gap-1 text-[#555558]">
-                        <span className="text-[15px]" style={{ fontFamily: SF }}>Select gender</span>
-                        <IoChevronForward className="w-4 h-4" />
-                     </div>
-                  </div>
+               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
+                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
+                  <IoChevronForward className="w-5 h-5 text-[#555558]" />
                </div>
             </button>
 
-            {/* Item: Age */}
-            <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#f59e0b] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoCalendarOutline className="w-[18px] h-[18px] text-white" />
-               </div>
-               <div className="ml-4 flex-1 flex flex-col justify-center border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
-                  <div className="flex items-center justify-between">
-                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Age</p>
-                     <span className="text-[#555558] text-[15px]" style={{ fontFamily: SF }}>Enter age</span>
-                  </div>
-               </div>
-            </button>
-
-            {/* Item: City */}
-            <button className="flex items-center w-full relative z-10 mb-2 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#10b981] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoLocationOutline className="w-[18px] h-[18px] text-white" />
+            {/* Step 3: Add Personal Data */}
+            <div className="flex items-center w-full relative z-10 mb-2">
+               <div className="w-10 h-10 rounded-full bg-[#2c2c2e] border-[4px] border-black flex items-center justify-center shrink-0">
+                  <IoPersonOutline className="w-[18px] h-[18px] text-[#8e8e93]" />
                </div>
                <div className="ml-4 flex-1 flex items-center justify-between min-h-[40px]">
-                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>City</p>
-                  <span className="text-[#555558] text-[15px]" style={{ fontFamily: SF }}>Enter city</span>
+                  <p className="text-[16px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
                </div>
-            </button>
+            </div>
          </div>
 
-         {/* ── SECCIÓN 2: Additional Details ── */}
-         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4 mt-8" style={{ fontFamily: SF }}>Additional Details</h3>
+         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4 mt-8" style={{ fontFamily: SF }}>Account Security</h3>
 
-         <div className="relative flex flex-col mb-6">
-            {/* Línea vertical conectora */}
-            <div className="absolute left-[18px] top-[20px] bottom-[20px] w-[2px] bg-[#1c1c1e] z-0" />
-           
-            {/* Item: Time zone */}
-            <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#0ea5e9] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoTimeOutline className="w-[18px] h-[18px] text-white" />
-               </div>
-               <div className="ml-4 flex-1 flex flex-col justify-center border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
-                  <div className="flex items-center justify-between">
-                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Time zone</p>
-                     <div className="flex items-center gap-1 text-[#555558]">
-                        <span className="text-[15px]" style={{ fontFamily: SF }}>Select time zone</span>
-                        <IoChevronForward className="w-4 h-4" />
-                     </div>
-                  </div>
-               </div>
-            </button>
-
-            {/* Item: Occupation */}
-            <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#ec4899] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoBriefcaseOutline className="w-[18px] h-[18px] text-white" />
-               </div>
-               <div className="ml-4 flex-1 flex flex-col justify-center border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
-                  <div className="flex items-center justify-between">
-                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Occupation</p>
-                     <span className="text-[#555558] text-[15px]" style={{ fontFamily: SF }}>Enter occupation</span>
-                  </div>
-               </div>
-            </button>
-
-            {/* Item: Interests */}
-            <button className="flex items-center w-full relative z-10 mb-2 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#ef4444] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoHeartOutline className="w-[18px] h-[18px] text-white" />
+         <div className="relative flex flex-col">
+            {/* Step 1: Set Up Passcode */}
+            <button className="flex items-center w-full relative z-10 mb-6 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#3b82f6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoLockClosedOutline className="w-[18px] h-[18px] text-white" />
                </div>
                <div className="ml-4 flex-1 flex items-center justify-between min-h-[40px]">
-                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Interests</p>
-                  <span className="text-[#555558] text-[15px]" style={{ fontFamily: SF }}>Enter interests</span>
+                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
+                  <IoChevronForward className="w-5 h-5 text-[#555558]" />
                </div>
             </button>
          </div>
-
-         {/* ── Action Buttons (Cancel / Update) ── */}
-         <div className="flex items-center gap-4 mt-8 w-full">
-            <button 
-               onClick={() => setPage("main")} 
-               className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
-               style={{ fontFamily: SF, fontSize: "16px" }}
-            >
-               Cancel
-            </button>
-            <button 
-               onClick={() => setPage("main")} 
-               className="flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
-               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-            >
-               Update
-            </button>
-         </div>
-
       </div>
     </div>
   )
