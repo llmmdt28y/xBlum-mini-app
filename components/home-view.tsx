@@ -299,13 +299,12 @@ export function HomeView() {
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
-          {/* Puntos eliminados de aquí */}
         </div>
 
-        {/* PUNTOS INDICADORES DE PÁGINA - FUERA Y ABAJO */}
-        <div className="flex justify-center gap-1.5 my-3">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#1c1c1e]" /> {/* Punto inactivo */}
-          <div className="w-1.5 h-1.5 rounded-full bg-[#3a3a3c]" /> {/* Punto activo */}
+        {/* LÍNEAS INDICADORAS DE PÁGINA - FUERA Y MÁS ARRIBA */}
+        <div className="flex justify-center gap-2 mt-1 mb-3">
+          <div className="w-4 h-[4px] rounded-full bg-white" /> {/* Línea activa */}
+          <div className="w-4 h-[4px] rounded-full bg-[#333]" /> {/* Línea inactiva */}
         </div>
 
         {/* Carrusel Horizontal - Con min-w-[80%] para Connectors más cortos */}
@@ -337,12 +336,12 @@ export function HomeView() {
               ))}
             </div>
 
-            {/* Botón Add connection modificado a estilo Gris Claro */}
+            {/* Botón Add connection modificado a texto blanco e icono blanco */}
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
-              className="mt-3 w-full py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-[#8e8e93] hover:bg-[#202022] hover:text-[#e5e5ea] transition-colors" style={{ fontFamily: SF }}
+              className="mt-3 w-full py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#202022] transition-colors" style={{ fontFamily: SF }}
             >
-              <Plus className="w-4 h-4 text-[#555558]" /> Add connection
+              <Plus className="w-4 h-4 text-white" /> Add connection
             </button>
           </div>
 
@@ -372,7 +371,6 @@ export function HomeView() {
                   </div>
                 </button>
             </div>
-            {/* Bloque de puntos extraño eliminado de aquí */}
           </div>
 
         </div>
