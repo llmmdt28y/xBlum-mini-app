@@ -83,6 +83,11 @@ function IconBox({ icon, bg }: { icon: React.ReactNode; bg: string }) {
   )
 }
 
+function Divider() {
+  // Ajustamos el margen izquierdo para que se alinee con el texto y no cruce debajo del icono
+  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "60px" }} />
+}
+
 interface RowProps {
   label: string;
   value?: string;
@@ -105,28 +110,29 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
       
       <div className="flex-1" />
       
+      {/* El valor a la derecha ahora es gris, igual que la flecha */}
       {value && (
-        <span className="text-[15px] mr-1" style={{ fontFamily: SF, color: "#60a5fa" }}>
+        <span className="text-[15px] mr-1" style={{ fontFamily: SF, color: "#8e8e93" }}>
           {value}
         </span>
       )}
       
       {rightNode ? rightNode : (!hideArrow && !danger && (
-        <ChevronRight className="w-4 h-4 text-[#555558]" strokeWidth={2.5} />
+        <ChevronRight className="w-5 h-5 text-[#555558]" strokeWidth={2.5} />
       ))}
     </>
   );
 
   if (isLink && href) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3.5 p-3.5 border-b border-[#1c1c1e] last:border-b-0 active:bg-white/5 transition-colors text-left">
+      <a href={href} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3.5 px-4 py-3 active:bg-white/5 transition-colors text-left">
         {content}
       </a>
     );
   }
 
   return (
-    <button onClick={onClick} disabled={!onClick && !rightNode} className={`w-full flex items-center gap-3.5 p-3.5 border-b border-[#1c1c1e] last:border-b-0 ${onClick ? 'active:bg-white/5 transition-colors' : ''} text-left`}>
+    <button onClick={onClick} disabled={!onClick && !rightNode} className={`w-full flex items-center gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors' : ''} text-left`}>
       {content}
     </button>
   )
@@ -135,13 +141,15 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both space-y-2">
-      {title && (
-        <div className="flex items-center justify-between px-4 pt-1">
-          <h2 className="text-[#3b82f6] text-[14px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
-          {rightAction && <div>{rightAction}</div>}
-        </div>
-      )}
-      <div className="rounded-[20px] overflow-hidden shadow-lg border border-white/5 bg-[#111111]">
+      {/* El contenedor ahora envuelve también al título, como en la imagen */}
+      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
+        {title && (
+          <div className="flex items-center justify-between px-4 pt-4 pb-1">
+            {/* Título en color azul (#60a5fa) */}
+            <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
+            {rightAction && <div>{rightAction}</div>}
+          </div>
+        )}
         {children}
       </div>
     </div>
@@ -574,12 +582,14 @@ export function SettingsView() {
             value={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
+          <Divider />
           <Row
             leftNode={<IconBox icon={<Globe />} bg="#a855f7" />}
             label="Language"
             value={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
           />
+          <Divider />
           <Row
             leftNode={<IconBox icon={<User />} bg="#3b82f6" />}
             label="About You"
@@ -595,6 +605,7 @@ export function SettingsView() {
             label="Personalize Memories"
             rightNode={<Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
           />
+          <Divider />
           <Row
             leftNode={<IconBox icon={<Bot />} bg="#10b981" />}
             label="Improve Model"
@@ -613,6 +624,7 @@ export function SettingsView() {
             danger
             hideArrow
           />
+          <Divider />
           <Row
             leftNode={saving === "del_hist"
               ? <IconBox icon={<Loader2 className="animate-spin" />} bg="#ef4444" />
@@ -632,12 +644,14 @@ export function SettingsView() {
             leftNode={<IconBox icon={<FileText />} bg="#64748b" />}
             label="Terms of Use"
           />
+          <Divider />
           <Row
             isLink
             href="https://xblum.gitbook.io/home/xblum/privacy"
             leftNode={<IconBox icon={<Shield />} bg="#64748b" />}
             label="Privacy Policy"
           />
+          <Divider />
           <Row
             onClick={() => setShowReportModal(true)}
             leftNode={<IconBox icon={<MessageSquare />} bg="#8b5cf6" />}
