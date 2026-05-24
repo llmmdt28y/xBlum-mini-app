@@ -1,12 +1,16 @@
 "use client"
 
-import { useApp, type ModelName } from "@/lib/app-context"
-import { ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, X, ExternalLink, AlertCircle, Trash2, Loader2, Sparkles } from "lucide-react"
-import { useState, useEffect } from "react"
-import React from "react"
+import { useApp, type ModelName } from "@/lib/app-context";
+import { 
+  ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, 
+  ShieldCheck, MessageSquare, ChevronDown, X, ExternalLink, AlertCircle, 
+  Trash2, Loader2, Sparkles, LogOut, ArrowLeft
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import React from "react";
 
-const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
-const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif";
+const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif";
 
 const MODEL_LOGO: Record<string, string> = {
   "Grok 4.3": "/grok.png",
@@ -14,24 +18,24 @@ const MODEL_LOGO: Record<string, string> = {
   "Grok 4":   "/grok.png",   // DB legacy alias
   "GPT-5.4":  "/gpt.png",
   "GPT-5.2":  "/gpt.png",
-}
+};
 
 // ModelTokenStatus shape from /api/user_profile → model_token_status
 interface ModelTokenInfo {
-  used:      number
-  limit:     number
-  mins_left: number
-  pct:       number
+  used:      number;
+  limit:     number;
+  mins_left: number;
+  pct:       number;
 }
 
 const MODELS: {
-  name: string
-  desc: string
-  tag: string | null
-  tagColor: string
-  tagStyle?: string
-  proOnly: boolean
-  initial: string
+  name: string;
+  desc: string;
+  tag: string | null;
+  tagColor: string;
+  tagStyle?: string;
+  proOnly: boolean;
+  initial: string;
 }[] = [
   {
     name: "Grok 4.3",
@@ -67,20 +71,31 @@ const MODELS: {
     proOnly: false,
     initial: "2",
   },
-]
+];
 
 const LANGS = [
   { code: "en" as const, name: "English", flag: "🇬🇧" },
-]
+];
 
-// ── Nuevos Componentes UI para la Vista Principal ──
+// ── Nuevos Componentes UI para la Vista Principal (Home View) ──
 
 function IconBox({ icon, bg }: { icon: React.ReactNode; bg: string }) {
+  // Efecto 3D/Volumen con gradiente interior y borde sutil
+  const gradient = `radial-gradient(circle at 50% 30%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 80%)`;
   return (
-    <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0 shadow-sm" style={{ backgroundColor: bg }}>
-      {React.cloneElement(icon as React.ReactElement, { className: "w-[16px] h-[16px] text-white" })}
+    <div
+      className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0 shadow-sm relative overflow-hidden"
+      style={{
+        backgroundColor: bg,
+        border: "1px solid rgba(255,255,255,0.06)",
+      }}
+    >
+      <div className="absolute inset-0 pointer-events-none" style={{ background: gradient }} />
+      {React.cloneElement(icon as React.ReactElement, {
+        className: "w-[16px] h-[16px] text-white relative z-10",
+      })}
     </div>
-  )
+  );
 }
 
 function Divider() {
@@ -135,17 +150,17 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
     <button onClick={onClick} disabled={!onClick && !rightNode} className={`w-full flex items-center gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors' : ''} text-left`}>
       {content}
     </button>
-  )
+  );
 }
 
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both space-y-2">
-      {/* El contenedor ahora envuelve también al título, como en la imagen */}
+      {/* El contenedor ahora envuelve también al título y tiene las esquinas más redondeadas (estilo iOS) */}
       <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
         {title && (
           <div className="flex items-center justify-between px-4 pt-4 pb-1">
-            {/* Título en color azul (#60a5fa) */}
+            {/* Título en color azul tenue (#60a5fa) */}
             <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
             {rightAction && <div>{rightAction}</div>}
           </div>
@@ -153,7 +168,7 @@ function Section({ title, children, rightAction }: { title?: string; children: R
         {children}
       </div>
     </div>
-  )
+  );
 }
 
 // ── Componentes de Utilidad ──
@@ -175,23 +190,23 @@ function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void;
         }}
       />
     </button>
-  )
+  );
 }
 
 function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
-  const model = MODELS.find(m => m.name === name)
+  const model = MODELS.find(m => m.name === name);
   const imageProps = {
     draggable: false,
     onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
     style: { WebkitTouchCallout: "none" as const, userSelect: "none" as const },
-  }
+  };
 
   if (locked)
     return (
       <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
         <Lock className="w-4 h-4" style={{ color: "#636366" }} />
       </div>
-    )
+    );
 
   return (
     <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-[#1c1c1e]" style={{ background: "#111" }}>
@@ -201,26 +216,26 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
         className="w-6 h-6 object-contain pointer-events-none select-none"
         {...imageProps}
         onError={e => {
-          const el = e.currentTarget
-          el.style.display = "none"
-          const p = el.parentElement
+          const el = e.currentTarget;
+          el.style.display = "none";
+          const p = el.parentElement;
           if (p) {
-            p.style.background = "#1c1c1e"
-            const sp = document.createElement("span")
-            sp.textContent = model?.initial ?? "?"
-            sp.style.color = "#fff"; sp.style.fontWeight = "600"; sp.style.fontFamily = SFD
-            p.appendChild(sp)
+            p.style.background = "#1c1c1e";
+            const sp = document.createElement("span");
+            sp.textContent = model?.initial ?? "?";
+            sp.style.color = "#fff"; sp.style.fontWeight = "600"; sp.style.fontFamily = SFD;
+            p.appendChild(sp);
           }
         }}
       />
     </div>
-  )
+  );
 }
 
 // Token usage mini-bar shown inside each model row when limit is > 0
 function TokenBar({ pct }: { pct: number }) {
-  const clamped = Math.min(100, Math.max(0, pct))
-  const color = clamped >= 90 ? "#ef4444" : clamped >= 70 ? "#f97316" : "#3b82f6"
+  const clamped = Math.min(100, Math.max(0, pct));
+  const color = clamped >= 90 ? "#ef4444" : clamped >= 70 ? "#f97316" : "#3b82f6";
   return (
     <div className="w-full mt-1.5 rounded-full overflow-hidden" style={{ height: "2px", background: "#2c2c2e" }}>
       <div
@@ -228,7 +243,7 @@ function TokenBar({ pct }: { pct: number }) {
         style={{ width: `${clamped}%`, background: color }}
       />
     </div>
-  )
+  );
 }
 
 function SubHeader({ title }: { title: string }) {
@@ -244,7 +259,7 @@ function SubHeader({ title }: { title: string }) {
         {title}
       </h2>
     </div>
-  )
+  );
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -260,83 +275,79 @@ export function SettingsView() {
     submitFeedback,
     modelTokenStatus,
     refreshModelTokenStatus,
-  } = useApp()
+  } = useApp();
 
-  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs">("main")
-  const [tempPrefs, setTempPrefs] = useState(userPreferences)
-  const [improveModel, setImproveModel] = useState(false)
-  const [saving, setSaving] = useState("")
-  const [showReportModal, setShowReportModal] = useState(false)
-  const [reportType, setReportType] = useState("General feedback")
-  const [reportDescription, setReportDescription] = useState("")
-  const [showReportTypeDropdown, setShowReportTypeDropdown] = useState(false)
-  const [submittingReport, setSubmittingReport] = useState(false)
-  const [reportSent, setReportSent] = useState(false)
+  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs">("main");
+  const [tempPrefs, setTempPrefs] = useState(userPreferences);
+  const [improveModel, setImproveModel] = useState(false);
+  const [saving, setSaving] = useState("");
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportType, setReportType] = useState("General feedback");
+  const [reportDescription, setReportDescription] = useState("");
+  const [showReportTypeDropdown, setShowReportTypeDropdown] = useState(false);
+  const [submittingReport, setSubmittingReport] = useState(false);
+  const [reportSent, setReportSent] = useState(false);
 
-  const currentModelInfo = MODELS.find(m => m.name === selectedModel)
-
-  // Normalize display name — DB may store "Grok 4" which maps to "Grok 4.1" in UI
   // Normalize DB legacy "Grok 4" → display "Grok 4.1"
-  const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
+  const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel;
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tg = (window as any).Telegram?.WebApp
-    if (!tg?.BackButton) return
-    tg.BackButton.show()
+    const tg = (window as any).Telegram?.WebApp;
+    if (!tg?.BackButton) return;
+    tg.BackButton.show();
     const handleBack = () => {
-      if (page !== "main") setPage("main")
-      else { setCurrentView("profile"); tg.BackButton.hide() }
+      if (page !== "main") setPage("main");
+      else { setCurrentView("profile"); tg.BackButton.hide(); }
     }
-    tg.BackButton.onClick(handleBack)
-    return () => { tg.BackButton.offClick(handleBack) }
-  }, [page, setCurrentView])
+    tg.BackButton.onClick(handleBack);
+    return () => { tg.BackButton.offClick(handleBack); }
+  }, [page, setCurrentView]);
 
   async function selectModel(m: string) {
-    setSaving("model")
-    await setSelectedModel(m as ModelName)
-    setSaving("")
-    setPage("main")
+    setSaving("model");
+    await setSelectedModel(m as ModelName);
+    setSaving("");
+    setPage("main");
   }
 
   // Refresh token status every time the model-selector page is opened
-  // so the free-tier bars and "limit reached" badges are always current.
   useEffect(() => {
     if (page === "model") {
-      refreshModelTokenStatus()
+      refreshModelTokenStatus();
     }
-  }, [page, refreshModelTokenStatus])
+  }, [page, refreshModelTokenStatus]);
 
   async function handlePersonalizeToggle() {
-    setSaving("personalize")
-    await setPersonalizeMemories(!personalizeMemories)
-    setSaving("")
+    setSaving("personalize");
+    await setPersonalizeMemories(!personalizeMemories);
+    setSaving("");
   }
 
   async function handleDeleteMemories() {
-    if (!window.Telegram?.WebApp) return
+    if (!window.Telegram?.WebApp) return;
     window.Telegram.WebApp.showConfirm(
       "Delete all memories? xBlum will forget everything about you.",
       async (ok: boolean) => {
-        if (!ok) return
-        setSaving("del_mem")
-        await deleteAllMemories()
-        setSaving("")
-        window.Telegram?.WebApp?.showAlert("All memories deleted.")
+        if (!ok) return;
+        setSaving("del_mem");
+        await deleteAllMemories();
+        setSaving("");
+        window.Telegram?.WebApp?.showAlert("All memories deleted.");
       }
     )
   }
 
   async function handleDeleteHistory() {
-    if (!window.Telegram?.WebApp) return
+    if (!window.Telegram?.WebApp) return;
     window.Telegram.WebApp.showConfirm(
       "Delete all conversation history?",
       async (ok: boolean) => {
-        if (!ok) return
-        setSaving("del_hist")
-        await deleteAllHistory()
-        setSaving("")
-        window.Telegram?.WebApp?.showAlert("History deleted.")
+        if (!ok) return;
+        setSaving("del_hist");
+        await deleteAllHistory();
+        setSaving("");
+        window.Telegram?.WebApp?.showAlert("History deleted.");
       }
     )
   }
@@ -353,24 +364,15 @@ export function SettingsView() {
           </div>
 
           {MODELS.map((m) => {
-            const locked = m.proOnly && !isPremium
-
-            // Map UI name → DB canonical for token status lookup
-            // DB canonical: "Grok 4.1" stored as "Grok 4" (legacy), "Grok 4.3" as-is
-            const tokenKey = m.name === "Grok 4.1" ? "Grok 4" : m.name
-            const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey]
-
-            // Limit hit: token budget exhausted
-            const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
-            const minsLeft = limitHit ? tokenInfo.mins_left : 0
-            const pct      = tokenInfo?.pct ?? 0
-
-            // Active check (normalize DB "Grok 4" → UI "Grok 4.1")
-            // "Grok 4" in DB is shown as "Grok 4.1" in UI
+            const locked = m.proOnly && !isPremium;
+            const tokenKey = m.name === "Grok 4.1" ? "Grok 4" : m.name;
+            const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey];
+            const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit;
+            const minsLeft = limitHit ? tokenInfo.mins_left : 0;
+            const pct      = tokenInfo?.pct ?? 0;
             const active =
-              m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
-
-            const isDisabled = locked || saving === "model" || !!limitHit
+              m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4");
+            const isDisabled = locked || saving === "model" || !!limitHit;
 
             return (
               <button
@@ -387,8 +389,6 @@ export function SettingsView() {
                       <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>
                         {m.name}
                       </p>
-
-                      {/* Tag (New / PRO) — only when not locked or limited */}
                       {m.tag && !locked && !limitHit && (
                         <span
                           className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
@@ -396,24 +396,18 @@ export function SettingsView() {
                           {m.tag}
                         </span>
                       )}
-
-                      {/* PRO lock badge */}
                       {locked && (
                         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
                               style={{ fontFamily: SF }}>
                           PRO
                         </span>
                       )}
-
-                      {/* Limit reached badge */}
                       {limitHit && !locked && (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
                               style={{ fontFamily: SF }}>
                           limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
                         </span>
                       )}
-
-                      {/* Throttle badge for non-Grok models (legacy) */}
                       {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
                               style={{ fontFamily: SF }}>
@@ -421,16 +415,12 @@ export function SettingsView() {
                         </span>
                       )}
                     </div>
-
                     <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
-
-                    {/* Token usage bar — only shown for free tier Grok models */}
                     {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
                       <TokenBar pct={pct} />
                     )}
                   </div>
                 </div>
-
                 <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
                   {saving === "model" && active ? (
                     <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8e8e93" }} />
@@ -441,12 +431,11 @@ export function SettingsView() {
               </button>
             )
           })}
-
           <div className="pb-2" />
         </div>
       </div>
     </div>
-  )
+  );
 
   // ── Lang page ──────────────────────────────────────────────────────────────
   if (page === "lang") return (
@@ -471,7 +460,7 @@ export function SettingsView() {
         </div>
       </div>
     </div>
-  )
+  );
 
   // ── Prefs page ─────────────────────────────────────────────────────────────
   if (page === "prefs") return (
@@ -519,60 +508,60 @@ export function SettingsView() {
         </button>
       </div>
     </div>
-  )
+  );
 
-  // ── Main settings page ─────────────────────────────────────────────────────
+  // ── Main settings page (Home View) ─────────────────────────────────────────────────────
   return (
-    <div className="flex-1 overflow-y-auto" style={{ background: "#000" }}>
-      <div className="sticky top-0 z-10 flex items-center justify-center px-4 pb-3" style={{
-        paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)",
-        background: "rgba(0,0,0,0.92)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-      }}>
-        <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+    <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-28">
+      {/* Encabezado */}
+      <div className="flex items-center gap-4 p-4 sticky top-0 bg-black/90 backdrop-blur-sm z-50 border-b border-white/5">
+        <button
+          onClick={() => setCurrentView("home")}
+          className="w-9 h-9 bg-neutral-900 rounded-full flex items-center justify-center text-[#8e8e93] active:scale-95 transition-transform"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <h1 className="text-[28px] font-bold text-white" style={{ fontFamily: SFD }}>
           Settings
-        </h2>
+        </h1>
       </div>
 
-      <div className="px-4 pt-4 pb-28 space-y-6">
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
 
-        {/* ── xBlum Pro card (non-premium only) ── */}
-        {!isPremium && (
-          <button
-            onClick={() => setCurrentView("premium")}
-            className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left animate-in fade-in slide-in-from-bottom-4 duration-500"
-            style={{ background: "#111", border: "1px solid #1c1c1e", borderRadius: "20px", minHeight: "96px" }}
-          >
-            <div className="absolute inset-0 pointer-events-none"
-                 style={{ background: "radial-gradient(ellipse at 8% 40%, rgba(245,158,11,0.07) 0%, transparent 55%)" }} />
-            <div className="absolute pointer-events-none"
-                 style={{ width: "90px", height: "90px", borderRadius: "50%", top: "-30px", right: "-20px",
-                          background: "radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)",
-                          border: "1px solid rgba(245,158,11,0.10)" }} />
-            <div className="absolute pointer-events-none"
-                 style={{ width: "55px", height: "55px", borderRadius: "50%", bottom: "-18px", right: "30px",
-                          background: "radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)",
-                          border: "1px solid rgba(245,158,11,0.08)" }} />
-            <div className="relative z-10 px-5 py-5 flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <p className="text-white font-bold text-[18px] leading-tight"
-                   style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500"
-                      style={{ background: "rgba(245,158,11,0.15)", fontFamily: SF }}>PRO</span>
-              </div>
-              <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
-                Upgrade your plan to enjoy full features
-              </p>
-              <div className="flex items-center justify-center mt-3 px-4 py-3 rounded-xl w-full"
-                   style={{ background: "#fff" }}>
-                <span className="text-black font-bold" style={{ fontSize: "15px", fontFamily: SF }}>
-                  Upgrade →
-                </span>
-              </div>
+        {/* ── xBlum Pro card ── */}
+        <button
+          onClick={() => setCurrentView("premium")}
+          className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left animate-in fade-in slide-in-from-bottom-4 duration-500"
+          style={{ background: "#111", border: "1px solid #1c1c1e", borderRadius: "20px", minHeight: "96px" }}
+        >
+          <div className="absolute inset-0 pointer-events-none"
+               style={{ background: "radial-gradient(ellipse at 8% 40%, rgba(245,158,11,0.07) 0%, transparent 55%)" }} />
+          <div className="absolute pointer-events-none"
+               style={{ width: "90px", height: "90px", borderRadius: "50%", top: "-30px", right: "-20px",
+                        background: "radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)",
+                        border: "1px solid rgba(245,158,11,0.10)" }} />
+          <div className="absolute pointer-events-none"
+               style={{ width: "55px", height: "55px", borderRadius: "50%", bottom: "-18px", right: "30px",
+                        background: "radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)",
+                        border: "1px solid rgba(245,158,11,0.08)" }} />
+          <div className="relative z-10 px-5 py-5 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <p className="text-white font-bold text-[18px] leading-tight"
+                 style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500"
+                    style={{ background: "rgba(245,158,11,0.15)", fontFamily: SF }}>PRO</span>
             </div>
-          </button>
-        )}
+            <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
+              Upgrade your plan to enjoy full features
+            </p>
+            <div className="flex items-center justify-center mt-3 px-4 py-3 rounded-xl w-full"
+                 style={{ background: "#fff" }}>
+              <span className="text-black font-bold" style={{ fontSize: "15px", fontFamily: SF }}>
+                Upgrade →
+              </span>
+            </div>
+          </div>
+        </button>
 
         {/* ── Profile ── */}
         <Section title="Profile">
@@ -648,7 +637,7 @@ export function SettingsView() {
           <Row
             isLink
             href="https://xblum.gitbook.io/home/xblum/privacy"
-            leftNode={<IconBox icon={<Shield />} bg="#64748b" />}
+            leftNode={<IconBox icon={<ShieldCheck />} bg="#64748b" />}
             label="Privacy Policy"
           />
           <Divider />
@@ -658,6 +647,24 @@ export function SettingsView() {
             label="Feedback & Support"
           />
         </Section>
+
+        {/* Cerrar Sesión */}
+        <Section>
+          <Row
+            leftNode={<IconBox icon={<LogOut />} bg="#ef4444" />}
+            label="Log Out"
+            danger
+            onClick={() => {}}
+          />
+        </Section>
+
+        {/* Versión de la App */}
+        <div className="text-center pt-6 pb-8">
+          <p className="text-[#3a3a3c] text-[13px] font-medium" style={{ fontFamily: SF }}>
+            Noir Agent • Version 1.0.0
+          </p>
+        </div>
+
       </div>
 
       {/* ── Feedback Modal ── */}
@@ -709,7 +716,7 @@ export function SettingsView() {
               )}
             </div>
 
-            <div className="p-5 space-y-4 overflow-y-auto flex-1">
+            <div className="p-5 space-y-4 overflow-y-auto flex-1 hide-scrollbar">
                {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
@@ -774,5 +781,5 @@ export function SettingsView() {
         </div>
       )}
     </div>
-  )
+  );
 }
