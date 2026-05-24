@@ -145,8 +145,27 @@ export function HomeView() {
   const [botIntConfig, setBotIntConfig] = useState({ enabled: true, moderation_react: true, auto_execute_mod: false, file_summarize: true })
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
+  
+  const modelDropdownRef = useRef<HTMLDivElement>(null)
 
   const { setCurrentView } = useApp()
+
+  // ── EFECTO PARA CERRAR EL DROPDOWN AL TOCAR FUERA ──
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (modelDropdownRef.current && !modelDropdownRef.current.contains(event.target as Node)) {
+        setIsModelDropdownOpen(false)
+      }
+    }
+    if (isModelDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener("touchstart", handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("touchstart", handleClickOutside)
+    }
+  }, [isModelDropdownOpen])
 
   useEffect(() => {
     const tg = getTg()
@@ -232,22 +251,42 @@ export function HomeView() {
           {/* Bloque Derecho: 2 Píldoras apiladas verticalmente */}
           <div className="flex flex-col gap-1.5 items-end shrink-0 relative">
             
-            {/* Píldora Superior: Selector de Modelos */}
-            <button 
-              onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-              className="flex items-center justify-between gap-2 rounded-full px-3 py-1 active:scale-95 transition-all text-[12px] h-[28px] w-[160px]"
-              style={{ 
-                ...cardLiquidGlassStyle,
-                background: "rgba(0, 0, 0, 0.85)",
-                fontFamily: SF 
-              }}
-            >
-              <span className="text-[#8e8e93] font-medium">Model</span>
-              <div className="flex items-center gap-1">
-                <span className="text-white font-bold">Grok 4.3</span>
-                <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-200 ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
-              </div>
-            </button>
+            {/* Contenedor Relativo para Selector de Modelos y su Menú */}
+            <div className="relative" ref={modelDropdownRef}>
+              <button 
+                onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+                className="flex items-center justify-between gap-2 rounded-full px-3 py-1 active:scale-95 transition-all text-[12px] h-[28px] w-[160px]"
+                style={{ 
+                  ...cardLiquidGlassStyle,
+                  background: "rgba(0, 0, 0, 0.85)",
+                  fontFamily: SF 
+                }}
+              >
+                <span className="text-[#8e8e93] font-medium">Model</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-white font-bold">Grok 4.3</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-200 ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
+                </div>
+              </button>
+
+              {/* Contenedor desplegable de Modelos posicionado desde la píldora */}
+              {isModelDropdownOpen && (
+                <div 
+                  className="absolute top-[34px] right-0 z-50 w-[160px] rounded-xl p-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150 border border-white/10 shadow-2xl origin-top-right"
+                  style={{ ...cardLiquidGlassStyle, background: "rgba(15, 15, 16, 0.95)" }}
+                >
+                  <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-semibold text-white bg-white/5 transition-colors">
+                    Grok 4.3
+                  </button>
+                  <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-white hover:bg-white/5 transition-colors">
+                    Grok 3 Mini
+                  </button>
+                  <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-white hover:bg-white/5 transition-colors">
+                    Claude 3.5
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Píldora Inferior: Vacía */}
             <div 
@@ -257,24 +296,6 @@ export function HomeView() {
                 background: "rgba(0, 0, 0, 0.85)"
               }}
             />
-
-            {/* Contenedor desplegable de Modelos */}
-            {isModelDropdownOpen && (
-              <div 
-                className="absolute top-[32px] right-0 z-50 w-[160px] rounded-xl p-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150 border border-white/10 shadow-2xl"
-                style={{ ...cardLiquidGlassStyle, background: "rgba(15, 15, 16, 0.95)" }}
-              >
-                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-semibold text-white bg-white/5 transition-colors">
-                  Grok 4.3
-                </button>
-                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-white hover:bg-white/5 transition-colors">
-                  Grok 3 Mini
-                </button>
-                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-white hover:bg-white/5 transition-colors">
-                  Claude 3.5
-                </button>
-              </div>
-            )}
           </div>
 
         </div>
@@ -301,10 +322,10 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* LÍNEAS INDICADORAS DE PÁGINA - FUERA Y MÁS ARRIBA */}
-        <div className="flex justify-center gap-2 mt-1 mb-3">
-          <div className="w-4 h-[4px] rounded-full bg-white" /> {/* Línea activa */}
-          <div className="w-4 h-[4px] rounded-full bg-[#333]" /> {/* Línea inactiva */}
+        {/* LÍNEAS INDICADORAS DE PÁGINA - FUERA, MÁS CHICAS Y MÁS ARRIBA */}
+        <div className="flex justify-center gap-1.5 mt-1 mb-3">
+          <div className="w-3 h-[3px] rounded-full bg-white" /> {/* Línea activa */}
+          <div className="w-3 h-[3px] rounded-full bg-[#333]" /> {/* Línea inactiva */}
         </div>
 
         {/* Carrusel Horizontal - Con min-w-[80%] para Connectors más cortos */}
