@@ -100,7 +100,7 @@ const CONNECTORS_DB = [
     userEmail: "",
     features: [
       { icon: <Mail className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, find emails from specific people and summarize email threads." },
-      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Enterprise-grade privacy ensures your data is never used for training." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train models", desc: "Enterprise-grade privacy ensures your data is never used for training." },
       { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your emails stay in Outlook", desc: "Secure real-time access without permanent data storage." }
     ]
   },
@@ -193,7 +193,7 @@ export function HomeView() {
         {/* Contenedor Fila Superior (Complete Account + Stacked Right Pills) */}
         <div className="w-full flex items-center justify-between gap-2 relative">
           
-          {/* Píldora de Complete Account (Izquierda) */}
+          {/* Píldora de Complete Account (Izquierda) - Diseño original */}
           <button 
             className="flex items-center gap-2.5 rounded-full p-1.5 pr-3.5 active:scale-95 transition-transform" 
             style={{ 
@@ -202,7 +202,7 @@ export function HomeView() {
             }}
           >
             {/* Anillo de Progreso */}
-            <div className="relative flex items-center justify-center w-[34px] h-[34px] shrink-0 bg-black/20 rounded-full">
+            <div className="relative flex items-center justify-center w-[34px] h-[34px] shrink-0 bg-black/20 rounded-full border border-white/5">
               <svg className="w-full h-full -rotate-90 transform absolute inset-0">
                 <circle cx="17" cy="17" r="14" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" fill="none" />
                 <circle 
@@ -221,7 +221,7 @@ export function HomeView() {
             </div>
             
             {/* Textos */}
-            <div className="flex flex-col items-start">
+            <div className="flex flex-col items-start pr-1">
               <span className="text-white text-[13px] font-bold leading-tight" style={{ fontFamily: SFD }}>Complete account</span>
               <span className="text-[#8e8e93] text-[11px] font-medium mt-0.5" style={{ fontFamily: SF }}>It will take 2 minutes</span>
             </div>
@@ -230,23 +230,34 @@ export function HomeView() {
           </button>
 
           {/* Bloque Derecho: 2 Píldoras delgadas apiladas verticalmente */}
-          <div className="flex flex-col gap-1 items-end shrink-0 relative">
+          <div className="flex flex-col gap-1 items-end shrink-0 relative h-full justify-center">
             
-            {/* Píldora Superior: Selector de Modelos */}
+            {/* Píldora Superior: Selector de Modelos - Mismo diseño, tonos oscuros */}
             <button 
               onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-              className="flex items-center justify-between gap-2 rounded-full px-2.5 py-1 bg-black border border-white/10 active:scale-95 transition-all text-[11px] h-[24px] min-w-[125px]"
-              style={{ fontFamily: SF }}
+              className="flex items-center justify-between gap-2.5 rounded-full p-1.5 pr-2.5 bg-black border border-white/10 active:scale-95 transition-all text-[11px] h-[24px] min-w-[125px]"
+              style={{ ...cardLiquidGlassStyle, background: "rgba(10, 10, 11, 0.9)" }}
             >
-              <span className="text-[#8e8e93] font-medium">Model</span>
-              <div className="flex items-center gap-0.5">
-                <span className="text-white font-bold">Grok 4.3</span>
-                <ChevronDown className={`w-3 h-3 text-[#8e8e93] transition-transform duration-200 ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
+              {/* Icono Principal (como el anillo pero oscuro) */}
+              <div className="relative flex items-center justify-center w-6 h-6 shrink-0 bg-black/20 rounded-full border border-white/5">
+                {/* Puedes poner un icono de cerebro o modelo aquí. Por simplicidad, usemos el de hexagon */}
+                <Hexagon className="w-4 h-4 text-[#8e8e93]" />
               </div>
+              
+              {/* Textos - Prominent Grays */}
+              <div className="flex flex-col items-start pr-1">
+                  <span className="text-neutral-300 text-[11px] font-bold leading-tight" style={{ fontFamily: SFD }}>Model</span>
+                  <span className="text-neutral-500 text-[9px] font-medium" style={{ fontFamily: SF }}>Grok 4.3</span>
+              </div>
+              
+              <ChevronDown className={`w-3 h-3 text-neutral-500 transition-transform duration-200 ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Píldora Inferior: Vacía */}
-            <div className="rounded-full bg-black border border-white/10 h-[24px] min-w-[125px]" />
+            {/* Píldora Inferior: Vacía - Mismo diseño y dimensiones */}
+            <div 
+              className="flex items-center gap-2 rounded-full p-1.5 h-[24px] min-w-[125px] bg-black border border-white/10"
+              style={{ ...cardLiquidGlassStyle, background: "rgba(10, 10, 11, 0.9)" }}
+            />
 
             {/* Contenedor desplegable de Modelos */}
             {isModelDropdownOpen && (
@@ -254,13 +265,13 @@ export function HomeView() {
                 className="absolute top-[28px] right-0 z-50 w-[135px] rounded-xl p-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150 border border-white/10 shadow-2xl"
                 style={{ ...cardLiquidGlassStyle, background: "rgba(15, 15, 16, 0.95)" }}
               >
-                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-semibold text-white bg-white/5 transition-colors">
+                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-semibold text-[#3b82f6] bg-white/5 transition-colors">
                   Grok 4.3
                 </button>
-                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-white hover:bg-white/5 transition-colors">
+                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-[#3b82f6] hover:bg-white/5 transition-colors">
                   Grok 3 Mini
                 </button>
-                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-white hover:bg-white/5 transition-colors">
+                <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-[#3b82f6] hover:bg-white/5 transition-colors">
                   Claude 3.5
                 </button>
               </div>
@@ -273,7 +284,7 @@ export function HomeView() {
         <div className="bg-[#111111] rounded-[24px] p-4 border border-white/5 shadow-lg relative">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-[46px] h-[46px] bg-[#1a1a1c] rounded-full flex items-center justify-center">
+              <div className="w-[46px] h-[46px] bg-[#1a1a1c] rounded-full flex items-center justify-center border border-white/5">
                 <CalendarDays className="w-5 h-5 text-[#8e8e93]" />
               </div>
               <div className="flex flex-col">
@@ -285,7 +296,7 @@ export function HomeView() {
                 </p>
               </div>
             </div>
-            <button onClick={() => setCurrentView("schedule")} className="w-9 h-9 bg-[#1a1a1c] rounded-full flex items-center justify-center text-[#8e8e93] hover:bg-[#222] transition-colors relative z-10">
+            <button onClick={() => setCurrentView("schedule")} className="w-9 h-9 bg-[#1a1a1c] rounded-full flex items-center justify-center text-[#8e8e93] hover:bg-[#222] transition-colors relative z-10 border border-white/5">
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -295,10 +306,10 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Carrusel Horizontal - Con min-w-[80%] para Connectors más cortos */}
+        {/* Carrusel Horizontal */}
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
           
-          {/* Connectors Card (Más corto horizontalmente) */}
+          {/* Connectors Card */}
           <div className="min-w-[80%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
             <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>Connectors</h2>
             <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
@@ -307,13 +318,11 @@ export function HomeView() {
               {CONNECTORS_DB.slice(0, 3).map((c) => (
                 <div key={c.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
                   <div className="flex items-center gap-3">
-                    {/* Contenedor cuadrado con bordes redondeados para el icono */}
                     <div className="w-9 h-9 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0 border border-white/5">
                       <img src={c.src} alt={c.name} className="w-5 h-5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                     </div>
                     <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
                   </div>
-                  {/* Botón View cambiado a Blanco con texto negro */}
                   <button 
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
                     className="px-3.5 py-1.5 rounded-[14px] bg-white text-black text-[12px] font-bold hover:bg-neutral-200 transition-colors" style={{ fontFamily: SF }}
@@ -324,12 +333,12 @@ export function HomeView() {
               ))}
             </div>
 
-            {/* Botón Add connection rediseñado a un estilo más gris */}
+            {/* Botón Add connection - Active Gray */}
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
-              className="mt-3 w-full py-2.5 bg-[#18181a] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-[#636366] hover:bg-[#202022] hover:text-[#8e8e93] transition-colors" style={{ fontFamily: SF }}
+              className="mt-3 w-full py-2.5 bg-neutral-800 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-neutral-300 hover:bg-neutral-700 transition-colors active:bg-neutral-700" style={{ fontFamily: SF }}
             >
-              <Plus className="w-4 h-4 text-[#555558]" /> Add connection
+              <Plus className="w-4 h-4 text-neutral-300" /> Add connection
             </button>
           </div>
 
@@ -390,14 +399,16 @@ export function HomeView() {
                       <input 
                         type="text" placeholder="Search connectors" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 rounded-[16px] text-white placeholder:text-[#636366] focus:outline-none text-[15px]"
-                        style={{ background: "#1c1c1e", border: "1px solid transparent", fontFamily: SF }}
+                        style={{ background: "#1c1c1e", border: "1px solid #1c1c1e", fontFamily: SF }}
                       />
                     </div>
 
                     <div className="overflow-y-auto hide-scrollbar pb-8 space-y-2 flex-1">
                         {filteredConnectors.map(c => (
                             <button key={c.id} onClick={() => setModalState({ view: "detail", connectorId: c.id })} className="w-full flex items-center gap-4 p-3 rounded-2xl active:bg-white/5 transition-colors text-left" style={{ border: "1px solid #1c1c1e" }}>
-                                <img src={c.src} alt={c.name} className="w-8 h-8 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                                <div className="w-10 h-10 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0 border border-white/5">
+                                  <img src={c.src} alt={c.name} className="w-6 h-6 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                                </div>
                                 <div className="flex-1">
                                     <p className="text-white font-medium">{c.name}</p>
                                     <p className="text-[#8e8e93] text-[12px]">{c.isConnected ? "Active" : "Tap to connect"}</p>
@@ -414,7 +425,9 @@ export function HomeView() {
                 <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e]">
                   <div className="flex items-center gap-3">
                     <button onClick={() => setModalState({ view: "list", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full active:bg-[#1c1c1e] transition-colors"><ArrowLeft className="w-5 h-5 text-[#8e8e93]" /></button>
-                    <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-7 h-7 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                    <div className="w-10 h-10 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0 border border-white/5">
+                      <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-6 h-6 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                    </div>
                     <h2 className="text-white font-bold text-[17px]">{activeConnectorData.name}</h2>
                   </div>
                   {activeConnectorData.isConnected ? (
