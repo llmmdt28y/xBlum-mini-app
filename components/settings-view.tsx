@@ -502,30 +502,36 @@ export function SettingsView() {
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Basic Information" />
       <div className="px-4 pt-6 space-y-4">
-        <Section>
-          <Row 
-            label={<>Name<span className="text-[#ef4444]">*</span></>} 
-            value="Enter name" 
-            hideArrow 
-          />
-          <Divider />
-          <Row 
-            label="Gender" 
-            value="Select gender" 
-          />
-          <Divider />
-          <Row 
-            label="Age" 
-            value="Enter age" 
-            hideArrow 
-          />
-          <Divider />
-          <Row 
-            label="City" 
-            value="Enter city" 
-            hideArrow 
-          />
-        </Section>
+        
+        {/* Contenedor principal alineado a la izquierda */}
+        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] px-5 py-2">
+          
+          {/* Item: Name */}
+          <div className="flex items-center w-full py-4 border-b border-[#1c1c1e]">
+            <span className="w-[100px] text-white text-[16px] font-medium" style={{ fontFamily: SF }}>Name<span className="text-[#ef4444]">*</span></span>
+            <span className="text-[#555558] text-[16px] flex-1" style={{ fontFamily: SF }}>Enter name</span>
+          </div>
+
+          {/* Item: Gender */}
+          <button className="flex items-center w-full py-4 border-b border-[#1c1c1e] active:opacity-70 transition-opacity text-left">
+            <span className="w-[100px] text-white text-[16px] font-medium" style={{ fontFamily: SF }}>Gender</span>
+            <span className="text-[#555558] text-[16px] flex-1" style={{ fontFamily: SF }}>Select gender</span>
+            <IoChevronForward className="w-5 h-5 text-[#555558] shrink-0" />
+          </button>
+
+          {/* Item: Age */}
+          <div className="flex items-center w-full py-4 border-b border-[#1c1c1e]">
+            <span className="w-[100px] text-white text-[16px] font-medium" style={{ fontFamily: SF }}>Age</span>
+            <span className="text-[#555558] text-[16px] flex-1" style={{ fontFamily: SF }}>Enter age</span>
+          </div>
+
+          {/* Item: City */}
+          <div className="flex items-center w-full py-4">
+            <span className="w-[100px] text-white text-[16px] font-medium" style={{ fontFamily: SF }}>City</span>
+            <span className="text-[#555558] text-[16px] flex-1" style={{ fontFamily: SF }}>Enter city</span>
+          </div>
+
+        </div>
 
         {/* Action Buttons (Cancel / Update) */}
         <div className="flex items-center gap-4 mt-8 w-full">
@@ -554,15 +560,27 @@ export function SettingsView() {
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Additional Details" />
       <div className="px-4 pt-6 space-y-4">
-        <Section title="Time zone">
-          <Row label="Time zone" value="Select time zone" />
-        </Section>
-        <Section title="Occupation">
-          <Row label="Occupation" value="Enter occupation" hideArrow />
-        </Section>
-        <Section title="Interests">
-          <Row label="Interests" value="Enter interests" hideArrow />
-        </Section>
+        
+        {/* Item: Time zone */}
+        <button className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 active:opacity-70 transition-opacity text-left">
+          <span className="text-[#3b82f6] text-[14px] font-medium mb-3" style={{ fontFamily: SF }}>Time zone</span>
+          <div className="flex items-center justify-between w-full">
+            <span className="text-[#555558] text-[16px]" style={{ fontFamily: SF }}>Select time zone</span>
+            <IoChevronForward className="w-5 h-5 text-[#555558]" />
+          </div>
+        </button>
+
+        {/* Item: Occupation */}
+        <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 pb-12 text-left">
+          <span className="text-[#3b82f6] text-[14px] font-medium mb-3" style={{ fontFamily: SF }}>Occupation</span>
+          <span className="text-[#555558] text-[16px]" style={{ fontFamily: SF }}>Enter occupation</span>
+        </div>
+
+        {/* Item: Interests */}
+        <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 pb-12 text-left">
+          <span className="text-[#3b82f6] text-[14px] font-medium mb-3" style={{ fontFamily: SF }}>Interests</span>
+          <span className="text-[#555558] text-[16px]" style={{ fontFamily: SF }}>Enter interests</span>
+        </div>
 
         {/* Action Buttons (Cancel / Update) */}
         <div className="flex items-center gap-4 mt-8 w-full">
