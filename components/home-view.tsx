@@ -198,7 +198,7 @@ export function HomeView() {
             className="flex items-center gap-2.5 rounded-full p-1.5 pr-3.5 active:scale-95 transition-transform" 
             style={{ 
               ...cardLiquidGlassStyle, 
-              background: "rgba(22, 28, 36, 0.85)" 
+              background: "rgba(20, 40, 80, 0.85)" 
             }}
           >
             {/* Anillo de Progreso */}
@@ -334,12 +334,12 @@ export function HomeView() {
               ))}
             </div>
 
-            {/* Botón Add connection rediseñado a un estilo más gris */}
+            {/* Botón Add connection modificado a estilo Blanco */}
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
-              className="mt-3 w-full py-2.5 bg-[#18181a] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-[#636366] hover:bg-[#202022] hover:text-[#8e8e93] transition-colors" style={{ fontFamily: SF }}
+              className="mt-3 w-full py-2.5 bg-white border border-white/10 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-bold text-black hover:bg-neutral-200 transition-colors" style={{ fontFamily: SF }}
             >
-              <Plus className="w-4 h-4 text-[#555558]" /> Add connection
+              <Plus className="w-4 h-4 text-black" /> Add connection
             </button>
           </div>
 
