@@ -114,6 +114,27 @@ function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string,
   )
 }
 
+// Nuevo componente Icon3D completamente redondo para Setup Account
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: string, bgTo: string }) {
+  return (
+    <div
+      className="shrink-0 flex items-center justify-center relative z-10"
+      style={{
+        width: "44px",
+        height: "44px",
+        borderRadius: "50%",
+        background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
+        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
+        border: "4px solid #000", // Borde negro para sobreponerse a la línea divisoria trasera
+        color: "white"
+      }}
+    >
+      <Icon className="w-[20px] h-[20px]" />
+    </div>
+  )
+}
+
 function Divider() {
   return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "60px" }} />
 }
@@ -678,7 +699,7 @@ export function SettingsView() {
       <div className="flex flex-col items-center mt-2 mb-8 animate-in fade-in duration-300 ease-in-out relative z-10">
         
         {/* Gráfico circular con la foto de perfil en medio */}
-        <div className="relative w-[110px] h-[110px] flex items-center justify-center rounded-full mb-6 mt-4">
+        <div className="relative w-[130px] h-[130px] flex items-center justify-center rounded-full mb-6 mt-8">
           
           {/* Anillos SVG (Fondo y Progreso) */}
           <svg className="absolute inset-0 w-full h-full transform -rotate-90 z-20 pointer-events-none" viewBox="0 0 100 100">
@@ -686,7 +707,7 @@ export function SettingsView() {
             <circle cx="50" cy="50" r="47" stroke="#1c1c1e" strokeWidth="4" fill="none" />
             {/* Círculo de progreso azul dinámico */}
             <circle 
-               cx="50" cy="50" r="47" stroke="#3b82f6" strokeWidth="4" fill="none" 
+               cx="50" cy="50" r="47" stroke="#60a5fa" strokeWidth="4" fill="none" 
                strokeDasharray="295" 
                strokeDashoffset={circleOffset} 
                strokeLinecap="round" 
@@ -696,7 +717,7 @@ export function SettingsView() {
           
           {/* Foto de Perfil o Iniciales */}
           <div className="absolute inset-0 flex items-center justify-center z-10">
-            <div className="w-[86px] h-[86px] rounded-full overflow-hidden bg-gradient-to-br from-[#1e1e1e] to-[#0a0a0a] flex items-center justify-center border-2 border-transparent relative shadow-lg">
+            <div className="w-[104px] h-[104px] rounded-full overflow-hidden bg-gradient-to-br from-[#1e1e1e] to-[#0a0a0a] flex items-center justify-center border-2 border-transparent relative shadow-lg">
               {photoUrl ? (
                 <img 
                   src={photoUrl} 
@@ -707,7 +728,7 @@ export function SettingsView() {
                   onError={() => setPhotoUrl(null)} 
                 />
               ) : (
-                <span className="text-white font-bold select-none pointer-events-none" style={{ fontSize: "30px", letterSpacing: "-0.02em", fontFamily: SFD }}>
+                <span className="text-white font-bold select-none pointer-events-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>
                   {initials || "?"}
                 </span>
               )}
@@ -715,70 +736,70 @@ export function SettingsView() {
           </div>
 
           {/* Etiqueta Porcentaje superpuesta */}
-          <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-[#3b82f6] text-white text-[12px] font-bold px-3 py-0.5 rounded-full border-[4px] border-black z-30 shadow-sm transition-all" style={{ fontFamily: SF }}>
+          <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-[#60a5fa] text-white text-[14px] font-bold px-3.5 py-0.5 rounded-full border-[4px] border-black z-30 shadow-sm transition-all" style={{ fontFamily: SF }}>
             {completionPct}%
           </div>
         </div>
         
-        <h1 className="text-[22px] font-bold text-white mb-1.5 mt-2" style={{ fontFamily: SFD }}>Set Up Your Account</h1>
-        <p className="text-[#3b82f6] font-semibold text-[17px] mb-2" style={{ fontFamily: SF }}>
+        <h1 className="text-[24px] font-bold text-white mb-2 mt-2" style={{ fontFamily: SFD }}>Set Up Your Account</h1>
+        <p className="text-[#60a5fa] font-semibold text-[19px] mb-2" style={{ fontFamily: SF }}>
           {filledFields < 7 ? `${7 - filledFields} steps left` : "Profile Complete!"}
         </p>
-        <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
+        <p className="text-[#8e8e93] text-[16px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
       </div>
 
-      <div className="px-5 w-full pb-10">
-         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4" style={{ fontFamily: SF }}>Profile Setup</h3>
+      <div className="px-5 w-full pb-10 mt-4">
+         <h3 className="text-[#8e8e93] text-[15px] font-medium mb-5" style={{ fontFamily: SF }}>Profile Setup</h3>
 
          <div className="relative flex flex-col mb-4">
-            {/* Línea vertical conectora */}
-            <div className="absolute left-[18px] top-[20px] bottom-[20px] w-[2px] bg-[#1c1c1e] z-0" />
+            {/* Línea vertical conectora centrada con el tamaño aumentado del ícono */}
+            <div className="absolute left-[21px] top-[22px] bottom-[22px] w-[2px] bg-[#1c1c1e] z-0" />
             
             {/* Step 1: Basic Information */}
-            <button onClick={() => setPage("basic_info")} className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#22c55e] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoPersonOutline className="w-[18px] h-[18px] text-white" />
-               </div>
-               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
-                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
-                  <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
-                    <IoCheckmark className="w-[14px] h-[14px] text-white font-bold stroke-[2px]" />
-                  </div>
-               </div>
-            </button>
+            <div className="w-full relative z-10 mb-6">
+              <button onClick={() => setPage("basic_info")} className="flex items-center w-full active:opacity-70 transition-opacity text-left">
+                 <Icon3DCircular icon={IoPersonOutline} bgFrom="#4ade80" bgTo="#16a34a" />
+                 <div className="ml-4 flex-1 flex items-center justify-between">
+                    <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
+                    <div className="w-[24px] h-[24px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
+                      <IoCheckmark className="w-[15px] h-[15px] text-white font-bold stroke-[2px]" />
+                    </div>
+                 </div>
+              </button>
+              <div className="ml-[60px] mt-6 border-b border-[#1c1c1e]" />
+            </div>
             
             {/* Step 2: Additional Details */}
-            <button onClick={() => setPage("additional_details")} className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#3b82f6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoListOutline className="w-[18px] h-[18px] text-white" />
-               </div>
-               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
-                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
-                  <IoChevronForward className="w-5 h-5 text-[#555558]" />
-               </div>
-            </button>
+            <div className="w-full relative z-10 mb-6">
+              <button onClick={() => setPage("additional_details")} className="flex items-center w-full active:opacity-70 transition-opacity text-left">
+                 <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
+                 <div className="ml-4 flex-1 flex items-center justify-between">
+                    <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
+                    <IoChevronForward className="w-5 h-5 text-[#555558]" />
+                 </div>
+              </button>
+              <div className="ml-[60px] mt-6 border-b border-[#1c1c1e]" />
+            </div>
 
             {/* Step 3: Add Personal Data */}
-            <div className="flex items-center w-full relative z-10 mb-2">
-               <div className="w-10 h-10 rounded-full bg-[#2c2c2e] border-[4px] border-black flex items-center justify-center shrink-0">
-                  <IoPersonOutline className="w-[18px] h-[18px] text-[#8e8e93]" />
-               </div>
-               <div className="ml-4 flex-1 flex items-center justify-between min-h-[40px]">
-                  <p className="text-[16px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
-               </div>
+            <div className="w-full relative z-10 mb-2">
+              <div className="flex items-center w-full">
+                 <Icon3DCircular icon={IoPersonOutline} bgFrom="#4b5563" bgTo="#374151" />
+                 <div className="ml-4 flex-1 flex items-center justify-between">
+                    <p className="text-[17px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
+                 </div>
+              </div>
             </div>
          </div>
 
-         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4 mt-8" style={{ fontFamily: SF }}>Account Security</h3>
+         <h3 className="text-[#8e8e93] text-[15px] font-medium mb-5 mt-10" style={{ fontFamily: SF }}>Account Security</h3>
 
          <div className="relative flex flex-col">
             {/* Step 1: Set Up Passcode */}
             <button className="flex items-center w-full relative z-10 mb-6 active:opacity-70 transition-opacity text-left">
-               <div className="w-10 h-10 rounded-full bg-[#3b82f6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
-                  <IoLockClosedOutline className="w-[18px] h-[18px] text-white" />
-               </div>
-               <div className="ml-4 flex-1 flex items-center justify-between min-h-[40px]">
-                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
+               <Icon3DCircular icon={IoLockClosedOutline} bgFrom="#c084fc" bgTo="#9333ea" />
+               <div className="ml-4 flex-1 flex items-center justify-between">
+                  <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
                   <IoChevronForward className="w-5 h-5 text-[#555558]" />
                </div>
             </button>
