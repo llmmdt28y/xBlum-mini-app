@@ -14,6 +14,37 @@ import React from "react"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
+// ── Data ──
+const GENDERS = ["Female", "Male"]
+
+const TIMEZONES = [
+  { name: "Baker Island", offset: "UTC-12" },
+  { name: "Pago Pago (American Samoa)", offset: "UTC-11" },
+  { name: "Honolulu", offset: "UTC-10" },
+  { name: "Anchorage", offset: "UTC-9" },
+  { name: "Los Angeles", offset: "UTC-8" },
+  { name: "Denver", offset: "UTC-7" },
+  { name: "Chicago", offset: "UTC-6" },
+  { name: "New York", offset: "UTC-5" },
+  { name: "Santiago", offset: "UTC-4" },
+  { name: "Buenos Aires", offset: "UTC-3" },
+  { name: "South Georgia", offset: "UTC-2" },
+  { name: "Azores", offset: "UTC-1" },
+  { name: "London", offset: "UTC+0" },
+  { name: "Paris", offset: "UTC+1" },
+  { name: "Cairo", offset: "UTC+2" },
+  { name: "Moscow", offset: "UTC+3" },
+  { name: "Dubai", offset: "UTC+4" },
+  { name: "Karachi", offset: "UTC+5" },
+  { name: "Dhaka", offset: "UTC+6" },
+  { name: "Bangkok", offset: "UTC+7" },
+  { name: "Beijing", offset: "UTC+8" },
+  { name: "Tokyo", offset: "UTC+9" },
+  { name: "Sydney", offset: "UTC+10" },
+  { name: "Noumea", offset: "UTC+11" },
+  { name: "Auckland", offset: "UTC+12" },
+]
+
 // ── Tipos y Helpers para Usuario de Telegram ──
 type TgUser = {
   id: number
@@ -305,7 +336,7 @@ export function SettingsView() {
     refreshModelTokenStatus,
   } = useApp()
 
-  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details">("main")
+  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select">("main")
   const [tempPrefs, setTempPrefs] = useState(userPreferences)
   const [improveModel, setImproveModel] = useState(false)
   const [saving, setSaving] = useState("")
@@ -320,7 +351,7 @@ export function SettingsView() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [displayName, setDisplayName] = useState("")
 
-  // Estados para los campos de Account Setup - TODOS VACÍOS POR DEFECTO
+  // Estados para los campos de Account Setup - VACÍOS POR DEFECTO EXCEPTO EL NOMBRE
   const [nameField, setNameField] = useState("")
   const [genderField, setGenderField] = useState("")
   const [ageField, setAgeField] = useState("")
@@ -332,7 +363,7 @@ export function SettingsView() {
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
   const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
 
-  // Extraer información del usuario de Telegram SOLO para la foto y nombre a mostrar en el círculo
+  // Extraer información del usuario de Telegram
   useEffect(() => {
     const user = getTgUser()
     if (!user) return
@@ -340,7 +371,8 @@ export function SettingsView() {
     const full = [user.first_name, user.last_name].filter(Boolean).join(" ")
     const defaultName = full || user.username || "User"
     setDisplayName(defaultName)
-    // Se elimina la asignación predeterminada a nameField para que comience vacío
+    // Solo asignar el nombre por defecto si está vacío
+    if (!nameField) setNameField(defaultName)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -358,7 +390,9 @@ export function SettingsView() {
     if (!tg?.BackButton) return
     tg.BackButton.show()
     const handleBack = () => {
-      if (page === "basic_info" || page === "additional_details") setPage("prefs")
+      if (page === "gender_select") setPage("basic_info")
+      else if (page === "timezone_select") setPage("additional_details")
+      else if (page === "basic_info" || page === "additional_details") setPage("prefs")
       else if (page !== "main") setPage("main")
       else { setCurrentView("profile"); tg.BackButton.hide() }
     }
@@ -535,6 +569,60 @@ export function SettingsView() {
     </div>
   )
 
+  // ── Gender Select Sub-page ─────────────────────────────────────────────────
+  if (page === "gender_select") return (
+    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out relative"
+         style={{ background: "#000", minHeight: "100vh" }}>
+      <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
+      <div className="px-4 pt-4 pb-28">
+        <h1 className="text-white text-[22px] font-bold px-1 mb-4" style={{fontFamily: SFD}}>Gender</h1>
+        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111]">
+          {GENDERS.map((g, i) => (
+            <button key={g} onClick={() => setGenderField(g)} className="w-full flex items-center justify-between p-5 text-left active:bg-white/5 transition-colors border-b border-[#1c1c1e] last:border-0">
+              <span className="text-white text-[16px]" style={{ fontFamily: SF }}>{g}</span>
+              {genderField === g && <IoCheckmark className="w-6 h-6 text-[#3b82f6]" />}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="fixed bottom-8 left-4 right-4">
+        <button onClick={() => setPage("basic_info")} className="w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
+          Done
+        </button>
+      </div>
+    </div>
+  )
+
+  // ── Timezone Select Sub-page ───────────────────────────────────────────────
+  if (page === "timezone_select") return (
+    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out relative overflow-y-auto scrollbar-native"
+         style={{ background: "#000", minHeight: "100vh" }}>
+      <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
+      <div className="px-4 pt-4 pb-32">
+        <h1 className="text-white text-[22px] font-bold px-1 mb-4" style={{fontFamily: SFD}}>Time zone</h1>
+        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111]">
+          {TIMEZONES.map((tz) => {
+            const displayVal = `${tz.name} (${tz.offset})`
+            return (
+              <button key={tz.name} onClick={() => setTimezoneField(displayVal)} className="w-full flex items-center justify-between p-4 text-left active:bg-white/5 transition-colors border-b border-[#1c1c1e] last:border-0">
+                <div className="flex flex-col">
+                  <span className="text-white text-[16px] mb-0.5" style={{ fontFamily: SF }}>{tz.name}</span>
+                  <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{tz.offset}</span>
+                </div>
+                {timezoneField === displayVal && <IoCheckmark className="w-6 h-6 text-[#3b82f6]" />}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+      <div className="fixed bottom-8 left-4 right-4 pointer-events-none">
+        <button onClick={() => setPage("additional_details")} className="w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity pointer-events-auto shadow-lg" style={{ fontFamily: SF }}>
+          Done
+        </button>
+      </div>
+    </div>
+  )
+
   // ── Basic Information Sub-page ─────────────────────────────────────────────
   if (page === "basic_info") return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
@@ -557,18 +645,14 @@ export function SettingsView() {
             />
           </div>
 
-          {/* Item: Gender */}
-          <div className="flex items-center w-full py-4 border-b border-[#1c1c1e]">
+          {/* Item: Gender (Navega a nueva vista) */}
+          <button onClick={() => setPage("gender_select")} className="flex items-center w-full py-4 border-b border-[#1c1c1e] active:opacity-70 transition-opacity text-left">
             <span className="w-[75px] text-white text-[16px] font-medium shrink-0" style={{ fontFamily: SF }}>Gender</span>
-            <input 
-              value={genderField}
-              onChange={(e) => setGenderField(e.target.value)}
-              placeholder="Select gender"
-              className="bg-transparent text-white text-[16px] flex-1 outline-none placeholder:text-[#555558]"
-              style={{ fontFamily: SF }}
-            />
+            <span className={`text-[16px] flex-1 ${genderField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
+              {genderField || "Select gender"}
+            </span>
             <IoChevronForward className="w-5 h-5 text-[#555558] shrink-0" />
-          </div>
+          </button>
 
           {/* Item: Age */}
           <div className="flex items-center w-full py-4 border-b border-[#1c1c1e]">
@@ -625,20 +709,16 @@ export function SettingsView() {
       <SubHeader title="Additional Details" />
       <div className="px-4 pt-6 space-y-4">
         
-        {/* Item: Time zone */}
-        <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 text-left">
+        {/* Item: Time zone (Navega a nueva vista) */}
+        <button onClick={() => setPage("timezone_select")} className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 active:opacity-70 transition-opacity text-left">
           <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-3" style={{ fontFamily: SF }}>Time zone</h2>
           <div className="flex items-center justify-between w-full">
-            <input 
-              value={timezoneField}
-              onChange={(e) => setTimezoneField(e.target.value)}
-              placeholder="Select time zone"
-              className="bg-transparent text-white text-[16px] flex-1 outline-none placeholder:text-[#555558]"
-              style={{ fontFamily: SF }}
-            />
+            <span className={`text-[16px] flex-1 ${timezoneField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
+              {timezoneField || "Select time zone"}
+            </span>
             <IoChevronForward className="w-5 h-5 text-[#555558]" />
           </div>
-        </div>
+        </button>
 
         {/* Item: Occupation */}
         <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 text-left">
