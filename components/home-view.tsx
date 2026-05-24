@@ -190,6 +190,43 @@ export function HomeView() {
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
         
+        {/* Píldora de Complete Account */}
+        <button 
+          className="flex items-center gap-3 rounded-full p-1.5 pr-4 self-start active:scale-95 transition-transform" 
+          style={{ 
+            ...cardLiquidGlassStyle, 
+            background: "rgba(22, 28, 36, 0.85)" 
+          }}
+        >
+          {/* Anillo de Progreso */}
+          <div className="relative flex items-center justify-center w-[36px] h-[36px] shrink-0 bg-black/20 rounded-full">
+            <svg className="w-full h-full -rotate-90 transform absolute inset-0">
+              <circle cx="18" cy="18" r="15" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" fill="none" />
+              <circle 
+                cx="18" 
+                cy="18" 
+                r="15" 
+                stroke="#3b82f6" 
+                strokeWidth="2.5" 
+                fill="none" 
+                strokeDasharray="94.2" 
+                strokeDashoffset="70.65" 
+                strokeLinecap="round" 
+              />
+            </svg>
+            <span className="text-[11px] font-bold text-[#3b82f6]">1/4</span>
+          </div>
+          
+          {/* Textos */}
+          <div className="flex flex-col items-start pr-2">
+            <span className="text-white text-[14px] font-bold leading-tight" style={{ fontFamily: SFD }}>Complete account</span>
+            <span className="text-[#8e8e93] text-[12px] font-medium mt-0.5" style={{ fontFamily: SF }}>It will take 2 minutes</span>
+          </div>
+          
+          {/* Icono */}
+          <ChevronRight className="w-4 h-4 text-[#636366] ml-1" />
+        </button>
+
         {/* Tarjeta Schedules */}
         <div className="bg-[#111111] rounded-[24px] p-4 border border-white/5 shadow-lg relative">
           <div className="flex items-center justify-between">
@@ -400,7 +437,7 @@ export function HomeView() {
                 <div className="flex flex-col">
                   <span className="text-white font-bold text-[16px]" style={{ fontFamily: SFD }}>Interaction Hub</span>
                   <span className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>
-                     {botIntConfig.enabled ? "Listening to other bots" : "Ignoring bots"}
+                    {botIntConfig.enabled ? "Listening to other bots" : "Ignoring bots"}
                   </span>
                 </div>
                 <button 
