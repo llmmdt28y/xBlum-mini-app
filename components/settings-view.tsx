@@ -1,8 +1,9 @@
 "use client"
 
 import { useApp, type ModelName } from "@/lib/app-context"
-import { ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, X, ExternalLink, AlertCircle, Trash2, Loader2 } from "lucide-react"
+import { ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, X, ExternalLink, AlertCircle, Trash2, Loader2, Sparkles } from "lucide-react"
 import { useState, useEffect } from "react"
+import React from "react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -72,60 +73,82 @@ const LANGS = [
   { code: "en" as const, name: "English", flag: "🇬🇧" },
 ]
 
-function Row({ label, sublabel, right, onClick, leftNode, danger }: {
-  leftNode?: React.ReactNode
-  label: string
-  sublabel?: string
-  right?: React.ReactNode
-  onClick?: () => void
-  danger?: boolean
-}) {
+// ── Nuevos Componentes UI para la Vista Principal ──
+
+function IconBox({ icon, bg }: { icon: React.ReactNode; bg: string }) {
   return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
-      style={{ paddingTop: "14px", paddingBottom: "14px" }}
-    >
-      {leftNode && (
-        <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
-          {leftNode}
-        </div>
+    <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0 shadow-sm" style={{ backgroundColor: bg }}>
+      {React.cloneElement(icon as React.ReactElement, { className: "w-[16px] h-[16px] text-white" })}
+    </div>
+  )
+}
+
+interface RowProps {
+  label: string;
+  value?: string;
+  onClick?: () => void;
+  leftNode?: React.ReactNode;
+  danger?: boolean;
+  hideArrow?: boolean;
+  rightNode?: React.ReactNode;
+  isLink?: boolean;
+  href?: string;
+}
+
+function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, isLink, href }: RowProps) {
+  const content = (
+    <>
+      {leftNode}
+      <span className={`text-[16px] font-medium ${danger ? "text-[#ef4444]" : "text-white"}`} style={{ fontFamily: SF }}>
+        {label}
+      </span>
+      
+      <div className="flex-1" />
+      
+      {value && (
+        <span className="text-[15px] mr-1" style={{ fontFamily: SF, color: "#60a5fa" }}>
+          {value}
+        </span>
       )}
-      <div className="flex-1 text-left">
-        <p className={`${danger ? "text-[#ef4444]" : "text-white"}`}
-           style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-          {label}
-        </p>
-        {sublabel && (
-          <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
-            {sublabel}
-          </p>
-        )}
-      </div>
-      {right ?? (danger ? <div /> : <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />)}
+      
+      {rightNode ? rightNode : (!hideArrow && !danger && (
+        <ChevronRight className="w-4 h-4 text-[#555558]" strokeWidth={2.5} />
+      ))}
+    </>
+  );
+
+  if (isLink && href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3.5 p-3.5 border-b border-[#1c1c1e] last:border-b-0 active:bg-white/5 transition-colors text-left">
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <button onClick={onClick} disabled={!onClick && !rightNode} className={`w-full flex items-center gap-3.5 p-3.5 border-b border-[#1c1c1e] last:border-b-0 ${onClick ? 'active:bg-white/5 transition-colors' : ''} text-left`}>
+      {content}
     </button>
   )
 }
 
-function Divider() {
-  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />
-}
-
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-      <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-        {title && (
-          <div className="flex items-center justify-between px-5 pt-3 pb-1">
-            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>{title}</p>
-            {rightAction && <div>{rightAction}</div>}
-          </div>
-        )}
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both space-y-2">
+      {title && (
+        <div className="flex items-center justify-between px-4 pt-1">
+          <h2 className="text-[#3b82f6] text-[14px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
+          {rightAction && <div>{rightAction}</div>}
+        </div>
+      )}
+      <div className="rounded-[20px] overflow-hidden shadow-lg border border-white/5 bg-[#111111]">
         {children}
       </div>
     </div>
   )
 }
+
+// ── Componentes de Utilidad ──
 
 function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) {
   return (
@@ -337,8 +360,7 @@ export function SettingsView() {
             // Active check (normalize DB "Grok 4" → UI "Grok 4.1")
             // "Grok 4" in DB is shown as "Grok 4.1" in UI
             const active =
-              m.name === selectedModel ||
-              (m.name === "Grok 4.1" && selectedModel === "Grok 4")
+              m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
 
             const isDisabled = locked || saving === "model" || !!limitHit
 
@@ -414,8 +436,6 @@ export function SettingsView() {
 
           <div className="pb-2" />
         </div>
-
-
       </div>
     </div>
   )
@@ -549,139 +569,79 @@ export function SettingsView() {
         {/* ── Profile ── */}
         <Section title="Profile">
           <Row
-            leftNode={
-              <div className="w-[24px] h-[24px] flex items-center justify-center rounded overflow-hidden"
-                   style={{ background: "#1c1c1e" }}>
-                <img
-                  src={MODEL_LOGO[selectedModel] || "/grok.png"} alt=""
-                  className="w-full h-full object-contain pointer-events-none select-none"
-                  draggable={false}
-                  onError={e => {
-                    e.currentTarget.style.display = "none"
-                    const p = e.currentTarget.parentElement
-                    if (p) {
-                      p.style.background = "#1c1c1e"
-                      const s = document.createElement("span")
-                      s.textContent = currentModelInfo?.initial ?? "?"
-                      s.style.color = "white"; s.style.fontWeight = "700"; s.style.fontSize = "12px"
-                      p.appendChild(s)
-                    }
-                  }}
-                />
-              </div>
-            }
+            leftNode={<IconBox icon={<Sparkles />} bg="#ec4899" />}
             label="LLM model"
-            sublabel={displayModelName + (isThrottled ? " · cooling" : "")}
+            value={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
-          <Divider />
           <Row
-            leftNode={<Globe className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
+            leftNode={<IconBox icon={<Globe />} bg="#a855f7" />}
             label="Language"
-            sublabel={LANGS.find(l => l.code === language)?.name || "English"}
+            value={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
           />
-          <Divider />
           <Row
-            leftNode={<User className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
+            leftNode={<IconBox icon={<User />} bg="#3b82f6" />}
             label="About You"
-            sublabel={userPreferences.name || "Edit preferences"}
+            value={userPreferences.name || "Edit"}
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
           />
         </Section>
 
         {/* ── Data & Privacy ── */}
         <Section title="Data & Privacy">
-          <div className="flex items-center justify-between px-5" style={{ paddingTop: "14px", paddingBottom: "14px" }}>
-            <div className="flex items-center gap-4">
-              <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
-                <Database className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-                  Personalize Memories
-                </p>
-                <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
-                  {personalizeMemories ? "xBlum learns from your chats" : "Minimal context only"}
-                </p>
-              </div>
-            </div>
-            <Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />
-          </div>
-          <Divider />
-          <div className="flex items-center justify-between px-5" style={{ paddingTop: "14px", paddingBottom: "14px" }}>
-            <div className="flex items-center gap-4">
-              <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
-                <Bot className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-                  Improve Model
-                </p>
-              </div>
-            </div>
-            <Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />
-          </div>
+          <Row
+            leftNode={<IconBox icon={<Database />} bg="#f59e0b" />}
+            label="Personalize Memories"
+            rightNode={<Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
+          />
+          <Row
+            leftNode={<IconBox icon={<Bot />} bg="#10b981" />}
+            label="Improve Model"
+            rightNode={<Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />}
+          />
         </Section>
 
         {/* ── Danger Zone ── */}
         <Section title="Danger Zone">
           <Row
             leftNode={saving === "del_mem"
-              ? <Loader2 className="w-[20px] h-[20px] animate-spin text-[#ef4444]" />
-              : <Trash2 className="w-[20px] h-[20px]" style={{ color: "#ef4444" }} />}
+              ? <IconBox icon={<Loader2 className="animate-spin" />} bg="#ef4444" />
+              : <IconBox icon={<Trash2 />} bg="#ef4444" />}
             label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
             onClick={handleDeleteMemories}
             danger
-            right={<div />}
+            hideArrow
           />
-          <Divider />
           <Row
             leftNode={saving === "del_hist"
-              ? <Loader2 className="w-[20px] h-[20px] animate-spin text-[#ef4444]" />
-              : <Trash2 className="w-[20px] h-[20px]" style={{ color: "#ef4444" }} />}
+              ? <IconBox icon={<Loader2 className="animate-spin" />} bg="#ef4444" />
+              : <IconBox icon={<Trash2 />} bg="#ef4444" />}
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
-            right={<div />}
+            hideArrow
           />
         </Section>
 
         {/* ── Support ── */}
         <Section title="Support">
-          <a href="https://xblum.gitbook.io/home/xblum/terms" target="_blank" rel="noopener noreferrer"
-             className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
-             style={{ paddingTop: "14px", paddingBottom: "14px" }}>
-            <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
-              <FileText className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-                Terms of Use
-              </p>
-            </div>
-            <ExternalLink className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
-          </a>
-          <Divider />
-          <a href="https://xblum.gitbook.io/home/xblum/privacy" target="_blank" rel="noopener noreferrer"
-             className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
-             style={{ paddingTop: "14px", paddingBottom: "14px" }}>
-            <div className="shrink-0 flex items-center justify-center" style={{ width: "24px", height: "24px" }}>
-              <Shield className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-                Privacy Policy
-              </p>
-            </div>
-            <ExternalLink className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />
-          </a>
-          <Divider />
           <Row
-            leftNode={<AlertCircle className="w-[20px] h-[20px]" style={{ color: "#8e8e93" }} />}
-            label="Feedback & Support"
+            isLink
+            href="https://xblum.gitbook.io/home/xblum/terms"
+            leftNode={<IconBox icon={<FileText />} bg="#64748b" />}
+            label="Terms of Use"
+          />
+          <Row
+            isLink
+            href="https://xblum.gitbook.io/home/xblum/privacy"
+            leftNode={<IconBox icon={<Shield />} bg="#64748b" />}
+            label="Privacy Policy"
+          />
+          <Row
             onClick={() => setShowReportModal(true)}
-            right={<ChevronRight className="w-4 h-4 shrink-0" style={{ color: "#48484a" }} />}
+            leftNode={<IconBox icon={<MessageSquare />} bg="#8b5cf6" />}
+            label="Feedback & Support"
           />
         </Section>
       </div>
@@ -711,7 +671,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                  onClick={async () => {
+                   onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -736,7 +696,7 @@ export function SettingsView() {
             </div>
 
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
-              {reportSent ? (
+               {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
                        style={{ background: "rgba(52,199,89,0.1)" }}>
