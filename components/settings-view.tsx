@@ -2,14 +2,14 @@
 
 import { useApp, type ModelName } from "@/lib/app-context"
 import { 
-  IoChevronForward, IoCheckmark, IoGlobe, IoColorWand, IoPerson, 
-  IoLockClosed, IoServer, IoDocumentText, IoShieldCheckmark, 
-  IoChatbubble, IoChevronDown, IoClose, IoTrash, IoSync, IoSparkles,
-  IoWalletOutline, IoCall, IoPersonOutline, IoLockClosedOutline,
-  IoListOutline
+  IoChevronForward, IoCheckmark, IoChevronDown, IoClose, IoTrash, IoSync, 
+  IoWalletOutline, IoCall, IoPersonOutline, IoLockClosedOutline, IoListOutline
 } from "react-icons/io5"
 import { useState, useEffect } from "react"
 import React from "react"
+
+// Importación de los estilos globales de Framework7 Icons
+import 'framework7-icons/css/framework7-icons.css'
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -95,8 +95,8 @@ const LANGS = [
 
 // ── Componentes UI para la Vista Principal ──
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string, bgTo: string, spin?: boolean }) {
+// Componente Icon3D actualizado para renderizar fuentes de Framework7 (f7-icons)
+function Icon3D({ f7Icon, bgFrom, bgTo, spin }: { f7Icon: string, bgFrom: string, bgTo: string, spin?: boolean }) {
   return (
     <div
       className="shrink-0 flex items-center justify-center shadow-sm"
@@ -109,14 +109,13 @@ function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string,
         color: "white"
       }}
     >
-      <Icon className={`w-[16px] h-[16px] ${spin ? "animate-spin" : ""}`} />
+      <i className={`f7-icons text-[16px] ${spin ? "animate-spin" : ""}`}>{f7Icon}</i>
     </div>
   )
 }
 
-// Componente Icon3D completamente redondo para Setup Account
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: string, bgTo: string }) {
+// Componente Icon3D completamente redondo para Setup Account con soporte f7-icons
+function Icon3DCircular({ f7Icon, bgFrom, bgTo }: { f7Icon: string, bgFrom: string, bgTo: string }) {
   return (
     <div
       className="shrink-0 flex items-center justify-center relative z-10"
@@ -126,11 +125,11 @@ function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: strin
         borderRadius: "50%",
         background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
         boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
-        border: "4px solid #000", // Borde negro para sobreponerse a la línea divisoria trasera
+        border: "4px solid #000",
         color: "white"
       }}
     >
-      <Icon className="w-[20px] h-[20px]" />
+      <i className="f7-icons text-[20px]">{f7Icon}</i>
     </div>
   )
 }
@@ -237,7 +236,7 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
   if (locked)
     return (
       <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-        <IoLockClosed className="w-5 h-5" style={{ color: "#636366" }} />
+        <i className="f7-icons text-[20px] text-[#636366]">lock_fill</i>
       </div>
     )
 
@@ -263,6 +262,11 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
       />
     </div>
   )
+}
+
+// Icono personalizado de carga usando F7 para consistencia en animaciones
+function ModelLockIcon() {
+  return <i className="f7-icons text-[20px] text-[#636366]">lock_fill</i>
 }
 
 function TokenBar({ pct }: { pct: number }) {
@@ -388,7 +392,7 @@ export function SettingsView() {
   async function handleDeleteMemories() {
     if (!window.Telegram?.WebApp) return
     window.Telegram.WebApp.showConfirm(
-      "Delete all memories? xBlum will forget everything about you.",
+      "Delete all memories?\nxBlum will forget everything about you.",
       async (ok: boolean) => {
         if (!ok) return
         setSaving("del_mem")
@@ -435,7 +439,8 @@ export function SettingsView() {
             const pct      = tokenInfo?.pct ?? 0
 
             const active =
-              m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
+              m.name === selectedModel ||
+              (m.name === "Grok 4.1" && selectedModel === "Grok 4")
 
             const isDisabled = locked || saving === "model" || !!limitHit
 
@@ -599,20 +604,20 @@ export function SettingsView() {
 
         {/* Action Buttons (Cancel / Update) */}
         <div className="flex items-center gap-4 mt-8 w-full">
-            <button 
-              onClick={() => setPage("prefs")} 
-              className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
-              style={{ fontFamily: SF, fontSize: "16px" }}
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={() => setPage("prefs")} 
-              className="flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
-              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-            >
-              Update
-            </button>
+          <button 
+            onClick={() => setPage("prefs")} 
+            className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
+            style={{ fontFamily: SF, fontSize: "16px" }}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={() => setPage("prefs")} 
+            className="flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+            style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+          >
+            Update
+          </button>
         </div>
       </div>
     </div>
@@ -668,20 +673,20 @@ export function SettingsView() {
 
         {/* Action Buttons (Cancel / Update) */}
         <div className="flex items-center gap-4 mt-8 w-full">
-            <button 
-              onClick={() => setPage("prefs")} 
-              className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
-              style={{ fontFamily: SF, fontSize: "16px" }}
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={() => setPage("prefs")} 
-              className="flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
-              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-            >
-              Update
-            </button>
+          <button 
+            onClick={() => setPage("prefs")} 
+            className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
+            style={{ fontFamily: SF, fontSize: "16px" }}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={() => setPage("prefs")} 
+            className="flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+            style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+          >
+            Update
+          </button>
         </div>
       </div>
     </div>
@@ -758,7 +763,7 @@ export function SettingsView() {
             {/* Step 1: Basic Information */}
             <button onClick={() => setPage("basic_info")} className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
                <div className="py-2.5 flex items-center shrink-0">
-                  <Icon3DCircular icon={IoPersonOutline} bgFrom="#4ade80" bgTo="#16a34a" />
+                  <Icon3DCircular f7Icon="person" bgFrom="#4ade80" bgTo="#16a34a" />
                </div>
                <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e]">
                   <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
@@ -771,7 +776,7 @@ export function SettingsView() {
             {/* Step 2: Additional Details */}
             <button onClick={() => setPage("additional_details")} className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
                <div className="py-2.5 flex items-center shrink-0">
-                  <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
+                  <Icon3DCircular f7Icon="list_bullet" bgFrom="#60a5fa" bgTo="#2563eb" />
                </div>
                <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e]">
                   <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
@@ -782,7 +787,7 @@ export function SettingsView() {
             {/* Step 3: Add Personal Data */}
             <div className="w-full relative z-10 flex items-stretch">
                <div className="py-2.5 flex items-center shrink-0">
-                  <Icon3DCircular icon={IoPersonOutline} bgFrom="#4b5563" bgTo="#374151" />
+                  <Icon3DCircular f7Icon="person_badge_plus" bgFrom="#4b5563" bgTo="#374151" />
                </div>
                <div className="ml-4 flex-1 flex items-center justify-between">
                   <p className="text-[17px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
@@ -796,7 +801,7 @@ export function SettingsView() {
             {/* Step 1: Set Up Passcode */}
             <button className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
                <div className="py-2.5 flex items-center shrink-0">
-                  <Icon3DCircular icon={IoLockClosedOutline} bgFrom="#c084fc" bgTo="#9333ea" />
+                  <Icon3DCircular f7Icon="lock_shield" bgFrom="#c084fc" bgTo="#9333ea" />
                </div>
                <div className="ml-4 flex-1 flex items-center justify-between">
                   <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
@@ -840,7 +845,7 @@ export function SettingsView() {
                           background: "radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)",
                           border: "1px solid rgba(245,158,11,0.08)" }} />
             <div className="relative z-10 px-5 py-5 flex flex-col gap-2">
-               <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <p className="text-white font-bold text-[18px] leading-tight"
                    style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500"
@@ -862,21 +867,21 @@ export function SettingsView() {
         {/* ── Profile ── */}
         <Section title="Profile">
           <Row
-            leftNode={<Icon3D icon={IoColorWand} bgFrom="#f9a8d4" bgTo="#ec4899" />}
+            leftNode={<Icon3D f7Icon="wand_stars" bgFrom="#f9a8d4" bgTo="#ec4899" />}
             label="LLM Model"
             value={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
           <Divider />
           <Row
-            leftNode={<Icon3D icon={IoGlobe} bgFrom="#d8b4fe" bgTo="#a855f7" />}
+            leftNode={<Icon3D f7Icon="globe" bgFrom="#d8b4fe" bgTo="#a855f7" />}
             label="Language"
             value={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
           />
           <Divider />
           <Row
-            leftNode={<Icon3D icon={IoPerson} bgFrom="#93c5fd" bgTo="#3b82f6" />}
+            leftNode={<Icon3D f7Icon="person" bgFrom="#93c5fd" bgTo="#3b82f6" />}
             label="Account Setup"
             value="Edit"
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
@@ -886,13 +891,13 @@ export function SettingsView() {
         {/* ── Data & Privacy ── */}
         <Section title="Data & Privacy">
           <Row
-            leftNode={<Icon3D icon={IoServer} bgFrom="#fcd34d" bgTo="#f59e0b" />}
+            leftNode={<Icon3D f7Icon="tray_2" bgFrom="#fcd34d" bgTo="#f59e0b" />}
             label="Personalize Memories"
             rightNode={<Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
           />
           <Divider />
           <Row
-            leftNode={<Icon3D icon={IoSparkles} bgFrom="#6ee7b7" bgTo="#10b981" />}
+            leftNode={<Icon3D f7Icon="sparkles" bgFrom="#6ee7b7" bgTo="#10b981" />}
             label="Improve Model"
             rightNode={<Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />}
           />
@@ -902,8 +907,8 @@ export function SettingsView() {
         <Section title="Danger Zone">
           <Row
             leftNode={saving === "del_mem"
-              ? <Icon3D icon={IoSync} bgFrom="#fca5a5" bgTo="#ef4444" spin />
-              : <Icon3D icon={IoTrash} bgFrom="#fca5a5" bgTo="#ef4444" />}
+              ? <Icon3D f7Icon="arrow_2_squarepath" bgFrom="#fca5a5" bgTo="#ef4444" spin />
+              : <Icon3D f7Icon="trash" bgFrom="#fca5a5" bgTo="#ef4444" />}
             label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
             onClick={handleDeleteMemories}
             danger
@@ -912,8 +917,8 @@ export function SettingsView() {
           <Divider />
           <Row
             leftNode={saving === "del_hist"
-              ? <Icon3D icon={IoSync} bgFrom="#fca5a5" bgTo="#ef4444" spin />
-              : <Icon3D icon={IoTrash} bgFrom="#fca5a5" bgTo="#ef4444" />}
+              ? <Icon3D f7Icon="arrow_2_squarepath" bgFrom="#fca5a5" bgTo="#ef4444" spin />
+              : <Icon3D f7Icon="trash" bgFrom="#fca5a5" bgTo="#ef4444" />}
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
@@ -926,20 +931,20 @@ export function SettingsView() {
           <Row
             isLink
             href="https://xblum.gitbook.io/home/xblum/terms"
-            leftNode={<Icon3D icon={IoDocumentText} bgFrom="#cbd5e1" bgTo="#64748b" />}
+            leftNode={<Icon3D f7Icon="doc_text" bgFrom="#cbd5e1" bgTo="#64748b" />}
             label="Terms of Use"
           />
           <Divider />
           <Row
             isLink
             href="https://xblum.gitbook.io/home/xblum/privacy"
-            leftNode={<Icon3D icon={IoShieldCheckmark} bgFrom="#cbd5e1" bgTo="#64748b" />}
+            leftNode={<Icon3D f7Icon="shield_badge" bgFrom="#cbd5e1" bgTo="#64748b" />}
             label="Privacy Policy"
           />
           <Divider />
           <Row
             onClick={() => setShowReportModal(true)}
-            leftNode={<Icon3D icon={IoChatbubble} bgFrom="#c4b5fd" bgTo="#8b5cf6" />}
+            leftNode={<Icon3D f7Icon="chat_bubble" bgFrom="#c4b5fd" bgTo="#8b5cf6" />}
             label="Feedback & Support"
           />
         </Section>
@@ -948,12 +953,10 @@ export function SettingsView() {
       {/* ── Feedback Modal ── */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
-          {/* Fondo difuminado con desvanecimiento suave */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 ease-in-out"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-          {/* Sheet Modal */}
           <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom fade-in duration-300 ease-out max-h-[90vh] flex flex-col"
                style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
@@ -972,7 +975,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                   onClick={async () => {
+                  onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -984,7 +987,6 @@ export function SettingsView() {
                         setReportDescription(""); setReportType("General feedback")
                       }, 1800)
                     } else {
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       ;(window as any).Telegram?.WebApp?.showAlert("Could not send. Please try again.")
                     }
                   }}
@@ -997,7 +999,7 @@ export function SettingsView() {
             </div>
 
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
-               {reportSent ? (
+              {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
                        style={{ background: "rgba(52,199,89,0.1)" }}>
@@ -1015,7 +1017,7 @@ export function SettingsView() {
                       onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
                       className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
                       style={{ background: "#1c1c1e" }}>
-                      <IoChatbubble className="w-5 h-5" style={{ color: "#8e8e93" }} />
+                      <i className="f7-icons text-[20px] text-[#8e8e93]">chat_bubble</i>
                       <span className="flex-1 text-left text-white font-medium" style={{ fontSize: "15px", fontFamily: SF }}>
                         {reportType}
                       </span>
