@@ -1,9 +1,14 @@
 "use client"
 
 import { useApp, type ModelName } from "@/lib/app-context"
-import { ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, X, ExternalLink, AlertTriangle, Trash2, Loader2, Sparkles, Layers, Hand } from "lucide-react"
+// Reemplazamos Lucide por Ionicons (variante filled)
+import { 
+  IoChevronForward, IoCheckmark, IoGlobe, IoColorWand, IoPerson, 
+  IoLockClosed, IoServer, IoDocumentText, IoShieldCheckmark, 
+  IoChatbubble, IoChevronDown, IoClose, IoOpen, IoMegaphone, 
+  IoTrash, IoSync, IoSparkles 
+} from "react-icons/io5"
 import { useState, useEffect } from "react"
-import React from "react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -73,91 +78,69 @@ const LANGS = [
   { code: "en" as const, name: "English", flag: "🇬🇧" },
 ]
 
-// ── Nuevos Componentes UI para la Vista Principal (Estilo iOS 3D) ──
-
-function IconBox({ icon, bg }: { icon: React.ReactNode; bg: string }) {
+// ── Componente de Icono Estilo iOS 3D ─────────────────────────────────────────
+function Icon3D({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: string, bgTo: string }) {
   return (
     <div
-      className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0 relative overflow-hidden"
+      className="shrink-0 flex items-center justify-center"
       style={{
-        backgroundColor: bg,
-        // Sombra exterior suave + Sombra interior blanca para el relieve (luz) superior
-        boxShadow: "0 1px 2px rgba(0,0,0,0.3), inset 0 1.5px 1px rgba(255,255,255,0.4)",
+        width: "28px",
+        height: "28px",
+        borderRadius: "8px", // Curvatura tipo squircle
+        background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
+        // Efecto 3D: Sombra paralela suave + Brillo interno en la parte superior
+        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
+        color: "white"
       }}
     >
-      {/* Degradado para dar volumen (más claro arriba, oscureciendo abajo) */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.1) 100%)' }} />
-      <div className="relative z-10">
-        {React.cloneElement(icon as React.ReactElement, { className: "w-[18px] h-[18px] text-white", strokeWidth: 2 })}
-      </div>
+      <Icon className="w-[16px] h-[16px]" />
     </div>
   )
 }
 
-function Divider({ marginLeft = "64px" }: { marginLeft?: string }) {
-  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft }} />
-}
-
-interface RowProps {
-  label: string;
-  sublabel?: string;
-  value?: string;
-  onClick?: () => void;
-  leftNode?: React.ReactNode;
-  danger?: boolean;
-  hideArrow?: boolean;
-  rightNode?: React.ReactNode;
-  isLink?: boolean;
-  href?: string;
-}
-
-function Row({ label, sublabel, value, onClick, leftNode, danger, hideArrow, rightNode, isLink, href }: RowProps) {
-  const content = (
-    <>
-      {leftNode}
-      
-      <div className="flex flex-col flex-1 text-left justify-center">
-        <span className={`text-[16px] font-medium ${danger ? "text-[#ef4444]" : "text-white"}`} style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+function Row({ label, sublabel, right, onClick, leftNode, danger }: {
+  leftNode?: React.ReactNode
+  label: string
+  sublabel?: string
+  right?: React.ReactNode
+  onClick?: () => void
+  danger?: boolean
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
+      style={{ paddingTop: "14px", paddingBottom: "14px" }}
+    >
+      {leftNode && (
+        <div className="shrink-0 flex items-center justify-center">
+          {leftNode}
+        </div>
+      )}
+      <div className="flex-1 text-left">
+        <p className={`${danger ? "text-[#ef4444]" : "text-white"}`}
+           style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
           {label}
-        </span>
+        </p>
         {sublabel && (
-          <span className="text-[13px] mt-0.5" style={{ fontFamily: SF, color: "#8e8e93" }}>
+          <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
             {sublabel}
-          </span>
+          </p>
         )}
       </div>
-      
-      {value && (
-        <span className="text-[15px] mr-1" style={{ fontFamily: SF, color: "#8e8e93" }}>
-          {value}
-        </span>
-      )}
-      
-      {rightNode ? rightNode : (!hideArrow && !danger && (
-        <ChevronRight className="w-4 h-4 text-[#555558]" strokeWidth={2.5} />
-      ))}
-    </>
-  );
-
-  if (isLink && href) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3.5 px-5 py-3.5 active:bg-white/5 transition-colors text-left">
-        {content}
-      </a>
-    );
-  }
-
-  return (
-    <button onClick={onClick} disabled={!onClick && !rightNode} className={`w-full flex items-center gap-3.5 px-5 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors' : ''} text-left`}>
-      {content}
+      {right ?? (danger ? <div /> : <IoChevronForward className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />)}
     </button>
   )
+}
+
+function Divider() {
+  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />
 }
 
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1">
+      <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
         {title && (
           <div className="flex items-center justify-between px-5 pt-3 pb-1">
             <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>{title}</p>
@@ -169,8 +152,6 @@ function Section({ title, children, rightAction }: { title?: string; children: R
     </div>
   )
 }
-
-// ── Componentes de Utilidad ──
 
 function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) {
   return (
@@ -203,7 +184,7 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
   if (locked)
     return (
       <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-        <Lock className="w-4 h-4" style={{ color: "#636366" }} />
+        <IoLockClosed className="w-5 h-5" style={{ color: "#636366" }} />
       </div>
     )
 
@@ -287,10 +268,7 @@ export function SettingsView() {
   const [submittingReport, setSubmittingReport] = useState(false)
   const [reportSent, setReportSent] = useState(false)
 
-  const currentModelInfo = MODELS.find(m => m.name === selectedModel)
-
   // Normalize display name — DB may store "Grok 4" which maps to "Grok 4.1" in UI
-  // Normalize DB legacy "Grok 4" → display "Grok 4.1"
   const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
 
   useEffect(() => {
@@ -313,8 +291,6 @@ export function SettingsView() {
     setPage("main")
   }
 
-  // Refresh token status every time the model-selector page is opened
-  // so the free-tier bars and "limit reached" badges are always current.
   useEffect(() => {
     if (page === "model") {
       refreshModelTokenStatus()
@@ -361,102 +337,80 @@ export function SettingsView() {
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 space-y-4">
-        {/* Contenedor actualizado en la vista de Modelos */}
-        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1">
-          <div className="flex items-center justify-between px-5 pt-3 pb-1">
+        <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+          <div className="px-5 pt-3 pb-1">
             <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>LLM model</p>
           </div>
 
-          {MODELS.map((m, i, arr) => {
+          {MODELS.map((m) => {
             const locked = m.proOnly && !isPremium
-
-            // Map UI name → DB canonical for token status lookup
             const tokenKey = m.name === "Grok 4.1" ? "Grok 4" : m.name
             const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey]
-
-            // Limit hit: token budget exhausted
             const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
             const minsLeft = limitHit ? tokenInfo.mins_left : 0
             const pct      = tokenInfo?.pct ?? 0
 
-            // Active check (normalize DB "Grok 4" → UI "Grok 4.1")
-            const active =
-              m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
-
+            const active = m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
             const isDisabled = locked || saving === "model" || !!limitHit
 
             return (
-              <React.Fragment key={m.name}>
-                <button
-                  disabled={isDisabled}
-                  onClick={() => !locked && !limitHit && selectModel(m.name)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
-                  style={{ opacity: locked || limitHit ? 0.5 : 1 }}
-                >
-                  <div className="flex items-center gap-4 flex-1">
-                    <ModelLogo name={m.name} locked={locked} />
-                    <div className="flex-1 text-left min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                        <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>
-                          {m.name}
-                        </p>
-
-                        {/* Tag (New / PRO) */}
-                        {m.tag && !locked && !limitHit && (
-                          <span
-                            className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
-                            style={{ fontFamily: SF }}>
-                            {m.tag}
-                          </span>
-                        )}
-
-                        {/* PRO lock badge */}
-                        {locked && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
-                                style={{ fontFamily: SF }}>
-                            PRO
-                          </span>
-                        )}
-
-                        {/* Limit reached badge */}
-                        {limitHit && !locked && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
-                                style={{ fontFamily: SF }}>
-                            limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
-                          </span>
-                        )}
-
-                        {/* Throttle badge for non-Grok models (legacy) */}
-                        {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
-                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
-                                style={{ fontFamily: SF }}>
-                            cooling {minutesUntilReset}min
-                          </span>
-                        )}
-                      </div>
-
-                      <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
-
-                      {/* Token usage bar */}
-                      {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
-                        <TokenBar pct={pct} />
+              <button
+                key={m.name}
+                disabled={isDisabled}
+                onClick={() => !locked && !limitHit && selectModel(m.name)}
+                className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
+                style={{ opacity: locked || limitHit ? 0.5 : 1 }}
+              >
+                <div className="flex items-center gap-4 flex-1">
+                  <ModelLogo name={m.name} locked={locked} />
+                  <div className="flex-1 text-left min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>
+                        {m.name}
+                      </p>
+                      {m.tag && !locked && !limitHit && (
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
+                          style={{ fontFamily: SF }}>
+                          {m.tag}
+                        </span>
+                      )}
+                      {locked && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
+                              style={{ fontFamily: SF }}>
+                          PRO
+                        </span>
+                      )}
+                      {limitHit && !locked && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
+                              style={{ fontFamily: SF }}>
+                          limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
+                        </span>
+                      )}
+                      {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
+                              style={{ fontFamily: SF }}>
+                          cooling {minutesUntilReset}min
+                        </span>
                       )}
                     </div>
+                    <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
+                    {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
+                      <TokenBar pct={pct} />
+                    )}
                   </div>
-
-                  <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
-                    {saving === "model" && active ? (
-                      <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8e8e93" }} />
-                    ) : active && !isDisabled ? (
-                      <Check className="w-5 h-5" style={{ color: "#3b82f6" }} strokeWidth={2.5} />
-                    ) : null}
-                  </div>
-                </button>
-                {/* Divisor parcial aplicado correctamente */}
-                {i < arr.length - 1 && <Divider marginLeft="76px" />}
-              </React.Fragment>
+                </div>
+                <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
+                  {saving === "model" && active ? (
+                    <IoSync className="w-5 h-5 animate-spin" style={{ color: "#8e8e93" }} />
+                  ) : active && !isDisabled ? (
+                    <IoCheckmark className="w-6 h-6" style={{ color: "#3b82f6" }} />
+                  ) : null}
+                </div>
+              </button>
             )
           })}
+          <div className="pb-2" />
         </div>
       </div>
     </div>
@@ -468,24 +422,19 @@ export function SettingsView() {
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 space-y-2">
-        {/* Contenedor actualizado en la vista de Idioma */}
-        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1">
-          <div className="flex items-center justify-between px-5 pt-3 pb-1">
-            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>Language</p>
-          </div>
+        <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
           {LANGS.map((lang, i, arr) => (
-            <React.Fragment key={lang.code}>
+            <div key={lang.code}>
               <button onClick={() => { setLanguage(lang.code); setPage("main") }}
-                className="w-full px-5 py-4 flex items-center justify-between active:bg-white/5 transition-colors">
+                className="w-full p-4 flex items-center justify-between active:bg-white/5 transition-colors">
                 <div className="flex items-center gap-4">
                   <span className="text-[22px]">{lang.flag}</span>
                   <p className="text-white" style={{ fontFamily: SF, fontSize: "16px" }}>{lang.name}</p>
                 </div>
-                {language === lang.code && <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} />}
+                {language === lang.code && <IoCheckmark className="w-6 h-6 text-[#3b82f6]" />}
               </button>
-              {/* Divisor parcial aplicado correctamente */}
-              {i < arr.length - 1 && <Divider marginLeft="58px" />}
-            </React.Fragment>
+              {i < arr.length - 1 && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />}
+            </div>
           ))}
         </div>
       </div>
@@ -596,86 +545,111 @@ export function SettingsView() {
         {/* ── Profile ── */}
         <Section title="Profile">
           <Row
-            leftNode={<IconBox icon={<Sparkles />} bg="#ec4899" />}
+            leftNode={<Icon3D icon={IoColorWand} bgFrom="#ff518b" bgTo="#ff2a6d" />}
             label="LLM model"
-            value={displayModelName + (isThrottled ? " · cooling" : "")}
+            sublabel={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
           <Divider />
           <Row
-            leftNode={<IconBox icon={<Globe />} bg="#a855f7" />}
+            leftNode={<Icon3D icon={IoGlobe} bgFrom="#b066ff" bgTo="#8b2bff" />}
             label="Language"
-            value={LANGS.find(l => l.code === language)?.name || "English"}
+            sublabel={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
           />
           <Divider />
           <Row
-            leftNode={<IconBox icon={<User />} bg="#3b82f6" />}
+            leftNode={<Icon3D icon={IoPerson} bgFrom="#4da6ff" bgTo="#007aff" />}
             label="About You"
-            value={userPreferences.name || "Edit"}
+            sublabel={userPreferences.name || "Edit preferences"}
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
           />
         </Section>
 
         {/* ── Data & Privacy ── */}
         <Section title="Data & Privacy">
-          <Row
-            leftNode={<IconBox icon={<Layers />} bg="#f59e0b" />}
-            label="Personalize Memories"
-            sublabel={personalizeMemories ? "xBlum learns from your chats" : "Minimal context only"}
-            rightNode={<Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
-          />
+          <div className="flex items-center justify-between px-5" style={{ paddingTop: "14px", paddingBottom: "14px" }}>
+            <div className="flex items-center gap-4">
+              <Icon3D icon={IoServer} bgFrom="#5ddc67" bgTo="#34c759" />
+              <div className="flex-1 text-left">
+                <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+                  Personalize Memories
+                </p>
+                <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
+                  {personalizeMemories ? "xBlum learns from your chats" : "Minimal context only"}
+                </p>
+              </div>
+            </div>
+            <Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />
+          </div>
           <Divider />
-          <Row
-            leftNode={<IconBox icon={<Bot />} bg="#10b981" />}
-            label="Improve Model"
-            rightNode={<Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />}
-          />
+          <div className="flex items-center justify-between px-5" style={{ paddingTop: "14px", paddingBottom: "14px" }}>
+            <div className="flex items-center gap-4">
+              <Icon3D icon={IoSparkles} bgFrom="#ffad4d" bgTo="#ff9500" />
+              <div className="flex-1 text-left">
+                <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+                  Improve Model
+                </p>
+              </div>
+            </div>
+            <Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />
+          </div>
         </Section>
 
         {/* ── Danger Zone ── */}
         <Section title="Danger Zone">
           <Row
             leftNode={saving === "del_mem"
-              ? <IconBox icon={<Loader2 className="animate-spin" />} bg="#ef4444" />
-              : <IconBox icon={<AlertTriangle />} bg="#ef4444" />}
+              ? <IoSync className="w-[20px] h-[20px] animate-spin text-[#ef4444]" />
+              : <Icon3D icon={IoTrash} bgFrom="#ff5e5e" bgTo="#ff3b30" />}
             label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
             onClick={handleDeleteMemories}
             danger
-            hideArrow
+            right={<div />}
           />
           <Divider />
           <Row
             leftNode={saving === "del_hist"
-              ? <IconBox icon={<Loader2 className="animate-spin" />} bg="#ef4444" />
-              : <IconBox icon={<AlertTriangle />} bg="#ef4444" />}
+              ? <IoSync className="w-[20px] h-[20px] animate-spin text-[#ef4444]" />
+              : <Icon3D icon={IoTrash} bgFrom="#ff5e5e" bgTo="#ff3b30" />}
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
-            hideArrow
+            right={<div />}
           />
         </Section>
 
         {/* ── Support ── */}
         <Section title="Support">
-          <Row
-            isLink
-            href="https://xblum.gitbook.io/home/xblum/terms"
-            leftNode={<IconBox icon={<FileText />} bg="#64748b" />}
-            label="Terms of Use"
-          />
+          <a href="https://xblum.gitbook.io/home/xblum/terms" target="_blank" rel="noopener noreferrer"
+             className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
+             style={{ paddingTop: "14px", paddingBottom: "14px" }}>
+            <Icon3D icon={IoDocumentText} bgFrom="#a1a1a6" bgTo="#8e8e93" />
+            <div className="flex-1 text-left">
+              <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+                Terms of Use
+              </p>
+            </div>
+            <IoOpen className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />
+          </a>
+          <Divider />
+          <a href="https://xblum.gitbook.io/home/xblum/privacy" target="_blank" rel="noopener noreferrer"
+             className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
+             style={{ paddingTop: "14px", paddingBottom: "14px" }}>
+            <Icon3D icon={IoShieldCheckmark} bgFrom="#a1a1a6" bgTo="#8e8e93" />
+            <div className="flex-1 text-left">
+              <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
+                Privacy Policy
+              </p>
+            </div>
+            <IoOpen className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />
+          </a>
           <Divider />
           <Row
-            isLink
-            href="https://xblum.gitbook.io/home/xblum/privacy"
-            leftNode={<IconBox icon={<Hand />} bg="#64748b" />}
-            label="Privacy Policy"
-          />
-          <Divider />
-          <Row
-            onClick={() => setShowReportModal(true)}
-            leftNode={<IconBox icon={<MessageSquare />} bg="#8b5cf6" />}
+            leftNode={<Icon3D icon={IoMegaphone} bgFrom="#ffcc00" bgTo="#e5b700" />}
             label="Feedback & Support"
+            onClick={() => setShowReportModal(true)}
+            right={<IoChevronForward className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />}
           />
         </Section>
       </div>
@@ -694,7 +668,7 @@ export function SettingsView() {
                 onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
                 className="w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity"
                 style={{ background: "#1c1c1e" }}>
-                <X className="w-4 h-4 text-white" />
+                <IoClose className="w-5 h-5 text-white" />
               </button>
               <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Feedback & Support
@@ -705,7 +679,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                   onClick={async () => {
+                  onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -730,11 +704,11 @@ export function SettingsView() {
             </div>
 
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
-               {reportSent ? (
+              {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
                        style={{ background: "rgba(52,199,89,0.1)" }}>
-                    <Check className="w-8 h-8 text-[#34c759]" />
+                    <IoCheckmark className="w-10 h-10 text-[#34c759]" />
                   </div>
                   <p className="text-white font-bold" style={{ fontSize: "18px", fontFamily: SFD }}>Thank you!</p>
                   <p className="text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
@@ -748,11 +722,11 @@ export function SettingsView() {
                       onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
                       className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
                       style={{ background: "#1c1c1e" }}>
-                      <MessageSquare className="w-5 h-5" style={{ color: "#8e8e93" }} />
+                      <IoChatbubble className="w-5 h-5" style={{ color: "#8e8e93" }} />
                       <span className="flex-1 text-left text-white font-medium" style={{ fontSize: "15px", fontFamily: SF }}>
                         {reportType}
                       </span>
-                      <ChevronDown
+                      <IoChevronDown
                         className={`w-5 h-5 transition-transform ${showReportTypeDropdown ? "rotate-180" : ""}`}
                         style={{ color: "#8e8e93" }} />
                     </button>
