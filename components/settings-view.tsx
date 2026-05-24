@@ -320,7 +320,7 @@ export function SettingsView() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [displayName, setDisplayName] = useState("")
 
-  // Estados para los campos de Account Setup
+  // Estados para los campos de Account Setup - TODOS VACÍOS POR DEFECTO
   const [nameField, setNameField] = useState("")
   const [genderField, setGenderField] = useState("")
   const [ageField, setAgeField] = useState("")
@@ -332,7 +332,7 @@ export function SettingsView() {
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
   const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
 
-  // Extraer información del usuario de Telegram
+  // Extraer información del usuario de Telegram SOLO para la foto y nombre a mostrar en el círculo
   useEffect(() => {
     const user = getTgUser()
     if (!user) return
@@ -340,7 +340,7 @@ export function SettingsView() {
     const full = [user.first_name, user.last_name].filter(Boolean).join(" ")
     const defaultName = full || user.username || "User"
     setDisplayName(defaultName)
-    if (!nameField) setNameField(defaultName)
+    // Se elimina la asignación predeterminada a nameField para que comience vacío
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
