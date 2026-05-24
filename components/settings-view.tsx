@@ -1,7 +1,6 @@
 "use client"
 
 import { useApp, type ModelName } from "@/lib/app-context"
-// Importamos Ionicons 5 (variante filled) en lugar de lucide-react
 import { 
   IoChevronForward, IoCheckmark, IoGlobe, IoColorWand, IoPerson, 
   IoLockClosed, IoServer, IoDocumentText, IoShieldCheckmark, 
@@ -80,7 +79,6 @@ const LANGS = [
 
 // ── Nuevos Componentes UI para la Vista Principal ──
 
-// Reemplazamos IconBox por Icon3D para el efecto iOS
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string, bgTo: string, spin?: boolean }) {
   return (
@@ -91,7 +89,6 @@ function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string,
         height: "30px",
         borderRadius: "8px",
         background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
-        // Efecto 3D: Sombra paralela + Brillo interno superior + Sombra interna inferior
         boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
         color: "white"
       }}
@@ -102,7 +99,6 @@ function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string,
 }
 
 function Divider() {
-  // Ajustamos el margen izquierdo para que se alinee con el texto y no cruce debajo del icono
   return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "60px" }} />
 }
 
@@ -128,16 +124,18 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
       
       <div className="flex-1" />
       
-      {/* El valor a la derecha ahora es gris, igual que la flecha */}
-      {value && (
-        <span className="text-[15px] mr-1" style={{ fontFamily: SF, color: "#8e8e93" }}>
-          {value}
-        </span>
-      )}
-      
-      {rightNode ? rightNode : (!hideArrow && !danger && (
-        <IoChevronForward className="w-5 h-5 text-[#555558]" />
-      ))}
+      {/* Contenedor flex para centrar verticalmente el valor y la flecha juntos */}
+      <div className="flex items-center gap-1">
+        {value && (
+          <span className="text-[15px]" style={{ fontFamily: SF, color: "#8e8e93" }}>
+            {value}
+          </span>
+        )}
+        
+        {rightNode ? rightNode : (!hideArrow && !danger && (
+          <IoChevronForward className="w-5 h-5 text-[#555558]" />
+        ))}
+      </div>
     </>
   );
 
@@ -159,11 +157,9 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both space-y-2">
-      {/* El contenedor ahora envuelve también al título, como en la imagen */}
       <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
         {title && (
           <div className="flex items-center justify-between px-4 pt-4 pb-1">
-            {/* Título en color azul (#60a5fa) */}
             <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
             {rightAction && <div>{rightAction}</div>}
           </div>
@@ -293,8 +289,6 @@ export function SettingsView() {
 
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
 
-  // Normalize display name — DB may store "Grok 4" which maps to "Grok 4.1" in UI
-  // Normalize DB legacy "Grok 4" → display "Grok 4.1"
   const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
 
   useEffect(() => {
@@ -317,8 +311,6 @@ export function SettingsView() {
     setPage("main")
   }
 
-  // Refresh token status every time the model-selector page is opened
-  // so the free-tier bars and "limit reached" badges are always current.
   useEffect(() => {
     if (page === "model") {
       refreshModelTokenStatus()
@@ -365,26 +357,22 @@ export function SettingsView() {
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 space-y-4">
-        <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-          <div className="px-5 pt-3 pb-1">
-            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>LLM model</p>
+        {/* Actualizado con el mismo diseño y colores de Section */}
+        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
+          <div className="flex items-center justify-between px-4 pt-4 pb-1">
+            <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Select Model</h2>
           </div>
 
           {MODELS.map((m) => {
             const locked = m.proOnly && !isPremium
 
-            // Map UI name → DB canonical for token status lookup
-            // DB canonical: "Grok 4.1" stored as "Grok 4" (legacy), "Grok 4.3" as-is
             const tokenKey = m.name === "Grok 4.1" ? "Grok 4" : m.name
             const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey]
 
-            // Limit hit: token budget exhausted
             const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
             const minsLeft = limitHit ? tokenInfo.mins_left : 0
             const pct      = tokenInfo?.pct ?? 0
 
-            // Active check (normalize DB "Grok 4" → UI "Grok 4.1")
-            // "Grok 4" in DB is shown as "Grok 4.1" in UI
             const active =
               m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
 
@@ -406,7 +394,6 @@ export function SettingsView() {
                         {m.name}
                       </p>
 
-                      {/* Tag (New / PRO) — only when not locked or limited */}
                       {m.tag && !locked && !limitHit && (
                         <span
                           className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
@@ -415,7 +402,6 @@ export function SettingsView() {
                         </span>
                       )}
 
-                      {/* PRO lock badge */}
                       {locked && (
                         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
                               style={{ fontFamily: SF }}>
@@ -423,7 +409,6 @@ export function SettingsView() {
                         </span>
                       )}
 
-                      {/* Limit reached badge */}
                       {limitHit && !locked && (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
                               style={{ fontFamily: SF }}>
@@ -431,7 +416,6 @@ export function SettingsView() {
                         </span>
                       )}
 
-                      {/* Throttle badge for non-Grok models (legacy) */}
                       {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
                               style={{ fontFamily: SF }}>
@@ -442,7 +426,6 @@ export function SettingsView() {
 
                     <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
 
-                    {/* Token usage bar — only shown for free tier Grok models */}
                     {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
                       <TokenBar pct={pct} />
                     )}
@@ -472,7 +455,7 @@ export function SettingsView() {
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 space-y-2">
-        <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
           {LANGS.map((lang, i, arr) => (
             <div key={lang.code}>
               <button onClick={() => { setLanguage(lang.code); setPage("main") }}
