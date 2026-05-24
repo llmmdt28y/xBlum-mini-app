@@ -94,8 +94,8 @@ function IconBox({ icon, bg }: { icon: React.ReactNode; bg: string }) {
   )
 }
 
-function Divider() {
-  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "60px" }} />
+function Divider({ marginLeft = "64px" }: { marginLeft?: string }) {
+  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft }} />
 }
 
 interface RowProps {
@@ -156,11 +156,11 @@ function Row({ label, sublabel, value, onClick, leftNode, danger, hideArrow, rig
 
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both space-y-2">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
       <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1">
         {title && (
           <div className="flex items-center justify-between px-5 pt-3 pb-1">
-            <h2 style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>{title}</h2>
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>{title}</p>
             {rightAction && <div>{rightAction}</div>}
           </div>
         )}
@@ -364,14 +364,13 @@ export function SettingsView() {
         {/* Contenedor actualizado en la vista de Modelos */}
         <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1">
           <div className="flex items-center justify-between px-5 pt-3 pb-1">
-            <h2 style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>LLM model</h2>
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>LLM model</p>
           </div>
 
-          {MODELS.map((m) => {
+          {MODELS.map((m, i, arr) => {
             const locked = m.proOnly && !isPremium
 
             // Map UI name → DB canonical for token status lookup
-            // DB canonical: "Grok 4.1" stored as "Grok 4" (legacy), "Grok 4.3" as-is
             const tokenKey = m.name === "Grok 4.1" ? "Grok 4" : m.name
             const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey]
 
@@ -381,82 +380,83 @@ export function SettingsView() {
             const pct      = tokenInfo?.pct ?? 0
 
             // Active check (normalize DB "Grok 4" → UI "Grok 4.1")
-            // "Grok 4" in DB is shown as "Grok 4.1" in UI
             const active =
               m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
 
             const isDisabled = locked || saving === "model" || !!limitHit
 
             return (
-              <button
-                key={m.name}
-                disabled={isDisabled}
-                onClick={() => !locked && !limitHit && selectModel(m.name)}
-                className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5 border-b border-[#1c1c1e] last:border-b-0"
-                style={{ opacity: locked || limitHit ? 0.5 : 1 }}
-              >
-                <div className="flex items-center gap-4 flex-1">
-                  <ModelLogo name={m.name} locked={locked} />
-                  <div className="flex-1 text-left min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>
-                        {m.name}
-                      </p>
+              <React.Fragment key={m.name}>
+                <button
+                  disabled={isDisabled}
+                  onClick={() => !locked && !limitHit && selectModel(m.name)}
+                  className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
+                  style={{ opacity: locked || limitHit ? 0.5 : 1 }}
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <ModelLogo name={m.name} locked={locked} />
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                        <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>
+                          {m.name}
+                        </p>
 
-                      {/* Tag (New / PRO) — only when not locked or limited */}
-                      {m.tag && !locked && !limitHit && (
-                        <span
-                          className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
-                          style={{ fontFamily: SF }}>
-                          {m.tag}
-                        </span>
-                      )}
+                        {/* Tag (New / PRO) */}
+                        {m.tag && !locked && !limitHit && (
+                          <span
+                            className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
+                            style={{ fontFamily: SF }}>
+                            {m.tag}
+                          </span>
+                        )}
 
-                      {/* PRO lock badge */}
-                      {locked && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
-                              style={{ fontFamily: SF }}>
-                          PRO
-                        </span>
-                      )}
+                        {/* PRO lock badge */}
+                        {locked && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
+                                style={{ fontFamily: SF }}>
+                            PRO
+                          </span>
+                        )}
 
-                      {/* Limit reached badge */}
-                      {limitHit && !locked && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
-                              style={{ fontFamily: SF }}>
-                          limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
-                        </span>
-                      )}
+                        {/* Limit reached badge */}
+                        {limitHit && !locked && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
+                                style={{ fontFamily: SF }}>
+                            limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
+                          </span>
+                        )}
 
-                      {/* Throttle badge for non-Grok models (legacy) */}
-                      {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
-                              style={{ fontFamily: SF }}>
-                          cooling {minutesUntilReset}min
-                        </span>
+                        {/* Throttle badge for non-Grok models (legacy) */}
+                        {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
+                                style={{ fontFamily: SF }}>
+                            cooling {minutesUntilReset}min
+                          </span>
+                        )}
+                      </div>
+
+                      <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
+
+                      {/* Token usage bar */}
+                      {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
+                        <TokenBar pct={pct} />
                       )}
                     </div>
-
-                    <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
-
-                    {/* Token usage bar — only shown for free tier Grok models */}
-                    {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
-                      <TokenBar pct={pct} />
-                    )}
                   </div>
-                </div>
 
-                <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
-                  {saving === "model" && active ? (
-                    <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8e8e93" }} />
-                  ) : active && !isDisabled ? (
-                    <Check className="w-5 h-5" style={{ color: "#3b82f6" }} strokeWidth={2.5} />
-                  ) : null}
-                </div>
-              </button>
+                  <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
+                    {saving === "model" && active ? (
+                      <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8e8e93" }} />
+                    ) : active && !isDisabled ? (
+                      <Check className="w-5 h-5" style={{ color: "#3b82f6" }} strokeWidth={2.5} />
+                    ) : null}
+                  </div>
+                </button>
+                {/* Divisor parcial aplicado correctamente */}
+                {i < arr.length - 1 && <Divider marginLeft="76px" />}
+              </React.Fragment>
             )
           })}
-
         </div>
       </div>
     </div>
@@ -470,15 +470,22 @@ export function SettingsView() {
       <div className="px-4 pt-6 space-y-2">
         {/* Contenedor actualizado en la vista de Idioma */}
         <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1">
-          {LANGS.map((lang) => (
-            <button key={lang.code} onClick={() => { setLanguage(lang.code); setPage("main") }}
-              className="w-full px-5 py-4 flex items-center justify-between active:bg-white/5 transition-colors border-b border-[#1c1c1e] last:border-b-0">
-              <div className="flex items-center gap-4">
-                <span className="text-[22px]">{lang.flag}</span>
-                <p className="text-white" style={{ fontFamily: SF, fontSize: "16px" }}>{lang.name}</p>
-              </div>
-              {language === lang.code && <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} />}
-            </button>
+          <div className="flex items-center justify-between px-5 pt-3 pb-1">
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>Language</p>
+          </div>
+          {LANGS.map((lang, i, arr) => (
+            <React.Fragment key={lang.code}>
+              <button onClick={() => { setLanguage(lang.code); setPage("main") }}
+                className="w-full px-5 py-4 flex items-center justify-between active:bg-white/5 transition-colors">
+                <div className="flex items-center gap-4">
+                  <span className="text-[22px]">{lang.flag}</span>
+                  <p className="text-white" style={{ fontFamily: SF, fontSize: "16px" }}>{lang.name}</p>
+                </div>
+                {language === lang.code && <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} />}
+              </button>
+              {/* Divisor parcial aplicado correctamente */}
+              {i < arr.length - 1 && <Divider marginLeft="58px" />}
+            </React.Fragment>
           ))}
         </div>
       </div>
