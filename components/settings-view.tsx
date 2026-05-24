@@ -124,10 +124,8 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
       
       <div className="flex-1" />
       
-      {/* Contenedor flex para centrar verticalmente el valor y la flecha juntos */}
       <div className="flex items-center gap-1">
         {value && (
-          // Mismo color (#555558) que la flecha para crear coherencia visual
           <span className="text-[16px] font-medium" style={{ fontFamily: SF, color: "#555558" }}>
             {value}
           </span>
@@ -157,7 +155,7 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
 
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both space-y-2">
+    <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
       <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
         {title && (
           <div className="flex items-center justify-between px-4 pt-4 pb-1">
@@ -232,7 +230,6 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
   )
 }
 
-// Token usage mini-bar shown inside each model row when limit is > 0
 function TokenBar({ pct }: { pct: number }) {
   const clamped = Math.min(100, Math.max(0, pct))
   const color = clamped >= 90 ? "#ef4444" : clamped >= 70 ? "#f97316" : "#3b82f6"
@@ -246,7 +243,6 @@ function TokenBar({ pct }: { pct: number }) {
   )
 }
 
-// Cabecera estática (sin líneas, sin blur, no sticky)
 function SubHeader({ title }: { title: string }) {
   return (
     <div className="flex items-center justify-center px-4 pb-3" style={{
@@ -351,11 +347,11 @@ export function SettingsView() {
 
   // ── Model page ─────────────────────────────────────────────────────────────
   if (page === "model") return (
-    <div className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-300 ease-out"
+    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 space-y-4">
-        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
+        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 animate-in fade-in duration-300 ease-in-out">
           <div className="flex items-center justify-between px-4 pt-4 pb-1">
             <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Select Model</h2>
           </div>
@@ -448,11 +444,11 @@ export function SettingsView() {
 
   // ── Lang page ──────────────────────────────────────────────────────────────
   if (page === "lang") return (
-    <div className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-300 ease-out"
+    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 space-y-2">
-        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
+        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 animate-in fade-in duration-300 ease-in-out">
           {LANGS.map((lang, i, arr) => (
             <div key={lang.code}>
               <button onClick={() => { setLanguage(lang.code); setPage("main") }}
@@ -473,10 +469,10 @@ export function SettingsView() {
 
   // ── Prefs page ─────────────────────────────────────────────────────────────
   if (page === "prefs") return (
-    <div className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-300 ease-out"
+    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Preferences" />
-      <div className="px-4 pt-6 space-y-5">
+      <div className="px-4 pt-6 space-y-5 animate-in fade-in duration-300 ease-in-out">
         {(["name", "age", "location"] as const).map(field => (
           <div key={field} className="space-y-2">
             <label className="px-2 font-medium"
@@ -521,7 +517,7 @@ export function SettingsView() {
 
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
-    <div className="flex-1 overflow-y-auto animate-in fade-in zoom-in-[0.98] duration-300 ease-out" style={{ background: "#000" }}>
+    <div className="flex-1 overflow-y-auto animate-in fade-in duration-300 ease-in-out" style={{ background: "#000" }}>
       {/* Cabecera principal estática */}
       <div className="flex items-center justify-center px-4 pb-3" style={{
         paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
@@ -537,7 +533,7 @@ export function SettingsView() {
         {!isPremium && (
           <button
             onClick={() => setCurrentView("premium")}
-            className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left animate-in fade-in slide-in-from-bottom-4 duration-500"
+            className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left animate-in fade-in duration-300 ease-in-out"
             style={{ background: "#111", border: "1px solid #1c1c1e", borderRadius: "20px", minHeight: "96px" }}
           >
             <div className="absolute inset-0 pointer-events-none"
@@ -659,11 +655,13 @@ export function SettingsView() {
       {/* ── Feedback Modal ── */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
+          {/* Fondo difuminado con desvanecimiento suave */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 ease-in-out"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-          <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-300 max-h-[90vh] flex flex-col"
+          {/* Aquí mantuve el slide de bottom porque es el estándar nativo de las hojas modales (sheets) en iOS */}
+          <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom fade-in duration-300 ease-out max-h-[90vh] flex flex-col"
                style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
               <button
