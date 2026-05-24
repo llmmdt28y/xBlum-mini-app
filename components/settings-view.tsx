@@ -141,14 +141,14 @@ function Row({ label, sublabel, value, onClick, leftNode, danger, hideArrow, rig
 
   if (isLink && href) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3.5 px-4 py-3 active:bg-white/5 transition-colors text-left">
+      <a href={href} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3.5 px-5 py-3.5 active:bg-white/5 transition-colors text-left">
         {content}
       </a>
     );
   }
 
   return (
-    <button onClick={onClick} disabled={!onClick && !rightNode} className={`w-full flex items-center gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors' : ''} text-left`}>
+    <button onClick={onClick} disabled={!onClick && !rightNode} className={`w-full flex items-center gap-3.5 px-5 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors' : ''} text-left`}>
       {content}
     </button>
   )
@@ -159,8 +159,8 @@ function Section({ title, children, rightAction }: { title?: string; children: R
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both space-y-2">
       <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1">
         {title && (
-          <div className="flex items-center justify-between px-4 pt-4 pb-1">
-            <h2 className="text-[#3b82f6] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
+          <div className="flex items-center justify-between px-5 pt-3 pb-1">
+            <h2 style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>{title}</h2>
             {rightAction && <div>{rightAction}</div>}
           </div>
         )}
@@ -361,9 +361,10 @@ export function SettingsView() {
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 space-y-4">
-        <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-          <div className="px-5 pt-3 pb-1">
-            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>LLM model</p>
+        {/* Contenedor actualizado en la vista de Modelos */}
+        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1">
+          <div className="flex items-center justify-between px-5 pt-3 pb-1">
+            <h2 style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>LLM model</h2>
           </div>
 
           {MODELS.map((m) => {
@@ -391,7 +392,7 @@ export function SettingsView() {
                 key={m.name}
                 disabled={isDisabled}
                 onClick={() => !locked && !limitHit && selectModel(m.name)}
-                className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
+                className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5 border-b border-[#1c1c1e] last:border-b-0"
                 style={{ opacity: locked || limitHit ? 0.5 : 1 }}
               >
                 <div className="flex items-center gap-4 flex-1">
@@ -456,7 +457,6 @@ export function SettingsView() {
             )
           })}
 
-          <div className="pb-2" />
         </div>
       </div>
     </div>
@@ -468,19 +468,17 @@ export function SettingsView() {
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 space-y-2">
-        <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
-          {LANGS.map((lang, i, arr) => (
-            <div key={lang.code}>
-              <button onClick={() => { setLanguage(lang.code); setPage("main") }}
-                className="w-full p-4 flex items-center justify-between active:bg-white/5 transition-colors">
-                <div className="flex items-center gap-4">
-                  <span className="text-[22px]">{lang.flag}</span>
-                  <p className="text-white" style={{ fontFamily: SF, fontSize: "16px" }}>{lang.name}</p>
-                </div>
-                {language === lang.code && <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} />}
-              </button>
-              {i < arr.length - 1 && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />}
-            </div>
+        {/* Contenedor actualizado en la vista de Idioma */}
+        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1">
+          {LANGS.map((lang) => (
+            <button key={lang.code} onClick={() => { setLanguage(lang.code); setPage("main") }}
+              className="w-full px-5 py-4 flex items-center justify-between active:bg-white/5 transition-colors border-b border-[#1c1c1e] last:border-b-0">
+              <div className="flex items-center gap-4">
+                <span className="text-[22px]">{lang.flag}</span>
+                <p className="text-white" style={{ fontFamily: SF, fontSize: "16px" }}>{lang.name}</p>
+              </div>
+              {language === lang.code && <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} />}
+            </button>
           ))}
         </div>
       </div>
