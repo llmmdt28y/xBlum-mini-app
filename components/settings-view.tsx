@@ -1,14 +1,9 @@
 "use client"
 
 import { useApp, type ModelName } from "@/lib/app-context"
-// Reemplazamos Lucide por Ionicons (variante filled)
-import { 
-  IoChevronForward, IoCheckmark, IoGlobe, IoColorWand, IoPerson, 
-  IoLockClosed, IoServer, IoDocumentText, IoShieldCheckmark, 
-  IoChatbubble, IoChevronDown, IoClose, IoOpen, IoMegaphone, 
-  IoTrash, IoSync, IoSparkles 
-} from "react-icons/io5"
+import { ChevronRight, Check, Globe, Bot, User, Lock, Database, FileText, Shield, MessageSquare, ChevronDown, X, ExternalLink, AlertCircle, Trash2, Loader2, Sparkles } from "lucide-react"
 import { useState, useEffect } from "react"
+import React from "react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -78,72 +73,80 @@ const LANGS = [
   { code: "en" as const, name: "English", flag: "🇬🇧" },
 ]
 
-// ── Componente de Icono Estilo iOS 3D ─────────────────────────────────────────
-function Icon3D({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: string, bgTo: string }) {
+// ── Nuevos Componentes UI para la Vista Principal ──
+
+function IconBox({ icon, bg }: { icon: React.ReactNode; bg: string }) {
   return (
-    <div
-      className="shrink-0 flex items-center justify-center"
-      style={{
-        width: "28px",
-        height: "28px",
-        borderRadius: "8px", // Curvatura tipo squircle
-        background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
-        // Efecto 3D: Sombra paralela suave + Brillo interno en la parte superior
-        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
-        color: "white"
-      }}
-    >
-      <Icon className="w-[16px] h-[16px]" />
+    <div className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center shrink-0 shadow-sm" style={{ backgroundColor: bg }}>
+      {React.cloneElement(icon as React.ReactElement, { className: "w-[16px] h-[16px] text-white" })}
     </div>
   )
 }
 
-function Row({ label, sublabel, right, onClick, leftNode, danger }: {
-  leftNode?: React.ReactNode
-  label: string
-  sublabel?: string
-  right?: React.ReactNode
-  onClick?: () => void
-  danger?: boolean
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
-      style={{ paddingTop: "14px", paddingBottom: "14px" }}
-    >
-      {leftNode && (
-        <div className="shrink-0 flex items-center justify-center">
-          {leftNode}
-        </div>
+function Divider() {
+  // Ajustamos el margen izquierdo para que se alinee con el texto y no cruce debajo del icono
+  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "60px" }} />
+}
+
+interface RowProps {
+  label: string;
+  value?: string;
+  onClick?: () => void;
+  leftNode?: React.ReactNode;
+  danger?: boolean;
+  hideArrow?: boolean;
+  rightNode?: React.ReactNode;
+  isLink?: boolean;
+  href?: string;
+}
+
+function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, isLink, href }: RowProps) {
+  const content = (
+    <>
+      {leftNode}
+      <span className={`text-[16px] font-medium ${danger ? "text-[#ef4444]" : "text-white"}`} style={{ fontFamily: SF }}>
+        {label}
+      </span>
+      
+      <div className="flex-1" />
+      
+      {/* El valor a la derecha ahora es gris, igual que la flecha */}
+      {value && (
+        <span className="text-[15px] mr-1" style={{ fontFamily: SF, color: "#8e8e93" }}>
+          {value}
+        </span>
       )}
-      <div className="flex-1 text-left">
-        <p className={`${danger ? "text-[#ef4444]" : "text-white"}`}
-           style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-          {label}
-        </p>
-        {sublabel && (
-          <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
-            {sublabel}
-          </p>
-        )}
-      </div>
-      {right ?? (danger ? <div /> : <IoChevronForward className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />)}
+      
+      {rightNode ? rightNode : (!hideArrow && !danger && (
+        <ChevronRight className="w-5 h-5 text-[#555558]" strokeWidth={2.5} />
+      ))}
+    </>
+  );
+
+  if (isLink && href) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3.5 px-4 py-3 active:bg-white/5 transition-colors text-left">
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <button onClick={onClick} disabled={!onClick && !rightNode} className={`w-full flex items-center gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors' : ''} text-left`}>
+      {content}
     </button>
   )
 }
 
-function Divider() {
-  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />
-}
-
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
-      <div className="rounded-2xl overflow-hidden" style={{ background: "#111", border: "1px solid #1c1c1e" }}>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both space-y-2">
+      {/* El contenedor ahora envuelve también al título, como en la imagen */}
+      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
         {title && (
-          <div className="flex items-center justify-between px-5 pt-3 pb-1">
-            <p style={{ fontSize: "13px", fontWeight: 600, color: "#3b82f6", fontFamily: SF }}>{title}</p>
+          <div className="flex items-center justify-between px-4 pt-4 pb-1">
+            {/* Título en color azul (#60a5fa) */}
+            <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
             {rightAction && <div>{rightAction}</div>}
           </div>
         )}
@@ -152,6 +155,8 @@ function Section({ title, children, rightAction }: { title?: string; children: R
     </div>
   )
 }
+
+// ── Componentes de Utilidad ──
 
 function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) {
   return (
@@ -184,7 +189,7 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
   if (locked)
     return (
       <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
-        <IoLockClosed className="w-5 h-5" style={{ color: "#636366" }} />
+        <Lock className="w-4 h-4" style={{ color: "#636366" }} />
       </div>
     )
 
@@ -268,7 +273,10 @@ export function SettingsView() {
   const [submittingReport, setSubmittingReport] = useState(false)
   const [reportSent, setReportSent] = useState(false)
 
+  const currentModelInfo = MODELS.find(m => m.name === selectedModel)
+
   // Normalize display name — DB may store "Grok 4" which maps to "Grok 4.1" in UI
+  // Normalize DB legacy "Grok 4" → display "Grok 4.1"
   const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
 
   useEffect(() => {
@@ -291,6 +299,8 @@ export function SettingsView() {
     setPage("main")
   }
 
+  // Refresh token status every time the model-selector page is opened
+  // so the free-tier bars and "limit reached" badges are always current.
   useEffect(() => {
     if (page === "model") {
       refreshModelTokenStatus()
@@ -344,13 +354,22 @@ export function SettingsView() {
 
           {MODELS.map((m) => {
             const locked = m.proOnly && !isPremium
+
+            // Map UI name → DB canonical for token status lookup
+            // DB canonical: "Grok 4.1" stored as "Grok 4" (legacy), "Grok 4.3" as-is
             const tokenKey = m.name === "Grok 4.1" ? "Grok 4" : m.name
             const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey]
+
+            // Limit hit: token budget exhausted
             const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
             const minsLeft = limitHit ? tokenInfo.mins_left : 0
             const pct      = tokenInfo?.pct ?? 0
 
-            const active = m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
+            // Active check (normalize DB "Grok 4" → UI "Grok 4.1")
+            // "Grok 4" in DB is shown as "Grok 4.1" in UI
+            const active =
+              m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
+
             const isDisabled = locked || saving === "model" || !!limitHit
 
             return (
@@ -368,6 +387,8 @@ export function SettingsView() {
                       <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>
                         {m.name}
                       </p>
+
+                      {/* Tag (New / PRO) — only when not locked or limited */}
                       {m.tag && !locked && !limitHit && (
                         <span
                           className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
@@ -375,18 +396,24 @@ export function SettingsView() {
                           {m.tag}
                         </span>
                       )}
+
+                      {/* PRO lock badge */}
                       {locked && (
                         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
                               style={{ fontFamily: SF }}>
                           PRO
                         </span>
                       )}
+
+                      {/* Limit reached badge */}
                       {limitHit && !locked && (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
                               style={{ fontFamily: SF }}>
                           limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
                         </span>
                       )}
+
+                      {/* Throttle badge for non-Grok models (legacy) */}
                       {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
                               style={{ fontFamily: SF }}>
@@ -394,22 +421,27 @@ export function SettingsView() {
                         </span>
                       )}
                     </div>
+
                     <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
+
+                    {/* Token usage bar — only shown for free tier Grok models */}
                     {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
                       <TokenBar pct={pct} />
                     )}
                   </div>
                 </div>
+
                 <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
                   {saving === "model" && active ? (
-                    <IoSync className="w-5 h-5 animate-spin" style={{ color: "#8e8e93" }} />
+                    <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#8e8e93" }} />
                   ) : active && !isDisabled ? (
-                    <IoCheckmark className="w-6 h-6" style={{ color: "#3b82f6" }} />
+                    <Check className="w-5 h-5" style={{ color: "#3b82f6" }} strokeWidth={2.5} />
                   ) : null}
                 </div>
               </button>
             )
           })}
+
           <div className="pb-2" />
         </div>
       </div>
@@ -431,7 +463,7 @@ export function SettingsView() {
                   <span className="text-[22px]">{lang.flag}</span>
                   <p className="text-white" style={{ fontFamily: SF, fontSize: "16px" }}>{lang.name}</p>
                 </div>
-                {language === lang.code && <IoCheckmark className="w-6 h-6 text-[#3b82f6]" />}
+                {language === lang.code && <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} />}
               </button>
               {i < arr.length - 1 && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />}
             </div>
@@ -545,111 +577,85 @@ export function SettingsView() {
         {/* ── Profile ── */}
         <Section title="Profile">
           <Row
-            leftNode={<Icon3D icon={IoColorWand} bgFrom="#ff518b" bgTo="#ff2a6d" />}
+            leftNode={<IconBox icon={<Sparkles />} bg="#ec4899" />}
             label="LLM model"
-            sublabel={displayModelName + (isThrottled ? " · cooling" : "")}
+            value={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
           <Divider />
           <Row
-            leftNode={<Icon3D icon={IoGlobe} bgFrom="#b066ff" bgTo="#8b2bff" />}
+            leftNode={<IconBox icon={<Globe />} bg="#a855f7" />}
             label="Language"
-            sublabel={LANGS.find(l => l.code === language)?.name || "English"}
+            value={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
           />
           <Divider />
           <Row
-            leftNode={<Icon3D icon={IoPerson} bgFrom="#4da6ff" bgTo="#007aff" />}
+            leftNode={<IconBox icon={<User />} bg="#3b82f6" />}
             label="About You"
-            sublabel={userPreferences.name || "Edit preferences"}
+            value={userPreferences.name || "Edit"}
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
           />
         </Section>
 
         {/* ── Data & Privacy ── */}
         <Section title="Data & Privacy">
-          <div className="flex items-center justify-between px-5" style={{ paddingTop: "14px", paddingBottom: "14px" }}>
-            <div className="flex items-center gap-4">
-              <Icon3D icon={IoServer} bgFrom="#5ddc67" bgTo="#34c759" />
-              <div className="flex-1 text-left">
-                <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-                  Personalize Memories
-                </p>
-                <p className="mt-0.5" style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>
-                  {personalizeMemories ? "xBlum learns from your chats" : "Minimal context only"}
-                </p>
-              </div>
-            </div>
-            <Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />
-          </div>
+          <Row
+            leftNode={<IconBox icon={<Database />} bg="#f59e0b" />}
+            label="Personalize Memories"
+            rightNode={<Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
+          />
           <Divider />
-          <div className="flex items-center justify-between px-5" style={{ paddingTop: "14px", paddingBottom: "14px" }}>
-            <div className="flex items-center gap-4">
-              <Icon3D icon={IoSparkles} bgFrom="#ffad4d" bgTo="#ff9500" />
-              <div className="flex-1 text-left">
-                <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-                  Improve Model
-                </p>
-              </div>
-            </div>
-            <Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />
-          </div>
+          <Row
+            leftNode={<IconBox icon={<Bot />} bg="#10b981" />}
+            label="Improve Model"
+            rightNode={<Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />}
+          />
         </Section>
 
         {/* ── Danger Zone ── */}
         <Section title="Danger Zone">
           <Row
             leftNode={saving === "del_mem"
-              ? <IoSync className="w-[20px] h-[20px] animate-spin text-[#ef4444]" />
-              : <Icon3D icon={IoTrash} bgFrom="#ff5e5e" bgTo="#ff3b30" />}
+              ? <IconBox icon={<Loader2 className="animate-spin" />} bg="#ef4444" />
+              : <IconBox icon={<Trash2 />} bg="#ef4444" />}
             label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
             onClick={handleDeleteMemories}
             danger
-            right={<div />}
+            hideArrow
           />
           <Divider />
           <Row
             leftNode={saving === "del_hist"
-              ? <IoSync className="w-[20px] h-[20px] animate-spin text-[#ef4444]" />
-              : <Icon3D icon={IoTrash} bgFrom="#ff5e5e" bgTo="#ff3b30" />}
+              ? <IconBox icon={<Loader2 className="animate-spin" />} bg="#ef4444" />
+              : <IconBox icon={<Trash2 />} bg="#ef4444" />}
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
-            right={<div />}
+            hideArrow
           />
         </Section>
 
         {/* ── Support ── */}
         <Section title="Support">
-          <a href="https://xblum.gitbook.io/home/xblum/terms" target="_blank" rel="noopener noreferrer"
-             className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
-             style={{ paddingTop: "14px", paddingBottom: "14px" }}>
-            <Icon3D icon={IoDocumentText} bgFrom="#a1a1a6" bgTo="#8e8e93" />
-            <div className="flex-1 text-left">
-              <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-                Terms of Use
-              </p>
-            </div>
-            <IoOpen className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />
-          </a>
-          <Divider />
-          <a href="https://xblum.gitbook.io/home/xblum/privacy" target="_blank" rel="noopener noreferrer"
-             className="w-full flex items-center gap-4 px-5 active:bg-white/5 transition-colors"
-             style={{ paddingTop: "14px", paddingBottom: "14px" }}>
-            <Icon3D icon={IoShieldCheckmark} bgFrom="#a1a1a6" bgTo="#8e8e93" />
-            <div className="flex-1 text-left">
-              <p className="text-white" style={{ fontSize: "16px", fontWeight: 400, fontFamily: SF, letterSpacing: "-0.01em" }}>
-                Privacy Policy
-              </p>
-            </div>
-            <IoOpen className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />
-          </a>
+          <Row
+            isLink
+            href="https://xblum.gitbook.io/home/xblum/terms"
+            leftNode={<IconBox icon={<FileText />} bg="#64748b" />}
+            label="Terms of Use"
+          />
           <Divider />
           <Row
-            leftNode={<Icon3D icon={IoMegaphone} bgFrom="#ffcc00" bgTo="#e5b700" />}
-            label="Feedback & Support"
+            isLink
+            href="https://xblum.gitbook.io/home/xblum/privacy"
+            leftNode={<IconBox icon={<Shield />} bg="#64748b" />}
+            label="Privacy Policy"
+          />
+          <Divider />
+          <Row
             onClick={() => setShowReportModal(true)}
-            right={<IoChevronForward className="w-5 h-5 shrink-0" style={{ color: "#48484a" }} />}
+            leftNode={<IconBox icon={<MessageSquare />} bg="#8b5cf6" />}
+            label="Feedback & Support"
           />
         </Section>
       </div>
@@ -668,7 +674,7 @@ export function SettingsView() {
                 onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
                 className="w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity"
                 style={{ background: "#1c1c1e" }}>
-                <IoClose className="w-5 h-5 text-white" />
+                <X className="w-4 h-4 text-white" />
               </button>
               <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Feedback & Support
@@ -679,7 +685,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                  onClick={async () => {
+                   onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -704,11 +710,11 @@ export function SettingsView() {
             </div>
 
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
-              {reportSent ? (
+               {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
                        style={{ background: "rgba(52,199,89,0.1)" }}>
-                    <IoCheckmark className="w-10 h-10 text-[#34c759]" />
+                    <Check className="w-8 h-8 text-[#34c759]" />
                   </div>
                   <p className="text-white font-bold" style={{ fontSize: "18px", fontFamily: SFD }}>Thank you!</p>
                   <p className="text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
@@ -722,11 +728,11 @@ export function SettingsView() {
                       onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
                       className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
                       style={{ background: "#1c1c1e" }}>
-                      <IoChatbubble className="w-5 h-5" style={{ color: "#8e8e93" }} />
+                      <MessageSquare className="w-5 h-5" style={{ color: "#8e8e93" }} />
                       <span className="flex-1 text-left text-white font-medium" style={{ fontSize: "15px", fontFamily: SF }}>
                         {reportType}
                       </span>
-                      <IoChevronDown
+                      <ChevronDown
                         className={`w-5 h-5 transition-transform ${showReportTypeDropdown ? "rotate-180" : ""}`}
                         style={{ color: "#8e8e93" }} />
                     </button>
