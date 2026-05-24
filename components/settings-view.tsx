@@ -4,13 +4,29 @@ import { useApp, type ModelName } from "@/lib/app-context"
 import { 
   IoChevronForward, IoCheckmark, IoGlobe, IoColorWand, IoPerson, 
   IoLockClosed, IoServer, IoDocumentText, IoShieldCheckmark, 
-  IoChatbubble, IoChevronDown, IoClose, IoTrash, IoSync, IoSparkles 
+  IoChatbubble, IoChevronDown, IoClose, IoTrash, IoSync, IoSparkles,
+  IoWalletOutline, IoCall, IoPersonOutline, IoLockClosedOutline
 } from "react-icons/io5"
 import { useState, useEffect } from "react"
 import React from "react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+
+// ── Tipos y Helpers para Usuario de Telegram ──
+type TgUser = {
+  id: number
+  first_name?: string
+  last_name?: string
+  username?: string
+  photo_url?: string
+}
+
+function getTgUser(): TgUser | undefined {
+  if (typeof window === "undefined") return undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
+}
 
 const MODEL_LOGO: Record<string, string> = {
   "Grok 4.3": "/grok.png",
@@ -20,7 +36,6 @@ const MODEL_LOGO: Record<string, string> = {
   "GPT-5.2":  "/gpt.png",
 }
 
-// ModelTokenStatus shape from /api/user_profile → model_token_status
 interface ModelTokenInfo {
   used:      number
   limit:     number
@@ -77,7 +92,7 @@ const LANGS = [
   { code: "en" as const, name: "English", flag: "🇬🇧" },
 ]
 
-// ── Nuevos Componentes UI para la Vista Principal ──
+// ── Componentes UI para la Vista Principal ──
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string, bgTo: string, spin?: boolean }) {
@@ -168,8 +183,6 @@ function Section({ title, children, rightAction }: { title?: string; children: R
     </div>
   )
 }
-
-// ── Componentes de Utilidad ──
 
 function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) {
   return (
@@ -281,9 +294,23 @@ export function SettingsView() {
   const [submittingReport, setSubmittingReport] = useState(false)
   const [reportSent, setReportSent] = useState(false)
 
-  const currentModelInfo = MODELS.find(m => m.name === selectedModel)
+  // Estados para el perfil del usuario (copiados de profile-view)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
+  const [displayName, setDisplayName] = useState("")
 
+  const currentModelInfo = MODELS.find(m => m.name === selectedModel)
   const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
+
+  // Extraer información del usuario de Telegram
+  useEffect(() => {
+    const user = getTgUser()
+    if (!user) return
+    if (user.photo_url) setPhotoUrl(user.photo_url)
+    const full = [user.first_name, user.last_name].filter(Boolean).join(" ")
+    setDisplayName(full || user.username || "User")
+  }, [])
+
+  const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -467,50 +494,115 @@ export function SettingsView() {
     </div>
   )
 
-  // ── Prefs page ─────────────────────────────────────────────────────────────
+  // ── Prefs page (Account Setup) ─────────────────────────────────────────────
   if (page === "prefs") return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
+    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out overflow-y-auto scrollbar-native"
          style={{ background: "#000", minHeight: "100vh" }}>
-      <SubHeader title="Preferences" />
-      <div className="px-4 pt-6 space-y-5 animate-in fade-in duration-300 ease-in-out">
-        {(["name", "age", "location"] as const).map(field => (
-          <div key={field} className="space-y-2">
-            <label className="px-2 font-medium"
-                   style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF, textTransform: "capitalize" }}>
-              {field}
-            </label>
-            <input
-              type="text"
-              value={tempPrefs[field]}
-              onChange={e => setTempPrefs({ ...tempPrefs, [field]: e.target.value })}
-              className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none transition-colors"
-              style={{ background: "#111", border: "1px solid #1c1c1e", fontFamily: SF, fontSize: "16px" }}
-              onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
-              onBlur={e => (e.target.style.borderColor = "transparent")}
-            />
+      
+      {/* Espaciado superior dinámico de Telegram */}
+      <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
+
+      {/* Título Principal y Gráfico Circular */}
+      <div className="flex flex-col items-center mt-2 mb-8 animate-in fade-in duration-300 ease-in-out relative z-10">
+        
+        {/* Gráfico circular con la foto de perfil en medio */}
+        <div className="relative w-[110px] h-[110px] flex items-center justify-center rounded-full mb-6 mt-4">
+          
+          {/* Anillos SVG (Fondo y Progreso) */}
+          <svg className="absolute inset-0 w-full h-full transform -rotate-90 z-20 pointer-events-none" viewBox="0 0 100 100">
+            {/* Círculo de fondo oscuro */}
+            <circle cx="50" cy="50" r="47" stroke="#1c1c1e" strokeWidth="4" fill="none" />
+            {/* Círculo de progreso azul (25%) */}
+            <circle cx="50" cy="50" r="47" stroke="#3b82f6" strokeWidth="4" fill="none" strokeDasharray="295" strokeDashoffset="221" strokeLinecap="round" />
+          </svg>
+          
+          {/* Foto de Perfil o Iniciales */}
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <div className="w-[86px] h-[86px] rounded-full overflow-hidden bg-gradient-to-br from-[#1e1e1e] to-[#0a0a0a] flex items-center justify-center border-2 border-transparent relative shadow-lg">
+              {photoUrl ? (
+                <img 
+                  src={photoUrl} 
+                  alt={displayName} 
+                  className="w-full h-full object-cover select-none pointer-events-none" 
+                  draggable={false} 
+                  style={{ WebkitTouchCallout: "none" }} 
+                  onError={() => setPhotoUrl(null)} 
+                />
+              ) : (
+                <span className="text-white font-bold select-none pointer-events-none" style={{ fontSize: "30px", letterSpacing: "-0.02em", fontFamily: SFD }}>
+                  {initials || "?"}
+                </span>
+              )}
+            </div>
           </div>
-        ))}
-        <div className="space-y-2">
-          <label className="px-2 font-medium"
-                 style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
-            Your Preferences
-          </label>
-          <textarea
-            value={tempPrefs.preferences}
-            onChange={e => setTempPrefs({ ...tempPrefs, preferences: e.target.value })}
-            className="w-full p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none min-h-[140px] resize-none transition-colors"
-            style={{ background: "#111", border: "1px solid #1c1c1e", fontFamily: SF, fontSize: "16px" }}
-            placeholder="I prefer concise answers..."
-            onFocus={e => (e.target.style.borderColor = "#3a3a3c")}
-            onBlur={e => (e.target.style.borderColor = "transparent")}
-          />
+
+          {/* Etiqueta 25% superpuesta */}
+          <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-[#3b82f6] text-white text-[12px] font-bold px-3 py-0.5 rounded-full border-[4px] border-black z-30 shadow-sm" style={{ fontFamily: SF }}>
+            25%
+          </div>
         </div>
-        <button
-          onClick={() => { setUserPreferences(tempPrefs); setPage("main") }}
-          className="w-full py-4 mt-4 bg-white text-black font-bold rounded-2xl active:scale-[0.98] transition-transform"
-          style={{ fontFamily: SF, fontSize: "16px" }}>
-          Save Preferences
-        </button>
+        
+        <h1 className="text-[22px] font-bold text-white mb-1.5 mt-2" style={{ fontFamily: SFD }}>Set Up Your Account</h1>
+        <p className="text-[#3b82f6] font-semibold text-[17px] mb-2" style={{ fontFamily: SF }}>3 steps left</p>
+        <p className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
+      </div>
+
+      <div className="px-5 w-full pb-10">
+         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4" style={{ fontFamily: SF }}>Wallet Setup</h3>
+
+         <div className="relative flex flex-col mb-4">
+            {/* Línea vertical conectora (queda escondida detrás de los bordes negros de los iconos) */}
+            <div className="absolute left-[18px] top-[20px] bottom-[20px] w-[2px] bg-[#1c1c1e] z-0" />
+            
+            {/* Step 1: Create Wallet */}
+            <div className="flex items-start w-full relative z-10">
+               <div className="w-10 h-10 rounded-full bg-[#22c55e] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoWalletOutline className="w-[18px] h-[18px] text-white ml-0.5" />
+               </div>
+               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
+                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Create Wallet</p>
+                  <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
+                     <IoCheckmark className="w-[14px] h-[14px] text-white font-bold stroke-[2px]" />
+                  </div>
+               </div>
+            </div>
+            
+            {/* Step 2: Share Phone Number */}
+            <button className="flex items-start w-full relative z-10 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#3b82f6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoCall className="w-[18px] h-[18px] text-white" />
+               </div>
+               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e] pb-5 mb-5 min-h-[40px]">
+                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Share Phone Number</p>
+                  <IoChevronForward className="w-5 h-5 text-[#555558]" />
+               </div>
+            </button>
+
+            {/* Step 3: Add Personal Data */}
+            <div className="flex items-center w-full relative z-10 mb-2">
+               <div className="w-10 h-10 rounded-full bg-[#2c2c2e] border-[4px] border-black flex items-center justify-center shrink-0">
+                  <IoPersonOutline className="w-[18px] h-[18px] text-[#8e8e93]" />
+               </div>
+               <div className="ml-4 flex-1 flex items-center justify-between min-h-[40px]">
+                  <p className="text-[16px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
+               </div>
+            </div>
+         </div>
+
+         <h3 className="text-[#8e8e93] text-[14px] font-medium mb-4 mt-8" style={{ fontFamily: SF }}>Account Security</h3>
+
+         <div className="relative flex flex-col">
+            {/* Step 1: Set Up Passcode */}
+            <button className="flex items-center w-full relative z-10 mb-6 active:opacity-70 transition-opacity text-left">
+               <div className="w-10 h-10 rounded-full bg-[#3b82f6] border-[4px] border-black flex items-center justify-center shrink-0 shadow-sm">
+                  <IoLockClosedOutline className="w-[18px] h-[18px] text-white" />
+               </div>
+               <div className="ml-4 flex-1 flex items-center justify-between min-h-[40px]">
+                  <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
+                  <IoChevronForward className="w-5 h-5 text-[#555558]" />
+               </div>
+            </button>
+         </div>
       </div>
     </div>
   )
@@ -584,8 +676,8 @@ export function SettingsView() {
           <Divider />
           <Row
             leftNode={<Icon3D icon={IoPerson} bgFrom="#93c5fd" bgTo="#3b82f6" />}
-            label="About You"
-            value={userPreferences.name || "Edit"}
+            label="Account Setup"
+            value="Edit"
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
           />
         </Section>
@@ -660,7 +752,7 @@ export function SettingsView() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 ease-in-out"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-          {/* Aquí mantuve el slide de bottom porque es el estándar nativo de las hojas modales (sheets) en iOS */}
+          {/* Sheet Modal */}
           <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom fade-in duration-300 ease-out max-h-[90vh] flex flex-col"
                style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
