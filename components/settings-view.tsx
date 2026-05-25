@@ -223,13 +223,13 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
       
       <div className="flex items-center gap-1 relative z-10">
         {value && (
-          <span className="text-[16px] font-medium" style={{ fontFamily: SF, color: "#8e8e93" }}>
+          <span className="text-[16px] font-normal" style={{ fontFamily: SF, color: "#8e8e93" }}>
             {value}
           </span>
         )}
         
         {rightNode ? rightNode : (!hideArrow && !danger && (
-          <ChevronRight className="w-5 h-5 text-[#555558]" />
+          <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
         ))}
       </div>
     </>
@@ -417,12 +417,17 @@ export function SettingsView() {
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
-  // Calculo de porcentaje de completado (Actualizado a 9 pasos)
+  // Calculo de porcentaje de completado
   const completionFields = [nameField, genderField, ageField, cityField, timezoneField, occupationField, interestsField, favoriteEmojiField, personalityField];
   const totalFields = 9;
   const filledFields = completionFields.filter(field => field.trim().length > 0).length;
   const completionPct = Math.round((filledFields / totalFields) * 100);
   const circleOffset = 295 - (295 * completionPct) / 100;
+
+  // Lógica de finalización por categoría (Para mostrar la palomita verde)
+  const isBasicInfoComplete = nameField.trim() !== "" && genderField.trim() !== "" && ageField.trim() !== "" && cityField.trim() !== "";
+  const isAdditionalDetailsComplete = timezoneField.trim() !== "" && occupationField.trim() !== "" && interestsField.trim() !== "";
+  const isNoirPersonalityComplete = favoriteEmojiField.trim() !== "" && personalityField.trim() !== "";
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -749,7 +754,7 @@ export function SettingsView() {
               <span className={`text-[16px] font-medium flex-1 relative z-10 ${genderField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
                 {genderField || "Select gender"}
               </span>
-              <ChevronRight className="w-5 h-5 text-[#555558] shrink-0 relative z-10" />
+              <ChevronRight className="w-5 h-5 text-[#8e8e93] shrink-0 relative z-10" />
             </button>
 
             {/* Item: Age */}
@@ -825,7 +830,7 @@ export function SettingsView() {
                 <span className={`text-[16px] font-medium flex-1 ${timezoneField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
                   {timezoneField || "Select time zone"}
                 </span>
-                <ChevronRight className="w-5 h-5 text-[#555558]" />
+                <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
               </div>
             </button>
           </div>
@@ -1012,8 +1017,8 @@ export function SettingsView() {
            <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-4" style={{ fontFamily: SF }}>Profile Setup</h3>
 
            <div className="relative flex flex-col">
-              {/* Línea vertical conectora central */}
-              <div className="absolute left-[21px] top-[26px] bottom-[26px] w-[2px] bg-[#111111] z-0" />
+              {/* Línea vertical conectora central (Hecha más gruesa y clara) */}
+              <div className="absolute left-[20.5px] top-[30px] bottom-[30px] w-[3px] bg-[#3a3a3c] z-0 rounded-full" />
               
               {/* Step 1: Basic Information */}
               <button 
@@ -1026,9 +1031,13 @@ export function SettingsView() {
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
-                    <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
-                      <Check className="w-[14px] h-[14px] text-white stroke-[3px]" />
-                    </div>
+                    {isBasicInfoComplete ? (
+                      <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
+                        <Check className="w-[14px] h-[14px] text-white stroke-[3px]" />
+                      </div>
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+                    )}
                  </div>
               </button>
               
@@ -1043,7 +1052,13 @@ export function SettingsView() {
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
-                    <ChevronRight className="w-5 h-5 text-[#555558]" />
+                    {isAdditionalDetailsComplete ? (
+                      <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
+                        <Check className="w-[14px] h-[14px] text-white stroke-[3px]" />
+                      </div>
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+                    )}
                  </div>
               </button>
            </div>
@@ -1064,7 +1079,13 @@ export function SettingsView() {
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Noir Personality</p>
-                    <ChevronRight className="w-5 h-5 text-[#555558]" />
+                    {isNoirPersonalityComplete ? (
+                      <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
+                        <Check className="w-[14px] h-[14px] text-white stroke-[3px]" />
+                      </div>
+                    ) : (
+                      <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+                    )}
                  </div>
               </button>
            </div>
