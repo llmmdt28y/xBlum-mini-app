@@ -14,6 +14,53 @@ import React from "react"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
+// ── Estilos Globales para el Efecto Ripple ──
+const RIPPLE_STYLE = `
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-anim 600ms linear;
+    background-color: rgba(150, 150, 150, 0.25);
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes ripple-anim {
+    to {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+`
+
+// ── Función Helper para crear el Efecto Ripple ──
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createRipple = (event: React.PointerEvent<any>) => {
+  const element = event.currentTarget
+  if (element.disabled) return
+
+  const circle = document.createElement("span")
+  const diameter = Math.max(element.clientWidth, element.clientHeight)
+  const radius = diameter / 2
+
+  const rect = element.getBoundingClientRect()
+  circle.style.width = circle.style.height = `${diameter}px`
+  circle.style.left = `${event.clientX - rect.left - radius}px`
+  circle.style.top = `${event.clientY - rect.top - radius}px`
+  circle.classList.add("ripple")
+
+  const existingRipple = element.querySelector(".ripple")
+  if (existingRipple) {
+    existingRipple.remove()
+  }
+
+  element.appendChild(circle)
+
+  setTimeout(() => {
+    circle.remove()
+  }, 600)
+}
+
 // ── Data ──
 const GENDERS = ["Female", "Male"]
 
@@ -130,7 +177,7 @@ const LANGS = [
 function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string, bgTo: string, spin?: boolean }) {
   return (
     <div
-      className="shrink-0 flex items-center justify-center shadow-sm"
+      className="shrink-0 flex items-center justify-center shadow-sm relative z-10"
       style={{
         width: "30px",
         height: "30px",
@@ -174,6 +221,15 @@ function SimpleDivider() {
   return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "16px" }} />
 }
 
+// ── Componente RadioButton para selecciones ──
+function RadioButton({ selected }: { selected: boolean }) {
+  return (
+    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
+      {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#60a5fa]" />}
+    </div>
+  )
+}
+
 interface RowProps {
   label: string | React.ReactNode;
   value?: string;
@@ -190,13 +246,13 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
   const content = (
     <>
       {leftNode}
-      <span className={`text-[16px] font-medium ${danger ? "text-[#ef4444]" : "text-white"}`} style={{ fontFamily: SF }}>
+      <span className={`text-[16px] font-medium relative z-10 ${danger ? "text-[#ef4444]" : "text-white"}`} style={{ fontFamily: SF }}>
         {label}
       </span>
       
       <div className="flex-1" />
       
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 relative z-10">
         {value && (
           <span className="text-[16px] font-medium" style={{ fontFamily: SF, color: "#555558" }}>
             {value}
@@ -212,14 +268,14 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
 
   if (isLink && href) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className="w-full flex items-center gap-3.5 px-4 py-3 active:bg-white/5 transition-colors text-left">
+      <a href={href} target="_blank" rel="noopener noreferrer" onPointerDown={createRipple} className="relative overflow-hidden w-full flex items-center gap-3.5 px-4 py-3 active:bg-white/5 transition-colors text-left block">
         {content}
       </a>
     );
   }
 
   return (
-    <button onClick={onClick} disabled={!onClick && !rightNode} className={`w-full flex items-center gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors' : ''} text-left`}>
+    <button onClick={onClick} onPointerDown={onClick ? createRipple : undefined} disabled={!onClick && !rightNode} className={`relative overflow-hidden w-full flex items-center gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left`}>
       {content}
     </button>
   )
@@ -228,9 +284,9 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
     <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
-      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
+      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 relative">
         {title && (
-          <div className="flex items-center justify-between px-4 pt-4 pb-1">
+          <div className="flex items-center justify-between px-4 pt-4 pb-1 relative z-10">
             <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
             {rightAction && <div>{rightAction}</div>}
           </div>
@@ -246,7 +302,7 @@ function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void;
     <button
       onClick={onToggle}
       disabled={disabled}
-      className={"relative rounded-full transition-all duration-200 shrink-0 " + (disabled ? "opacity-50" : "")}
+      className={"relative rounded-full transition-all duration-200 shrink-0 z-10 " + (disabled ? "opacity-50" : "")}
       style={{ width: "44px", height: "26px", background: on ? "#ffffff" : "#3a3a3c" }}
     >
       <span
@@ -271,13 +327,13 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
 
   if (locked)
     return (
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#1c1c1e" }}>
+      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 relative z-10" style={{ background: "#1c1c1e" }}>
         <IoLockClosed className="w-5 h-5" style={{ color: "#636366" }} />
       </div>
     )
 
   return (
-    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-[#1c1c1e]" style={{ background: "#111" }}>
+    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-[#1c1c1e] relative z-10" style={{ background: "#111" }}>
       <img
         src={MODEL_LOGO[name] || "/grok.png"}
         alt={name}
@@ -304,7 +360,7 @@ function TokenBar({ pct }: { pct: number }) {
   const clamped = Math.min(100, Math.max(0, pct))
   const color = clamped >= 90 ? "#ef4444" : clamped >= 70 ? "#f97316" : "#3b82f6"
   return (
-    <div className="w-full mt-1.5 rounded-full overflow-hidden" style={{ height: "2px", background: "#2c2c2e" }}>
+    <div className="w-full mt-1.5 rounded-full overflow-hidden relative z-10" style={{ height: "2px", background: "#2c2c2e" }}>
       <div
         className="h-full rounded-full transition-all duration-500"
         style={{ width: `${clamped}%`, background: color }}
@@ -425,7 +481,7 @@ export function SettingsView() {
   async function handleDeleteMemories() {
     if (!window.Telegram?.WebApp) return
     window.Telegram.WebApp.showConfirm(
-      "Delete all memories? xBlum will forget everything about you.",
+      "Delete all memories?\nxBlum will forget everything about you.",
       async (ok: boolean) => {
         if (!ok) return
         setSaving("del_mem")
@@ -454,6 +510,7 @@ export function SettingsView() {
   if (page === "model") return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
          style={{ background: "#000", minHeight: "100vh" }}>
+      <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 space-y-4">
         <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
@@ -482,10 +539,11 @@ export function SettingsView() {
                   key={m.name}
                   disabled={isDisabled}
                   onClick={() => !locked && !limitHit && selectModel(m.name)}
-                  className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
+                  onPointerDown={createRipple}
+                  className="relative overflow-hidden w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
                   style={{ opacity: locked || limitHit ? 0.5 : 1 }}
                 >
-                  <div className="flex items-center gap-4 flex-1">
+                  <div className="flex items-center gap-4 flex-1 relative z-10">
                     <ModelLogo name={m.name} locked={locked} />
                     <div className="flex-1 text-left min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-0.5">
@@ -531,7 +589,7 @@ export function SettingsView() {
                     </div>
                   </div>
 
-                  <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
+                  <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2 relative z-10">
                     {saving === "model" && active ? (
                       <IoSync className="w-5 h-5 animate-spin" style={{ color: "#8e8e93" }} />
                     ) : active && !isDisabled ? (
@@ -553,19 +611,23 @@ export function SettingsView() {
   if (page === "lang") return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
          style={{ background: "#000", minHeight: "100vh" }}>
+      <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 space-y-2">
         <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
             {LANGS.map((lang, i, arr) => (
               <div key={lang.code}>
-                <button onClick={() => { setLanguage(lang.code); setPage("main") }}
-                  className="w-full px-4 py-3 flex items-center justify-between active:bg-white/5 transition-colors text-left">
-                  <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => { setLanguage(lang.code); setPage("main") }}
+                  onPointerDown={createRipple}
+                  className="relative overflow-hidden w-full px-4 py-3 flex items-center justify-between active:bg-white/5 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-4 relative z-10">
                     <span className="text-[22px]">{lang.flag}</span>
                     <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>{lang.name}</p>
                   </div>
-                  {language === lang.code && <IoCheckmark className="w-6 h-6 font-bold stroke-[2px] text-[#60a5fa]" />}
+                  <RadioButton selected={language === lang.code} />
                 </button>
                 {i < arr.length - 1 && <SimpleDivider />}
               </div>
@@ -580,6 +642,7 @@ export function SettingsView() {
   if (page === "gender_select") return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out relative"
          style={{ background: "#000", minHeight: "100vh" }}>
+      <style>{RIPPLE_STYLE}</style>
       <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
       <div className="px-4 pt-4 pb-28 space-y-6">
         <h1 className="text-white text-[22px] font-bold px-1 mb-2 animate-in fade-in" style={{fontFamily: SFD}}>Gender</h1>
@@ -588,9 +651,13 @@ export function SettingsView() {
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
             {GENDERS.map((g, i) => (
               <div key={g}>
-                <button onClick={() => setGenderField(g)} className="w-full flex items-center justify-between px-4 py-3 text-left active:bg-white/5 transition-colors">
-                  <span className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>{g}</span>
-                  {genderField === g && <IoCheckmark className="w-6 h-6 font-bold stroke-[2px] text-[#60a5fa]" />}
+                <button 
+                  onClick={() => setGenderField(g)} 
+                  onPointerDown={createRipple}
+                  className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3 text-left active:bg-white/5 transition-colors"
+                >
+                  <span className="text-[16px] font-medium text-white relative z-10" style={{ fontFamily: SF }}>{g}</span>
+                  <RadioButton selected={genderField === g} />
                 </button>
                 {i < GENDERS.length - 1 && <SimpleDivider />}
               </div>
@@ -599,8 +666,13 @@ export function SettingsView() {
         </div>
       </div>
       <div className="fixed bottom-8 left-4 right-4">
-        <button onClick={() => setPage("basic_info")} className="w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity shadow-lg" style={{ fontFamily: SF }}>
-          Done
+        <button 
+          onClick={() => setPage("basic_info")} 
+          onPointerDown={createRipple}
+          className="relative overflow-hidden w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity shadow-lg" 
+          style={{ fontFamily: SF }}
+        >
+          <span className="relative z-10">Done</span>
         </button>
       </div>
     </div>
@@ -610,6 +682,7 @@ export function SettingsView() {
   if (page === "timezone_select") return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out relative overflow-y-auto scrollbar-native"
          style={{ background: "#000", minHeight: "100vh" }}>
+      <style>{RIPPLE_STYLE}</style>
       <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
       <div className="px-4 pt-4 pb-32 space-y-6">
         <h1 className="text-white text-[22px] font-bold px-1 mb-2 animate-in fade-in" style={{fontFamily: SFD}}>Time zone</h1>
@@ -620,12 +693,16 @@ export function SettingsView() {
               const displayVal = `${tz.name} (${tz.offset})`
               return (
                 <div key={tz.name}>
-                  <button onClick={() => setTimezoneField(displayVal)} className="w-full flex items-center justify-between px-4 py-3 text-left active:bg-white/5 transition-colors">
-                    <div className="flex flex-col">
+                  <button 
+                    onClick={() => setTimezoneField(displayVal)} 
+                    onPointerDown={createRipple}
+                    className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3 text-left active:bg-white/5 transition-colors"
+                  >
+                    <div className="flex flex-col relative z-10">
                       <span className="text-white text-[16px] font-medium mb-0.5" style={{ fontFamily: SF }}>{tz.name}</span>
                       <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{tz.offset}</span>
                     </div>
-                    {timezoneField === displayVal && <IoCheckmark className="w-6 h-6 font-bold stroke-[2px] text-[#60a5fa]" />}
+                    <RadioButton selected={timezoneField === displayVal} />
                   </button>
                   {i < TIMEZONES.length - 1 && <SimpleDivider />}
                 </div>
@@ -635,8 +712,13 @@ export function SettingsView() {
         </div>
       </div>
       <div className="fixed bottom-8 left-4 right-4 pointer-events-none z-10">
-        <button onClick={() => setPage("additional_details")} className="w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity pointer-events-auto shadow-lg" style={{ fontFamily: SF }}>
-          Done
+        <button 
+          onClick={() => setPage("additional_details")} 
+          onPointerDown={createRipple}
+          className="relative overflow-hidden w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity pointer-events-auto shadow-lg" 
+          style={{ fontFamily: SF }}
+        >
+          <span className="relative z-10">Done</span>
         </button>
       </div>
     </div>
@@ -646,6 +728,7 @@ export function SettingsView() {
   if (page === "basic_info") return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
          style={{ background: "#000", minHeight: "100vh" }}>
+      <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Basic Information" />
       <div className="px-4 pt-6 space-y-6">
         
@@ -654,7 +737,7 @@ export function SettingsView() {
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
             
             {/* Item: Name */}
-            <div className="flex items-center w-full px-4 py-3">
+            <div className="flex items-center w-full px-4 py-3 relative z-10">
               <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>Name<span className="text-[#ef4444]">*</span></span>
               <input 
                 value={nameField}
@@ -667,17 +750,21 @@ export function SettingsView() {
             <SimpleDivider />
 
             {/* Item: Gender */}
-            <button onClick={() => setPage("gender_select")} className="flex items-center w-full px-4 py-3 active:bg-white/5 transition-colors text-left">
-              <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>Gender</span>
-              <span className={`text-[16px] font-medium flex-1 ${genderField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
+            <button 
+              onClick={() => setPage("gender_select")} 
+              onPointerDown={createRipple}
+              className="relative overflow-hidden flex items-center w-full px-4 py-3 active:bg-white/5 transition-colors text-left"
+            >
+              <span className="w-[85px] text-[16px] font-medium text-white shrink-0 relative z-10" style={{ fontFamily: SF }}>Gender</span>
+              <span className={`text-[16px] font-medium flex-1 relative z-10 ${genderField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
                 {genderField || "Select gender"}
               </span>
-              <IoChevronForward className="w-5 h-5 text-[#555558] shrink-0" />
+              <IoChevronForward className="w-5 h-5 text-[#555558] shrink-0 relative z-10" />
             </button>
             <SimpleDivider />
 
             {/* Item: Age */}
-            <div className="flex items-center w-full px-4 py-3">
+            <div className="flex items-center w-full px-4 py-3 relative z-10">
               <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>Age</span>
               <input 
                 type="number"
@@ -691,7 +778,7 @@ export function SettingsView() {
             <SimpleDivider />
 
             {/* Item: City */}
-            <div className="flex items-center w-full px-4 py-3">
+            <div className="flex items-center w-full px-4 py-3 relative z-10">
               <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>City</span>
               <input 
                 value={cityField}
@@ -709,17 +796,19 @@ export function SettingsView() {
         <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
             <button 
               onClick={() => setPage("prefs")} 
-              className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
+              onPointerDown={createRipple}
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
               style={{ fontFamily: SF, fontSize: "16px" }}
             >
-              Cancel
+              <span className="relative z-10">Cancel</span>
             </button>
             <button 
               onClick={() => setPage("prefs")} 
-              className="flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+              onPointerDown={createRipple}
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
-              Update
+              <span className="relative z-10">Update</span>
             </button>
         </div>
       </div>
@@ -730,6 +819,7 @@ export function SettingsView() {
   if (page === "additional_details") return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
          style={{ background: "#000", minHeight: "100vh" }}>
+      <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Additional Details" />
       <div className="px-4 pt-6 space-y-6">
         
@@ -737,9 +827,13 @@ export function SettingsView() {
           
           {/* Item: Time zone */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
-            <button onClick={() => setPage("timezone_select")} className="w-full flex flex-col px-4 py-3 text-left active:bg-white/5 transition-colors">
-              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Time zone</h2>
-              <div className="flex items-center justify-between w-full">
+            <button 
+              onClick={() => setPage("timezone_select")} 
+              onPointerDown={createRipple}
+              className="relative overflow-hidden w-full flex flex-col px-4 py-3 text-left active:bg-white/5 transition-colors"
+            >
+              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2 relative z-10" style={{ fontFamily: SF }}>Time zone</h2>
+              <div className="flex items-center justify-between w-full relative z-10">
                 <span className={`text-[16px] font-medium flex-1 ${timezoneField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
                   {timezoneField || "Select time zone"}
                 </span>
@@ -749,7 +843,7 @@ export function SettingsView() {
           </div>
 
           {/* Item: Occupation */}
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
             <div className="flex flex-col w-full px-4 py-3 text-left">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Occupation</h2>
               <textarea 
@@ -764,7 +858,7 @@ export function SettingsView() {
           </div>
 
           {/* Item: Interests */}
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
             <div className="flex flex-col w-full px-4 py-3 text-left">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Interests</h2>
               <textarea 
@@ -784,17 +878,19 @@ export function SettingsView() {
         <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
             <button 
               onClick={() => setPage("prefs")} 
-              className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
+              onPointerDown={createRipple}
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
               style={{ fontFamily: SF, fontSize: "16px" }}
             >
-              Cancel
+              <span className="relative z-10">Cancel</span>
             </button>
             <button 
               onClick={() => setPage("prefs")} 
-              className="flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+              onPointerDown={createRipple}
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
-              Update
+              <span className="relative z-10">Update</span>
             </button>
         </div>
       </div>
@@ -805,6 +901,7 @@ export function SettingsView() {
   if (page === "prefs") return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out overflow-y-auto scrollbar-native"
          style={{ background: "#000", minHeight: "100vh" }}>
+      <style>{RIPPLE_STYLE}</style>
       
       {/* Espaciado superior dinámico de Telegram */}
       <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
@@ -871,11 +968,15 @@ export function SettingsView() {
               <div className="absolute left-[21px] top-[26px] bottom-[26px] w-[2px] bg-[#1c1c1e] z-0" />
               
               {/* Step 1: Basic Information */}
-              <button onClick={() => setPage("basic_info")} className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
+              <button 
+                onClick={() => setPage("basic_info")} 
+                onPointerDown={createRipple}
+                className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left"
+              >
                  <div className="py-2.5 flex items-center shrink-0">
                     <Icon3DCircular icon={IoPersonOutline} bgFrom="#4ade80" bgTo="#16a34a" />
                  </div>
-                 <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e]">
+                 <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e] relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
                     <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
                       <IoCheckmark className="w-[14px] h-[14px] text-white font-bold stroke-[2px]" />
@@ -884,25 +985,32 @@ export function SettingsView() {
               </button>
               
               {/* Step 2: Additional Details */}
-              <button onClick={() => setPage("additional_details")} className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
+              <button 
+                onClick={() => setPage("additional_details")} 
+                onPointerDown={createRipple}
+                className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left"
+              >
                  <div className="py-2.5 flex items-center shrink-0">
                     <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
                  </div>
-                 <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e]">
+                 <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e] relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
                     <IoChevronForward className="w-5 h-5 text-[#555558]" />
                  </div>
               </button>
 
               {/* Step 3: Add Personal Data */}
-              <div className="w-full relative z-10 flex items-stretch">
+              <button 
+                onPointerDown={createRipple}
+                className="w-full relative overflow-hidden z-10 flex items-stretch text-left active:opacity-70 transition-opacity"
+              >
                  <div className="py-2.5 flex items-center shrink-0">
                     <Icon3DCircular icon={IoPersonOutline} bgFrom="#4b5563" bgTo="#374151" />
                  </div>
-                 <div className="ml-4 flex-1 flex items-center justify-between">
+                 <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
                  </div>
-              </div>
+              </button>
            </div>
          </div>
 
@@ -911,11 +1019,14 @@ export function SettingsView() {
 
            <div className="relative flex flex-col">
               {/* Step 1: Set Up Passcode */}
-              <button className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
+              <button 
+                onPointerDown={createRipple}
+                className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left"
+              >
                  <div className="py-2.5 flex items-center shrink-0">
                     <Icon3DCircular icon={IoLockClosedOutline} bgFrom="#c084fc" bgTo="#9333ea" />
                  </div>
-                 <div className="ml-4 flex-1 flex items-center justify-between">
+                 <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
                     <IoChevronForward className="w-5 h-5 text-[#555558]" />
                  </div>
@@ -929,6 +1040,7 @@ export function SettingsView() {
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
     <div className="flex-1 overflow-y-auto animate-in fade-in duration-300 ease-in-out" style={{ background: "#000" }}>
+      <style>{RIPPLE_STYLE}</style>
       {/* Cabecera principal estática */}
       <div className="flex items-center justify-center px-4 pb-3" style={{
         paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
@@ -944,6 +1056,7 @@ export function SettingsView() {
         {!isPremium && (
           <button
             onClick={() => setCurrentView("premium")}
+            onPointerDown={createRipple}
             className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left animate-in fade-in duration-300 ease-in-out"
             style={{ background: "#111", border: "1px solid #1c1c1e", borderRadius: "20px", minHeight: "96px" }}
           >
@@ -1071,15 +1184,16 @@ export function SettingsView() {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 ease-in-out"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-          {/* Sheet Modal */}
-          <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom fade-in duration-300 ease-out max-h-[90vh] flex flex-col"
+          {/* Sheet Modal - Cambiado a fade-in en lugar de slide-in según las instrucciones */}
+          <div className="relative w-full rounded-t-[24px] animate-in fade-in duration-300 ease-in-out max-h-[90vh] flex flex-col"
                style={{ background: "#111", borderTop: "1px solid #1c1c1e" }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
               <button
                 onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
-                className="w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity"
+                onPointerDown={createRipple}
+                className="relative overflow-hidden w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity"
                 style={{ background: "#1c1c1e" }}>
-                <IoClose className="w-5 h-5 text-white" />
+                <IoClose className="w-5 h-5 text-white relative z-10" />
               </button>
               <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Feedback & Support
@@ -1090,7 +1204,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                   onClick={async () => {
+                  onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -1106,16 +1220,17 @@ export function SettingsView() {
                       ;(window as any).Telegram?.WebApp?.showAlert("Could not send. Please try again.")
                     }
                   }}
+                  onPointerDown={createRipple}
                   disabled={!reportDescription.trim() || submittingReport}
-                  className="px-4 py-1.5 bg-white disabled:opacity-40 rounded-full text-black font-bold active:scale-95 transition-transform"
+                  className="relative overflow-hidden px-4 py-1.5 bg-white disabled:opacity-40 rounded-full text-black font-bold active:scale-95 transition-transform"
                   style={{ fontSize: "13px", fontFamily: SF }}>
-                  {submittingReport ? "Sending..." : "Submit"}
+                  <span className="relative z-10">{submittingReport ? "Sending..." : "Submit"}</span>
                 </button>
               )}
             </div>
 
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
-               {reportSent ? (
+              {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
                        style={{ background: "rgba(52,199,89,0.1)" }}>
@@ -1131,14 +1246,15 @@ export function SettingsView() {
                   <div className="relative">
                     <button
                       onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
-                      className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
+                      onPointerDown={createRipple}
+                      className="relative overflow-hidden w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
                       style={{ background: "#1c1c1e" }}>
-                      <IoChatbubble className="w-5 h-5" style={{ color: "#8e8e93" }} />
-                      <span className="flex-1 text-left text-white font-medium" style={{ fontSize: "15px", fontFamily: SF }}>
+                      <IoChatbubble className="w-5 h-5 relative z-10" style={{ color: "#8e8e93" }} />
+                      <span className="flex-1 text-left text-white font-medium relative z-10" style={{ fontSize: "15px", fontFamily: SF }}>
                         {reportType}
                       </span>
                       <IoChevronDown
-                        className={`w-5 h-5 transition-transform ${showReportTypeDropdown ? "rotate-180" : ""}`}
+                        className={`w-5 h-5 transition-transform relative z-10 ${showReportTypeDropdown ? "rotate-180" : ""}`}
                         style={{ color: "#8e8e93" }} />
                     </button>
                     {showReportTypeDropdown && (
@@ -1148,9 +1264,10 @@ export function SettingsView() {
                           <button
                             key={type}
                             onClick={() => { setReportType(type); setShowReportTypeDropdown(false) }}
-                            className={`w-full px-5 py-3.5 text-left text-[15px] font-medium active:bg-[#2c2c2e] transition-colors ${reportType === type ? "text-white" : "text-[#8e8e93]"}`}
+                            onPointerDown={createRipple}
+                            className={`relative overflow-hidden w-full px-5 py-3.5 text-left text-[15px] font-medium active:bg-[#2c2c2e] transition-colors ${reportType === type ? "text-white" : "text-[#8e8e93]"}`}
                             style={{ fontFamily: SF }}>
-                            {type}
+                            <span className="relative z-10">{type}</span>
                           </button>
                         ))}
                       </div>
