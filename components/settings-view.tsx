@@ -300,17 +300,17 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
 
   if (locked)
     return (
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 relative z-10" style={{ background: "#1c1c1e" }}>
-        <IoLockClosed className="w-5 h-5" style={{ color: "#636366" }} />
+      <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center shrink-0 relative z-10 bg-[#1c1c1e]">
+        <IoLockClosed className="w-[18px] h-[18px] text-[#636366]" />
       </div>
     )
 
   return (
-    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-[#1c1c1e] relative z-10" style={{ background: "#111111" }}>
+    <div className="w-[32px] h-[32px] flex items-center justify-center shrink-0 relative z-10">
       <img
         src={MODEL_LOGO[name] || "/grok.png"}
         alt={name}
-        className="w-6 h-6 object-contain pointer-events-none select-none"
+        className="w-full h-full object-contain pointer-events-none select-none"
         {...imageProps}
         onError={e => {
           const el = e.currentTarget
@@ -318,6 +318,7 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
           const p = el.parentElement
           if (p) {
             p.style.background = "#1c1c1e"
+            p.style.borderRadius = "50%"
             const sp = document.createElement("span")
             sp.textContent = model?.initial ?? "?"
             sp.style.color = "#fff"; sp.style.fontWeight = "600"; sp.style.fontFamily = SFD
@@ -397,13 +398,10 @@ export function SettingsView() {
   const [favoriteEmojiField, setFavoriteEmojiField] = useState("")
   const [personalityField, setPersonalityField] = useState("")
 
-  const legacyModels = ["Grok 4", "GPT-5.4", "GPT-5.2"];
-  const legacyGrokModels = ["Grok 4.1"];
+  const legacyModels = ["Grok 4.1", "Grok 4", "GPT-5.4", "GPT-5.2"];
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
-  const displayModelName = legacyGrokModels.includes(selectedModel)
-    ? "Grok 4.3"
-    : legacyModels.includes(selectedModel)
-    ? "Gemini 3.5 Flash"
+  const displayModelName = legacyModels.includes(selectedModel) 
+    ? "Gemini 3.5 Flash" 
     : selectedModel
 
   // Extraer información del usuario de Telegram
@@ -512,8 +510,7 @@ export function SettingsView() {
 
               const active =
                 m.name === selectedModel ||
-                (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel)) ||
-                (m.name === "Grok 4.3" && legacyGrokModels.includes(selectedModel))
+                (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
 
               const isDisabled = locked || saving === "model" || !!limitHit
 
@@ -523,16 +520,16 @@ export function SettingsView() {
                     disabled={isDisabled}
                     onClick={() => !locked && !limitHit && selectModel(m.name)}
                     onPointerDown={createRipple}
-                    className="relative overflow-hidden w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
+                    className="relative overflow-hidden w-full px-4 py-2.5 flex items-center justify-between transition-colors active:bg-white/5 text-left"
                     style={{ opacity: locked || limitHit ? 0.5 : 1 }}
                   >
-                    <div className="flex items-center gap-4 flex-1 relative z-10">
+                    <div className="flex items-center gap-4 flex-1 min-w-0 relative z-10">
                       <ModelLogo name={m.name} locked={locked} />
-                      <div className="flex-1 text-left min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                          <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-[1px]">
+                          <span className="text-[16px] font-medium text-white leading-tight" style={{ fontFamily: SF }}>
                             {m.name}
-                          </p>
+                          </span>
 
                           {m.tag && !locked && !limitHit && (
                             <span
@@ -564,7 +561,7 @@ export function SettingsView() {
                           )}
                         </div>
 
-                        <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
+                        <span className="text-[#8e8e93] text-[13px] leading-tight" style={{ fontFamily: SF }}>{m.desc}</span>
 
                         {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
                           <TokenBar pct={pct} />
@@ -572,12 +569,12 @@ export function SettingsView() {
                       </div>
                     </div>
 
-                    <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2 relative z-10">
+                    <div className="shrink-0 flex items-center justify-center ml-3 relative z-10">
                       {saving === "model" && active ? (
-                        <IoSync className="w-5 h-5 animate-spin" style={{ color: "#8e8e93" }} />
-                      ) : active && !isDisabled ? (
-                        <IoCheckmark className="w-6 h-6 font-bold stroke-[2px] text-[#60a5fa]" />
-                      ) : null}
+                        <IoSync className="w-[22px] h-[22px] animate-spin" style={{ color: "#8e8e93" }} />
+                      ) : (
+                        <RadioButton selected={active && !isDisabled} />
+                      )}
                     </div>
                   </button>
                 </div>
