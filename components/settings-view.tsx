@@ -145,7 +145,6 @@ const MODELS: {
   },
 ]
 
-// Dejando solo English
 const LANGS = [
   { code: "en", name: "English", subName: "English" },
 ]
@@ -252,7 +251,7 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
 
 function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
-    <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+    <div className="space-y-2">
       <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 relative">
         {title && (
           <div className="flex items-center justify-between px-4 pt-4 pb-1 relative z-10">
@@ -499,7 +498,7 @@ export function SettingsView() {
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 space-y-4">
-        <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+        <div className="space-y-2">
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
             
             {MODELS.map((m) => {
@@ -599,7 +598,7 @@ export function SettingsView() {
         <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
       </div>
       <div className="px-4 pt-6 space-y-6">
-        <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+        <div className="space-y-2">
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
             <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-10">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Language</h2>
@@ -636,7 +635,7 @@ export function SettingsView() {
         <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
       </div>
       <div className="px-4 pt-6 pb-28 space-y-6">
-        <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+        <div className="space-y-2">
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
             <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-10">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Gender</h2>
@@ -680,7 +679,7 @@ export function SettingsView() {
         <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
       </div>
       <div className="px-4 pt-6 pb-32 space-y-6">
-        <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+        <div className="space-y-2">
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
             <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-10">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Time zone</h2>
@@ -729,7 +728,7 @@ export function SettingsView() {
       <SubHeader title="Basic Information" />
       <div className="px-4 pt-6 space-y-6">
         
-        <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+        <div className="space-y-2">
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
             
             {/* Item: Name */}
@@ -786,7 +785,7 @@ export function SettingsView() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
+        <div className="flex items-center gap-4 mt-8 w-full">
             <button 
               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
@@ -816,7 +815,7 @@ export function SettingsView() {
       <SubHeader title="Additional Details" />
       <div className="px-4 pt-6 space-y-6">
         
-        <div className="animate-in fade-in duration-300 ease-in-out space-y-4">
+        <div className="space-y-4">
           
           {/* Item: Time zone */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
@@ -868,7 +867,7 @@ export function SettingsView() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
+        <div className="flex items-center gap-4 mt-8 w-full">
             <button 
               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
@@ -898,7 +897,7 @@ export function SettingsView() {
       <SubHeader title="Noir" />
       <div className="px-4 pt-6 space-y-6">
         
-        <div className="animate-in fade-in duration-300 ease-in-out space-y-4">
+        <div className="space-y-4">
           
           {/* Item: Favorite emoji */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
@@ -932,7 +931,7 @@ export function SettingsView() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
+        <div className="flex items-center gap-4 mt-8 w-full">
             <button 
               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
@@ -964,7 +963,7 @@ export function SettingsView() {
       <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
 
       {/* Título Principal y Gráfico Circular */}
-      <div className="flex flex-col items-center mt-2 mb-6 animate-in fade-in duration-300 ease-in-out relative z-10">
+      <div className="flex flex-col items-center mt-2 mb-6 relative z-10">
         
         {/* Gráfico circular con la foto de perfil en medio */}
         <div className="relative w-[130px] h-[130px] flex items-center justify-center rounded-full mb-6 mt-8">
@@ -1012,7 +1011,7 @@ export function SettingsView() {
         <p className="text-[#8e8e93] text-[15px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
       </div>
 
-      <div className="px-5 w-full pb-10 mt-2 animate-in fade-in duration-300 ease-in-out space-y-4">
+      <div className="px-5 w-full pb-10 mt-2 space-y-4">
          <div className="space-y-4">
            <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-4" style={{ fontFamily: SF }}>Profile Setup</h3>
 
@@ -1175,44 +1174,6 @@ export function SettingsView() {
       </div>
 
       <div className="px-4 pt-4 pb-28 space-y-6">
-
-        {/* ── Noir Pro card ── */}
-        {!isPremium && (
-          <button
-            onClick={() => setCurrentView("premium")}
-            onPointerDown={createRipple}
-            className="w-full relative overflow-hidden active:scale-[0.98] transition-transform text-left animate-in fade-in duration-300 ease-in-out"
-            style={{ background: "#111111", border: "1px solid #1c1c1e", borderRadius: "20px", minHeight: "96px" }}
-          >
-            <div className="absolute inset-0 pointer-events-none"
-                 style={{ background: "radial-gradient(ellipse at 8% 40%, rgba(245,158,11,0.07) 0%, transparent 55%)" }} />
-            <div className="absolute pointer-events-none"
-                 style={{ width: "90px", height: "90px", borderRadius: "50%", top: "-30px", right: "-20px",
-                          background: "radial-gradient(circle, rgba(245,158,11,0.10) 0%, transparent 70%)",
-                          border: "1px solid rgba(245,158,11,0.10)" }} />
-            <div className="absolute pointer-events-none"
-                 style={{ width: "55px", height: "55px", borderRadius: "50%", bottom: "-18px", right: "30px",
-                          background: "radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)",
-                          border: "1px solid rgba(245,158,11,0.08)" }} />
-            <div className="relative z-10 px-5 py-5 flex flex-col gap-2">
-               <div className="flex items-center gap-2">
-                <p className="text-white font-bold text-[18px] leading-tight"
-                   style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Noir Pro</p>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500"
-                   style={{ background: "rgba(245,158,11,0.15)", fontFamily: SF }}>PRO</span>
-              </div>
-              <p style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
-                Upgrade your plan to enjoy full features
-              </p>
-              <div className="flex items-center justify-center mt-3 px-4 py-3 rounded-xl w-full"
-                   style={{ background: "#fff" }}>
-                 <span className="text-black font-bold" style={{ fontSize: "15px", fontFamily: SF }}>
-                  Upgrade →
-                </span>
-              </div>
-            </div>
-          </button>
-        )}
 
         {/* ── Profile ── */}
         <Section title="Profile">
