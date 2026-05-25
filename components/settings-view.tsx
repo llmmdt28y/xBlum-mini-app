@@ -4,7 +4,8 @@ import { useApp, type ModelName } from "@/lib/app-context"
 import { 
   ChevronRight, Check, Earth, CircleUserRound, Lock,
   FileText, ShieldCheck, MessageCircle, ChevronDown, X, Trash2, 
-  Loader2, Sparkles, UserPen, SmilePlus, WandSparkles, Settings2
+  Loader2, Sparkles, UserPen, SmilePlus, WandSparkles, Settings2,
+  CircleStar, ChartPie, Info
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import React from "react"
@@ -365,7 +366,7 @@ export function SettingsView() {
     refreshModelTokenStatus,
   } = useApp()
 
-  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities">("main")
+  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits">("main")
   const [tempPrefs, setTempPrefs] = useState(userPreferences)
   const [improveModel, setImproveModel] = useState(false)
   const [saving, setSaving] = useState("")
@@ -397,7 +398,6 @@ export function SettingsView() {
   const [personalityField, setPersonalityField] = useState("")
 
   const legacyModels = ["Grok 4.1", "Grok 4", "GPT-5.4", "GPT-5.2"];
-  const currentModelInfo = MODELS.find(m => m.name === selectedModel)
   const displayModelName = legacyModels.includes(selectedModel) 
     ? "Gemini 3.5 Flash" 
     : selectedModel
@@ -437,6 +437,7 @@ export function SettingsView() {
       if (page === "gender_select") setPage("basic_info")
       else if (page === "timezone_select") setPage("additional_details")
       else if (page === "basic_info" || page === "additional_details" || page === "noir_personality") setPage("prefs")
+      else if (page === "usage_limits") setPage("main")
       else if (page !== "main") setPage("main")
       else { setCurrentView("profile"); tg.BackButton.hide() }
     }
@@ -493,7 +494,7 @@ export function SettingsView() {
 
   // ── Model page ─────────────────────────────────────────────────────────────
   if (page === "model") return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
+    <div key="model" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Select Model" />
@@ -591,7 +592,7 @@ export function SettingsView() {
 
   // ── Lang page ──────────────────────────────────────────────────────────────
   if (page === "lang") return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
+    <div key="lang" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
@@ -628,7 +629,7 @@ export function SettingsView() {
 
   // ── Gender Select Sub-page ─────────────────────────────────────────────────
   if (page === "gender_select") return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out relative"
+    <div key="gender_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out relative"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
@@ -672,7 +673,7 @@ export function SettingsView() {
 
   // ── Timezone Select Sub-page ───────────────────────────────────────────────
   if (page === "timezone_select") return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out relative overflow-y-auto scrollbar-native"
+    <div key="timezone_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out relative overflow-y-auto scrollbar-native"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
@@ -722,7 +723,7 @@ export function SettingsView() {
 
   // ── Basic Information Sub-page ─────────────────────────────────────────────
   if (page === "basic_info") return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
+    <div key="basic_info" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Basic Information" />
@@ -809,7 +810,7 @@ export function SettingsView() {
 
   // ── Additional Details Sub-page ────────────────────────────────────────────
   if (page === "additional_details") return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
+    <div key="additional_details" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Additional Details" />
@@ -891,7 +892,7 @@ export function SettingsView() {
 
   // ── Noir Personality Sub-page ──────────────────────────────────────────────
   if (page === "noir_personality") return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
+    <div key="noir_personality" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Noir" />
@@ -955,7 +956,7 @@ export function SettingsView() {
 
   // ── Prefs page (Account Setup) ─────────────────────────────────────────────
   if (page === "prefs") return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out overflow-y-auto scrollbar-native"
+    <div key="prefs" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto scrollbar-native"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       
@@ -1095,7 +1096,7 @@ export function SettingsView() {
 
   // ── Capabilities Sub-page ──────────────────────────────────────────────────
   if (page === "capabilities") return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out overflow-y-auto scrollbar-native"
+    <div key="capabilities" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto scrollbar-native"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Capabilities" />
@@ -1160,9 +1161,58 @@ export function SettingsView() {
     </div>
   )
 
+  // ── Límites de Uso Sub-page ────────────────────────────────────────
+  if (page === "usage_limits") return (
+    <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
+         style={{ background: "#000", minHeight: "100vh" }}>
+      <style>{RIPPLE_STYLE}</style>
+      <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
+        <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
+      </div>
+      
+      <div className="px-4 pt-2 pb-28 space-y-6">
+        {/* Encabezado al estilo de la imagen */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-[28px] font-bold text-white leading-none" style={{ fontFamily: SFD }}>Límites de uso</h1>
+            <span className="px-2 py-0.5 rounded-md text-[11px] font-bold text-[#8e8e93] bg-[#111111] border border-white/5" style={{ fontFamily: SF }}>PRO</span>
+          </div>
+          <p className="text-[#8e8e93] text-[15px] leading-snug" style={{ fontFamily: SF }}>
+            Los límites de tu plan determinan cuánto puedes usar Noir a lo largo del tiempo. Los modelos y las funciones avanzadas pueden consumir más uso. <br/>
+            <span className="text-[#60a5fa] mt-1 inline-block">Más información</span>
+          </p>
+          <p className="text-[#8e8e93] text-[14px] pt-2" style={{ fontFamily: SF }}>
+            Se actualizó ahora mismo
+          </p>
+        </div>
+
+        {/* Contenedores de Uso */}
+        <div className="space-y-3">
+          <div className="rounded-[24px] bg-[#111111] p-5 border border-white/5 relative z-10 shadow-lg">
+            <div className="flex items-center justify-between mb-3.5">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[17px] font-semibold text-white" style={{ fontFamily: SF }}>Uso actual</span>
+                <Info className="w-[15px] h-[15px] text-[#8e8e93]" />
+              </div>
+              <span className="text-[16px] font-bold text-white" style={{ fontFamily: SF }}>70% usado</span>
+            </div>
+            
+            <div className="w-full h-[6px] bg-[#1c1c1e] rounded-full mb-3.5 overflow-hidden flex">
+              <div className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ width: "70%" }}></div>
+            </div>
+            
+            <p className="text-[15px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>
+              Se restablece a la(s) 7:09 PM
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
-    <div className="flex-1 overflow-y-auto animate-in fade-in duration-300 ease-in-out" style={{ background: "#000" }}>
+    <div key="main" className="flex-1 overflow-y-auto animate-in fade-in duration-500 ease-out" style={{ background: "#000" }}>
       <style>{RIPPLE_STYLE}</style>
       
       <div className="flex items-center justify-center px-4 pb-3" style={{
@@ -1194,6 +1244,20 @@ export function SettingsView() {
             label="Account Setup"
             value="Edit"
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
+          />
+        </Section>
+
+        {/* ── Usage & Billing ── */}
+        <Section title="Usage & Billing">
+          <Row
+            leftNode={<IconFlat icon={CircleStar} color="#f59e0b" />}
+            label="Administrar suscripción"
+            onClick={() => setCurrentView("premium")}
+          />
+          <Row
+            leftNode={<IconFlat icon={ChartPie} color="#34c759" />}
+            label="Límites de uso"
+            onClick={() => setPage("usage_limits")}
           />
         </Section>
 
@@ -1232,10 +1296,10 @@ export function SettingsView() {
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 ease-in-out"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500 ease-out"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-          <div className="relative w-full rounded-t-[24px] animate-in fade-in duration-300 ease-in-out max-h-[90vh] flex flex-col"
+          <div className="relative w-full rounded-t-[24px] animate-in fade-in duration-500 ease-out max-h-[90vh] flex flex-col"
                style={{ background: "#111111", borderTop: "1px solid #1c1c1e" }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
                <button
