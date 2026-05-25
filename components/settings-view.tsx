@@ -4,7 +4,7 @@ import { useApp, type ModelName } from "@/lib/app-context"
 import { 
   ChevronRight, Check, Earth, CircleUserRound, Lock, Database, 
   FileText, ShieldCheck, MessageCircle, ChevronDown, X, Trash2, 
-  Loader2, Sparkles, User, List, Bot
+  Loader2, Sparkles, UserPen, SmilePlus, WandSparkles
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import React from "react"
@@ -152,39 +152,41 @@ const LANGS = [
 
 // ── Componentes UI para la Vista Principal ──
 
-// Componente de ícono plano con borde squircle (estilo nativo iOS/Telegram)
+// Componente de ícono plano con borde squircle y glifo más grande (estilo iOS/Telegram)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function IconFlat({ icon: Icon, color, spin }: { icon: any, color: string, spin?: boolean }) {
   return (
     <div
       className="shrink-0 flex items-center justify-center relative z-10"
       style={{
-        width: "30px",
-        height: "30px",
-        borderRadius: "7px", // Squircle nativo
+        width: "32px",
+        height: "32px",
+        borderRadius: "8px", // Curvatura squircle exacta para 32px
         backgroundColor: color,
         color: "white"
       }}
     >
-      <Icon className={`w-[18px] h-[18px] ${spin ? "animate-spin" : ""}`} strokeWidth={2.2} />
+      {/* Glifo aumentado a 20x20 para que llene mejor el espacio */}
+      <Icon className={`w-[20px] h-[20px] ${spin ? "animate-spin" : ""}`} strokeWidth={2.2} />
     </div>
   )
 }
 
-// Componente más grande para la vista de Account Setup
+// Componente circular más grande para la vista de Account Setup
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function IconFlatLarge({ icon: Icon, color }: { icon: any, color: string }) {
+function IconCircularLarge({ icon: Icon, color }: { icon: any, color: string }) {
   return (
     <div
       className="shrink-0 flex items-center justify-center relative z-10"
       style={{
         width: "44px",
         height: "44px",
-        borderRadius: "10px", // Squircle proporcional al tamaño 44px
+        borderRadius: "50%", // Circular estricto
         backgroundColor: color,
         color: "white"
       }}
     >
+      {/* Glifo aumentado a 24x24 */}
       <Icon className="w-[24px] h-[24px]" strokeWidth={2.2} />
     </div>
   )
@@ -1019,7 +1021,7 @@ export function SettingsView() {
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <IconFlatLarge icon={User} color="#34c759" />
+                    <IconCircularLarge icon={UserPen} color="#34c759" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
@@ -1036,7 +1038,7 @@ export function SettingsView() {
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <IconFlatLarge icon={List} color="#3b82f6" />
+                    <IconCircularLarge icon={FileText} color="#007aff" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
@@ -1057,7 +1059,7 @@ export function SettingsView() {
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <IconFlatLarge icon={Sparkles} color="#af52de" />
+                    <IconCircularLarge icon={SmilePlus} color="#af52de" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Noir Personality</p>
@@ -1126,19 +1128,19 @@ export function SettingsView() {
         {/* ── Profile ── */}
         <Section title="Profile">
           <Row
-            leftNode={<IconFlat icon={Bot} color="#af52de" />}
+            leftNode={<IconFlat icon={WandSparkles} color="#ff2d55" />}
             label="LLM Model"
             value={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
           <Row
-            leftNode={<IconFlat icon={Earth} color="#3b82f6" />}
+            leftNode={<IconFlat icon={Earth} color="#007aff" />}
             label="Language"
             value={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
           />
           <Row
-            leftNode={<IconFlat icon={CircleUserRound} color="#5856d6" />}
+            leftNode={<IconFlat icon={CircleUserRound} color="#af52de" />}
             label="Account Setup"
             value="Edit"
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
@@ -1193,7 +1195,7 @@ export function SettingsView() {
           />
           <Row
             onClick={() => setShowReportModal(true)}
-            leftNode={<IconFlat icon={MessageCircle} color="#ff9500" />}
+            leftNode={<IconFlat icon={MessageCircle} color="#8e8e93" />}
             label="Feedback & Support"
           />
         </Section>
