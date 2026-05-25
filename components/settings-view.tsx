@@ -14,7 +14,7 @@ import React from "react"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Estilos Globales para el Efecto Ripple (Restaurado a la versión original) ──
+// ── Estilos Globales para el Efecto Ripple ──
 const RIPPLE_STYLE = `
   .ripple {
     position: absolute;
@@ -109,10 +109,7 @@ function getTgUser(): TgUser | undefined {
 
 const MODEL_LOGO: Record<string, string> = {
   "Grok 4.3": "/grok.png",
-  "Grok 4.1": "/grok.png",
-  "Grok 4":   "/grok.png",   // DB legacy alias
-  "GPT-5.4":  "/gpt.png",
-  "GPT-5.2":  "/gpt.png",
+  "Gemini 3.5 Flash": "/gemini.png",
 }
 
 interface ModelTokenInfo {
@@ -134,36 +131,20 @@ const MODELS: {
   {
     name: "Grok 4.3",
     desc: "Latest capabilities with advanced intelligence",
+    tag: "PRO",
+    tagColor: "bg-amber-500/15 text-amber-500",
+    tagStyle: "rounded",
+    proOnly: true,
+    initial: "G",
+  },
+  {
+    name: "Gemini 3.5 Flash",
+    desc: "Fast and reliable for everyday use",
     tag: "New",
     tagColor: "bg-white text-[#111]",
     tagStyle: "rounded-md",
     proOnly: false,
     initial: "G",
-  },
-  {
-    name: "Grok 4.1",
-    desc: "Advanced reasoning and deep analysis",
-    tag: null,
-    tagColor: "",
-    proOnly: false,
-    initial: "G",
-  },
-  {
-    name: "GPT-5.4",
-    desc: "Maximum capability for complex tasks",
-    tag: "PRO",
-    tagColor: "bg-amber-500/15 text-amber-500",
-    tagStyle: "rounded",
-    proOnly: true,
-    initial: "4",
-  },
-  {
-    name: "GPT-5.2",
-    desc: "Fast and reliable for everyday use",
-    tag: null,
-    tagColor: "",
-    proOnly: false,
-    initial: "2",
   },
 ]
 
@@ -417,8 +398,11 @@ export function SettingsView() {
   const [favoriteEmojiField, setFavoriteEmojiField] = useState("")
   const [personalityField, setPersonalityField] = useState("")
 
+  const legacyModels = ["Grok 4.1", "Grok 4", "GPT-5.4", "GPT-5.2"];
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
-  const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
+  const displayModelName = legacyModels.includes(selectedModel) 
+    ? "Gemini 3.5 Flash" 
+    : selectedModel
 
   // Extraer información del usuario de Telegram
   useEffect(() => {
@@ -517,7 +501,7 @@ export function SettingsView() {
             {MODELS.map((m) => {
               const locked = m.proOnly && !isPremium
 
-              const tokenKey = m.name === "Grok 4.1" ? "Grok 4" : m.name
+              const tokenKey = m.name
               const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey]
 
               const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
@@ -525,7 +509,8 @@ export function SettingsView() {
               const pct      = tokenInfo?.pct ?? 0
 
               const active =
-                m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
+                m.name === selectedModel ||
+                (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
 
               const isDisabled = locked || saving === "model" || !!limitHit
 
@@ -556,21 +541,21 @@ export function SettingsView() {
 
                           {locked && (
                             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
-                                  style={{ fontFamily: SF }}>
+                              style={{ fontFamily: SF }}>
                               PRO
                             </span>
                           )}
 
                           {limitHit && !locked && (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
-                                  style={{ fontFamily: SF }}>
+                              style={{ fontFamily: SF }}>
                               limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
                             </span>
                           )}
 
                           {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
-                                  style={{ fontFamily: SF }}>
+                              style={{ fontFamily: SF }}>
                               cooling {minutesUntilReset}min
                             </span>
                           )}
@@ -836,7 +821,7 @@ export function SettingsView() {
           
           {/* Item: Time zone */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
-            <button 
+             <button 
               onClick={() => setPage("timezone_select")} 
               onPointerDown={createRipple}
               className="relative overflow-hidden w-full flex flex-col px-4 py-3 text-left active:bg-white/5 transition-colors"
@@ -898,7 +883,7 @@ export function SettingsView() {
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-            >
+             >
               <span className="relative z-10">Update</span>
             </button>
         </div>
@@ -965,7 +950,7 @@ export function SettingsView() {
             >
               <span className="relative z-10">Update</span>
             </button>
-        </div>
+         </div>
       </div>
     </div>
   )
@@ -1062,7 +1047,7 @@ export function SettingsView() {
                 onClick={() => setPage("additional_details")} 
                 onPointerDown={createRipple}
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
-              >
+               >
                  <div className="py-2.5 flex items-center shrink-0">
                     <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
                  </div>
@@ -1072,7 +1057,7 @@ export function SettingsView() {
                  </div>
               </button>
            </div>
-         </div>
+          </div>
 
          <div className="space-y-4">
            <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-8" style={{ fontFamily: SF }}>Noir Personality</h3>
@@ -1090,7 +1075,7 @@ export function SettingsView() {
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Noir Personality</p>
                     <IoChevronForward className="w-5 h-5 text-[#555558]" />
-                 </div>
+                  </div>
               </button>
            </div>
          </div>
@@ -1143,7 +1128,7 @@ export function SettingsView() {
               </p>
               <div className="flex items-center justify-center mt-3 px-4 py-3 rounded-xl w-full"
                    style={{ background: "#fff" }}>
-                <span className="text-black font-bold" style={{ fontSize: "15px", fontFamily: SF }}>
+                 <span className="text-black font-bold" style={{ fontSize: "15px", fontFamily: SF }}>
                   Upgrade →
                 </span>
               </div>
@@ -1212,7 +1197,7 @@ export function SettingsView() {
         {/* ── Support ── */}
         <Section title="Support">
           <Row
-            isLink
+             isLink
             href="https://xblum.gitbook.io/home/xblum/terms"
             leftNode={<Icon3D icon={IoDocumentText} bgFrom="#cbd5e1" bgTo="#64748b" />}
             label="Terms of Use"
@@ -1243,14 +1228,14 @@ export function SettingsView() {
           <div className="relative w-full rounded-t-[24px] animate-in fade-in duration-300 ease-in-out max-h-[90vh] flex flex-col"
                style={{ background: "#111111", borderTop: "1px solid #1c1c1e" }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
-              <button
+               <button
                 onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
                 onPointerDown={createRipple}
                 className="relative overflow-hidden w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity"
                 style={{ background: "#1c1c1e" }}>
                 <IoClose className="w-5 h-5 text-white relative z-10" />
               </button>
-              <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+               <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Feedback & Support
               </h2>
               {reportSent ? (
@@ -1259,7 +1244,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                  onClick={async () => {
+                   onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -1284,7 +1269,7 @@ export function SettingsView() {
               )}
             </div>
 
-            <div className="p-5 space-y-4 overflow-y-auto flex-1">
+             <div className="p-5 space-y-4 overflow-y-auto flex-1">
               {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
@@ -1300,11 +1285,11 @@ export function SettingsView() {
                 <>
                   <div className="relative">
                     <button
-                      onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
+                       onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
                       onPointerDown={createRipple}
                       className="relative overflow-hidden w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
                       style={{ background: "#1c1c1e" }}>
-                      <IoChatbubble className="w-5 h-5 relative z-10" style={{ color: "#8e8e93" }} />
+                        <IoChatbubble className="w-5 h-5 relative z-10" style={{ color: "#8e8e93" }} />
                       <span className="flex-1 text-left text-white font-medium relative z-10" style={{ fontSize: "15px", fontFamily: SF }}>
                         {reportType}
                       </span>
@@ -1324,12 +1309,12 @@ export function SettingsView() {
                             style={{ fontFamily: SF }}>
                             <span className="relative z-10">{type}</span>
                           </button>
-                        ))}
+                         ))}
                       </div>
                     )}
                   </div>
                   <textarea
-                    value={reportDescription}
+                     value={reportDescription}
                     onChange={e => setReportDescription(e.target.value)}
                     placeholder={
                       reportType === "Bug report" ? "Describe what went wrong..." :
