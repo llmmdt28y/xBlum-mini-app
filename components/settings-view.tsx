@@ -157,7 +157,7 @@ function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: strin
         borderRadius: "50%",
         background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
         boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
-        border: "4px solid #000", // Borde negro para sobreponerse a la línea divisoria trasera
+        border: "4px solid #000",
         color: "white"
       }}
     >
@@ -168,6 +168,10 @@ function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: strin
 
 function Divider() {
   return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "60px" }} />
+}
+
+function SimpleDivider() {
+  return <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "16px" }} />
 }
 
 interface RowProps {
@@ -371,7 +375,6 @@ export function SettingsView() {
     const full = [user.first_name, user.last_name].filter(Boolean).join(" ")
     const defaultName = full || user.username || "User"
     setDisplayName(defaultName)
-    // Solo asignar el nombre por defecto si está vacío
     if (!nameField) setNameField(defaultName)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -453,92 +456,94 @@ export function SettingsView() {
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 space-y-4">
-        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 animate-in fade-in duration-300 ease-in-out">
-          <div className="flex items-center justify-between px-4 pt-4 pb-1">
-            <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Select Model</h2>
-          </div>
+        <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
+            <div className="flex items-center justify-between px-4 pt-4 pb-1">
+              <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Select Model</h2>
+            </div>
 
-          {MODELS.map((m) => {
-            const locked = m.proOnly && !isPremium
+            {MODELS.map((m) => {
+              const locked = m.proOnly && !isPremium
 
-            const tokenKey = m.name === "Grok 4.1" ? "Grok 4" : m.name
-            const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey]
+              const tokenKey = m.name === "Grok 4.1" ? "Grok 4" : m.name
+              const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey]
 
-            const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
-            const minsLeft = limitHit ? tokenInfo.mins_left : 0
-            const pct      = tokenInfo?.pct ?? 0
+              const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
+              const minsLeft = limitHit ? tokenInfo.mins_left : 0
+              const pct      = tokenInfo?.pct ?? 0
 
-            const active =
-              m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
+              const active =
+                m.name === selectedModel || (m.name === "Grok 4.1" && selectedModel === "Grok 4")
 
-            const isDisabled = locked || saving === "model" || !!limitHit
+              const isDisabled = locked || saving === "model" || !!limitHit
 
-            return (
-              <button
-                key={m.name}
-                disabled={isDisabled}
-                onClick={() => !locked && !limitHit && selectModel(m.name)}
-                className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
-                style={{ opacity: locked || limitHit ? 0.5 : 1 }}
-              >
-                <div className="flex items-center gap-4 flex-1">
-                  <ModelLogo name={m.name} locked={locked} />
-                  <div className="flex-1 text-left min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>
-                        {m.name}
-                      </p>
+              return (
+                <button
+                  key={m.name}
+                  disabled={isDisabled}
+                  onClick={() => !locked && !limitHit && selectModel(m.name)}
+                  className="w-full px-5 py-3.5 flex items-center justify-between transition-colors active:bg-white/5"
+                  style={{ opacity: locked || limitHit ? 0.5 : 1 }}
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <ModelLogo name={m.name} locked={locked} />
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                        <p className="text-white" style={{ fontFamily: SFD, fontSize: "16px", fontWeight: 500 }}>
+                          {m.name}
+                        </p>
 
-                      {m.tag && !locked && !limitHit && (
-                        <span
-                          className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
-                          style={{ fontFamily: SF }}>
-                          {m.tag}
-                        </span>
-                      )}
+                        {m.tag && !locked && !limitHit && (
+                          <span
+                            className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
+                            style={{ fontFamily: SF }}>
+                            {m.tag}
+                          </span>
+                        )}
 
-                      {locked && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
-                              style={{ fontFamily: SF }}>
-                          PRO
-                        </span>
-                      )}
+                        {locked && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
+                                style={{ fontFamily: SF }}>
+                            PRO
+                          </span>
+                        )}
 
-                      {limitHit && !locked && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
-                              style={{ fontFamily: SF }}>
-                          limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
-                        </span>
-                      )}
+                        {limitHit && !locked && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
+                                style={{ fontFamily: SF }}>
+                            limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
+                          </span>
+                        )}
 
-                      {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
-                              style={{ fontFamily: SF }}>
-                          cooling {minutesUntilReset}min
-                        </span>
+                        {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
+                                style={{ fontFamily: SF }}>
+                            cooling {minutesUntilReset}min
+                          </span>
+                        )}
+                      </div>
+
+                      <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
+
+                      {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
+                        <TokenBar pct={pct} />
                       )}
                     </div>
-
-                    <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF }}>{m.desc}</p>
-
-                    {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
-                      <TokenBar pct={pct} />
-                    )}
                   </div>
-                </div>
 
-                <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
-                  {saving === "model" && active ? (
-                    <IoSync className="w-5 h-5 animate-spin" style={{ color: "#8e8e93" }} />
-                  ) : active && !isDisabled ? (
-                    <IoCheckmark className="w-6 h-6" style={{ color: "#3b82f6" }} />
-                  ) : null}
-                </div>
-              </button>
-            )
-          })}
+                  <div className="shrink-0 flex items-center justify-center w-6 h-6 ml-2">
+                    {saving === "model" && active ? (
+                      <IoSync className="w-5 h-5 animate-spin" style={{ color: "#8e8e93" }} />
+                    ) : active && !isDisabled ? (
+                      <IoCheckmark className="w-6 h-6 font-bold stroke-[2px] text-[#60a5fa]" />
+                    ) : null}
+                  </div>
+                </button>
+              )
+            })}
 
-          <div className="pb-2" />
+            <div className="pb-2" />
+          </div>
         </div>
       </div>
     </div>
@@ -550,20 +555,22 @@ export function SettingsView() {
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 space-y-2">
-        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 animate-in fade-in duration-300 ease-in-out">
-          {LANGS.map((lang, i, arr) => (
-            <div key={lang.code}>
-              <button onClick={() => { setLanguage(lang.code); setPage("main") }}
-                className="w-full p-4 flex items-center justify-between active:bg-white/5 transition-colors">
-                <div className="flex items-center gap-4">
-                  <span className="text-[22px]">{lang.flag}</span>
-                  <p className="text-white" style={{ fontFamily: SF, fontSize: "16px" }}>{lang.name}</p>
-                </div>
-                {language === lang.code && <IoCheckmark className="w-6 h-6 text-[#3b82f6]" />}
-              </button>
-              {i < arr.length - 1 && <div style={{ height: "1px", background: "#1c1c1e", marginLeft: "56px" }} />}
-            </div>
-          ))}
+        <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
+            {LANGS.map((lang, i, arr) => (
+              <div key={lang.code}>
+                <button onClick={() => { setLanguage(lang.code); setPage("main") }}
+                  className="w-full px-4 py-3 flex items-center justify-between active:bg-white/5 transition-colors text-left">
+                  <div className="flex items-center gap-4">
+                    <span className="text-[22px]">{lang.flag}</span>
+                    <p className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>{lang.name}</p>
+                  </div>
+                  {language === lang.code && <IoCheckmark className="w-6 h-6 font-bold stroke-[2px] text-[#60a5fa]" />}
+                </button>
+                {i < arr.length - 1 && <SimpleDivider />}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -574,19 +581,25 @@ export function SettingsView() {
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out relative"
          style={{ background: "#000", minHeight: "100vh" }}>
       <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
-      <div className="px-4 pt-4 pb-28">
-        <h1 className="text-white text-[22px] font-bold px-1 mb-4" style={{fontFamily: SFD}}>Gender</h1>
-        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111]">
-          {GENDERS.map((g, i) => (
-            <button key={g} onClick={() => setGenderField(g)} className="w-full flex items-center justify-between p-5 text-left active:bg-white/5 transition-colors border-b border-[#1c1c1e] last:border-0">
-              <span className="text-white text-[16px]" style={{ fontFamily: SF }}>{g}</span>
-              {genderField === g && <IoCheckmark className="w-6 h-6 text-[#3b82f6]" />}
-            </button>
-          ))}
+      <div className="px-4 pt-4 pb-28 space-y-6">
+        <h1 className="text-white text-[22px] font-bold px-1 mb-2 animate-in fade-in" style={{fontFamily: SFD}}>Gender</h1>
+        
+        <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
+            {GENDERS.map((g, i) => (
+              <div key={g}>
+                <button onClick={() => setGenderField(g)} className="w-full flex items-center justify-between px-4 py-3 text-left active:bg-white/5 transition-colors">
+                  <span className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>{g}</span>
+                  {genderField === g && <IoCheckmark className="w-6 h-6 font-bold stroke-[2px] text-[#60a5fa]" />}
+                </button>
+                {i < GENDERS.length - 1 && <SimpleDivider />}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       <div className="fixed bottom-8 left-4 right-4">
-        <button onClick={() => setPage("basic_info")} className="w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
+        <button onClick={() => setPage("basic_info")} className="w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity shadow-lg" style={{ fontFamily: SF }}>
           Done
         </button>
       </div>
@@ -598,24 +611,30 @@ export function SettingsView() {
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out relative overflow-y-auto scrollbar-native"
          style={{ background: "#000", minHeight: "100vh" }}>
       <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
-      <div className="px-4 pt-4 pb-32">
-        <h1 className="text-white text-[22px] font-bold px-1 mb-4" style={{fontFamily: SFD}}>Time zone</h1>
-        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111]">
-          {TIMEZONES.map((tz) => {
-            const displayVal = `${tz.name} (${tz.offset})`
-            return (
-              <button key={tz.name} onClick={() => setTimezoneField(displayVal)} className="w-full flex items-center justify-between p-4 text-left active:bg-white/5 transition-colors border-b border-[#1c1c1e] last:border-0">
-                <div className="flex flex-col">
-                  <span className="text-white text-[16px] mb-0.5" style={{ fontFamily: SF }}>{tz.name}</span>
-                  <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{tz.offset}</span>
+      <div className="px-4 pt-4 pb-32 space-y-6">
+        <h1 className="text-white text-[22px] font-bold px-1 mb-2 animate-in fade-in" style={{fontFamily: SFD}}>Time zone</h1>
+        
+        <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
+            {TIMEZONES.map((tz, i) => {
+              const displayVal = `${tz.name} (${tz.offset})`
+              return (
+                <div key={tz.name}>
+                  <button onClick={() => setTimezoneField(displayVal)} className="w-full flex items-center justify-between px-4 py-3 text-left active:bg-white/5 transition-colors">
+                    <div className="flex flex-col">
+                      <span className="text-white text-[16px] font-medium mb-0.5" style={{ fontFamily: SF }}>{tz.name}</span>
+                      <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{tz.offset}</span>
+                    </div>
+                    {timezoneField === displayVal && <IoCheckmark className="w-6 h-6 font-bold stroke-[2px] text-[#60a5fa]" />}
+                  </button>
+                  {i < TIMEZONES.length - 1 && <SimpleDivider />}
                 </div>
-                {timezoneField === displayVal && <IoCheckmark className="w-6 h-6 text-[#3b82f6]" />}
-              </button>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
       </div>
-      <div className="fixed bottom-8 left-4 right-4 pointer-events-none">
+      <div className="fixed bottom-8 left-4 right-4 pointer-events-none z-10">
         <button onClick={() => setPage("additional_details")} className="w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity pointer-events-auto shadow-lg" style={{ fontFamily: SF }}>
           Done
         </button>
@@ -628,61 +647,66 @@ export function SettingsView() {
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Basic Information" />
-      <div className="px-4 pt-6 space-y-4">
+      <div className="px-4 pt-6 space-y-6">
         
-        {/* Contenedor principal alineado a la izquierda */}
-        <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] px-5 py-2">
-          
-          {/* Item: Name */}
-          <div className="flex items-center w-full py-4 border-b border-[#1c1c1e]">
-            <span className="w-[75px] text-white text-[16px] font-medium shrink-0" style={{ fontFamily: SF }}>Name<span className="text-[#ef4444]">*</span></span>
-            <input 
-              value={nameField}
-              onChange={(e) => setNameField(e.target.value)}
-              placeholder="Enter name"
-              className="bg-transparent text-white text-[16px] flex-1 outline-none placeholder:text-[#555558]"
-              style={{ fontFamily: SF }}
-            />
+        {/* Contenedor principal alineado con animaciones y estructura Section */}
+        <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
+            
+            {/* Item: Name */}
+            <div className="flex items-center w-full px-4 py-3">
+              <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>Name<span className="text-[#ef4444]">*</span></span>
+              <input 
+                value={nameField}
+                onChange={(e) => setNameField(e.target.value)}
+                placeholder="Enter name"
+                className="bg-transparent text-[16px] font-medium text-white flex-1 outline-none placeholder:text-[#555558]"
+                style={{ fontFamily: SF }}
+              />
+            </div>
+            <SimpleDivider />
+
+            {/* Item: Gender */}
+            <button onClick={() => setPage("gender_select")} className="flex items-center w-full px-4 py-3 active:bg-white/5 transition-colors text-left">
+              <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>Gender</span>
+              <span className={`text-[16px] font-medium flex-1 ${genderField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
+                {genderField || "Select gender"}
+              </span>
+              <IoChevronForward className="w-5 h-5 text-[#555558] shrink-0" />
+            </button>
+            <SimpleDivider />
+
+            {/* Item: Age */}
+            <div className="flex items-center w-full px-4 py-3">
+              <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>Age</span>
+              <input 
+                type="number"
+                value={ageField}
+                onChange={(e) => setAgeField(e.target.value)}
+                placeholder="Enter age"
+                className="bg-transparent text-[16px] font-medium text-white flex-1 outline-none placeholder:text-[#555558]"
+                style={{ fontFamily: SF }}
+              />
+            </div>
+            <SimpleDivider />
+
+            {/* Item: City */}
+            <div className="flex items-center w-full px-4 py-3">
+              <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>City</span>
+              <input 
+                value={cityField}
+                onChange={(e) => setCityField(e.target.value)}
+                placeholder="Enter city"
+                className="bg-transparent text-[16px] font-medium text-white flex-1 outline-none placeholder:text-[#555558]"
+                style={{ fontFamily: SF }}
+              />
+            </div>
+
           </div>
-
-          {/* Item: Gender (Navega a nueva vista) */}
-          <button onClick={() => setPage("gender_select")} className="flex items-center w-full py-4 border-b border-[#1c1c1e] active:opacity-70 transition-opacity text-left">
-            <span className="w-[75px] text-white text-[16px] font-medium shrink-0" style={{ fontFamily: SF }}>Gender</span>
-            <span className={`text-[16px] flex-1 ${genderField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
-              {genderField || "Select gender"}
-            </span>
-            <IoChevronForward className="w-5 h-5 text-[#555558] shrink-0" />
-          </button>
-
-          {/* Item: Age */}
-          <div className="flex items-center w-full py-4 border-b border-[#1c1c1e]">
-            <span className="w-[75px] text-white text-[16px] font-medium shrink-0" style={{ fontFamily: SF }}>Age</span>
-            <input 
-              type="number"
-              value={ageField}
-              onChange={(e) => setAgeField(e.target.value)}
-              placeholder="Enter age"
-              className="bg-transparent text-white text-[16px] flex-1 outline-none placeholder:text-[#555558]"
-              style={{ fontFamily: SF }}
-            />
-          </div>
-
-          {/* Item: City */}
-          <div className="flex items-center w-full py-4">
-            <span className="w-[75px] text-white text-[16px] font-medium shrink-0" style={{ fontFamily: SF }}>City</span>
-            <input 
-              value={cityField}
-              onChange={(e) => setCityField(e.target.value)}
-              placeholder="Enter city"
-              className="bg-transparent text-white text-[16px] flex-1 outline-none placeholder:text-[#555558]"
-              style={{ fontFamily: SF }}
-            />
-          </div>
-
         </div>
 
         {/* Action Buttons (Cancel / Update) */}
-        <div className="flex items-center gap-4 mt-8 w-full">
+        <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
             <button 
               onClick={() => setPage("prefs")} 
               className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
@@ -707,47 +731,57 @@ export function SettingsView() {
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Additional Details" />
-      <div className="px-4 pt-6 space-y-4">
+      <div className="px-4 pt-6 space-y-6">
         
-        {/* Item: Time zone (Navega a nueva vista) */}
-        <button onClick={() => setPage("timezone_select")} className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 active:opacity-70 transition-opacity text-left">
-          <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-3" style={{ fontFamily: SF }}>Time zone</h2>
-          <div className="flex items-center justify-between w-full">
-            <span className={`text-[16px] flex-1 ${timezoneField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
-              {timezoneField || "Select time zone"}
-            </span>
-            <IoChevronForward className="w-5 h-5 text-[#555558]" />
+        <div className="animate-in fade-in duration-300 ease-in-out space-y-4">
+          
+          {/* Item: Time zone */}
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
+            <button onClick={() => setPage("timezone_select")} className="w-full flex flex-col px-4 py-3 text-left active:bg-white/5 transition-colors">
+              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Time zone</h2>
+              <div className="flex items-center justify-between w-full">
+                <span className={`text-[16px] font-medium flex-1 ${timezoneField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
+                  {timezoneField || "Select time zone"}
+                </span>
+                <IoChevronForward className="w-5 h-5 text-[#555558]" />
+              </div>
+            </button>
           </div>
-        </button>
 
-        {/* Item: Occupation */}
-        <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 text-left">
-          <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-3" style={{ fontFamily: SF }}>Occupation</h2>
-          <textarea 
-            value={occupationField}
-            onChange={(e) => setOccupationField(e.target.value)}
-            placeholder="Enter occupation"
-            rows={3}
-            className="bg-transparent text-white text-[16px] w-full outline-none placeholder:text-[#555558] resize-none"
-            style={{ fontFamily: SF }}
-          />
-        </div>
+          {/* Item: Occupation */}
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
+            <div className="flex flex-col w-full px-4 py-3 text-left">
+              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Occupation</h2>
+              <textarea 
+                value={occupationField}
+                onChange={(e) => setOccupationField(e.target.value)}
+                placeholder="Enter occupation"
+                rows={3}
+                className="bg-transparent text-[16px] font-medium text-white w-full outline-none placeholder:text-[#555558] resize-none"
+                style={{ fontFamily: SF }}
+              />
+            </div>
+          </div>
 
-        {/* Item: Interests */}
-        <div className="flex flex-col w-full rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] p-5 text-left">
-          <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-3" style={{ fontFamily: SF }}>Interests</h2>
-          <textarea 
-            value={interestsField}
-            onChange={(e) => setInterestsField(e.target.value)}
-            placeholder="Enter interests"
-            rows={3}
-            className="bg-transparent text-white text-[16px] w-full outline-none placeholder:text-[#555558] resize-none"
-            style={{ fontFamily: SF }}
-          />
+          {/* Item: Interests */}
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
+            <div className="flex flex-col w-full px-4 py-3 text-left">
+              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Interests</h2>
+              <textarea 
+                value={interestsField}
+                onChange={(e) => setInterestsField(e.target.value)}
+                placeholder="Enter interests"
+                rows={3}
+                className="bg-transparent text-[16px] font-medium text-white w-full outline-none placeholder:text-[#555558] resize-none"
+                style={{ fontFamily: SF }}
+              />
+            </div>
+          </div>
+
         </div>
 
         {/* Action Buttons (Cancel / Update) */}
-        <div className="flex items-center gap-4 mt-8 w-full">
+        <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
             <button 
               onClick={() => setPage("prefs")} 
               className="flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors" 
@@ -828,61 +862,65 @@ export function SettingsView() {
         <p className="text-[#8e8e93] text-[15px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
       </div>
 
-      <div className="px-5 w-full pb-10 mt-2">
-         <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-4" style={{ fontFamily: SF }}>Profile Setup</h3>
+      <div className="px-5 w-full pb-10 mt-2 animate-in fade-in duration-300 ease-in-out space-y-4">
+         <div className="space-y-4">
+           <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-4" style={{ fontFamily: SF }}>Profile Setup</h3>
 
-         <div className="relative flex flex-col">
-            {/* Línea vertical conectora central */}
-            <div className="absolute left-[21px] top-[26px] bottom-[26px] w-[2px] bg-[#1c1c1e] z-0" />
-            
-            {/* Step 1: Basic Information */}
-            <button onClick={() => setPage("basic_info")} className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
-               <div className="py-2.5 flex items-center shrink-0">
-                  <Icon3DCircular icon={IoPersonOutline} bgFrom="#4ade80" bgTo="#16a34a" />
-               </div>
-               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e]">
-                  <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
-                  <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
-                    <IoCheckmark className="w-[14px] h-[14px] text-white font-bold stroke-[2px]" />
-                  </div>
-               </div>
-            </button>
-            
-            {/* Step 2: Additional Details */}
-            <button onClick={() => setPage("additional_details")} className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
-               <div className="py-2.5 flex items-center shrink-0">
-                  <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
-               </div>
-               <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e]">
-                  <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
-                  <IoChevronForward className="w-5 h-5 text-[#555558]" />
-               </div>
-            </button>
+           <div className="relative flex flex-col">
+              {/* Línea vertical conectora central */}
+              <div className="absolute left-[21px] top-[26px] bottom-[26px] w-[2px] bg-[#1c1c1e] z-0" />
+              
+              {/* Step 1: Basic Information */}
+              <button onClick={() => setPage("basic_info")} className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
+                 <div className="py-2.5 flex items-center shrink-0">
+                    <Icon3DCircular icon={IoPersonOutline} bgFrom="#4ade80" bgTo="#16a34a" />
+                 </div>
+                 <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e]">
+                    <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
+                    <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
+                      <IoCheckmark className="w-[14px] h-[14px] text-white font-bold stroke-[2px]" />
+                    </div>
+                 </div>
+              </button>
+              
+              {/* Step 2: Additional Details */}
+              <button onClick={() => setPage("additional_details")} className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
+                 <div className="py-2.5 flex items-center shrink-0">
+                    <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
+                 </div>
+                 <div className="ml-4 flex-1 flex items-center justify-between border-b border-[#1c1c1e]">
+                    <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
+                    <IoChevronForward className="w-5 h-5 text-[#555558]" />
+                 </div>
+              </button>
 
-            {/* Step 3: Add Personal Data */}
-            <div className="w-full relative z-10 flex items-stretch">
-               <div className="py-2.5 flex items-center shrink-0">
-                  <Icon3DCircular icon={IoPersonOutline} bgFrom="#4b5563" bgTo="#374151" />
-               </div>
-               <div className="ml-4 flex-1 flex items-center justify-between">
-                  <p className="text-[17px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
-               </div>
-            </div>
+              {/* Step 3: Add Personal Data */}
+              <div className="w-full relative z-10 flex items-stretch">
+                 <div className="py-2.5 flex items-center shrink-0">
+                    <Icon3DCircular icon={IoPersonOutline} bgFrom="#4b5563" bgTo="#374151" />
+                 </div>
+                 <div className="ml-4 flex-1 flex items-center justify-between">
+                    <p className="text-[17px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
+                 </div>
+              </div>
+           </div>
          </div>
 
-         <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-8" style={{ fontFamily: SF }}>Account Security</h3>
+         <div className="space-y-4">
+           <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-8" style={{ fontFamily: SF }}>Account Security</h3>
 
-         <div className="relative flex flex-col">
-            {/* Step 1: Set Up Passcode */}
-            <button className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
-               <div className="py-2.5 flex items-center shrink-0">
-                  <Icon3DCircular icon={IoLockClosedOutline} bgFrom="#c084fc" bgTo="#9333ea" />
-               </div>
-               <div className="ml-4 flex-1 flex items-center justify-between">
-                  <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
-                  <IoChevronForward className="w-5 h-5 text-[#555558]" />
-               </div>
-            </button>
+           <div className="relative flex flex-col">
+              {/* Step 1: Set Up Passcode */}
+              <button className="w-full relative z-10 flex items-stretch active:opacity-70 transition-opacity text-left">
+                 <div className="py-2.5 flex items-center shrink-0">
+                    <Icon3DCircular icon={IoLockClosedOutline} bgFrom="#c084fc" bgTo="#9333ea" />
+                 </div>
+                 <div className="ml-4 flex-1 flex items-center justify-between">
+                    <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
+                    <IoChevronForward className="w-5 h-5 text-[#555558]" />
+                 </div>
+              </button>
+           </div>
          </div>
       </div>
     </div>
