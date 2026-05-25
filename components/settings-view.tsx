@@ -389,7 +389,7 @@ export function SettingsView() {
     refreshModelTokenStatus,
   } = useApp()
 
-  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select">("main")
+  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality">("main")
   const [tempPrefs, setTempPrefs] = useState(userPreferences)
   const [improveModel, setImproveModel] = useState(false)
   const [saving, setSaving] = useState("")
@@ -412,6 +412,10 @@ export function SettingsView() {
   const [timezoneField, setTimezoneField] = useState("")
   const [occupationField, setOccupationField] = useState("")
   const [interestsField, setInterestsField] = useState("")
+  
+  // Estados para Noir Personality
+  const [favoriteEmojiField, setFavoriteEmojiField] = useState("")
+  const [personalityField, setPersonalityField] = useState("")
 
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
   const displayModelName = selectedModel === "Grok 4" ? "Grok 4.1" : selectedModel
@@ -430,10 +434,11 @@ export function SettingsView() {
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
-  // Calculo de porcentaje de completado
-  const completionFields = [nameField, genderField, ageField, cityField, timezoneField, occupationField, interestsField];
+  // Calculo de porcentaje de completado (Actualizado a 9 pasos)
+  const completionFields = [nameField, genderField, ageField, cityField, timezoneField, occupationField, interestsField, favoriteEmojiField, personalityField];
+  const totalFields = 9;
   const filledFields = completionFields.filter(field => field.trim().length > 0).length;
-  const completionPct = Math.round((filledFields / 7) * 100);
+  const completionPct = Math.round((filledFields / totalFields) * 100);
   const circleOffset = 295 - (295 * completionPct) / 100;
 
   useEffect(() => {
@@ -444,7 +449,7 @@ export function SettingsView() {
     const handleBack = () => {
       if (page === "gender_select") setPage("basic_info")
       else if (page === "timezone_select") setPage("additional_details")
-      else if (page === "basic_info" || page === "additional_details") setPage("prefs")
+      else if (page === "basic_info" || page === "additional_details" || page === "noir_personality") setPage("prefs")
       else if (page !== "main") setPage("main")
       else { setCurrentView("profile"); tg.BackButton.hide() }
     }
@@ -901,6 +906,70 @@ export function SettingsView() {
     </div>
   )
 
+  // ── Noir Personality Sub-page ──────────────────────────────────────────────
+  if (page === "noir_personality") return (
+    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
+         style={{ background: "#000", minHeight: "100vh" }}>
+      <style>{RIPPLE_STYLE}</style>
+      <SubHeader title="Noir" />
+      <div className="px-4 pt-6 space-y-6">
+        
+        <div className="animate-in fade-in duration-300 ease-in-out space-y-4">
+          
+          {/* Item: Favorite emoji */}
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
+            <div className="flex flex-col w-full px-4 py-3 text-left">
+              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Favorite emoji</h2>
+              <input 
+                value={favoriteEmojiField}
+                onChange={(e) => setFavoriteEmojiField(e.target.value)}
+                placeholder="Enter your favorite emoji"
+                className="bg-transparent text-[16px] font-medium text-white w-full outline-none placeholder:text-[#555558]"
+                style={{ fontFamily: SF }}
+              />
+            </div>
+          </div>
+
+          {/* Item: Personality */}
+          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
+            <div className="flex flex-col w-full px-4 py-3 text-left">
+              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Personality</h2>
+              <textarea 
+                value={personalityField}
+                onChange={(e) => setPersonalityField(e.target.value)}
+                placeholder="Curious, smart, beautiful..."
+                rows={3}
+                className="bg-transparent text-[16px] font-medium text-white w-full outline-none placeholder:text-[#555558] resize-none"
+                style={{ fontFamily: SF }}
+              />
+            </div>
+          </div>
+
+        </div>
+
+        {/* Action Buttons (Cancel / Update) */}
+        <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
+            <button 
+              onClick={() => setPage("prefs")} 
+              onPointerDown={createRipple}
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
+              style={{ fontFamily: SF, fontSize: "16px" }}
+            >
+              <span className="relative z-10">Cancel</span>
+            </button>
+            <button 
+              onClick={() => setPage("prefs")} 
+              onPointerDown={createRipple}
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+            >
+              <span className="relative z-10">Update</span>
+            </button>
+        </div>
+      </div>
+    </div>
+  )
+
   // ── Prefs page (Account Setup) ─────────────────────────────────────────────
   if (page === "prefs") return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out overflow-y-auto scrollbar-native"
@@ -958,7 +1027,7 @@ export function SettingsView() {
         
         <h1 className="text-[24px] font-bold text-white mb-0.5 mt-2" style={{ fontFamily: SFD }}>Set Up Your Account</h1>
         <p className="text-[#60a5fa] font-bold text-[22px] mb-1.5" style={{ fontFamily: SF }}>
-          {filledFields < 7 ? `${7 - filledFields} steps left` : "Profile Complete!"}
+          {filledFields < totalFields ? `${totalFields - filledFields} steps left` : "Profile Complete!"}
         </p>
         <p className="text-[#8e8e93] text-[15px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
       </div>
@@ -1002,36 +1071,24 @@ export function SettingsView() {
                     <IoChevronForward className="w-5 h-5 text-[#555558]" />
                  </div>
               </button>
-
-              {/* Step 3: Add Personal Data */}
-              <button 
-                onPointerDown={createRipple}
-                className="w-full relative overflow-hidden z-10 flex items-stretch text-left active:opacity-70 transition-opacity rounded-xl bg-transparent"
-              >
-                 <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular icon={IoPersonOutline} bgFrom="#4b5563" bgTo="#374151" />
-                 </div>
-                 <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
-                    <p className="text-[17px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>Add Personal Data</p>
-                 </div>
-              </button>
            </div>
          </div>
 
          <div className="space-y-4">
-           <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-8" style={{ fontFamily: SF }}>Account Security</h3>
+           <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-8" style={{ fontFamily: SF }}>Noir Personality</h3>
 
            <div className="relative flex flex-col">
-              {/* Step 1: Set Up Passcode */}
+              {/* Step 1: Noir Personality */}
               <button 
+                onClick={() => setPage("noir_personality")}
                 onPointerDown={createRipple}
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular icon={IoLockClosedOutline} bgFrom="#c084fc" bgTo="#9333ea" />
+                    <Icon3DCircular icon={IoSparkles} bgFrom="#c084fc" bgTo="#9333ea" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
-                    <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Set Up Passcode</p>
+                    <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Noir Personality</p>
                     <IoChevronForward className="w-5 h-5 text-[#555558]" />
                  </div>
               </button>
