@@ -2,12 +2,10 @@
 
 import { useApp, type ModelName } from "@/lib/app-context"
 import { 
-  IoChevronForward, IoCheckmark, IoGlobe, IoColorWand, IoPerson, 
-  IoLockClosed, IoServer, IoDocumentText, IoShieldCheckmark, 
-  IoChatbubble, IoChevronDown, IoClose, IoTrash, IoSync, IoSparkles,
-  IoWalletOutline, IoCall, IoPersonOutline, IoLockClosedOutline,
-  IoListOutline
-} from "react-icons/io5"
+  ChevronRight, Check, Earth, CircleUserRound, Lock, Database, 
+  FileText, ShieldCheck, MessageCircle, ChevronDown, X, Trash2, 
+  Loader2, Sparkles, User, List, Bot
+} from "lucide-react"
 import { useState, useEffect } from "react"
 import React from "react"
 
@@ -154,42 +152,40 @@ const LANGS = [
 
 // ── Componentes UI para la Vista Principal ──
 
+// Componente de ícono plano con borde squircle (estilo nativo iOS/Telegram)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string, bgTo: string, spin?: boolean }) {
+function IconFlat({ icon: Icon, color, spin }: { icon: any, color: string, spin?: boolean }) {
   return (
     <div
-      className="shrink-0 flex items-center justify-center shadow-sm relative z-10"
+      className="shrink-0 flex items-center justify-center relative z-10"
       style={{
         width: "30px",
         height: "30px",
-        borderRadius: "8px",
-        background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
-        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
+        borderRadius: "7px", // Squircle nativo
+        backgroundColor: color,
         color: "white"
       }}
     >
-      <Icon className={`w-[16px] h-[16px] ${spin ? "animate-spin" : ""}`} />
+      <Icon className={`w-[18px] h-[18px] ${spin ? "animate-spin" : ""}`} strokeWidth={2.2} />
     </div>
   )
 }
 
-// Componente Icon3D completamente redondo para Setup Account
+// Componente más grande para la vista de Account Setup
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: string, bgTo: string }) {
+function IconFlatLarge({ icon: Icon, color }: { icon: any, color: string }) {
   return (
     <div
       className="shrink-0 flex items-center justify-center relative z-10"
       style={{
         width: "44px",
         height: "44px",
-        borderRadius: "50%",
-        background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
-        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
-        border: "4px solid #000",
+        borderRadius: "10px", // Squircle proporcional al tamaño 44px
+        backgroundColor: color,
         color: "white"
       }}
     >
-      <Icon className="w-[20px] h-[20px]" />
+      <Icon className="w-[24px] h-[24px]" strokeWidth={2.2} />
     </div>
   )
 }
@@ -233,7 +229,7 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
         )}
         
         {rightNode ? rightNode : (!hideArrow && !danger && (
-          <IoChevronForward className="w-5 h-5 text-[#555558]" />
+          <ChevronRight className="w-5 h-5 text-[#555558]" />
         ))}
       </div>
     </>
@@ -301,7 +297,7 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
   if (locked)
     return (
       <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center shrink-0 relative z-10 bg-[#1c1c1e]">
-        <IoLockClosed className="w-[18px] h-[18px] text-[#636366]" />
+        <Lock className="w-[16px] h-[16px] text-[#636366]" />
       </div>
     )
 
@@ -509,8 +505,7 @@ export function SettingsView() {
               const pct      = tokenInfo?.pct ?? 0
 
               const active =
-                m.name === selectedModel ||
-                (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
+                m.name === selectedModel || (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
 
               const isDisabled = locked || saving === "model" || !!limitHit
 
@@ -549,14 +544,14 @@ export function SettingsView() {
                           {limitHit && !locked && (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
                               style={{ fontFamily: SF }}>
-                              limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
+                               limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
                             </span>
                           )}
 
                           {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
                               style={{ fontFamily: SF }}>
-                              cooling {minutesUntilReset}min
+                               cooling {minutesUntilReset}min
                             </span>
                           )}
                         </div>
@@ -571,7 +566,7 @@ export function SettingsView() {
 
                     <div className="shrink-0 flex items-center justify-center ml-3 relative z-10">
                       {saving === "model" && active ? (
-                        <IoSync className="w-[22px] h-[22px] animate-spin" style={{ color: "#8e8e93" }} />
+                        <Loader2 className="w-[22px] h-[22px] animate-spin" style={{ color: "#8e8e93" }} />
                       ) : (
                         <RadioButton selected={active && !isDisabled} />
                       )}
@@ -592,7 +587,6 @@ export function SettingsView() {
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
-      {/* Espaciador invisible para igualar la altura de Basic Information */}
       <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
         <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
       </div>
@@ -630,7 +624,6 @@ export function SettingsView() {
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out relative"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
-      {/* Espaciador invisible para igualar la altura de Basic Information */}
       <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
         <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
       </div>
@@ -675,7 +668,6 @@ export function SettingsView() {
     <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out relative overflow-y-auto scrollbar-native"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
-      {/* Espaciador invisible para igualar la altura de Basic Information */}
       <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
         <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
       </div>
@@ -729,7 +721,6 @@ export function SettingsView() {
       <SubHeader title="Basic Information" />
       <div className="px-4 pt-6 space-y-6">
         
-        {/* Contenedor principal alineado con animaciones y estructura Section */}
         <div className="animate-in fade-in duration-300 ease-in-out space-y-2">
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
             
@@ -755,7 +746,7 @@ export function SettingsView() {
               <span className={`text-[16px] font-medium flex-1 relative z-10 ${genderField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
                 {genderField || "Select gender"}
               </span>
-              <IoChevronForward className="w-5 h-5 text-[#555558] shrink-0 relative z-10" />
+              <ChevronRight className="w-5 h-5 text-[#555558] shrink-0 relative z-10" />
             </button>
 
             {/* Item: Age */}
@@ -786,7 +777,7 @@ export function SettingsView() {
           </div>
         </div>
 
-        {/* Action Buttons (Cancel / Update) */}
+        {/* Action Buttons */}
         <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
             <button 
               onClick={() => setPage("prefs")} 
@@ -821,7 +812,7 @@ export function SettingsView() {
           
           {/* Item: Time zone */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
-             <button 
+            <button 
               onClick={() => setPage("timezone_select")} 
               onPointerDown={createRipple}
               className="relative overflow-hidden w-full flex flex-col px-4 py-3 text-left active:bg-white/5 transition-colors"
@@ -831,7 +822,7 @@ export function SettingsView() {
                 <span className={`text-[16px] font-medium flex-1 ${timezoneField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
                   {timezoneField || "Select time zone"}
                 </span>
-                <IoChevronForward className="w-5 h-5 text-[#555558]" />
+                <ChevronRight className="w-5 h-5 text-[#555558]" />
               </div>
             </button>
           </div>
@@ -868,7 +859,7 @@ export function SettingsView() {
 
         </div>
 
-        {/* Action Buttons (Cancel / Update) */}
+        {/* Action Buttons */}
         <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
             <button 
               onClick={() => setPage("prefs")} 
@@ -883,7 +874,7 @@ export function SettingsView() {
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-             >
+            >
               <span className="relative z-10">Update</span>
             </button>
         </div>
@@ -932,7 +923,7 @@ export function SettingsView() {
 
         </div>
 
-        {/* Action Buttons (Cancel / Update) */}
+        {/* Action Buttons */}
         <div className="flex items-center gap-4 mt-8 w-full animate-in fade-in duration-300 ease-in-out">
             <button 
               onClick={() => setPage("prefs")} 
@@ -950,7 +941,7 @@ export function SettingsView() {
             >
               <span className="relative z-10">Update</span>
             </button>
-         </div>
+        </div>
       </div>
     </div>
   )
@@ -970,11 +961,8 @@ export function SettingsView() {
         {/* Gráfico circular con la foto de perfil en medio */}
         <div className="relative w-[130px] h-[130px] flex items-center justify-center rounded-full mb-6 mt-8">
           
-          {/* Anillos SVG (Fondo y Progreso) */}
           <svg className="absolute inset-0 w-full h-full transform -rotate-90 z-20 pointer-events-none" viewBox="0 0 100 100">
-            {/* Círculo de fondo oscuro */}
             <circle cx="50" cy="50" r="47" stroke="#1c1c1e" strokeWidth="4" fill="none" />
-            {/* Círculo de progreso azul dinámico */}
             <circle 
                cx="50" cy="50" r="47" stroke="#60a5fa" strokeWidth="4" fill="none" 
                strokeDasharray="295" 
@@ -1004,7 +992,6 @@ export function SettingsView() {
             </div>
           </div>
 
-          {/* Etiqueta Porcentaje superpuesta */}
           <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-[#60a5fa] text-white text-[14px] font-bold px-3.5 py-0.5 rounded-full border-[4px] border-black z-30 shadow-sm transition-all" style={{ fontFamily: SF }}>
             {completionPct}%
           </div>
@@ -1032,12 +1019,12 @@ export function SettingsView() {
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular icon={IoPersonOutline} bgFrom="#4ade80" bgTo="#16a34a" />
+                    <IconFlatLarge icon={User} color="#34c759" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
                     <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
-                      <IoCheckmark className="w-[14px] h-[14px] text-white font-bold stroke-[2px]" />
+                      <Check className="w-[14px] h-[14px] text-white stroke-[3px]" />
                     </div>
                  </div>
               </button>
@@ -1047,17 +1034,17 @@ export function SettingsView() {
                 onClick={() => setPage("additional_details")} 
                 onPointerDown={createRipple}
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
-               >
+              >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
+                    <IconFlatLarge icon={List} color="#3b82f6" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
-                    <IoChevronForward className="w-5 h-5 text-[#555558]" />
+                    <ChevronRight className="w-5 h-5 text-[#555558]" />
                  </div>
               </button>
            </div>
-          </div>
+         </div>
 
          <div className="space-y-4">
            <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-8" style={{ fontFamily: SF }}>Noir Personality</h3>
@@ -1070,12 +1057,12 @@ export function SettingsView() {
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular icon={IoSparkles} bgFrom="#c084fc" bgTo="#9333ea" />
+                    <IconFlatLarge icon={Sparkles} color="#af52de" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Noir Personality</p>
-                    <IoChevronForward className="w-5 h-5 text-[#555558]" />
-                  </div>
+                    <ChevronRight className="w-5 h-5 text-[#555558]" />
+                 </div>
               </button>
            </div>
          </div>
@@ -1087,7 +1074,7 @@ export function SettingsView() {
   return (
     <div className="flex-1 overflow-y-auto animate-in fade-in duration-300 ease-in-out" style={{ background: "#000" }}>
       <style>{RIPPLE_STYLE}</style>
-      {/* Cabecera principal estática */}
+      
       <div className="flex items-center justify-center px-4 pb-3" style={{
         paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
       }}>
@@ -1098,7 +1085,7 @@ export function SettingsView() {
 
       <div className="px-4 pt-4 pb-28 space-y-6">
 
-        {/* ── xBlum Pro card (non-premium only) ── */}
+        {/* ── xBlum Pro card ── */}
         {!isPremium && (
           <button
             onClick={() => setCurrentView("premium")}
@@ -1139,19 +1126,19 @@ export function SettingsView() {
         {/* ── Profile ── */}
         <Section title="Profile">
           <Row
-            leftNode={<Icon3D icon={IoColorWand} bgFrom="#f9a8d4" bgTo="#ec4899" />}
+            leftNode={<IconFlat icon={Bot} color="#af52de" />}
             label="LLM Model"
             value={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
           <Row
-            leftNode={<Icon3D icon={IoGlobe} bgFrom="#d8b4fe" bgTo="#a855f7" />}
+            leftNode={<IconFlat icon={Earth} color="#3b82f6" />}
             label="Language"
             value={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
           />
           <Row
-            leftNode={<Icon3D icon={IoPerson} bgFrom="#93c5fd" bgTo="#3b82f6" />}
+            leftNode={<IconFlat icon={CircleUserRound} color="#5856d6" />}
             label="Account Setup"
             value="Edit"
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
@@ -1161,12 +1148,12 @@ export function SettingsView() {
         {/* ── Data & Privacy ── */}
         <Section title="Data & Privacy">
           <Row
-            leftNode={<Icon3D icon={IoServer} bgFrom="#fcd34d" bgTo="#f59e0b" />}
+            leftNode={<IconFlat icon={Database} color="#ff9500" />}
             label="Personalize Memories"
             rightNode={<Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
           />
           <Row
-            leftNode={<Icon3D icon={IoSparkles} bgFrom="#6ee7b7" bgTo="#10b981" />}
+            leftNode={<IconFlat icon={Sparkles} color="#34c759" />}
             label="Improve Model"
             rightNode={<Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />}
           />
@@ -1175,18 +1162,14 @@ export function SettingsView() {
         {/* ── Danger Zone ── */}
         <Section title="Danger Zone">
           <Row
-            leftNode={saving === "del_mem"
-              ? <Icon3D icon={IoSync} bgFrom="#fca5a5" bgTo="#ef4444" spin />
-              : <Icon3D icon={IoTrash} bgFrom="#fca5a5" bgTo="#ef4444" />}
+            leftNode={<IconFlat icon={saving === "del_mem" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_mem"} />}
             label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
             onClick={handleDeleteMemories}
             danger
             hideArrow
           />
           <Row
-            leftNode={saving === "del_hist"
-              ? <Icon3D icon={IoSync} bgFrom="#fca5a5" bgTo="#ef4444" spin />
-              : <Icon3D icon={IoTrash} bgFrom="#fca5a5" bgTo="#ef4444" />}
+            leftNode={<IconFlat icon={saving === "del_hist" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_hist"} />}
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
@@ -1197,20 +1180,20 @@ export function SettingsView() {
         {/* ── Support ── */}
         <Section title="Support">
           <Row
-             isLink
+            isLink
             href="https://xblum.gitbook.io/home/xblum/terms"
-            leftNode={<Icon3D icon={IoDocumentText} bgFrom="#cbd5e1" bgTo="#64748b" />}
+            leftNode={<IconFlat icon={FileText} color="#8e8e93" />}
             label="Terms of Use"
           />
           <Row
             isLink
             href="https://xblum.gitbook.io/home/xblum/privacy"
-            leftNode={<Icon3D icon={IoShieldCheckmark} bgFrom="#cbd5e1" bgTo="#64748b" />}
+            leftNode={<IconFlat icon={ShieldCheck} color="#8e8e93" />}
             label="Privacy Policy"
           />
           <Row
             onClick={() => setShowReportModal(true)}
-            leftNode={<Icon3D icon={IoChatbubble} bgFrom="#c4b5fd" bgTo="#8b5cf6" />}
+            leftNode={<IconFlat icon={MessageCircle} color="#ff9500" />}
             label="Feedback & Support"
           />
         </Section>
@@ -1219,12 +1202,10 @@ export function SettingsView() {
       {/* ── Feedback Modal ── */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
-          {/* Fondo difuminado con desvanecimiento suave */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 ease-in-out"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-          {/* Sheet Modal */}
           <div className="relative w-full rounded-t-[24px] animate-in fade-in duration-300 ease-in-out max-h-[90vh] flex flex-col"
                style={{ background: "#111111", borderTop: "1px solid #1c1c1e" }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
@@ -1233,9 +1214,9 @@ export function SettingsView() {
                 onPointerDown={createRipple}
                 className="relative overflow-hidden w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity"
                 style={{ background: "#1c1c1e" }}>
-                <IoClose className="w-5 h-5 text-white relative z-10" />
+                <X className="w-5 h-5 text-white relative z-10" />
               </button>
-               <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+              <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Feedback & Support
               </h2>
               {reportSent ? (
@@ -1244,7 +1225,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                   onClick={async () => {
+                  onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -1269,12 +1250,12 @@ export function SettingsView() {
               )}
             </div>
 
-             <div className="p-5 space-y-4 overflow-y-auto flex-1">
+            <div className="p-5 space-y-4 overflow-y-auto flex-1">
               {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
                        style={{ background: "rgba(52,199,89,0.1)" }}>
-                    <IoCheckmark className="w-8 h-8 text-[#34c759]" />
+                    <Check className="w-8 h-8 text-[#34c759]" />
                   </div>
                   <p className="text-white font-bold" style={{ fontSize: "18px", fontFamily: SFD }}>Thank you!</p>
                   <p className="text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
@@ -1285,15 +1266,15 @@ export function SettingsView() {
                 <>
                   <div className="relative">
                     <button
-                       onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
+                      onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
                       onPointerDown={createRipple}
                       className="relative overflow-hidden w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
                       style={{ background: "#1c1c1e" }}>
-                        <IoChatbubble className="w-5 h-5 relative z-10" style={{ color: "#8e8e93" }} />
+                      <MessageCircle className="w-5 h-5 relative z-10" style={{ color: "#8e8e93" }} />
                       <span className="flex-1 text-left text-white font-medium relative z-10" style={{ fontSize: "15px", fontFamily: SF }}>
                         {reportType}
                       </span>
-                      <IoChevronDown
+                      <ChevronDown
                         className={`w-5 h-5 transition-transform relative z-10 ${showReportTypeDropdown ? "rotate-180" : ""}`}
                         style={{ color: "#8e8e93" }} />
                     </button>
@@ -1309,12 +1290,12 @@ export function SettingsView() {
                             style={{ fontFamily: SF }}>
                             <span className="relative z-10">{type}</span>
                           </button>
-                         ))}
+                        ))}
                       </div>
                     )}
                   </div>
                   <textarea
-                     value={reportDescription}
+                    value={reportDescription}
                     onChange={e => setReportDescription(e.target.value)}
                     placeholder={
                       reportType === "Bug report" ? "Describe what went wrong..." :
