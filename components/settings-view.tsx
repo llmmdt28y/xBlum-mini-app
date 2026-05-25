@@ -160,20 +160,20 @@ function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string,
     <div
       className="shrink-0 flex items-center justify-center shadow-sm relative z-10"
       style={{
-        width: "30px",
-        height: "30px",
-        borderRadius: "8px",
+        width: "36px",
+        height: "36px",
+        borderRadius: "10px",
         background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
         boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
         color: "white"
       }}
     >
-      <Icon className={`w-[16px] h-[16px] ${spin ? "animate-spin" : ""}`} />
+      <Icon className={`w-[20px] h-[20px] ${spin ? "animate-spin" : ""}`} />
     </div>
   )
 }
 
-// Componente Icon3D completamente redondo para Setup Account
+// Componente Icon3D completamente redondo y plano para Setup Account (replicando la imagen)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: string, bgTo: string }) {
   return (
@@ -183,13 +183,11 @@ function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: strin
         width: "44px",
         height: "44px",
         borderRadius: "50%",
-        background: `linear-gradient(180deg, ${bgFrom} 0%, ${bgTo} 100%)`,
-        boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2), inset 0px 1.5px 1px rgba(255, 255, 255, 0.35), inset 0px -1px 1px rgba(0, 0, 0, 0.15)",
-        border: "4px solid #000",
+        background: bgTo, // Diseño sólido plano para replicar la imagen
         color: "white"
       }}
     >
-      <Icon className="w-[20px] h-[20px]" />
+      <Icon className="w-[24px] h-[24px]" />
     </div>
   )
 }
@@ -197,8 +195,8 @@ function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: strin
 // ── Componente RadioButton para selecciones ──
 function RadioButton({ selected }: { selected: boolean }) {
   return (
-    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
-      {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#60a5fa]" />}
+    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 ${selected ? 'border-[#3b82f6]' : 'border-[#555558]'}`}>
+      {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#3b82f6]" />}
     </div>
   )
 }
@@ -423,8 +421,10 @@ export function SettingsView() {
   const totalFields = 9;
   const filledFields = completionFields.filter(field => field.trim().length > 0).length;
   const completionPct = Math.round((filledFields / totalFields) * 100);
-  const circleOffset = 295 - (295 * completionPct) / 100;
-
+  
+  // Nuevo offset calculado para un radio=46 (Circunferencia = 289)
+  const circleOffset = 289 - (289 * completionPct) / 100;
+  
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
@@ -509,8 +509,7 @@ export function SettingsView() {
               const pct      = tokenInfo?.pct ?? 0
 
               const active =
-                m.name === selectedModel ||
-                (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
+                m.name === selectedModel || (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
 
               const isDisabled = locked || saving === "model" || !!limitHit
 
@@ -821,7 +820,7 @@ export function SettingsView() {
           
           {/* Item: Time zone */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
-             <button 
+            <button 
               onClick={() => setPage("timezone_select")} 
               onPointerDown={createRipple}
               className="relative overflow-hidden w-full flex flex-col px-4 py-3 text-left active:bg-white/5 transition-colors"
@@ -883,7 +882,7 @@ export function SettingsView() {
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-             >
+            >
               <span className="relative z-10">Update</span>
             </button>
         </div>
@@ -950,7 +949,7 @@ export function SettingsView() {
             >
               <span className="relative z-10">Update</span>
             </button>
-         </div>
+        </div>
       </div>
     </div>
   )
@@ -968,16 +967,16 @@ export function SettingsView() {
       <div className="flex flex-col items-center mt-2 mb-6 animate-in fade-in duration-300 ease-in-out relative z-10">
         
         {/* Gráfico circular con la foto de perfil en medio */}
-        <div className="relative w-[130px] h-[130px] flex items-center justify-center rounded-full mb-6 mt-8">
+        <div className="relative w-[160px] h-[160px] flex items-center justify-center rounded-full mb-6 mt-8">
           
           {/* Anillos SVG (Fondo y Progreso) */}
           <svg className="absolute inset-0 w-full h-full transform -rotate-90 z-20 pointer-events-none" viewBox="0 0 100 100">
             {/* Círculo de fondo oscuro */}
-            <circle cx="50" cy="50" r="47" stroke="#1c1c1e" strokeWidth="4" fill="none" />
+            <circle cx="50" cy="50" r="46" stroke="#2c2c2e" strokeWidth="6" fill="none" />
             {/* Círculo de progreso azul dinámico */}
             <circle 
-               cx="50" cy="50" r="47" stroke="#60a5fa" strokeWidth="4" fill="none" 
-               strokeDasharray="295" 
+               cx="50" cy="50" r="46" stroke="#3b82f6" strokeWidth="6" fill="none" 
+               strokeDasharray="289" 
                strokeDashoffset={circleOffset} 
                strokeLinecap="round" 
                style={{ transition: "stroke-dashoffset 0.5s ease-in-out" }}
@@ -986,7 +985,7 @@ export function SettingsView() {
           
           {/* Foto de Perfil o Iniciales */}
           <div className="absolute inset-0 flex items-center justify-center z-10">
-            <div className="w-[104px] h-[104px] rounded-full overflow-hidden bg-gradient-to-br from-[#1e1e1e] to-[#0a0a0a] flex items-center justify-center border-2 border-transparent relative shadow-lg">
+            <div className="w-[124px] h-[124px] rounded-full overflow-hidden bg-gradient-to-br from-[#1e1e1e] to-[#0a0a0a] flex items-center justify-center border-2 border-transparent relative shadow-lg">
               {photoUrl ? (
                 <img 
                   src={photoUrl} 
@@ -997,7 +996,7 @@ export function SettingsView() {
                   onError={() => setPhotoUrl(null)} 
                 />
               ) : (
-                <span className="text-white font-bold select-none pointer-events-none" style={{ fontSize: "36px", letterSpacing: "-0.02em", fontFamily: SFD }}>
+                <span className="text-white font-bold select-none pointer-events-none" style={{ fontSize: "40px", letterSpacing: "-0.02em", fontFamily: SFD }}>
                   {initials || "?"}
                 </span>
               )}
@@ -1005,13 +1004,13 @@ export function SettingsView() {
           </div>
 
           {/* Etiqueta Porcentaje superpuesta */}
-          <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-[#60a5fa] text-white text-[14px] font-bold px-3.5 py-0.5 rounded-full border-[4px] border-black z-30 shadow-sm transition-all" style={{ fontFamily: SF }}>
+          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#3b82f6] text-white text-[15px] font-bold px-4 py-1 rounded-full border-[4px] border-black z-30 shadow-sm transition-all" style={{ fontFamily: SF }}>
             {completionPct}%
           </div>
         </div>
         
         <h1 className="text-[24px] font-bold text-white mb-0.5 mt-2" style={{ fontFamily: SFD }}>Set Up Your Account</h1>
-        <p className="text-[#60a5fa] font-bold text-[22px] mb-1.5" style={{ fontFamily: SF }}>
+        <p className="text-[#3b82f6] font-bold text-[22px] mb-1.5" style={{ fontFamily: SF }}>
           {filledFields < totalFields ? `${totalFields - filledFields} steps left` : "Profile Complete!"}
         </p>
         <p className="text-[#8e8e93] text-[15px]" style={{ fontFamily: SF }}>It will take less than 2 minutes.</p>
@@ -1023,7 +1022,7 @@ export function SettingsView() {
 
            <div className="relative flex flex-col">
               {/* Línea vertical conectora central */}
-              <div className="absolute left-[21px] top-[26px] bottom-[26px] w-[2px] bg-[#111111] z-0" />
+              <div className="absolute left-[21px] top-[26px] bottom-[26px] w-[2px] bg-[#2c2c2e] z-0" />
               
               {/* Step 1: Basic Information */}
               <button 
@@ -1032,7 +1031,7 @@ export function SettingsView() {
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular icon={IoPersonOutline} bgFrom="#4ade80" bgTo="#16a34a" />
+                    <Icon3DCircular icon={IoPersonOutline} bgFrom="#22c55e" bgTo="#22c55e" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
@@ -1047,9 +1046,9 @@ export function SettingsView() {
                 onClick={() => setPage("additional_details")} 
                 onPointerDown={createRipple}
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
-               >
+              >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
+                    <Icon3DCircular icon={IoListOutline} bgFrom="#3b82f6" bgTo="#3b82f6" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
@@ -1070,7 +1069,7 @@ export function SettingsView() {
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular icon={IoSparkles} bgFrom="#c084fc" bgTo="#9333ea" />
+                    <Icon3DCircular icon={IoSparkles} bgFrom="#555558" bgTo="#555558" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Noir Personality</p>
@@ -1197,7 +1196,7 @@ export function SettingsView() {
         {/* ── Support ── */}
         <Section title="Support">
           <Row
-             isLink
+            isLink
             href="https://xblum.gitbook.io/home/xblum/terms"
             leftNode={<Icon3D icon={IoDocumentText} bgFrom="#cbd5e1" bgTo="#64748b" />}
             label="Terms of Use"
@@ -1235,7 +1234,7 @@ export function SettingsView() {
                 style={{ background: "#1c1c1e" }}>
                 <IoClose className="w-5 h-5 text-white relative z-10" />
               </button>
-               <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+              <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Feedback & Support
               </h2>
               {reportSent ? (
@@ -1244,7 +1243,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                   onClick={async () => {
+                    onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -1269,7 +1268,7 @@ export function SettingsView() {
               )}
             </div>
 
-             <div className="p-5 space-y-4 overflow-y-auto flex-1">
+            <div className="p-5 space-y-4 overflow-y-auto flex-1">
               {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
@@ -1285,11 +1284,11 @@ export function SettingsView() {
                 <>
                   <div className="relative">
                     <button
-                       onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
+                      onClick={() => setShowReportTypeDropdown(!showReportTypeDropdown)}
                       onPointerDown={createRipple}
                       className="relative overflow-hidden w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
                       style={{ background: "#1c1c1e" }}>
-                        <IoChatbubble className="w-5 h-5 relative z-10" style={{ color: "#8e8e93" }} />
+                      <IoChatbubble className="w-5 h-5 relative z-10" style={{ color: "#8e8e93" }} />
                       <span className="flex-1 text-left text-white font-medium relative z-10" style={{ fontSize: "15px", fontFamily: SF }}>
                         {reportType}
                       </span>
@@ -1309,12 +1308,12 @@ export function SettingsView() {
                             style={{ fontFamily: SF }}>
                             <span className="relative z-10">{type}</span>
                           </button>
-                         ))}
+                        ))}
                       </div>
                     )}
                   </div>
                   <textarea
-                     value={reportDescription}
+                    value={reportDescription}
                     onChange={e => setReportDescription(e.target.value)}
                     placeholder={
                       reportType === "Bug report" ? "Describe what went wrong..." :
