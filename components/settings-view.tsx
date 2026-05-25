@@ -2,7 +2,7 @@
 
 import { useApp, type ModelName } from "@/lib/app-context"
 import { 
-  ChevronRight, Check, Earth, CircleUserRound, Lock, Database, 
+  ChevronRight, Check, Earth, CircleUserRound, Lock,
   FileText, ShieldCheck, MessageCircle, ChevronDown, X, Trash2, 
   Loader2, Sparkles, UserPen, SmilePlus, WandSparkles
 } from "lucide-react"
@@ -152,22 +152,21 @@ const LANGS = [
 
 // ── Componentes UI para la Vista Principal ──
 
-// Componente de ícono plano con borde squircle y glifo más grande (estilo iOS/Telegram)
+// Componente Squircle reducido (Estilo Lista Nativa 28x28px)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function IconFlat({ icon: Icon, color, spin }: { icon: any, color: string, spin?: boolean }) {
   return (
     <div
       className="shrink-0 flex items-center justify-center relative z-10"
       style={{
-        width: "32px",
-        height: "32px",
-        borderRadius: "8px", // Curvatura squircle exacta para 32px
+        width: "28px",   // Tamaño de contenedor reducido
+        height: "28px",
+        borderRadius: "6.5px", // Proporción exacta iOS (22.5%)
         backgroundColor: color,
         color: "white"
       }}
     >
-      {/* Glifo aumentado a 20x20 para que llene mejor el espacio */}
-      <Icon className={`w-[20px] h-[20px] ${spin ? "animate-spin" : ""}`} strokeWidth={2.2} />
+      <Icon className={`w-[18px] h-[18px] ${spin ? "animate-spin" : ""}`} strokeWidth={2.2} />
     </div>
   )
 }
@@ -181,12 +180,11 @@ function IconCircularLarge({ icon: Icon, color }: { icon: any, color: string }) 
       style={{
         width: "44px",
         height: "44px",
-        borderRadius: "50%", // Circular estricto
+        borderRadius: "50%",
         backgroundColor: color,
         color: "white"
       }}
     >
-      {/* Glifo aumentado a 24x24 */}
       <Icon className="w-[24px] h-[24px]" strokeWidth={2.2} />
     </div>
   )
@@ -274,13 +272,13 @@ function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void;
       onClick={onToggle}
       disabled={disabled}
       className={"relative rounded-full transition-all duration-200 shrink-0 z-10 " + (disabled ? "opacity-50" : "")}
-      style={{ width: "44px", height: "26px", background: on ? "#ffffff" : "#3a3a3c" }}
+      style={{ width: "44px", height: "26px", background: on ? "#34c759" : "#3a3a3c" }}
     >
       <span
         className="absolute top-[2px] rounded-full shadow-sm transition-transform duration-200"
         style={{
           width: "22px", height: "22px",
-          background: on ? "#000000" : "#ffffff",
+          background: "#ffffff",
           left: on ? "20px" : "2px",
         }}
       />
@@ -368,7 +366,7 @@ export function SettingsView() {
     refreshModelTokenStatus,
   } = useApp()
 
-  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality">("main")
+  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities">("main")
   const [tempPrefs, setTempPrefs] = useState(userPreferences)
   const [improveModel, setImproveModel] = useState(false)
   const [saving, setSaving] = useState("")
@@ -378,6 +376,9 @@ export function SettingsView() {
   const [showReportTypeDropdown, setShowReportTypeDropdown] = useState(false)
   const [submittingReport, setSubmittingReport] = useState(false)
   const [reportSent, setReportSent] = useState(false)
+  
+  // Estado local para Tool Access
+  const [toolAccess, setToolAccess] = useState("Auto")
 
   // Estados para el perfil del usuario
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
@@ -1072,6 +1073,73 @@ export function SettingsView() {
     </div>
   )
 
+  // ── Capabilities Sub-page ──────────────────────────────────────────────────
+  if (page === "capabilities") return (
+    <div className="flex-1 flex flex-col animate-in fade-in duration-300 ease-in-out overflow-y-auto scrollbar-native"
+         style={{ background: "#000", minHeight: "100vh" }}>
+      <style>{RIPPLE_STYLE}</style>
+      <SubHeader title="Capabilities" />
+      <div className="px-4 pt-6 pb-28 space-y-6">
+
+        {/* Memory Section */}
+        <Section title="Memory">
+          <div className="flex items-center justify-between px-4 py-3 relative z-10">
+            <div className="flex flex-col flex-1 pr-4">
+              <span className="text-[16px] font-medium text-white leading-tight" style={{ fontFamily: SF }}>Generate memory from chat history</span>
+              <span className="text-[#8e8e93] text-[13px] mt-1.5 leading-snug" style={{ fontFamily: SF }}>
+                Allow xBlum to remember relevant context from your chats. This setting controls memory for both chats and projects.
+              </span>
+            </div>
+            <Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />
+          </div>
+        </Section>
+
+        {/* Tool Access Section */}
+        <Section title="Tool access">
+          {[
+            { id: "Auto", desc: "xBlum chooses for you" },
+            { id: "On demand", desc: "Load when needed. More messages, lower accuracy" },
+            { id: "Always available", desc: "Ready from start. Fewer messages, better accuracy" }
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setToolAccess(t.id)}
+              onPointerDown={createRipple}
+              className="relative overflow-hidden w-full px-4 py-3 flex items-center justify-between active:bg-white/5 transition-colors text-left"
+            >
+              <div className="flex flex-col flex-1 pr-4 relative z-10">
+                <span className={`text-[16px] font-medium leading-tight ${toolAccess === t.id ? "text-[#60a5fa]" : "text-white"}`} style={{ fontFamily: SF }}>{t.id}</span>
+                <span className={`text-[13px] mt-[3px] leading-snug ${toolAccess === t.id ? "text-[#60a5fa]" : "text-[#8e8e93]"}`} style={{ fontFamily: SF }}>{t.desc}</span>
+              </div>
+              <div className="shrink-0 relative z-10 ml-2">
+                <RadioButton selected={toolAccess === t.id} />
+              </div>
+            </button>
+          ))}
+        </Section>
+
+        {/* Danger Zone Section (Movido aquí) */}
+        <Section title="Danger Zone">
+          <Row
+            leftNode={<IconFlat icon={saving === "del_mem" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_mem"} />}
+            label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
+            onClick={handleDeleteMemories}
+            danger
+            hideArrow
+          />
+          <Row
+            leftNode={<IconFlat icon={saving === "del_hist" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_hist"} />}
+            label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
+            onClick={handleDeleteHistory}
+            danger
+            hideArrow
+          />
+        </Section>
+
+      </div>
+    </div>
+  )
+
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
     <div className="flex-1 overflow-y-auto animate-in fade-in duration-300 ease-in-out" style={{ background: "#000" }}>
@@ -1134,48 +1202,25 @@ export function SettingsView() {
             onClick={() => setPage("model")}
           />
           <Row
-            leftNode={<IconFlat icon={Earth} color="#007aff" />}
+            leftNode={<IconFlat icon={Earth} color="#af52de" />}
             label="Language"
             value={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
           />
           <Row
-            leftNode={<IconFlat icon={CircleUserRound} color="#af52de" />}
+            leftNode={<IconFlat icon={CircleUserRound} color="#007aff" />}
             label="Account Setup"
             value="Edit"
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
           />
         </Section>
 
-        {/* ── Data & Privacy ── */}
-        <Section title="Data & Privacy">
-          <Row
-            leftNode={<IconFlat icon={Database} color="#ff9500" />}
-            label="Personalize Memories"
-            rightNode={<Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
-          />
+        {/* ── Capabilities (Reemplaza a Data & Danger Zone) ── */}
+        <Section title="Capabilities">
           <Row
             leftNode={<IconFlat icon={Sparkles} color="#34c759" />}
-            label="Improve Model"
-            rightNode={<Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />}
-          />
-        </Section>
-
-        {/* ── Danger Zone ── */}
-        <Section title="Danger Zone">
-          <Row
-            leftNode={<IconFlat icon={saving === "del_mem" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_mem"} />}
-            label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
-            onClick={handleDeleteMemories}
-            danger
-            hideArrow
-          />
-          <Row
-            leftNode={<IconFlat icon={saving === "del_hist" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_hist"} />}
-            label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
-            onClick={handleDeleteHistory}
-            danger
-            hideArrow
+            label="Memory & Tools"
+            onClick={() => setPage("capabilities")}
           />
         </Section>
 
@@ -1195,7 +1240,7 @@ export function SettingsView() {
           />
           <Row
             onClick={() => setShowReportModal(true)}
-            leftNode={<IconFlat icon={MessageCircle} color="#8e8e93" />}
+            leftNode={<IconFlat icon={MessageCircle} color="#ff9500" />}
             label="Feedback & Support"
           />
         </Section>
