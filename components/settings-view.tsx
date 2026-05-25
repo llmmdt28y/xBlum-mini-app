@@ -4,7 +4,7 @@ import { useApp, type ModelName } from "@/lib/app-context"
 import { 
   ChevronRight, Check, Earth, CircleUserRound, Lock,
   FileText, ShieldCheck, MessageCircle, ChevronDown, X, Trash2, 
-  Loader2, Sparkles, UserPen, SmilePlus, WandSparkles
+  Loader2, Sparkles, UserPen, SmilePlus, WandSparkles, Settings2
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import React from "react"
@@ -159,9 +159,9 @@ function IconFlat({ icon: Icon, color, spin }: { icon: any, color: string, spin?
     <div
       className="shrink-0 flex items-center justify-center relative z-10"
       style={{
-        width: "28px",   // Tamaño de contenedor reducido
+        width: "28px",   
         height: "28px",
-        borderRadius: "6.5px", // Proporción exacta iOS (22.5%)
+        borderRadius: "6.5px", // Proporción exacta iOS
         backgroundColor: color,
         color: "white"
       }}
@@ -462,7 +462,7 @@ export function SettingsView() {
   async function handleDeleteMemories() {
     if (!window.Telegram?.WebApp) return
     window.Telegram.WebApp.showConfirm(
-      "Delete all memories?\nxBlum will forget everything about you.",
+      "Delete all memories?\nNoir will forget everything about you.",
       async (ok: boolean) => {
         if (!ok) return
         setSaving("del_mem")
@@ -1087,7 +1087,7 @@ export function SettingsView() {
             <div className="flex flex-col flex-1 pr-4">
               <span className="text-[16px] font-medium text-white leading-tight" style={{ fontFamily: SF }}>Generate memory from chat history</span>
               <span className="text-[#8e8e93] text-[13px] mt-1.5 leading-snug" style={{ fontFamily: SF }}>
-                Allow xBlum to remember relevant context from your chats. This setting controls memory for both chats and projects.
+                Allow Noir to remember relevant context from your chats. This setting controls memory for both chats and projects.
               </span>
             </div>
             <Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />
@@ -1097,7 +1097,7 @@ export function SettingsView() {
         {/* Tool Access Section */}
         <Section title="Tool access">
           {[
-            { id: "Auto", desc: "xBlum chooses for you" },
+            { id: "Auto", desc: "Noir chooses for you" },
             { id: "On demand", desc: "Load when needed. More messages, lower accuracy" },
             { id: "Always available", desc: "Ready from start. Fewer messages, better accuracy" }
           ].map((t) => (
@@ -1118,7 +1118,7 @@ export function SettingsView() {
           ))}
         </Section>
 
-        {/* Danger Zone Section (Movido aquí) */}
+        {/* Danger Zone Section */}
         <Section title="Danger Zone">
           <Row
             leftNode={<IconFlat icon={saving === "del_mem" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_mem"} />}
@@ -1155,7 +1155,7 @@ export function SettingsView() {
 
       <div className="px-4 pt-4 pb-28 space-y-6">
 
-        {/* ── xBlum Pro card ── */}
+        {/* ── Noir Pro card ── */}
         {!isPremium && (
           <button
             onClick={() => setCurrentView("premium")}
@@ -1176,7 +1176,7 @@ export function SettingsView() {
             <div className="relative z-10 px-5 py-5 flex flex-col gap-2">
                <div className="flex items-center gap-2">
                 <p className="text-white font-bold text-[18px] leading-tight"
-                   style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>xBlum Pro</p>
+                   style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>Noir Pro</p>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold text-amber-500"
                    style={{ background: "rgba(245,158,11,0.15)", fontFamily: SF }}>PRO</span>
               </div>
@@ -1215,11 +1215,11 @@ export function SettingsView() {
           />
         </Section>
 
-        {/* ── Capabilities (Reemplaza a Data & Danger Zone) ── */}
-        <Section title="Capabilities">
+        {/* ── Tools ── */}
+        <Section title="Tools">
           <Row
-            leftNode={<IconFlat icon={Sparkles} color="#34c759" />}
-            label="Memory & Tools"
+            leftNode={<IconFlat icon={Settings2} color="#8e8e93" />}
+            label="Capabilities"
             onClick={() => setPage("capabilities")}
           />
         </Section>
@@ -1355,7 +1355,7 @@ export function SettingsView() {
                     onBlur={e => (e.target.style.borderColor = "transparent")}
                   />
                   <p className="text-center px-4" style={{ fontSize: "12px", color: "#636366", fontFamily: SF }}>
-                    Feedback is sent directly to the xBlum team.
+                    Feedback is sent directly to the Noir team.
                   </p>
                 </>
               )}
