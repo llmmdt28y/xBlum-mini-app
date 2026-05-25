@@ -2,10 +2,12 @@
 
 import { useApp, type ModelName } from "@/lib/app-context"
 import { 
-  IoChevronForward, IoCheckmark, IoLockClosed,
-  IoChevronDown, IoClose, IoSync,
+  IoChevronForward, IoCheckmark, IoGlobe, IoColorWand, IoPerson, 
+  IoLockClosed, IoServer, IoDocumentText, IoShieldCheckmark, 
+  IoChatbubble, IoChevronDown, IoClose, IoTrash, IoSync, IoSparkles,
+  IoWalletOutline, IoCall, IoPersonOutline, IoLockClosedOutline,
+  IoListOutline
 } from "react-icons/io5"
-import { TgIcon } from "@/components/ui/tg-icon"
 import { useState, useEffect } from "react"
 import React from "react"
 
@@ -173,7 +175,7 @@ const LANGS = [
 // ── Componentes UI para la Vista Principal ──
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Icon3D({ icon: Icon, bgFrom, bgTo, spin, tgIcon }: { icon?: any, bgFrom: string, bgTo: string, spin?: boolean, tgIcon?: string }) {
+function Icon3D({ icon: Icon, bgFrom, bgTo, spin }: { icon: any, bgFrom: string, bgTo: string, spin?: boolean }) {
   return (
     <div
       className="shrink-0 flex items-center justify-center shadow-sm relative z-10"
@@ -186,17 +188,14 @@ function Icon3D({ icon: Icon, bgFrom, bgTo, spin, tgIcon }: { icon?: any, bgFrom
         color: "white"
       }}
     >
-      {tgIcon ? (
-        <TgIcon name={tgIcon} size={16} animate={spin} loop={spin} style={{ filter: "brightness(0) invert(1)" }} />
-      ) : Icon ? (
-        <Icon className={`w-[16px] h-[16px] ${spin ? "animate-spin" : ""}`} />
-      ) : null}
+      <Icon className={`w-[16px] h-[16px] ${spin ? "animate-spin" : ""}`} />
     </div>
   )
 }
 
+// Componente Icon3D completamente redondo para Setup Account
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Icon3DCircular({ icon: Icon, bgFrom, bgTo, tgIcon }: { icon?: any, bgFrom: string, bgTo: string, tgIcon?: string }) {
+function Icon3DCircular({ icon: Icon, bgFrom, bgTo }: { icon: any, bgFrom: string, bgTo: string }) {
   return (
     <div
       className="shrink-0 flex items-center justify-center relative z-10"
@@ -210,11 +209,7 @@ function Icon3DCircular({ icon: Icon, bgFrom, bgTo, tgIcon }: { icon?: any, bgFr
         color: "white"
       }}
     >
-      {tgIcon ? (
-        <TgIcon name={tgIcon} size={20} style={{ filter: "brightness(0) invert(1)" }} />
-      ) : Icon ? (
-        <Icon className="w-[20px] h-[20px]" />
-      ) : null}
+      <Icon className="w-[20px] h-[20px]" />
     </div>
   )
 }
@@ -1052,7 +1047,7 @@ export function SettingsView() {
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular tgIcon="person_outline" bgFrom="#4ade80" bgTo="#16a34a" />
+                    <Icon3DCircular icon={IoPersonOutline} bgFrom="#4ade80" bgTo="#16a34a" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Basic Information</p>
@@ -1069,7 +1064,7 @@ export function SettingsView() {
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular tgIcon="list_text" bgFrom="#60a5fa" bgTo="#2563eb" />
+                    <Icon3DCircular icon={IoListOutline} bgFrom="#60a5fa" bgTo="#2563eb" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Additional Details</p>
@@ -1090,7 +1085,7 @@ export function SettingsView() {
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
               >
                  <div className="py-2.5 flex items-center shrink-0">
-                    <Icon3DCircular tgIcon="star_sparkle" bgFrom="#c084fc" bgTo="#9333ea" />
+                    <Icon3DCircular icon={IoSparkles} bgFrom="#c084fc" bgTo="#9333ea" />
                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Noir Personality</p>
@@ -1159,19 +1154,19 @@ export function SettingsView() {
         {/* ── Profile ── */}
         <Section title="Profile">
           <Row
-            leftNode={<Icon3D tgIcon="palette" bgFrom="#f9a8d4" bgTo="#ec4899" />}
+            leftNode={<Icon3D icon={IoColorWand} bgFrom="#f9a8d4" bgTo="#ec4899" />}
             label="LLM Model"
             value={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
           />
           <Row
-            leftNode={<Icon3D tgIcon="globe" bgFrom="#d8b4fe" bgTo="#a855f7" />}
+            leftNode={<Icon3D icon={IoGlobe} bgFrom="#d8b4fe" bgTo="#a855f7" />}
             label="Language"
             value={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
           />
           <Row
-            leftNode={<Icon3D tgIcon="person" bgFrom="#93c5fd" bgTo="#3b82f6" />}
+            leftNode={<Icon3D icon={IoPerson} bgFrom="#93c5fd" bgTo="#3b82f6" />}
             label="Account Setup"
             value="Edit"
             onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
@@ -1181,12 +1176,12 @@ export function SettingsView() {
         {/* ── Data & Privacy ── */}
         <Section title="Data & Privacy">
           <Row
-            leftNode={<Icon3D tgIcon="database_stack" bgFrom="#fcd34d" bgTo="#f59e0b" />}
+            leftNode={<Icon3D icon={IoServer} bgFrom="#fcd34d" bgTo="#f59e0b" />}
             label="Personalize Memories"
             rightNode={<Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
           />
           <Row
-            leftNode={<Icon3D tgIcon="star_sparkle" bgFrom="#6ee7b7" bgTo="#10b981" />}
+            leftNode={<Icon3D icon={IoSparkles} bgFrom="#6ee7b7" bgTo="#10b981" />}
             label="Improve Model"
             rightNode={<Toggle on={improveModel} onToggle={() => setImproveModel(v => !v)} />}
           />
@@ -1196,8 +1191,8 @@ export function SettingsView() {
         <Section title="Danger Zone">
           <Row
             leftNode={saving === "del_mem"
-              ? <Icon3D tgIcon="refresh" bgFrom="#fca5a5" bgTo="#ef4444" spin />
-              : <Icon3D tgIcon="trash_bin" bgFrom="#fca5a5" bgTo="#ef4444" />}
+              ? <Icon3D icon={IoSync} bgFrom="#fca5a5" bgTo="#ef4444" spin />
+              : <Icon3D icon={IoTrash} bgFrom="#fca5a5" bgTo="#ef4444" />}
             label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
             onClick={handleDeleteMemories}
             danger
@@ -1205,8 +1200,8 @@ export function SettingsView() {
           />
           <Row
             leftNode={saving === "del_hist"
-              ? <Icon3D tgIcon="refresh" bgFrom="#fca5a5" bgTo="#ef4444" spin />
-              : <Icon3D tgIcon="trash_bin" bgFrom="#fca5a5" bgTo="#ef4444" />}
+              ? <Icon3D icon={IoSync} bgFrom="#fca5a5" bgTo="#ef4444" spin />
+              : <Icon3D icon={IoTrash} bgFrom="#fca5a5" bgTo="#ef4444" />}
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
@@ -1219,18 +1214,18 @@ export function SettingsView() {
           <Row
             isLink
             href="https://xblum.gitbook.io/home/xblum/terms"
-            leftNode={<Icon3D tgIcon="document_list" bgFrom="#cbd5e1" bgTo="#64748b" />}
+            leftNode={<Icon3D icon={IoDocumentText} bgFrom="#cbd5e1" bgTo="#64748b" />}
             label="Terms of Use"
           />
           <Row
             isLink
             href="https://xblum.gitbook.io/home/xblum/privacy"
-            leftNode={<Icon3D tgIcon="shield_check" bgFrom="#cbd5e1" bgTo="#64748b" />}
+            leftNode={<Icon3D icon={IoShieldCheckmark} bgFrom="#cbd5e1" bgTo="#64748b" />}
             label="Privacy Policy"
           />
           <Row
             onClick={() => setShowReportModal(true)}
-            leftNode={<Icon3D tgIcon="chat_bubble" bgFrom="#c4b5fd" bgTo="#8b5cf6" />}
+            leftNode={<Icon3D icon={IoChatbubble} bgFrom="#c4b5fd" bgTo="#8b5cf6" />}
             label="Feedback & Support"
           />
         </Section>
@@ -1309,7 +1304,7 @@ export function SettingsView() {
                       onPointerDown={createRipple}
                       className="relative overflow-hidden w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
                       style={{ background: "#1c1c1e" }}>
-                      <TgIcon name="chat_bubble" size={20} style={{ color: "#8e8e93", opacity: 0.7 }} className="relative z-10 shrink-0" />
+                      <IoChatbubble className="w-5 h-5 relative z-10" style={{ color: "#8e8e93" }} />
                       <span className="flex-1 text-left text-white font-medium relative z-10" style={{ fontSize: "15px", fontFamily: SF }}>
                         {reportType}
                       </span>
