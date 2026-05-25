@@ -397,10 +397,13 @@ export function SettingsView() {
   const [favoriteEmojiField, setFavoriteEmojiField] = useState("")
   const [personalityField, setPersonalityField] = useState("")
 
-  const legacyModels = ["Grok 4.1", "Grok 4", "GPT-5.4", "GPT-5.2"];
+  const legacyModels = ["Grok 4", "GPT-5.4", "GPT-5.2"];
+  const legacyGrokModels = ["Grok 4.1"];
   const currentModelInfo = MODELS.find(m => m.name === selectedModel)
-  const displayModelName = legacyModels.includes(selectedModel) 
-    ? "Gemini 3.5 Flash" 
+  const displayModelName = legacyGrokModels.includes(selectedModel)
+    ? "Grok 4.3"
+    : legacyModels.includes(selectedModel)
+    ? "Gemini 3.5 Flash"
     : selectedModel
 
   // Extraer información del usuario de Telegram
@@ -509,7 +512,8 @@ export function SettingsView() {
 
               const active =
                 m.name === selectedModel ||
-                (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
+                (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel)) ||
+                (m.name === "Grok 4.3" && legacyGrokModels.includes(selectedModel))
 
               const isDisabled = locked || saving === "model" || !!limitHit
 
