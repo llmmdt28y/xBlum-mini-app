@@ -139,7 +139,7 @@ const CONNECTORS_DB = [
 function getTg() { return (window as any).Telegram?.WebApp }
 
 export function HomeView() {
-  const { setCurrentView, selectedModel } = useApp()
+  const { setCurrentView } = useApp()
   const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false)
   const [isBotIntModalOpen, setIsBotIntModalOpen] = useState(false)
   const [botIntConfig, setBotIntConfig] = useState({ enabled: true, moderation_react: true, auto_execute_mod: false, file_summarize: true })
@@ -165,12 +165,6 @@ export function HomeView() {
   const filteredConnectors = CONNECTORS_DB.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
-  // Lógica para mostrar el nombre correcto del modelo
-  const legacyModels = ["Grok 4.1", "Grok 4", "GPT-5.4", "GPT-5.2"];
-  const displayModelName = (selectedModel && legacyModels.includes(selectedModel))
-    ? "Gemini 3.5 Flash"
-    : selectedModel || "Grok 4.3"
-
   return (
     <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-28">
       
@@ -194,74 +188,41 @@ export function HomeView() {
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
         
-        {/* Contenedor Fila Superior (Complete Account + Stacked Right Pills) */}
-        <div className="w-full flex items-center justify-between gap-3 relative">
-          
-          {/* Píldora de Complete Account (Izquierda) */}
+        {/* Contenedor Fila Superior (Solo Complete Account a todo el ancho) */}
+        <div className="w-full relative">
           <button 
-            onClick={() => setCurrentView("settings")}
-            className="flex-1 flex items-center gap-2.5 rounded-full p-2 pr-3 active:scale-95 transition-transform overflow-hidden" 
+            onClick={() => setCurrentView("account_setup")}
+            className="w-full flex items-center gap-3 rounded-full p-2.5 pr-4 active:scale-95 transition-transform overflow-hidden shadow-lg" 
             style={{ 
               background: "#0c1524" // Azul marino oscuro
             }}
           >
             {/* Anillo de Progreso */}
-            <div className="relative flex items-center justify-center w-[36px] h-[36px] shrink-0">
+            <div className="relative flex items-center justify-center w-[40px] h-[40px] shrink-0">
               <svg className="w-full h-full rotate-180 transform absolute inset-0">
                 <circle 
-                  cx="18" 
-                  cy="18" 
-                  r="15" 
+                  cx="20" 
+                  cy="20" 
+                  r="17" 
                   stroke="#38bdf8" 
                   strokeWidth="3.5" 
                   fill="none" 
-                  strokeDasharray="94.24" 
-                  strokeDashoffset="62.83" /* Calculado para el 33.3% (1/3) de 94.24 */
+                  strokeDasharray="106.81" 
+                  strokeDashoffset="71.21" 
                   strokeLinecap="round" 
                 />
               </svg>
-              <span className="text-[11px] font-semibold text-[#8e8e93]">1/3</span>
+              <span className="text-[12px] font-semibold text-[#8e8e93]">1/3</span>
             </div>
             
-            {/* Textos - Con whitespace-nowrap y truncate para forzar una línea */}
+            {/* Textos */}
             <div className="flex flex-col items-start leading-tight flex-1 min-w-0 pr-1">
-              <span className="text-white text-[14px] font-semibold mb-0.5 whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SFD }}>Complete account</span>
-              <span className="text-[#8e8e93] text-[12px] font-medium whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SF }}>It will take 2 minutes</span>
+              <span className="text-white text-[15px] font-semibold mb-0.5 whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SFD }}>Complete account</span>
+              <span className="text-[#8e8e93] text-[13px] font-medium whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SF }}>It will take 2 minutes</span>
             </div>
             
-            <ChevronRight className="w-4 h-4 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
+            <ChevronRight className="w-5 h-5 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
           </button>
-
-          {/* Bloque Derecho: 2 Píldoras apiladas verticalmente */}
-          <div className="flex flex-col gap-1.5 items-end shrink-0 relative">
-            
-            {/* Píldora Modelo - Ahora redirige a Settings */}
-            <button 
-              onClick={() => setCurrentView("settings")}
-              className="flex items-center justify-between gap-2 rounded-full px-3 py-1 active:scale-95 transition-all text-[12px] h-[28px] w-[135px]"
-              style={{ 
-                ...cardLiquidGlassStyle,
-                background: "rgba(0, 0, 0, 0.85)",
-                fontFamily: SF 
-              }}
-            >
-              <span className="text-[#8e8e93] font-medium">Model</span>
-              <div className="flex items-center gap-1">
-                <span className="text-white font-bold truncate max-w-[60px]">{displayModelName}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-[#8e8e93] shrink-0" />
-              </div>
-            </button>
-
-            {/* Píldora Inferior: Vacía */}
-            <div 
-              className="rounded-full w-[135px] h-[28px]" 
-              style={{ 
-                ...cardLiquidGlassStyle,
-                background: "rgba(0, 0, 0, 0.85)"
-              }}
-            />
-          </div>
-
         </div>
 
         {/* Tarjeta Schedules */}
