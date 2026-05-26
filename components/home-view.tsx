@@ -210,11 +210,11 @@ export function HomeView() {
       <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
         
         {/* Contenedor Fila Superior (Complete Account + Stacked Right Pills) */}
-        <div className="w-full flex items-center justify-between gap-2 relative">
+        <div className="w-full flex items-center justify-between gap-3 relative">
           
           {/* Píldora de Complete Account (Izquierda) */}
           <button 
-            className="flex items-center gap-3 rounded-full px-2 py-2 pr-4 active:scale-95 transition-transform" 
+            className="flex-1 flex items-center gap-2.5 rounded-full p-2 pr-3 active:scale-95 transition-transform overflow-hidden" 
             style={{ 
               background: "#0c1524" // Azul marino oscuro
             }}
@@ -237,13 +237,13 @@ export function HomeView() {
               <span className="text-[11px] font-semibold text-[#8e8e93]">1/4</span>
             </div>
             
-            {/* Textos */}
-            <div className="flex flex-col items-start leading-tight pr-1">
-              <span className="text-white text-[15px] font-semibold mb-0.5" style={{ fontFamily: SFD }}>Complete account</span>
-              <span className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>It will take 2 minutes</span>
+            {/* Textos - Con whitespace-nowrap y truncate para forzar una línea */}
+            <div className="flex flex-col items-start leading-tight flex-1 min-w-0 pr-1">
+              <span className="text-white text-[14px] font-semibold mb-0.5 whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SFD }}>Complete account</span>
+              <span className="text-[#8e8e93] text-[12px] font-medium whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SF }}>It will take 2 minutes</span>
             </div>
             
-            <ChevronRight className="w-4 h-4 text-[#38bdf8] ml-1" strokeWidth={2.5} />
+            <ChevronRight className="w-4 h-4 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
           </button>
 
           {/* Bloque Derecho: 2 Píldoras apiladas verticalmente */}
@@ -253,7 +253,7 @@ export function HomeView() {
             <div className="relative" ref={modelDropdownRef}>
               <button 
                 onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                className="flex items-center justify-between gap-2 rounded-full px-3 py-1 active:scale-95 transition-all text-[12px] h-[28px] w-[160px]"
+                className="flex items-center justify-between gap-2 rounded-full px-3 py-1 active:scale-95 transition-all text-[12px] h-[28px] w-[135px]"
                 style={{ 
                   ...cardLiquidGlassStyle,
                   background: "rgba(0, 0, 0, 0.85)",
@@ -262,15 +262,15 @@ export function HomeView() {
               >
                 <span className="text-[#8e8e93] font-medium">Model</span>
                 <div className="flex items-center gap-1">
-                  <span className="text-white font-bold">Grok 4.3</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-200 ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
+                  <span className="text-white font-bold truncate max-w-[60px]">Grok 4.3</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-200 shrink-0 ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
                 </div>
               </button>
 
-              {/* Contenedor desplegable de Modelos posicionado desde la píldora */}
+              {/* Contenedor desplegable de Modelos */}
               {isModelDropdownOpen && (
                 <div 
-                  className="absolute top-[34px] right-0 z-50 w-[160px] rounded-xl p-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150 border border-white/10 shadow-2xl origin-top-right"
+                  className="absolute top-[34px] right-0 z-50 w-[140px] rounded-xl p-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150 border border-white/10 shadow-2xl origin-top-right"
                   style={{ ...cardLiquidGlassStyle, background: "rgba(15, 15, 16, 0.95)" }}
                 >
                   <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-semibold text-white bg-white/5 transition-colors">
@@ -288,7 +288,7 @@ export function HomeView() {
 
             {/* Píldora Inferior: Vacía */}
             <div 
-              className="rounded-full w-[160px] h-[28px]" 
+              className="rounded-full w-[135px] h-[28px]" 
               style={{ 
                 ...cardLiquidGlassStyle,
                 background: "rgba(0, 0, 0, 0.85)"
@@ -298,7 +298,7 @@ export function HomeView() {
 
         </div>
 
-        {/* Tarjeta Schedules - RECORTADA */}
+        {/* Tarjeta Schedules */}
         <div className="bg-[#111111] rounded-[24px] p-4 border border-white/5 shadow-lg relative">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -320,16 +320,16 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* PUNTOS INDICADORES DE PÁGINA - FUERA, MÁS ARRIBA Y TIPO CÁPSULA */}
+        {/* PUNTOS INDICADORES DE PÁGINA */}
         <div className="flex justify-center items-center gap-1.5 mt-0 mb-4">
-          <div className="w-4 h-1.5 rounded-full bg-[#3b82f6]" /> {/* Cápsula activa azul */}
-          <div className="w-1.5 h-1.5 rounded-full bg-[#333]" /> {/* Punto inactivo */}
+          <div className="w-4 h-1.5 rounded-full bg-[#3b82f6]" /> 
+          <div className="w-1.5 h-1.5 rounded-full bg-[#333]" /> 
         </div>
 
-        {/* Carrusel Horizontal - Con min-w-[80%] para Connectors más cortos */}
+        {/* Carrusel Horizontal */}
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
           
-          {/* Connectors Card (Más corto horizontalmente) */}
+          {/* Connectors Card */}
           <div className="min-w-[80%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
             <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>Connectors</h2>
             <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
@@ -338,13 +338,11 @@ export function HomeView() {
               {CONNECTORS_DB.slice(0, 3).map((c) => (
                 <div key={c.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
                   <div className="flex items-center gap-3">
-                    {/* Contenedor cuadrado con bordes redondeados para el icono */}
                     <div className="w-9 h-9 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0 border border-white/5">
                       <img src={c.src} alt={c.name} className="w-5 h-5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                     </div>
                     <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
                   </div>
-                  {/* Botón View cambiado a Blanco con texto negro */}
                   <button 
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
                     className="px-3.5 py-1.5 rounded-[14px] bg-white text-black text-[12px] font-bold hover:bg-neutral-200 transition-colors" style={{ fontFamily: SF }}
@@ -355,7 +353,6 @@ export function HomeView() {
               ))}
             </div>
 
-            {/* Botón Add connection modificado a texto blanco e icono blanco */}
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
               className="mt-3 w-full py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#202022] transition-colors" style={{ fontFamily: SF }}
