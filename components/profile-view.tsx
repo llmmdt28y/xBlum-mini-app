@@ -41,7 +41,7 @@ export function ProfileView() {
   const [displayName, setDisplayName] = useState("")
   const [username, setUsername] = useState("")
   
-  // Estado para la navegación del nuevo diseño
+  // Estado para la navegación
   const [activeTab, setActiveTab] = useState("Collected")
 
   // Obtener datos del usuario de Telegram
@@ -81,18 +81,18 @@ export function ProfileView() {
 
       <div className="px-4 pb-32 relative z-10">
 
-        {/* HEADER: BOTÓN SETTINGS (Se eliminaron las 3 rayas) */}
-        <div className="absolute right-4 top-2 z-30 flex items-center">
+        {/* HEADER: BOTÓN SETTINGS (Movido hacia abajo, fondo negro y borde sutil) */}
+        <div className="absolute right-4 top-8 z-30 flex items-center">
           <button 
             onClick={() => setCurrentView("settings")} 
-            className="w-[34px] h-[34px] flex items-center justify-center rounded-full bg-transparent border border-white/10 active:bg-white/10 transition-colors"
+            className="w-[38px] h-[38px] flex items-center justify-center rounded-full bg-[#000000] border border-white/20 shadow-md active:bg-white/10 transition-colors"
           >
-            <Settings className="w-5 h-5 text-white" />
+            <Settings className="w-[18px] h-[18px] text-white" />
           </button>
         </div>
 
         {/* SECCIÓN DE PERFIL */}
-        <div className="flex flex-col items-center pt-8">
+        <div className="flex flex-col items-center pt-10">
           <div className="w-[90px] h-[90px] rounded-full overflow-hidden bg-[#1c1c1e] flex items-center justify-center mb-3">
             {photoUrl ? (
               <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" />
@@ -107,7 +107,6 @@ export function ProfileView() {
             <h1 className="text-[22px] font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>
               {displayName || "awesome"}
             </h1>
-            {/* Icono de insignia/plus junto al nombre */}
             <Sparkles className="w-[18px] h-[18px] text-[#60a5fa] fill-[#60a5fa]" />
           </div>
           
@@ -116,26 +115,34 @@ export function ProfileView() {
           </p>
         </div>
 
-        {/* FILA DE BOTONES DE ACCIÓN */}
-        <div className="flex items-center justify-center gap-2 mt-6 overflow-x-auto scrollbar-hide w-full px-2">
-          <button className="flex items-center gap-1.5 bg-[#2b63eb] text-white px-5 py-2.5 rounded-full font-semibold text-[14px] active:opacity-80 transition-opacity whitespace-nowrap" style={{ fontFamily: SF }}>
-            <Gift className="w-[18px] h-[18px]" />
+        {/* FILA DE BOTONES DE ACCIÓN (Centrados, compactos, fusionando lápiz y Add Links) */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-5 w-full">
+          
+          <button className="flex items-center justify-center gap-1.5 bg-[#2b63eb] text-white px-3.5 h-[36px] rounded-full font-semibold text-[13px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
+            <Gift className="w-[15px] h-[15px]" />
             Add Gift
           </button>
           
-          <button className="flex items-center gap-1.5 bg-[#1c1c1e] text-white px-5 py-2.5 rounded-full font-semibold text-[14px] active:opacity-80 transition-opacity whitespace-nowrap" style={{ fontFamily: SF }}>
-            <Info className="w-[18px] h-[18px]" />
+          <button className="flex items-center justify-center gap-1.5 bg-[#1c1c1e] text-white px-3.5 h-[36px] rounded-full font-semibold text-[13px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
+            <Info className="w-[15px] h-[15px]" />
             Info
           </button>
           
-          <button className="flex items-center justify-center bg-[#1c1c1e] text-white w-[42px] h-[42px] rounded-full shrink-0 active:opacity-80 transition-opacity">
-            <PenLine className="w-[18px] h-[18px]" />
-          </button>
+          {/* Píldora unificada para Lápiz y Add Links con línea sutil divisoria */}
+          <div className="flex items-center bg-[#1c1c1e] rounded-full h-[36px] overflow-hidden">
+            <button className="flex items-center justify-center w-[38px] h-full active:bg-white/10 transition-colors">
+              <PenLine className="w-[15px] h-[15px] text-white" />
+            </button>
+            
+            {/* Línea sutil en gris */}
+            <div className="w-[1px] h-[18px] bg-[#3a3a3c]" />
+            
+            <button className="flex items-center justify-center gap-1.5 px-3 h-full active:bg-white/10 transition-colors" style={{ fontFamily: SF }}>
+              <PlusCircle className="w-[15px] h-[15px] text-white" />
+              <span className="font-semibold text-[13px] text-white">Add Links</span>
+            </button>
+          </div>
           
-          <button className="flex items-center gap-1.5 bg-[#1c1c1e] text-white px-5 py-2.5 rounded-full font-semibold text-[14px] active:opacity-80 transition-opacity whitespace-nowrap" style={{ fontFamily: SF }}>
-            <PlusCircle className="w-[18px] h-[18px]" />
-            Add Links
-          </button>
         </div>
 
         {/* NAVEGACIÓN (TABS) */}
@@ -203,7 +210,6 @@ export function ProfileView() {
         {/* ESTADO VACÍO (EMPTY STATE) */}
         <div className="flex flex-col items-center justify-center text-center mt-12 px-6">
           <div className="w-[160px] h-[160px] relative mb-6">
-            {/* NOTA: Reemplaza "tu-imagen-aqui.png" con la ruta de tu asset real (el fantasmita) */}
             <img 
               src="/tu-imagen-aqui.png" 
               alt="Empty NFTs" 
