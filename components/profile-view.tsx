@@ -33,6 +33,21 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
+// ── ESTILOS DE BRILLO / GLASSMORPHISM (Inspirados en la NavBar de page.tsx) ──
+const darkGlowStyle = {
+  backgroundColor: "#000000",
+  border: "1px solid rgba(255, 255, 255, 0.12)",
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
+  transform: "translateZ(0)",
+}
+
+const blueGlowStyle = {
+  backgroundColor: "#2b63eb",
+  border: "1px solid rgba(255, 255, 255, 0.15)",
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.3)",
+  transform: "translateZ(0)",
+}
+
 export function ProfileView() {
   const ctx = useApp() as any
   const { setCurrentView } = ctx
@@ -81,11 +96,12 @@ export function ProfileView() {
 
       <div className="px-4 pb-32 relative z-10">
 
-        {/* HEADER: BOTÓN SETTINGS */}
+        {/* HEADER: BOTÓN SETTINGS (Con estilo de borde iluminado) */}
         <div className="absolute right-4 top-8 z-30 flex items-center">
           <button 
             onClick={() => setCurrentView("settings")} 
-            className="w-[56px] h-[34px] flex items-center justify-center rounded-full bg-[#000000] border border-white/20 shadow-md active:bg-white/10 transition-colors"
+            className="w-[56px] h-[34px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
+            style={darkGlowStyle}
           >
             <Settings className="w-[18px] h-[18px] text-white" />
           </button>
@@ -93,7 +109,7 @@ export function ProfileView() {
 
         {/* SECCIÓN DE PERFIL */}
         <div className="flex flex-col items-center pt-10">
-          <div className="w-[90px] h-[90px] rounded-full overflow-hidden bg-[#1c1c1e] flex items-center justify-center mb-3">
+          <div className="w-[90px] h-[90px] rounded-full overflow-hidden bg-[#1c1c1e] flex items-center justify-center mb-3 border border-white/5 shadow-inner">
             {photoUrl ? (
               <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" />
             ) : (
@@ -115,28 +131,40 @@ export function ProfileView() {
           </p>
         </div>
 
-        {/* FILA DE BOTONES DE ACCIÓN (Ajuste fino: más oscuros, con borde, texto más grande y píldoras compactas) */}
+        {/* FILA DE BOTONES DE ACCIÓN (Todas las píldoras unificadas en tamaño, con brillo en los bordes) */}
         <div className="flex flex-wrap items-center justify-center mt-6 w-full">
           <div className="flex items-center justify-center gap-[6px]">
             
-            <button className="flex items-center justify-center gap-1.5 bg-[#2b63eb] text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" style={{ fontFamily: SF }}>
+            <button 
+              className="flex items-center justify-center gap-1.5 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" 
+              style={{ ...blueGlowStyle, fontFamily: SF }}
+            >
               <Gift className="w-[16px] h-[16px]" strokeWidth={2} />
               Add Gift
             </button>
             
-            <button className="flex items-center justify-center gap-1.5 bg-[#000000] border border-white/10 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" style={{ fontFamily: SF }}>
+            <button 
+              className="flex items-center justify-center gap-1.5 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" 
+              style={{ ...darkGlowStyle, fontFamily: SF }}
+            >
               <Info className="w-[16px] h-[16px]" strokeWidth={2} />
               Info
             </button>
             
-            <button className="flex items-center justify-center w-[34px] h-[34px] bg-[#000000] border border-white/10 rounded-full shrink-0 active:scale-95 transition-all">
+            <button 
+              className="flex items-center justify-center w-[34px] h-[34px] rounded-full shrink-0 active:scale-95 transition-all"
+              style={darkGlowStyle}
+            >
               <PenLine className="w-[15px] h-[15px] text-white" strokeWidth={2} />
             </button>
             
             {/* Línea divisoria flotante en el espacio */}
             <div className="w-[1px] h-[14px] bg-[#48484a] shrink-0 mx-0.5" />
             
-            <button className="flex items-center justify-center gap-1.5 bg-[#000000] border border-white/10 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" style={{ fontFamily: SF }}>
+            <button 
+              className="flex items-center justify-center gap-1.5 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" 
+              style={{ ...darkGlowStyle, fontFamily: SF }}
+            >
               <PlusCircle className="w-[16px] h-[16px]" strokeWidth={2} />
               Add Links
             </button>
@@ -230,7 +258,7 @@ export function ProfileView() {
             After minting or buying, your NFTs will be displayed in this section and visible to other users.
           </p>
 
-          <button className="bg-[#2b63eb] text-white px-8 py-2.5 rounded-xl font-semibold text-[15px] active:scale-95 transition-transform" style={{ fontFamily: SF }}>
+          <button className="text-white px-8 py-2.5 rounded-xl font-semibold text-[15px] active:scale-95 transition-transform" style={{ ...blueGlowStyle, fontFamily: SF }}>
             Add NFT
           </button>
         </div>
