@@ -7,19 +7,31 @@ import {
 
 // Se ha simplificado para dejar solo inglés
 export type Language  = "en"
-export type ModelName = "Grok 4.3" | "Grok 4.1" | "GPT-5.4" | "GPT-5.2"
+export type ModelName = "Grok 4.3" | "Gemini 3.5 Flash" | "Grok 4.1" | "GPT-5.4" | "GPT-5.2"
 export type View      = "home" | "settings" | "store" | "premium" | "referral" | "analytics" | "profile" | "x-rewards" | "group-settings"
 
 export type UserPreferences = {
-  name: string; age: string; location: string; preferences: string
+  name?: string
+  age?: string
+  location?: string
+  preferences?: string
+  // Extended profile fields (Account Setup)
+  gender?: string
+  city?: string
+  timezone?: string
+  occupation?: string
+  interests?: string
+  favoriteEmoji?: string
+  personality?: string
 }
 
 // Token budget status per model — populated from /api/user_profile → model_token_status
 export type ModelTokenInfo = {
-  used:      number   // estimated tokens consumed in last 1h
-  limit:     number   // hourly budget for this tier (free/premium)
+  used:      number   // estimated tokens consumed in last 3h
+  limit:     number   // 3h budget for this tier (free/premium)
   mins_left: number   // minutes until enough tokens expire
   pct:       number   // used/limit * 100, capped at 100
+  reset_iso: string   // ISO timestamp of next reset
 }
 
 export type AppState = {
@@ -102,9 +114,9 @@ function getTgUser() {
 // Normalize legacy DB model names → current UI model names.
 // Users who had "Grok 4" stored before the rename will resolve to "Grok 4.1".
 function _normalizeModel(raw: string | undefined | null): ModelName {
-  if (raw === "Grok 4" || raw === "Grok 4 Mini" || !raw) return "Grok 4.1"
-  const valid: ModelName[] = ["Grok 4.3", "Grok 4.1", "GPT-5.4", "GPT-5.2"]
-  return valid.includes(raw as ModelName) ? (raw as ModelName) : "Grok 4.1"
+  if (!raw || raw === "Grok 4" || raw === "Grok 4 Mini") return "Grok 4.3"
+  const valid: ModelName[] = ["Grok 4.3", "Gemini 3.5 Flash", "Grok 4.1", "GPT-5.4", "GPT-5.2"]
+  return valid.includes(raw as ModelName) ? (raw as ModelName) : "Grok 4.3"
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -113,8 +125,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     x_points: 0,
     isPremium: false,
     language: "en",
-    selectedModel: "Grok 4.1",  // overwritten by API on first load
-    userPreferences: { name: "", age: "", location: "", preferences: "" },
+    selectedModel: "Grok 4.3",  // overwritten by API on first load
+    userPreferences: {},
     currentView: "home",
     userId: null,
     botUsername: "xBlumAI",
@@ -316,9 +328,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const initData = (window as any).Telegram?.WebApp?.initData
-      const data = await apiCall("/api/user_profile", { initData }) as any
-      if (data?.model_token_status) {
-        setState(s => ({ ...s, modelTokenStatus: data.model_token_status }))
+      const data = await apiCall("/api/model_token_status", { initData }) as any
+      if (data?.ok && data?.models) {
+        setState(s => ({ ...s, modelTokenStatus: data.models }))
       }
     } catch (e) {
       console.error("[refreshModelTokenStatus]", e)
