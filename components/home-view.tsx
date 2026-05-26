@@ -212,10 +212,13 @@ export function HomeView() {
         {/* Contenedor Fila Superior (Complete Account + Stacked Right Pills) */}
         <div className="w-full flex items-center justify-between gap-2 relative">
           
-          {/* Píldora de Complete Account (Izquierda) */}
+          {/* Píldora de Complete Account (Izquierda) - MODIFICADA para igualar la imagen */}
           <button 
-            className="flex items-center gap-2.5 rounded-full p-1.5 pr-3.5 active:scale-95 transition-all duration-200 ease-in-out bg-[#111827] text-[#F9FAFB] border border-white/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-1px_rgba(0,0,0,0.06)] hover:bg-[#1F2937] hover:-translate-y-[1px] hover:shadow-[0_6px_8px_-1px_rgba(0,0,0,0.15)] cursor-pointer" 
-            style={{ letterSpacing: "0.3px" }}
+            className="complete-account-pill flex items-center gap-2.5 rounded-full p-1.5 pr-3.5 active:scale-95 transition-transform" 
+            style={{ 
+              ...cardLiquidGlassStyle, // Mantener efecto de vidrio para la píldora base
+              background: "#1c367e" // Fondo sólido azul marino oscuro
+            }}
           >
             {/* Anillo de Progreso */}
             <div className="relative flex items-center justify-center w-[34px] h-[34px] shrink-0 bg-black/20 rounded-full">
@@ -225,7 +228,7 @@ export function HomeView() {
                   cx="17" 
                   cy="17" 
                   r="14" 
-                  stroke="#3b82f6" 
+                  stroke="#38bdf8" // Color de trazo azul cian brillante
                   strokeWidth="2.5" 
                   fill="none" 
                   strokeDasharray="87.96" 
@@ -242,7 +245,8 @@ export function HomeView() {
               <span className="text-[#8e8e93] text-[11px] font-medium mt-0.5" style={{ fontFamily: SF }}>It will take 2 minutes</span>
             </div>
             
-            <ChevronRight className="w-3.5 h-3.5 text-white/50 ml-0.5" />
+            {/* Chevron Right modificado */}
+            <ChevronRight className="w-3.5 h-3.5 text-[#38bdf8] ml-0.5" /> 
           </button>
 
           {/* Bloque Derecho: 2 Píldoras apiladas verticalmente */}
