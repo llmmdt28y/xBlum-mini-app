@@ -5,11 +5,11 @@ import {
   Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
   ChevronRight, ChevronDown, Loader2, CalendarDays, Search, ShieldCheck, Github, 
   Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2, Sparkles,
-  Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight
+  Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight, Check
 } from "lucide-react"
 
 import { BusinessAutomationView } from "./business-automation-view"
-import { useState, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -139,12 +139,24 @@ const CONNECTORS_DB = [
 function getTg() { return (window as any).Telegram?.WebApp }
 
 export function HomeView() {
-  const { setCurrentView } = useApp()
+  const { setCurrentView, userPreferences } = useApp()
   const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false)
   const [isBotIntModalOpen, setIsBotIntModalOpen] = useState(false)
   const [botIntConfig, setBotIntConfig] = useState({ enabled: true, moderation_react: true, auto_execute_mod: false, file_summarize: true })
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
+
+  // Cálculos de Progreso de Account Setup
+  const isBasicComplete = !!(userPreferences?.name?.trim() && userPreferences?.gender?.trim() && userPreferences?.age?.toString()?.trim() && userPreferences?.city?.trim())
+  const isAdditionalComplete = !!(userPreferences?.timezone?.trim() && userPreferences?.occupation?.trim() && userPreferences?.interests?.trim())
+  const isNoirComplete = !!(userPreferences?.favoriteEmoji?.trim() && userPreferences?.personality?.trim())
+  
+  const completedSections = [isBasicComplete, isAdditionalComplete, isNoirComplete].filter(Boolean).length
+  const totalSections = 3
+  
+  const radius = 17
+  const circumference = 2 * Math.PI * radius // ~106.81
+  const strokeDashoffset = circumference - (completedSections / totalSections) * circumference
 
   useEffect(() => {
     const tg = getTg()
@@ -168,7 +180,6 @@ export function HomeView() {
   return (
     <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-28">
       
-      {/* ── ESTILOS PARA OCULTAR SCROLLBAR ── */}
       <style dangerouslySetInnerHTML={{__html: `
         .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}} />
@@ -192,9 +203,9 @@ export function HomeView() {
         <div className="w-full relative">
           <button 
             onClick={() => setCurrentView("account_setup")}
-            className="w-full flex items-center gap-3 rounded-full p-2.5 pr-4 active:scale-95 transition-transform overflow-hidden shadow-lg" 
+            className="w-full flex items-center gap-3 rounded-full p-2.5 pr-4 active:scale-95 transition-transform overflow-hidden shadow-lg border border-white/5" 
             style={{ 
-              background: "#0c1524" // Azul marino oscuro
+              background: "#0c1524"
             }}
           >
             {/* Anillo de Progreso */}
@@ -208,20 +219,29 @@ export function HomeView() {
                   strokeWidth="3.5" 
                   fill="none" 
                   strokeDasharray="106.81" 
-                  strokeDashoffset="71.21" 
+                  strokeDashoffset={strokeDashoffset} 
                   strokeLinecap="round" 
+                  style={{ transition: "stroke-dashoffset 0.5s ease-in-out" }}
                 />
               </svg>
-              <span className="text-[12px] font-semibold text-[#8e8e93]">1/3</span>
+              <span className="text-[12px] font-semibold text-[#8e8e93]">{completedSections}/{totalSections}</span>
             </div>
             
             {/* Textos */}
             <div className="flex flex-col items-start leading-tight flex-1 min-w-0 pr-1">
-              <span className="text-white text-[15px] font-semibold mb-0.5 whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SFD }}>Complete account</span>
-              <span className="text-[#8e8e93] text-[13px] font-medium whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SF }}>It will take 2 minutes</span>
+              <span className="text-white text-[15px] font-semibold mb-0.5 whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SFD }}>
+                {completedSections === 3 ? "Account completed" : "Complete account"}
+              </span>
+              <span className="text-[#8e8e93] text-[13px] font-medium whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SF }}>
+                {completedSections === 3 ? "All details are set" : "It will take 2 minutes"}
+              </span>
             </div>
             
-            <ChevronRight className="w-5 h-5 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
+            {completedSections < 3 ? (
+              <ChevronRight className="w-5 h-5 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
+            ) : (
+              <Check className="w-5 h-5 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
+            )}
           </button>
         </div>
 
