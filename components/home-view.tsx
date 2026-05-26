@@ -9,7 +9,7 @@ import {
 } from "lucide-react"
 
 import { BusinessAutomationView } from "./business-automation-view"
-import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect } from "react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -139,33 +139,12 @@ const CONNECTORS_DB = [
 function getTg() { return (window as any).Telegram?.WebApp }
 
 export function HomeView() {
+  const { setCurrentView, selectedModel } = useApp()
   const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false)
   const [isBotIntModalOpen, setIsBotIntModalOpen] = useState(false)
-  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false)
   const [botIntConfig, setBotIntConfig] = useState({ enabled: true, moderation_react: true, auto_execute_mod: false, file_summarize: true })
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
-  
-  const modelDropdownRef = useRef<HTMLDivElement>(null)
-
-  const { setCurrentView } = useApp()
-
-  // ── EFECTO PARA CERRAR EL DROPDOWN AL TOCAR FUERA ──
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-      if (modelDropdownRef.current && !modelDropdownRef.current.contains(event.target as Node)) {
-        setIsModelDropdownOpen(false)
-      }
-    }
-    if (isModelDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-      document.addEventListener("touchstart", handleClickOutside)
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-      document.removeEventListener("touchstart", handleClickOutside)
-    }
-  }, [isModelDropdownOpen])
 
   useEffect(() => {
     const tg = getTg()
@@ -185,6 +164,12 @@ export function HomeView() {
 
   const filteredConnectors = CONNECTORS_DB.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
+
+  // Lógica para mostrar el nombre correcto del modelo
+  const legacyModels = ["Grok 4.1", "Grok 4", "GPT-5.4", "GPT-5.2"];
+  const displayModelName = (selectedModel && legacyModels.includes(selectedModel))
+    ? "Gemini 3.5 Flash"
+    : selectedModel || "Grok 4.3"
 
   return (
     <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-28">
@@ -214,6 +199,7 @@ export function HomeView() {
           
           {/* Píldora de Complete Account (Izquierda) */}
           <button 
+            onClick={() => setCurrentView("settings")}
             className="flex-1 flex items-center gap-2.5 rounded-full p-2 pr-3 active:scale-95 transition-transform overflow-hidden" 
             style={{ 
               background: "#0c1524" // Azul marino oscuro
@@ -230,11 +216,11 @@ export function HomeView() {
                   strokeWidth="3.5" 
                   fill="none" 
                   strokeDasharray="94.24" 
-                  strokeDashoffset="70.68" 
+                  strokeDashoffset="62.83" /* Calculado para el 33.3% (1/3) de 94.24 */
                   strokeLinecap="round" 
                 />
               </svg>
-              <span className="text-[11px] font-semibold text-[#8e8e93]">1/4</span>
+              <span className="text-[11px] font-semibold text-[#8e8e93]">1/3</span>
             </div>
             
             {/* Textos - Con whitespace-nowrap y truncate para forzar una línea */}
@@ -249,42 +235,22 @@ export function HomeView() {
           {/* Bloque Derecho: 2 Píldoras apiladas verticalmente */}
           <div className="flex flex-col gap-1.5 items-end shrink-0 relative">
             
-            {/* Contenedor Relativo para Selector de Modelos y su Menú */}
-            <div className="relative" ref={modelDropdownRef}>
-              <button 
-                onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                className="flex items-center justify-between gap-2 rounded-full px-3 py-1 active:scale-95 transition-all text-[12px] h-[28px] w-[135px]"
-                style={{ 
-                  ...cardLiquidGlassStyle,
-                  background: "rgba(0, 0, 0, 0.85)",
-                  fontFamily: SF 
-                }}
-              >
-                <span className="text-[#8e8e93] font-medium">Model</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-white font-bold truncate max-w-[60px]">Grok 4.3</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-200 shrink-0 ${isModelDropdownOpen ? 'rotate-180' : ''}`} />
-                </div>
-              </button>
-
-              {/* Contenedor desplegable de Modelos */}
-              {isModelDropdownOpen && (
-                <div 
-                  className="absolute top-[34px] right-0 z-50 w-[140px] rounded-xl p-1 flex flex-col gap-0.5 animate-in fade-in slide-in-from-top-1 duration-150 border border-white/10 shadow-2xl origin-top-right"
-                  style={{ ...cardLiquidGlassStyle, background: "rgba(15, 15, 16, 0.95)" }}
-                >
-                  <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-semibold text-white bg-white/5 transition-colors">
-                    Grok 4.3
-                  </button>
-                  <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-white hover:bg-white/5 transition-colors">
-                    Grok 3 Mini
-                  </button>
-                  <button className="w-full text-left px-2 py-1.5 rounded-lg text-[11px] font-medium text-[#8e8e93] hover:text-white hover:bg-white/5 transition-colors">
-                    Claude 3.5
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Píldora Modelo - Ahora redirige a Settings */}
+            <button 
+              onClick={() => setCurrentView("settings")}
+              className="flex items-center justify-between gap-2 rounded-full px-3 py-1 active:scale-95 transition-all text-[12px] h-[28px] w-[135px]"
+              style={{ 
+                ...cardLiquidGlassStyle,
+                background: "rgba(0, 0, 0, 0.85)",
+                fontFamily: SF 
+              }}
+            >
+              <span className="text-[#8e8e93] font-medium">Model</span>
+              <div className="flex items-center gap-1">
+                <span className="text-white font-bold truncate max-w-[60px]">{displayModelName}</span>
+                <ChevronRight className="w-3.5 h-3.5 text-[#8e8e93] shrink-0" />
+              </div>
+            </button>
 
             {/* Píldora Inferior: Vacía */}
             <div 
