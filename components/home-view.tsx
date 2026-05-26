@@ -214,11 +214,8 @@ export function HomeView() {
           
           {/* Píldora de Complete Account (Izquierda) */}
           <button 
-            className="flex items-center gap-2.5 rounded-full p-1.5 pr-3.5 active:scale-95 transition-transform" 
-            style={{ 
-              ...cardLiquidGlassStyle, 
-              background: "linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)" // Azul eléctrico más claro
-            }}
+            className="flex items-center gap-2.5 rounded-full p-1.5 pr-3.5 active:scale-95 transition-all duration-200 ease-in-out bg-[#111827] text-[#F9FAFB] border border-white/10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),_0_2px_4px_-1px_rgba(0,0,0,0.06)] hover:bg-[#1F2937] hover:-translate-y-[1px] hover:shadow-[0_6px_8px_-1px_rgba(0,0,0,0.15)] cursor-pointer" 
+            style={{ letterSpacing: "0.3px" }}
           >
             {/* Anillo de Progreso */}
             <div className="relative flex items-center justify-center w-[34px] h-[34px] shrink-0 bg-black/20 rounded-full">
@@ -410,7 +407,7 @@ export function HomeView() {
                         <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>Add connection</h2>
                         <button onClick={() => setModalState({ view: "closed", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-70 transition-opacity"><X className="w-5 h-5 text-white" /></button>
                     </div>
-                    
+                     
                     <div className="relative mb-6">
                       <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#636366]" />
                       <input 
@@ -473,7 +470,7 @@ export function HomeView() {
                           </div>
                         </div>
                       ))}
-                    </div>
+                     </div>
                   </div>
                 </div>
               </div>
@@ -499,7 +496,7 @@ export function HomeView() {
                     <Bot className="w-4 h-4 text-[#a855f7]" />
                   </div>
                    <h2 className="text-white font-bold text-[24px]" style={{ fontFamily: SFD }}>Group Agent</h2>
-                </div>
+                 </div>
                 <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-white active:scale-95 transition-transform">
                    <X className="w-5 h-5" />
                  </button>
@@ -509,7 +506,7 @@ export function HomeView() {
                 <div className="flex flex-col">
                   <span className="text-white font-bold text-[16px]" style={{ fontFamily: SFD }}>Interaction Hub</span>
                   <span className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>
-                    {botIntConfig.enabled ? "Listening to other bots" : "Ignoring bots"}
+                     {botIntConfig.enabled ? "Listening to other bots" : "Ignoring bots"}
                   </span>
                 </div>
                 <button 
@@ -523,7 +520,7 @@ export function HomeView() {
              <div className="bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
                 <div className="flex items-center justify-between p-3 border-b border-[#1c1c1e]">
                   <div className="flex flex-col">
-                    <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
+                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
                     <span className="text-[#8e8e93] text-[12px]">Comments on bans/mutes</span>
                   </div>
                   <button onClick={() => setBotIntConfig({...botIntConfig, moderation_react: !botIntConfig.moderation_react})} className={`w-[44px] h-[26px] rounded-full p-1 transition-colors ${botIntConfig.moderation_react ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}>
