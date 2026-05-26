@@ -212,41 +212,38 @@ export function HomeView() {
         {/* Contenedor Fila Superior (Complete Account + Stacked Right Pills) */}
         <div className="w-full flex items-center justify-between gap-2 relative">
           
-          {/* Píldora de Complete Account (Izquierda) - MODIFICADA para igualar la imagen */}
+          {/* Píldora de Complete Account (Izquierda) */}
           <button 
-            className="complete-account-pill flex items-center gap-2.5 rounded-full p-1.5 pr-3.5 active:scale-95 transition-transform" 
+            className="flex items-center gap-3 rounded-full px-2 py-2 pr-4 active:scale-95 transition-transform" 
             style={{ 
-              ...cardLiquidGlassStyle, // Mantener efecto de vidrio para la píldora base
-              background: "#1c367e" // Fondo sólido azul marino oscuro
+              background: "#0c1524" // Azul marino oscuro
             }}
           >
             {/* Anillo de Progreso */}
-            <div className="relative flex items-center justify-center w-[34px] h-[34px] shrink-0 bg-black/20 rounded-full">
-              <svg className="w-full h-full -rotate-90 transform absolute inset-0">
-                <circle cx="17" cy="17" r="14" stroke="rgba(255,255,255,0.08)" strokeWidth="2.5" fill="none" />
+            <div className="relative flex items-center justify-center w-[36px] h-[36px] shrink-0">
+              <svg className="w-full h-full rotate-180 transform absolute inset-0">
                 <circle 
-                  cx="17" 
-                  cy="17" 
-                  r="14" 
-                  stroke="#38bdf8" // Color de trazo azul cian brillante
-                  strokeWidth="2.5" 
+                  cx="18" 
+                  cy="18" 
+                  r="15" 
+                  stroke="#38bdf8" 
+                  strokeWidth="3.5" 
                   fill="none" 
-                  strokeDasharray="87.96" 
-                  strokeDashoffset="65.97" 
+                  strokeDasharray="94.24" 
+                  strokeDashoffset="70.68" 
                   strokeLinecap="round" 
                 />
               </svg>
-              <span className="text-[10px] font-bold text-white">1/4</span>
+              <span className="text-[11px] font-semibold text-[#8e8e93]">1/4</span>
             </div>
             
             {/* Textos */}
-            <div className="flex flex-col items-start">
-              <span className="text-white text-[13px] font-bold leading-tight" style={{ fontFamily: SFD }}>Complete account</span>
-              <span className="text-[#8e8e93] text-[11px] font-medium mt-0.5" style={{ fontFamily: SF }}>It will take 2 minutes</span>
+            <div className="flex flex-col items-start leading-tight pr-1">
+              <span className="text-white text-[15px] font-semibold mb-0.5" style={{ fontFamily: SFD }}>Complete account</span>
+              <span className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>It will take 2 minutes</span>
             </div>
             
-            {/* Chevron Right modificado */}
-            <ChevronRight className="w-3.5 h-3.5 text-[#38bdf8] ml-0.5" /> 
+            <ChevronRight className="w-4 h-4 text-[#38bdf8] ml-1" strokeWidth={2.5} />
           </button>
 
           {/* Bloque Derecho: 2 Píldoras apiladas verticalmente */}
@@ -411,7 +408,7 @@ export function HomeView() {
                         <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>Add connection</h2>
                         <button onClick={() => setModalState({ view: "closed", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-70 transition-opacity"><X className="w-5 h-5 text-white" /></button>
                     </div>
-                     
+                    
                     <div className="relative mb-6">
                       <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#636366]" />
                       <input 
@@ -474,7 +471,7 @@ export function HomeView() {
                           </div>
                         </div>
                       ))}
-                     </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -500,7 +497,7 @@ export function HomeView() {
                     <Bot className="w-4 h-4 text-[#a855f7]" />
                   </div>
                    <h2 className="text-white font-bold text-[24px]" style={{ fontFamily: SFD }}>Group Agent</h2>
-                 </div>
+                </div>
                 <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-white active:scale-95 transition-transform">
                    <X className="w-5 h-5" />
                  </button>
@@ -510,7 +507,7 @@ export function HomeView() {
                 <div className="flex flex-col">
                   <span className="text-white font-bold text-[16px]" style={{ fontFamily: SFD }}>Interaction Hub</span>
                   <span className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>
-                     {botIntConfig.enabled ? "Listening to other bots" : "Ignoring bots"}
+                    {botIntConfig.enabled ? "Listening to other bots" : "Ignoring bots"}
                   </span>
                 </div>
                 <button 
@@ -524,7 +521,7 @@ export function HomeView() {
              <div className="bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
                 <div className="flex items-center justify-between p-3 border-b border-[#1c1c1e]">
                   <div className="flex flex-col">
-                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
+                    <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
                     <span className="text-[#8e8e93] text-[12px]">Comments on bans/mutes</span>
                   </div>
                   <button onClick={() => setBotIntConfig({...botIntConfig, moderation_react: !botIntConfig.moderation_react})} className={`w-[44px] h-[26px] rounded-full p-1 transition-colors ${botIntConfig.moderation_react ? 'bg-[#a855f7]' : 'bg-[#3a3a3c]'}`}>
