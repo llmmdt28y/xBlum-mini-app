@@ -81,11 +81,11 @@ export function ProfileView() {
 
       <div className="px-4 pb-32 relative z-10">
 
-        {/* HEADER: BOTÓN SETTINGS (Movido hacia abajo, fondo negro y borde sutil) */}
+        {/* HEADER: BOTÓN SETTINGS (Píldora alargada horizontalmente con icono al centro) */}
         <div className="absolute right-4 top-8 z-30 flex items-center">
           <button 
             onClick={() => setCurrentView("settings")} 
-            className="w-[38px] h-[38px] flex items-center justify-center rounded-full bg-[#000000] border border-white/20 shadow-md active:bg-white/10 transition-colors"
+            className="w-[56px] h-[34px] flex items-center justify-center rounded-full bg-[#000000] border border-white/20 shadow-md active:bg-white/10 transition-colors"
           >
             <Settings className="w-[18px] h-[18px] text-white" />
           </button>
@@ -115,33 +115,32 @@ export function ProfileView() {
           </p>
         </div>
 
-        {/* FILA DE BOTONES DE ACCIÓN (Centrados, compactos, fusionando lápiz y Add Links) */}
+        {/* FILA DE BOTONES DE ACCIÓN (Más alargados, menos altos, contenido más grande y píldoras separadas por línea) */}
         <div className="flex flex-wrap items-center justify-center gap-2 mt-5 w-full">
           
-          <button className="flex items-center justify-center gap-1.5 bg-[#2b63eb] text-white px-3.5 h-[36px] rounded-full font-semibold text-[13px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
-            <Gift className="w-[15px] h-[15px]" />
+          <button className="flex items-center justify-center gap-1.5 bg-[#2b63eb] text-white px-5 h-[34px] rounded-full font-bold text-[14px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
+            <Gift className="w-[18px] h-[18px]" />
             Add Gift
           </button>
           
-          <button className="flex items-center justify-center gap-1.5 bg-[#1c1c1e] text-white px-3.5 h-[36px] rounded-full font-semibold text-[13px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
-            <Info className="w-[15px] h-[15px]" />
+          <button className="flex items-center justify-center gap-1.5 bg-[#1c1c1e] text-white px-5 h-[34px] rounded-full font-bold text-[14px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
+            <Info className="w-[18px] h-[18px]" />
             Info
           </button>
           
-          {/* Píldora unificada para Lápiz y Add Links con línea sutil divisoria */}
-          <div className="flex items-center bg-[#1c1c1e] rounded-full h-[36px] overflow-hidden">
-            <button className="flex items-center justify-center w-[38px] h-full active:bg-white/10 transition-colors">
-              <PenLine className="w-[15px] h-[15px] text-white" />
-            </button>
-            
-            {/* Línea sutil en gris */}
-            <div className="w-[1px] h-[18px] bg-[#3a3a3c]" />
-            
-            <button className="flex items-center justify-center gap-1.5 px-3 h-full active:bg-white/10 transition-colors" style={{ fontFamily: SF }}>
-              <PlusCircle className="w-[15px] h-[15px] text-white" />
-              <span className="font-semibold text-[13px] text-white">Add Links</span>
-            </button>
-          </div>
+          {/* Píldora del Lápiz */}
+          <button className="flex items-center justify-center w-[52px] h-[34px] bg-[#1c1c1e] rounded-full active:opacity-80 transition-opacity">
+            <PenLine className="w-[18px] h-[18px] text-white" />
+          </button>
+          
+          {/* Línea divisoria en el espacio libre */}
+          <div className="w-[1px] h-[16px] bg-[#3a3a3c]" />
+          
+          {/* Píldora de Add Links */}
+          <button className="flex items-center justify-center gap-1.5 bg-[#1c1c1e] text-white px-5 h-[34px] rounded-full font-bold text-[14px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
+            <PlusCircle className="w-[18px] h-[18px]" />
+            Add Links
+          </button>
           
         </div>
 
