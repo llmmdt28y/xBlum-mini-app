@@ -376,6 +376,7 @@ export function SettingsView() {
   const [showReportTypeDropdown, setShowReportTypeDropdown] = useState(false)
   const [submittingReport, setSubmittingReport] = useState(false)
   const [reportSent, setReportSent] = useState(false)
+  const [showLimitsInfo, setShowLimitsInfo] = useState(false)
   
   // Estado local para Tool Access
   const [toolAccess, setToolAccess] = useState("Auto")
@@ -422,12 +423,12 @@ export function SettingsView() {
   const filledFields = completionFields.filter(field => field.trim().length > 0).length;
   const completionPct = Math.round((filledFields / totalFields) * 100);
   const circleOffset = 295 - (295 * completionPct) / 100;
-
+  
   // Lógica de finalización por categoría (Para mostrar la palomita verde)
   const isBasicInfoComplete = nameField.trim() !== "" && genderField.trim() !== "" && ageField.trim() !== "" && cityField.trim() !== "";
   const isAdditionalDetailsComplete = timezoneField.trim() !== "" && occupationField.trim() !== "" && interestsField.trim() !== "";
   const isNoirPersonalityComplete = favoriteEmojiField.trim() !== "" && personalityField.trim() !== "";
-
+  
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
@@ -513,7 +514,8 @@ export function SettingsView() {
               const pct      = tokenInfo?.pct ?? 0
 
               const active =
-                m.name === selectedModel || (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
+                m.name === selectedModel ||
+                (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
 
               const isDisabled = locked || saving === "model" || !!limitHit
 
@@ -552,14 +554,14 @@ export function SettingsView() {
                           {limitHit && !locked && (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
                               style={{ fontFamily: SF }}>
-                               limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
+                                limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
                             </span>
                           )}
 
                           {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
                               style={{ fontFamily: SF }}>
-                               cooling {minutesUntilReset}min
+                                cooling {minutesUntilReset}min
                             </span>
                           )}
                         </div>
@@ -1161,7 +1163,7 @@ export function SettingsView() {
     </div>
   )
 
-  // ── Límites de Uso Sub-page ────────────────────────────────────────
+  // ── Usage Limits Sub-page ────────────────────────────────────────
   if (page === "usage_limits") return (
     <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
          style={{ background: "#000", minHeight: "100vh" }}>
@@ -1174,15 +1176,18 @@ export function SettingsView() {
         {/* Encabezado al estilo de la imagen */}
         <div className="space-y-3">
           <div className="flex items-center gap-2.5">
-            <h1 className="text-[28px] font-bold text-white leading-none" style={{ fontFamily: SFD }}>Límites de uso</h1>
-            <span className="px-2 py-0.5 rounded-md text-[11px] font-bold text-[#8e8e93] bg-[#111111] border border-white/5" style={{ fontFamily: SF }}>PRO</span>
+            <h1 className="text-[28px] font-bold text-white leading-none" style={{ fontFamily: SFD }}>Usage Limits</h1>
+            <span className="px-2 py-0.5 rounded-md text-[11px] font-bold text-[#8e8e93] bg-[#111111] border border-white/5" style={{ fontFamily: SF }}>
+              {isPremium ? "PRO" : "Free"}
+            </span>
           </div>
           <p className="text-[#8e8e93] text-[15px] leading-snug" style={{ fontFamily: SF }}>
-            Los límites de tu plan determinan cuánto puedes usar Noir a lo largo del tiempo. Los modelos y las funciones avanzadas pueden consumir más uso. <br/>
-            <span className="text-[#60a5fa] mt-1 inline-block">Más información</span>
+            Your plan limits determine how much you can use Noir over time. Advanced models and features may consume more usage.
+            <br/>
+            <span className="text-[#60a5fa] mt-1 inline-block cursor-pointer">More information</span>
           </p>
           <p className="text-[#8e8e93] text-[14px] pt-2" style={{ fontFamily: SF }}>
-            Se actualizó ahora mismo
+            Updated just now
           </p>
         </div>
 
@@ -1191,18 +1196,33 @@ export function SettingsView() {
           <div className="rounded-[24px] bg-[#111111] p-5 border border-white/5 relative z-10 shadow-lg">
             <div className="flex items-center justify-between mb-3.5">
               <div className="flex items-center gap-1.5">
-                <span className="text-[17px] font-semibold text-white" style={{ fontFamily: SF }}>Uso actual</span>
-                <Info className="w-[15px] h-[15px] text-[#8e8e93]" />
+                <span className="text-[17px] font-semibold text-white" style={{ fontFamily: SF }}>Current usage</span>
+                <button 
+                  onClick={() => setShowLimitsInfo(!showLimitsInfo)}
+                  onPointerDown={createRipple}
+                  className="relative overflow-hidden rounded-full p-1 -ml-1 active:bg-white/10 transition-colors"
+                >
+                  <Info className="w-[15px] h-[15px] text-[#8e8e93] relative z-10" />
+                </button>
               </div>
-              <span className="text-[16px] font-bold text-white" style={{ fontFamily: SF }}>70% usado</span>
+              <span className="text-[16px] font-bold text-white" style={{ fontFamily: SF }}>70% used</span>
             </div>
+
+            {showLimitsInfo && (
+              <div className="mb-4 p-3.5 rounded-xl bg-[#1c1c1e] border border-white/5 animate-in fade-in slide-in-from-top-2">
+                <h3 className="text-white font-bold text-[16px] mb-1" style={{ fontFamily: SFD }}>How limits work</h3>
+                <p className="text-[#8e8e93] text-[14px] leading-snug" style={{ fontFamily: SF }}>
+                  The limits are reset every 3 hours
+                </p>
+              </div>
+            )}
             
             <div className="w-full h-[6px] bg-[#1c1c1e] rounded-full mb-3.5 overflow-hidden flex">
               <div className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ width: "70%" }}></div>
             </div>
             
             <p className="text-[15px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>
-              Se restablece a la(s) 7:09 PM
+              Resets at 7:09 PM
             </p>
           </div>
         </div>
@@ -1251,12 +1271,12 @@ export function SettingsView() {
         <Section title="Usage & Billing">
           <Row
             leftNode={<IconFlat icon={CircleStar} color="#f59e0b" />}
-            label="Administrar suscripción"
+            label="Manage Subscription"
             onClick={() => setCurrentView("premium")}
           />
           <Row
             leftNode={<IconFlat icon={ChartPie} color="#34c759" />}
-            label="Límites de uso"
+            label="Usage Limits"
             onClick={() => setPage("usage_limits")}
           />
         </Section>
@@ -1318,7 +1338,7 @@ export function SettingsView() {
                 </div>
               ) : (
                 <button
-                  onClick={async () => {
+                   onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -1343,7 +1363,7 @@ export function SettingsView() {
               )}
             </div>
 
-            <div className="p-5 space-y-4 overflow-y-auto flex-1">
+             <div className="p-5 space-y-4 overflow-y-auto flex-1">
               {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
@@ -1383,7 +1403,7 @@ export function SettingsView() {
                             style={{ fontFamily: SF }}>
                             <span className="relative z-10">{type}</span>
                           </button>
-                        ))}
+                         ))}
                       </div>
                     )}
                   </div>
