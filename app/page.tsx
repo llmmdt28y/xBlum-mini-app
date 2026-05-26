@@ -1,280 +1,413 @@
 "use client"
 
-import { useApp } from "@/lib/app-context"
+import { AppProvider, useApp } from "@/lib/app-context"
+import { Header } from "@/components/header"
+import { HomeView } from "@/components/home-view"
+import { SettingsView } from "@/components/settings-view"
+import { PremiumView } from "@/components/premium-view"
+import { ReferralView } from "@/components/referral-view"
+import { ProfileView } from "@/components/profile-view"
+import { XRewardsView } from "@/components/x-rewards-view" 
+import { MarketView } from "@/components/market-view" 
+import { GroupSettingsView } from "@/components/group-settings-view"
+import { ScheduleView } from "@/components/schedule-view"
+import { LevelsView } from "@/components/levels-view" 
+import { ShopView } from "@/components/shop-view" 
 import { useEffect, useState } from "react"
-import { 
-  Settings, 
-  Gift, 
-  Info, 
-  PenLine, 
-  PlusCircle, 
-  Search, 
-  ArrowUpDown, 
-  CheckSquare, 
-  List, 
-  SlidersHorizontal, 
-  ChevronDown,
-  Sparkles
-} from "lucide-react"
+import { Home, Target, Store, CircleUser, Loader2 } from "lucide-react" 
 
-const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
-const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
-
-type TgUser = {
-  id: number
-  first_name?: string
-  last_name?: string
-  username?: string
-  photo_url?: string
+// ── Telegram user helper ──────────────────────────────────────────────
+type TgUser = { 
+  id: number;
+  first_name?: string; 
+  last_name?: string; 
+  username?: string; 
+  photo_url?: string 
 }
 
 function getTgUser(): TgUser | undefined {
   if (typeof window === "undefined") return undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── ESTILOS DE BRILLO / GLASSMORPHISM (Inspirados en la NavBar de page.tsx) ──
-const darkGlowStyle = {
-  backgroundColor: "#000000",
-  border: "1px solid rgba(255, 255, 255, 0.12)",
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
-  transform: "translateZ(0)",
+// ── Pantalla de Mantenimiento / Acceso Restringido ────────────────────
+function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
+  const [tapCount, setTapCount] = useState(0)
+
+  // Función para desbloquear si se presiona 7 veces rápidamente en la esquina
+  const handleSecretTap = () => {
+    setTapCount(prev => {
+      if (prev + 1 >= 7) {
+        onUnlock()
+        return 0
+      }
+      return prev + 1
+    })
+  }
+
+  // Reiniciar los toques si pasan más de 1.5 segundos sin interacción
+  useEffect(() => {
+    if (tapCount > 0) {
+      const timer = setTimeout(() => setTapCount(0), 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [tapCount])
+
+  return (
+    <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center select-none overflow-hidden">
+      
+      {/* Botón invisible en la esquina superior izquierda (Backdoor para Devs) */}
+      <div 
+        onClick={handleSecretTap} 
+        className="absolute top-0 left-0 w-24 h-24 z-50"
+      />
+
+      {/* Contenedor protegido para la imagen */}
+      <div className="relative mb-8 pointer-events-none select-none">
+        <img 
+          src="/steampunkjulia_agadsqcaakb7raq.webp" 
+          alt="Maintenance" 
+          draggable={false}
+          className="w-48 h-48 object-contain pointer-events-none select-none"
+          style={{ 
+            WebkitUserSelect: "none", 
+            WebkitTouchCallout: "none",
+            userSelect: "none"
+          }} 
+        />
+      </div>
+
+      <div className="flex flex-col items-center gap-1">
+        <h1 
+          className="text-white text-[24px] font-bold tracking-tight" 
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}
+        >
+          Currently working
+        </h1>
+        <p 
+          className="text-[#8e8e93] text-[17px] font-medium" 
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}
+        >
+          come back later 🚀
+        </p>
+      </div>
+    </div>
+  )
 }
 
-const blueGlowStyle = {
-  backgroundColor: "#2b63eb",
-  border: "1px solid rgba(255, 255, 255, 0.15)",
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.3)",
-  transform: "translateZ(0)",
-}
-
-export function ProfileView() {
-  const ctx = useApp() as any
-  const { setCurrentView } = ctx
-
+// ── Floating Liquid NavBar ────────────────────────────────────────────
+function NavBar() {
+  const { currentView, setCurrentView } = useApp()
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
-  const [displayName, setDisplayName] = useState("")
-  const [username, setUsername] = useState("")
   
-  // Estado para la navegación
-  const [activeTab, setActiveTab] = useState("Collected")
+  // Memoria del modo de navegación para cuando el usuario abra el Perfil
+  const [storedNavMode, setStoredNavMode] = useState<'home' | 'market'>('home')
 
-  // Obtener datos del usuario de Telegram
+  // Estados para ocultar/mostrar la barra al hacer scroll
+  const [isVisible, setIsVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
+
   useEffect(() => {
     const user = getTgUser()
     if (!user) return
     if (user.photo_url) setPhotoUrl(user.photo_url)
-    const full = [user.first_name, user.last_name].filter(Boolean).join(" ")
-    setDisplayName(full || user.username || "User")
-    setUsername(user.username ? "@" + user.username : "")
   }, [])
 
-  // Configuración del botón de retroceso de Telegram
+  // ── LÓGICA DE SCROLL PARA OCULTAR/MOSTRAR LA BARRA ──
   useEffect(() => {
-    const tg = (window as any).Telegram?.WebApp
-    if (!tg?.BackButton) return
-    tg.BackButton.show()
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
 
-    const handleBack = () => {
-      setCurrentView("home");
-      tg.BackButton.hide()
+      // Umbral para ignorar pequeños rebotes (bounces) y no activar la animación por error
+      if (Math.abs(currentScrollY - lastScrollY) < 10) return
+
+      // Si hacemos scroll hacia abajo y hemos pasado un margen de 50px
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setIsVisible(false)
+      } else {
+        // Si hacemos scroll hacia arriba o estamos en la cima
+        setIsVisible(true)
+      }
+      
+      setLastScrollY(currentScrollY)
     }
 
-    tg.BackButton.onClick(handleBack)
-    return () => { tg.BackButton.offClick(handleBack) }
-  }, [setCurrentView])
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [lastScrollY])
 
-  const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
+  // Determinamos el modo síncronamente durante el render
+  const isMarketSection = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
+  const isHomeSection = currentView === 'home'
+  
+  const activeNavMode = isMarketSection ? 'market' : (isHomeSection ? 'home' : storedNavMode)
 
-  const tabs = ["Collected", "History", "Offers", "Favorites", "Soulbound"]
+  useEffect(() => {
+    if (activeNavMode !== storedNavMode) {
+      setStoredNavMode(activeNavMode)
+    }
+  }, [activeNavMode, storedNavMode])
+
+  const handleLeftActionButton = () => {
+    if (activeNavMode === 'market') {
+      setCurrentView('home' as any)
+    } else {
+      setCurrentView('market' as any)
+    }
+  }
+
+  // Pestañas dinámicas basadas en el MODO ACTIVO
+  const centerTabs = activeNavMode === 'market' 
+    ? [
+        { id: "market", label: "Market", icon: Store, disabled: false },
+        { id: "shop", label: "Shop", icon: Target, disabled: false },
+        { id: "levels", label: "BP Levels", icon: Target, disabled: false },
+      ]
+    : [
+        { id: "home", label: "Home", icon: Home, disabled: false },
+        { id: "none1", label: "None", icon: null, disabled: true },
+        { id: "none2", label: "None", icon: null, disabled: true },
+      ]
+
+  // ── ESTILO CRISTAL ÓPTICO REALISTA ──
+  const liquidGlassStyle = {
+    background: "rgba(30, 30, 30, 0.35)", 
+    backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", 
+    WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(1.1)",
+    border: "1px solid rgba(255, 255, 255, 0.12)", 
+    boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
+    transform: "translateZ(0)", 
+    WebkitTransform: "translateZ(0)",
+  }
+
+  // Colores de interfaz 
+  const neonBlue = "#33b5f7" 
+  const inactiveGlassText = "rgba(255, 255, 255, 0.6)" 
 
   return (
-    <div className="flex-1 overflow-y-auto relative bg-[#000000] text-white animate-in fade-in duration-300 min-h-screen">
+    <div
+      id="main-nav-bar"
+      className={`fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none transition-transform duration-300 ease-in-out ${
+        isVisible ? "translate-y-0" : "translate-y-[150px]"
+      }`}
+      style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)" }}
+    >
       
-      {/* ESPACIO SUPERIOR SEGURO TELEGRAM */}
-      <div className="sticky top-0 z-30 flex items-center justify-center w-full pointer-events-none" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)", background: "transparent" }}></div>
+      {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
+      <button
+        onClick={handleLeftActionButton}
+        className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
+        style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
+      >
+        {activeNavMode === 'market' ? (
+          <>
+            <Home size={22} color={inactiveGlassText} strokeWidth={2} />
+            <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Home</span>
+          </>
+        ) : (
+          <>
+            <Store size={22} color={inactiveGlassText} strokeWidth={2} />
+            <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Market</span>
+          </>
+        )}
+      </button>
 
-      <div className="px-4 pb-32 relative z-10">
+      {/* ── PÍLDORA CENTRAL: Módulos Fijos ── */}
+      <div
+        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
+        style={{ ...liquidGlassStyle, borderRadius: "100px", height: "64px" }}
+      >
+        {centerTabs.map((tab, idx) => {
+          const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
+          const isDisabled = !!tab.disabled
+          const Icon = tab.icon
 
-        {/* HEADER: BOTÓN SETTINGS (Con estilo de borde iluminado) */}
-        <div className="absolute right-4 top-8 z-30 flex items-center">
-          <button 
-            onClick={() => setCurrentView("settings")} 
-            className="w-[56px] h-[34px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
-            style={darkGlowStyle}
-          >
-            <Settings className="w-[18px] h-[18px] text-white" />
-          </button>
-        </div>
-
-        {/* SECCIÓN DE PERFIL */}
-        <div className="flex flex-col items-center pt-10">
-          <div className="w-[90px] h-[90px] rounded-full overflow-hidden bg-[#1c1c1e] flex items-center justify-center mb-3 border border-white/5 shadow-inner">
-            {photoUrl ? (
-              <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-white font-bold text-3xl" style={{ fontFamily: SFD }}>
-                {initials || "?"}
-              </span>
-            )}
-          </div>
-          
-          <div className="flex items-center justify-center gap-1.5">
-            <h1 className="text-[22px] font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>
-              {displayName || "awesome"}
-            </h1>
-            <Sparkles className="w-[18px] h-[18px] text-[#60a5fa] fill-[#60a5fa]" />
-          </div>
-          
-          <p className="text-[#8e8e93] text-[14px] mt-0.5" style={{ fontFamily: SF }}>
-            {username || "@TCommunityReports"}
-          </p>
-        </div>
-
-        {/* FILA DE BOTONES DE ACCIÓN (Todas las píldoras unificadas en tamaño, con brillo en los bordes) */}
-        <div className="flex flex-wrap items-center justify-center mt-6 w-full">
-          <div className="flex items-center justify-center gap-[6px]">
-            
-            <button 
-              className="flex items-center justify-center gap-1.5 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" 
-              style={{ ...blueGlowStyle, fontFamily: SF }}
-            >
-              <Gift className="w-[16px] h-[16px]" strokeWidth={2} />
-              Add Gift
-            </button>
-            
-            <button 
-              className="flex items-center justify-center gap-1.5 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" 
-              style={{ ...darkGlowStyle, fontFamily: SF }}
-            >
-              <Info className="w-[16px] h-[16px]" strokeWidth={2} />
-              Info
-            </button>
-            
-            <button 
-              className="flex items-center justify-center w-[34px] h-[34px] rounded-full shrink-0 active:scale-95 transition-all"
-              style={darkGlowStyle}
-            >
-              <PenLine className="w-[15px] h-[15px] text-white" strokeWidth={2} />
-            </button>
-            
-            {/* Línea divisoria flotante en el espacio */}
-            <div className="w-[1px] h-[14px] bg-[#48484a] shrink-0 mx-0.5" />
-            
-            <button 
-              className="flex items-center justify-center gap-1.5 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" 
-              style={{ ...darkGlowStyle, fontFamily: SF }}
-            >
-              <PlusCircle className="w-[16px] h-[16px]" strokeWidth={2} />
-              Add Links
-            </button>
-
-          </div>
-        </div>
-
-        {/* NAVEGACIÓN (TABS) */}
-        <div className="flex items-center gap-6 mt-8 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`pb-3 text-[15px] font-semibold whitespace-nowrap relative transition-colors ${
-                  isActive ? "text-white" : "text-[#8e8e93] hover:text-[#d1d1d6]"
-                }`}
-                style={{ fontFamily: SF }}
-              >
-                {tab}
-                {isActive && (
-                  <div className="absolute bottom-0 left-0 w-full h-[2px] bg-white rounded-t-full" />
-                )}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* BUSCADOR Y FILTROS */}
-        <div className="mt-5 space-y-3 px-1">
-          {/* Fila 1: Buscador y Botones Vista */}
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-[#1c1c1e] rounded-[12px] h-[40px] flex items-center px-3">
-              <Search className="w-4 h-4 text-[#8e8e93] shrink-0" />
-              <input 
-                type="text" 
-                placeholder="Name or description" 
-                className="bg-transparent border-none outline-none text-white w-full h-full px-2 text-[15px] placeholder:text-[#8e8e93]"
-                style={{ fontFamily: SF }}
-              />
-            </div>
-            <button className="w-[40px] h-[40px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center shrink-0 active:opacity-80">
-              <ArrowUpDown className="w-[18px] h-[18px] text-white" />
-            </button>
-            <button className="w-[40px] h-[40px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center shrink-0 active:opacity-80">
-              <CheckSquare className="w-[18px] h-[18px] text-white" />
-            </button>
-            <button className="w-[40px] h-[40px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center shrink-0 active:opacity-80">
-              <List className="w-[18px] h-[18px] text-white" />
-            </button>
-          </div>
-
-          {/* Fila 2: Categorías y Ajustes */}
-          <div className="flex items-center gap-2">
-            <button className="w-[40px] h-[40px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center shrink-0 active:opacity-80">
-              <SlidersHorizontal className="w-[18px] h-[18px] text-white" />
-            </button>
-            <button className="flex-1 bg-[#1c1c1e] rounded-[12px] h-[40px] flex items-center justify-between px-4 active:opacity-80 transition-opacity">
-              <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>All Types</span>
-              <ChevronDown className="w-4 h-4 text-white" />
-            </button>
-            <button className="flex-1 bg-[#1c1c1e] rounded-[12px] h-[40px] flex items-center justify-between px-4 active:opacity-80 transition-opacity">
-              <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>Collections</span>
-              <ChevronDown className="w-4 h-4 text-white" />
-            </button>
-          </div>
-        </div>
-
-        {/* ESTADO VACÍO (EMPTY STATE) */}
-        <div className="flex flex-col items-center justify-center text-center mt-12 px-6">
-          <div className="w-[160px] h-[160px] relative mb-6">
-            <img 
-              src="/tu-imagen-aqui.png" 
-              alt="Empty NFTs" 
-              className="w-full h-full object-contain pointer-events-none select-none drop-shadow-2xl" 
-              draggable={false} 
-              style={{ WebkitTouchCallout: "none" }}
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-[#1c1c1e] rounded-full flex items-center justify-center"><span class="text-4xl">👻</span></div>';
+          return (
+            <button
+              key={`${tab.id}-${idx}`}
+              disabled={isDisabled}
+              onClick={() => !isDisabled && setCurrentView(tab.id as any)}
+              // Aumentamos el tiempo de transición para que el escalado sea fluido (ease-out)
+              className="relative flex flex-col items-center justify-center transition-all duration-300 ease-out rounded-[100px] flex-1 h-[54px]"
+              style={{
+                pointerEvents: isDisabled ? "none" : "auto",
+                // Fondo oscurecido transparente restaurado con la sombra interior del bisel blanco superior
+                background: isActive ? "rgba(0, 0, 0, 0.4)" : "transparent",
+                boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)" : "none",
+                // Animación de crecimiento del botón (Gota/Lupa)
+                transform: isActive ? "scale(1.08)" : "scale(1)", 
               }}
-            />
-          </div>
-          
-          <h2 className="text-[18px] font-bold text-white mb-2 tracking-tight" style={{ fontFamily: SFD }}>
-            You have no NFTs.
-          </h2>
-          
-          <p className="text-[#8e8e93] text-[14px] leading-relaxed max-w-[280px] mb-6" style={{ fontFamily: SF }}>
-            After minting or buying, your NFTs will be displayed in this section and visible to other users.
-          </p>
-
-          <button className="text-white px-8 py-2.5 rounded-xl font-semibold text-[15px] active:scale-95 transition-transform" style={{ ...blueGlowStyle, fontFamily: SF }}>
-            Add NFT
-          </button>
-        </div>
-
+            >
+              {Icon ? (
+                <>
+                  <Icon 
+                    size={22} 
+                    color={isActive ? neonBlue : inactiveGlassText} 
+                    strokeWidth={isActive ? 2.5 : 2} 
+                    className={`transition-colors duration-300 ${isActive ? "drop-shadow-md" : ""}`}
+                  />
+                  <span 
+                    className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
+                    style={{ color: isActive ? neonBlue : inactiveGlassText }}
+                  >
+                    {tab.label}
+                  </span>
+                </>
+              ) : (
+                <div className="w-[6px] h-[6px] rounded-full bg-white/10"></div>
+              )}
+            </button>
+          )
+        })}
       </div>
 
-      {/* Estilos para ocultar el scrollbar nativo en los contenedores horizontales */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}} />
+      {/* ── BOTÓN DERECHO: Profile ── */}
+      <button
+        onClick={() => setCurrentView('profile')}
+        className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
+        style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
+      >
+        {photoUrl ? (
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
+            <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center">
+            <CircleUser 
+              size={22} 
+              color={currentView === 'profile' ? neonBlue : inactiveGlassText} 
+              strokeWidth={currentView === 'profile' ? 2.5 : 2} 
+            />
+            <span 
+              className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
+              style={{ color: currentView === 'profile' ? neonBlue : inactiveGlassText }}
+            >
+              Profile
+            </span>
+          </div>
+        )}
+      </button>
+
     </div>
+  )
+}
+
+// ── App shell ──────────────────────────────────────────
+function AppContent() {
+  const { currentView, isLoading } = useApp()
+  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards"].includes(currentView)
+
+  const [imagesLoaded, setImagesLoaded] = useState(false)
+  const [showLoading, setShowLoading] = useState(true)
+  const [fadeLoading, setFadeLoading] = useState(false)
+  
+  // Estado que controla si la pantalla de mantenimiento está activa
+  const [isMaintenance, setIsMaintenance] = useState(false) // <-- Cambiar a true si necesitas activarlo
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tg = (window as any).Telegram?.WebApp
+    if (tg) {
+      tg.ready()    
+      try {
+        if (tg.requestFullscreen) {
+          tg.requestFullscreen()
+        } else {
+           tg.expand()
+        }
+      } catch (e) {
+        tg.expand()
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    const checkImages = () => {
+      const images = Array.from(document.images)
+      if (images.length === 0) {
+        setImagesLoaded(true)
+        return
+      }
+
+       let loadedCount = 0
+     
+      const checkDone = () => {
+        loadedCount++
+        if (loadedCount === images.length) setImagesLoaded(true)
+      }
+
+      images.forEach(img => {
+        if (img.complete) {
+          checkDone()
+        } else {
+          img.addEventListener('load', checkDone, { once: true })
+          img.addEventListener('error', checkDone, { once: true }) 
+        }
+      })
+    }
+
+    const timer = setTimeout(checkImages, 50)
+    const fallback = setTimeout(() => setImagesLoaded(true), 3000) 
+
+    return () => {
+      clearTimeout(timer)
+      clearTimeout(fallback)
+    }
+  }, [currentView, isMaintenance])
+
+  useEffect(() => {
+    if (!isLoading && imagesLoaded) {
+      setFadeLoading(true) 
+       const t = setTimeout(() => setShowLoading(false), 400) 
+      return () => clearTimeout(t)
+    }
+  }, [isLoading, imagesLoaded])
+
+  // Si está en mantenimiento, bloquear la app devolviendo solo la pantalla
+  if (isMaintenance) {
+    return <MaintenanceScreen onUnlock={() => setIsMaintenance(false)} />
+  }
+
+  return (
+    <>
+      {showLoading && (
+        <div 
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${fadeLoading ? "opacity-0" : "opacity-100"}`}
+        >
+          <Loader2 className="w-10 h-10 text-white animate-spin" />
+        </div>
+      )}
+
+      <div 
+        className="bg-black flex flex-col relative" 
+        style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
+      >
+        {/* Renderizado de Vistas */}
+        {currentView === "home" && (<><Header /><HomeView /></>)}
+        {currentView === "levels" && <LevelsView />} 
+        {currentView === "shop" && <ShopView />} 
+        {currentView === "settings"  && <SettingsView />}
+        {currentView === "account_setup" && <SettingsView initialPage="prefs" returnView="home" />}
+        {currentView === "premium"   && <PremiumView />}
+        {currentView === "referral"  && <ReferralView />}
+        {currentView === "profile"   && <ProfileView />}
+        {currentView === "x-rewards" && <XRewardsView />}
+        {currentView === "market"    && <MarketView />}
+        {currentView === "group-settings" && <GroupSettingsView />}
+        {currentView === "schedule"  && <ScheduleView />}
+        
+        {/* Renderizado de la NavBar */}
+        {showNav && <NavBar />}
+      </div>
+    </>
+  )
+}
+
+export default function Page() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   )
 }
