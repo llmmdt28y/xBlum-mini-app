@@ -146,7 +146,7 @@ export function HomeView() {
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
 
-  // Cálculos de Progreso de Account Setup
+  // Cálculos dinámicos de Progreso de Account Setup
   const isBasicComplete = !!(userPreferences?.name?.trim() && userPreferences?.gender?.trim() && userPreferences?.age?.toString()?.trim() && userPreferences?.city?.trim())
   const isAdditionalComplete = !!(userPreferences?.timezone?.trim() && userPreferences?.occupation?.trim() && userPreferences?.interests?.trim())
   const isNoirComplete = !!(userPreferences?.favoriteEmoji?.trim() && userPreferences?.personality?.trim())
@@ -154,8 +154,9 @@ export function HomeView() {
   const completedSections = [isBasicComplete, isAdditionalComplete, isNoirComplete].filter(Boolean).length
   const totalSections = 3
   
-  const radius = 17
-  const circumference = 2 * Math.PI * radius // ~106.81
+  // Cálculo exacto del anillo SVG
+  const radius = 15 // Radio original de la píldora estrecha
+  const circumference = 2 * Math.PI * radius // ~94.24
   const strokeDashoffset = circumference - (completedSections / totalSections) * circumference
 
   useEffect(() => {
@@ -180,6 +181,7 @@ export function HomeView() {
   return (
     <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-28">
       
+      {/* ── ESTILOS PARA OCULTAR SCROLLBAR ── */}
       <style dangerouslySetInnerHTML={{__html: `
         .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}} />
@@ -199,50 +201,55 @@ export function HomeView() {
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
         
-        {/* Contenedor Fila Superior (Solo Complete Account a todo el ancho) */}
-        <div className="w-full relative">
+        {/* Contenedor Fila Superior (Con espacio invisible a la derecha para mantener proporciones) */}
+        <div className="w-full flex items-center justify-between gap-3 relative">
+          
           <button 
             onClick={() => setCurrentView("account_setup")}
-            className="w-full flex items-center gap-3 rounded-full p-2.5 pr-4 active:scale-95 transition-transform overflow-hidden shadow-lg border border-white/5" 
+            className="flex-1 flex items-center gap-2.5 rounded-full p-2 pr-3 active:scale-95 transition-transform overflow-hidden shadow-lg" 
             style={{ 
-              background: "#0c1524"
+              background: "#0c1524" // Azul marino oscuro
             }}
           >
             {/* Anillo de Progreso */}
-            <div className="relative flex items-center justify-center w-[40px] h-[40px] shrink-0">
+            <div className="relative flex items-center justify-center w-[36px] h-[36px] shrink-0">
               <svg className="w-full h-full rotate-180 transform absolute inset-0">
                 <circle 
-                  cx="20" 
-                  cy="20" 
-                  r="17" 
+                  cx="18" 
+                  cy="18" 
+                  r="15" 
                   stroke="#38bdf8" 
                   strokeWidth="3.5" 
                   fill="none" 
-                  strokeDasharray="106.81" 
+                  strokeDasharray="94.24" 
                   strokeDashoffset={strokeDashoffset} 
                   strokeLinecap="round" 
                   style={{ transition: "stroke-dashoffset 0.5s ease-in-out" }}
                 />
               </svg>
-              <span className="text-[12px] font-semibold text-[#8e8e93]">{completedSections}/{totalSections}</span>
+              <span className="text-[11px] font-semibold text-[#8e8e93]">{completedSections}/{totalSections}</span>
             </div>
             
             {/* Textos */}
             <div className="flex flex-col items-start leading-tight flex-1 min-w-0 pr-1">
-              <span className="text-white text-[15px] font-semibold mb-0.5 whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SFD }}>
+              <span className="text-white text-[14px] font-semibold mb-0.5 whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SFD }}>
                 {completedSections === 3 ? "Account completed" : "Complete account"}
               </span>
-              <span className="text-[#8e8e93] text-[13px] font-medium whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SF }}>
+              <span className="text-[#8e8e93] text-[12px] font-medium whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SF }}>
                 {completedSections === 3 ? "All details are set" : "It will take 2 minutes"}
               </span>
             </div>
             
             {completedSections < 3 ? (
-              <ChevronRight className="w-5 h-5 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
+              <ChevronRight className="w-4 h-4 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
             ) : (
-              <Check className="w-5 h-5 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
+              <Check className="w-4 h-4 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
             )}
           </button>
+
+          {/* Div fantasma que ocupa el mismo espacio (135px) que tenía el menú de modelo, para forzar el tamaño original */}
+          <div className="w-[135px] shrink-0 pointer-events-none" />
+          
         </div>
 
         {/* Tarjeta Schedules */}
