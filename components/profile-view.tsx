@@ -115,28 +115,28 @@ export function ProfileView() {
           </p>
         </div>
 
-        {/* FILA DE BOTONES DE ACCIÓN (Corregida basándose en la imagen) */}
+        {/* FILA DE BOTONES DE ACCIÓN (Ajuste fino: más oscuros, con borde, texto más grande y píldoras compactas) */}
         <div className="flex flex-wrap items-center justify-center mt-6 w-full">
           <div className="flex items-center justify-center gap-[6px]">
             
-            <button className="flex items-center justify-center gap-1.5 bg-[#2b63eb] text-white px-4 h-[36px] rounded-full font-semibold text-[14px] active:scale-95 transition-all shrink-0" style={{ fontFamily: SF }}>
+            <button className="flex items-center justify-center gap-1.5 bg-[#2b63eb] text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" style={{ fontFamily: SF }}>
               <Gift className="w-[16px] h-[16px]" strokeWidth={2} />
               Add Gift
             </button>
             
-            <button className="flex items-center justify-center gap-1.5 bg-[#1c1c1e] text-white px-4 h-[36px] rounded-full font-semibold text-[14px] active:scale-95 transition-all shrink-0" style={{ fontFamily: SF }}>
+            <button className="flex items-center justify-center gap-1.5 bg-[#000000] border border-white/10 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" style={{ fontFamily: SF }}>
               <Info className="w-[16px] h-[16px]" strokeWidth={2} />
               Info
             </button>
             
-            <button className="flex items-center justify-center w-[36px] h-[36px] bg-[#1c1c1e] rounded-full shrink-0 active:scale-95 transition-all">
-              <PenLine className="w-[16px] h-[16px] text-white" strokeWidth={2} />
+            <button className="flex items-center justify-center w-[34px] h-[34px] bg-[#000000] border border-white/10 rounded-full shrink-0 active:scale-95 transition-all">
+              <PenLine className="w-[15px] h-[15px] text-white" strokeWidth={2} />
             </button>
             
             {/* Línea divisoria flotante en el espacio */}
-            <div className="w-[1px] h-[16px] bg-[#48484a] shrink-0" />
+            <div className="w-[1px] h-[14px] bg-[#48484a] shrink-0 mx-0.5" />
             
-            <button className="flex items-center justify-center gap-1.5 bg-[#1c1c1e] text-white px-4 h-[36px] rounded-full font-semibold text-[14px] active:scale-95 transition-all shrink-0" style={{ fontFamily: SF }}>
+            <button className="flex items-center justify-center gap-1.5 bg-[#000000] border border-white/10 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" style={{ fontFamily: SF }}>
               <PlusCircle className="w-[16px] h-[16px]" strokeWidth={2} />
               Add Links
             </button>
