@@ -303,7 +303,7 @@ function AppContent() {
   const [fadeLoading, setFadeLoading] = useState(false)
   
   // Estado que controla si la pantalla de mantenimiento está activa
-  const [isMaintenance, setIsMaintenance] = useState(true)
+  const [isMaintenance, setIsMaintenance] = useState(false) // <-- Cambiar a true si necesitas activarlo
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -388,6 +388,7 @@ function AppContent() {
         {currentView === "levels" && <LevelsView />} 
         {currentView === "shop" && <ShopView />} 
         {currentView === "settings"  && <SettingsView />}
+        {currentView === "account_setup" && <SettingsView initialPage="prefs" returnView="home" />}
         {currentView === "premium"   && <PremiumView />}
         {currentView === "referral"  && <ReferralView />}
         {currentView === "profile"   && <ProfileView />}
