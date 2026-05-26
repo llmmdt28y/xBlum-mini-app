@@ -7,7 +7,7 @@ import {
   Loader2, Sparkles, UserPen, SmilePlus, WandSparkles, Settings2,
   CircleStar, ChartPie, Info
 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import React from "react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -58,6 +58,34 @@ const createRipple = (event: React.PointerEvent<any>) => {
   setTimeout(() => {
     circle.remove()
   }, 600)
+}
+
+// ── Helpers de API ──
+function getInitData(): string {
+  if (typeof window === "undefined") return ""
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (window as any).Telegram?.WebApp?.initData ?? ""
+}
+
+async function apiPost(path: string, body: Record<string, unknown>) {
+  const res = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...body, initData: getInitData() }),
+  })
+  if (!res.ok) return null
+  return res.json()
+}
+
+// ── Formato de hora real desde ISO string ──
+function formatResetTime(isoString: string | undefined): string {
+  if (!isoString) return "—"
+  try {
+    const date = new Date(isoString)
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  } catch {
+    return "—"
+  }
 }
 
 // ── Data ──
@@ -116,6 +144,7 @@ interface ModelTokenInfo {
   limit:     number
   mins_left: number
   pct:       number
+  reset_iso: string
 }
 
 const MODELS: {
@@ -152,7 +181,6 @@ const LANGS = [
 
 // ── Componentes UI para la Vista Principal ──
 
-// Componente Squircle reducido (Estilo Lista Nativa 28x28px)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function IconFlat({ icon: Icon, color, spin }: { icon: any, color: string, spin?: boolean }) {
   return (
@@ -161,7 +189,7 @@ function IconFlat({ icon: Icon, color, spin }: { icon: any, color: string, spin?
       style={{
         width: "28px",   
         height: "28px",
-        borderRadius: "6.5px", // Proporción exacta iOS
+        borderRadius: "6.5px",
         backgroundColor: color,
         color: "white"
       }}
@@ -171,7 +199,6 @@ function IconFlat({ icon: Icon, color, spin }: { icon: any, color: string, spin?
   )
 }
 
-// Componente circular más grande para la vista de Account Setup
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function IconCircularLarge({ icon: Icon, color }: { icon: any, color: string }) {
   return (
@@ -369,7 +396,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   } = useApp()
 
   const [page, setPage] = useState<SettingsPage>(initialPage)
-  const [improveModel, setImproveModel] = useState(false)
   const [saving, setSaving] = useState("")
   const [showReportModal, setShowReportModal] = useState(false)
   const [reportType, setReportType] = useState("General feedback")
@@ -378,35 +404,61 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const [submittingReport, setSubmittingReport] = useState(false)
   const [reportSent, setReportSent] = useState(false)
   const [showLimitsInfo, setShowLimitsInfo] = useState(false)
-  
-  // Estado local para Tool Access
-  const [toolAccess, setToolAccess] = useState("Auto")
 
-  // Estados para el perfil del usuario
+  // ── Tool Access — estado local sincronizado con backend ──
+  const [toolAccess, setToolAccessLocal] = useState("Auto")
+  const [savingToolAccess, setSavingToolAccess] = useState(false)
+
+  // ── Datos del perfil — cargados desde /api/user_profile ──
+  const profileLoaded = useRef(false)
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [displayName, setDisplayName] = useState("")
 
+  // ── Campos del perfil de cuenta ──
+  // Se inicializan desde userPreferences (app-context) y se sobreescriben con datos del backend
   const prefs = userPreferences || {}
-  
-  // Estados para los campos de Account Setup
   const [nameField, setNameField] = useState(prefs.name?.toString() || "")
   const [genderField, setGenderField] = useState(prefs.gender?.toString() || "")
   const [ageField, setAgeField] = useState(prefs.age?.toString() || "")
   const [cityField, setCityField] = useState(prefs.city?.toString() || "")
-  
   const [timezoneField, setTimezoneField] = useState(prefs.timezone?.toString() || "")
   const [occupationField, setOccupationField] = useState(prefs.occupation?.toString() || "")
   const [interestsField, setInterestsField] = useState(prefs.interests?.toString() || "")
-  
   const [favoriteEmojiField, setFavoriteEmojiField] = useState(prefs.favoriteEmoji?.toString() || "")
   const [personalityField, setPersonalityField] = useState(prefs.personality?.toString() || "")
 
-  const legacyModels = ["Grok 4.1", "Grok 4", "GPT-5.4", "GPT-5.2"];
-  const displayModelName = legacyModels.includes(selectedModel) 
-    ? "Gemini 3.5 Flash" 
+  // ── Estado de token por modelo (sobrescrito con datos reales del backend) ──
+  const [liveTokenStatus, setLiveTokenStatus] = useState<Record<string, ModelTokenInfo> | null>(null)
+
+  const legacyModels = ["Grok 4.1", "Grok 4", "GPT-5.4", "GPT-5.2"]
+  const displayModelName = legacyModels.includes(selectedModel)
+    ? "Gemini 3.5 Flash"
     : selectedModel
 
-  // Extraer información del usuario de Telegram
+  // ── Carga inicial: perfil + tool_access desde backend ──
+  useEffect(() => {
+    if (profileLoaded.current) return
+    profileLoaded.current = true
+
+    apiPost("/api/user_profile", {}).then((data) => {
+      if (!data?.ok) return
+
+      const p = data.profile || {}
+      if (p.name)          setNameField(p.name)
+      if (p.gender)        setGenderField(p.gender)
+      if (p.age)           setAgeField(p.age)
+      if (p.city)          setCityField(p.city)
+      if (p.timezone)      setTimezoneField(p.timezone)
+      if (p.occupation)    setOccupationField(p.occupation)
+      if (p.interests)     setInterestsField(p.interests)
+      if (p.favoriteEmoji) setFavoriteEmojiField(p.favoriteEmoji)
+      if (p.personality)   setPersonalityField(p.personality)
+
+      if (data.tool_access) setToolAccessLocal(data.tool_access)
+    })
+  }, [])
+
+  // ── Cargar datos del usuario de Telegram ──
   useEffect(() => {
     const user = getTgUser()
     if (!user) return
@@ -418,19 +470,53 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // ── Fix bug de Gemini: re-sincronizar el modelo seleccionado desde el backend al montar ──
+  useEffect(() => {
+    apiPost("/api/get_model", {}).then((data) => {
+      if (data?.ok && data.model && data.model !== selectedModel) {
+        setSelectedModel(data.model as ModelName)
+      }
+    })
+  // Solo al montar
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // ── Cargar token status real cuando se entra a "model" o "usage_limits" ──
+  const fetchTokenStatus = useCallback(async () => {
+    const data = await apiPost("/api/model_token_status", {})
+    if (data?.ok && data.models) {
+      setLiveTokenStatus(data.models)
+    }
+    // También refrescar el contexto de app
+    refreshModelTokenStatus()
+  }, [refreshModelTokenStatus])
+
+  useEffect(() => {
+    if (page === "model" || page === "usage_limits") {
+      fetchTokenStatus()
+    }
+  }, [page, fetchTokenStatus])
+
+  // ── Función para cambiar Tool Access (guarda en backend) ──
+  async function handleToolAccessChange(value: string) {
+    setToolAccessLocal(value)
+    setSavingToolAccess(true)
+    await apiPost("/api/set_tool_access", { tool_access: value })
+    setSavingToolAccess(false)
+  }
+
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
   // Calculo de porcentaje de completado
-  const completionFields = [nameField, genderField, ageField, cityField, timezoneField, occupationField, interestsField, favoriteEmojiField, personalityField];
-  const totalFields = 9;
-  const filledFields = completionFields.filter(field => field.trim().length > 0).length;
-  const completionPct = Math.round((filledFields / totalFields) * 100);
-  const circleOffset = 295 - (295 * completionPct) / 100;
+  const completionFields = [nameField, genderField, ageField, cityField, timezoneField, occupationField, interestsField, favoriteEmojiField, personalityField]
+  const totalFields = 9
+  const filledFields = completionFields.filter(field => field.trim().length > 0).length
+  const completionPct = Math.round((filledFields / totalFields) * 100)
+  const circleOffset = 295 - (295 * completionPct) / 100
   
-  // Lógica de finalización por categoría (Para mostrar la palomita verde)
-  const isBasicInfoComplete = !!(nameField.trim() && genderField.trim() && ageField.trim() && cityField.trim());
-  const isAdditionalDetailsComplete = !!(timezoneField.trim() && occupationField.trim() && interestsField.trim());
-  const isNoirPersonalityComplete = !!(favoriteEmojiField.trim() && personalityField.trim());
+  const isBasicInfoComplete = !!(nameField.trim() && genderField.trim() && ageField.trim() && cityField.trim())
+  const isAdditionalDetailsComplete = !!(timezoneField.trim() && occupationField.trim() && interestsField.trim())
+  const isNoirPersonalityComplete = !!(favoriteEmojiField.trim() && personalityField.trim())
   
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -449,17 +535,25 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     return () => { tg.BackButton.offClick(handleBack) }
   }, [page, setCurrentView, initialPage, returnView])
 
-  // Funciones para guardar en las Preferencias
-  const saveBasicInfo = () => {
-    setUserPreferences({ ...prefs, name: nameField, gender: genderField, age: ageField, city: cityField })
+  // ── Guardar perfil en backend + app-context ──
+  const saveBasicInfo = async () => {
+    const updated = { ...prefs, name: nameField, gender: genderField, age: ageField, city: cityField }
+    setUserPreferences(updated)
+    await apiPost("/api/save_user_profile", { profile: updated })
     setPage("prefs")
   }
-  const saveAdditionalInfo = () => {
-    setUserPreferences({ ...prefs, timezone: timezoneField, occupation: occupationField, interests: interestsField })
+
+  const saveAdditionalInfo = async () => {
+    const updated = { ...prefs, timezone: timezoneField, occupation: occupationField, interests: interestsField }
+    setUserPreferences(updated)
+    await apiPost("/api/save_user_profile", { profile: updated })
     setPage("prefs")
   }
-  const saveNoirInfo = () => {
-    setUserPreferences({ ...prefs, favoriteEmoji: favoriteEmojiField, personality: personalityField })
+
+  const saveNoirInfo = async () => {
+    const updated = { ...prefs, favoriteEmoji: favoriteEmojiField, personality: personalityField }
+    setUserPreferences(updated)
+    await apiPost("/api/save_user_profile", { profile: updated })
     setPage("prefs")
   }
 
@@ -469,12 +563,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     setSaving("")
     setPage("main")
   }
-
-  useEffect(() => {
-    if (page === "model") {
-      refreshModelTokenStatus()
-    }
-  }, [page, refreshModelTokenStatus])
 
   async function handlePersonalizeToggle() {
     setSaving("personalize")
@@ -510,6 +598,9 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     )
   }
 
+  // Combinar token status: live (backend) tiene prioridad, fallback a app-context
+  const mergedTokenStatus = liveTokenStatus ?? (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)
+
   // ── Model page ─────────────────────────────────────────────────────────────
   if (page === "model") return (
     <div key="model" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
@@ -523,8 +614,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             {MODELS.map((m) => {
               const locked = m.proOnly && !isPremium
 
-              const tokenKey = m.name
-              const tokenInfo: ModelTokenInfo | undefined = (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)?.[tokenKey]
+              const tokenInfo: ModelTokenInfo | undefined = mergedTokenStatus?.[m.name]
 
               const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
               const minsLeft = limitHit ? tokenInfo.mins_left : 0
@@ -622,7 +712,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-10">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Language</h2>
             </div>
-            {LANGS.map((lang, i) => (
+            {LANGS.map((lang) => (
               <div key={lang.code}>
                 <button 
                   onClick={() => { setLanguage(lang.code); setPage("main") }}
@@ -659,7 +749,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-10">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Gender</h2>
             </div>
-            {GENDERS.map((g, i) => (
+            {GENDERS.map((g) => (
                <div key={g}>
                 <button 
                   onClick={() => setGenderField(g)} 
@@ -703,7 +793,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-10">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Time zone</h2>
             </div>
-            {TIMEZONES.map((tz, i) => {
+            {TIMEZONES.map((tz) => {
               const displayVal = `${tz.name} (${tz.offset})`
               return (
                 <div key={tz.name}>
@@ -750,7 +840,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         <div className="space-y-2">
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
             
-            {/* Item: Name */}
             <div className="flex items-center w-full px-4 py-3 relative z-10">
               <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>Name<span className="text-[#ef4444]">*</span></span>
               <input 
@@ -762,7 +851,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               />
             </div>
 
-            {/* Item: Gender */}
             <button 
               onClick={() => setPage("gender_select")} 
               onPointerDown={createRipple}
@@ -775,7 +863,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               <ChevronRight className="w-5 h-5 text-[#8e8e93] shrink-0 relative z-10" />
             </button>
 
-            {/* Item: Age */}
             <div className="flex items-center w-full px-4 py-3 relative z-10">
               <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>Age</span>
               <input 
@@ -788,7 +875,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               />
             </div>
 
-            {/* Item: City */}
             <div className="flex items-center w-full px-4 py-3 relative z-10">
               <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>City</span>
               <input 
@@ -803,7 +889,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center gap-4 mt-8 w-full">
             <button 
                onClick={() => setPage("prefs")} 
@@ -836,7 +921,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         
         <div className="space-y-4">
           
-          {/* Item: Time zone */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
             <button 
               onClick={() => setPage("timezone_select")} 
@@ -853,7 +937,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             </button>
           </div>
 
-          {/* Item: Occupation */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
             <div className="flex flex-col w-full px-4 py-3 text-left">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Occupation</h2>
@@ -868,7 +951,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             </div>
           </div>
 
-          {/* Item: Interests */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
             <div className="flex flex-col w-full px-4 py-3 text-left">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Interests</h2>
@@ -885,7 +967,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center gap-4 mt-8 w-full">
             <button 
               onClick={() => setPage("prefs")} 
@@ -918,7 +999,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         
         <div className="space-y-4">
           
-          {/* Item: Favorite emoji */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
             <div className="flex flex-col w-full px-4 py-3 text-left">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Favorite emoji</h2>
@@ -932,7 +1012,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             </div>
           </div>
 
-          {/* Item: Personality */}
           <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
             <div className="flex flex-col w-full px-4 py-3 text-left">
               <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Personality</h2>
@@ -949,7 +1028,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center gap-4 mt-8 w-full">
             <button 
               onClick={() => setPage("prefs")} 
@@ -978,13 +1056,10 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       
-      {/* Espaciado superior dinámico de Telegram */}
       <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
 
-      {/* Título Principal y Gráfico Circular */}
       <div className="flex flex-col items-center mt-2 mb-6 relative z-10">
         
-        {/* Gráfico circular con la foto de perfil en medio */}
         <div className="relative w-[130px] h-[130px] flex items-center justify-center rounded-full mb-6 mt-8">
           
           <svg className="absolute inset-0 w-full h-full transform -rotate-90 z-20 pointer-events-none" viewBox="0 0 100 100">
@@ -998,7 +1073,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             />
           </svg>
           
-          {/* Foto de Perfil o Iniciales */}
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <div className="w-[104px] h-[104px] rounded-full overflow-hidden bg-gradient-to-br from-[#1e1e1e] to-[#0a0a0a] flex items-center justify-center border-2 border-transparent relative shadow-lg">
                {photoUrl ? (
@@ -1035,10 +1109,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
            <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-4" style={{ fontFamily: SF }}>Profile Setup</h3>
 
            <div className="relative flex flex-col">
-              {/* Línea vertical conectora central (Hecha más gruesa y clara) */}
               <div className="absolute left-[20.5px] top-[30px] bottom-[30px] w-[3px] bg-[#3a3a3c] z-0 rounded-full" />
               
-              {/* Step 1: Basic Information */}
               <button 
                 onClick={() => setPage("basic_info")} 
                 onPointerDown={createRipple}
@@ -1059,7 +1131,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                  </div>
               </button>
               
-              {/* Step 2: Additional Details */}
               <button 
                 onClick={() => setPage("additional_details")} 
                 onPointerDown={createRipple}
@@ -1086,7 +1157,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
            <h3 className="text-[#8e8e93] text-[15px] font-medium mb-3 mt-8" style={{ fontFamily: SF }}>Noir Personality</h3>
 
            <div className="relative flex flex-col">
-              {/* Step 1: Noir Personality */}
               <button 
                 onClick={() => setPage("noir_personality")}
                 onPointerDown={createRipple}
@@ -1138,12 +1208,14 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
           {[
             { id: "Auto", desc: "Noir chooses for you" },
             { id: "On demand", desc: "Load when needed. More messages, lower accuracy" },
-            { id: "Always available", desc: "Ready from start. Fewer messages, better accuracy" }
+            { id: "Always available", desc: "Ready from start. Fewer messages, better accuracy" },
+            { id: "Off", desc: "Disabled. Saves usage — ideal for simple conversations" },
           ].map((t) => (
             <button
               key={t.id}
-              onClick={() => setToolAccess(t.id)}
+              onClick={() => handleToolAccessChange(t.id)}
               onPointerDown={createRipple}
+              disabled={savingToolAccess}
               className="relative overflow-hidden w-full px-4 py-3 flex items-center justify-between active:bg-white/5 transition-colors text-left"
             >
               <div className="flex flex-col flex-1 pr-4 relative z-10">
@@ -1151,7 +1223,10 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                 <span className={`text-[13px] mt-[3px] leading-snug ${toolAccess === t.id ? "text-[#60a5fa]" : "text-[#8e8e93]"}`} style={{ fontFamily: SF }}>{t.desc}</span>
               </div>
               <div className="shrink-0 relative z-10 ml-2">
-                <RadioButton selected={toolAccess === t.id} />
+                {savingToolAccess && toolAccess === t.id
+                  ? <Loader2 className="w-[18px] h-[18px] animate-spin text-[#60a5fa]" />
+                  : <RadioButton selected={toolAccess === t.id} />
+                }
               </div>
             </button>
           ))}
@@ -1180,71 +1255,148 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   )
 
   // ── Usage Limits Sub-page ────────────────────────────────────────
-  if (page === "usage_limits") return (
-    <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
-         style={{ background: "#000", minHeight: "100vh" }}>
-      <style>{RIPPLE_STYLE}</style>
-      <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
-        <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
-      </div>
-      
-      <div className="px-4 pt-2 pb-28 space-y-6">
-        {/* Encabezado al estilo de la imagen */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2.5">
-            <h1 className="text-[28px] font-bold text-white leading-none" style={{ fontFamily: SFD }}>Usage Limits</h1>
-            <span className="px-2 py-0.5 rounded-md text-[11px] font-bold text-[#8e8e93] bg-[#111111] border border-white/5" style={{ fontFamily: SF }}>
-              {isPremium ? "PRO" : "Free"}
-            </span>
-          </div>
-          <p className="text-[#8e8e93] text-[15px] leading-snug" style={{ fontFamily: SF }}>
-            Your plan limits determine how much you can use Noir over time. Advanced models and features may consume more usage.
-            <br/>
-            <span className="text-[#60a5fa] mt-1 inline-block cursor-pointer">More information</span>
-          </p>
-          <p className="text-[#8e8e93] text-[14px] pt-2" style={{ fontFamily: SF }}>
-            Updated just now
-          </p>
+  if (page === "usage_limits") {
+    const grokInfo   = mergedTokenStatus?.["Grok 4.3"]
+    const geminiInfo = mergedTokenStatus?.["Gemini 3.5 Flash"]
+
+    // Uso combinado para la barra principal (promedio ponderado)
+    const combinedPct = (grokInfo && geminiInfo)
+      ? Math.round((grokInfo.pct + geminiInfo.pct) / 2)
+      : grokInfo?.pct ?? geminiInfo?.pct ?? 0
+
+    // Hora de reset más próxima entre los dos modelos
+    const earliestResetIso = (() => {
+      const times = [grokInfo?.reset_iso, geminiInfo?.reset_iso].filter(Boolean) as string[]
+      if (!times.length) return undefined
+      return times.sort()[0]
+    })()
+
+    const resetTimeDisplay = formatResetTime(earliestResetIso)
+
+    const barColor = combinedPct >= 90 ? "#ef4444" : combinedPct >= 70 ? "#f97316" : "#ffffff"
+
+    return (
+      <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
+           style={{ background: "#000", minHeight: "100vh" }}>
+        <style>{RIPPLE_STYLE}</style>
+        <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
+          <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
         </div>
-
-        {/* Contenedores de Uso */}
-        <div className="space-y-3">
-          <div className="rounded-[24px] bg-[#111111] p-5 border border-white/5 relative z-10 shadow-lg">
-            <div className="flex items-center justify-between mb-3.5">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[17px] font-semibold text-white" style={{ fontFamily: SF }}>Current usage</span>
-                <button 
-                 onClick={() => setShowLimitsInfo(!showLimitsInfo)}
-                  onPointerDown={createRipple}
-                  className="relative overflow-hidden rounded-full p-1 -ml-1 active:bg-white/10 transition-colors"
-                >
-                  <Info className="w-[15px] h-[15px] text-[#8e8e93] relative z-10" />
-                </button>
-              </div>
-              <span className="text-[16px] font-bold text-white" style={{ fontFamily: SF }}>70% used</span>
+        
+        <div className="px-4 pt-2 pb-28 space-y-6">
+          {/* Encabezado */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-[28px] font-bold text-white leading-none" style={{ fontFamily: SFD }}>Usage Limits</h1>
+              <span className="px-2 py-0.5 rounded-md text-[11px] font-bold text-[#8e8e93] bg-[#111111] border border-white/5" style={{ fontFamily: SF }}>
+                {isPremium ? "PRO" : "Free"}
+              </span>
             </div>
-
-            {showLimitsInfo && (
-              <div className="mb-4 p-3.5 rounded-xl bg-[#1c1c1e] border border-white/5 animate-in fade-in slide-in-from-top-2">
-                <h3 className="text-white font-bold text-[16px] mb-1" style={{ fontFamily: SFD }}>How limits work</h3>
-                <p className="text-[#8e8e93] text-[14px] leading-snug" style={{ fontFamily: SF }}>
-                  The limits are reset every 3 hours
-                </p>
-              </div>
-            )}
-            
-            <div className="w-full h-[6px] bg-[#1c1c1e] rounded-full mb-3.5 overflow-hidden flex">
-              <div className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]" style={{ width: "70%" }}></div>
-            </div>
-            
-            <p className="text-[15px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>
-              Resets at 7:09 PM
+            <p className="text-[#8e8e93] text-[15px] leading-snug" style={{ fontFamily: SF }}>
+              Your plan limits determine how much you can use Noir over time. Advanced models and features may consume more usage.
+              <br/>
+              <span className="text-[#60a5fa] mt-1 inline-block cursor-pointer">More information</span>
+            </p>
+            <p className="text-[#8e8e93] text-[14px] pt-2" style={{ fontFamily: SF }}>
+              Updated just now
             </p>
           </div>
+
+          {/* Barra de uso combinado */}
+          <div className="space-y-3">
+            <div className="rounded-[24px] bg-[#111111] p-5 border border-white/5 relative z-10 shadow-lg">
+              <div className="flex items-center justify-between mb-3.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[17px] font-semibold text-white" style={{ fontFamily: SF }}>Current usage</span>
+                  <button 
+                    onClick={() => setShowLimitsInfo(!showLimitsInfo)}
+                    onPointerDown={createRipple}
+                    className="relative overflow-hidden rounded-full p-1 -ml-1 active:bg-white/10 transition-colors"
+                  >
+                    <Info className="w-[15px] h-[15px] text-[#8e8e93] relative z-10" />
+                  </button>
+                </div>
+                <span className="text-[16px] font-bold text-white" style={{ fontFamily: SF }}>{combinedPct}% used</span>
+              </div>
+
+              {showLimitsInfo && (
+                <div className="mb-4 p-3.5 rounded-xl bg-[#1c1c1e] border border-white/5 animate-in fade-in slide-in-from-top-2">
+                  <h3 className="text-white font-bold text-[16px] mb-1" style={{ fontFamily: SFD }}>How limits work</h3>
+                  <p className="text-[#8e8e93] text-[14px] leading-snug" style={{ fontFamily: SF }}>
+                    Each model has independent limits that reset every 3 hours. If Grok 4.3 reaches its limit, you can still use Gemini 3.5 Flash and vice versa.
+                    {isPremium ? " Pro users get 5× more tokens than free users." : " Upgrade to Pro for 5× more usage."}
+                  </p>
+                </div>
+              )}
+              
+              <div className="w-full h-[6px] bg-[#1c1c1e] rounded-full mb-3.5 overflow-hidden flex">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${combinedPct}%`, background: barColor, boxShadow: combinedPct > 0 ? `0 0 10px ${barColor}66` : "none" }}
+                />
+              </div>
+              
+              <p className="text-[15px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>
+                Resets at {resetTimeDisplay}
+              </p>
+            </div>
+          </div>
+
+          {/* Cards individuales por modelo */}
+          <div className="space-y-3">
+            {[
+              { label: "Grok 4.3", info: grokInfo, logo: "/grok.png" },
+              { label: "Gemini 3.5 Flash", info: geminiInfo, logo: "/gemini.png" },
+            ].map(({ label, info, logo }) => {
+              const pct     = info?.pct ?? 0
+              const used    = info?.used ?? 0
+              const limit   = info?.limit ?? 0
+              const reset   = formatResetTime(info?.reset_iso)
+              const mColor  = pct >= 90 ? "#ef4444" : pct >= 70 ? "#f97316" : "#3b82f6"
+
+              return (
+                <div key={label} className="rounded-[20px] bg-[#111111] p-4 border border-white/5 shadow-lg">
+                  <div className="flex items-center gap-3 mb-3">
+                    <img src={logo} alt={label} className="w-7 h-7 object-contain" />
+                    <span className="text-[15px] font-semibold text-white flex-1" style={{ fontFamily: SF }}>{label}</span>
+                    <span className="text-[13px] font-medium" style={{ fontFamily: SF, color: pct >= 90 ? "#ef4444" : "#8e8e93" }}>
+                      {pct}%
+                    </span>
+                  </div>
+                  <div className="w-full h-[4px] bg-[#1c1c1e] rounded-full overflow-hidden mb-2.5">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${pct}%`, background: mColor }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px] text-[#555558]" style={{ fontFamily: SF }}>
+                      {limit > 0 ? `${(used / 1000).toFixed(1)}k / ${(limit / 1000).toFixed(0)}k tokens` : "—"}
+                    </span>
+                    <span className="text-[12px] text-[#555558]" style={{ fontFamily: SF }}>
+                      Resets at {reset}
+                    </span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Upgrade CTA para usuarios Free */}
+          {!isPremium && (
+            <button
+              onClick={() => setCurrentView("premium")}
+              onPointerDown={createRipple}
+              className="relative overflow-hidden w-full py-4 rounded-[20px] text-white font-bold text-[16px] active:opacity-80 transition-opacity shadow-lg"
+              style={{ background: "linear-gradient(135deg, #1d4ed8 0%, #7c3aed 100%)", fontFamily: SF }}
+            >
+              <span className="relative z-10">✦ Upgrade to Pro — Get 5× more usage</span>
+            </button>
+          )}
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
