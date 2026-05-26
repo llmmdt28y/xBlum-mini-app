@@ -351,9 +351,11 @@ function SubHeader({ title }: { title: string }) {
   )
 }
 
+export type SettingsPage = "main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits";
+
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function SettingsView() {
+export function SettingsView({ initialPage = "main", returnView = "profile" }: { initialPage?: SettingsPage, returnView?: string }) {
   const {
     setCurrentView, language, setLanguage,
     selectedModel, setSelectedModel,
@@ -366,8 +368,7 @@ export function SettingsView() {
     refreshModelTokenStatus,
   } = useApp()
 
-  const [page, setPage] = useState<"main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits">("main")
-  const [tempPrefs, setTempPrefs] = useState(userPreferences)
+  const [page, setPage] = useState<SettingsPage>(initialPage)
   const [improveModel, setImproveModel] = useState(false)
   const [saving, setSaving] = useState("")
   const [showReportModal, setShowReportModal] = useState(false)
@@ -385,18 +386,20 @@ export function SettingsView() {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [displayName, setDisplayName] = useState("")
 
-  // Estados para los campos de Account Setup
-  const [nameField, setNameField] = useState("")
-  const [genderField, setGenderField] = useState("")
-  const [ageField, setAgeField] = useState("")
-  const [cityField, setCityField] = useState("")
-  const [timezoneField, setTimezoneField] = useState("")
-  const [occupationField, setOccupationField] = useState("")
-  const [interestsField, setInterestsField] = useState("")
+  const prefs = userPreferences || {}
   
-  // Estados para Noir Personality
-  const [favoriteEmojiField, setFavoriteEmojiField] = useState("")
-  const [personalityField, setPersonalityField] = useState("")
+  // Estados para los campos de Account Setup
+  const [nameField, setNameField] = useState(prefs.name?.toString() || "")
+  const [genderField, setGenderField] = useState(prefs.gender?.toString() || "")
+  const [ageField, setAgeField] = useState(prefs.age?.toString() || "")
+  const [cityField, setCityField] = useState(prefs.city?.toString() || "")
+  
+  const [timezoneField, setTimezoneField] = useState(prefs.timezone?.toString() || "")
+  const [occupationField, setOccupationField] = useState(prefs.occupation?.toString() || "")
+  const [interestsField, setInterestsField] = useState(prefs.interests?.toString() || "")
+  
+  const [favoriteEmojiField, setFavoriteEmojiField] = useState(prefs.favoriteEmoji?.toString() || "")
+  const [personalityField, setPersonalityField] = useState(prefs.personality?.toString() || "")
 
   const legacyModels = ["Grok 4.1", "Grok 4", "GPT-5.4", "GPT-5.2"];
   const displayModelName = legacyModels.includes(selectedModel) 
@@ -411,7 +414,7 @@ export function SettingsView() {
     const full = [user.first_name, user.last_name].filter(Boolean).join(" ")
     const defaultName = full || user.username || "User"
     setDisplayName(defaultName)
-    if (!nameField) setNameField(defaultName)
+    if (!nameField && !prefs.name) setNameField(defaultName)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -425,9 +428,9 @@ export function SettingsView() {
   const circleOffset = 295 - (295 * completionPct) / 100;
   
   // Lógica de finalización por categoría (Para mostrar la palomita verde)
-  const isBasicInfoComplete = nameField.trim() !== "" && genderField.trim() !== "" && ageField.trim() !== "" && cityField.trim() !== "";
-  const isAdditionalDetailsComplete = timezoneField.trim() !== "" && occupationField.trim() !== "" && interestsField.trim() !== "";
-  const isNoirPersonalityComplete = favoriteEmojiField.trim() !== "" && personalityField.trim() !== "";
+  const isBasicInfoComplete = !!(nameField.trim() && genderField.trim() && ageField.trim() && cityField.trim());
+  const isAdditionalDetailsComplete = !!(timezoneField.trim() && occupationField.trim() && interestsField.trim());
+  const isNoirPersonalityComplete = !!(favoriteEmojiField.trim() && personalityField.trim());
   
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -439,12 +442,26 @@ export function SettingsView() {
       else if (page === "timezone_select") setPage("additional_details")
       else if (page === "basic_info" || page === "additional_details" || page === "noir_personality") setPage("prefs")
       else if (page === "usage_limits") setPage("main")
-      else if (page !== "main") setPage("main")
-      else { setCurrentView("profile"); tg.BackButton.hide() }
+      else if (page !== "main" && initialPage === "main") setPage("main")
+      else { setCurrentView(returnView as any); tg.BackButton.hide() }
     }
     tg.BackButton.onClick(handleBack)
     return () => { tg.BackButton.offClick(handleBack) }
-  }, [page, setCurrentView])
+  }, [page, setCurrentView, initialPage, returnView])
+
+  // Funciones para guardar en las Preferencias
+  const saveBasicInfo = () => {
+    setUserPreferences({ ...prefs, name: nameField, gender: genderField, age: ageField, city: cityField })
+    setPage("prefs")
+  }
+  const saveAdditionalInfo = () => {
+    setUserPreferences({ ...prefs, timezone: timezoneField, occupation: occupationField, interests: interestsField })
+    setPage("prefs")
+  }
+  const saveNoirInfo = () => {
+    setUserPreferences({ ...prefs, favoriteEmoji: favoriteEmojiField, personality: personalityField })
+    setPage("prefs")
+  }
 
   async function selectModel(m: string) {
     setSaving("model")
@@ -514,8 +531,7 @@ export function SettingsView() {
               const pct      = tokenInfo?.pct ?? 0
 
               const active =
-                m.name === selectedModel ||
-                (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
+                m.name === selectedModel || (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
 
               const isDisabled = locked || saving === "model" || !!limitHit
 
@@ -575,7 +591,7 @@ export function SettingsView() {
                     </div>
 
                     <div className="shrink-0 flex items-center justify-center ml-3 relative z-10">
-                      {saving === "model" && active ? (
+                       {saving === "model" && active ? (
                         <Loader2 className="w-[22px] h-[22px] animate-spin" style={{ color: "#8e8e93" }} />
                       ) : (
                         <RadioButton selected={active && !isDisabled} />
@@ -644,7 +660,7 @@ export function SettingsView() {
               <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Gender</h2>
             </div>
             {GENDERS.map((g, i) => (
-              <div key={g}>
+               <div key={g}>
                 <button 
                   onClick={() => setGenderField(g)} 
                   onPointerDown={createRipple}
@@ -790,7 +806,7 @@ export function SettingsView() {
         {/* Action Buttons */}
         <div className="flex items-center gap-4 mt-8 w-full">
             <button 
-              onClick={() => setPage("prefs")} 
+               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
               style={{ fontFamily: SF, fontSize: "16px" }}
@@ -798,7 +814,7 @@ export function SettingsView() {
               <span className="relative z-10">Cancel</span>
             </button>
             <button 
-              onClick={() => setPage("prefs")} 
+              onClick={saveBasicInfo} 
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
@@ -828,7 +844,7 @@ export function SettingsView() {
               className="relative overflow-hidden w-full flex flex-col px-4 py-3 text-left active:bg-white/5 transition-colors"
             >
               <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2 relative z-10" style={{ fontFamily: SF }}>Time zone</h2>
-              <div className="flex items-center justify-between w-full relative z-10">
+               <div className="flex items-center justify-between w-full relative z-10">
                 <span className={`text-[16px] font-medium flex-1 ${timezoneField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
                   {timezoneField || "Select time zone"}
                 </span>
@@ -880,7 +896,7 @@ export function SettingsView() {
               <span className="relative z-10">Cancel</span>
             </button>
             <button 
-              onClick={() => setPage("prefs")} 
+              onClick={saveAdditionalInfo} 
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
@@ -939,12 +955,12 @@ export function SettingsView() {
               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
-              style={{ fontFamily: SF, fontSize: "16px" }}
+               style={{ fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Cancel</span>
             </button>
             <button 
-              onClick={() => setPage("prefs")} 
+              onClick={saveNoirInfo} 
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
@@ -985,7 +1001,7 @@ export function SettingsView() {
           {/* Foto de Perfil o Iniciales */}
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <div className="w-[104px] h-[104px] rounded-full overflow-hidden bg-gradient-to-br from-[#1e1e1e] to-[#0a0a0a] flex items-center justify-center border-2 border-transparent relative shadow-lg">
-              {photoUrl ? (
+               {photoUrl ? (
                 <img 
                   src={photoUrl} 
                   alt={displayName} 
@@ -1048,7 +1064,7 @@ export function SettingsView() {
                 onClick={() => setPage("additional_details")} 
                 onPointerDown={createRipple}
                 className="w-full relative overflow-hidden z-10 flex items-stretch active:opacity-70 transition-opacity text-left rounded-xl bg-transparent"
-              >
+               >
                  <div className="py-2.5 flex items-center shrink-0">
                     <IconCircularLarge icon={FileText} color="#007aff" />
                  </div>
@@ -1078,7 +1094,7 @@ export function SettingsView() {
               >
                  <div className="py-2.5 flex items-center shrink-0">
                     <IconCircularLarge icon={SmilePlus} color="#af52de" />
-                 </div>
+                  </div>
                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Noir Personality</p>
                     {isNoirPersonalityComplete ? (
@@ -1198,7 +1214,7 @@ export function SettingsView() {
               <div className="flex items-center gap-1.5">
                 <span className="text-[17px] font-semibold text-white" style={{ fontFamily: SF }}>Current usage</span>
                 <button 
-                  onClick={() => setShowLimitsInfo(!showLimitsInfo)}
+                 onClick={() => setShowLimitsInfo(!showLimitsInfo)}
                   onPointerDown={createRipple}
                   className="relative overflow-hidden rounded-full p-1 -ml-1 active:bg-white/10 transition-colors"
                 >
@@ -1233,7 +1249,7 @@ export function SettingsView() {
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
     <div key="main" className="flex-1 overflow-y-auto animate-in fade-in duration-500 ease-out" style={{ background: "#000" }}>
-      <style>{RIPPLE_STYLE}</style>
+       <style>{RIPPLE_STYLE}</style>
       
       <div className="flex items-center justify-center px-4 pb-3" style={{
         paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
@@ -1263,7 +1279,7 @@ export function SettingsView() {
             leftNode={<IconFlat icon={CircleUserRound} color="#007aff" />}
             label="Account Setup"
             value="Edit"
-            onClick={() => { setTempPrefs(userPreferences); setPage("prefs") }}
+            onClick={() => { setPage("prefs") }}
           />
         </Section>
 
@@ -1293,7 +1309,7 @@ export function SettingsView() {
         {/* ── Support ── */}
         <Section title="Support">
           <Row
-            isLink
+           isLink
             href="https://xblum.gitbook.io/home/xblum/terms"
             leftNode={<IconFlat icon={FileText} color="#8e8e93" />}
             label="Terms of Use"
@@ -1309,7 +1325,7 @@ export function SettingsView() {
             leftNode={<IconFlat icon={MessageCircle} color="#ff9500" />}
             label="Feedback & Support"
           />
-        </Section>
+         </Section>
       </div>
 
       {/* ── Feedback Modal ── */}
@@ -1363,7 +1379,7 @@ export function SettingsView() {
               )}
             </div>
 
-             <div className="p-5 space-y-4 overflow-y-auto flex-1">
+            <div className="p-5 space-y-4 overflow-y-auto flex-1">
               {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
@@ -1372,7 +1388,7 @@ export function SettingsView() {
                   </div>
                   <p className="text-white font-bold" style={{ fontSize: "18px", fontFamily: SFD }}>Thank you!</p>
                   <p className="text-center" style={{ fontSize: "14px", color: "#8e8e93", fontFamily: SF }}>
-                    Your feedback has been received. We'll review it shortly.
+                     Your feedback has been received. We'll review it shortly.
                   </p>
                 </div>
               ) : (
@@ -1403,7 +1419,7 @@ export function SettingsView() {
                             style={{ fontFamily: SF }}>
                             <span className="relative z-10">{type}</span>
                           </button>
-                         ))}
+                        ))}
                       </div>
                     )}
                   </div>
