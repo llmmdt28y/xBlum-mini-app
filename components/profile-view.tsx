@@ -8,11 +8,7 @@ import {
   Info, 
   BellDot, 
   Search, 
-  ArrowUpDown, 
-  CheckSquare, 
-  List, 
-  SlidersHorizontal, 
-  ChevronDown,
+  Filter, 
   Sparkles
 } from "lucide-react"
 
@@ -47,6 +43,13 @@ const blueGlowStyle = {
   transform: "translateZ(0)",
 }
 
+const greyGlowStyle = {
+  backgroundColor: "#1c1c1e",
+  border: "1px solid rgba(255, 255, 255, 0.10)",
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)",
+  transform: "translateZ(0)",
+}
+
 export function ProfileView() {
   const ctx = useApp() as any
   const { setCurrentView } = ctx
@@ -55,7 +58,7 @@ export function ProfileView() {
   const [displayName, setDisplayName] = useState("")
   const [username, setUsername] = useState("")
   
-  // Estado para la navegación
+  // Estado para la navegación (Pestañas actualizadas)
   const [activeTab, setActiveTab] = useState("Collected")
 
   // Obtener datos del usuario de Telegram
@@ -85,7 +88,8 @@ export function ProfileView() {
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
-  const tabs = ["Collected", "History", "Offers", "Favorites", "Soulbound"]
+  // Nuevas opciones de navegación
+  const tabs = ["Collected", "Offers", "Favorites", "Activity"]
 
   return (
     <div className="flex-1 overflow-y-auto relative bg-[#000000] text-white animate-in fade-in duration-300 min-h-screen">
@@ -130,7 +134,7 @@ export function ProfileView() {
           </p>
         </div>
 
-        {/* FILA DE BOTONES DE ACCIÓN (Más compactos, iconos/texto más grandes, centrados) */}
+        {/* FILA DE BOTONES DE ACCIÓN SUPERIOR */}
         <div className="flex flex-wrap items-center justify-center mt-6 w-full">
           <div className="flex items-center justify-center gap-[8px]">
             
@@ -150,7 +154,6 @@ export function ProfileView() {
               Info
             </button>
             
-            {/* Línea divisoria ubicada entre Info y BellDot */}
             <div className="w-[1px] h-[16px] bg-[#48484a] shrink-0 mx-0.5" />
             
             <button 
@@ -163,7 +166,7 @@ export function ProfileView() {
           </div>
         </div>
 
-        {/* NAVEGACIÓN (TABS) */}
+        {/* NAVEGACIÓN (TABS ACTUALIZADOS) */}
         <div className="flex items-center gap-6 mt-8 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
           {tabs.map((tab) => {
             const isActive = activeTab === tab
@@ -185,44 +188,58 @@ export function ProfileView() {
           })}
         </div>
 
-        {/* BUSCADOR Y FILTROS */}
-        <div className="mt-5 space-y-3 px-1">
-          {/* Fila 1: Buscador y Botones Vista */}
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-[#1c1c1e] rounded-[12px] h-[40px] flex items-center px-3">
-              <Search className="w-4 h-4 text-[#8e8e93] shrink-0" />
+        {/* BUSCADOR Y FILTROS NUEVOS */}
+        <div className="mt-5 space-y-4 px-1">
+          
+          {/* Fila 1: Barra de Búsqueda ampliada 100% y con bordes brillantes */}
+          <div className="w-full">
+            <div 
+              className="w-full flex items-center px-4 h-[42px] rounded-full transition-opacity active:opacity-90"
+              style={darkGlowStyle}
+            >
+              <Search className="w-[18px] h-[18px] text-[#8e8e93] shrink-0" />
               <input 
                 type="text" 
                 placeholder="Name or description" 
-                className="bg-transparent border-none outline-none text-white w-full h-full px-2 text-[15px] placeholder:text-[#8e8e93]"
+                className="bg-transparent border-none outline-none text-white w-full h-full px-2.5 text-[15px] placeholder:text-[#8e8e93]"
                 style={{ fontFamily: SF }}
               />
             </div>
-            <button className="w-[40px] h-[40px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center shrink-0 active:opacity-80">
-              <ArrowUpDown className="w-[18px] h-[18px] text-white" />
+          </div>
+
+          {/* Fila 2: Embudo y Botones de Filtro (Type, Price, Date) */}
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
+            <button 
+              className="flex items-center justify-center w-[34px] h-[34px] rounded-full shrink-0 active:scale-95 transition-all"
+              style={greyGlowStyle}
+            >
+              <Filter className="w-[16px] h-[16px] text-white" strokeWidth={2.5} />
             </button>
-            <button className="w-[40px] h-[40px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center shrink-0 active:opacity-80">
-              <CheckSquare className="w-[18px] h-[18px] text-white" />
+
+            <div className="w-[1px] h-[16px] bg-[#48484a] shrink-0 mx-1" />
+
+            <button 
+              className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
+              style={{ ...greyGlowStyle, fontFamily: SF }}
+            >
+              Type
             </button>
-            <button className="w-[40px] h-[40px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center shrink-0 active:opacity-80">
-              <List className="w-[18px] h-[18px] text-white" />
+
+            <button 
+              className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
+              style={{ ...greyGlowStyle, fontFamily: SF }}
+            >
+              Price
+            </button>
+
+            <button 
+              className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
+              style={{ ...greyGlowStyle, fontFamily: SF }}
+            >
+              Date
             </button>
           </div>
 
-          {/* Fila 2: Categorías y Ajustes */}
-          <div className="flex items-center gap-2">
-            <button className="w-[40px] h-[40px] bg-[#1c1c1e] rounded-[12px] flex items-center justify-center shrink-0 active:opacity-80">
-              <SlidersHorizontal className="w-[18px] h-[18px] text-white" />
-            </button>
-            <button className="flex-1 bg-[#1c1c1e] rounded-[12px] h-[40px] flex items-center justify-between px-4 active:opacity-80 transition-opacity">
-              <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>All Types</span>
-              <ChevronDown className="w-4 h-4 text-white" />
-            </button>
-            <button className="flex-1 bg-[#1c1c1e] rounded-[12px] h-[40px] flex items-center justify-between px-4 active:opacity-80 transition-opacity">
-              <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>Collections</span>
-              <ChevronDown className="w-4 h-4 text-white" />
-            </button>
-          </div>
         </div>
 
         {/* ESTADO VACÍO (EMPTY STATE) */}
