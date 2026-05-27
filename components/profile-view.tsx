@@ -9,7 +9,8 @@ import {
   BellDot, 
   Search, 
   Filter, 
-  Sparkles
+  Sparkles,
+  ChevronRight
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -36,7 +37,6 @@ const blueGlowStyle = {
   transform: "translateZ(0)",
 }
 
-// Ahora usaremos el gris para unificar la interfaz secundaria
 const greyGlowStyle = {
   backgroundColor: "#1c1c1e",
   border: "1px solid rgba(255, 255, 255, 0.10)",
@@ -92,7 +92,7 @@ export function ProfileView() {
 
       <div className="px-4 pb-32 relative z-10">
 
-        {/* HEADER: BOTÓN SETTINGS (Ahora en Gris) */}
+        {/* HEADER: BOTÓN SETTINGS */}
         <div className="absolute right-4 top-8 z-30 flex items-center">
           <button 
             onClick={() => setCurrentView("settings")} 
@@ -127,7 +127,7 @@ export function ProfileView() {
           </p>
         </div>
 
-        {/* FILA DE BOTONES DE ACCIÓN SUPERIOR (Info y BellDot ahora en Gris) */}
+        {/* FILA DE BOTONES DE ACCIÓN SUPERIOR */}
         <div className="flex flex-wrap items-center justify-center mt-6 w-full">
           <div className="flex items-center justify-center gap-[8px]">
             
@@ -182,10 +182,9 @@ export function ProfileView() {
         </div>
 
         {/* BUSCADOR Y FILTROS */}
-        {/* Se redujo el 'space-y-4' a 'space-y-2.5' para acercar la fila de abajo */}
         <div className="mt-5 space-y-2.5 px-1">
           
-          {/* Fila 1: Barra de Búsqueda ampliada (Ahora Gris y con icono bold) */}
+          {/* Fila 1: Barra de Búsqueda ampliada */}
           <div className="w-full">
             <div 
               className="w-full flex items-center px-4 h-[42px] rounded-full transition-opacity active:opacity-90"
@@ -236,32 +235,38 @@ export function ProfileView() {
 
         </div>
 
-        {/* ESTADO VACÍO (EMPTY STATE) */}
+        {/* ESTADO VACÍO (EMPTY STATE ACTUALIZADO) */}
         <div className="flex flex-col items-center justify-center text-center mt-12 px-6">
-          <div className="w-[160px] h-[160px] relative mb-6">
+          <div className="w-[140px] h-[140px] relative mb-6 flex items-center justify-center">
+            {/* Solo la imagen WebP, sin círculos ni fondos detrás */}
             <img 
-              src="/tu-imagen-aqui.png" 
-              alt="Empty NFTs" 
+              src="/no-gifts.webp" 
+              alt="No Gifts" 
               className="w-full h-full object-contain pointer-events-none select-none drop-shadow-2xl" 
               draggable={false} 
               style={{ WebkitTouchCallout: "none" }}
               onError={(e) => {
+                // Fallback limpio por si no carga la imagen
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-[#1c1c1e] rounded-full flex items-center justify-center"><span class="text-4xl">👻</span></div>';
+                e.currentTarget.parentElement!.innerHTML = '<span class="text-5xl">🎁</span>';
               }}
             />
           </div>
           
           <h2 className="text-[18px] font-bold text-white mb-2 tracking-tight" style={{ fontFamily: SFD }}>
-            You have no NFTs.
+            You have no Gifts
           </h2>
           
           <p className="text-[#8e8e93] text-[14px] leading-relaxed max-w-[280px] mb-6" style={{ fontFamily: SF }}>
-            After minting or buying, your NFTs will be displayed in this section and visible to other users.
+            You can buy in the marketplace
           </p>
 
-          <button className="text-white px-8 py-2.5 rounded-xl font-semibold text-[15px] active:scale-95 transition-transform" style={{ ...blueGlowStyle, fontFamily: SF }}>
-            Add NFT
+          <button 
+            onClick={() => setCurrentView("market")} 
+            className="flex items-center justify-center gap-1.5 text-white px-8 py-2.5 rounded-xl font-semibold text-[15px] active:scale-95 transition-transform" 
+            style={{ ...blueGlowStyle, fontFamily: SF }}
+          >
+            Go to Market <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
           </button>
         </div>
 
