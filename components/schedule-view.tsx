@@ -21,7 +21,7 @@ const RIPPLE_STYLE = `
     border-radius: 50%;
     transform: scale(0);
     animation: ripple-anim 600ms linear;
-    background-color: rgba(150, 150, 150, 0.25);
+    background-color: rgba(255, 255, 255, 0.15);
     pointer-events: none;
     z-index: 0;
   }
@@ -33,17 +33,21 @@ const RIPPLE_STYLE = `
   .jiggle-card { animation: jiggle 0.3s ease-in-out infinite; }
 `
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const createRipple = (event: React.PointerEvent<any>) => {
   const element = event.currentTarget
   if (element.disabled) return
+
   const circle = document.createElement("span")
   const diameter = Math.max(element.clientWidth, element.clientHeight)
   const radius = diameter / 2
   const rect = element.getBoundingClientRect()
+  
   circle.style.width = circle.style.height = `${diameter}px`
   circle.style.left = `${event.clientX - rect.left - radius}px`
   circle.style.top = `${event.clientY - rect.top - radius}px`
   circle.classList.add("ripple")
+
   const existingRipple = element.querySelector(".ripple")
   if (existingRipple) existingRipple.remove()
   element.appendChild(circle)
@@ -55,6 +59,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
 type NavTab = "tasks" | "edit" | "search" | "create"
 type ListViewTab = "schedules" | "reminders"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getTg() { return (window as any).Telegram?.WebApp }
 
 async function apiPost(endpoint: string, body: Record<string, unknown>) {
@@ -82,7 +87,6 @@ interface ScheduleItem {
   repeat_days?: string[];
 }
 
-// ── ICONOS Y COLORES ──
 const ICONS: Record<string, React.ElementType> = {
   CalendarDays, Clock, Bell, Mail, Folder, Dumbbell, Briefcase, Laptop, Utensils,
   MessageSquare, Send, Coffee, Droplets, Pill, Activity, TrendingUp, CheckSquare, Lightbulb, Sparkles
@@ -95,11 +99,9 @@ const ICON_COLORS: Record<string, string> = {
   Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b", Sparkles:"#a855f7"
 }
 
-// ── AI AUTOMATIONS Y OPCIONES ──
-const AI_AUTOMATIONS = ["Deep Research", "Group Summary", "Trend Monitor", "Channel Auto-Post", "Schedule Email", "Custom Schedule"]
-const SMART_REMINDERS = ["AI Smart Alert", "Drive Backup", "Take Medication", "Personal Reminder"]
-const REPEAT_OPTIONS = ["Does not repeat", "Daily", "Weekly", "Monthly"]
-const WEEK_DAYS = [{label:'M',val:'Mon'},{label:'T',val:'Tue'},{label:'W',val:'Wed'},{label:'T',val:'Thu'},{label:'F',val:'Fri'},{label:'S',val:'Sat'},{label:'S',val:'Sun'}]
+// ── NUEVAS OPCIONES (AI AUTOMATIONS) ──
+const DEFAULT_SCHEDULE_OPTIONS = ["Deep Research", "Group Summary", "Trend Monitor", "Channel Auto-Post", "Schedule Email", "Custom Schedule"]
+const DEFAULT_REMINDER_OPTIONS = ["AI Smart Alert", "Drive Backup", "Take Medication", "Personal Reminder"]
 
 const PREDEFINED_TYPES: Record<string, string> = {
   "Deep Research": "Sparkles",
@@ -113,6 +115,9 @@ const PREDEFINED_TYPES: Record<string, string> = {
   "Take Medication": "Pill",
   "Personal Reminder": "Bell"
 }
+
+const REPEAT_OPTIONS   = ["Does not repeat", "Daily", "Weekly", "Monthly"]
+const WEEK_DAYS        = [{label:'M',val:'Mon'},{label:'T',val:'Tue'},{label:'W',val:'Wed'},{label:'T',val:'Thu'},{label:'F',val:'Fri'},{label:'S',val:'Sat'},{label:'S',val:'Sun'}]
 
 const TZ_LIST: { label: string; value: string; offset: string }[] = [
   { label: "Pacific Time (US/Canada)", value: "America/Los_Angeles", offset: "UTC−8" },
@@ -136,13 +141,13 @@ const ONBOARDING_CARDS_DATA = [
     id: 1, title: "AI Automations", icon: Sparkles, color: "#ffffff",
     bgGradient: "radial-gradient(circle at center, rgba(30,58,138,0.4) 0%, rgba(5,5,5,0) 70%)",
     cardGradient: "linear-gradient(145deg, #2563eb, #1e3a8a)",
-    desc: "Trigger Deep Research and background agents to work for you."
+    desc: "Schedule AI tasks perfectly to automate your workflows."
   },
   { 
     id: 2, title: "Smart Alerts", icon: Bell, color: "#ffffff", isReminder: true,
     bgGradient: "radial-gradient(circle at center, rgba(131,24,67,0.4) 0%, rgba(5,5,5,0) 70%)",
     cardGradient: "linear-gradient(145deg, #d946ef, #701a75)",
-    desc: "Get notified contextually. Less noise, more important signals."
+    desc: "Get notified intelligently contextually based on your needs."
   },
   { 
     id: 3, title: "Integrations", icon: Zap, color: "#ffffff",
@@ -159,7 +164,6 @@ const SUGGESTIONS = [
 
 const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
-// ── COMPONENTES AUXILIARES ──
 function Toast({ msg, type }: { msg: string; type: "success"|"error" }) {
   return (
     <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl border animate-in slide-in-from-top-4 duration-300 max-w-[90vw] ${
@@ -176,7 +180,7 @@ function WheelPicker({ items, value, onChange, suffix="" }: {items:string[];valu
   const h   = 40
   return (
     <div className="relative h-[120px] w-full flex-1">
-      <div className="absolute top-1/2 left-0 right-0 h-[40px] -translate-y-1/2 bg-[#1c1c1e] rounded-xl pointer-events-none" />
+      <div className="absolute top-1/2 left-0 right-0 h-[40px] -translate-y-1/2 bg-[#1c1c1e] rounded-xl pointer-events-none border border-white/5" />
       <div ref={ref} onScroll={()=>{ if(!ref.current) return; const i=Math.round(ref.current.scrollTop/h); if(items[i]&&items[i]!==value) onChange(items[i]) }}
         className="h-[120px] w-full overflow-y-auto snap-y snap-mandatory no-scrollbar flex flex-col items-center relative z-10" style={{scrollBehavior:"smooth"}}>
         <div style={{minHeight:`${h}px`}} className="w-full shrink-0"/>
@@ -193,6 +197,16 @@ function WheelPicker({ items, value, onChange, suffix="" }: {items:string[];valu
   )
 }
 
+// IconFlat Helper para el Settings Modal UI
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function IconFlat({ icon: Icon, color }: { icon: any, color: string }) {
+  return (
+    <div className="shrink-0 flex items-center justify-center relative z-10" style={{ width: "28px", height: "28px", borderRadius: "6.5px", backgroundColor: color, color: "white" }}>
+      <Icon className="w-[16px] h-[16px]" strokeWidth={2.2} />
+    </div>
+  )
+}
+
 function TZPickerModal({ onSave, onConfirm, selectedTZ, onClose }: { onSave: (tz: string) => void; onConfirm: () => void; selectedTZ: string, onClose: () => void }) {
   const [query, setQuery]     = useState("")
   const [picked, setPicked]   = useState(selectedTZ || "")
@@ -203,6 +217,7 @@ function TZPickerModal({ onSave, onConfirm, selectedTZ, onClose }: { onSave: (tz
       const match = TZ_LIST.find(t => t.value === detected)
       if (match) { setPicked(match.value); onSave(match.value) }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const filtered = useMemo(() => {
@@ -214,18 +229,21 @@ function TZPickerModal({ onSave, onConfirm, selectedTZ, onClose }: { onSave: (tz
     <div className="fixed inset-0 z-[100] flex items-end justify-center animate-in fade-in duration-300">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full rounded-t-[32px] p-6 animate-in slide-in-from-bottom duration-400 max-h-[90vh] flex flex-col bg-[#111] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#2c2c2e]">
+        
         <div className="flex items-center justify-between mb-6 pt-1 shrink-0">
           <h3 className="text-white font-bold text-[24px] tracking-tight" style={{fontFamily:SFD}}>Time Zone</h3>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70 transition-opacity">
             <X className="w-5 h-5 text-[#8e8e93]" />
           </button>
         </div>
+
         <div className="flex-1 overflow-y-auto no-scrollbar pb-6 space-y-4">
           <div className="flex items-center gap-3 bg-[#1c1c1e] rounded-full px-5 py-3.5 border border-[#2c2c2e]">
             <Search className="w-[18px] h-[18px] text-[#636366] shrink-0" />
             <input type="text" placeholder="Search zone or UTC..." value={query} onChange={e => setQuery(e.target.value)} className="bg-transparent text-white text-[15px] flex-1 outline-none placeholder-[#636366]" style={{fontFamily:SF}}/>
             {query && <button onClick={() => setQuery("")}><X className="w-4 h-4 text-[#636366]" /></button>}
           </div>
+
           <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner">
             <div className="flex flex-col divide-y divide-[#2c2c2e]">
               {filtered.map(tz => {
@@ -240,20 +258,27 @@ function TZPickerModal({ onSave, onConfirm, selectedTZ, onClose }: { onSave: (tz
                   </button>
                 )
               })}
+              {filtered.length === 0 && (
+                <div className="py-10 flex flex-col items-center justify-center text-[#636366]">
+                   <Globe className="w-8 h-8 mb-2 opacity-50"/>
+                   <span style={{fontFamily:SF}}>No zones found</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
+
         <div className="pt-2 shrink-0">
           <button onClick={onConfirm} disabled={!picked} className="w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-40" style={{fontFamily:SF}}>
             Save Time Zone
           </button>
         </div>
+
       </div>
     </div>
   )
 }
 
-// ── COMPONENTE PRINCIPAL ──
 export function ScheduleView() {
   const { setCurrentView } = useApp()
   const [tasks,         setTasks]         = useState<ScheduleItem[]>([])
@@ -274,8 +299,6 @@ export function ScheduleView() {
   const [loading,       setLoading]       = useState(false)
   const [activePicker,  setActivePicker]  = useState<string|null>(null)
   const [toast,         setToast]         = useState<{msg:string;type:"success"|"error"}|null>(null)
-  
-  // Variables del Modal
   const [creationMode,  setCreationMode]  = useState<ListViewTab>("schedules")
   const [eventType,     setEventType]     = useState("Deep Research")
   const [taskIcon,      setTaskIcon]      = useState("Sparkles")
@@ -285,7 +308,6 @@ export function ScheduleView() {
   const [attachedFiles, setAttachedFiles] = useState<{name:string;size:number}[]>([])
   const [extraConfig,   setExtraConfig]   = useState("")
   
-  // CRON y Prioridad
   const [selRepeat,     setSelRepeat]     = useState("Does not repeat")
   const [repeatDays,    setRepeatDays]    = useState<string[]>([])
   const [isPriority,    setIsPriority]    = useState(false)
@@ -301,12 +323,18 @@ export function ScheduleView() {
 
   const _initNow = useMemo(() => {
     const d = new Date(Date.now() + 5 * 60 * 1000)
-    return { h: d.getHours().toString().padStart(2,"0"), m: d.getMinutes().toString().padStart(2,"0"), mo: months[d.getMonth()], day: d.getDate().toString() }
+    return {
+      h: d.getHours().toString().padStart(2,"0"),
+      m: d.getMinutes().toString().padStart(2,"0"),
+      mo: months[d.getMonth()],
+      day: d.getDate().toString(),
+    }
   }, [])
   const [selHour,  setSelHour]  = useState(_initNow.h)
   const [selMin,   setSelMin]   = useState(_initNow.m)
   const [selMonth, setSelMonth] = useState(_initNow.mo)
   const [selDayNum,setSelDayNum]= useState(_initNow.day)
+  
   const [selRemMin,setSelRemMin]= useState("00")
   const [selRemSec,setSelRemSec]= useState("00")
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -326,8 +354,15 @@ export function ScheduleView() {
     return arr
   },[])
 
-  const monthStr=new Date().toLocaleDateString('en-US',{month:'short'}).toUpperCase()
-  const yearStr =new Date().getFullYear().toString()
+  const monthStr = new Date().toLocaleDateString('en-US',{month:'short'}).toUpperCase()
+  const yearStr  = new Date().getFullYear().toString()
+
+  const currentGreeting = useMemo(() => {
+    const hr = new Date().getHours();
+    if(hr < 12) return "Good morning."
+    if(hr < 18) return "Good afternoon."
+    return "Good evening."
+  }, [])
 
   const showToast = useCallback((msg:string,type:"success"|"error")=>{
     setToast({msg,type}); setTimeout(()=>setToast(null),3500)
@@ -362,7 +397,9 @@ export function ScheduleView() {
   function handleStartOnboarding() {
     localStorage.setItem("xblum_onboarded", "true")
     setShowOnboarding(false)
-    if (!localStorage.getItem("xblum_tz_set")) setShowTZModal(true)
+    if (!localStorage.getItem("xblum_tz_set")) {
+      setShowTZModal(true)
+    }
   }
 
   function handleSaveTZ() {
@@ -401,7 +438,7 @@ export function ScheduleView() {
 
     if(eventType==="Deep Research")          { setTaskTitle("Deep Research"); }
     else if(eventType==="Group Summary")     { setTaskTitle("Group Summary"); }
-    else if(eventType==="Trend Monitor")     { setTaskTitle("Trend Monitor"); }
+    else if(eventType==="Trend Monitor")     { setTaskTitle("Monitor Trend"); }
     else if(eventType==="Channel Auto-Post") { setTaskTitle("Auto-Post"); }
     else if(eventType==="Schedule Email")    { setTaskTitle(""); }
     else if(eventType==="Drive Backup")      { setTaskTitle("Backup to Drive") }
@@ -416,6 +453,7 @@ export function ScheduleView() {
     return tasks.filter(t=>{ try{ return new Date(t.fire_at).toDateString()===selectedDate }catch{return false} })
   },[tasks,selectedDate])
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sortItems = (arr: any[]) => {
     return [...arr].sort((a, b) => {
       if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
@@ -440,6 +478,7 @@ export function ScheduleView() {
   const groupedReminders = groupTasks(activeReminders)
 
   useEffect(()=>{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg=(window as any).Telegram?.WebApp
     if(!tg?.BackButton) return
     tg.BackButton.show()
@@ -448,7 +487,8 @@ export function ScheduleView() {
       else if (activePicker) { setActivePicker(null); setIsAddingCategory(false); setPickingCategoryIcon(false); }
       else if (configModalOpen) setConfigModalOpen(false)
       else if (isEditingMode){ setIsEditingMode(false); setActiveNavTab("tasks") } 
-      else { setCurrentView("home"); tg.BackButton.hide() }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      else { setCurrentView("home" as any); tg.BackButton.hide() }
     }
     tg.BackButton.onClick(handleBack)
     return ()=>tg.BackButton.offClick(handleBack)
@@ -457,7 +497,7 @@ export function ScheduleView() {
   function handleNavTabClick(tab:NavTab){
     if(tab==="search") return
     if(tab==="edit"){ setIsEditingMode(!isEditingMode); setActiveNavTab(isEditingMode?"tasks":"edit") }
-    else if(tab==="create"){ setIsEditingMode(false); setCreationMode("schedules"); setEventType(AI_AUTOMATIONS[0]); setConfigModalOpen(true); setActiveNavTab("create") }
+    else if(tab==="create"){ setIsEditingMode(false); setCreationMode("schedules"); setEventType(DEFAULT_SCHEDULE_OPTIONS[0]); setConfigModalOpen(true); setActiveNavTab("create") }
     else { setIsEditingMode(false); setConfigModalOpen(false); setActiveNavTab(tab) }
   }
 
@@ -481,17 +521,22 @@ export function ScheduleView() {
   function buildFireAt(){
     const mi     = months.indexOf(selMonth)
     const now    = new Date()
-    let   year   = now.getFullYear()
+    const year   = now.getFullYear()
     const dayNum = parseInt(selDayNum, 10)
     const hour   = parseInt(selHour, 10)
     const min    = parseInt(selMin, 10)
+   
     const pad = (n: number) => n.toString().padStart(2, "0")
     const localStr = `${year}-${pad(mi+1)}-${pad(dayNum)}T${pad(hour)}:${pad(min)}:00`
     let fireDate = new Date(localStr)
 
-    if (fireDate.getTime() <= Date.now()) { fireDate = new Date(fireDate.getTime() + 24 * 60 * 60 * 1000) }
+    if (fireDate.getTime() <= Date.now()) {
+      fireDate = new Date(fireDate.getTime() + 24 * 60 * 60 * 1000)
+    }
     const maxFuture = new Date(Date.now() + 8 * 24 * 60 * 60 * 1000)
-    if (fireDate > maxFuture) fireDate = maxFuture
+    if (fireDate > maxFuture) {
+      fireDate = maxFuture
+    }
     return fireDate.toISOString() 
   }
 
@@ -511,6 +556,7 @@ export function ScheduleView() {
         await fetchItems(); setConfigModalOpen(false); setActivePicker(null)
         setActiveNavTab("tasks")
       } else { showToast(data.message||"Could not save. Try again.","error") }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch(e:any){ showToast(`Error: ${e.message}`,"error") }
     finally{ setLoading(false) }
   }
@@ -519,6 +565,7 @@ export function ScheduleView() {
     try {
       const data=await apiPost("/api/schedule_delete",{item_id:itemId})
       if(data.success){ setTasks(p=>p.filter(t=>t.id!==itemId)); showToast("Removed.","success") }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch(e:any){ showToast(`Error: ${e.message}`,"error") }
   }
 
@@ -534,10 +581,11 @@ export function ScheduleView() {
   }
 
   const activeOptionsList = creationMode === "schedules" 
-      ? [...AI_AUTOMATIONS, ...customCategories.filter(c => c.isSchedule).map(c => c.name)]
-      : [...SMART_REMINDERS, ...customCategories.filter(c => !c.isSchedule).map(c => c.name)];
+      ? [...DEFAULT_SCHEDULE_OPTIONS, ...customCategories.filter(c => c.isSchedule).map(c => c.name)]
+      : [...DEFAULT_REMINDER_OPTIONS, ...customCategories.filter(c => !c.isSchedule).map(c => c.name)];
 
-  // ── TARJETAS ORIGINALES (El diseño exacto de pildoras y lineas de color que solicitaste) ──
+  // ── 1. COMPONENTES ORIGINALES MANTENIDOS ──
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const TaskCard = ({item,isSuggestion=false, listType="reminder"}:{item:any;isSuggestion?:boolean; listType?:"reminder"|"schedule"})=>{
     const isExpanded=expandedIds[item.id]
     const color=item.color||ICON_COLORS[item.icon_name||item.iconName]||"#3b82f6"
@@ -564,7 +612,7 @@ export function ScheduleView() {
             className={`flex items-center justify-between py-3.5 cursor-pointer px-2 rounded-xl transition-all ${item.is_pinned ? 'bg-[#f59e0b]/10' : ''}`}
             onClick={(e)=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'schedules';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Schedule");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleCompleted(item.id, e) }}
           >
-            <div className="flex items-center gap-4 flex-1 overflow-hidden">
+            <div className="flex items-center gap-4 flex-1 overflow-hidden relative z-10">
               <div className={`w-[22px] h-[22px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${isCompleted ? 'bg-[#3a3a3c] border-[#3a3a3c]' : (item.is_high_priority ? 'border-red-500' : 'border-[#636366]')}`}>
                  {isCompleted && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3}/>}
               </div>
@@ -574,7 +622,7 @@ export function ScheduleView() {
               </div>
             </div>
             {isEditingMode&&!isSuggestion&&(
-              <button onClick={(e)=>{e.stopPropagation(); handleDelete(item.id)}} className="shrink-0 p-1.5 active:scale-90 transition-transform ml-2">
+              <button onClick={(e)=>{e.stopPropagation(); handleDelete(item.id)}} className="shrink-0 p-1.5 active:scale-90 transition-transform ml-2 relative z-10">
                 <Trash2 className="w-[16px] h-[16px] text-red-500"/>
               </button>
             )}
@@ -586,7 +634,7 @@ export function ScheduleView() {
     return (
       <div className={`relative w-full ${isEditingMode&&!isSuggestion?'jiggle-card':''}`}>
         <div className={`bg-[#2c2c2e] rounded-[16px] px-4 py-3.5 flex flex-col transition-all duration-200 cursor-pointer ${item.is_pinned ? 'border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.1)]' : ''}`} onClick={()=>{ if(isSuggestion){const mode=item.type==='reminder'?'reminders':'schedules';setCreationMode(mode);setEventType(mode==='reminders'?"Personal Reminder":"Custom Schedule");setTaskTitle(item.title.replace('\n',' '));setConfigModalOpen(true)} else toggleExpand(item.id) }}>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between relative z-10">
             <div className="flex items-center gap-4 flex-1 overflow-hidden">
               <span className={`text-[13px] font-medium w-[45px] shrink-0 truncate text-left ${item.is_high_priority ? 'text-red-400' : 'text-[#8e8e93]'}`} style={{fontFamily:SF}}>{displayTime}</span>
               <div className="w-[3px] h-[16px] rounded-full shrink-0" style={{backgroundColor: item.is_high_priority ? '#ef4444' : color}}/>
@@ -606,23 +654,29 @@ export function ScheduleView() {
           </div>
           
           {isExpanded&&!isSuggestion&&(
-            <div className="mt-4 pt-4 border-t border-[#3a3a3c] flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200 pb-1 px-1">
+            <div className="mt-4 pt-4 border-t border-[#3a3a3c] flex flex-col gap-4 animate-in fade-in slide-in-from-top-2 duration-200 pb-1 px-1 relative z-10">
               {item.description&&<div className="flex flex-col gap-1.5"><span className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider" style={{fontFamily:SF}}>Description</span><p className="text-[#e4e4e7] text-[14px] leading-relaxed" style={{fontFamily:SF}}>{item.description}</p></div>}
               {item.email_to&&<div className="flex flex-col gap-1.5"><span className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider" style={{fontFamily:SF}}>Email Recipient</span><div className="flex items-center gap-2 bg-[#1c1c1e] w-fit px-3 py-1.5 rounded-lg text-[13px] text-[#e4e4e7] border border-[#2c2c2e]"><AtSign className="w-3.5 h-3.5 text-[#8e8e93]"/>{item.email_to}</div></div>}
               {item.files?.length>0&&<div className="flex flex-col gap-1.5"><span className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider" style={{fontFamily:SF}}>Attachments ({item.files.length})</span><div className="flex flex-col gap-1">{item.files.map((f:any,i:number)=><div key={i} className="flex items-center gap-2 bg-[#1c1c1e] w-full px-3 py-1.5 rounded-lg text-[13px] text-[#e4e4e7] border border-[#2c2c2e] overflow-hidden"><Paperclip className="w-3.5 h-3.5 text-[#8e8e93] shrink-0"/><span className="truncate">{f.name}</span></div>)}</div></div>}
+              {item.extra&&<div className="flex flex-col gap-1.5"><span className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider" style={{fontFamily:SF}}>{item.icon_name==='CalendarDays'?'Link':(item.icon_name==='Pill'?'Frequency':'Config')}</span><div className="flex items-center gap-2 bg-[#1c1c1e] w-fit max-w-full px-3 py-1.5 rounded-lg text-[13px] text-[#e4e4e7] border border-[#2c2c2e] overflow-hidden">{item.icon_name==='CalendarDays'?<LinkIcon className="w-3.5 h-3.5 text-[#8e8e93] shrink-0"/>:(item.icon_name==='Pill'?<RefreshCcw className="w-3.5 h-3.5 text-[#8e8e93] shrink-0"/>:<Sparkles className="w-3.5 h-3.5 text-[#8e8e93] shrink-0"/>)}<span className="truncate">{item.extra}</span></div></div>}
               
               {item.event_type==="Schedule Email"&&item.email_to&&(
-                <button onClick={async()=>{
+                <button onClick={async(e)=>{
+                  e.stopPropagation();
                   try{ const r=await apiPost("/api/schedule_email",{recipient:item.email_to,subject:item.title,body:item.description||item.extra||""}); showToast(r.success?`Email sent to ${item.email_to} ✅`:(r.result||"Send failed"),r.success?"success":"error") }
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   catch(e:any){ showToast(`Error: ${e.message}`,"error") }
                 }} className="flex items-center gap-2 justify-center py-2.5 px-4 rounded-2xl bg-[#0ea5e9]/10 border border-[#0ea5e9]/30 text-[#0ea5e9] text-[14px] font-medium active:scale-[0.98] transition-transform mt-2">
                   <Mail className="w-4 h-4"/> Send Email Now
                 </button>
               )}
               {item.event_type==="Drive Backup"&&(
-                <button onClick={async()=>{
+                <button onClick={async(e)=>{
+                  e.stopPropagation();
                   const folder=item.extra||item.title||"xBlum Uploads"
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   try{ const r=await apiPost("/api/schedule_drive_upload",{folder_name:folder,file_names:(item.files||[]).map((f:any)=>f.name)}); showToast(r.success?`Drive folder "${folder}" ready ☁️`:(r.result||"Upload failed"),r.success?"success":"error") }
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   catch(e:any){ showToast(`Error: ${e.message}`,"error") }
                 }} className="flex items-center gap-2 justify-center py-2.5 px-4 rounded-2xl bg-[#eab308]/10 border border-[#eab308]/30 text-[#eab308] text-[14px] font-medium active:scale-[0.98] transition-transform mt-2">
                   <Folder className="w-4 h-4"/> Upload to Drive Now
@@ -645,7 +699,7 @@ export function ScheduleView() {
     
     if (group.length === 1) {
         return (
-            <div className="w-full shrink-0">
+            <div className="w-full shrink-0 relative z-10">
                <TaskCard item={group[0]} isSuggestion={false} listType={listType} />
             </div>
         )
@@ -655,7 +709,7 @@ export function ScheduleView() {
     const CatIcon = ICONS[catIconName] || Sparkles;
     
     return (
-        <div className="w-full shrink-0 flex flex-col gap-2">
+        <div className="w-full shrink-0 flex flex-col gap-2 relative z-10">
             <div className="bg-[#1c1c1e] border border-[#2c2c2e] rounded-[20px] px-4 py-3.5 flex items-center justify-between cursor-pointer" onClick={() => setGroupExpanded(!groupExpanded)}>
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-[#0a0a0a] flex items-center justify-center border border-[#2c2c2e]">
@@ -679,10 +733,15 @@ export function ScheduleView() {
     )
   }
 
-  // ── RENDER PRINCIPAL ──
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#000000] text-white select-none overflow-hidden relative">
       <style>{RIPPLE_STYLE}</style>
+
+      {/* ── 2. FONDO BOKEH (Añadido sin alterar lo demás) ── */}
+      <div className="absolute top-0 left-0 w-full h-[600px] pointer-events-none z-0 overflow-hidden">
+         <div className="absolute -top-[50px] right-[-50px] w-[350px] h-[350px] rounded-full opacity-[0.25] blur-[80px]" style={{ background: 'radial-gradient(circle, #84cc16 0%, #10b981 60%, transparent 80%)' }} />
+         <div className="absolute top-[10%] right-[20%] w-[250px] h-[250px] rounded-full opacity-[0.15] blur-[90px]" style={{ background: '#eab308' }} />
+      </div>
 
       {toast&&<Toast msg={toast.msg} type={toast.type}/>}
 
@@ -740,17 +799,16 @@ export function ScheduleView() {
         />
       )}
 
-      {/* ── INTERFAZ PRINCIPAL (Original Calendar Layout) ── */}
       <div className="relative z-10 flex-1 flex flex-col pb-32 overflow-y-auto no-scrollbar pt-6">
         
-        {/* Cabecera del Mes/Año del Calendario (El Diseño que Solicitaste) */}
-        <div className="pt-2 flex justify-center items-end gap-1">
+        {/* Cabecera del Mes/Año del Calendario */}
+        <div className="pt-2 flex justify-center items-end gap-1 relative z-10">
           <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
           <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
         </div>
 
-        {/* Calendario Semanal Interactivo (El Diseño Original) */}
-        <div className="flex justify-between items-center px-6 mt-6">
+        {/* Calendario Semanal Interactivo */}
+        <div className="flex justify-between items-center px-6 mt-6 relative z-10">
           <button onClick={()=>setSelectedDate("All")} className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate==="All"?"bg-white text-black":"bg-[#1c1c1e] text-[#8e8e93]"}`}>
             <span className="text-[14px] font-bold" style={{fontFamily:SF}}>All</span>
           </button>
@@ -770,23 +828,22 @@ export function ScheduleView() {
           })}
         </div>
 
-        {/* TEXTO DE CABECERA DINAMICO */}
-        <div className="px-6 mb-8 mt-10">
-          <div className="flex flex-wrap items-center gap-x-1.5 text-[28px] font-medium leading-[1.3] tracking-tight" style={{fontFamily: SFD}}>
-            <span className="text-[#8e8e93]">You have </span>
-            <span className="text-white flex items-center gap-1.5"><Lightbulb className="w-6 h-6 text-[#f59e0b]" strokeWidth={2.5}/> {activeReminders.length} alerts</span>
-            <span className="text-[#8e8e93]">and </span>
-            <span className="text-white flex items-center gap-1.5"><Sparkles className="w-6 h-6 text-[#a855f7]" strokeWidth={2.5}/> {activeSchedules.length} automations</span>
-            <span className="text-[#8e8e93]">{selectedDate === "All" ? " today" : " on this day"}</span>
-          </div>
+        {/* ── 3. CABECERA TEXTO "Good Morning" (Screenshot) ── */}
+        <div className="px-6 mb-8 mt-10 relative z-10">
+          <h2 className="text-[#8e8e93] text-[28px] font-medium leading-[1.2]" style={{fontFamily: SFD}}>
+            {currentGreeting}<br/>
+            <span className="text-white">You have <CalendarDays className="w-[26px] h-[26px] inline text-white mb-1.5 ml-1"/> {activeSchedules.length} automations,</span><br/>
+            <span className="text-white"><Bell className="w-[26px] h-[26px] inline text-white mb-1.5"/> {activeReminders.length} alerts</span> <span className="text-[#8e8e93]">today.</span>
+          </h2>
         </div>
 
-        {/* LISTA PRINCIPAL */}
-        <div className="px-5 pb-10 flex flex-col gap-6">
+        {/* LISTA PRINCIPAL (Mantenida sin cambios) */}
+        <div className="px-5 pb-10 flex flex-col gap-6 relative z-10">
           {loadingItems ? (
             <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-[#8e8e93]"/></div>
           ) : filteredTasks.length === 0 ? (
             <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+               {/* Mostrar Sugerencias si no hay tareas */}
                <div className="bg-[#1c1c1e] rounded-[28px] p-5">
                   <div className="flex justify-between items-start mb-4">
                     <div>
@@ -797,7 +854,7 @@ export function ScheduleView() {
                   {selectedDate === "All" && (
                     <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto no-scrollbar pb-2">
                       {SUGGESTIONS.filter(s=>s.type==='reminder').map((sug,idx)=>(
-                         <div key={idx} className="w-full shrink-0">
+                         <div key={idx} className="w-full shrink-0 relative z-10">
                             <TaskCard item={sug} isSuggestion={true} listType="reminder"/>
                          </div>
                       ))}
@@ -809,13 +866,13 @@ export function ScheduleView() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h3 className="text-white text-[18px] font-semibold" style={{fontFamily:SFD}}>Automations</h3>
-                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have no active automations</p>
+                      <p className="text-[#8e8e93] text-[14px]" style={{fontFamily:SF}}>You have no scheduled automations</p>
                     </div>
                   </div>
                   {selectedDate === "All" && (
                     <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto no-scrollbar pb-2">
                       {SUGGESTIONS.filter(s=>s.type==='schedule').map((sug,idx)=>(
-                         <div key={idx} className="w-full shrink-0">
+                         <div key={idx} className="w-full shrink-0 relative z-10">
                             <TaskCard item={sug} isSuggestion={true} listType="schedule"/>
                          </div>
                       ))}
@@ -825,6 +882,8 @@ export function ScheduleView() {
             </div>
           ) : (
             <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+              
+              {/* REMINDERS BLOCK */}
               {activeReminders.length > 0 && (
                 <div className="bg-[#1c1c1e] rounded-[28px] p-5">
                   <div className="flex justify-between items-start mb-4">
@@ -841,6 +900,7 @@ export function ScheduleView() {
                 </div>
               )}
 
+              {/* SCHEDULES BLOCK */}
               {activeSchedules.length > 0 && (
                 <div className="bg-[#1c1c1e] rounded-[28px] p-5">
                   <div className="flex justify-between items-start mb-4">
@@ -856,18 +916,19 @@ export function ScheduleView() {
                   </div>
                 </div>
               )}
+
             </div>
           )}
         </div>
       </div>
 
-      {/* NavBar Inferior Fija */}
+      {/* NavBar Inferior Fija (Mantenida sin cambios) */}
       <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-center pointer-events-none" style={{paddingBottom:"calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 16px)"}}>
         <div className="pointer-events-auto flex items-center p-1.5 gap-1 bg-[#0f0f0f]/85 backdrop-blur-3xl border border-white/10 rounded-full shadow-2xl">
           <button disabled className="w-14 h-14 rounded-full flex items-center justify-center opacity-30 cursor-not-allowed"><Search className="w-6 h-6 text-[#8e8e93]"/></button>
           <button onClick={()=>handleNavTabClick("tasks")} className={`w-14 h-14 rounded-full flex items-center justify-center transition-all relative ${activeNavTab==="tasks"?"bg-white text-black":"text-white"}`}>
             <CalendarDays className="w-6 h-6"/>
-            {activeNavTab==="tasks"&&<div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#a855f7] border border-black"/>}
+            {activeNavTab==="tasks"&&<div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#3b82f6] border border-black"/>}
           </button>
           <button onClick={()=>handleNavTabClick("edit")} className={`w-14 h-14 rounded-full flex items-center justify-center transition-all relative ${isEditingMode?"bg-white text-black":"text-white"}`}>
             <Pencil className="w-6 h-6"/>
@@ -880,302 +941,310 @@ export function ScheduleView() {
         </div>
       </div>
 
-      {/* ── MODAL DE CREACIÓN (Settings-view Style + Original Pickers) ──────────────────── */}
+      {/* ── 4. MODAL DE CREACIÓN (Diseño de settings-view con TUS wheel pickers intactos) ── */}
       {configModalOpen&&(
         <div className="fixed inset-0 z-[60] flex items-end justify-center animate-in fade-in duration-300">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={()=>{setConfigModalOpen(false);setActivePicker(null)}}/>
-          <div className="relative w-full rounded-t-[32px] animate-in slide-in-from-bottom duration-400 max-h-[92vh] flex flex-col bg-[#111] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#2c2c2e]">
+          {/* Fondo principal del modal alineado con settings-view: #111111 */}
+          <div className="relative w-full rounded-t-[24px] animate-in slide-in-from-bottom duration-400 max-h-[92vh] flex flex-col bg-[#111111] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#1c1c1e]">
 
-            <div className="flex flex-col px-6 pt-4 pb-3 shrink-0">
-              <div className="w-10 h-1 rounded-full bg-[#3c3c3e] self-center mb-4"/>
-              <div className="flex items-center justify-between">
-                <h3 className="text-white font-bold text-[24px] tracking-tight" style={{fontFamily:SFD}}>Create New</h3>
-                <button onClick={()=>{setConfigModalOpen(false);setActivePicker(null)}} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#2c2c2e] active:opacity-70"><X className="w-5 h-5 text-[#8e8e93]"/></button>
-              </div>
-
-              <div className="flex bg-[#1c1c1e] p-1 rounded-full w-full mt-4 border border-[#2c2c2e]">
-                <button onClick={()=>{setCreationMode("schedules");setEventType(AI_AUTOMATIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="schedules"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>✨ Automation</button>
-                <button onClick={()=>{setCreationMode("reminders");setEventType(SMART_REMINDERS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="reminders"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>🔔 Alert</button>
-              </div>
+            <div className="flex items-center justify-between px-5 py-4 shrink-0" style={{ borderBottom: "1px solid #1c1c1e" }}>
+              <button onClick={()=>{setConfigModalOpen(false);setActivePicker(null)}} onPointerDown={createRipple} className="relative overflow-hidden w-8 h-8 flex items-center justify-center rounded-full active:opacity-60 transition-opacity bg-[#1c1c1e]">
+                <X className="w-5 h-5 text-[#8e8e93] relative z-10" />
+              </button>
+              <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                New Automation
+              </h2>
+              <button
+                onClick={handleSaveConfig}
+                onPointerDown={createRipple}
+                disabled={loading || !taskTitle.trim()}
+                className="relative overflow-hidden px-4 py-1.5 bg-white disabled:opacity-40 rounded-full text-black font-bold active:scale-95 transition-transform"
+                style={{ fontSize: "13px", fontFamily: SF }}>
+                <span className="relative z-10">{loading ? "Saving..." : "Save"}</span>
+              </button>
             </div>
 
-            <div className="overflow-y-auto flex-1 no-scrollbar px-6 pb-32 space-y-4" style={{scrollBehavior: 'smooth'}}>
-              <div className="bg-[#1c1c1e] rounded-[28px] p-2 shadow-inner border border-white/5">
-                <div className="flex flex-col divide-y divide-[#2c2c2e]">
+            <div className="px-5 pt-4 pb-2 shrink-0">
+               <div className="flex bg-[#1c1c1e] p-1 rounded-full w-full border border-white/5 relative z-10">
+                  <button onClick={()=>{setCreationMode("schedules");setEventType(DEFAULT_SCHEDULE_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="schedules"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>✨ Automation</button>
+                  <button onClick={()=>{setCreationMode("reminders");setEventType(DEFAULT_REMINDER_OPTIONS[0]);setActivePicker(null)}} className={`flex-1 py-1.5 rounded-full text-[14px] font-medium transition-all ${creationMode==="reminders"?"bg-white text-black shadow-sm":"text-[#8e8e93]"}`} style={{fontFamily:SF}}>🔔 Alert</button>
+               </div>
+            </div>
+
+            <div className="overflow-y-auto flex-1 no-scrollbar px-5 pb-32 space-y-4" style={{scrollBehavior: 'smooth'}}>
+              
+              {/* Título de la Tarea estilo libre */}
+              <input 
+                autoFocus
+                value={taskTitle}
+                onChange={(e) => setTaskTitle(e.target.value)}
+                placeholder="Automation title..."
+                className="w-full bg-transparent text-[22px] font-bold text-white outline-none placeholder:text-[#555558] mb-1 pl-2"
+                style={{ fontFamily: SFD }}
+              />
+
+              {/* Contenedor principal de settings agrupadas */}
+              <div className="bg-[#111111] rounded-[24px] shadow-lg border border-white/5 pb-2">
                 
-                  {/* Title & Icon */}
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-3 w-full p-4">
-                      <button onClick={()=>togglePicker("icon")} className="flex items-center justify-center active:scale-95 transition-transform shrink-0 bg-transparent">
-                        {(()=>{const I=ICONS[taskIcon]||Sparkles;return <I className="w-6 h-6" style={{color:ICON_COLORS[taskIcon]||"#ffffff"}}/>})()}
-                      </button>
-                      <input 
-                        type="text" 
-                        placeholder={eventType === "Schedule Email" ? "Email subject..." : "Add title..."} 
-                        value={taskTitle} 
-                        onChange={e=>setTaskTitle(e.target.value)} 
-                        className="bg-transparent text-left text-white text-[18px] font-medium flex-1 focus:outline-none placeholder-[#636366]" 
-                        style={{fontFamily:SFD}}
-                      />
+                {/* Type */}
+                <div className="flex flex-col">
+                  <button onClick={()=>togglePicker("type")} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full p-4 active:bg-white/5 transition-colors border-b border-[#1c1c1e]">
+                    <div className="flex items-center gap-3 relative z-10">
+                      <IconFlat icon={ICONS[getIconNameForType(eventType)] || Sparkles} color="#60a5fa" />
+                      <span className="text-white text-[16px] font-medium">Action Type</span>
                     </div>
-                    {activePicker==="icon"&&(
-                      <div className="grid grid-cols-6 gap-4 py-5 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95">
-                        {Object.keys(ICONS).map(key=>{const IC=ICONS[key];const sel=taskIcon===key;return(
-                          <button key={key} onClick={()=>{setTaskIcon(key);setActivePicker(null)}} className={`flex flex-col items-center justify-center transition-all ${sel?"scale-110":"opacity-70 hover:opacity-100"}`}>
-                            <IC className="w-6 h-6" style={{color:ICON_COLORS[key]}}/>
-                            {sel&&<div className="w-1.5 h-1.5 rounded-full mt-2" style={{backgroundColor:ICON_COLORS[key]}}/>}
+                    <div className="flex items-center gap-2 relative z-10">
+                      <span className="text-[#8e8e93] text-[15px] truncate max-w-[150px]">{eventType}</span>
+                      <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+                    </div>
+                  </button>
+                  
+                  {activePicker==="type" && !isAddingCategory && (
+                    <div className="flex flex-col py-2 bg-[#1c1c1e] rounded-[16px] my-2 mx-4 animate-in fade-in zoom-in-95 max-h-[220px] overflow-y-auto no-scrollbar border border-white/5">
+                       {activeOptionsList.map(opt => {
+                         const iconName = getIconNameForType(opt);
+                         const I = ICONS[iconName] || Sparkles;
+                         return (
+                           <button key={opt} onClick={() => { setEventType(opt); setActivePicker(null); }} className="flex items-center gap-3 px-4 py-3 active:bg-[#2c2c2e] transition-colors text-left w-full border-b border-[#2c2c2e] last:border-0">
+                              <I className="w-[18px] h-[18px]" style={{color: ICON_COLORS[iconName] || "#8e8e93"}} />
+                              <span className="text-white text-[15px] font-medium" style={{fontFamily:SF}}>{opt}</span>
+                              {eventType === opt && <Check className="w-4 h-4 text-[#60a5fa] ml-auto" strokeWidth={3}/>}
+                           </button>
+                         )
+                       })}
+                       <div className="h-px bg-[#2c2c2e] mx-4 my-1 shrink-0" />
+                       <button onClick={() => setIsAddingCategory(true)} className="flex items-center gap-3 px-4 py-3 active:bg-[#2c2c2e] transition-colors text-left w-full text-[#60a5fa] shrink-0">
+                           <Plus className="w-[18px] h-[18px]" strokeWidth={2.5}/>
+                           <span className="text-[15px] font-medium" style={{fontFamily:SF}}>Create custom category</span>
+                       </button>
+                    </div>
+                  )}
+
+                  {activePicker==="type" && isAddingCategory && (
+                    <div className="flex flex-col p-4 bg-[#1c1c1e] rounded-[16px] my-2 mx-4 animate-in fade-in zoom-in-95 border border-white/5">
+                       <span className="text-[#8e8e93] text-[12px] font-medium uppercase tracking-wider mb-3" style={{fontFamily:SF}}>New Category</span>
+                       <div className="flex items-center gap-3 mb-4">
+                          <button onClick={() => setPickingCategoryIcon(!pickingCategoryIcon)} className="w-[42px] h-[42px] flex items-center justify-center shrink-0 active:scale-95 transition-transform bg-[#2c2c2e] rounded-xl border border-white/5">
+                             {(()=>{const I=ICONS[newCategoryIcon]||Sparkles;return <I className="w-6 h-6" style={{color:ICON_COLORS[newCategoryIcon]||"#ffffff"}}/>})()}
                           </button>
-                        )})}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Type */}
-                  <div className="flex flex-col">
-                    <button onClick={()=>togglePicker("type")} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
-                      <div className="flex items-center gap-3 relative z-10">
-                        {(()=>{
-                          const iconName = getIconNameForType(eventType);
-                          const I = ICONS[iconName] || Sparkles;
-                          return <I className="w-[20px] h-[20px] text-[#8e8e93]" />
-                        })()}
-                        <span className="text-white text-[16px] font-medium">Type</span>
-                      </div>
-                      <span className="text-[#8e8e93] text-[16px] truncate max-w-[150px] relative z-10">{eventType}</span>
-                    </button>
-                    
-                    {activePicker==="type" && !isAddingCategory && (
-                      <div className="flex flex-col py-2 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 max-h-[220px] overflow-y-auto no-scrollbar border border-white/5">
-                         {activeOptionsList.map(opt => {
-                           const iconName = getIconNameForType(opt);
-                           const I = ICONS[iconName] || Sparkles;
-                           return (
-                             <button key={opt} onClick={() => { setEventType(opt); setActivePicker(null); }} className="flex items-center gap-3 px-4 py-3 active:bg-[#1c1c1e] transition-colors text-left w-full">
-                                <I className="w-[18px] h-[18px]" style={{color: ICON_COLORS[iconName] || "#8e8e93"}} />
-                                <span className="text-white text-[15px] font-medium" style={{fontFamily:SF}}>{opt}</span>
-                                {eventType === opt && <Check className="w-4 h-4 text-[#60a5fa] ml-auto" strokeWidth={3}/>}
-                             </button>
-                           )
-                         })}
-                         <div className="h-px bg-[#2c2c2e] mx-4 my-1 shrink-0" />
-                         <button onClick={() => setIsAddingCategory(true)} className="flex items-center gap-3 px-4 py-3 active:bg-[#1c1c1e] transition-colors text-left w-full text-[#60a5fa] shrink-0">
-                             <Plus className="w-[18px] h-[18px]" strokeWidth={2.5}/>
-                             <span className="text-[15px] font-medium" style={{fontFamily:SF}}>Create new category</span>
-                         </button>
-                      </div>
-                    )}
-
-                    {activePicker==="type" && isAddingCategory && (
-                      <div className="flex flex-col p-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 border border-white/5">
-                         <span className="text-[#8e8e93] text-[12px] font-medium uppercase tracking-wider mb-3" style={{fontFamily:SF}}>New Category</span>
-                         
-                         <div className="flex items-center gap-3 mb-4">
-                            <button onClick={() => setPickingCategoryIcon(!pickingCategoryIcon)} className="w-[42px] h-[42px] flex items-center justify-center shrink-0 active:scale-95 transition-transform bg-transparent">
-                               {(()=>{const I=ICONS[newCategoryIcon]||Sparkles;return <I className="w-6 h-6" style={{color:ICON_COLORS[newCategoryIcon]||"#ffffff"}}/>})()}
-                            </button>
-                            <input 
-                              autoFocus 
-                              value={newCategoryName} 
-                              onChange={e=>setNewCategoryName(e.target.value)} 
-                              placeholder="Enter category name..." 
-                              className="bg-transparent border-b border-[#2c2c2e] text-white text-[16px] font-medium p-2 outline-none flex-1 focus:border-[#60a5fa] transition-colors" 
-                              style={{fontFamily:SF}}
-                            />
-                         </div>
-
-                         {pickingCategoryIcon && (
-                            <div className="grid grid-cols-6 gap-3 mb-4">
-                               {Object.keys(ICONS).map(k => {
-                                  const IC = ICONS[k];
-                                  return (
-                                     <button key={k} onClick={() => {setNewCategoryIcon(k); setPickingCategoryIcon(false)}} className="flex items-center justify-center p-2 rounded-xl active:bg-[#1c1c1e] transition-colors border-none bg-transparent">
-                                        <IC className="w-6 h-6" style={{color: ICON_COLORS[k]}} />
-                                     </button>
-                                  )
-                               })}
-                            </div>
-                         )}
-
-                         <div className="flex gap-2 mt-1">
-                           <button onClick={()=>{setIsAddingCategory(false); setNewCategoryName(""); setPickingCategoryIcon(false);}} className="flex-1 py-2.5 bg-[#1c1c1e] rounded-xl text-[#8e8e93] font-medium text-[14px]">Cancel</button>
-                           <button onClick={handleAddCategory} disabled={!newCategoryName.trim()} className="flex-1 py-2.5 bg-[#60a5fa] rounded-xl text-black font-bold text-[14px] disabled:opacity-50">Save</button>
-                         </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Date (WheelPicker) */}
-                  <div className="flex flex-col">
-                    <button onClick={()=>togglePicker("date")} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
-                      <div className="flex items-center gap-3 relative z-10">
-                        <CalendarDays className="w-[20px] h-[20px] text-[#8e8e93]"/>
-                        <span className="text-white text-[16px] font-medium">Date</span>
-                      </div>
-                      <span className="text-[#8e8e93] text-[16px] relative z-10">{selMonth} {selDayNum}</span>
-                    </button>
-                    {activePicker==="date"&&(
-                      <div className="flex items-center justify-center gap-6 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 border border-white/5">
-                        <WheelPicker items={months} value={selMonth} onChange={setSelMonth}/>
-                        <WheelPicker items={days} value={selDayNum} onChange={setSelDayNum}/>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Time (WheelPicker) */}
-                  <div className="flex flex-col">
-                    <button onClick={()=>togglePicker("time")} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
-                      <div className="flex items-center gap-3 relative z-10">
-                        <Clock className="w-[20px] h-[20px] text-[#8e8e93]"/>
-                        <span className="text-white text-[16px] font-medium">Time</span>
-                      </div>
-                      <span className="text-[#8e8e93] text-[16px] relative z-10">{parseInt(selHour)===0?"12":parseInt(selHour)>12?(parseInt(selHour)-12).toString():parseInt(selHour).toString()}:{selMin} {parseInt(selHour)>=12?"PM":"AM"}</span>
-                    </button>
-                    {activePicker==="time"&&(
-                      <div className="flex items-center justify-center gap-6 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 border border-white/5">
-                        <WheelPicker items={hours} value={selHour} onChange={setSelHour} suffix="h"/>
-                        <span className="text-xl font-bold text-[#636366]">:</span>
-                        <WheelPicker items={mins} value={selMin} onChange={setSelMin} suffix="m"/>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Repeat (CRON) */}
-                  <div className="flex flex-col">
-                    <button onClick={()=>togglePicker("repeat")} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
-                      <div className="flex items-center gap-3 relative z-10">
-                        <Repeat className="w-[20px] h-[20px] text-[#8e8e93]"/>
-                        <span className="text-white text-[16px] font-medium">Repeat</span>
-                      </div>
-                      <span className="text-[#8e8e93] text-[16px] truncate max-w-[120px] relative z-10">{selRepeat}</span>
-                    </button>
-                    {activePicker==="repeat"&&(
-                      <div className="flex flex-col py-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 border border-white/5">
-                        <div className="px-4">
-                           <WheelPicker items={REPEAT_OPTIONS} value={selRepeat} onChange={setSelRepeat}/>
-                        </div>
-                        {selRepeat === "Weekly" && (
-                          <div className="flex justify-center gap-2 mt-4 px-4 pt-4 border-t border-[#1c1c1e]">
-                            {WEEK_DAYS.map(d => {
-                               const isSel = repeatDays.includes(d.val);
-                               return (
-                                 <button key={d.val} onClick={() => setRepeatDays(p => p.includes(d.val) ? p.filter(x=>x!==d.val) : [...p, d.val])} className={`w-9 h-9 flex items-center justify-center rounded-full font-bold text-[13px] transition-all ${isSel ? 'bg-[#60a5fa] text-black shadow-[0_0_10px_rgba(96,165,250,0.5)]' : 'bg-[#1c1c1e] text-[#636366]'}`}>
-                                    {d.label}
-                                 </button>
-                               )
-                            })}
+                          <input 
+                            autoFocus value={newCategoryName} onChange={e=>setNewCategoryName(e.target.value)} 
+                            placeholder="Category name..." 
+                            className="bg-transparent border-b border-[#2c2c2e] text-white text-[16px] font-medium p-2 outline-none flex-1 focus:border-[#60a5fa] transition-colors" 
+                            style={{fontFamily:SF}}
+                          />
+                       </div>
+                       {pickingCategoryIcon && (
+                          <div className="grid grid-cols-6 gap-3 mb-4">
+                             {Object.keys(ICONS).map(k => {
+                                const IC = ICONS[k];
+                                return (
+                                   <button key={k} onClick={() => {setNewCategoryIcon(k); setPickingCategoryIcon(false)}} className="flex items-center justify-center p-2 rounded-xl active:bg-[#2c2c2e] transition-colors bg-transparent border border-transparent">
+                                      <IC className="w-6 h-6" style={{color: ICON_COLORS[k]}} />
+                                   </button>
+                                )
+                             })}
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* ── DYNAMIC FIELDS (Integrando las Automations) ── */}
-                  {(eventType === "Group Summary" || eventType === "Channel Auto-Post" || eventType === "Trend Monitor") && (
-                    <div className="flex items-center justify-between w-full p-4">
-                      <div className="flex items-center gap-3">
-                         {eventType === "Trend Monitor" ? <TrendingUp className="w-[20px] h-[20px] text-[#8e8e93]"/> : <AtSign className="w-[20px] h-[20px] text-[#8e8e93]"/>}
-                         <span className="text-white text-[16px] font-medium">{eventType === "Trend Monitor" ? "Keyword/Token" : "Target ID"}</span>
-                      </div>
-                      <input type="text" placeholder={eventType === "Trend Monitor" ? "e.g. $SOL" : "@channel"} value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                       )}
+                       <div className="flex gap-2 mt-1">
+                         <button onClick={()=>{setIsAddingCategory(false); setNewCategoryName(""); setPickingCategoryIcon(false);}} className="flex-1 py-2.5 bg-[#2c2c2e] rounded-xl text-white font-medium text-[14px]">Cancel</button>
+                         <button onClick={handleAddCategory} disabled={!newCategoryName.trim()} className="flex-1 py-2.5 bg-[#60a5fa] rounded-xl text-black font-bold text-[14px] disabled:opacity-50">Save</button>
+                       </div>
                     </div>
                   )}
-
-                  {eventType==="Schedule Email"&&(
-                    <>
-                      <div className="flex flex-col w-full p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3"><AtSign className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Recipient</span></div>
-                          <input type="email" placeholder="client@ex.com" value={taskEmailRec} onChange={e=>setTaskEmailRec(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col w-full p-4 gap-3 border-t border-[#2c2c2e]">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-3"><Paperclip className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Attachments</span></div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[#8e8e93] text-[14px]">{attachedFiles.length} / 5</span>
-                            <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden"/>
-                            <button onClick={()=>fileInputRef.current?.click()} disabled={attachedFiles.length>=5} className="bg-[#2c2c2e] text-white px-3 py-1.5 rounded-full text-[13px] font-medium active:scale-95 disabled:opacity-50">+ Add</button>
-                            {attachedFiles.length>0&&<button onClick={()=>setAttachedFiles([])} className="text-red-400 px-2 py-1.5 text-[13px]">Clear</button>}
-                          </div>
-                        </div>
-                        {attachedFiles.length>0&&<div className="flex flex-wrap gap-2 mt-2">{attachedFiles.map((f,i)=><div key={i} className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-md text-[11px] text-[#e4e4e7]"><span className="truncate max-w-[120px]">{f.name}</span><button onClick={()=>setAttachedFiles(p=>p.filter((_,j)=>j!==i))}><X className="w-3 h-3 text-[#8e8e93]"/></button></div>)}</div>}
-                      </div>
-                    </>
-                  )}
-
-                  {eventType==="Drive Backup"&&(
-                    <div className="flex flex-col w-full p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3"><Folder className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Drive Folder</span></div>
-                        <input type="text" placeholder="Folder name..." value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
-                      </div>
-                      <div className="flex items-center justify-between mb-2 pt-3 border-t border-[#2c2c2e]">
-                        <div className="flex items-center gap-3"><Paperclip className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Files</span></div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[#8e8e93] text-[14px]">{attachedFiles.length} / 5</span>
-                          <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden"/>
-                          <button onClick={()=>fileInputRef.current?.click()} disabled={attachedFiles.length>=5} className="bg-[#2c2c2e] text-white px-3 py-1.5 rounded-full text-[13px] font-medium active:scale-95 disabled:opacity-50">+ Add</button>
-                          {attachedFiles.length>0&&<button onClick={()=>setAttachedFiles([])} className="text-red-400 px-2 py-1.5 text-[13px]">Clear</button>}
-                        </div>
-                      </div>
-                      {attachedFiles.length>0&&<div className="flex flex-wrap gap-2 mt-2">{attachedFiles.map((f,i)=><div key={i} className="flex items-center gap-1.5 bg-[#2c2c2e] px-2.5 py-1 rounded-md text-[11px] text-[#e4e4e7]"><span className="truncate max-w-[120px]">{f.name}</span><button onClick={()=>setAttachedFiles(p=>p.filter((_,j)=>j!==i))}><X className="w-3 h-3 text-[#8e8e93]"/></button></div>)}</div>}
-                    </div>
-                  )}
-
-                  {eventType==="Take Medication"&&(
-                    <div className="flex items-center justify-between w-full p-4">
-                      <div className="flex items-center gap-3"><RefreshCcw className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Frequency</span></div>
-                      <input type="text" placeholder="e.g. Every 8 hours" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
-                    </div>
-                  )}
-
-                  {/* Alert Offset (WheelPicker) */}
-                  <div className="flex flex-col">
-                    <button onClick={()=>togglePicker("reminder")} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full p-4 active:bg-[#2c2c2e] rounded-2xl transition-colors">
-                      <div className="flex items-center gap-3 relative z-10">
-                        <Bell className="w-[20px] h-[20px] text-[#8e8e93]"/>
-                        <span className="text-white text-[16px] font-medium">Alert Offset</span>
-                      </div>
-                      <span className="text-[#8e8e93] text-[16px] relative z-10">
-                        {selRemMin === "00" && selRemSec === "00" ? "At time of event" : `${parseInt(selRemMin, 10)}m ${parseInt(selRemSec, 10)}s`}
-                      </span>
-                    </button>
-                    {activePicker==="reminder"&&(
-                      <div className="flex items-center justify-center gap-6 py-4 px-4 bg-[#0a0a0a] rounded-[20px] my-1 mx-2 animate-in fade-in zoom-in-95 border border-white/5">
-                        <WheelPicker items={mins} value={selRemMin} onChange={setSelRemMin} suffix="m"/>
-                        <WheelPicker items={secs} value={selRemSec} onChange={setSelRemSec} suffix="s"/>
-                      </div>
-                    )}
-                  </div>
-
                 </div>
+
+                {/* Date */}
+                <div className="flex flex-col">
+                  <button onClick={()=>togglePicker("date")} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full p-4 active:bg-white/5 transition-colors border-b border-[#1c1c1e]">
+                    <div className="flex items-center gap-3 relative z-10">
+                      <IconFlat icon={CalendarDays} color="#34c759" />
+                      <span className="text-white text-[16px] font-medium">Date</span>
+                    </div>
+                    <div className="flex items-center gap-2 relative z-10">
+                      <span className="text-[#8e8e93] text-[15px]">{selMonth} {selDayNum}</span>
+                      <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+                    </div>
+                  </button>
+                  {activePicker==="date"&&(
+                    <div className="flex items-center justify-center gap-6 py-4 px-4 bg-[#1c1c1e] rounded-[16px] my-2 mx-4 animate-in fade-in zoom-in-95 border border-white/5">
+                      <WheelPicker items={months} value={selMonth} onChange={setSelMonth}/>
+                      <WheelPicker items={days} value={selDayNum} onChange={setSelDayNum}/>
+                    </div>
+                  )}
+                </div>
+
+                {/* Time */}
+                <div className="flex flex-col">
+                  <button onClick={()=>togglePicker("time")} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full p-4 active:bg-white/5 transition-colors border-b border-[#1c1c1e]">
+                    <div className="flex items-center gap-3 relative z-10">
+                      <IconFlat icon={Clock} color="#f97316" />
+                      <span className="text-white text-[16px] font-medium">Time</span>
+                    </div>
+                    <div className="flex items-center gap-2 relative z-10">
+                      <span className="text-[#8e8e93] text-[15px]">{parseInt(selHour)===0?"12":parseInt(selHour)>12?(parseInt(selHour)-12).toString():parseInt(selHour).toString()}:{selMin} {parseInt(selHour)>=12?"PM":"AM"}</span>
+                      <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+                    </div>
+                  </button>
+                  {activePicker==="time"&&(
+                    <div className="flex items-center justify-center gap-6 py-4 px-4 bg-[#1c1c1e] rounded-[16px] my-2 mx-4 animate-in fade-in zoom-in-95 border border-white/5">
+                      <WheelPicker items={hours} value={selHour} onChange={setSelHour} suffix="h"/>
+                      <span className="text-xl font-bold text-[#636366]">:</span>
+                      <WheelPicker items={mins} value={selMin} onChange={setSelMin} suffix="m"/>
+                    </div>
+                  )}
+                </div>
+
+                {/* Repeat (CRON) */}
+                <div className="flex flex-col">
+                  <button onClick={()=>togglePicker("repeat")} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full p-4 active:bg-white/5 transition-colors">
+                    <div className="flex items-center gap-3 relative z-10">
+                      <IconFlat icon={Repeat} color="#8e8e93" />
+                      <span className="text-white text-[16px] font-medium">Repeat</span>
+                    </div>
+                    <div className="flex items-center gap-2 relative z-10">
+                      <span className="text-[#8e8e93] text-[15px] truncate max-w-[120px]">{selRepeat}</span>
+                      <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+                    </div>
+                  </button>
+                  {activePicker==="repeat"&&(
+                    <div className="flex flex-col py-4 bg-[#1c1c1e] rounded-[16px] my-2 mx-4 animate-in fade-in zoom-in-95 border border-white/5">
+                      <div className="px-4">
+                         <WheelPicker items={REPEAT_OPTIONS} value={selRepeat} onChange={setSelRepeat}/>
+                      </div>
+                      {selRepeat === "Weekly" && (
+                        <div className="flex justify-center gap-2 mt-4 px-4 pt-4 border-t border-[#2c2c2e]">
+                          {WEEK_DAYS.map(d => {
+                             const isSel = repeatDays.includes(d.val);
+                             return (
+                               <button key={d.val} onClick={() => setRepeatDays(p => p.includes(d.val) ? p.filter(x=>x!==d.val) : [...p, d.val])} className={`w-9 h-9 flex items-center justify-center rounded-full font-bold text-[13px] transition-all ${isSel ? 'bg-[#60a5fa] text-black shadow-[0_0_10px_rgba(96,165,250,0.5)]' : 'bg-[#2c2c2e] text-[#636366]'}`}>
+                                  {d.label}
+                               </button>
+                             )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+              {/* Fin contenedor agrupado */}
+
+              {/* ── DYNAMIC FIELDS INDIVIDUALES (Restaurados tal cual los querías) ── */}
+              {(eventType === "Group Summary" || eventType === "Channel Auto-Post" || eventType === "Trend Monitor") && (
+                <div className="bg-[#111111] rounded-[20px] shadow-lg border border-white/5 p-4 flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3">
+                     {eventType === "Trend Monitor" ? <TrendingUp className="w-[20px] h-[20px] text-[#8e8e93]"/> : <AtSign className="w-[20px] h-[20px] text-[#8e8e93]"/>}
+                     <span className="text-white text-[16px] font-medium">{eventType === "Trend Monitor" ? "Keyword / Token" : "Target Username"}</span>
+                  </div>
+                  <input type="text" placeholder={eventType === "Trend Monitor" ? "e.g. $SOL" : "@channel"} value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                </div>
+              )}
+
+              {eventType==="Schedule Email"&&(
+                <div className="bg-[#111111] rounded-[20px] shadow-lg border border-white/5 flex flex-col w-full overflow-hidden">
+                  <div className="p-4 flex items-center justify-between border-b border-[#1c1c1e]">
+                    <div className="flex items-center gap-3"><AtSign className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Recipient</span></div>
+                    <input type="email" placeholder="client@ex.com" value={taskEmailRec} onChange={e=>setTaskEmailRec(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                  </div>
+                  <div className="p-4 flex flex-col w-full">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3"><Paperclip className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Attachments</span></div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[#8e8e93] text-[14px]">{attachedFiles.length} / 5</span>
+                        <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden"/>
+                        <button onClick={()=>fileInputRef.current?.click()} disabled={attachedFiles.length>=5} className="bg-[#1c1c1e] border border-white/5 text-white px-3 py-1.5 rounded-full text-[13px] font-medium active:scale-95 disabled:opacity-50">+ Add</button>
+                        {attachedFiles.length>0&&<button onClick={()=>setAttachedFiles([])} className="text-red-400 px-2 py-1.5 text-[13px]">Clear</button>}
+                      </div>
+                    </div>
+                    {attachedFiles.length>0&&<div className="flex flex-wrap gap-2 mt-2">{attachedFiles.map((f,i)=><div key={i} className="flex items-center gap-1.5 bg-[#1c1c1e] border border-white/5 px-2.5 py-1 rounded-md text-[12px] text-[#e4e4e7]"><span className="truncate max-w-[120px]">{f.name}</span><button onClick={()=>setAttachedFiles(p=>p.filter((_,j)=>j!==i))}><X className="w-3 h-3 text-[#8e8e93]"/></button></div>)}</div>}
+                  </div>
+                </div>
+              )}
+
+              {eventType==="Drive Backup"&&(
+                <div className="bg-[#111111] rounded-[20px] shadow-lg border border-white/5 flex flex-col w-full overflow-hidden">
+                  <div className="p-4 flex items-center justify-between border-b border-[#1c1c1e]">
+                    <div className="flex items-center gap-3"><Folder className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Drive Folder</span></div>
+                    <input type="text" placeholder="Folder name..." value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-32 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                  </div>
+                  <div className="p-4 flex flex-col w-full">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3"><Paperclip className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Files</span></div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[#8e8e93] text-[14px]">{attachedFiles.length} / 5</span>
+                        <input type="file" multiple ref={fileInputRef} onChange={handleFileUpload} className="hidden"/>
+                        <button onClick={()=>fileInputRef.current?.click()} disabled={attachedFiles.length>=5} className="bg-[#1c1c1e] border border-white/5 text-white px-3 py-1.5 rounded-full text-[13px] font-medium active:scale-95 disabled:opacity-50">+ Add</button>
+                        {attachedFiles.length>0&&<button onClick={()=>setAttachedFiles([])} className="text-red-400 px-2 py-1.5 text-[13px]">Clear</button>}
+                      </div>
+                    </div>
+                    {attachedFiles.length>0&&<div className="flex flex-wrap gap-2 mt-2">{attachedFiles.map((f,i)=><div key={i} className="flex items-center gap-1.5 bg-[#1c1c1e] border border-white/5 px-2.5 py-1 rounded-md text-[12px] text-[#e4e4e7]"><span className="truncate max-w-[120px]">{f.name}</span><button onClick={()=>setAttachedFiles(p=>p.filter((_,j)=>j!==i))}><X className="w-3 h-3 text-[#8e8e93]"/></button></div>)}</div>}
+                  </div>
+                </div>
+              )}
+
+              {eventType==="Custom Schedule"&&(
+                <div className="bg-[#111111] rounded-[20px] shadow-lg border border-white/5 p-4 flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3"><LinkIcon className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">URL</span></div>
+                  <input type="text" placeholder="Optional link..." value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                </div>
+              )}
+
+              {eventType==="Take Medication"&&(
+                <div className="bg-[#111111] rounded-[20px] shadow-lg border border-white/5 p-4 flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3"><RefreshCcw className="w-[20px] h-[20px] text-[#8e8e93]"/><span className="text-white text-[16px] font-medium">Frequency</span></div>
+                  <input type="text" placeholder="e.g. Every 8 hours" value={extraConfig} onChange={e=>setExtraConfig(e.target.value)} className="bg-transparent text-right text-[#8e8e93] w-36 focus:outline-none focus:text-white" style={{fontFamily:SF}}/>
+                </div>
+              )}
+
+              {/* Alert Offset */}
+              <div className="bg-[#111111] rounded-[24px] shadow-lg border border-white/5 pb-2">
+                <button onClick={()=>togglePicker("reminder")} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full p-4 active:bg-white/5 transition-colors">
+                  <div className="flex items-center gap-3 relative z-10">
+                    <IconFlat icon={Bell} color="#ff9500" />
+                    <span className="text-white text-[16px] font-medium">Alert Offset</span>
+                  </div>
+                  <div className="flex items-center gap-2 relative z-10">
+                    <span className="text-[#8e8e93] text-[15px]">
+                      {selRemMin === "00" && selRemSec === "00" ? "At time of event" : `${parseInt(selRemMin, 10)}m ${parseInt(selRemSec, 10)}s`}
+                    </span>
+                    <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+                  </div>
+                </button>
+                {activePicker==="reminder"&&(
+                  <div className="flex items-center justify-center gap-6 py-4 px-4 bg-[#1c1c1e] rounded-[16px] my-2 mx-4 animate-in fade-in zoom-in-95 border border-white/5">
+                    <WheelPicker items={mins} value={selRemMin} onChange={setSelRemMin} suffix="m"/>
+                    <WheelPicker items={secs} value={selRemSec} onChange={setSelRemSec} suffix="s"/>
+                  </div>
+                )}
               </div>
 
               {/* ── PRIORITY & PIN ── */}
-              <div className="bg-[#1c1c1e] rounded-[28px] p-2 flex flex-col gap-1 shadow-inner border border-white/5">
+              <div className="bg-[#111111] rounded-[24px] p-2 flex flex-col gap-1 shadow-lg border border-white/5">
                 <div className="flex items-center justify-between p-3">
                   <div className="flex items-center gap-3">
-                     <AlertCircle className={`w-[20px] h-[20px] ${isPriority ? 'text-red-500' : 'text-[#8e8e93]'}`} />
+                     <AlertCircle className={`w-[20px] h-[20px] ${isPriority ? 'text-[#ef4444]' : 'text-[#8e8e93]'}`} />
                      <span className="text-white text-[16px] font-medium">High Priority</span>
                   </div>
-                  <button onClick={() => setIsPriority(!isPriority)} className={`w-12 h-7 rounded-full transition-colors flex items-center px-1 shrink-0 ${isPriority ? 'bg-red-500' : 'bg-[#3a3a3c]'}`}>
+                  <button onClick={() => setIsPriority(!isPriority)} className={`w-12 h-7 rounded-full transition-colors flex items-center px-1 shrink-0 ${isPriority ? 'bg-[#ef4444]' : 'bg-[#3a3a3c]'}`}>
                     <div className={`w-5 h-5 rounded-full bg-white transition-transform ${isPriority ? 'translate-x-5' : 'translate-x-0'}`} />
                   </button>
                 </div>
-                <div className="w-full h-px bg-[#2c2c2e]"/>
+                <div className="w-full h-px bg-[#1c1c1e]"/>
                 <div className="flex items-center justify-between p-3">
                   <div className="flex items-center gap-3">
-                     <Pin className={`w-[20px] h-[20px] ${isPinned ? 'text-yellow-500' : 'text-[#8e8e93]'}`} />
+                     <Pin className={`w-[20px] h-[20px] ${isPinned ? 'text-[#f59e0b]' : 'text-[#8e8e93]'}`} />
                      <span className="text-white text-[16px] font-medium">Pin to Top</span>
                   </div>
-                  <button onClick={() => setIsPinned(!isPinned)} className={`w-12 h-7 rounded-full transition-colors flex items-center px-1 shrink-0 ${isPinned ? 'bg-yellow-500' : 'bg-[#3a3a3c]'}`}>
+                  <button onClick={() => setIsPinned(!isPinned)} className={`w-12 h-7 rounded-full transition-colors flex items-center px-1 shrink-0 ${isPinned ? 'bg-[#f59e0b]' : 'bg-[#3a3a3c]'}`}>
                     <div className={`w-5 h-5 rounded-full bg-white transition-transform ${isPinned ? 'translate-x-5' : 'translate-x-0'}`} />
                   </button>
                 </div>
               </div>
 
-              {/* ── NOTES / PROMPT (Estilo Settings-View Textarea) ── */}
+              {/* ── TEXTAREA / PROMPT INTELIGENTE (Diseño Settings) ── */}
               {eventType !== "Trend Monitor" && (
                 <div className="pt-2">
                   <h3 className="text-[#8e8e93] text-[14px] font-medium mb-2 ml-1" style={{ fontFamily: SF }}>
@@ -1189,7 +1258,7 @@ export function ScheduleView() {
                       eventType === "Deep Research" ? "e.g. Investiga vulnerabilidades del kernel Linux..." :
                       "Optional notes or instructions..."
                     }
-                    className="w-full min-h-[140px] p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none transition-colors border border-white/5"
+                    className="w-full min-h-[140px] p-4 rounded-2xl text-white placeholder:text-[#636366] focus:outline-none transition-colors border border-white/5 shadow-inner"
                     style={{ background: "#1c1c1e", fontSize: "15px", fontFamily: SF }}
                     onFocus={e => (e.target.style.borderColor = "#48484a")}
                     onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.05)")}
@@ -1197,15 +1266,6 @@ export function ScheduleView() {
                 </div>
               )}
 
-              {/* ── SAVE BUTTON ── */}
-              <div className="pb-6 pt-2">
-                <button onClick={handleSaveConfig} onPointerDown={createRipple} disabled={loading} className="relative overflow-hidden w-full py-4 bg-white text-black font-bold rounded-[20px] active:scale-[0.98] transition-transform text-[16px] disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg">
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                     {loading&&<Loader2 className="w-5 h-5 animate-spin"/>}
-                     {loading ? "Saving…" : `Save ${creationMode==="schedules"?"Automation":"Alert"}`}
-                  </span>
-                </button>
-              </div>
             </div>
           </div>
         </div>
