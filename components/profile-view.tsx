@@ -6,8 +6,7 @@ import {
   Settings, 
   Gift, 
   Info, 
-  PenLine, 
-  PlusCircle, 
+  BellDot, 
   Search, 
   ArrowUpDown, 
   CheckSquare, 
@@ -33,7 +32,7 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── ESTILOS DE BRILLO / GLASSMORPHISM (Inspirados en la NavBar de page.tsx) ──
+// ── ESTILOS DE BRILLO / GLASSMORPHISM ──
 const darkGlowStyle = {
   backgroundColor: "#000000",
   border: "1px solid rgba(255, 255, 255, 0.12)",
@@ -96,11 +95,11 @@ export function ProfileView() {
 
       <div className="px-4 pb-32 relative z-10">
 
-        {/* HEADER: BOTÓN SETTINGS (Con estilo de borde iluminado) */}
+        {/* HEADER: BOTÓN SETTINGS */}
         <div className="absolute right-4 top-8 z-30 flex items-center">
           <button 
             onClick={() => setCurrentView("settings")} 
-            className="w-[56px] h-[34px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
+            className="w-[56px] h-[32px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
             style={darkGlowStyle}
           >
             <Settings className="w-[18px] h-[18px] text-white" />
@@ -131,42 +130,34 @@ export function ProfileView() {
           </p>
         </div>
 
-        {/* FILA DE BOTONES DE ACCIÓN (Todas las píldoras unificadas en tamaño, con brillo en los bordes) */}
+        {/* FILA DE BOTONES DE ACCIÓN (Más compactos, iconos/texto más grandes, centrados) */}
         <div className="flex flex-wrap items-center justify-center mt-6 w-full">
-          <div className="flex items-center justify-center gap-[6px]">
+          <div className="flex items-center justify-center gap-[8px]">
             
             <button 
-              className="flex items-center justify-center gap-1.5 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" 
+              className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-all shrink-0" 
               style={{ ...blueGlowStyle, fontFamily: SF }}
             >
-              <Gift className="w-[16px] h-[16px]" strokeWidth={2} />
+              <Gift className="w-[18px] h-[18px]" strokeWidth={2} />
               Add Gift
             </button>
             
             <button 
-              className="flex items-center justify-center gap-1.5 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" 
+              className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-all shrink-0" 
               style={{ ...darkGlowStyle, fontFamily: SF }}
             >
-              <Info className="w-[16px] h-[16px]" strokeWidth={2} />
+              <Info className="w-[18px] h-[18px]" strokeWidth={2} />
               Info
             </button>
             
+            {/* Línea divisoria ubicada entre Info y BellDot */}
+            <div className="w-[1px] h-[16px] bg-[#48484a] shrink-0 mx-0.5" />
+            
             <button 
-              className="flex items-center justify-center w-[34px] h-[34px] rounded-full shrink-0 active:scale-95 transition-all"
+              className="flex items-center justify-center w-[32px] h-[32px] rounded-full shrink-0 active:scale-95 transition-all"
               style={darkGlowStyle}
             >
-              <PenLine className="w-[15px] h-[15px] text-white" strokeWidth={2} />
-            </button>
-            
-            {/* Línea divisoria flotante en el espacio */}
-            <div className="w-[1px] h-[14px] bg-[#48484a] shrink-0 mx-0.5" />
-            
-            <button 
-              className="flex items-center justify-center gap-1.5 text-white px-3.5 h-[34px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0" 
-              style={{ ...darkGlowStyle, fontFamily: SF }}
-            >
-              <PlusCircle className="w-[16px] h-[16px]" strokeWidth={2} />
-              Add Links
+              <BellDot className="w-[18px] h-[18px] text-white" strokeWidth={2} />
             </button>
 
           </div>
