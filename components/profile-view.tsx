@@ -29,13 +29,6 @@ function getTgUser(): TgUser | undefined {
 }
 
 // ── ESTILOS DE BRILLO / GLASSMORPHISM ──
-const darkGlowStyle = {
-  backgroundColor: "#000000",
-  border: "1px solid rgba(255, 255, 255, 0.12)",
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
-  transform: "translateZ(0)",
-}
-
 const blueGlowStyle = {
   backgroundColor: "#2b63eb",
   border: "1px solid rgba(255, 255, 255, 0.15)",
@@ -43,6 +36,7 @@ const blueGlowStyle = {
   transform: "translateZ(0)",
 }
 
+// Ahora usaremos el gris para unificar la interfaz secundaria
 const greyGlowStyle = {
   backgroundColor: "#1c1c1e",
   border: "1px solid rgba(255, 255, 255, 0.10)",
@@ -58,7 +52,7 @@ export function ProfileView() {
   const [displayName, setDisplayName] = useState("")
   const [username, setUsername] = useState("")
   
-  // Estado para la navegación (Pestañas actualizadas)
+  // Estado para la navegación
   const [activeTab, setActiveTab] = useState("Collected")
 
   // Obtener datos del usuario de Telegram
@@ -88,7 +82,6 @@ export function ProfileView() {
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
-  // Nuevas opciones de navegación
   const tabs = ["Collected", "Offers", "Favorites", "Activity"]
 
   return (
@@ -99,12 +92,12 @@ export function ProfileView() {
 
       <div className="px-4 pb-32 relative z-10">
 
-        {/* HEADER: BOTÓN SETTINGS */}
+        {/* HEADER: BOTÓN SETTINGS (Ahora en Gris) */}
         <div className="absolute right-4 top-8 z-30 flex items-center">
           <button 
             onClick={() => setCurrentView("settings")} 
             className="w-[56px] h-[32px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
-            style={darkGlowStyle}
+            style={greyGlowStyle}
           >
             <Settings className="w-[18px] h-[18px] text-white" />
           </button>
@@ -134,7 +127,7 @@ export function ProfileView() {
           </p>
         </div>
 
-        {/* FILA DE BOTONES DE ACCIÓN SUPERIOR */}
+        {/* FILA DE BOTONES DE ACCIÓN SUPERIOR (Info y BellDot ahora en Gris) */}
         <div className="flex flex-wrap items-center justify-center mt-6 w-full">
           <div className="flex items-center justify-center gap-[8px]">
             
@@ -148,7 +141,7 @@ export function ProfileView() {
             
             <button 
               className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-all shrink-0" 
-              style={{ ...darkGlowStyle, fontFamily: SF }}
+              style={{ ...greyGlowStyle, fontFamily: SF }}
             >
               <Info className="w-[18px] h-[18px]" strokeWidth={2} />
               Info
@@ -158,7 +151,7 @@ export function ProfileView() {
             
             <button 
               className="flex items-center justify-center w-[32px] h-[32px] rounded-full shrink-0 active:scale-95 transition-all"
-              style={darkGlowStyle}
+              style={greyGlowStyle}
             >
               <BellDot className="w-[18px] h-[18px] text-white" strokeWidth={2} />
             </button>
@@ -166,7 +159,7 @@ export function ProfileView() {
           </div>
         </div>
 
-        {/* NAVEGACIÓN (TABS ACTUALIZADOS) */}
+        {/* NAVEGACIÓN (TABS) */}
         <div className="flex items-center gap-6 mt-8 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
           {tabs.map((tab) => {
             const isActive = activeTab === tab
@@ -188,16 +181,17 @@ export function ProfileView() {
           })}
         </div>
 
-        {/* BUSCADOR Y FILTROS NUEVOS */}
-        <div className="mt-5 space-y-4 px-1">
+        {/* BUSCADOR Y FILTROS */}
+        {/* Se redujo el 'space-y-4' a 'space-y-2.5' para acercar la fila de abajo */}
+        <div className="mt-5 space-y-2.5 px-1">
           
-          {/* Fila 1: Barra de Búsqueda ampliada 100% y con bordes brillantes */}
+          {/* Fila 1: Barra de Búsqueda ampliada (Ahora Gris y con icono bold) */}
           <div className="w-full">
             <div 
               className="w-full flex items-center px-4 h-[42px] rounded-full transition-opacity active:opacity-90"
-              style={darkGlowStyle}
+              style={greyGlowStyle}
             >
-              <Search className="w-[18px] h-[18px] text-[#8e8e93] shrink-0" />
+              <Search className="w-[18px] h-[18px] text-[#8e8e93] shrink-0" strokeWidth={2.5} />
               <input 
                 type="text" 
                 placeholder="Name or description" 
@@ -207,7 +201,7 @@ export function ProfileView() {
             </div>
           </div>
 
-          {/* Fila 2: Embudo y Botones de Filtro (Type, Price, Date) */}
+          {/* Fila 2: Embudo y Botones de Filtro */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
             <button 
               className="flex items-center justify-center w-[34px] h-[34px] rounded-full shrink-0 active:scale-95 transition-all"
