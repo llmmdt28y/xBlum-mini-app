@@ -91,21 +91,25 @@ const ROLES_DATA = [
 
 // ── COMPONENTES REUTILIZABLES ──
 
-// Switch calcado de la imagen (ON: Track azul, knob blanco / OFF: Track oscuro #2c2c2e, knob gris #636366)
+// Componente Toggle calcado de la imagen (círculo interior negro)
 function Toggle({ on, onToggle, disabled, activeColor = "#3b82f6" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <button
       onClick={(e) => { e.stopPropagation(); onToggle(); }}
       disabled={disabled}
       className={"relative rounded-full transition-all duration-300 shrink-0 z-10 " + (disabled ? "opacity-50" : "")}
-      style={{ width: "51px", height: "31px", background: on ? activeColor : "#2c2c2e" }}
+      style={{ 
+        width: "52px", height: "32px", 
+        background: on ? activeColor : "#3a3a3c" // Azul encendido, Gris Oscuro apagado
+      }}
     >
       <span
-        className="absolute top-[2px] rounded-full shadow-sm transition-all duration-300"
+        className="absolute rounded-full transition-all duration-300"
         style={{
-          width: "27px", height: "27px",
-          background: on ? "#ffffff" : "#636366",
-          left: on ? "22px" : "2px",
+          width: "26px", height: "26px", // Círculo más pequeño para dejar borde grueso
+          top: "3px", // Centrado vertical
+          background: "#111111", // Círculo SIEMPRE oscuro calcado de tu imagen
+          left: on ? "23px" : "3px", // Posiciones en los extremos
         }}
       />
     </button>
@@ -133,10 +137,10 @@ function SubHeader({ title, onBack }: { title: string, onBack?: () => void }) {
 function Section({ title, footer, children, rightAction }: { title?: string; footer?: React.ReactNode; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
     <div className="space-y-2 mb-6 w-full">
-      {/* Título por fuera del contenedor */}
+      {/* Título fuera del contenedor usando el azul exacto #60a5fa */}
       {title && (
         <div className="px-4 mb-2 flex items-center justify-between">
-          <h2 className="text-[#3b82f6] text-[15px] font-medium" style={{ fontFamily: SF }}>{title}</h2>
+          <h2 className="text-[#60a5fa] text-[15px] font-medium" style={{ fontFamily: SF }}>{title}</h2>
           {rightAction && <div>{rightAction}</div>}
         </div>
       )}
@@ -179,7 +183,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
       </div>
       <div className="flex items-center gap-1.5 relative z-10 shrink-0 ml-2">
         {value && (
-          <span className="text-[16px] font-normal text-[#3b82f6]" style={{ fontFamily: SF }}>
+          <span className="text-[16px] font-normal text-[#60a5fa]" style={{ fontFamily: SF }}>
             {value}
           </span>
         )}
@@ -207,8 +211,8 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
 
 function RadioButton({ selected }: { selected: boolean }) {
   return (
-    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 mt-[2px] ${selected ? 'border-[#3b82f6]' : 'border-[#555558]'}`}>
-      {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#3b82f6]" />}
+    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 mt-[2px] ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
+      {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#60a5fa]" />}
     </div>
   )
 }
@@ -475,8 +479,8 @@ export function BusinessAutomationView({
             {/* Header sin flecha */}
             <SubHeader title="AI Chat" />
             
-            {/* Robot movido más hacia abajo con márgenes aumentados */}
-            <div className="flex justify-center mt-10 mb-10">
+            {/* Robot movido más hacia abajo con margen mb-16 para empujar los contenedores */}
+            <div className="flex justify-center mt-6 mb-16">
               <div className="text-[72px] leading-none select-none pointer-events-none drop-shadow-2xl">
                 🤖
               </div>
@@ -504,7 +508,7 @@ export function BusinessAutomationView({
                 <Row 
                   leftNode={<MessageSquare className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
                   label="History" 
-                  rightNode={<Toggle on={config.history_enabled} onToggle={() => setAndSave('history_enabled', !config.history_enabled)} />}
+                  rightNode={<Toggle on={config.history_enabled} onToggle={() => setAndSave('history_enabled', !config.history_enabled)} activeColor="#3b82f6" />}
                   onClick={() => setAndSave('history_enabled', !config.history_enabled)}
                   last
                 />
@@ -514,17 +518,17 @@ export function BusinessAutomationView({
                 <Row 
                   label="Response Streaming" 
                   sublabel="Ensures smoother and faster display of responses."
-                  rightNode={<Toggle on={config.response_streaming} onToggle={() => setAndSave('response_streaming', !config.response_streaming)} />}
+                  rightNode={<Toggle on={config.response_streaming} onToggle={() => setAndSave('response_streaming', !config.response_streaming)} activeColor="#3b82f6" />}
                   onClick={() => setAndSave('response_streaming', !config.response_streaming)}
                 />
                 <Row 
                   label="Show Response Only" 
-                  rightNode={<Toggle on={config.show_response_only} onToggle={() => setAndSave('show_response_only', !config.show_response_only)} />}
+                  rightNode={<Toggle on={config.show_response_only} onToggle={() => setAndSave('show_response_only', !config.show_response_only)} activeColor="#3b82f6" />}
                   onClick={() => setAndSave('show_response_only', !config.show_response_only)}
                 />
                 <Row 
                   label="Insert Response as Quote" 
-                  rightNode={<Toggle on={config.insert_quote} onToggle={() => setAndSave('insert_quote', !config.insert_quote)} />}
+                  rightNode={<Toggle on={config.insert_quote} onToggle={() => setAndSave('insert_quote', !config.insert_quote)} activeColor="#3b82f6" />}
                   onClick={() => setAndSave('insert_quote', !config.insert_quote)}
                   last
                 />
@@ -537,7 +541,7 @@ export function BusinessAutomationView({
         {activePage === 'roles' && (
           <div className="animate-in slide-in-from-right duration-300 w-full">
             
-            {/* Header sin flecha y botón Plus movido hacia abajo */}
+            {/* Header sin flecha y botón Plus movido hacia abajo (mt-5) */}
             <div className="flex items-center justify-between px-4 pb-3 sticky top-0 z-50 bg-[#000000]" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
               <div className="w-8" />
               
