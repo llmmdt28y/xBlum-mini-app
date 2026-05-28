@@ -370,6 +370,7 @@ const AutoResizeTextarea = ({ defaultValue, onBlurSave, placeholder }: { default
 const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }: { label: string, maxLength: number, value: string, onChange: (v: string) => void, placeholder?: string }) => {
   const textRef = useRef<HTMLTextAreaElement>(null)
   const [warningActive, setWarningActive] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   
   const remaining = maxLength - value.length;
 
@@ -393,11 +394,23 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
     onChange(val);
   }
 
+  // Colores dinámicos dependiendo del estado de focus o error
+  let colorHex = "#555558"; // Gris sin focus
+  let labelHex = "#8e8e93"; // Gris texto sin focus
+  
+  if (warningActive) {
+    colorHex = "#ff453a";
+    labelHex = "#ff453a";
+  } else if (isFocused) {
+    colorHex = "#60a5fa";
+    labelHex = "#60a5fa";
+  }
+
   return (
     <div className="relative w-full mb-8 mt-3">
       <label 
-        className={`absolute -top-2.5 left-3 px-1.5 text-[13px] bg-[#000000] z-10 font-medium transition-colors duration-200 ${warningActive ? 'text-[#ff453a]' : 'text-[#60a5fa]'}`} 
-        style={{ fontFamily: SF }}
+        className="absolute -top-2.5 left-3 px-1.5 text-[13px] bg-[#000000] z-10 font-medium transition-colors duration-200" 
+        style={{ fontFamily: SF, color: labelHex }}
       >
         {label} • {remaining}
       </label>
@@ -405,9 +418,11 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
         ref={textRef}
         value={value}
         onChange={handleChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         placeholder={placeholder}
-        className="w-full bg-transparent border-[1.5px] border-[#60a5fa] rounded-[12px] px-4 py-3.5 text-white focus:outline-none resize-none overflow-hidden placeholder:text-[#636366]"
-        style={{ fontFamily: SF, fontSize: "16px", minHeight: "56px" }}
+        className="w-full bg-transparent border-[1.5px] rounded-[12px] px-4 py-3.5 text-white focus:outline-none resize-none overflow-hidden placeholder:text-[#636366] transition-colors duration-200"
+        style={{ fontFamily: SF, fontSize: "16px", minHeight: "56px", borderColor: colorHex }}
         rows={1}
       />
     </div>
@@ -712,23 +727,24 @@ export function BusinessAutomationView({
         </>
       )}
 
-      {/* BOTÓN "+" FIXED TOP RIGHT CUANDO ESTÁ EN ROLES */}
+      {/* BOTÓN "+" FIXED TOP RIGHT CUANDO ESTÁ EN ROLES MÁS ARRIBA Y PEQUEÑO */}
       {activePage === 'roles' && (
         <button 
           onClick={(e) => { createRipple(e); openNewRoleView(); }} 
-          className="fixed right-5 w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full z-[100] overflow-hidden" 
-          style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 68px)" }}
+          className="fixed right-5 w-9 h-9 flex items-center justify-center active:opacity-60 transition-opacity rounded-full z-[100] overflow-hidden" 
+          style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 52px)" }}
         >
-          <Plus className="w-8 h-8 text-white relative z-10" strokeWidth={2.5} />
+          <Plus className="w-6 h-6 text-white relative z-10" strokeWidth={2.5} />
         </button>
       )}
 
-      {/* ── NEW/EDIT ROLE PAGE SUPERPUESTA PARA EVITAR SALTOS DE TECLADO ── */}
+      {/* ── NEW/EDIT ROLE PAGE SUPERPUESTA PARA EVITAR SALTOS DE TECLADO Y ARREGLAR OVERFLOW ── */}
       {activePage === 'new_role' && (
-        <div className="animate-in slide-in-from-right duration-300 w-full absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+        <div className="animate-in slide-in-from-right duration-300 w-full absolute inset-0 z-[70] bg-[#000000] flex flex-col" style={{ height: viewportHeight }}>
           <SubHeader title={editingRoleId ? "Edit Role" : "New Role"} />
           
-          <div className="px-5 pt-8 relative w-full" style={{ height: "calc(100% - 60px)" }}>
+          {/* El contenedor interior se vuelve scrollable para que texto súper largo no tape el botón */}
+          <div className="px-5 pt-4 flex-1 w-full overflow-y-auto pb-32">
             <ExpandingInput 
               label="Name"
               maxLength={64}
@@ -746,19 +762,18 @@ export function BusinessAutomationView({
             <p className="text-[#8e8e93] text-[13px] leading-[1.4] mt-[-16px] mb-6 px-1" style={{ fontFamily: SF }}>
               A prompt is the initial text given to the model to start generating a response or continue a dialogue.
             </p>
+          </div>
 
-            {/* BOTÓN "CREATE/SAVE" CLAVADO AL FONDO FÍSICO */}
-            <div className="absolute bottom-8 left-5 right-5">
-              <button
-                onClick={(e) => { createRipple(e as any); handleSaveRole(); }}
-                disabled={!newRoleName.trim() || !newRolePrompt.trim()}
-                className="w-full bg-white text-black font-bold rounded-[14px] py-3.5 transition-opacity disabled:opacity-50 relative overflow-hidden"
-                style={{ fontSize: "16px", fontFamily: SF }}
-              >
-                <span className="relative z-10">{editingRoleId ? "Save Changes" : "Create"}</span>
-              </button>
-            </div>
-            
+          {/* BOTÓN "CREATE/SAVE" CLAVADO AL FONDO FÍSICO */}
+          <div className="absolute bottom-8 left-5 right-5 z-20">
+            <button
+              onClick={(e) => { createRipple(e as any); handleSaveRole(); }}
+              disabled={!newRoleName.trim() || !newRolePrompt.trim()}
+              className="w-full bg-white text-black font-bold rounded-[14px] py-3.5 transition-opacity disabled:opacity-50 relative overflow-hidden"
+              style={{ fontSize: "16px", fontFamily: SF }}
+            >
+              <span className="relative z-10">{editingRoleId ? "Save Changes" : "Create"}</span>
+            </button>
           </div>
         </div>
       )}
