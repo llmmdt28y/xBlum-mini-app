@@ -690,8 +690,8 @@ export function BusinessAutomationView({
     let left = contextMenu.x;
     
     if (typeof window !== "undefined") {
-      if (left > window.innerWidth - 120) left = window.innerWidth - 120;
-      if (top > window.innerHeight - 130) top = window.innerHeight - 130;
+      if (left > window.innerWidth - 150) left = window.innerWidth - 150;
+      if (top > window.innerHeight - 150) top = window.innerHeight - 150;
     }
     menuStyle = { top, left };
   }
@@ -700,7 +700,7 @@ export function BusinessAutomationView({
     <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-300">
       <style>{RIPPLE_STYLE}</style>
 
-      {/* OVERLAY DEL MENÚ CONTEXTUAL AÚN MÁS COMPACTO */}
+      {/* OVERLAY DEL MENÚ CONTEXTUAL MÁS ANCHO Y PROPORCIONADO */}
       {contextMenu?.visible && (
         <>
           <div 
@@ -708,43 +708,43 @@ export function BusinessAutomationView({
             onPointerDown={(e) => { e.stopPropagation(); setContextMenu(null); }}
           />
           <div 
-            className="fixed z-[160] bg-[#212123] rounded-[12px] shadow-[0_10px_30px_rgba(0,0,0,0.9)] border border-white/5 overflow-hidden flex flex-col py-1 animate-in zoom-in-95 duration-150"
-            style={{ ...menuStyle, minWidth: '100px' }}
+            className="fixed z-[160] bg-[#212123] rounded-[14px] shadow-[0_10px_30px_rgba(0,0,0,0.9)] border border-white/5 overflow-hidden flex flex-col py-1.5 animate-in zoom-in-95 duration-150"
+            style={{ ...menuStyle, minWidth: '145px' }}
           >
-            <button className="flex items-center gap-2 px-2.5 py-2 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleEditRole(); }}>
-              <Pencil className="w-[15px] h-[15px] text-[#e5e5e7]" strokeWidth={2.5} />
-              <span className="font-medium" style={{ fontFamily: SF, fontSize: '14px' }}>Edit</span>
+            <button className="flex items-center gap-3.5 px-4 py-2.5 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleEditRole(); }}>
+              <Pencil className="w-[16px] h-[16px] text-[#e5e5e7]" strokeWidth={2.5} />
+              <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Edit</span>
             </button>
-            <button className="flex items-center gap-2 px-2.5 py-2 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleCopyRole(); }}>
-              <Copy className="w-[15px] h-[15px] text-[#e5e5e7]" strokeWidth={2.5} />
-              <span className="font-medium" style={{ fontFamily: SF, fontSize: '14px' }}>Copy</span>
+            <button className="flex items-center gap-3.5 px-4 py-2.5 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleCopyRole(); }}>
+              <Copy className="w-[16px] h-[16px] text-[#e5e5e7]" strokeWidth={2.5} />
+              <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Copy</span>
             </button>
-            <button className="flex items-center gap-2 px-2.5 py-2 text-[#ff453a] active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleDeleteRole(); }}>
-              <Trash2 className="w-[15px] h-[15px]" strokeWidth={2.5} />
-              <span className="font-medium" style={{ fontFamily: SF, fontSize: '14px' }}>Delete</span>
+            <button className="flex items-center gap-3.5 px-4 py-2.5 text-[#ff453a] active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleDeleteRole(); }}>
+              <Trash2 className="w-[16px] h-[16px]" strokeWidth={2.5} />
+              <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Delete</span>
             </button>
           </div>
         </>
       )}
 
-      {/* BOTÓN "+" FIXED TOP RIGHT CUANDO ESTÁ EN ROLES MÁS ARRIBA Y PEQUEÑO */}
+      {/* BOTÓN "+" ESTÁTICO (ABSOLUTE A LA PANTALLA) EN LA ESQUINA SUPERIOR DERECHA */}
       {activePage === 'roles' && (
         <button 
           onClick={(e) => { createRipple(e); openNewRoleView(); }} 
-          className="fixed right-5 w-9 h-9 flex items-center justify-center active:opacity-60 transition-opacity rounded-full z-[100] overflow-hidden" 
+          className="absolute right-5 w-9 h-9 flex items-center justify-center active:opacity-60 transition-opacity rounded-full z-[100] overflow-hidden" 
           style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 52px)" }}
         >
           <Plus className="w-6 h-6 text-white relative z-10" strokeWidth={2.5} />
         </button>
       )}
 
-      {/* ── NEW/EDIT ROLE PAGE SUPERPUESTA PARA EVITAR SALTOS DE TECLADO Y ARREGLAR OVERFLOW ── */}
+      {/* ── NEW/EDIT ROLE PAGE: SOLUCIÓN AL BOTÓN FLOTANTE SOBRE EL TEXTO ── */}
       {activePage === 'new_role' && (
         <div className="animate-in slide-in-from-right duration-300 w-full absolute inset-0 z-[70] bg-[#000000] flex flex-col" style={{ height: viewportHeight }}>
           <SubHeader title={editingRoleId ? "Edit Role" : "New Role"} />
           
-          {/* El contenedor interior se vuelve scrollable para que texto súper largo no tape el botón */}
-          <div className="px-5 pt-4 flex-1 w-full overflow-y-auto pb-32">
+          {/* El botón se mueve al final del contenido escroleable utilizando mt-auto */}
+          <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
             <ExpandingInput 
               label="Name"
               maxLength={64}
@@ -762,18 +762,18 @@ export function BusinessAutomationView({
             <p className="text-[#8e8e93] text-[13px] leading-[1.4] mt-[-16px] mb-6 px-1" style={{ fontFamily: SF }}>
               A prompt is the initial text given to the model to start generating a response or continue a dialogue.
             </p>
-          </div>
 
-          {/* BOTÓN "CREATE/SAVE" CLAVADO AL FONDO FÍSICO */}
-          <div className="absolute bottom-8 left-5 right-5 z-20">
-            <button
-              onClick={(e) => { createRipple(e as any); handleSaveRole(); }}
-              disabled={!newRoleName.trim() || !newRolePrompt.trim()}
-              className="w-full bg-white text-black font-bold rounded-[14px] py-3.5 transition-opacity disabled:opacity-50 relative overflow-hidden"
-              style={{ fontSize: "16px", fontFamily: SF }}
-            >
-              <span className="relative z-10">{editingRoleId ? "Save Changes" : "Create"}</span>
-            </button>
+            {/* BOTÓN INTEGRADO AL FLUJO (NO ABSOLUTO). El contenido lo empujará de forma natural */}
+            <div className="mt-auto pt-8 w-full">
+              <button
+                onClick={(e) => { createRipple(e as any); handleSaveRole(); }}
+                disabled={!newRoleName.trim() || !newRolePrompt.trim()}
+                className="w-full bg-white text-black font-bold rounded-[14px] py-3.5 transition-opacity disabled:opacity-50 relative overflow-hidden"
+                style={{ fontSize: "16px", fontFamily: SF }}
+              >
+                <span className="relative z-10">{editingRoleId ? "Save Changes" : "Create"}</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
