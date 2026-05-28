@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Loader2, Sparkles, Shield, Workflow, 
   ChevronRight, BarChart3, Check, MessageSquare, Bot, User, FileText, Book,
-  Clock, MessageSquarePlus, Eye, Zap, Globe, CircleUserRound, ChevronLeft
+  Clock, MessageSquarePlus, Eye, Zap, Globe, CircleUserRound, ChevronLeft, Plus
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -63,12 +63,30 @@ const createRipple = (event: React.PointerEvent<any>) => {
   }, 600)
 }
 
-// ── DATOS DE LOS PRESETS ──
+// ── DATOS DE LOS PRESETS Y ROLES ──
 const PRESETS_DATA = [
   { id: 'max', name: 'Max', emoji: '🧊', theme: '#32ade6', tagline: 'Silent presence', desc: 'Welcome & Away messages only. AI is off. Perfect when you just want automated greetings without any AI involvement.' },
   { id: 'ravage', name: 'Ravage', emoji: '⚡', theme: '#ffcc00', tagline: 'Smart replies, zero setup', desc: 'AI autoreply on with a natural human feel. Spam protection active. Great default for personal or casual business use.' },
   { id: 'blaze', name: 'Blaze', emoji: '🔥', theme: '#ff9f0a', tagline: 'Sales mode', desc: 'Sales persona, aggressive spam filter, automatic follow-ups, and daily activity digest. Built to convert leads.' },
   { id: 'beast', name: 'Beast', emoji: '💀', theme: '#ff453a', tagline: 'Full control, max automation', desc: 'Every feature on. Ultra-natural replies, tight spam shield, 3-touch follow-up sequences, blacklist filtering, early morning digest.' }
+];
+
+const ROLES_DATA = [
+  {
+    id: 'assistant',
+    label: 'Assistant',
+    desc: "The assistant is a personal assistant with a focus on adapting to the user's preferences.\nIt learns the user's style and preferences to provide responses that are in tune with how they would typically communicate and what their needs are.\nIt is flexible and can adapt to different tasks."
+  },
+  {
+    id: 'summarizer',
+    label: 'Summarizer',
+    desc: "You are an expert at summarizing messages. You prefer to use clauses instead of complete sentences.\nDo not answer any question from the messages. Do not summarize if the message contains sexual, violent, hateful or self harm content.\nPlease keep your summary of the input within 3 sentences, fewer than 60 words."
+  },
+  {
+    id: 'proofreader',
+    label: 'Proofreader',
+    desc: "The assistant is a meticulous proofreader.\nIt will carefully examine given texts for grammatical errors, typos, and style issues.\nIt will also suggest improvements to the writing to make it more clear and effective.\nFocus on fixing grammar, spelling, punctuation, and syntax to enhance the readability of the text."
+  }
 ];
 
 // ── COMPONENTES REUTILIZABLES (ESTILO SETTINGS-VIEW EXACTO) ──
@@ -151,7 +169,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
           {label}
         </span>
         {sublabel && (
-          <span className="text-[13px] text-[#8e8e93] leading-snug mt-[2px]" style={{ fontFamily: SF }}>
+          <span className="text-[14px] text-[#8e8e93] leading-snug mt-[4px] whitespace-pre-wrap" style={{ fontFamily: SF }}>
             {sublabel}
           </span>
         )}
@@ -174,7 +192,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
       onClick={onClick} 
       onPointerDown={onClick ? createRipple : undefined} 
       disabled={!onClick && !rightNode} 
-      className={`relative overflow-hidden w-full flex items-center gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left`}
+      className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-start`}
     >
       {content}
     </button>
@@ -183,7 +201,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
 
 function RadioButton({ selected }: { selected: boolean }) {
   return (
-    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
+    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 mt-0.5 ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
       {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#60a5fa]" />}
     </div>
   )
@@ -317,7 +335,7 @@ export function BusinessAutomationView({
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState<
     'main' | 'presets' | 'chat_access' | 'agent_profile' | 'workflows' | 'safety' | 'reports' | 
-    'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg'
+    'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg' | 'roles'
   >('main')
   
   const [activeModal, setActiveModal] = useState<string | null>(null)
@@ -399,6 +417,8 @@ export function BusinessAutomationView({
         setActivePage('agent_profile')
       } else if (activePage === 'greeting_msg' || activePage === 'away_msg') {
         setActivePage('workflows')
+      } else if (activePage === 'roles') {
+        setActivePage('main')
       } else {
         setActivePage('main')
       }
@@ -472,7 +492,7 @@ export function BusinessAutomationView({
                   label="Roles" 
                   value={config.use_case ? config.use_case.charAt(0).toUpperCase() + config.use_case.slice(1) : "Assistant"}
                   hideArrow
-                  onClick={() => { setTempVal(config.use_case); setActiveModal('role'); }}
+                  onClick={() => setActivePage('roles')} // <-- Enrutado a nueva página de Roles
                 />
                 <Row 
                   leftNode={<MessageSquare className="w-[20px] h-[20px] text-[#8e8e93]" />}
@@ -499,6 +519,53 @@ export function BusinessAutomationView({
                   rightNode={<Toggle on={config.insert_quote} onToggle={() => setAndSave('insert_quote', !config.insert_quote)} />}
                   onClick={() => setAndSave('insert_quote', !config.insert_quote)}
                 />
+              </Section>
+            </div>
+          </div>
+        )}
+
+        {/* ── ROLES PAGE (NUEVO SEGÚN IMAGEN) ── */}
+        {activePage === 'roles' && (
+          <div className="animate-in slide-in-from-right duration-300 w-full">
+            
+            {/* Header personalizado (sin back, con Plus a la derecha) */}
+            <div className="flex items-center justify-between px-4 pb-3 sticky top-0 z-50 bg-[#000000]" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
+              <div className="w-8" />
+              <h2 className="font-semibold text-white tracking-tight absolute left-1/2 -translate-x-1/2" style={{ fontSize: "17px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                Roles
+              </h2>
+              <button 
+                onClick={() => {}} 
+                onPointerDown={createRipple} 
+                className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity rounded-full mt-3" /* mt-3 para ubicarlo más abajo */
+              >
+                <Plus className="w-7 h-7 text-white relative z-10" />
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center mt-4 mb-8 px-4 text-center">
+              <div className="text-[72px] leading-none select-none pointer-events-none drop-shadow-2xl mb-4">
+                🎭
+              </div>
+              <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "250px", lineHeight: "1.4" }}>
+                Create roles for your specific needs!
+              </p>
+            </div>
+
+            <div className="px-4">
+              <Section title="Suggestions">
+                {ROLES_DATA.map((role) => (
+                  <Row 
+                    key={role.id}
+                    leftNode={<RadioButton selected={config.use_case === role.id} />}
+                    label={role.label}
+                    sublabel={role.desc}
+                    hideArrow
+                    onClick={() => {
+                      setAndSave('use_case', role.id);
+                    }}
+                  />
+                ))}
               </Section>
             </div>
           </div>
@@ -606,7 +673,7 @@ export function BusinessAutomationView({
                       leftNode={<User className="w-[20px] h-[20px] text-[#8e8e93]" />}
                       label="Account Role"
                       value={config.use_case.charAt(0).toUpperCase() + config.use_case.slice(1)}
-                      onClick={() => { setTempVal(config.use_case); setActiveModal('role'); }}
+                      onClick={() => setActivePage('roles')}
                     />
                   </Section>
                   
@@ -900,24 +967,7 @@ export function BusinessAutomationView({
 
       </div>
 
-      {/* ── BOTTOM SHEETS ── */}
-      <BottomSheet
-        isOpen={activeModal === 'role'}
-        onClose={() => setActiveModal(null)}
-        onSave={() => { setAndSave('use_case', tempVal); setActiveModal(null); }}
-        title="Account Role"
-        description="Select the primary persona role for your assistant."
-      >
-        {['assistant', 'personal', 'sales', 'support', 'community'].map((opt, i, arr) => (
-          <RadioRow
-            key={opt}
-            label={opt.charAt(0).toUpperCase() + opt.slice(1)}
-            selected={tempVal === opt}
-            onClick={() => setTempVal(opt)}
-          />
-        ))}
-      </BottomSheet>
-
+      {/* ── BOTTOM SHEETS (Para las opciones extra) ── */}
       <BottomSheet
         isOpen={activeModal === 'tone'}
         onClose={() => setActiveModal(null)}
