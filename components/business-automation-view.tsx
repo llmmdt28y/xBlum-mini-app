@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Loader2, Sparkles, Shield, Workflow, 
   ChevronRight, BarChart3, Check, MessageSquare, Bot, User, FileText, Book,
-  Clock, MessageSquarePlus, Eye, Zap, Globe, CircleUserRound, ChevronLeft, Plus
+  Clock, MessageSquarePlus, Eye, Zap, Globe, CircleUserRound, Plus
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -91,6 +91,7 @@ const ROLES_DATA = [
 
 // ── COMPONENTES REUTILIZABLES ──
 
+// Switch ultra exacto a tu imagen
 function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <button
@@ -107,7 +108,7 @@ function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boole
         style={{
           width: "16px", height: "16px",
           top: "4px", 
-          background: "#111111",
+          background: "#111111", // Círculo interior negro/oscuro
           left: on ? "22px" : "4px", 
         }}
       />
@@ -115,11 +116,11 @@ function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boole
   )
 }
 
-// Nuevo componente para agregar la línea antes del Switch
+// Línea divisoria izquierda al Switch
 function SwitchNode({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <div className="flex items-center">
-      <div className="w-[1px] h-[24px] bg-[#2c2c2e] mr-3.5" />
+      <div className="w-[1px] h-[22px] bg-[#2c2c2e] mr-3.5" />
       <Toggle on={on} onToggle={onToggle} disabled={disabled} activeColor={activeColor} />
     </div>
   )
@@ -145,13 +146,13 @@ function SubHeader({ title, rightNode }: { title: string, rightNode?: React.Reac
 
 function Section({ title, footer, children }: { title?: string; footer?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="space-y-2 mb-6 w-full">
+    <div className="space-y-2 mb-4 w-full"> {/* mb-4 para que estén más cortos entre tarjetas */}
       {title && (
-        <div className="px-4 mb-2 flex items-center justify-between">
+        <div className="px-4 mb-1.5 flex items-center justify-between">
           <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
         </div>
       )}
-      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative">
+      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1.5 pt-1.5 relative">
         {children}
       </div>
       {footer && (
@@ -172,18 +173,19 @@ interface RowProps {
   onClick?: () => void;
   hideArrow?: boolean;
   last?: boolean;
+  alignItems?: "center" | "start"; // Propiedad para definir si alinear arriba o al centro
 }
 
-function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false }: RowProps) {
+function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false, alignItems = "center" }: RowProps) {
   const content = (
     <>
       {leftNode}
-      <div className="flex flex-col flex-1 min-w-0 py-0.5 relative z-10">
-        <span className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>
+      <div className={`flex flex-col flex-1 min-w-0 relative z-10 ${alignItems === "center" ? "py-0.5" : ""}`}>
+        <span className="text-[16px] font-medium text-white" style={{ fontFamily: SF, lineHeight: "1.2" }}>
           {label}
         </span>
         {sublabel && (
-          <span className="text-[13px] text-[#8e8e93] leading-[1.3] mt-1" style={{ fontFamily: SF }}>
+          <span className="text-[13px] text-[#8e8e93] leading-[1.35] mt-[3px]" style={{ fontFamily: SF }}>
             {sublabel}
           </span>
         )}
@@ -207,7 +209,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
         onClick={onClick} 
         onPointerDown={onClick ? createRipple : undefined} 
         disabled={!onClick && !rightNode} 
-        className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-center`}
+        className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems}`}
       >
         {content}
       </button>
@@ -218,7 +220,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
 
 function RadioButton({ selected }: { selected: boolean }) {
   return (
-    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 mt-[2px] ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
+    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
       {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#60a5fa]" />}
     </div>
   )
@@ -340,13 +342,11 @@ const BottomSheet = ({ isOpen, onClose, onSave, title, description, children }: 
 interface BusinessAutomationViewProps {
   onClose: () => void
   apiBaseUrl?: string
-  agentGifUrl?: string 
 }
 
 export function BusinessAutomationView({ 
   onClose, 
-  apiBaseUrl = "", 
-  agentGifUrl = "/agent-robot.gif" 
+  apiBaseUrl = ""
 }: BusinessAutomationViewProps) {
   
   const [loading, setLoading] = useState(true)
@@ -385,6 +385,7 @@ export function BusinessAutomationView({
     daily_digest: false,
     daily_digest_hour: 9,
 
+    // Configuraciones de vista principal
     history_enabled: true,
     response_streaming: true,
     show_response_only: false,
@@ -485,8 +486,7 @@ export function BusinessAutomationView({
             
             <SubHeader title="AI Chat" />
             
-            {/* Robot en WebP animado */}
-            <div className="flex justify-center mt-12 mb-12">
+            <div className="flex justify-center mt-10 mb-10">
               <img 
                 src="/animatedemojies_agadmqiaasojkec.webp" 
                 alt="AI Chat Robot" 
@@ -550,21 +550,20 @@ export function BusinessAutomationView({
         {activePage === 'roles' && (
           <div className="animate-in slide-in-from-right duration-300 w-full">
             
-            {/* Header Roles con botón + desalineado */}
+            {/* Header Roles con botón + movido hacia abajo con translate-y-4 */}
             <SubHeader 
               title="Roles" 
               rightNode={
                 <button 
                   onClick={() => {}} 
                   onPointerDown={createRipple} 
-                  className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity rounded-full translate-y-1.5" 
+                  className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity rounded-full translate-y-4" 
                 >
                   <Plus className="w-7 h-7 text-white relative z-10" />
                 </button>
               } 
             />
 
-            {/* Máscaras en WebP animado */}
             <div className="flex flex-col items-center mt-6 mb-8 px-4 text-center">
               <img 
                 src="/animatedemojies_agadxamaajlb2uy.webp" 
@@ -582,7 +581,12 @@ export function BusinessAutomationView({
                 {ROLES_DATA.map((role, idx) => (
                   <Row 
                     key={role.id}
-                    leftNode={<RadioButton selected={config.use_case === role.id} />}
+                    alignItems="start" // Alineación superior para el círculo
+                    leftNode={
+                      <div className="mt-[1px]">
+                        <RadioButton selected={config.use_case === role.id} />
+                      </div>
+                    }
                     label={role.label}
                     sublabel={role.desc}
                     hideArrow
