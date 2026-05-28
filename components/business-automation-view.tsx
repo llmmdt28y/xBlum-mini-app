@@ -71,25 +71,26 @@ const PRESETS_DATA = [
   { id: 'beast', name: 'Beast', emoji: '💀', theme: '#ff453a', tagline: 'Full control, max automation', desc: 'Every feature on. Ultra-natural replies, tight spam shield, 3-touch follow-up sequences, blacklist filtering, early morning digest.' }
 ];
 
+// Saltos de línea eliminados para que sea más largo horizontalmente y compacto verticalmente
 const ROLES_DATA = [
   {
     id: 'assistant',
     label: 'Assistant',
-    desc: "The assistant is a personal assistant with a focus on adapting to the user's preferences.\nIt learns the user's style and preferences to provide responses that are in tune with how they would typically communicate and what their needs are.\nIt is flexible and can adapt to different tasks."
+    desc: "The assistant is a personal assistant with a focus on adapting to the user's preferences. It learns the user's style and preferences to provide responses that are in tune with how they would typically communicate and what their needs are. It is flexible and can adapt to different tasks."
   },
   {
     id: 'summarizer',
     label: 'Summarizer',
-    desc: "You are an expert at summarizing messages. You prefer to use clauses instead of complete sentences.\nDo not answer any question from the messages. Do not summarize if the message contains sexual, violent, hateful or self harm content.\nPlease keep your summary of the input within 3 sentences, fewer than 60 words."
+    desc: "You are an expert at summarizing messages. You prefer to use clauses instead of complete sentences. Do not answer any question from the messages. Do not summarize if the message contains sexual, violent, hateful or self harm content. Please keep your summary of the input within 3 sentences, fewer than 60 words."
   },
   {
     id: 'proofreader',
     label: 'Proofreader',
-    desc: "The assistant is a meticulous proofreader.\nIt will carefully examine given texts for grammatical errors, typos, and style issues.\nIt will also suggest improvements to the writing to make it more clear and effective.\nFocus on fixing grammar, spelling, punctuation, and syntax to enhance the readability of the text."
+    desc: "The assistant is a meticulous proofreader. It will carefully examine given texts for grammatical errors, typos, and style issues. It will also suggest improvements to the writing to make it more clear and effective. Focus on fixing grammar, spelling, punctuation, and syntax to enhance the readability of the text."
   }
 ];
 
-// ── COMPONENTES REUTILIZABLES (ESTILO SETTINGS-VIEW EXACTO) ──
+// ── COMPONENTES REUTILIZABLES ──
 
 function Toggle({ on, onToggle, disabled, activeColor = "#3b82f6" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
@@ -169,7 +170,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
           {label}
         </span>
         {sublabel && (
-          <span className="text-[14px] text-[#8e8e93] leading-snug mt-[4px] whitespace-pre-wrap" style={{ fontFamily: SF }}>
+          <span className="text-[13px] text-[#8e8e93] leading-[1.3] mt-1" style={{ fontFamily: SF }}>
             {sublabel}
           </span>
         )}
@@ -192,7 +193,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
       onClick={onClick} 
       onPointerDown={onClick ? createRipple : undefined} 
       disabled={!onClick && !rightNode} 
-      className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-start`}
+      className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-start`}
     >
       {content}
     </button>
@@ -201,7 +202,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
 
 function RadioButton({ selected }: { selected: boolean }) {
   return (
-    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 mt-0.5 ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
+    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 mt-[2px] ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
       {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#60a5fa]" />}
     </div>
   )
@@ -464,7 +465,7 @@ export function BusinessAutomationView({
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-0">
         
-        {/* ── MAIN MENU (ESTRUCTURA IDÉNTICA A SETTINGS) ── */}
+        {/* ── MAIN MENU ── */}
         {activePage === 'main' && (
           <div className="animate-in fade-in duration-300 w-full">
             <SubHeader title="AI Chat" onBack={onClose} />
@@ -492,7 +493,7 @@ export function BusinessAutomationView({
                   label="Roles" 
                   value={config.use_case ? config.use_case.charAt(0).toUpperCase() + config.use_case.slice(1) : "Assistant"}
                   hideArrow
-                  onClick={() => setActivePage('roles')} // <-- Enrutado a nueva página de Roles
+                  onClick={() => setActivePage('roles')}
                 />
                 <Row 
                   leftNode={<MessageSquare className="w-[20px] h-[20px] text-[#8e8e93]" />}
@@ -524,26 +525,34 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── ROLES PAGE (NUEVO SEGÚN IMAGEN) ── */}
+        {/* ── ROLES PAGE (NUEVO DISEÑO COMPACTO) ── */}
         {activePage === 'roles' && (
           <div className="animate-in slide-in-from-right duration-300 w-full">
             
-            {/* Header personalizado (sin back, con Plus a la derecha) */}
+            {/* Header personalizado (con back y Plus a la derecha desplazado abajo) */}
             <div className="flex items-center justify-between px-4 pb-3 sticky top-0 z-50 bg-[#000000]" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
-              <div className="w-8" />
+              <button 
+                onClick={() => setActivePage('main')} 
+                onPointerDown={createRipple} 
+                className="w-8 h-8 flex items-center justify-center -ml-2 active:opacity-60 transition-opacity rounded-full"
+              >
+                <ChevronLeft className="w-7 h-7 text-white relative z-10" />
+              </button>
+              
               <h2 className="font-semibold text-white tracking-tight absolute left-1/2 -translate-x-1/2" style={{ fontSize: "17px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Roles
               </h2>
+
               <button 
                 onClick={() => {}} 
                 onPointerDown={createRipple} 
-                className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity rounded-full mt-3" /* mt-3 para ubicarlo más abajo */
+                className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity rounded-full mt-2" 
               >
                 <Plus className="w-7 h-7 text-white relative z-10" />
               </button>
             </div>
 
-            <div className="flex flex-col items-center mt-4 mb-8 px-4 text-center">
+            <div className="flex flex-col items-center mt-2 mb-6 px-4 text-center">
               <div className="text-[72px] leading-none select-none pointer-events-none drop-shadow-2xl mb-4">
                 🎭
               </div>
