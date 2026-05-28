@@ -91,7 +91,6 @@ const ROLES_DATA = [
 
 // ── COMPONENTES REUTILIZABLES ──
 
-// Switch ultra exacto a tu imagen
 function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <button
@@ -108,7 +107,7 @@ function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boole
         style={{
           width: "16px", height: "16px",
           top: "4px", 
-          background: "#111111", // Círculo interior negro/oscuro
+          background: "#111111",
           left: on ? "22px" : "4px", 
         }}
       />
@@ -116,7 +115,6 @@ function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boole
   )
 }
 
-// Línea divisoria izquierda al Switch
 function SwitchNode({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <div className="flex items-center">
@@ -146,7 +144,7 @@ function SubHeader({ title, rightNode }: { title: string, rightNode?: React.Reac
 
 function Section({ title, footer, children }: { title?: string; footer?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="space-y-2 mb-4 w-full"> {/* mb-4 para que estén más cortos entre tarjetas */}
+    <div className="space-y-2 mb-4 w-full"> 
       {title && (
         <div className="px-4 mb-1.5 flex items-center justify-between">
           <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
@@ -173,7 +171,7 @@ interface RowProps {
   onClick?: () => void;
   hideArrow?: boolean;
   last?: boolean;
-  alignItems?: "center" | "start"; // Propiedad para definir si alinear arriba o al centro
+  alignItems?: "center" | "start"; 
 }
 
 function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false, alignItems = "center" }: RowProps) {
@@ -202,7 +200,6 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
       </div>
     </>
   );
-
   return (
     <>
       <button 
@@ -307,6 +304,41 @@ const AutoResizeTextarea = ({ defaultValue, onBlurSave, placeholder }: { default
   )
 }
 
+// ── COMPONENTE EXPANDIBLE DE NEW ROLE ──
+const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }: { label: string, maxLength: number, value: string, onChange: (v: string) => void, placeholder?: string }) => {
+  const textRef = useRef<HTMLTextAreaElement>(null)
+  
+  const adjustHeight = () => {
+    if (textRef.current) {
+      textRef.current.style.height = "auto"
+      textRef.current.style.height = `${textRef.current.scrollHeight}px`
+    }
+  }
+
+  useEffect(() => { adjustHeight() }, [value])
+
+  return (
+    <div className="relative w-full mb-8 mt-3">
+      <label className="absolute -top-2.5 left-3 px-1.5 text-[13px] bg-[#111111] text-[#60a5fa] z-10 font-medium" style={{ fontFamily: SF }}>
+        {label} • {maxLength}
+      </label>
+      <textarea
+        ref={textRef}
+        value={value}
+        onChange={(e) => {
+          let val = e.target.value
+          if (val.length > maxLength) val = val.slice(0, maxLength)
+          onChange(val)
+        }}
+        placeholder={placeholder}
+        className="w-full bg-transparent border-[1.5px] border-[#60a5fa] rounded-[12px] px-4 py-3.5 text-white focus:outline-none resize-none overflow-hidden placeholder:text-[#636366]"
+        style={{ fontFamily: SF, fontSize: "16px", minHeight: "56px" }}
+        rows={1}
+      />
+    </div>
+  )
+}
+
 const BottomSheet = ({ isOpen, onClose, onSave, title, description, children }: any) => {
   if (!isOpen) return null;
   return (
@@ -352,12 +384,16 @@ export function BusinessAutomationView({
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState<
     'main' | 'presets' | 'chat_access' | 'agent_profile' | 'workflows' | 'safety' | 'reports' | 
-    'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg' | 'roles'
+    'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg' | 'roles' | 'new_role'
   >('main')
   
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [tempVal, setTempVal] = useState<any>("")
   const [selectedPresetId, setSelectedPresetTab] = useState<string>('ravage')
+
+  // Estados para el nuevo rol
+  const [newRoleName, setNewRoleName] = useState("")
+  const [newRolePrompt, setNewRolePrompt] = useState("")
 
   const [config, setConfig] = useState({
     auto_reply_filter: "everyone", 
@@ -384,12 +420,11 @@ export function BusinessAutomationView({
     bot_names: "xblum, blum",
     daily_digest: false,
     daily_digest_hour: 9,
-
-    // Configuraciones de vista principal
     history_enabled: true,
     response_streaming: true,
     show_response_only: false,
-    insert_quote: true
+    insert_quote: true,
+    custom_roles: [] as { id: string, label: string, desc: string }[]
   })
 
   const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
@@ -421,6 +456,23 @@ export function BusinessAutomationView({
     tg?.HapticFeedback?.notificationOccurred('success')
   }
 
+  const handleCreateRole = () => {
+    if (!newRoleName.trim() || !newRolePrompt.trim()) return;
+    const newRole = {
+      id: `custom_${Date.now()}`,
+      label: newRoleName,
+      desc: newRolePrompt
+    }
+    const updatedRoles = [...(config.custom_roles || []), newRole];
+    setAndSave('custom_roles', updatedRoles);
+    setAndSave('use_case', newRole.id); // Auto-selecciona el rol creado
+    
+    // Resetear formulario y volver
+    setNewRoleName("");
+    setNewRolePrompt("");
+    setActivePage('roles');
+  }
+
   useEffect(() => {
     const tg = getTg()
     if (!tg?.BackButton) return
@@ -433,6 +485,8 @@ export function BusinessAutomationView({
         setActivePage('agent_profile')
       } else if (activePage === 'greeting_msg' || activePage === 'away_msg') {
         setActivePage('workflows')
+      } else if (activePage === 'new_role') {
+        setActivePage('roles')
       } else if (activePage === 'roles') {
         setActivePage('main')
       } else {
@@ -473,6 +527,15 @@ export function BusinessAutomationView({
 
   const currentTheme = PRESETS_DATA.find(p => p.id === selectedPresetId)?.theme || "#60a5fa";
   const currentPresetName = PRESETS_DATA.find(p => p.id === selectedPresetId)?.name || "Preset";
+  
+  // Función auxiliar para obtener el nombre del rol a mostrar (incluyendo custom roles)
+  const getRoleDisplayName = () => {
+    const defaultRole = ROLES_DATA.find(r => r.id === config.use_case);
+    if (defaultRole) return defaultRole.label;
+    const customRole = config.custom_roles?.find(r => r.id === config.use_case);
+    if (customRole) return customRole.label;
+    return "Assistant";
+  }
 
   return (
     <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-300">
@@ -483,7 +546,6 @@ export function BusinessAutomationView({
         {/* ── MAIN MENU ── */}
         {activePage === 'main' && (
           <div className="animate-in fade-in duration-300 w-full">
-            
             <SubHeader title="AI Chat" />
             
             <div className="flex justify-center mt-10 mb-10">
@@ -510,7 +572,7 @@ export function BusinessAutomationView({
                 <Row 
                   leftNode={<CircleUserRound className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
                   label="Roles" 
-                  value={config.use_case ? config.use_case.charAt(0).toUpperCase() + config.use_case.slice(1) : "Assistant"}
+                  value={getRoleDisplayName()}
                   hideArrow
                   onClick={() => setActivePage('roles')}
                 />
@@ -548,18 +610,17 @@ export function BusinessAutomationView({
 
         {/* ── ROLES PAGE ── */}
         {activePage === 'roles' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full">
+          <div className="animate-in slide-in-from-right duration-300 w-full pb-10">
             
-            {/* Header Roles con botón + movido hacia abajo con translate-y-4 */}
             <SubHeader 
               title="Roles" 
               rightNode={
                 <button 
-                  onClick={() => {}} 
+                  onClick={() => setActivePage('new_role')} 
                   onPointerDown={createRipple} 
-                  className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity rounded-full translate-y-4" 
+                  className="w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full translate-y-5 mr-1" 
                 >
-                  <Plus className="w-7 h-7 text-white relative z-10" />
+                  <Plus className="w-7 h-7 text-white relative z-10" strokeWidth={2.5} />
                 </button>
               } 
             />
@@ -581,7 +642,7 @@ export function BusinessAutomationView({
                 {ROLES_DATA.map((role, idx) => (
                   <Row 
                     key={role.id}
-                    alignItems="start" // Alineación superior para el círculo
+                    alignItems="start" 
                     leftNode={
                       <div className="mt-[1px]">
                         <RadioButton selected={config.use_case === role.id} />
@@ -591,12 +652,73 @@ export function BusinessAutomationView({
                     sublabel={role.desc}
                     hideArrow
                     last={idx === ROLES_DATA.length - 1}
-                    onClick={() => {
-                      setAndSave('use_case', role.id);
-                    }}
+                    onClick={() => setAndSave('use_case', role.id)}
                   />
                 ))}
               </Section>
+
+              {/* Sección de Roles Creados */}
+              {config.custom_roles && config.custom_roles.length > 0 && (
+                <div className="mt-6">
+                  <Section title="Roles">
+                    {config.custom_roles.map((role, idx) => (
+                      <Row 
+                        key={role.id}
+                        alignItems="start" 
+                        leftNode={
+                          <div className="mt-[1px]">
+                            <RadioButton selected={config.use_case === role.id} />
+                          </div>
+                        }
+                        label={role.label}
+                        sublabel={role.desc}
+                        hideArrow
+                        last={idx === config.custom_roles.length - 1}
+                        onClick={() => setAndSave('use_case', role.id)}
+                      />
+                    ))}
+                  </Section>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── NEW ROLE PAGE ── */}
+        {activePage === 'new_role' && (
+          <div className="animate-in slide-in-from-right duration-300 w-full h-[100vh] flex flex-col bg-[#000000]">
+            <SubHeader title="New Role" />
+            <div className="px-5 pt-8 flex-1 flex flex-col bg-[#111111] mt-3">
+              
+              <ExpandingInput 
+                label="Name"
+                maxLength={64}
+                value={newRoleName}
+                onChange={setNewRoleName}
+              />
+              
+              <ExpandingInput 
+                label="Prompt"
+                maxLength={1024}
+                value={newRolePrompt}
+                onChange={setNewRolePrompt}
+              />
+              
+              <p className="text-[#8e8e93] text-[13px] leading-[1.4] mt-[-16px] mb-6 px-1" style={{ fontFamily: SF }}>
+                A prompt is the initial text given to the model to start generating a response or continue a dialogue.
+              </p>
+
+              <div className="mt-auto pb-10">
+                <button
+                  onClick={handleCreateRole}
+                  disabled={!newRoleName.trim() || !newRolePrompt.trim()}
+                  className="w-full bg-white text-black font-bold rounded-[14px] py-3.5 active:opacity-80 transition-opacity disabled:opacity-50 disabled:active:opacity-50"
+                  style={{ fontSize: "16px", fontFamily: SF }}
+                >
+                  Create
+                </button>
+              </div>
+              
             </div>
           </div>
         )}
@@ -647,7 +769,7 @@ export function BusinessAutomationView({
             </div>
 
             <div className="px-4">
-              <Section title={`${currentPresetName} Configuration`} footer="Changes here override the preset automatically.">
+               <Section title={`${currentPresetName} Configuration`} footer="Changes here override the preset automatically.">
                 <Row 
                   leftNode={<Sparkles className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="AI Auto-Reply"
@@ -678,7 +800,7 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── AGENT PROFILE Y DEMÁS VISTAS... ── */}
+        {/* ── AGENT PROFILE ── */}
         {activePage === 'agent_profile' && (
           <div className="animate-in slide-in-from-right duration-300 w-full">
             <SubHeader title="Agent Profile" />
@@ -704,7 +826,7 @@ export function BusinessAutomationView({
                     <Row 
                       leftNode={<User className="w-[20px] h-[20px] text-[#8e8e93]" />}
                       label="Account Role"
-                      value={config.use_case.charAt(0).toUpperCase() + config.use_case.slice(1)}
+                      value={getRoleDisplayName()}
                       onClick={() => setActivePage('roles')}
                       last
                     />
@@ -741,7 +863,7 @@ export function BusinessAutomationView({
                   </Section>
                 </div>
               )}
-            </div>
+             </div>
           </div>
         )}
 
@@ -879,7 +1001,7 @@ export function BusinessAutomationView({
                   onClick={() => setAndSave('away_enabled', !config.away_enabled)}
                   last={!config.away_enabled}
                 />
-                {config.away_enabled && (
+                 {config.away_enabled && (
                   <TextPreviewRow 
                     title="Edit Away Message"
                     placeholder="Click to write your away message..."
