@@ -4,13 +4,14 @@ import React, { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Loader2, Sparkles, Shield, Workflow, 
   ChevronRight, BarChart3, Check, MessageSquare, Bot, User, FileText, Book,
-  Clock, MessageSquarePlus, Eye, Zap, Globe, CircleUserRound, Plus
+  Clock, MessageSquarePlus, Eye, Zap, Globe, CircleUserRound, Plus,
+  Pencil, Copy, Trash2
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── ESTILOS GLOBALES PARA EL EFECTO RIPPLE ──
+// ── ESTILOS GLOBALES PARA EL EFECTO RIPPLE Y SCROLLBAR ──
 const RIPPLE_STYLE = `
   .ripple {
     position: absolute;
@@ -36,8 +37,20 @@ const RIPPLE_STYLE = `
   }
 `
 
+const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
+
+const triggerVibration = (type: 'light' | 'medium' | 'heavy' | 'error' | 'success') => {
+  const tg = getTg();
+  if (!tg?.HapticFeedback) return;
+  if (type === 'error' || type === 'success') {
+    tg.HapticFeedback.notificationOccurred(type);
+  } else {
+    tg.HapticFeedback.impactOccurred(type);
+  }
+}
+
 // ── FUNCIÓN HELPER PARA CREAR EL EFECTO RIPPLE ──
-const createRipple = (event: React.PointerEvent<any>) => {
+const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
   const element = event.currentTarget
   if (element.disabled) return
 
@@ -75,17 +88,17 @@ const ROLES_DATA = [
   {
     id: 'assistant',
     label: 'Assistant',
-    desc: "The assistant is a personal assistant with a focus on adapting to the user's preferences. It learns the user's style and preferences to provide responses that are in tune with how they would typically communicate and what their needs are. It is flexible and can adapt to different tasks."
+    desc: "The assistant is a personal assistant with a focus on adapting to the user's preferences.\n\nIt learns the user's style and preferences to provide responses that are in tune with how they would typically communicate and what their needs are.\n\nIt is flexible and can adapt to different tasks."
   },
   {
     id: 'summarizer',
     label: 'Summarizer',
-    desc: "You are an expert at summarizing messages. You prefer to use clauses instead of complete sentences. Do not answer any question from the messages. Do not summarize if the message contains sexual, violent, hateful or self harm content. Please keep your summary of the input within 3 sentences, fewer than 60 words."
+    desc: "You are an expert at summarizing messages. You prefer to use clauses instead of complete sentences. Do not answer any question from the messages. Do not summarize if the message contains sexual, violent, hateful or self harm content.\n\nPlease keep your summary of the input within 3 sentences, fewer than 60 words."
   },
   {
     id: 'proofreader',
     label: 'Proofreader',
-    desc: "The assistant is a meticulous proofreader. It will carefully examine given texts for grammatical errors, typos, and style issues. It will also suggest improvements to the writing to make it more clear and effective. Focus on fixing grammar, spelling, punctuation, and syntax to enhance the readability of the text."
+    desc: "The assistant is a meticulous proofreader.\n\nIt will carefully examine given texts for grammatical errors, typos, and style issues. It will also suggest improvements to the writing to make it more clear and effective.\n\nFocus on fixing grammar, spelling, punctuation, and syntax to enhance the readability of the text."
   }
 ];
 
@@ -169,12 +182,63 @@ interface RowProps {
   leftNode?: React.ReactNode;
   rightNode?: React.ReactNode;
   onClick?: () => void;
+  onLongPress?: (x: number, y: number) => void;
   hideArrow?: boolean;
   last?: boolean;
   alignItems?: "center" | "start"; 
+  preserveWhitespace?: boolean;
 }
 
-function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false, alignItems = "center" }: RowProps) {
+function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress, hideArrow = false, last = false, alignItems = "center", preserveWhitespace = false }: RowProps) {
+  
+  // Lógica avanzada para diferenciar tap y long press
+  const touchRef = useRef({ startX: 0, startY: 0, timer: null as any, triggered: false });
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (onClick && !onLongPress) createRipple(e); // Si no hay long press, ripple inmediato
+    
+    if (onLongPress) {
+      touchRef.current.startX = e.clientX;
+      touchRef.current.startY = e.clientY;
+      touchRef.current.triggered = false;
+      
+      touchRef.current.timer = setTimeout(() => {
+        touchRef.current.triggered = true;
+        triggerVibration('medium');
+        onLongPress(e.clientX, e.clientY);
+      }, 500); // 500ms para long press
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!onLongPress || !touchRef.current.timer) return;
+    const dx = Math.abs(e.clientX - touchRef.current.startX);
+    const dy = Math.abs(e.clientY - touchRef.current.startY);
+    // Si mueve el dedo, cancelar el long press
+    if (dx > 10 || dy > 10) {
+      clearTimeout(touchRef.current.timer);
+      touchRef.current.timer = null;
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (touchRef.current.timer) {
+      clearTimeout(touchRef.current.timer);
+      touchRef.current.timer = null;
+    }
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Si se disparó el long press, bloqueamos el tap normal
+    if (touchRef.current.triggered) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    if (onClick && onLongPress) createRipple(e as any);
+    onClick?.();
+  };
+
   const content = (
     <>
       {leftNode}
@@ -183,7 +247,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
           {label}
         </span>
         {sublabel && (
-          <span className="text-[13px] text-[#8e8e93] leading-[1.35] mt-[3px]" style={{ fontFamily: SF }}>
+          <span className={`text-[13px] text-[#8e8e93] leading-[1.4] mt-[5px] ${preserveWhitespace ? 'whitespace-pre-wrap' : ''}`} style={{ fontFamily: SF }}>
             {sublabel}
           </span>
         )}
@@ -200,13 +264,17 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
       </div>
     </>
   );
+
   return (
     <>
       <button 
-        onClick={onClick} 
-        onPointerDown={onClick ? createRipple : undefined} 
-        disabled={!onClick && !rightNode} 
-        className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems}`}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+        onClick={handleClick}
+        disabled={!onClick && !rightNode && !onLongPress} 
+        className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3 ${onClick || onLongPress ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems}`}
       >
         {content}
       </button>
@@ -224,7 +292,7 @@ function RadioButton({ selected }: { selected: boolean }) {
 }
 
 const RadioRow = ({ label, selected, onClick }: { label: string, selected: boolean, onClick: () => void }) => (
-  <button onClick={onClick} onPointerDown={createRipple} className="relative overflow-hidden flex items-center justify-between w-full px-4 py-3 active:bg-white/5 transition-colors text-left">
+  <button onClick={(e) => { createRipple(e); onClick(); }} className="relative overflow-hidden flex items-center justify-between w-full px-4 py-3 active:bg-white/5 transition-colors text-left">
     <span className="text-white font-medium relative z-10" style={{ fontSize: "16px", fontFamily: SF }}>{label}</span>
     <RadioButton selected={selected} />
   </button>
@@ -233,8 +301,7 @@ const RadioRow = ({ label, selected, onClick }: { label: string, selected: boole
 const TextPreviewRow = ({ title, placeholder, value, leftNode, onClick }: any) => (
   <button 
     className="relative overflow-hidden px-4 py-3 w-full text-left active:bg-white/5 transition-colors flex flex-col" 
-    onClick={onClick} 
-    onPointerDown={createRipple}
+    onClick={(e) => { createRipple(e); onClick(); }} 
   >
     <div className="flex items-center gap-3.5 mb-2 w-full relative z-10">
       {leftNode}
@@ -251,8 +318,7 @@ const TextPreviewRow = ({ title, placeholder, value, leftNode, onClick }: any) =
 
 const ShinyActionButton = ({ label, onClick, className = "", themeColor = "#60a5fa" }: { label: string, onClick: () => void, className?: string, themeColor?: string }) => (
   <button
-    onClick={onClick}
-    onPointerDown={createRipple}
+    onClick={(e) => { createRipple(e); onClick(); }}
     className={`relative rounded-full px-5 py-3 transition-all active:opacity-80 overflow-hidden ${className}`}
     style={{ background: themeColor, fontFamily: SF }}
   >
@@ -304,10 +370,13 @@ const AutoResizeTextarea = ({ defaultValue, onBlurSave, placeholder }: { default
   )
 }
 
-// ── COMPONENTE EXPANDIBLE DE NEW ROLE ──
+// ── COMPONENTE EXPANDIBLE CON LIMITE Y VIBRACIÓN ──
 const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }: { label: string, maxLength: number, value: string, onChange: (v: string) => void, placeholder?: string }) => {
   const textRef = useRef<HTMLTextAreaElement>(null)
+  const [warningActive, setWarningActive] = useState(false);
   
+  const remaining = maxLength - value.length;
+
   const adjustHeight = () => {
     if (textRef.current) {
       textRef.current.style.height = "auto"
@@ -317,19 +386,36 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
 
   useEffect(() => { adjustHeight() }, [value])
 
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    let val = e.target.value;
+    
+    // Si intenta sobrepasar
+    if (val.length > maxLength) {
+      val = val.slice(0, maxLength);
+      
+      // Activar advertencia visual
+      setWarningActive(true);
+      setTimeout(() => setWarningActive(false), 500);
+      
+      // Vibración
+      triggerVibration('error');
+    }
+    
+    onChange(val);
+  }
+
   return (
     <div className="relative w-full mb-8 mt-3">
-      <label className="absolute -top-2.5 left-3 px-1.5 text-[13px] bg-[#111111] text-[#60a5fa] z-10 font-medium" style={{ fontFamily: SF }}>
-        {label} • {maxLength}
+      <label 
+        className={`absolute -top-2.5 left-3 px-1.5 text-[13px] bg-[#111111] z-10 font-medium transition-colors duration-200 ${warningActive ? 'text-[#ff453a]' : 'text-[#60a5fa]'}`} 
+        style={{ fontFamily: SF }}
+      >
+        {label} • {remaining}
       </label>
       <textarea
         ref={textRef}
         value={value}
-        onChange={(e) => {
-          let val = e.target.value
-          if (val.length > maxLength) val = val.slice(0, maxLength)
-          onChange(val)
-        }}
+        onChange={handleChange}
         placeholder={placeholder}
         className="w-full bg-transparent border-[1.5px] border-[#60a5fa] rounded-[12px] px-4 py-3.5 text-white focus:outline-none resize-none overflow-hidden placeholder:text-[#636366]"
         style={{ fontFamily: SF, fontSize: "16px", minHeight: "56px" }}
@@ -347,13 +433,13 @@ const BottomSheet = ({ isOpen, onClose, onSave, title, description, children }: 
       <div className="relative border-t border-white/5 rounded-t-[32px] w-full max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-400" style={{ background: "#111111" }}>
         
         <div className="flex items-center justify-between px-5 pt-5 pb-4">
-          <button onClick={onClose} onPointerDown={createRipple} className="relative overflow-hidden px-4 py-2 text-[#8e8e93] font-medium active:opacity-60 rounded-full" style={{ fontFamily: SF }}>
+          <button onClick={(e) => { createRipple(e); onClose(); }} className="relative overflow-hidden px-4 py-2 text-[#8e8e93] font-medium active:opacity-60 rounded-full" style={{ fontFamily: SF }}>
             <span className="relative z-10">Cancel</span>
           </button>
           <h3 className="text-white font-bold tracking-tight text-center flex-1 mx-2" style={{ fontSize: "17px", fontFamily: SFD }}>
             {title}
           </h3>
-          <button onClick={onSave} onPointerDown={createRipple} className="relative overflow-hidden px-4 py-2 text-[#60a5fa] font-bold active:opacity-60 rounded-full" style={{ fontFamily: SF }}>
+          <button onClick={(e) => { createRipple(e); onSave(); }} className="relative overflow-hidden px-4 py-2 text-[#60a5fa] font-bold active:opacity-60 rounded-full" style={{ fontFamily: SF }}>
             <span className="relative z-10">Save</span>
           </button>
         </div>
@@ -391,9 +477,13 @@ export function BusinessAutomationView({
   const [tempVal, setTempVal] = useState<any>("")
   const [selectedPresetId, setSelectedPresetTab] = useState<string>('ravage')
 
-  // Estados para el nuevo rol
+  // Estados para el nuevo rol y edición
   const [newRoleName, setNewRoleName] = useState("")
   const [newRolePrompt, setNewRolePrompt] = useState("")
+  const [editingRoleId, setEditingRoleId] = useState<string | null>(null)
+
+  // Estado para el menú contextual de Roles
+  const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, roleId: string } | null>(null)
 
   const [config, setConfig] = useState({
     auto_reply_filter: "everyone", 
@@ -427,8 +517,6 @@ export function BusinessAutomationView({
     custom_roles: [] as { id: string, label: string, desc: string }[]
   })
 
-  const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
-
   const saveConfigToServer = useCallback(async (currentConfig: typeof config) => {
     try {
       const tg = getTg()
@@ -451,27 +539,77 @@ export function BusinessAutomationView({
     })
   }
 
-  const applyPreset = () => {
-    const tg = getTg()
-    tg?.HapticFeedback?.notificationOccurred('success')
-  }
+  const applyPreset = () => triggerVibration('success')
 
-  const handleCreateRole = () => {
+  const handleSaveRole = () => {
     if (!newRoleName.trim() || !newRolePrompt.trim()) return;
-    const newRole = {
-      id: `custom_${Date.now()}`,
-      label: newRoleName,
-      desc: newRolePrompt
-    }
-    const updatedRoles = [...(config.custom_roles || []), newRole];
-    setAndSave('custom_roles', updatedRoles);
-    setAndSave('use_case', newRole.id); // Auto-selecciona el rol creado
     
-    // Resetear formulario y volver
+    if (editingRoleId) {
+      // Modo edición
+      const updatedRoles = config.custom_roles.map(r => 
+        r.id === editingRoleId ? { ...r, label: newRoleName, desc: newRolePrompt } : r
+      );
+      setAndSave('custom_roles', updatedRoles);
+    } else {
+      // Modo creación
+      const newRole = {
+        id: `custom_${Date.now()}`,
+        label: newRoleName,
+        desc: newRolePrompt
+      }
+      const updatedRoles = [...(config.custom_roles || []), newRole];
+      setAndSave('custom_roles', updatedRoles);
+      setAndSave('use_case', newRole.id);
+    }
+    
     setNewRoleName("");
     setNewRolePrompt("");
+    setEditingRoleId(null);
     setActivePage('roles');
   }
+
+  const openNewRoleView = () => {
+    setNewRoleName("");
+    setNewRolePrompt("");
+    setEditingRoleId(null);
+    setActivePage('new_role');
+  }
+
+  // Acciones del menú contextual
+  const handleEditRole = () => {
+    if (!contextMenu) return;
+    const role = config.custom_roles.find(r => r.id === contextMenu.roleId);
+    if (role) {
+      setNewRoleName(role.label);
+      setNewRolePrompt(role.desc);
+      setEditingRoleId(role.id);
+      setActivePage('new_role');
+    }
+    setContextMenu(null);
+  };
+
+  const handleCopyRole = () => {
+    if (!contextMenu) return;
+    const role = config.custom_roles.find(r => r.id === contextMenu.roleId);
+    if (role) {
+      navigator.clipboard.writeText(role.desc);
+      triggerVibration('success');
+    }
+    setContextMenu(null);
+  };
+
+  const handleDeleteRole = () => {
+    if (!contextMenu) return;
+    const updatedRoles = config.custom_roles.filter(r => r.id !== contextMenu.roleId);
+    setAndSave('custom_roles', updatedRoles);
+    
+    // Si el rol borrado era el que estaba activo, volver a 'assistant'
+    if (config.use_case === contextMenu.roleId) {
+      setAndSave('use_case', 'assistant');
+    }
+    triggerVibration('success');
+    setContextMenu(null);
+  };
 
   useEffect(() => {
     const tg = getTg()
@@ -528,7 +666,6 @@ export function BusinessAutomationView({
   const currentTheme = PRESETS_DATA.find(p => p.id === selectedPresetId)?.theme || "#60a5fa";
   const currentPresetName = PRESETS_DATA.find(p => p.id === selectedPresetId)?.name || "Preset";
   
-  // Función auxiliar para obtener el nombre del rol a mostrar (incluyendo custom roles)
   const getRoleDisplayName = () => {
     const defaultRole = ROLES_DATA.find(r => r.id === config.use_case);
     if (defaultRole) return defaultRole.label;
@@ -537,9 +674,52 @@ export function BusinessAutomationView({
     return "Assistant";
   }
 
+  // Calcular estilo posicional del menú contextual asegurando que no se salga de la pantalla
+  let menuStyle: any = {};
+  if (contextMenu?.visible) {
+    let top = contextMenu.y;
+    let left = contextMenu.x;
+    
+    // Ancho aproximado del menú 160px, alto 160px
+    if (typeof window !== "undefined") {
+      if (left > window.innerWidth - 180) left = window.innerWidth - 180;
+      if (top > window.innerHeight - 200) top = window.innerHeight - 200;
+    }
+    menuStyle = { top, left };
+  }
+
   return (
     <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-300">
       <style>{RIPPLE_STYLE}</style>
+
+      {/* OVERLAY DEL MENÚ CONTEXTUAL */}
+      {contextMenu?.visible && (
+        <>
+          <div 
+            className="fixed inset-0 z-[150]" 
+            onPointerDown={(e) => { e.stopPropagation(); setContextMenu(null); }}
+          />
+          <div 
+            className="fixed z-[160] bg-[#212123] rounded-[16px] shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden flex flex-col py-1 animate-in zoom-in-95 duration-150"
+            style={{ ...menuStyle, minWidth: '160px' }}
+          >
+            <button className="flex items-center gap-3 px-4 py-3 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleEditRole(); }}>
+              <Pencil className="w-[18px] h-[18px] text-[#e5e5e7]" strokeWidth={2.5} />
+              <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Edit</span>
+            </button>
+            <div className="h-[1px] bg-white/10 mx-3" />
+            <button className="flex items-center gap-3 px-4 py-3 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleCopyRole(); }}>
+              <Copy className="w-[18px] h-[18px] text-[#e5e5e7]" strokeWidth={2.5} />
+              <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Copy</span>
+            </button>
+            <div className="h-[1px] bg-white/10 mx-3" />
+            <button className="flex items-center gap-3 px-4 py-3 text-[#ff453a] active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleDeleteRole(); }}>
+              <Trash2 className="w-[18px] h-[18px]" strokeWidth={2.5} />
+              <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Delete</span>
+            </button>
+          </div>
+        </>
+      )}
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-0">
         
@@ -616,9 +796,8 @@ export function BusinessAutomationView({
               title="Roles" 
               rightNode={
                 <button 
-                  onClick={() => setActivePage('new_role')} 
-                  onPointerDown={createRipple} 
-                  className="w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full translate-y-5 mr-1" 
+                  onClick={(e) => { createRipple(e); openNewRoleView(); }} 
+                  className="w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full translate-y-5 mr-1 relative overflow-hidden" 
                 >
                   <Plus className="w-7 h-7 text-white relative z-10" strokeWidth={2.5} />
                 </button>
@@ -643,6 +822,7 @@ export function BusinessAutomationView({
                   <Row 
                     key={role.id}
                     alignItems="start" 
+                    preserveWhitespace={true}
                     leftNode={
                       <div className="mt-[1px]">
                         <RadioButton selected={config.use_case === role.id} />
@@ -665,6 +845,7 @@ export function BusinessAutomationView({
                       <Row 
                         key={role.id}
                         alignItems="start" 
+                        preserveWhitespace={true}
                         leftNode={
                           <div className="mt-[1px]">
                             <RadioButton selected={config.use_case === role.id} />
@@ -675,6 +856,7 @@ export function BusinessAutomationView({
                         hideArrow
                         last={idx === config.custom_roles.length - 1}
                         onClick={() => setAndSave('use_case', role.id)}
+                        onLongPress={(x, y) => setContextMenu({ visible: true, x, y, roleId: role.id })}
                       />
                     ))}
                   </Section>
@@ -684,10 +866,10 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── NEW ROLE PAGE ── */}
+        {/* ── NEW/EDIT ROLE PAGE ── */}
         {activePage === 'new_role' && (
           <div className="animate-in slide-in-from-right duration-300 w-full h-[100vh] flex flex-col bg-[#000000]">
-            <SubHeader title="New Role" />
+            <SubHeader title={editingRoleId ? "Edit Role" : "New Role"} />
             <div className="px-5 pt-8 flex-1 flex flex-col bg-[#111111] mt-3">
               
               <ExpandingInput 
@@ -708,14 +890,14 @@ export function BusinessAutomationView({
                 A prompt is the initial text given to the model to start generating a response or continue a dialogue.
               </p>
 
-              <div className="mt-auto pb-10">
+              <div className="mt-auto pb-10 relative">
                 <button
-                  onClick={handleCreateRole}
+                  onClick={(e) => { createRipple(e as any); handleSaveRole(); }}
                   disabled={!newRoleName.trim() || !newRolePrompt.trim()}
-                  className="w-full bg-white text-black font-bold rounded-[14px] py-3.5 active:opacity-80 transition-opacity disabled:opacity-50 disabled:active:opacity-50"
+                  className="w-full bg-white text-black font-bold rounded-[14px] py-3.5 transition-opacity disabled:opacity-50 relative overflow-hidden"
                   style={{ fontSize: "16px", fontFamily: SF }}
                 >
-                  Create
+                  <span className="relative z-10">{editingRoleId ? "Save Changes" : "Create"}</span>
                 </button>
               </div>
               
@@ -736,8 +918,7 @@ export function BusinessAutomationView({
               {PRESETS_DATA.map(p => (
                  <button 
                     key={p.id}
-                    onClick={() => setSelectedPresetTab(p.id)} 
-                    onPointerDown={createRipple}
+                    onClick={(e) => { createRipple(e); setSelectedPresetTab(p.id); }} 
                     className="relative overflow-hidden flex flex-col items-center justify-center p-4 rounded-[20px] border transition-all min-w-[110px] shrink-0 snap-center"
                     style={{
                       borderColor: selectedPresetId === p.id ? p.theme : 'rgba(255,255,255,0.05)',
