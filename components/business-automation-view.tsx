@@ -703,6 +703,17 @@ export function BusinessAutomationView({
         </>
       )}
 
+      {/* BOTÓN "+" FIXED TOP RIGHT CUANDO ESTÁ EN ROLES */}
+      {activePage === 'roles' && (
+        <button 
+          onClick={(e) => { createRipple(e); openNewRoleView(); }} 
+          className="fixed right-4 w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full z-[100] overflow-hidden" 
+          style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 6px)" }}
+        >
+          <Plus className="w-7 h-7 text-white relative z-10" strokeWidth={2.5} />
+        </button>
+      )}
+
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-0 relative">
         
         {/* ── MAIN MENU ── */}
@@ -777,15 +788,6 @@ export function BusinessAutomationView({
             <SubHeader title="Roles" />
 
             <div className="flex flex-col items-center mt-2 mb-8 px-4 text-center relative z-0">
-              
-              {/* BOTÓN "+" MOVIDO AL NIVEL DE LA IMAGEN */}
-              <button 
-                onClick={(e) => { createRipple(e); openNewRoleView(); }} 
-                className="absolute right-6 -top-2 w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full relative overflow-hidden" 
-              >
-                <Plus className="w-7 h-7 text-white relative z-10" strokeWidth={2.5} />
-              </button>
-
               <img 
                 src="/animatedemojies_agadxamaajlb2uy.webp" 
                 alt="Roles Masks" 
@@ -803,7 +805,6 @@ export function BusinessAutomationView({
                   <Row 
                     key={role.id}
                     alignItems="start" 
-                    preserveWhitespace={true}
                     leftNode={
                       <div className="mt-[1px]">
                         <RadioButton selected={config.use_case === role.id} />
@@ -850,7 +851,8 @@ export function BusinessAutomationView({
         {activePage === 'new_role' && (
           <div className="animate-in slide-in-from-right duration-300 w-full min-h-full flex flex-col">
             <SubHeader title={editingRoleId ? "Edit Role" : "New Role"} />
-            <div className="px-5 pt-8 flex-1 flex flex-col">
+            {/* Altura mínima segura para evitar brincos del teclado, pero que el botón no flote en pantallas grandes */}
+            <div className="px-5 pt-8 flex-1 flex flex-col" style={{ minHeight: "75vh" }}>
               
               <ExpandingInput 
                 label="Name"
@@ -870,7 +872,8 @@ export function BusinessAutomationView({
                 A prompt is the initial text given to the model to start generating a response or continue a dialogue.
               </p>
 
-              <div className="mt-auto pb-10 pt-4 relative">
+              {/* Contenedor del botón con menos padding inferior para que esté muy pegado abajo */}
+              <div className="mt-auto pb-4 pt-4 relative">
                 <button
                   onClick={(e) => { createRipple(e as any); handleSaveRole(); }}
                   disabled={!newRoleName.trim() || !newRolePrompt.trim()}
