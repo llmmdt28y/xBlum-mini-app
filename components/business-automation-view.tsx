@@ -195,7 +195,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress
   const touchRef = useRef({ startX: 0, startY: 0, timer: null as any, triggered: false });
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    if (onClick && !onLongPress) createRipple(e); // Si no hay long press, ripple inmediato
+    if (onClick && !onLongPress) createRipple(e);
     
     if (onLongPress) {
       touchRef.current.startX = e.clientX;
@@ -206,7 +206,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress
         touchRef.current.triggered = true;
         triggerVibration('medium');
         onLongPress(e.clientX, e.clientY);
-      }, 500); // 500ms para long press
+      }, 500);
     }
   };
 
@@ -214,7 +214,6 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress
     if (!onLongPress || !touchRef.current.timer) return;
     const dx = Math.abs(e.clientX - touchRef.current.startX);
     const dy = Math.abs(e.clientY - touchRef.current.startY);
-    // Si mueve el dedo, cancelar el long press
     if (dx > 10 || dy > 10) {
       clearTimeout(touchRef.current.timer);
       touchRef.current.timer = null;
@@ -229,7 +228,6 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress
   };
 
   const handleClick = (e: React.MouseEvent) => {
-    // Si se disparó el long press, bloqueamos el tap normal
     if (touchRef.current.triggered) {
       e.preventDefault();
       e.stopPropagation();
@@ -545,13 +543,11 @@ export function BusinessAutomationView({
     if (!newRoleName.trim() || !newRolePrompt.trim()) return;
     
     if (editingRoleId) {
-      // Modo edición
       const updatedRoles = config.custom_roles.map(r => 
         r.id === editingRoleId ? { ...r, label: newRoleName, desc: newRolePrompt } : r
       );
       setAndSave('custom_roles', updatedRoles);
     } else {
-      // Modo creación
       const newRole = {
         id: `custom_${Date.now()}`,
         label: newRoleName,
@@ -575,7 +571,6 @@ export function BusinessAutomationView({
     setActivePage('new_role');
   }
 
-  // Acciones del menú contextual
   const handleEditRole = () => {
     if (!contextMenu) return;
     const role = config.custom_roles.find(r => r.id === contextMenu.roleId);
@@ -603,7 +598,6 @@ export function BusinessAutomationView({
     const updatedRoles = config.custom_roles.filter(r => r.id !== contextMenu.roleId);
     setAndSave('custom_roles', updatedRoles);
     
-    // Si el rol borrado era el que estaba activo, volver a 'assistant'
     if (config.use_case === contextMenu.roleId) {
       setAndSave('use_case', 'assistant');
     }
@@ -680,10 +674,10 @@ export function BusinessAutomationView({
     let top = contextMenu.y;
     let left = contextMenu.x;
     
-    // Ancho aproximado del menú 160px, alto 160px
     if (typeof window !== "undefined") {
-      if (left > window.innerWidth - 180) left = window.innerWidth - 180;
-      if (top > window.innerHeight - 200) top = window.innerHeight - 200;
+      // Ajuste para evitar que el menú se salga del borde derecho o inferior
+      if (left > window.innerWidth - 150) left = window.innerWidth - 150;
+      if (top > window.innerHeight - 150) top = window.innerHeight - 150;
     }
     menuStyle = { top, left };
   }
@@ -692,7 +686,7 @@ export function BusinessAutomationView({
     <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-300">
       <style>{RIPPLE_STYLE}</style>
 
-      {/* OVERLAY DEL MENÚ CONTEXTUAL */}
+      {/* OVERLAY DEL MENÚ CONTEXTUAL MÁS COMPACTO */}
       {contextMenu?.visible && (
         <>
           <div 
@@ -700,21 +694,19 @@ export function BusinessAutomationView({
             onPointerDown={(e) => { e.stopPropagation(); setContextMenu(null); }}
           />
           <div 
-            className="fixed z-[160] bg-[#212123] rounded-[16px] shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden flex flex-col py-1 animate-in zoom-in-95 duration-150"
-            style={{ ...menuStyle, minWidth: '160px' }}
+            className="fixed z-[160] bg-[#212123] rounded-[14px] shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden flex flex-col py-1.5 animate-in zoom-in-95 duration-150"
+            style={{ ...menuStyle, minWidth: '135px' }}
           >
-            <button className="flex items-center gap-3 px-4 py-3 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleEditRole(); }}>
-              <Pencil className="w-[18px] h-[18px] text-[#e5e5e7]" strokeWidth={2.5} />
+            <button className="flex items-center gap-2.5 px-3 py-2 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleEditRole(); }}>
+              <Pencil className="w-[17px] h-[17px] text-[#e5e5e7]" strokeWidth={2.5} />
               <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Edit</span>
             </button>
-            <div className="h-[1px] bg-white/10 mx-3" />
-            <button className="flex items-center gap-3 px-4 py-3 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleCopyRole(); }}>
-              <Copy className="w-[18px] h-[18px] text-[#e5e5e7]" strokeWidth={2.5} />
+            <button className="flex items-center gap-2.5 px-3 py-2 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleCopyRole(); }}>
+              <Copy className="w-[17px] h-[17px] text-[#e5e5e7]" strokeWidth={2.5} />
               <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Copy</span>
             </button>
-            <div className="h-[1px] bg-white/10 mx-3" />
-            <button className="flex items-center gap-3 px-4 py-3 text-[#ff453a] active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleDeleteRole(); }}>
-              <Trash2 className="w-[18px] h-[18px]" strokeWidth={2.5} />
+            <button className="flex items-center gap-2.5 px-3 py-2 text-[#ff453a] active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleDeleteRole(); }}>
+              <Trash2 className="w-[17px] h-[17px]" strokeWidth={2.5} />
               <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Delete</span>
             </button>
           </div>
@@ -797,7 +789,7 @@ export function BusinessAutomationView({
               rightNode={
                 <button 
                   onClick={(e) => { createRipple(e); openNewRoleView(); }} 
-                  className="w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full translate-y-5 mr-1 relative overflow-hidden" 
+                  className="w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full translate-y-8 mr-1 relative overflow-hidden" 
                 >
                   <Plus className="w-7 h-7 text-white relative z-10" strokeWidth={2.5} />
                 </button>
@@ -837,7 +829,6 @@ export function BusinessAutomationView({
                 ))}
               </Section>
 
-              {/* Sección de Roles Creados */}
               {config.custom_roles && config.custom_roles.length > 0 && (
                 <div className="mt-6">
                   <Section title="Roles">
