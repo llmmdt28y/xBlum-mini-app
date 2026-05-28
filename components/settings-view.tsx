@@ -472,7 +472,7 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
   }
 
   return (
-    <div className="relative w-full mb-8 mt-3 shrink-0">
+    <div className="relative w-full mb-4 mt-2 shrink-0">
       <label 
         className="absolute -top-2.5 left-3 px-1.5 text-[13px] bg-[#000000] z-10 font-medium transition-colors duration-200" 
         style={{ fontFamily: SF, color: labelHex }}
@@ -835,12 +835,12 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Gender" />
-      <div className="px-4 pt-6 pb-28 space-y-6">
+      <div className="px-4 pt-6 pb-10 space-y-6">
         <Section>
           {GENDERS.map((g, idx, arr) => (
             <div key={g}>
               <button 
-                onClick={() => setGenderField(g)} 
+                onClick={() => { setGenderField(g); setPage("basic_info") }} 
                 onPointerDown={createRipple}
                 className="relative overflow-hidden w-full px-4 py-3.5 flex items-center justify-between active:bg-white/5 transition-colors text-left"
               >
@@ -852,16 +852,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
           ))}
         </Section>
       </div>
-      <div className="fixed bottom-8 left-4 right-4 z-[100]">
-        <button 
-          onClick={() => setPage("basic_info")} 
-          onPointerDown={createRipple}
-          className="relative overflow-hidden w-full py-3.5 rounded-[14px] bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity shadow-lg" 
-          style={{ fontFamily: SF }}
-        >
-          <span className="relative z-10">Done</span>
-        </button>
-      </div>
     </div>
   )
 
@@ -871,14 +861,14 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Time zone" />
-      <div className="px-4 pt-6 pb-32 space-y-6">
+      <div className="px-4 pt-6 pb-10 space-y-6">
         <Section>
           {TIMEZONES.map((tz, idx, arr) => {
             const displayVal = `${tz.name} (${tz.offset})`
             return (
               <div key={tz.name}>
                 <button 
-                  onClick={() => setTimezoneField(displayVal)} 
+                  onClick={() => { setTimezoneField(displayVal); setPage("additional_details") }} 
                   onPointerDown={createRipple}
                   className="relative overflow-hidden w-full px-4 py-3.5 flex items-center justify-between active:bg-white/5 transition-colors text-left"
                 >
@@ -894,16 +884,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
           })}
         </Section>
       </div>
-      <div className="fixed bottom-8 left-4 right-4 z-[100]">
-        <button 
-          onClick={() => setPage("additional_details")} 
-          onPointerDown={createRipple}
-          className="relative overflow-hidden w-full py-3.5 rounded-[14px] bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity shadow-lg" 
-          style={{ fontFamily: SF }}
-        >
-          <span className="relative z-10">Done</span>
-        </button>
-      </div>
     </div>
   )
 
@@ -917,7 +897,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         
         <ExpandingInput label="Name" maxLength={64} value={nameField} onChange={setNameField} />
         
-        <div className="mb-8 mt-1 shrink-0">
+        <div className="mb-4 mt-2 shrink-0">
           <Section>
             <Row 
               label="Gender" 
@@ -936,7 +916,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
               style={{ fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Cancel</span>
@@ -944,7 +924,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={saveBasicInfo} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] text-black font-medium active:opacity-80 transition-opacity" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Update</span>
@@ -962,7 +942,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       
       <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
         
-        <div className="mb-8 mt-1 shrink-0">
+        <div className="mb-4 mt-2 shrink-0">
           <Section>
             <Row 
               label="Time zone" 
@@ -981,7 +961,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
               style={{ fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Cancel</span>
@@ -989,7 +969,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={saveAdditionalInfo} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] text-black font-medium active:opacity-80 transition-opacity" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Update</span>
@@ -1015,7 +995,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
                style={{ fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Cancel</span>
@@ -1023,7 +1003,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={saveNoirInfo} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] text-black font-medium active:opacity-80 transition-opacity" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Update</span>
@@ -1179,7 +1159,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             sublabel="Allow Noir to remember relevant context from your chats. This setting controls memory for both chats and projects."
             rightNode={<SwitchNode on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
             onClick={handlePersonalizeToggle}
-            alignItems="start"
             last
           />
         </Section>
