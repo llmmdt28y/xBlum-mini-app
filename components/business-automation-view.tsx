@@ -466,6 +466,9 @@ export function BusinessAutomationView({
   const [tempVal, setTempVal] = useState<any>("")
   const [selectedPresetId, setSelectedPresetTab] = useState<string>('ravage')
 
+  // Altura del viewport para evitar saltos de teclado
+  const [viewportHeight, setViewportHeight] = useState("100vh")
+
   // Estados para el nuevo rol y edición
   const [newRoleName, setNewRoleName] = useState("")
   const [newRolePrompt, setNewRolePrompt] = useState("")
@@ -505,6 +508,12 @@ export function BusinessAutomationView({
     insert_quote: true,
     custom_roles: [] as { id: string, label: string, desc: string }[]
   })
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setViewportHeight(`${window.innerHeight}px`)
+    }
+  }, [])
 
   const saveConfigToServer = useCallback(async (currentConfig: typeof config) => {
     try {
@@ -707,13 +716,54 @@ export function BusinessAutomationView({
       {activePage === 'roles' && (
         <button 
           onClick={(e) => { createRipple(e); openNewRoleView(); }} 
-          className="fixed right-4 w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full z-[100] overflow-hidden" 
-          style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 6px)" }}
+          className="fixed right-5 w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full z-[100] overflow-hidden" 
+          style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 68px)" }}
         >
-          <Plus className="w-7 h-7 text-white relative z-10" strokeWidth={2.5} />
+          <Plus className="w-8 h-8 text-white relative z-10" strokeWidth={2.5} />
         </button>
       )}
 
+      {/* ── NEW/EDIT ROLE PAGE SUPERPUESTA PARA EVITAR SALTOS DE TECLADO ── */}
+      {activePage === 'new_role' && (
+        <div className="animate-in slide-in-from-right duration-300 w-full absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+          <SubHeader title={editingRoleId ? "Edit Role" : "New Role"} />
+          
+          <div className="px-5 pt-8 relative w-full" style={{ height: "calc(100% - 60px)" }}>
+            <ExpandingInput 
+              label="Name"
+              maxLength={64}
+              value={newRoleName}
+              onChange={setNewRoleName}
+            />
+            
+            <ExpandingInput 
+              label="Prompt"
+              maxLength={1024}
+              value={newRolePrompt}
+              onChange={setNewRolePrompt}
+            />
+            
+            <p className="text-[#8e8e93] text-[13px] leading-[1.4] mt-[-16px] mb-6 px-1" style={{ fontFamily: SF }}>
+              A prompt is the initial text given to the model to start generating a response or continue a dialogue.
+            </p>
+
+            {/* BOTÓN "CREATE/SAVE" CLAVADO AL FONDO FÍSICO */}
+            <div className="absolute bottom-8 left-5 right-5">
+              <button
+                onClick={(e) => { createRipple(e as any); handleSaveRole(); }}
+                disabled={!newRoleName.trim() || !newRolePrompt.trim()}
+                className="w-full bg-white text-black font-bold rounded-[14px] py-3.5 transition-opacity disabled:opacity-50 relative overflow-hidden"
+                style={{ fontSize: "16px", fontFamily: SF }}
+              >
+                <span className="relative z-10">{editingRoleId ? "Save Changes" : "Create"}</span>
+              </button>
+            </div>
+            
+          </div>
+        </div>
+      )}
+
+      {/* ── CONTENEDOR PRINCIPAL DE SCROLL PARA EL RESTO DE VISTAS ── */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-0 relative">
         
         {/* ── MAIN MENU ── */}
@@ -805,6 +855,7 @@ export function BusinessAutomationView({
                   <Row 
                     key={role.id}
                     alignItems="start" 
+                    preserveWhitespace={true}
                     leftNode={
                       <div className="mt-[1px]">
                         <RadioButton selected={config.use_case === role.id} />
@@ -843,47 +894,6 @@ export function BusinessAutomationView({
                   </Section>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* ── NEW/EDIT ROLE PAGE ── */}
-        {activePage === 'new_role' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full min-h-full flex flex-col">
-            <SubHeader title={editingRoleId ? "Edit Role" : "New Role"} />
-            {/* Altura mínima segura para evitar brincos del teclado, pero que el botón no flote en pantallas grandes */}
-            <div className="px-5 pt-8 flex-1 flex flex-col" style={{ minHeight: "75vh" }}>
-              
-              <ExpandingInput 
-                label="Name"
-                maxLength={64}
-                value={newRoleName}
-                onChange={setNewRoleName}
-              />
-              
-              <ExpandingInput 
-                label="Prompt"
-                maxLength={1024}
-                value={newRolePrompt}
-                onChange={setNewRolePrompt}
-              />
-              
-              <p className="text-[#8e8e93] text-[13px] leading-[1.4] mt-[-16px] mb-6 px-1" style={{ fontFamily: SF }}>
-                A prompt is the initial text given to the model to start generating a response or continue a dialogue.
-              </p>
-
-              {/* Contenedor del botón con menos padding inferior para que esté muy pegado abajo */}
-              <div className="mt-auto pb-4 pt-4 relative">
-                <button
-                  onClick={(e) => { createRipple(e as any); handleSaveRole(); }}
-                  disabled={!newRoleName.trim() || !newRolePrompt.trim()}
-                  className="w-full bg-white text-black font-bold rounded-[14px] py-3.5 transition-opacity disabled:opacity-50 relative overflow-hidden"
-                  style={{ fontSize: "16px", fontFamily: SF }}
-                >
-                  <span className="relative z-10">{editingRoleId ? "Save Changes" : "Create"}</span>
-                </button>
-              </div>
-              
             </div>
           </div>
         )}
