@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Loader2, Sparkles, Shield, Workflow, 
   ChevronRight, BarChart3, Check, MessageSquare, Bot, User, FileText, Book,
-  Clock, MessageSquarePlus, Eye, Zap, Globe, CircleUserRound, Plus
+  Clock, MessageSquarePlus, Eye, Zap, Globe, CircleUserRound, ChevronLeft, Plus
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -91,7 +91,6 @@ const ROLES_DATA = [
 
 // ── COMPONENTES REUTILIZABLES ──
 
-// Switch ultra exacto: Corto, track grueso, bola negra (#111111) y animación seca (100ms)
 function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <button
@@ -107,8 +106,8 @@ function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boole
         className="absolute rounded-full transition-all duration-100"
         style={{
           width: "16px", height: "16px",
-          top: "4px", // 4px de margen para track grueso
-          background: "#111111", // Círculo negro exacto a la imagen
+          top: "4px", 
+          background: "#111111",
           left: on ? "22px" : "4px", 
         }}
       />
@@ -116,7 +115,16 @@ function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boole
   )
 }
 
-// SubHeader calcado EXACTAMENTE al contenedor original de "settings-view"
+// Nuevo componente para agregar la línea antes del Switch
+function SwitchNode({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
+  return (
+    <div className="flex items-center">
+      <div className="w-[1px] h-[24px] bg-[#2c2c2e] mr-3.5" />
+      <Toggle on={on} onToggle={onToggle} disabled={disabled} activeColor={activeColor} />
+    </div>
+  )
+}
+
 function SubHeader({ title, rightNode }: { title: string, rightNode?: React.ReactNode }) {
   return (
     <div className="relative flex items-center justify-center px-4 pb-3 sticky top-0 z-50 bg-[#000000]" style={{
@@ -126,7 +134,6 @@ function SubHeader({ title, rightNode }: { title: string, rightNode?: React.Reac
         {title}
       </h2>
       
-      {/* Nodo derecho absoluto para no romper el centrado del título principal */}
       {rightNode && (
         <div className="absolute right-4 bottom-1.5 flex items-center">
           {rightNode}
@@ -139,7 +146,6 @@ function SubHeader({ title, rightNode }: { title: string, rightNode?: React.Reac
 function Section({ title, footer, children }: { title?: string; footer?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="space-y-2 mb-6 w-full">
-      {/* Título azul oscuro idéntico a settings, fuera del contenedor */}
       {title && (
         <div className="px-4 mb-2 flex items-center justify-between">
           <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
@@ -165,9 +171,10 @@ interface RowProps {
   rightNode?: React.ReactNode;
   onClick?: () => void;
   hideArrow?: boolean;
+  last?: boolean;
 }
 
-function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false }: RowProps) {
+function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false }: RowProps) {
   const content = (
     <>
       {leftNode}
@@ -195,14 +202,17 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
   );
 
   return (
-    <button 
-      onClick={onClick} 
-      onPointerDown={onClick ? createRipple : undefined} 
-      disabled={!onClick && !rightNode} 
-      className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-center`}
-    >
-      {content}
-    </button>
+    <>
+      <button 
+        onClick={onClick} 
+        onPointerDown={onClick ? createRipple : undefined} 
+        disabled={!onClick && !rightNode} 
+        className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-center`}
+      >
+        {content}
+      </button>
+      {!last && <div className={`h-[1px] bg-[#1c1c1e] ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+    </>
   )
 }
 
@@ -375,7 +385,6 @@ export function BusinessAutomationView({
     daily_digest: false,
     daily_digest_hour: 9,
 
-    // Configuraciones de vista principal
     history_enabled: true,
     response_streaming: true,
     show_response_only: false,
@@ -476,11 +485,14 @@ export function BusinessAutomationView({
             
             <SubHeader title="AI Chat" />
             
-            {/* Robot movido significativamente más abajo */}
+            {/* Robot en WebP animado */}
             <div className="flex justify-center mt-12 mb-12">
-              <div className="text-[72px] leading-none select-none pointer-events-none drop-shadow-2xl">
-                🤖
-              </div>
+              <img 
+                src="/animatedemojies_agadmqiaasojkec.webp" 
+                alt="AI Chat Robot" 
+                className="w-[84px] h-[84px] object-contain drop-shadow-2xl pointer-events-none select-none" 
+                draggable={false}
+              />
             </div>
 
             <div className="px-4">
@@ -505,8 +517,9 @@ export function BusinessAutomationView({
                 <Row 
                   leftNode={<MessageSquare className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
                   label="History" 
-                  rightNode={<Toggle on={config.history_enabled} onToggle={() => setAndSave('history_enabled', !config.history_enabled)} />}
+                  rightNode={<SwitchNode on={config.history_enabled} onToggle={() => setAndSave('history_enabled', !config.history_enabled)} activeColor="#60a5fa" />}
                   onClick={() => setAndSave('history_enabled', !config.history_enabled)}
+                  last
                 />
               </Section>
 
@@ -514,18 +527,19 @@ export function BusinessAutomationView({
                 <Row 
                   label="Response Streaming" 
                   sublabel="Ensures smoother and faster display of responses."
-                  rightNode={<Toggle on={config.response_streaming} onToggle={() => setAndSave('response_streaming', !config.response_streaming)} />}
+                  rightNode={<SwitchNode on={config.response_streaming} onToggle={() => setAndSave('response_streaming', !config.response_streaming)} activeColor="#60a5fa" />}
                   onClick={() => setAndSave('response_streaming', !config.response_streaming)}
                 />
                 <Row 
                   label="Show Response Only" 
-                  rightNode={<Toggle on={config.show_response_only} onToggle={() => setAndSave('show_response_only', !config.show_response_only)} />}
+                  rightNode={<SwitchNode on={config.show_response_only} onToggle={() => setAndSave('show_response_only', !config.show_response_only)} activeColor="#60a5fa" />}
                   onClick={() => setAndSave('show_response_only', !config.show_response_only)}
                 />
                 <Row 
                   label="Insert Response as Quote" 
-                  rightNode={<Toggle on={config.insert_quote} onToggle={() => setAndSave('insert_quote', !config.insert_quote)} />}
+                  rightNode={<SwitchNode on={config.insert_quote} onToggle={() => setAndSave('insert_quote', !config.insert_quote)} activeColor="#60a5fa" />}
                   onClick={() => setAndSave('insert_quote', !config.insert_quote)}
+                  last
                 />
               </Section>
             </div>
@@ -536,7 +550,7 @@ export function BusinessAutomationView({
         {activePage === 'roles' && (
           <div className="animate-in slide-in-from-right duration-300 w-full">
             
-            {/* Header Roles con botón + desalineado hacia abajo */}
+            {/* Header Roles con botón + desalineado */}
             <SubHeader 
               title="Roles" 
               rightNode={
@@ -550,10 +564,14 @@ export function BusinessAutomationView({
               } 
             />
 
+            {/* Máscaras en WebP animado */}
             <div className="flex flex-col items-center mt-6 mb-8 px-4 text-center">
-              <div className="text-[72px] leading-none select-none pointer-events-none drop-shadow-2xl mb-4">
-                🎭
-              </div>
+              <img 
+                src="/animatedemojies_agadxamaajlb2uy.webp" 
+                alt="Roles Masks" 
+                className="w-[84px] h-[84px] object-contain drop-shadow-2xl mb-4 pointer-events-none select-none" 
+                draggable={false}
+              />
               <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "250px", lineHeight: "1.4" }}>
                 Create roles for your specific needs!
               </p>
@@ -561,13 +579,14 @@ export function BusinessAutomationView({
 
             <div className="px-4">
               <Section title="Suggestions">
-                {ROLES_DATA.map((role) => (
+                {ROLES_DATA.map((role, idx) => (
                   <Row 
                     key={role.id}
                     leftNode={<RadioButton selected={config.use_case === role.id} />}
                     label={role.label}
                     sublabel={role.desc}
                     hideArrow
+                    last={idx === ROLES_DATA.length - 1}
                     onClick={() => {
                       setAndSave('use_case', role.id);
                     }}
@@ -628,26 +647,27 @@ export function BusinessAutomationView({
                 <Row 
                   leftNode={<Sparkles className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="AI Auto-Reply"
-                  rightNode={<Toggle on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} activeColor={currentTheme} />}
+                  rightNode={<SwitchNode on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} activeColor={currentTheme} />}
                   onClick={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)}
                 />
                 <Row 
                   leftNode={<Shield className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="Spam Filtering"
-                  rightNode={<Toggle on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} activeColor={currentTheme} />}
+                  rightNode={<SwitchNode on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} activeColor={currentTheme} />}
                   onClick={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)}
                 />
                 <Row 
                   leftNode={<MessageSquare className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="Simulate Typing"
-                  rightNode={<Toggle on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} activeColor={currentTheme} />}
+                  rightNode={<SwitchNode on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} activeColor={currentTheme} />}
                   onClick={() => setAndSave('humanize_enabled', !config.humanize_enabled)}
                 />
                 <Row 
                   leftNode={<Workflow className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="Smart Follow-ups"
-                  rightNode={<Toggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} activeColor={currentTheme} />}
+                  rightNode={<SwitchNode on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} activeColor={currentTheme} />}
                   onClick={() => setAndSave('followup_enabled', !config.followup_enabled)}
+                  last
                 />
               </Section>
             </div>
@@ -668,8 +688,9 @@ export function BusinessAutomationView({
                   leftNode={<Sparkles className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="AI Auto-Reply"
                   sublabel="Let the AI handle standard inbound messages."
-                  rightNode={<Toggle on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} />}
+                  rightNode={<SwitchNode on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} />}
                   onClick={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)}
+                  last
                 />
               </Section>
 
@@ -681,6 +702,7 @@ export function BusinessAutomationView({
                       label="Account Role"
                       value={config.use_case.charAt(0).toUpperCase() + config.use_case.slice(1)}
                       onClick={() => setActivePage('roles')}
+                      last
                     />
                   </Section>
                   
@@ -690,6 +712,7 @@ export function BusinessAutomationView({
                       label="Tone Register"
                       value={config.tone.charAt(0).toUpperCase() + config.tone.slice(1)}
                       onClick={() => { setTempVal(config.tone); setActiveModal('tone'); }}
+                      last
                     />
                   </Section>
 
@@ -800,6 +823,7 @@ export function BusinessAutomationView({
                   onClick={() => setAndSave('auto_reply_filter', 'whitelist')}
                   rightNode={config.auto_reply_filter === 'whitelist' ? <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} /> : null}
                   hideArrow
+                  last
                 />
               </Section>
             </div>
@@ -817,8 +841,9 @@ export function BusinessAutomationView({
                   leftNode={<Eye className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="Mark messages as read"
                   sublabel="Automatically mark inbound messages as read."
-                  rightNode={<Toggle on={config.read_enabled} onToggle={() => setAndSave('read_enabled', !config.read_enabled)} />}
+                  rightNode={<SwitchNode on={config.read_enabled} onToggle={() => setAndSave('read_enabled', !config.read_enabled)} />}
                   onClick={() => setAndSave('read_enabled', !config.read_enabled)}
+                  last
                 />
               </Section>
 
@@ -827,8 +852,9 @@ export function BusinessAutomationView({
                   leftNode={<MessageSquarePlus className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="Welcome Message"
                   sublabel="Greet first-time contacts automatically."
-                  rightNode={<Toggle on={config.greeting_enabled} onToggle={() => setAndSave('greeting_enabled', !config.greeting_enabled)} />}
+                  rightNode={<SwitchNode on={config.greeting_enabled} onToggle={() => setAndSave('greeting_enabled', !config.greeting_enabled)} />}
                   onClick={() => setAndSave('greeting_enabled', !config.greeting_enabled)}
+                  last={!config.greeting_enabled}
                 />
                 {config.greeting_enabled && (
                   <TextPreviewRow 
@@ -845,8 +871,9 @@ export function BusinessAutomationView({
                   leftNode={<Clock className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="Away Message"
                   sublabel="Reply when you are out of office."
-                  rightNode={<Toggle on={config.away_enabled} onToggle={() => setAndSave('away_enabled', !config.away_enabled)} />}
+                  rightNode={<SwitchNode on={config.away_enabled} onToggle={() => setAndSave('away_enabled', !config.away_enabled)} />}
                   onClick={() => setAndSave('away_enabled', !config.away_enabled)}
+                  last={!config.away_enabled}
                 />
                 {config.away_enabled && (
                   <TextPreviewRow 
@@ -863,8 +890,9 @@ export function BusinessAutomationView({
                   leftNode={<Workflow className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="Smart Follow-ups"
                   sublabel="Trigger automated follow-ups if user drops engagement."
-                  rightNode={<Toggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
+                  rightNode={<SwitchNode on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
                   onClick={() => setAndSave('followup_enabled', !config.followup_enabled)}
+                  last={!config.followup_enabled}
                 />
                 {config.followup_enabled && (
                   <div className="px-5 py-4 flex gap-5 w-full bg-[#111111]">
@@ -890,8 +918,9 @@ export function BusinessAutomationView({
                 <Row 
                   label="Passive Mentions"
                   sublabel="Replies when its name is mentioned in groups."
-                  rightNode={<Toggle on={config.invocation_enabled} onToggle={() => setAndSave('invocation_enabled', !config.invocation_enabled)} />}
+                  rightNode={<SwitchNode on={config.invocation_enabled} onToggle={() => setAndSave('invocation_enabled', !config.invocation_enabled)} />}
                   onClick={() => setAndSave('invocation_enabled', !config.invocation_enabled)}
+                  last={!config.invocation_enabled}
                 />
                 {config.invocation_enabled && (
                   <div className="w-full px-5 pb-5 pt-2 bg-[#111111]">
@@ -918,14 +947,16 @@ export function BusinessAutomationView({
                 <Row 
                   label="Active Anti-Spam S2S"
                   sublabel="Identify and delete malicious links and ads."
-                  rightNode={<Toggle on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} />}
+                  rightNode={<SwitchNode on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} />}
                   onClick={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)}
+                  last={!config.spam_filter_enabled}
                 />
                 {config.spam_filter_enabled && (
                   <Row 
                     label="Sensitivity"
                     value={config.spam_sensitivity.charAt(0).toUpperCase() + config.spam_sensitivity.slice(1)}
                     onClick={() => { setTempVal(config.spam_sensitivity); setActiveModal('spam_sens'); }}
+                    last
                   />
                 )}
               </Section>
@@ -934,14 +965,15 @@ export function BusinessAutomationView({
                 <Row 
                   label="Simulate Typing"
                   sublabel="Inject artificial typing delays for organic rhythm."
-                  rightNode={<Toggle on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} />}
+                  rightNode={<SwitchNode on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} />}
                   onClick={() => setAndSave('humanize_enabled', !config.humanize_enabled)}
                 />
                 <Row 
                   label="Emergency Alerts"
                   sublabel="Receive DM logs on structural anomalies."
-                  rightNode={<Toggle on={config.urgency_notify} onToggle={() => setAndSave('urgency_notify', !config.urgency_notify)} />}
+                  rightNode={<SwitchNode on={config.urgency_notify} onToggle={() => setAndSave('urgency_notify', !config.urgency_notify)} />}
                   onClick={() => setAndSave('urgency_notify', !config.urgency_notify)}
+                  last
                 />
               </Section>
             </div>
@@ -957,14 +989,16 @@ export function BusinessAutomationView({
                 <Row 
                   label="24-Hour Metrics Digest"
                   sublabel="Receive daily performance reports directly."
-                  rightNode={<Toggle on={config.daily_digest} onToggle={() => setAndSave('daily_digest', !config.daily_digest)} />}
+                  rightNode={<SwitchNode on={config.daily_digest} onToggle={() => setAndSave('daily_digest', !config.daily_digest)} />}
                   onClick={() => setAndSave('daily_digest', !config.daily_digest)}
+                  last={!config.daily_digest}
                 />
                 {config.daily_digest && (
                   <Row 
                     label="Dispatch Window"
                     value={`${config.daily_digest_hour.toString().padStart(2, '0')}:00 UTC`}
                     onClick={() => { setTempVal(config.daily_digest_hour); setActiveModal('digest_hour'); }}
+                    last
                   />
                 )}
               </Section>
