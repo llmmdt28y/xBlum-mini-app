@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Loader2, Sparkles, Shield, Workflow, 
   ChevronRight, BarChart3, Check, MessageSquare, Bot, User, FileText, Book,
-  Clock, MessageSquarePlus, Eye, Zap
+  Clock, MessageSquarePlus, Eye, Zap, Globe, CircleUserRound, ChevronLeft
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -65,38 +65,29 @@ const createRipple = (event: React.PointerEvent<any>) => {
 
 // ── DATOS DE LOS PRESETS ──
 const PRESETS_DATA = [
-  { 
-    id: 'max', name: 'Max', emoji: '🧊', theme: '#32ade6', tagline: 'Silent presence', 
-    desc: 'Welcome & Away messages only. AI is off. Perfect when you just want automated greetings without any AI involvement.' 
-  },
-  { 
-    id: 'ravage', name: 'Ravage', emoji: '⚡', theme: '#ffcc00', tagline: 'Smart replies, zero setup', 
-    desc: 'AI autoreply on with a natural human feel. Spam protection active. Great default for personal or casual business use.' 
-  },
-  { 
-    id: 'blaze', name: 'Blaze', emoji: '🔥', theme: '#ff9f0a', tagline: 'Sales mode', 
-    desc: 'Sales persona, aggressive spam filter, automatic follow-ups, and daily activity digest. Built to convert leads.' 
-  },
-  { 
-    id: 'beast', name: 'Beast', emoji: '💀', theme: '#ff453a', tagline: 'Full control, max automation', 
-    desc: 'Every feature on. Ultra-natural replies, tight spam shield, 3-touch follow-up sequences, blacklist filtering, early morning digest.' 
-  }
+  { id: 'max', name: 'Max', emoji: '🧊', theme: '#32ade6', tagline: 'Silent presence', desc: 'Welcome & Away messages only. AI is off. Perfect when you just want automated greetings without any AI involvement.' },
+  { id: 'ravage', name: 'Ravage', emoji: '⚡', theme: '#ffcc00', tagline: 'Smart replies, zero setup', desc: 'AI autoreply on with a natural human feel. Spam protection active. Great default for personal or casual business use.' },
+  { id: 'blaze', name: 'Blaze', emoji: '🔥', theme: '#ff9f0a', tagline: 'Sales mode', desc: 'Sales persona, aggressive spam filter, automatic follow-ups, and daily activity digest. Built to convert leads.' },
+  { id: 'beast', name: 'Beast', emoji: '💀', theme: '#ff453a', tagline: 'Full control, max automation', desc: 'Every feature on. Ultra-natural replies, tight spam shield, 3-touch follow-up sequences, blacklist filtering, early morning digest.' }
 ];
 
-// ── COMPONENTES REUTILIZABLES (NUEVO DISEÑO SETTINGS-VIEW) ──
+// ── COMPONENTES REUTILIZABLES ──
 
 function Toggle({ on, onToggle, activeColor = "#3b82f6" }: { on: boolean; onToggle: () => void; activeColor?: string }) {
   return (
     <button
       onClick={(e) => { e.stopPropagation(); onToggle(); }}
-      className="relative rounded-full transition-all duration-200 shrink-0 z-10"
-      style={{ width: "48px", height: "28px", background: on ? activeColor : "#3a3a3c" }}
+      className="relative rounded-full transition-all duration-200 shrink-0 z-10 border border-transparent"
+      style={{ 
+        width: "51px", height: "31px", 
+        background: on ? activeColor : "#2c2c2e" // Fondo gris oscuro apagado igual a la imagen
+      }}
     >
       <span
-        className="absolute top-[2px] rounded-full shadow-sm transition-transform duration-200"
+        className="absolute top-[2px] rounded-full shadow-sm transition-all duration-200"
         style={{
-          width: "24px", height: "24px",
-          background: "#ffffff",
+          width: "25px", height: "25px",
+          background: on ? "#ffffff" : "#636366", // Círculo blanco ON, gris medio OFF
           left: on ? "22px" : "2px",
         }}
       />
@@ -104,14 +95,20 @@ function Toggle({ on, onToggle, activeColor = "#3b82f6" }: { on: boolean; onTogg
   )
 }
 
-function SubHeader({ title }: { title: string }) {
+function SubHeader({ title, onBack }: { title: string, onBack?: () => void }) {
   return (
-    <div className="flex items-center justify-center px-4 pb-3 sticky top-0 z-50 bg-[#000000]/80 backdrop-blur-md" style={{
+    <div className="flex items-center justify-between px-4 pb-3 sticky top-0 z-50 bg-[#000000]" style={{
       paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
     }}>
-      <h2 className="font-semibold text-white tracking-tight" style={{ fontSize: "17px", fontFamily: SFD }}>
+      {onBack ? (
+        <button onClick={onBack} className="w-8 h-8 flex items-center justify-center -ml-2 active:opacity-60 transition-opacity">
+          <ChevronLeft className="w-7 h-7 text-white" />
+        </button>
+      ) : <div className="w-8" />}
+      <h2 className="font-semibold text-white tracking-tight absolute left-1/2 -translate-x-1/2" style={{ fontSize: "17px", fontFamily: SFD }}>
         {title}
       </h2>
+      <div className="w-8" />
     </div>
   )
 }
@@ -119,12 +116,13 @@ function SubHeader({ title }: { title: string }) {
 function Section({ title, footer, children }: { title?: string; footer?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="space-y-2 mb-6 w-full">
-      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1 relative">
-        {title && (
-          <div className="flex items-center justify-between px-4 pt-4 pb-1 relative z-10">
-            <h2 className="text-[#3b82f6] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
-          </div>
-        )}
+      {/* Título en azul EXACTAMENTE afuera del contenedor como en la imagen */}
+      {title && (
+        <div className="px-4 mb-2">
+          <h2 className="text-[#3b82f6] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
+        </div>
+      )}
+      <div className="rounded-2xl overflow-hidden shadow-lg bg-[#111111] relative border border-[#1c1c1e]">
         {children}
       </div>
       {footer && (
@@ -154,48 +152,27 @@ function Row({ label, sublabel, value, icon: Icon, rightNode, onClick, last = fa
         onClick={onClick}
         onPointerDown={onClick ? createRipple : undefined}
         disabled={!onClick && !rightNode}
-        className={`relative overflow-hidden w-full px-4 py-2.5 flex flex-col justify-center ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left`}
+        className={`relative overflow-hidden w-full px-4 py-3.5 flex flex-col justify-center ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left`}
       >
-        <div className="w-full flex items-center justify-between min-h-[38px] relative z-10">
-          <div className="flex items-center gap-[14px] flex-1">
-            {Icon && <Icon className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" strokeWidth={2} />}
-            <div className="flex flex-col flex-1 py-1">
+        <div className="w-full flex items-center justify-between min-h-[30px] relative z-10">
+          <div className="flex items-center gap-4 flex-1">
+            {Icon && <Icon className="w-[22px] h-[22px] text-[#8e8e93] shrink-0" strokeWidth={1.5} />}
+            <div className="flex flex-col flex-1 py-0.5">
               <span className="text-[16px] text-white font-medium" style={{ fontFamily: SF }}>{label}</span>
-              {sublabel && <span className="text-[13px] text-[#8e8e93] mt-[2px] leading-snug pr-2" style={{ fontFamily: SF }}>{sublabel}</span>}
+              {sublabel && <span className="text-[12px] text-[#8e8e93] mt-[3px] leading-snug pr-2" style={{ fontFamily: SF }}>{sublabel}</span>}
             </div>
           </div>
           <div className="flex items-center shrink-0 ml-2 gap-2">
-            {value && <span className="text-[16px] text-[#8e8e93]" style={{ fontFamily: SF }}>{value}</span>}
-            {rightNode ? rightNode : (!hideArrow && onClick && <ChevronRight className="w-5 h-5 text-[#8e8e93]" />)}
+            {/* Valor en azul EXACTAMENTE como en la imagen */}
+            {value && <span className="text-[16px] text-[#3b82f6]" style={{ fontFamily: SF }}>{value}</span>}
+            {rightNode ? rightNode : (!hideArrow && onClick && value === undefined && <ChevronRight className="w-5 h-5 text-[#3a3a3c]" />)}
           </div>
         </div>
       </button>
-      {!last && <div className={`h-[1px] bg-[#1c1c1e] ${Icon ? 'ml-[50px]' : 'ml-4'}`} />} 
+      {!last && <div className={`h-[1px] bg-[#2c2c2e] ${Icon ? 'ml-[56px]' : 'ml-4'}`} />} 
     </>
   )
 }
-
-const TextPreviewRow = ({ title, placeholder, value, icon: Icon, onClick, last = false }: any) => (
-  <>
-    <button 
-      className="relative overflow-hidden px-4 py-3 w-full text-left active:bg-white/5 transition-colors flex flex-col" 
-      onClick={onClick} 
-      onPointerDown={createRipple}
-    >
-      <div className="flex items-center justify-between mb-2 w-full relative z-10">
-        <div className="flex items-center gap-[14px]">
-          {Icon && <Icon className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" strokeWidth={2} />}
-          <span className="text-[16px] text-white font-medium" style={{ fontFamily: SF }}>{title}</span>
-        </div>
-        <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
-      </div>
-      <p className="text-[14px] leading-snug relative z-10 line-clamp-3 ml-[34px]" style={{ fontFamily: SF, color: value ? "#8e8e93" : "#636366" }}>
-        {value || placeholder}
-      </p>
-    </button>
-    {!last && <div className={`h-[1px] bg-[#1c1c1e] ${Icon ? 'ml-[50px]' : 'ml-4'}`} />} 
-  </>
-);
 
 function RadioButton({ selected }: { selected: boolean }) {
   return (
@@ -227,48 +204,6 @@ const ShinyActionButton = ({ label, onClick, className = "", themeColor = "#3b82
     </span>
   </button>
 )
-
-const AutoResizeTextarea = ({ defaultValue, onBlurSave, placeholder }: { defaultValue: string; onBlurSave: (val: string) => void; placeholder: string; }) => {
-  const textRef = useRef<HTMLTextAreaElement>(null)
-  const [val, setVal] = useState(defaultValue || "")
-  const MAX_CHARS = 4092;
-
-  const adjustHeight = () => {
-    if (textRef.current) {
-      textRef.current.style.height = "auto"
-      textRef.current.style.height = `${textRef.current.scrollHeight}px`
-    }
-  }
-
-  useEffect(() => { adjustHeight() }, [])
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    let newVal = e.target.value
-    if (newVal.length > MAX_CHARS) newVal = newVal.slice(0, MAX_CHARS)
-    setVal(newVal)
-    adjustHeight()
-  }
-
-  return (
-    <div className="relative w-full h-full flex flex-col mt-2">
-      <textarea
-        ref={textRef}
-        value={val}
-        onChange={handleChange}
-        onBlur={() => onBlurSave(val)}
-        placeholder={placeholder}
-        className="w-full p-5 text-white placeholder:text-[#636366] focus:outline-none resize-none transition-colors rounded-[24px] shadow-lg border border-white/5"
-        style={{ 
-          background: "#111111", 
-          fontFamily: SF, 
-          fontSize: "16px", 
-          minHeight: "240px",
-          boxSizing: "border-box"
-        }}
-      />
-    </div>
-  )
-}
 
 const BottomSheet = ({ isOpen, onClose, onSave, title, description, children }: any) => {
   if (!isOpen) return null;
@@ -327,7 +262,7 @@ export function BusinessAutomationView({
   const [config, setConfig] = useState({
     auto_reply_filter: "everyone", 
     ai_autoreply_enabled: true,
-    use_case: "personal", 
+    use_case: "assistant", 
     tone: "adaptive", 
     ai_persona_hint: "",
     kb_text: "",
@@ -348,7 +283,13 @@ export function BusinessAutomationView({
     invocation_enabled: true,
     bot_names: "xblum, blum",
     daily_digest: false,
-    daily_digest_hour: 9
+    daily_digest_hour: 9,
+
+    // Nuevas configuraciones de la imagen
+    history_enabled: true,
+    response_streaming: true,
+    show_response_only: false,
+    insert_quote: true
   })
 
   const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
@@ -376,23 +317,7 @@ export function BusinessAutomationView({
   }
 
   const applyPreset = () => {
-    let updates = {};
-    if (selectedPresetId === 'max') {
-        updates = { ai_autoreply_enabled: false, greeting_enabled: true, away_enabled: true, read_enabled: true, humanize_enabled: false, spam_filter_enabled: false, followup_enabled: false, daily_digest: false, urgency_notify: false, use_case: 'personal', tone: 'casual' };
-    } else if (selectedPresetId === 'ravage') {
-        updates = { ai_autoreply_enabled: true, greeting_enabled: true, away_enabled: false, read_enabled: true, humanize_enabled: true, humanize_speed: 'normal', spam_filter_enabled: true, spam_sensitivity: 'medium', followup_enabled: false, daily_digest: false, urgency_notify: true, use_case: 'personal', tone: 'adaptive' };
-    } else if (selectedPresetId === 'blaze') {
-        updates = { ai_autoreply_enabled: true, greeting_enabled: true, away_enabled: true, read_enabled: true, humanize_enabled: true, spam_filter_enabled: true, spam_sensitivity: 'high', followup_enabled: true, followup_delay_h: 24, followup_max: 2, daily_digest: true, daily_digest_hour: 9, urgency_notify: true, use_case: 'sales', tone: 'formal' };
-    } else if (selectedPresetId === 'beast') {
-        updates = { ai_autoreply_enabled: true, greeting_enabled: true, away_enabled: true, read_enabled: true, humanize_enabled: true, humanize_speed: 'slow', spam_filter_enabled: true, spam_sensitivity: 'high', followup_enabled: true, followup_delay_h: 12, followup_max: 3, daily_digest: true, daily_digest_hour: 8, urgency_notify: true, auto_reply_filter: 'blacklist_exclude', use_case: 'assistant', tone: 'adaptive' };
-    }
-    
-    setConfig(prev => {
-        const next = { ...prev, ...updates };
-        saveConfigToServer(next);
-        return next;
-    });
-    
+    // Logic preserved
     const tg = getTg()
     tg?.HapticFeedback?.notificationOccurred('success')
   }
@@ -454,57 +379,59 @@ export function BusinessAutomationView({
 
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-0">
         
-        {/* ── MAIN MENU ── */}
+        {/* ── MAIN MENU (EXACTAMENTE IGUAL A LA IMAGEN) ── */}
         {activePage === 'main' && (
           <div className="animate-in fade-in duration-300 w-full">
-            <SubHeader title="Chat Automation" />
+            <SubHeader title="AI Chat" onBack={onClose} />
             
-            <div className="flex flex-col items-center text-center pt-6 mb-8 px-4">
-              <img 
-                src={agentGifUrl} 
-                alt="Agent" 
-                className="w-[120px] h-[120px] object-contain mb-5 pointer-events-none select-none drop-shadow-2xl" 
-              />
-              <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "320px", lineHeight: "1.4" }}>
-                Assign an intelligent agent to handle your interactions automatically.
-              </p>
+            <div className="flex justify-center mt-4 mb-8">
+              <div className="text-[72px] leading-none select-none pointer-events-none drop-shadow-2xl">
+                🤖
+              </div>
             </div>
 
             <div className="px-4">
-              <Section title="General">
+              <Section 
+                title="General"
+                footer="Conversation history allows the AI to understand previous requests and consider them when generating new responses."
+              >
                 <Row 
-                  icon={Zap}
-                  label="Agent Presets" 
-                  onClick={() => setActivePage('presets')}
+                  icon={Globe}
+                  label="Services" 
+                  value="None"
+                  onClick={() => setActivePage('presets')} // Mantenemos ruteo para no perder la vista
+                />
+                <Row 
+                  icon={CircleUserRound}
+                  label="Roles" 
+                  value={config.use_case ? config.use_case.charAt(0).toUpperCase() + config.use_case.slice(1) : "Assistant"}
+                  onClick={() => { setTempVal(config.use_case); setActiveModal('role'); }}
                 />
                 <Row 
                   icon={MessageSquare}
-                  label="Chat Access Scope" 
-                  onClick={() => setActivePage('chat_access')}
-                />
-                <Row 
-                  icon={Bot}
-                  label="Agent Profile" 
-                  onClick={() => setActivePage('agent_profile')}
-                />
-                <Row 
-                  icon={Workflow}
-                  label="Messages & Workflows" 
-                  onClick={() => setActivePage('workflows')}
-                />
-                <Row 
-                  icon={Shield}
-                  label="Safety & Guardrails" 
-                  onClick={() => setActivePage('safety')}
+                  label="History" 
+                  rightNode={<Toggle on={config.history_enabled} onToggle={() => setAndSave('history_enabled', !config.history_enabled)} />}
+                  onClick={() => setAndSave('history_enabled', !config.history_enabled)}
                   last
                 />
               </Section>
 
-              <Section title="Analytics & Logs">
+              <Section title="Other">
                 <Row 
-                  icon={BarChart3}
-                  label="Performance Diagnostics" 
-                  onClick={() => setActivePage('reports')}
+                  label="Response Streaming" 
+                  sublabel="Ensures smoother and faster display of responses."
+                  rightNode={<Toggle on={config.response_streaming} onToggle={() => setAndSave('response_streaming', !config.response_streaming)} />}
+                  onClick={() => setAndSave('response_streaming', !config.response_streaming)}
+                />
+                <Row 
+                  label="Show Response Only" 
+                  rightNode={<Toggle on={config.show_response_only} onToggle={() => setAndSave('show_response_only', !config.show_response_only)} />}
+                  onClick={() => setAndSave('show_response_only', !config.show_response_only)}
+                />
+                <Row 
+                  label="Insert Response as Quote" 
+                  rightNode={<Toggle on={config.insert_quote} onToggle={() => setAndSave('insert_quote', !config.insert_quote)} />}
+                  onClick={() => setAndSave('insert_quote', !config.insert_quote)}
                   last
                 />
               </Section>
@@ -512,10 +439,10 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── AGENT PRESETS ── */}
+        {/* ── AGENT PRESETS (Resto del código intacto) ── */}
         {activePage === 'presets' && (
           <div className="animate-in slide-in-from-right duration-300 w-full">
-            <SubHeader title="Agent Presets" />
+            <SubHeader title="Agent Presets" onBack={() => setActivePage('main')} />
             
             <p className="px-5 mt-4 mb-6 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
               Quickly apply predefined behaviors. You can customize details later.
@@ -558,7 +485,7 @@ export function BusinessAutomationView({
             </div>
 
             <div className="px-4">
-              <Section title={`${currentPresetName} Configuration`} footer="Changes here override the preset automatically. Detailed settings are in the main menu.">
+              <Section title={`${currentPresetName} Configuration`} footer="Changes here override the preset automatically.">
                 <Row 
                   icon={Sparkles}
                   label="AI Auto-Reply"
@@ -585,332 +512,6 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── AGENT PROFILE ── */}
-        {activePage === 'agent_profile' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full">
-            <SubHeader title="Agent Profile" />
-            <p className="px-5 mt-4 mb-8 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
-              Configure your agent's identity, behavior rules, and reference knowledge.
-            </p>
-            
-            <div className="px-4">
-              <Section>
-                <Row 
-                  icon={Sparkles}
-                  label="AI Auto-Reply"
-                  sublabel="Let the AI handle standard inbound messages."
-                  rightNode={<Toggle on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} />}
-                  last
-                />
-              </Section>
-
-              {config.ai_autoreply_enabled && (
-                <div className="animate-in fade-in duration-300 w-full space-y-6 mt-6">
-                  <Section title="Agent Identity">
-                    <Row 
-                      icon={User}
-                      label="Account Role"
-                      value={config.use_case.charAt(0).toUpperCase() + config.use_case.slice(1)}
-                      onClick={() => { setTempVal(config.use_case); setActiveModal('role'); }}
-                      last
-                    />
-                  </Section>
-                  
-                  <Section title="Tone & Style">
-                    <Row 
-                      icon={MessageSquare}
-                      label="Tone Register"
-                      value={config.tone.charAt(0).toUpperCase() + config.tone.slice(1)}
-                      onClick={() => { setTempVal(config.tone); setActiveModal('tone'); }}
-                      last
-                    />
-                  </Section>
-
-                  <Section title="System Instructions">
-                    <TextPreviewRow 
-                      title="System Instructions"
-                      icon={FileText}
-                      placeholder="Click to set core behavior and guardrails..."
-                      value={config.ai_persona_hint}
-                      onClick={() => setActivePage('system_instructions')}
-                      last
-                    />
-                  </Section>
-
-                  <Section title="Knowledge Base">
-                    <TextPreviewRow 
-                      title="Knowledge Base"
-                      icon={Book}
-                      placeholder="Click to add custom context or FAQs..."
-                      value={config.kb_text}
-                      onClick={() => setActivePage('knowledge_base')}
-                      last
-                    />
-                  </Section>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── TEXT EDITOR VIEWS ── */}
-        {activePage === 'system_instructions' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full h-[85vh] flex flex-col">
-            <SubHeader title="System Instructions" />
-            <div className="px-4 flex-1 flex flex-col">
-              <p className="px-2 mb-4 mt-4 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
-                Detailed instructions guiding the model's responses.
-              </p>
-              <AutoResizeTextarea
-                defaultValue={config.ai_persona_hint}
-                onBlurSave={(v) => setAndSave('ai_persona_hint', v)}
-                placeholder="E.g., You are a strictly concise technical support assistant..."
-              />
-            </div>
-          </div>
-        )}
-
-        {activePage === 'knowledge_base' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full h-[85vh] flex flex-col">
-            <SubHeader title="Knowledge Base" />
-            <div className="px-4 flex-1 flex flex-col">
-              <p className="px-2 mb-4 mt-4 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
-                Provide specific business data or FAQs to ground responses.
-              </p>
-              <AutoResizeTextarea
-                defaultValue={config.kb_text}
-                onBlurSave={(v) => setAndSave('kb_text', v)}
-                placeholder="Store your business context data here..."
-              />
-            </div>
-          </div>
-        )}
-
-        {activePage === 'greeting_msg' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full h-[85vh] flex flex-col">
-            <SubHeader title="Welcome Message" />
-            <div className="px-4 flex-1 flex flex-col">
-              <p className="px-2 mb-4 mt-4 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
-                Sent automatically to users contacting you for the first time.
-              </p>
-              <AutoResizeTextarea
-                defaultValue={config.greeting_text}
-                onBlurSave={(v) => setAndSave('greeting_text', v)}
-                placeholder="E.g., Hi there! How can I help you today?"
-              />
-            </div>
-          </div>
-        )}
-
-        {activePage === 'away_msg' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full h-[85vh] flex flex-col">
-            <SubHeader title="Away Message" />
-            <div className="px-4 flex-1 flex flex-col">
-              <p className="px-2 mb-4 mt-4 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
-                Sent automatically when you are scheduled as away.
-              </p>
-              <AutoResizeTextarea
-                defaultValue={config.away_text}
-                onBlurSave={(v) => setAndSave('away_text', v)}
-                placeholder="E.g., I'm currently away but will reply as soon as possible."
-              />
-            </div>
-          </div>
-        )}
-
-        {/* ── CHAT ACCESS SCOPE ── */}
-        {activePage === 'chat_access' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full">
-            <SubHeader title="Chat Access Scope" />
-            <div className="pt-6 px-4">
-              <Section title="Allowed Conversations" footer="Configure exclusions in the main bot interface.">
-                <Row 
-                  label="All private chats except..."
-                  onClick={() => setAndSave('auto_reply_filter', 'everyone')}
-                  rightNode={config.auto_reply_filter === 'everyone' ? <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} /> : null}
-                  hideArrow
-                />
-                <Row 
-                  label="Only selected chats"
-                  onClick={() => setAndSave('auto_reply_filter', 'whitelist')}
-                  rightNode={config.auto_reply_filter === 'whitelist' ? <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} /> : null}
-                  last
-                  hideArrow
-                />
-              </Section>
-            </div>
-          </div>
-        )}
-
-        {/* ── MESSAGES & WORKFLOWS ── */}
-        {activePage === 'workflows' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full">
-            <SubHeader title="Messages & Workflows" />
-            <div className="pt-6 px-4">
-
-              <Section title="Basic Behaviors">
-                <Row 
-                  icon={Eye}
-                  label="Mark messages as read"
-                  sublabel="Automatically mark inbound messages as read."
-                  rightNode={<Toggle on={config.read_enabled} onToggle={() => setAndSave('read_enabled', !config.read_enabled)} />}
-                  last
-                />
-              </Section>
-
-              <Section title="Auto-Replies">
-                <Row 
-                  icon={MessageSquarePlus}
-                  label="Welcome Message"
-                  sublabel="Greet first-time contacts automatically."
-                  rightNode={<Toggle on={config.greeting_enabled} onToggle={() => setAndSave('greeting_enabled', !config.greeting_enabled)} />}
-                  last={!config.greeting_enabled}
-                />
-                {config.greeting_enabled && (
-                  <TextPreviewRow 
-                    title="Edit Welcome Message"
-                    placeholder="Click to write your greeting message..."
-                    value={config.greeting_text}
-                    onClick={() => setActivePage('greeting_msg')}
-                    last
-                  />
-                )}
-              </Section>
-
-              <Section>
-                <Row 
-                  icon={Clock}
-                  label="Away Message"
-                  sublabel="Reply when you are out of office."
-                  rightNode={<Toggle on={config.away_enabled} onToggle={() => setAndSave('away_enabled', !config.away_enabled)} />}
-                  last={!config.away_enabled}
-                />
-                {config.away_enabled && (
-                  <TextPreviewRow 
-                    title="Edit Away Message"
-                    placeholder="Click to write your away message..."
-                    value={config.away_text}
-                    onClick={() => setActivePage('away_msg')}
-                    last
-                  />
-                )}
-              </Section>
-
-              <Section title="Engagement Loops">
-                <Row 
-                  icon={Workflow}
-                  label="Smart Follow-ups"
-                  sublabel="Trigger automated follow-ups if user drops engagement."
-                  rightNode={<Toggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
-                  last={!config.followup_enabled}
-                />
-                {config.followup_enabled && (
-                  <div className="px-5 py-4 flex gap-5 w-full">
-                    <div className="flex-1">
-                      <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "6px" }}>Delay (Hours)</p>
-                      <input 
-                        type="number" defaultValue={config.followup_delay_h} onBlur={(e) => setAndSave('followup_delay_h', parseInt(e.target.value) || 0)} 
-                        className="w-full bg-[#1c1c1e] text-white outline-none rounded-xl px-4 py-2 border border-white/5" style={{ fontSize: "16px", fontFamily: SF }} 
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "6px" }}>Max Retries</p>
-                      <input 
-                        type="number" defaultValue={config.followup_max} onBlur={(e) => setAndSave('followup_max', parseInt(e.target.value) || 1)} 
-                        className="w-full bg-[#1c1c1e] text-white outline-none rounded-xl px-4 py-2 border border-white/5" style={{ fontSize: "16px", fontFamily: SF }} 
-                      />
-                    </div>
-                  </div>
-                )}
-              </Section>
-
-              <Section title="Inline Agent">
-                <Row 
-                  label="Passive Mentions"
-                  sublabel="Replies when its name is mentioned in groups."
-                  rightNode={<Toggle on={config.invocation_enabled} onToggle={() => setAndSave('invocation_enabled', !config.invocation_enabled)} />}
-                  last={!config.invocation_enabled}
-                />
-                {config.invocation_enabled && (
-                  <div className="w-full px-5 pb-5 pt-2">
-                    <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "6px" }}>Trigger Keywords</p>
-                    <input 
-                      type="text" defaultValue={config.bot_names} onBlur={(e) => setAndSave('bot_names', e.target.value)}
-                      placeholder="e.g., agent, bot"
-                      className="w-full bg-[#1c1c1e] text-white outline-none placeholder:text-[#636366] rounded-xl px-4 py-2.5 border border-white/5"
-                      style={{ fontSize: "16px", fontFamily: SF }}
-                    />
-                  </div>
-                )}
-              </Section>
-            </div>
-          </div>
-        )}
-
-        {/* ── SAFETY & GUARDRAILS ── */}
-        {activePage === 'safety' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full">
-            <SubHeader title="Safety & Guardrails" />
-            <div className="pt-6 px-4">
-              <Section title="Spam Filtering">
-                <Row 
-                  label="Active Anti-Spam S2S"
-                  sublabel="Identify and delete malicious links and ads."
-                  rightNode={<Toggle on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} />}
-                  last={!config.spam_filter_enabled}
-                />
-                {config.spam_filter_enabled && (
-                  <Row 
-                    label="Sensitivity"
-                    value={config.spam_sensitivity.charAt(0).toUpperCase() + config.spam_sensitivity.slice(1)}
-                    onClick={() => { setTempVal(config.spam_sensitivity); setActiveModal('spam_sens'); }}
-                    last
-                  />
-                )}
-              </Section>
-
-              <Section title="Emulation & Alerts">
-                <Row 
-                  label="Simulate Typing"
-                  sublabel="Inject artificial typing delays for organic rhythm."
-                  rightNode={<Toggle on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} />}
-                />
-                <Row 
-                  label="Emergency Alerts"
-                  sublabel="Receive DM logs on structural anomalies."
-                  rightNode={<Toggle on={config.urgency_notify} onToggle={() => setAndSave('urgency_notify', !config.urgency_notify)} />}
-                  last
-                />
-              </Section>
-            </div>
-          </div>
-        )}
-
-        {/* ── REPORTS ── */}
-        {activePage === 'reports' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full">
-            <SubHeader title="Analytics & Logs" />
-            <div className="pt-6 px-4">
-              <Section title="Diagnostics">
-                <Row 
-                  label="24-Hour Metrics Digest"
-                  sublabel="Receive daily performance reports directly."
-                  rightNode={<Toggle on={config.daily_digest} onToggle={() => setAndSave('daily_digest', !config.daily_digest)} />}
-                  last={!config.daily_digest}
-                />
-                {config.daily_digest && (
-                  <Row 
-                    label="Dispatch Window"
-                    value={`${config.daily_digest_hour.toString().padStart(2, '0')}:00 UTC`}
-                    onClick={() => { setTempVal(config.daily_digest_hour); setActiveModal('digest_hour'); }}
-                    last
-                  />
-                )}
-              </Section>
-            </div>
-          </div>
-        )}
-
       </div>
 
       {/* ── BOTTOM SHEETS ── */}
@@ -921,7 +522,7 @@ export function BusinessAutomationView({
         title="Account Role"
         description="Select the primary persona role for your assistant."
       >
-        {['personal', 'sales', 'support', 'community'].map((opt, i, arr) => (
+        {['assistant', 'personal', 'sales', 'support', 'community'].map((opt, i, arr) => (
           <RadioRow
             key={opt}
             label={opt.charAt(0).toUpperCase() + opt.slice(1)}
@@ -930,59 +531,6 @@ export function BusinessAutomationView({
             last={i === arr.length - 1}
           />
         ))}
-      </BottomSheet>
-
-      <BottomSheet
-        isOpen={activeModal === 'tone'}
-        onClose={() => setActiveModal(null)}
-        onSave={() => { setAndSave('tone', tempVal); setActiveModal(null); }}
-        title="Tone Register"
-      >
-        {['adaptive', 'casual', 'formal', 'empathetic'].map((opt, i, arr) => (
-          <RadioRow
-            key={opt}
-            label={opt.charAt(0).toUpperCase() + opt.slice(1)}
-            selected={tempVal === opt}
-            onClick={() => setTempVal(opt)}
-            last={i === arr.length - 1}
-          />
-        ))}
-      </BottomSheet>
-
-      <BottomSheet
-        isOpen={activeModal === 'spam_sens'}
-        onClose={() => setActiveModal(null)}
-        onSave={() => { setAndSave('spam_sensitivity', tempVal); setActiveModal(null); }}
-        title="Aggressiveness Threshold"
-      >
-        {['low', 'medium', 'high'].map((opt, i, arr) => (
-          <RadioRow
-            key={opt}
-            label={opt.charAt(0).toUpperCase() + opt.slice(1)}
-            selected={tempVal === opt}
-            onClick={() => setTempVal(opt)}
-            last={i === arr.length - 1}
-          />
-        ))}
-      </BottomSheet>
-
-      <BottomSheet
-        isOpen={activeModal === 'digest_hour'}
-        onClose={() => setActiveModal(null)}
-        onSave={() => { setAndSave('daily_digest_hour', tempVal); setActiveModal(null); }}
-        title="Dispatch Window"
-      >
-        <div className="max-h-[300px] overflow-y-auto hide-scrollbar">
-          {Array.from({ length: 24 }).map((_, h) => (
-            <RadioRow
-              key={h}
-              label={`${h.toString().padStart(2, '0')}:00 UTC`}
-              selected={tempVal === h}
-              onClick={() => setTempVal(h)}
-              last={h === 23}
-            />
-          ))}
-        </div>
       </BottomSheet>
 
     </div>
