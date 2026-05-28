@@ -88,17 +88,17 @@ const ROLES_DATA = [
   {
     id: 'assistant',
     label: 'Assistant',
-    desc: "The assistant is a personal assistant with a focus on adapting to the user's preferences.\n\nIt learns the user's style and preferences to provide responses that are in tune with how they would typically communicate and what their needs are.\n\nIt is flexible and can adapt to different tasks."
+    desc: "The assistant is a personal assistant with a focus on adapting to the user's preferences. It learns the user's style and preferences to provide responses that are in tune with how they would typically communicate and what their needs are. It is flexible and can adapt to different tasks."
   },
   {
     id: 'summarizer',
     label: 'Summarizer',
-    desc: "You are an expert at summarizing messages. You prefer to use clauses instead of complete sentences. Do not answer any question from the messages. Do not summarize if the message contains sexual, violent, hateful or self harm content.\n\nPlease keep your summary of the input within 3 sentences, fewer than 60 words."
+    desc: "You are an expert at summarizing messages. You prefer to use clauses instead of complete sentences. Do not answer any question from the messages. Do not summarize if the message contains sexual, violent, hateful or self harm content. Please keep your summary of the input within 3 sentences, fewer than 60 words."
   },
   {
     id: 'proofreader',
     label: 'Proofreader',
-    desc: "The assistant is a meticulous proofreader.\n\nIt will carefully examine given texts for grammatical errors, typos, and style issues. It will also suggest improvements to the writing to make it more clear and effective.\n\nFocus on fixing grammar, spelling, punctuation, and syntax to enhance the readability of the text."
+    desc: "The assistant is a meticulous proofreader. It will carefully examine given texts for grammatical errors, typos, and style issues. It will also suggest improvements to the writing to make it more clear and effective. Focus on fixing grammar, spelling, punctuation, and syntax to enhance the readability of the text."
   }
 ];
 
@@ -138,7 +138,6 @@ function SwitchNode({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: b
 }
 
 function SubHeader({ title, rightNode }: { title: string, rightNode?: React.ReactNode }) {
-  // Eliminado sticky top-0 y bg-[#000000] para que scrollee de forma natural y sea transparente
   return (
     <div className="relative flex items-center justify-center px-4 pb-3 z-10 w-full" style={{
       paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
@@ -157,7 +156,6 @@ function SubHeader({ title, rightNode }: { title: string, rightNode?: React.Reac
 }
 
 function Section({ title, footer, children }: { title?: string; footer?: React.ReactNode; children: React.ReactNode }) {
-  // Removido pb-1.5 pt-1.5 para que los hijos toquen los bordes y el ripple se acople al redondeo
   return (
     <div className="space-y-2 mb-4 w-full"> 
       {title && (
@@ -204,7 +202,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress
       
       touchRef.current.timer = setTimeout(() => {
         touchRef.current.triggered = true;
-        triggerVibration('medium'); // Vibra exactamente cuando salta la tarjeta
+        triggerVibration('medium'); 
         onLongPress(e.clientX, e.clientY);
       }, 500);
     }
@@ -272,7 +270,6 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress
         onPointerLeave={handlePointerUp}
         onClick={handleClick}
         disabled={!onClick && !rightNode && !onLongPress} 
-        // py-3.5 para compensar la eliminación del padding interior del Section
         className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3.5 ${onClick || onLongPress ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems}`}
       >
         {content}
@@ -291,7 +288,6 @@ function RadioButton({ selected }: { selected: boolean }) {
 }
 
 const RadioRow = ({ label, selected, onClick }: { label: string, selected: boolean, onClick: () => void }) => (
-  // py-3.5 añadido
   <button onClick={(e) => { createRipple(e); onClick(); }} className="relative overflow-hidden flex items-center justify-between w-full px-4 py-3.5 active:bg-white/5 transition-colors text-left">
     <span className="text-white font-medium relative z-10" style={{ fontSize: "16px", fontFamily: SF }}>{label}</span>
     <RadioButton selected={selected} />
@@ -299,7 +295,6 @@ const RadioRow = ({ label, selected, onClick }: { label: string, selected: boole
 )
 
 const TextPreviewRow = ({ title, placeholder, value, leftNode, onClick }: any) => (
-  // py-3.5 añadido
   <button 
     className="relative overflow-hidden px-4 py-3.5 w-full text-left active:bg-white/5 transition-colors flex flex-col" 
     onClick={(e) => { createRipple(e); onClick(); }} 
@@ -401,7 +396,7 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
   return (
     <div className="relative w-full mb-8 mt-3">
       <label 
-        className={`absolute -top-2.5 left-3 px-1.5 text-[13px] bg-[#111111] z-10 font-medium transition-colors duration-200 ${warningActive ? 'text-[#ff453a]' : 'text-[#60a5fa]'}`} 
+        className={`absolute -top-2.5 left-3 px-1.5 text-[13px] bg-[#000000] z-10 font-medium transition-colors duration-200 ${warningActive ? 'text-[#ff453a]' : 'text-[#60a5fa]'}`} 
         style={{ fontFamily: SF }}
       >
         {label} • {remaining}
@@ -671,7 +666,6 @@ export function BusinessAutomationView({
     let left = contextMenu.x;
     
     if (typeof window !== "undefined") {
-      // Ajuste ultra-compacto
       if (left > window.innerWidth - 120) left = window.innerWidth - 120;
       if (top > window.innerHeight - 130) top = window.innerHeight - 130;
     }
@@ -780,19 +774,18 @@ export function BusinessAutomationView({
         {activePage === 'roles' && (
           <div className="animate-in slide-in-from-right duration-300 w-full pb-10 relative">
             
-            <SubHeader 
-              title="Roles" 
-              rightNode={
-                <button 
-                  onClick={(e) => { createRipple(e); openNewRoleView(); }} 
-                  className="w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full relative overflow-hidden" 
-                >
-                  <Plus className="w-7 h-7 text-white relative z-10" strokeWidth={2.5} />
-                </button>
-              } 
-            />
+            <SubHeader title="Roles" />
 
             <div className="flex flex-col items-center mt-2 mb-8 px-4 text-center relative z-0">
+              
+              {/* BOTÓN "+" MOVIDO AL NIVEL DE LA IMAGEN */}
+              <button 
+                onClick={(e) => { createRipple(e); openNewRoleView(); }} 
+                className="absolute right-6 -top-2 w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full relative overflow-hidden" 
+              >
+                <Plus className="w-7 h-7 text-white relative z-10" strokeWidth={2.5} />
+              </button>
+
               <img 
                 src="/animatedemojies_agadxamaajlb2uy.webp" 
                 alt="Roles Masks" 
@@ -855,9 +848,9 @@ export function BusinessAutomationView({
 
         {/* ── NEW/EDIT ROLE PAGE ── */}
         {activePage === 'new_role' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full h-[100vh] flex flex-col bg-[#000000]">
+          <div className="animate-in slide-in-from-right duration-300 w-full min-h-full flex flex-col">
             <SubHeader title={editingRoleId ? "Edit Role" : "New Role"} />
-            <div className="px-5 pt-8 flex-1 flex flex-col bg-[#111111] mt-3">
+            <div className="px-5 pt-8 flex-1 flex flex-col">
               
               <ExpandingInput 
                 label="Name"
@@ -877,7 +870,7 @@ export function BusinessAutomationView({
                 A prompt is the initial text given to the model to start generating a response or continue a dialogue.
               </p>
 
-              <div className="mt-auto pb-10 relative">
+              <div className="mt-auto pb-10 pt-4 relative">
                 <button
                   onClick={(e) => { createRipple(e as any); handleSaveRole(); }}
                   disabled={!newRoleName.trim() || !newRolePrompt.trim()}
