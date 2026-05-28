@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Loader2, Sparkles, Shield, Workflow, 
-  ChevronRight, BarChart3, Check, MessageSquare, Bot, User, FileText, Book,
-  Clock, MessageSquarePlus, Eye, Zap, Globe, CircleUserRound, Plus,
+  ChevronRight, Check, MessageSquare, Bot, User, FileText, Book,
+  Clock, MessageSquarePlus, Eye, Globe, CircleUserRound, Plus,
   Pencil, Copy, Trash2
 } from "lucide-react"
 
@@ -138,16 +138,17 @@ function SwitchNode({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: b
 }
 
 function SubHeader({ title, rightNode }: { title: string, rightNode?: React.ReactNode }) {
+  // Eliminado sticky top-0 y bg-[#000000] para que scrollee de forma natural y sea transparente
   return (
-    <div className="relative flex items-center justify-center px-4 pb-3 sticky top-0 z-50 bg-[#000000]" style={{
+    <div className="relative flex items-center justify-center px-4 pb-3 z-10 w-full" style={{
       paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
     }}>
-      <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+      <h2 className="font-semibold text-white relative z-10" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
         {title}
       </h2>
       
       {rightNode && (
-        <div className="absolute right-4 bottom-1.5 flex items-center">
+        <div className="absolute right-4 bottom-1.5 flex items-center z-20">
           {rightNode}
         </div>
       )}
@@ -156,6 +157,7 @@ function SubHeader({ title, rightNode }: { title: string, rightNode?: React.Reac
 }
 
 function Section({ title, footer, children }: { title?: string; footer?: React.ReactNode; children: React.ReactNode }) {
+  // Removido pb-1.5 pt-1.5 para que los hijos toquen los bordes y el ripple se acople al redondeo
   return (
     <div className="space-y-2 mb-4 w-full"> 
       {title && (
@@ -163,7 +165,7 @@ function Section({ title, footer, children }: { title?: string; footer?: React.R
           <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
         </div>
       )}
-      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1.5 pt-1.5 relative">
+      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] relative">
         {children}
       </div>
       {footer && (
@@ -190,8 +192,6 @@ interface RowProps {
 }
 
 function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress, hideArrow = false, last = false, alignItems = "center", preserveWhitespace = false }: RowProps) {
-  
-  // Lógica avanzada para diferenciar tap y long press
   const touchRef = useRef({ startX: 0, startY: 0, timer: null as any, triggered: false });
 
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -204,7 +204,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress
       
       touchRef.current.timer = setTimeout(() => {
         touchRef.current.triggered = true;
-        triggerVibration('medium');
+        triggerVibration('medium'); // Vibra exactamente cuando salta la tarjeta
         onLongPress(e.clientX, e.clientY);
       }, 500);
     }
@@ -272,11 +272,12 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress
         onPointerLeave={handlePointerUp}
         onClick={handleClick}
         disabled={!onClick && !rightNode && !onLongPress} 
-        className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3 ${onClick || onLongPress ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems}`}
+        // py-3.5 para compensar la eliminación del padding interior del Section
+        className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3.5 ${onClick || onLongPress ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems}`}
       >
         {content}
       </button>
-      {!last && <div className={`h-[1px] bg-[#1c1c1e] ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+      {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
     </>
   )
 }
@@ -290,15 +291,17 @@ function RadioButton({ selected }: { selected: boolean }) {
 }
 
 const RadioRow = ({ label, selected, onClick }: { label: string, selected: boolean, onClick: () => void }) => (
-  <button onClick={(e) => { createRipple(e); onClick(); }} className="relative overflow-hidden flex items-center justify-between w-full px-4 py-3 active:bg-white/5 transition-colors text-left">
+  // py-3.5 añadido
+  <button onClick={(e) => { createRipple(e); onClick(); }} className="relative overflow-hidden flex items-center justify-between w-full px-4 py-3.5 active:bg-white/5 transition-colors text-left">
     <span className="text-white font-medium relative z-10" style={{ fontSize: "16px", fontFamily: SF }}>{label}</span>
     <RadioButton selected={selected} />
   </button>
 )
 
 const TextPreviewRow = ({ title, placeholder, value, leftNode, onClick }: any) => (
+  // py-3.5 añadido
   <button 
-    className="relative overflow-hidden px-4 py-3 w-full text-left active:bg-white/5 transition-colors flex flex-col" 
+    className="relative overflow-hidden px-4 py-3.5 w-full text-left active:bg-white/5 transition-colors flex flex-col" 
     onClick={(e) => { createRipple(e); onClick(); }} 
   >
     <div className="flex items-center gap-3.5 mb-2 w-full relative z-10">
@@ -386,19 +389,12 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     let val = e.target.value;
-    
-    // Si intenta sobrepasar
     if (val.length > maxLength) {
       val = val.slice(0, maxLength);
-      
-      // Activar advertencia visual
       setWarningActive(true);
       setTimeout(() => setWarningActive(false), 500);
-      
-      // Vibración
       triggerVibration('error');
     }
-    
     onChange(val);
   }
 
@@ -444,7 +440,7 @@ const BottomSheet = ({ isOpen, onClose, onSave, title, description, children }: 
 
         <div className="p-5 overflow-y-auto pb-10">
           {description && <p className="text-[#8e8e93] text-center mb-7 leading-snug px-3" style={{ fontSize: "14px", fontFamily: SF }}>{description}</p>}
-          <div className="bg-[#1c1c1e] rounded-[24px] overflow-hidden border border-white/5 shadow-lg pb-2 pt-2">
+          <div className="bg-[#1c1c1e] rounded-[24px] overflow-hidden border border-white/5 shadow-lg relative">
              {children}
           </div>
         </div>
@@ -668,16 +664,16 @@ export function BusinessAutomationView({
     return "Assistant";
   }
 
-  // Calcular estilo posicional del menú contextual asegurando que no se salga de la pantalla
+  // Estilo posicional del menú contextual
   let menuStyle: any = {};
   if (contextMenu?.visible) {
     let top = contextMenu.y;
     let left = contextMenu.x;
     
     if (typeof window !== "undefined") {
-      // Ajuste para evitar que el menú se salga del borde derecho o inferior
-      if (left > window.innerWidth - 150) left = window.innerWidth - 150;
-      if (top > window.innerHeight - 150) top = window.innerHeight - 150;
+      // Ajuste ultra-compacto
+      if (left > window.innerWidth - 120) left = window.innerWidth - 120;
+      if (top > window.innerHeight - 130) top = window.innerHeight - 130;
     }
     menuStyle = { top, left };
   }
@@ -686,7 +682,7 @@ export function BusinessAutomationView({
     <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-300">
       <style>{RIPPLE_STYLE}</style>
 
-      {/* OVERLAY DEL MENÚ CONTEXTUAL MÁS COMPACTO */}
+      {/* OVERLAY DEL MENÚ CONTEXTUAL AÚN MÁS COMPACTO */}
       {contextMenu?.visible && (
         <>
           <div 
@@ -694,33 +690,33 @@ export function BusinessAutomationView({
             onPointerDown={(e) => { e.stopPropagation(); setContextMenu(null); }}
           />
           <div 
-            className="fixed z-[160] bg-[#212123] rounded-[14px] shadow-[0_10px_30px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden flex flex-col py-1.5 animate-in zoom-in-95 duration-150"
-            style={{ ...menuStyle, minWidth: '135px' }}
+            className="fixed z-[160] bg-[#212123] rounded-[12px] shadow-[0_10px_30px_rgba(0,0,0,0.9)] border border-white/5 overflow-hidden flex flex-col py-1 animate-in zoom-in-95 duration-150"
+            style={{ ...menuStyle, minWidth: '100px' }}
           >
-            <button className="flex items-center gap-2.5 px-3 py-2 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleEditRole(); }}>
-              <Pencil className="w-[17px] h-[17px] text-[#e5e5e7]" strokeWidth={2.5} />
-              <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Edit</span>
+            <button className="flex items-center gap-2 px-2.5 py-2 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleEditRole(); }}>
+              <Pencil className="w-[15px] h-[15px] text-[#e5e5e7]" strokeWidth={2.5} />
+              <span className="font-medium" style={{ fontFamily: SF, fontSize: '14px' }}>Edit</span>
             </button>
-            <button className="flex items-center gap-2.5 px-3 py-2 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleCopyRole(); }}>
-              <Copy className="w-[17px] h-[17px] text-[#e5e5e7]" strokeWidth={2.5} />
-              <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Copy</span>
+            <button className="flex items-center gap-2 px-2.5 py-2 text-white active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleCopyRole(); }}>
+              <Copy className="w-[15px] h-[15px] text-[#e5e5e7]" strokeWidth={2.5} />
+              <span className="font-medium" style={{ fontFamily: SF, fontSize: '14px' }}>Copy</span>
             </button>
-            <button className="flex items-center gap-2.5 px-3 py-2 text-[#ff453a] active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleDeleteRole(); }}>
-              <Trash2 className="w-[17px] h-[17px]" strokeWidth={2.5} />
-              <span className="font-medium" style={{ fontFamily: SF, fontSize: '15px' }}>Delete</span>
+            <button className="flex items-center gap-2 px-2.5 py-2 text-[#ff453a] active:bg-white/10 transition-colors text-left" onClick={(e) => { createRipple(e); handleDeleteRole(); }}>
+              <Trash2 className="w-[15px] h-[15px]" strokeWidth={2.5} />
+              <span className="font-medium" style={{ fontFamily: SF, fontSize: '14px' }}>Delete</span>
             </button>
           </div>
         </>
       )}
 
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-0 relative">
         
         {/* ── MAIN MENU ── */}
         {activePage === 'main' && (
           <div className="animate-in fade-in duration-300 w-full">
             <SubHeader title="AI Chat" />
             
-            <div className="flex justify-center mt-10 mb-10">
+            <div className="flex justify-center mt-6 mb-10">
               <img 
                 src="/animatedemojies_agadmqiaasojkec.webp" 
                 alt="AI Chat Robot" 
@@ -782,21 +778,21 @@ export function BusinessAutomationView({
 
         {/* ── ROLES PAGE ── */}
         {activePage === 'roles' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full pb-10">
+          <div className="animate-in slide-in-from-right duration-300 w-full pb-10 relative">
             
             <SubHeader 
               title="Roles" 
               rightNode={
                 <button 
                   onClick={(e) => { createRipple(e); openNewRoleView(); }} 
-                  className="w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full translate-y-8 mr-1 relative overflow-hidden" 
+                  className="w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full relative overflow-hidden" 
                 >
                   <Plus className="w-7 h-7 text-white relative z-10" strokeWidth={2.5} />
                 </button>
               } 
             />
 
-            <div className="flex flex-col items-center mt-6 mb-8 px-4 text-center">
+            <div className="flex flex-col items-center mt-2 mb-8 px-4 text-center relative z-0">
               <img 
                 src="/animatedemojies_agadxamaajlb2uy.webp" 
                 alt="Roles Masks" 
