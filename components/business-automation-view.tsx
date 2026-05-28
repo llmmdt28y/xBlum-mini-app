@@ -71,7 +71,6 @@ const PRESETS_DATA = [
   { id: 'beast', name: 'Beast', emoji: '💀', theme: '#ff453a', tagline: 'Full control, max automation', desc: 'Every feature on. Ultra-natural replies, tight spam shield, 3-touch follow-up sequences, blacklist filtering, early morning digest.' }
 ];
 
-// Saltos de línea eliminados para que sea más largo horizontalmente y compacto verticalmente
 const ROLES_DATA = [
   {
     id: 'assistant',
@@ -92,20 +91,21 @@ const ROLES_DATA = [
 
 // ── COMPONENTES REUTILIZABLES ──
 
+// Switch calcado de la imagen (ON: Track azul, knob blanco / OFF: Track oscuro #2c2c2e, knob gris #636366)
 function Toggle({ on, onToggle, disabled, activeColor = "#3b82f6" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <button
       onClick={(e) => { e.stopPropagation(); onToggle(); }}
       disabled={disabled}
-      className={"relative rounded-full transition-all duration-200 shrink-0 z-10 " + (disabled ? "opacity-50" : "")}
-      style={{ width: "44px", height: "26px", background: on ? activeColor : "#3a3a3c" }}
+      className={"relative rounded-full transition-all duration-300 shrink-0 z-10 " + (disabled ? "opacity-50" : "")}
+      style={{ width: "51px", height: "31px", background: on ? activeColor : "#2c2c2e" }}
     >
       <span
-        className="absolute top-[2px] rounded-full shadow-sm transition-transform duration-200"
+        className="absolute top-[2px] rounded-full shadow-sm transition-all duration-300"
         style={{
-          width: "22px", height: "22px",
-          background: "#ffffff",
-          left: on ? "20px" : "2px",
+          width: "27px", height: "27px",
+          background: on ? "#ffffff" : "#636366",
+          left: on ? "22px" : "2px",
         }}
       />
     </button>
@@ -122,7 +122,7 @@ function SubHeader({ title, onBack }: { title: string, onBack?: () => void }) {
           <ChevronLeft className="w-7 h-7 text-white relative z-10" />
         </button>
       ) : <div className="w-8" />}
-      <h2 className="font-semibold text-white tracking-tight absolute left-1/2 -translate-x-1/2" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+      <h2 className="font-semibold text-white tracking-tight absolute left-1/2 -translate-x-1/2" style={{ fontSize: "17px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
         {title}
       </h2>
       <div className="w-8" />
@@ -133,17 +133,18 @@ function SubHeader({ title, onBack }: { title: string, onBack?: () => void }) {
 function Section({ title, footer, children, rightAction }: { title?: string; footer?: React.ReactNode; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
     <div className="space-y-2 mb-6 w-full">
-      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 relative">
-        {title && (
-          <div className="flex items-center justify-between px-4 pt-4 pb-1 relative z-10">
-            <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
-            {rightAction && <div>{rightAction}</div>}
-          </div>
-        )}
+      {/* Título por fuera del contenedor */}
+      {title && (
+        <div className="px-4 mb-2 flex items-center justify-between">
+          <h2 className="text-[#3b82f6] text-[15px] font-medium" style={{ fontFamily: SF }}>{title}</h2>
+          {rightAction && <div>{rightAction}</div>}
+        </div>
+      )}
+      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-1 relative">
         {children}
       </div>
       {footer && (
-        <div className="px-4 text-[#8e8e93] text-[13px] leading-snug" style={{ fontFamily: SF }}>
+        <div className="px-4 mt-2 text-[#8e8e93] text-[13px] leading-snug" style={{ fontFamily: SF }}>
           {footer}
         </div>
       )}
@@ -159,9 +160,10 @@ interface RowProps {
   rightNode?: React.ReactNode;
   onClick?: () => void;
   hideArrow?: boolean;
+  last?: boolean;
 }
 
-function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false }: RowProps) {
+function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false }: RowProps) {
   const content = (
     <>
       {leftNode}
@@ -189,21 +191,24 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
   );
 
   return (
-    <button 
-      onClick={onClick} 
-      onPointerDown={onClick ? createRipple : undefined} 
-      disabled={!onClick && !rightNode} 
-      className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-start`}
-    >
-      {content}
-    </button>
+    <>
+      <button 
+        onClick={onClick} 
+        onPointerDown={onClick ? createRipple : undefined} 
+        disabled={!onClick && !rightNode} 
+        className={`relative overflow-hidden w-full flex gap-3.5 px-4 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-center`}
+      >
+        {content}
+      </button>
+      {!last && <div className={`h-[1px] bg-[#1c1c1e] ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+    </>
   )
 }
 
 function RadioButton({ selected }: { selected: boolean }) {
   return (
-    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 mt-[2px] ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
-      {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#60a5fa]" />}
+    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 mt-[2px] ${selected ? 'border-[#3b82f6]' : 'border-[#555558]'}`}>
+      {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#3b82f6]" />}
     </div>
   )
 }
@@ -401,7 +406,6 @@ export function BusinessAutomationView({
   }
 
   const applyPreset = () => {
-    // Logic preserved
     const tg = getTg()
     tg?.HapticFeedback?.notificationOccurred('success')
   }
@@ -468,9 +472,11 @@ export function BusinessAutomationView({
         {/* ── MAIN MENU ── */}
         {activePage === 'main' && (
           <div className="animate-in fade-in duration-300 w-full">
-            <SubHeader title="AI Chat" onBack={onClose} />
+            {/* Header sin flecha */}
+            <SubHeader title="AI Chat" />
             
-            <div className="flex justify-center mt-4 mb-8">
+            {/* Robot movido más hacia abajo con márgenes aumentados */}
+            <div className="flex justify-center mt-10 mb-10">
               <div className="text-[72px] leading-none select-none pointer-events-none drop-shadow-2xl">
                 🤖
               </div>
@@ -482,24 +488,25 @@ export function BusinessAutomationView({
                 footer="Conversation history allows the AI to understand previous requests and consider them when generating new responses."
               >
                 <Row 
-                  leftNode={<Globe className="w-[20px] h-[20px] text-[#8e8e93]" />}
+                  leftNode={<Globe className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
                   label="Services" 
                   value="None"
                   hideArrow
                   onClick={() => setActivePage('presets')} 
                 />
                 <Row 
-                  leftNode={<CircleUserRound className="w-[20px] h-[20px] text-[#8e8e93]" />}
+                  leftNode={<CircleUserRound className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
                   label="Roles" 
                   value={config.use_case ? config.use_case.charAt(0).toUpperCase() + config.use_case.slice(1) : "Assistant"}
                   hideArrow
                   onClick={() => setActivePage('roles')}
                 />
                 <Row 
-                  leftNode={<MessageSquare className="w-[20px] h-[20px] text-[#8e8e93]" />}
+                  leftNode={<MessageSquare className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
                   label="History" 
                   rightNode={<Toggle on={config.history_enabled} onToggle={() => setAndSave('history_enabled', !config.history_enabled)} />}
                   onClick={() => setAndSave('history_enabled', !config.history_enabled)}
+                  last
                 />
               </Section>
 
@@ -519,25 +526,20 @@ export function BusinessAutomationView({
                   label="Insert Response as Quote" 
                   rightNode={<Toggle on={config.insert_quote} onToggle={() => setAndSave('insert_quote', !config.insert_quote)} />}
                   onClick={() => setAndSave('insert_quote', !config.insert_quote)}
+                  last
                 />
               </Section>
             </div>
           </div>
         )}
 
-        {/* ── ROLES PAGE (NUEVO DISEÑO COMPACTO) ── */}
+        {/* ── ROLES PAGE ── */}
         {activePage === 'roles' && (
           <div className="animate-in slide-in-from-right duration-300 w-full">
             
-            {/* Header personalizado (con back y Plus a la derecha desplazado abajo) */}
+            {/* Header sin flecha y botón Plus movido hacia abajo */}
             <div className="flex items-center justify-between px-4 pb-3 sticky top-0 z-50 bg-[#000000]" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
-              <button 
-                onClick={() => setActivePage('main')} 
-                onPointerDown={createRipple} 
-                className="w-8 h-8 flex items-center justify-center -ml-2 active:opacity-60 transition-opacity rounded-full"
-              >
-                <ChevronLeft className="w-7 h-7 text-white relative z-10" />
-              </button>
+              <div className="w-8" />
               
               <h2 className="font-semibold text-white tracking-tight absolute left-1/2 -translate-x-1/2" style={{ fontSize: "17px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Roles
@@ -546,7 +548,7 @@ export function BusinessAutomationView({
               <button 
                 onClick={() => {}} 
                 onPointerDown={createRipple} 
-                className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity rounded-full mt-2" 
+                className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity rounded-full mt-5" 
               >
                 <Plus className="w-7 h-7 text-white relative z-10" />
               </button>
@@ -563,13 +565,14 @@ export function BusinessAutomationView({
 
             <div className="px-4">
               <Section title="Suggestions">
-                {ROLES_DATA.map((role) => (
+                {ROLES_DATA.map((role, idx) => (
                   <Row 
                     key={role.id}
                     leftNode={<RadioButton selected={config.use_case === role.id} />}
                     label={role.label}
                     sublabel={role.desc}
                     hideArrow
+                    last={idx === ROLES_DATA.length - 1}
                     onClick={() => {
                       setAndSave('use_case', role.id);
                     }}
@@ -650,6 +653,7 @@ export function BusinessAutomationView({
                   label="Smart Follow-ups"
                   rightNode={<Toggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} activeColor={currentTheme} />}
                   onClick={() => setAndSave('followup_enabled', !config.followup_enabled)}
+                  last
                 />
               </Section>
             </div>
@@ -672,6 +676,7 @@ export function BusinessAutomationView({
                   sublabel="Let the AI handle standard inbound messages."
                   rightNode={<Toggle on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} />}
                   onClick={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)}
+                  last
                 />
               </Section>
 
@@ -683,6 +688,7 @@ export function BusinessAutomationView({
                       label="Account Role"
                       value={config.use_case.charAt(0).toUpperCase() + config.use_case.slice(1)}
                       onClick={() => setActivePage('roles')}
+                      last
                     />
                   </Section>
                   
@@ -692,6 +698,7 @@ export function BusinessAutomationView({
                       label="Tone Register"
                       value={config.tone.charAt(0).toUpperCase() + config.tone.slice(1)}
                       onClick={() => { setTempVal(config.tone); setActiveModal('tone'); }}
+                      last
                     />
                   </Section>
 
@@ -802,6 +809,7 @@ export function BusinessAutomationView({
                   onClick={() => setAndSave('auto_reply_filter', 'whitelist')}
                   rightNode={config.auto_reply_filter === 'whitelist' ? <Check className="w-5 h-5 text-[#3b82f6]" strokeWidth={2.5} /> : null}
                   hideArrow
+                  last
                 />
               </Section>
             </div>
@@ -821,6 +829,7 @@ export function BusinessAutomationView({
                   sublabel="Automatically mark inbound messages as read."
                   rightNode={<Toggle on={config.read_enabled} onToggle={() => setAndSave('read_enabled', !config.read_enabled)} />}
                   onClick={() => setAndSave('read_enabled', !config.read_enabled)}
+                  last
                 />
               </Section>
 
@@ -831,6 +840,7 @@ export function BusinessAutomationView({
                   sublabel="Greet first-time contacts automatically."
                   rightNode={<Toggle on={config.greeting_enabled} onToggle={() => setAndSave('greeting_enabled', !config.greeting_enabled)} />}
                   onClick={() => setAndSave('greeting_enabled', !config.greeting_enabled)}
+                  last={!config.greeting_enabled}
                 />
                 {config.greeting_enabled && (
                   <TextPreviewRow 
@@ -849,6 +859,7 @@ export function BusinessAutomationView({
                   sublabel="Reply when you are out of office."
                   rightNode={<Toggle on={config.away_enabled} onToggle={() => setAndSave('away_enabled', !config.away_enabled)} />}
                   onClick={() => setAndSave('away_enabled', !config.away_enabled)}
+                  last={!config.away_enabled}
                 />
                 {config.away_enabled && (
                   <TextPreviewRow 
@@ -867,6 +878,7 @@ export function BusinessAutomationView({
                   sublabel="Trigger automated follow-ups if user drops engagement."
                   rightNode={<Toggle on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
                   onClick={() => setAndSave('followup_enabled', !config.followup_enabled)}
+                  last={!config.followup_enabled}
                 />
                 {config.followup_enabled && (
                   <div className="px-5 py-4 flex gap-5 w-full bg-[#111111]">
@@ -894,6 +906,7 @@ export function BusinessAutomationView({
                   sublabel="Replies when its name is mentioned in groups."
                   rightNode={<Toggle on={config.invocation_enabled} onToggle={() => setAndSave('invocation_enabled', !config.invocation_enabled)} />}
                   onClick={() => setAndSave('invocation_enabled', !config.invocation_enabled)}
+                  last={!config.invocation_enabled}
                 />
                 {config.invocation_enabled && (
                   <div className="w-full px-5 pb-5 pt-2 bg-[#111111]">
@@ -922,12 +935,14 @@ export function BusinessAutomationView({
                   sublabel="Identify and delete malicious links and ads."
                   rightNode={<Toggle on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} />}
                   onClick={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)}
+                  last={!config.spam_filter_enabled}
                 />
                 {config.spam_filter_enabled && (
                   <Row 
                     label="Sensitivity"
                     value={config.spam_sensitivity.charAt(0).toUpperCase() + config.spam_sensitivity.slice(1)}
                     onClick={() => { setTempVal(config.spam_sensitivity); setActiveModal('spam_sens'); }}
+                    last
                   />
                 )}
               </Section>
@@ -944,6 +959,7 @@ export function BusinessAutomationView({
                   sublabel="Receive DM logs on structural anomalies."
                   rightNode={<Toggle on={config.urgency_notify} onToggle={() => setAndSave('urgency_notify', !config.urgency_notify)} />}
                   onClick={() => setAndSave('urgency_notify', !config.urgency_notify)}
+                  last
                 />
               </Section>
             </div>
@@ -961,12 +977,14 @@ export function BusinessAutomationView({
                   sublabel="Receive daily performance reports directly."
                   rightNode={<Toggle on={config.daily_digest} onToggle={() => setAndSave('daily_digest', !config.daily_digest)} />}
                   onClick={() => setAndSave('daily_digest', !config.daily_digest)}
+                  last={!config.daily_digest}
                 />
                 {config.daily_digest && (
                   <Row 
                     label="Dispatch Window"
                     value={`${config.daily_digest_hour.toString().padStart(2, '0')}:00 UTC`}
                     onClick={() => { setTempVal(config.daily_digest_hour); setActiveModal('digest_hour'); }}
+                    last
                   />
                 )}
               </Section>
