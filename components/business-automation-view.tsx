@@ -727,17 +727,6 @@ export function BusinessAutomationView({
         </>
       )}
 
-      {/* BOTÓN "+" ESTÁTICO (ABSOLUTE A LA PANTALLA) EN LA ESQUINA SUPERIOR DERECHA */}
-      {activePage === 'roles' && (
-        <button 
-          onClick={(e) => { createRipple(e); openNewRoleView(); }} 
-          className="absolute right-5 w-9 h-9 flex items-center justify-center active:opacity-60 transition-opacity rounded-full z-[100] overflow-hidden" 
-          style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 52px)" }}
-        >
-          <Plus className="w-6 h-6 text-white relative z-10" strokeWidth={2.5} />
-        </button>
-      )}
-
       {/* ── NEW/EDIT ROLE PAGE: SOLUCIÓN AL BOTÓN FLOTANTE SOBRE EL TEXTO ── */}
       {activePage === 'new_role' && (
         <div className="animate-in slide-in-from-right duration-300 w-full absolute inset-0 z-[70] bg-[#000000] flex flex-col" style={{ height: viewportHeight }}>
@@ -853,6 +842,14 @@ export function BusinessAutomationView({
             <SubHeader title="Roles" />
 
             <div className="flex flex-col items-center mt-2 mb-8 px-4 text-center relative z-0">
+              {/* BOTÓN "+" ABSOLUTO DENTRO DEL CONTENEDOR DE LA IMAGEN (ESTÁTICO AL CONTENIDO) */}
+              <button 
+                onClick={(e) => { createRipple(e); openNewRoleView(); }} 
+                className="absolute right-4 top-0 w-10 h-10 flex items-center justify-center active:opacity-60 transition-opacity rounded-full z-10 overflow-hidden" 
+              >
+                <Plus className="w-7 h-7 text-white relative z-10" strokeWidth={2.5} />
+              </button>
+
               <img 
                 src="/animatedemojies_agadxamaajlb2uy.webp" 
                 alt="Roles Masks" 
