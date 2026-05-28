@@ -30,11 +30,30 @@ const RIPPLE_STYLE = `
       opacity: 0;
     }
   }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 `
 
+// ── Helper API & Telegram ──
+const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
+
+const triggerVibration = (type: 'light' | 'medium' | 'heavy' | 'error' | 'success') => {
+  const tg = getTg();
+  if (!tg?.HapticFeedback) return;
+  if (type === 'error' || type === 'success') {
+    tg.HapticFeedback.notificationOccurred(type);
+  } else {
+    tg.HapticFeedback.impactOccurred(type);
+  }
+}
+
 // ── Función Helper para crear el Efecto Ripple ──
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const createRipple = (event: React.PointerEvent<any>) => {
+const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
   const element = event.currentTarget
   if (element.disabled) return
 
@@ -60,10 +79,8 @@ const createRipple = (event: React.PointerEvent<any>) => {
   }, 600)
 }
 
-// ── Helpers de API ──
 function getInitData(): string {
   if (typeof window === "undefined") return ""
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).Telegram?.WebApp?.initData ?? ""
 }
 
@@ -119,7 +136,6 @@ const TIMEZONES = [
   { name: "Auckland", offset: "UTC+12" },
 ]
 
-// ── Tipos y Helpers para Usuario de Telegram ──
 type TgUser = {
   id: number
   first_name?: string
@@ -130,7 +146,6 @@ type TgUser = {
 
 function getTgUser(): TgUser | undefined {
   if (typeof window === "undefined") return undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
@@ -179,9 +194,8 @@ const LANGS = [
   { code: "en", name: "English", subName: "English" },
 ]
 
-// ── Componentes UI para la Vista Principal ──
+// ── Componentes UI ──
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function IconFlat({ icon: Icon, color, spin }: { icon: any, color: string, spin?: boolean }) {
   return (
     <div
@@ -199,7 +213,6 @@ function IconFlat({ icon: Icon, color, spin }: { icon: any, color: string, spin?
   )
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function IconCircularLarge({ icon: Icon, color }: { icon: any, color: string }) {
   return (
     <div
@@ -217,7 +230,39 @@ function IconCircularLarge({ icon: Icon, color }: { icon: any, color: string }) 
   )
 }
 
-// ── Componente RadioButton para selecciones ──
+function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); onToggle(); }}
+      disabled={disabled}
+      className={"relative rounded-full transition-colors duration-100 shrink-0 z-10 " + (disabled ? "opacity-50" : "")}
+      style={{ 
+        width: "42px", height: "24px", 
+        background: on ? activeColor : "#2c2c2e" 
+      }}
+    >
+      <span
+        className="absolute rounded-full transition-all duration-100"
+        style={{
+          width: "16px", height: "16px",
+          top: "4px", 
+          background: "#111111",
+          left: on ? "22px" : "4px", 
+        }}
+      />
+    </button>
+  )
+}
+
+function SwitchNode({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
+  return (
+    <div className="flex items-center">
+      <div className="w-[1px] h-[22px] bg-[#2c2c2e] mr-3.5" />
+      <Toggle on={on} onToggle={onToggle} disabled={disabled} activeColor={activeColor} />
+    </div>
+  )
+}
+
 function RadioButton({ selected }: { selected: boolean }) {
   return (
     <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
@@ -226,35 +271,62 @@ function RadioButton({ selected }: { selected: boolean }) {
   )
 }
 
+function Section({ title, footer, children, rightAction }: { title?: string; footer?: React.ReactNode; children: React.ReactNode; rightAction?: React.ReactNode }) {
+  return (
+    <div className="space-y-2 mb-4 w-full"> 
+      {title && (
+        <div className="px-4 mb-1.5 flex items-center justify-between">
+          <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
+          {rightAction && <div>{rightAction}</div>}
+        </div>
+      )}
+      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] relative">
+        {children}
+      </div>
+      {footer && (
+        <div className="px-4 mt-2 text-[#8e8e93] text-[13px] leading-snug" style={{ fontFamily: SF }}>
+          {footer}
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface RowProps {
   label: string | React.ReactNode;
+  sublabel?: string | React.ReactNode;
   value?: string;
-  onClick?: () => void;
   leftNode?: React.ReactNode;
-  danger?: boolean;
-  hideArrow?: boolean;
   rightNode?: React.ReactNode;
+  onClick?: () => void;
+  hideArrow?: boolean;
+  last?: boolean;
+  alignItems?: "center" | "start"; 
+  danger?: boolean;
   isLink?: boolean;
   href?: string;
 }
 
-function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, isLink, href }: RowProps) {
+function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false, alignItems = "center", danger, isLink, href }: RowProps) {
   const content = (
     <>
       {leftNode}
-      <span className={`text-[16px] font-medium relative z-10 ${danger ? "text-[#ef4444]" : "text-white"}`} style={{ fontFamily: SF }}>
-        {label}
-      </span>
-      
-      <div className="flex-1" />
-      
-      <div className="flex items-center gap-1 relative z-10">
+      <div className={`flex flex-col flex-1 min-w-0 relative z-10 ${alignItems === "center" ? "py-0.5" : ""}`}>
+        <span className={`text-[16px] font-medium leading-[1.2] ${danger ? "text-[#ef4444]" : "text-white"}`} style={{ fontFamily: SF }}>
+          {label}
+        </span>
+        {sublabel && (
+          <span className={`text-[13px] text-[#8e8e93] leading-[1.4] mt-[5px]`} style={{ fontFamily: SF }}>
+            {sublabel}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-1.5 relative z-10 shrink-0 ml-2">
         {value && (
-          <span className="text-[16px] font-normal" style={{ fontFamily: SF, color: "#8e8e93" }}>
+          <span className="text-[16px] font-normal text-[#8e8e93]" style={{ fontFamily: SF }}>
             {value}
           </span>
         )}
-        
         {rightNode ? rightNode : (!hideArrow && !danger && (
           <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
         ))}
@@ -262,54 +334,48 @@ function Row({ label, value, onClick, leftNode, danger, hideArrow, rightNode, is
     </>
   );
 
+  const className = `relative overflow-hidden w-full flex gap-3.5 px-4 py-3.5 ${onClick || isLink ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems}`;
+
   if (isLink && href) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" onPointerDown={createRipple} className="relative overflow-hidden w-full flex items-center gap-3.5 px-4 py-3 active:bg-white/5 transition-colors text-left block">
-        {content}
-      </a>
-    );
+      <>
+        <a href={href} target="_blank" rel="noopener noreferrer" onPointerDown={createRipple} className={className + " block"}>
+          {content}
+        </a>
+        {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+      </>
+    )
   }
 
   return (
-    <button onClick={onClick} onPointerDown={onClick ? createRipple : undefined} disabled={!onClick && !rightNode} className={`relative overflow-hidden w-full flex items-center gap-3.5 px-4 py-3 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left`}>
-      {content}
-    </button>
+    <>
+      <button 
+        onClick={onClick} 
+        onPointerDown={onClick ? createRipple : undefined} 
+        disabled={!onClick && !rightNode} 
+        className={className}
+      >
+        {content}
+      </button>
+      {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+    </>
   )
 }
 
-function Section({ title, children, rightAction }: { title?: string; children: React.ReactNode; rightAction?: React.ReactNode }) {
+function SubHeader({ title, rightNode }: { title: string, rightNode?: React.ReactNode }) {
   return (
-    <div className="space-y-2">
-      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 relative">
-        {title && (
-          <div className="flex items-center justify-between px-4 pt-4 pb-1 relative z-10">
-            <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
-            {rightAction && <div>{rightAction}</div>}
-          </div>
-        )}
-        {children}
-      </div>
+    <div className="relative flex items-center justify-center px-4 pb-3 z-10 w-full" style={{
+      paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
+    }}>
+      <h2 className="font-semibold text-white relative z-10" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
+        {title}
+      </h2>
+      {rightNode && (
+        <div className="absolute right-4 bottom-1.5 flex items-center z-20">
+          {rightNode}
+        </div>
+      )}
     </div>
-  )
-}
-
-function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) {
-  return (
-    <button
-      onClick={onToggle}
-      disabled={disabled}
-      className={"relative rounded-full transition-all duration-200 shrink-0 z-10 " + (disabled ? "opacity-50" : "")}
-      style={{ width: "44px", height: "26px", background: on ? "#34c759" : "#3a3a3c" }}
-    >
-      <span
-        className="absolute top-[2px] rounded-full shadow-sm transition-transform duration-200"
-        style={{
-          width: "22px", height: "22px",
-          background: "#ffffff",
-          left: on ? "20px" : "2px",
-        }}
-      />
-    </button>
   )
 }
 
@@ -366,14 +432,64 @@ function TokenBar({ pct }: { pct: number }) {
   )
 }
 
-function SubHeader({ title }: { title: string }) {
+// ── COMPONENTE EXPANDIBLE CON LIMITE Y VIBRACIÓN ──
+const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }: { label: string, maxLength: number, value: string, onChange: (v: string) => void, placeholder?: string }) => {
+  const textRef = useRef<HTMLTextAreaElement>(null)
+  const [warningActive, setWarningActive] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  
+  const remaining = maxLength - value.length;
+
+  const adjustHeight = () => {
+    if (textRef.current) {
+      textRef.current.style.height = "auto"
+      textRef.current.style.height = `${textRef.current.scrollHeight}px`
+    }
+  }
+
+  useEffect(() => { adjustHeight() }, [value])
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    let val = e.target.value;
+    if (val.length > maxLength) {
+      val = val.slice(0, maxLength);
+      setWarningActive(true);
+      setTimeout(() => setWarningActive(false), 500);
+      triggerVibration('error');
+    }
+    onChange(val);
+  }
+
+  let colorHex = "#555558"; 
+  let labelHex = "#8e8e93"; 
+  
+  if (warningActive) {
+    colorHex = "#ff453a";
+    labelHex = "#ff453a";
+  } else if (isFocused) {
+    colorHex = "#60a5fa";
+    labelHex = "#60a5fa";
+  }
+
   return (
-    <div className="flex items-center justify-center px-4 pb-3" style={{
-      paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
-    }}>
-      <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
-        {title}
-      </h2>
+    <div className="relative w-full mb-8 mt-3 shrink-0">
+      <label 
+        className="absolute -top-2.5 left-3 px-1.5 text-[13px] bg-[#000000] z-10 font-medium transition-colors duration-200" 
+        style={{ fontFamily: SF, color: labelHex }}
+      >
+        {label} • {remaining}
+      </label>
+      <textarea
+        ref={textRef}
+        value={value}
+        onChange={handleChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        placeholder={placeholder}
+        className="w-full bg-transparent border-[1.5px] rounded-[12px] px-4 py-3.5 text-white focus:outline-none resize-none overflow-hidden placeholder:text-[#636366] transition-colors duration-200"
+        style={{ fontFamily: SF, fontSize: "16px", minHeight: "56px", borderColor: colorHex }}
+        rows={1}
+      />
     </div>
   )
 }
@@ -405,17 +521,16 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const [reportSent, setReportSent] = useState(false)
   const [showLimitsInfo, setShowLimitsInfo] = useState(false)
 
-  // ── Tool Access — estado local sincronizado con backend ──
+  // Altura del viewport para evitar saltos de teclado
+  const [viewportHeight, setViewportHeight] = useState("100vh")
+
   const [toolAccess, setToolAccessLocal] = useState("Auto")
   const [savingToolAccess, setSavingToolAccess] = useState(false)
 
-  // ── Datos del perfil — cargados desde /api/user_profile ──
   const profileLoaded = useRef(false)
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [displayName, setDisplayName] = useState("")
 
-  // ── Campos del perfil de cuenta ──
-  // Se inicializan desde userPreferences (app-context) y se sobreescriben con datos del backend
   const prefs = userPreferences || {}
   const [nameField, setNameField] = useState(prefs.name?.toString() || "")
   const [genderField, setGenderField] = useState(prefs.gender?.toString() || "")
@@ -427,7 +542,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const [favoriteEmojiField, setFavoriteEmojiField] = useState(prefs.favoriteEmoji?.toString() || "")
   const [personalityField, setPersonalityField] = useState(prefs.personality?.toString() || "")
 
-  // ── Estado de token por modelo (sobrescrito con datos reales del backend) ──
   const [liveTokenStatus, setLiveTokenStatus] = useState<Record<string, ModelTokenInfo> | null>(null)
 
   const legacyModels = ["Grok 4.1", "Grok 4", "GPT-5.4", "GPT-5.2"]
@@ -435,7 +549,12 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     ? "Gemini 3.5 Flash"
     : selectedModel
 
-  // ── Carga inicial: perfil + tool_access desde backend ──
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setViewportHeight(`${window.innerHeight}px`)
+    }
+  }, [])
+
   useEffect(() => {
     if (profileLoaded.current) return
     profileLoaded.current = true
@@ -458,7 +577,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     })
   }, [])
 
-  // ── Cargar datos del usuario de Telegram ──
   useEffect(() => {
     const user = getTgUser()
     if (!user) return
@@ -470,24 +588,20 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Fix bug de Gemini: re-sincronizar el modelo seleccionado desde el backend al montar ──
   useEffect(() => {
     apiPost("/api/get_model", {}).then((data) => {
       if (data?.ok && data.model && data.model !== selectedModel) {
         setSelectedModel(data.model as ModelName)
       }
     })
-  // Solo al montar
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Cargar token status real cuando se entra a "model" o "usage_limits" ──
   const fetchTokenStatus = useCallback(async () => {
     const data = await apiPost("/api/model_token_status", {})
     if (data?.ok && data.models) {
       setLiveTokenStatus(data.models)
     }
-    // También refrescar el contexto de app
     refreshModelTokenStatus()
   }, [refreshModelTokenStatus])
 
@@ -497,7 +611,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     }
   }, [page, fetchTokenStatus])
 
-  // ── Función para cambiar Tool Access (guarda en backend) ──
   async function handleToolAccessChange(value: string) {
     setToolAccessLocal(value)
     setSavingToolAccess(true)
@@ -507,7 +620,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
-  // Calculo de porcentaje de completado
   const completionFields = [nameField, genderField, ageField, cityField, timezoneField, occupationField, interestsField, favoriteEmojiField, personalityField]
   const totalFields = 9
   const filledFields = completionFields.filter(field => field.trim().length > 0).length
@@ -535,7 +647,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     return () => { tg.BackButton.offClick(handleBack) }
   }, [page, setCurrentView, initialPage, returnView])
 
-  // ── Guardar perfil en backend + app-context ──
   const saveBasicInfo = async () => {
     const updated = { ...prefs, name: nameField, gender: genderField, age: ageField, city: cityField }
     setUserPreferences(updated)
@@ -598,179 +709,154 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     )
   }
 
-  // Combinar token status: live (backend) tiene prioridad, fallback a app-context
   const mergedTokenStatus = liveTokenStatus ?? (modelTokenStatus as Record<string, ModelTokenInfo> | undefined)
 
   // ── Model page ─────────────────────────────────────────────────────────────
   if (page === "model") return (
-    <div key="model" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
+    <div key="model" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Select Model" />
-      <div className="px-4 pt-6 space-y-4">
-        <div className="space-y-2">
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
-            
-            {MODELS.map((m) => {
-              const locked = m.proOnly && !isPremium
+      <div className="px-4 pt-6 pb-10 space-y-4">
+        <Section>
+          {MODELS.map((m, idx, arr) => {
+            const locked = m.proOnly && !isPremium
+            const tokenInfo: ModelTokenInfo | undefined = mergedTokenStatus?.[m.name]
+            const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
+            const minsLeft = limitHit ? tokenInfo.mins_left : 0
+            const pct      = tokenInfo?.pct ?? 0
+            const active = m.name === selectedModel || (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
+            const isDisabled = locked || saving === "model" || !!limitHit
 
-              const tokenInfo: ModelTokenInfo | undefined = mergedTokenStatus?.[m.name]
+            return (
+              <div key={m.name}>
+                <button
+                  disabled={isDisabled}
+                  onClick={() => !locked && !limitHit && selectModel(m.name)}
+                  onPointerDown={createRipple}
+                  className="relative overflow-hidden w-full px-4 py-3.5 flex items-center justify-between transition-colors active:bg-white/5 text-left"
+                  style={{ opacity: locked || limitHit ? 0.5 : 1 }}
+                >
+                  <div className="flex items-center gap-4 flex-1 min-w-0 relative z-10">
+                    <ModelLogo name={m.name} locked={locked} />
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-[1px]">
+                        <span className="text-[16px] font-medium text-white leading-tight" style={{ fontFamily: SF }}>
+                          {m.name}
+                        </span>
 
-              const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
-              const minsLeft = limitHit ? tokenInfo.mins_left : 0
-              const pct      = tokenInfo?.pct ?? 0
-
-              const active =
-                m.name === selectedModel || (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
-
-              const isDisabled = locked || saving === "model" || !!limitHit
-
-              return (
-                <div key={m.name}>
-                  <button
-                    disabled={isDisabled}
-                    onClick={() => !locked && !limitHit && selectModel(m.name)}
-                    onPointerDown={createRipple}
-                    className="relative overflow-hidden w-full px-4 py-2.5 flex items-center justify-between transition-colors active:bg-white/5 text-left"
-                    style={{ opacity: locked || limitHit ? 0.5 : 1 }}
-                  >
-                    <div className="flex items-center gap-4 flex-1 min-w-0 relative z-10">
-                      <ModelLogo name={m.name} locked={locked} />
-                      <div className="flex flex-col flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-[1px]">
-                          <span className="text-[16px] font-medium text-white leading-tight" style={{ fontFamily: SF }}>
-                            {m.name}
+                        {m.tag && !locked && !limitHit && (
+                          <span
+                            className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
+                            style={{ fontFamily: SF }}>
+                            {m.tag}
                           </span>
+                        )}
 
-                          {m.tag && !locked && !limitHit && (
-                            <span
-                              className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
-                              style={{ fontFamily: SF }}>
-                              {m.tag}
-                            </span>
-                          )}
+                        {locked && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
+                            style={{ fontFamily: SF }}>
+                            PRO
+                          </span>
+                        )}
 
-                          {locked && (
-                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
-                              style={{ fontFamily: SF }}>
-                              PRO
-                            </span>
-                          )}
+                        {limitHit && !locked && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
+                            style={{ fontFamily: SF }}>
+                              limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
+                          </span>
+                        )}
 
-                          {limitHit && !locked && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
-                              style={{ fontFamily: SF }}>
-                                limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
-                            </span>
-                          )}
-
-                          {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
-                              style={{ fontFamily: SF }}>
-                                cooling {minutesUntilReset}min
-                            </span>
-                          )}
-                        </div>
-
-                        <span className="text-[#8e8e93] text-[13px] leading-tight" style={{ fontFamily: SF }}>{m.desc}</span>
-
-                        {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
-                          <TokenBar pct={pct} />
+                        {isThrottled && !limitHit && !locked && m.name !== "Grok 4.3" && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-500"
+                            style={{ fontFamily: SF }}>
+                              cooling {minutesUntilReset}min
+                          </span>
                         )}
                       </div>
-                    </div>
 
-                    <div className="shrink-0 flex items-center justify-center ml-3 relative z-10">
-                       {saving === "model" && active ? (
-                        <Loader2 className="w-[22px] h-[22px] animate-spin" style={{ color: "#8e8e93" }} />
-                      ) : (
-                        <RadioButton selected={active && !isDisabled} />
+                      <span className="text-[#8e8e93] text-[13px] leading-tight mt-[3px]" style={{ fontFamily: SF }}>{m.desc}</span>
+
+                      {!isPremium && tokenInfo && tokenInfo.limit > 0 && !locked && (
+                        <TokenBar pct={pct} />
                       )}
                     </div>
-                  </button>
-                </div>
-              )
-            })}
+                  </div>
 
-          </div>
-        </div>
+                  <div className="shrink-0 flex items-center justify-center ml-3 relative z-10">
+                      {saving === "model" && active ? (
+                      <Loader2 className="w-[22px] h-[22px] animate-spin" style={{ color: "#8e8e93" }} />
+                    ) : (
+                      <RadioButton selected={active && !isDisabled} />
+                    )}
+                  </div>
+                </button>
+                {idx !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-[68px]" />}
+              </div>
+            )
+          })}
+        </Section>
       </div>
     </div>
   )
 
   // ── Lang page ──────────────────────────────────────────────────────────────
   if (page === "lang") return (
-    <div key="lang" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
+    <div key="lang" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
-      <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
-        <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
-      </div>
-      <div className="px-4 pt-6 space-y-6">
-        <div className="space-y-2">
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
-            <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-10">
-              <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Language</h2>
+      <SubHeader title="Language" />
+      <div className="px-4 pt-6 pb-10 space-y-6">
+        <Section>
+          {LANGS.map((lang, idx, arr) => (
+            <div key={lang.code}>
+              <button 
+                onClick={() => { setLanguage(lang.code); setPage("main") }}
+                onPointerDown={createRipple}
+                className="relative overflow-hidden w-full px-4 py-3.5 flex items-center justify-between active:bg-white/5 transition-colors text-left"
+              >
+                <div className="flex flex-col relative z-10">
+                  <span className="text-[16px] font-medium text-white leading-tight" style={{ fontFamily: SF }}>{lang.name}</span>
+                  <span className="text-[#8e8e93] text-[13px] mt-[3px]" style={{ fontFamily: SF }}>{lang.subName}</span>
+                </div>
+                <RadioButton selected={language === lang.code} />
+              </button>
+              {idx !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
             </div>
-            {LANGS.map((lang) => (
-              <div key={lang.code}>
-                <button 
-                  onClick={() => { setLanguage(lang.code); setPage("main") }}
-                  onPointerDown={createRipple}
-                  className="relative overflow-hidden w-full px-4 py-2.5 flex items-center active:bg-white/5 transition-colors text-left"
-                >
-                  <div className="flex items-center gap-3 relative z-10 w-full">
-                    <RadioButton selected={language === lang.code} />
-                    <div className="flex flex-col">
-                      <span className="text-[16px] font-medium text-white leading-tight" style={{ fontFamily: SF }}>{lang.name}</span>
-                      <span className="text-[#8e8e93] text-[13px] mt-[1px]" style={{ fontFamily: SF }}>{lang.subName}</span>
-                    </div>
-                  </div>
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+          ))}
+        </Section>
       </div>
     </div>
   )
 
   // ── Gender Select Sub-page ─────────────────────────────────────────────────
   if (page === "gender_select") return (
-    <div key="gender_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out relative"
+    <div key="gender_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
-      <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
-        <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
-      </div>
+      <SubHeader title="Gender" />
       <div className="px-4 pt-6 pb-28 space-y-6">
-        <div className="space-y-2">
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
-            <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-10">
-              <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Gender</h2>
+        <Section>
+          {GENDERS.map((g, idx, arr) => (
+            <div key={g}>
+              <button 
+                onClick={() => setGenderField(g)} 
+                onPointerDown={createRipple}
+                className="relative overflow-hidden w-full px-4 py-3.5 flex items-center justify-between active:bg-white/5 transition-colors text-left"
+              >
+                <span className="text-[16px] font-medium text-white relative z-10" style={{ fontFamily: SF }}>{g}</span>
+                <RadioButton selected={genderField === g} />
+              </button>
+              {idx !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
             </div>
-            {GENDERS.map((g) => (
-               <div key={g}>
-                <button 
-                  onClick={() => setGenderField(g)} 
-                  onPointerDown={createRipple}
-                  className="relative overflow-hidden w-full px-4 py-2.5 flex items-center active:bg-white/5 transition-colors text-left"
-                >
-                  <div className="flex items-center gap-3 relative z-10 w-full">
-                    <RadioButton selected={genderField === g} />
-                    <span className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>{g}</span>
-                  </div>
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+          ))}
+        </Section>
       </div>
-      <div className="fixed bottom-8 left-4 right-4">
+      <div className="fixed bottom-8 left-4 right-4 z-[100]">
         <button 
           onClick={() => setPage("basic_info")} 
           onPointerDown={createRipple}
-          className="relative overflow-hidden w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity shadow-lg" 
+          className="relative overflow-hidden w-full py-3.5 rounded-[14px] bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity shadow-lg" 
           style={{ fontFamily: SF }}
         >
           <span className="relative z-10">Done</span>
@@ -784,43 +870,35 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     <div key="timezone_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out relative overflow-y-auto scrollbar-native"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
-      <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
-        <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
-      </div>
+      <SubHeader title="Time zone" />
       <div className="px-4 pt-6 pb-32 space-y-6">
-        <div className="space-y-2">
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2">
-            <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-10">
-              <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>Time zone</h2>
-            </div>
-            {TIMEZONES.map((tz) => {
-              const displayVal = `${tz.name} (${tz.offset})`
-              return (
-                <div key={tz.name}>
-                  <button 
-                    onClick={() => setTimezoneField(displayVal)} 
-                    onPointerDown={createRipple}
-                    className="relative overflow-hidden w-full px-4 py-2.5 flex items-center active:bg-white/5 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3 relative z-10 w-full">
-                      <RadioButton selected={timezoneField === displayVal} />
-                      <div className="flex flex-col">
-                        <span className="text-white text-[16px] font-medium leading-tight" style={{ fontFamily: SF }}>{tz.name}</span>
-                        <span className="text-[#8e8e93] text-[13px] mt-[1px]" style={{ fontFamily: SF }}>{tz.offset}</span>
-                      </div>
-                    </div>
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-        </div>
+        <Section>
+          {TIMEZONES.map((tz, idx, arr) => {
+            const displayVal = `${tz.name} (${tz.offset})`
+            return (
+              <div key={tz.name}>
+                <button 
+                  onClick={() => setTimezoneField(displayVal)} 
+                  onPointerDown={createRipple}
+                  className="relative overflow-hidden w-full px-4 py-3.5 flex items-center justify-between active:bg-white/5 transition-colors text-left"
+                >
+                  <div className="flex flex-col relative z-10 pr-4">
+                    <span className="text-white text-[16px] font-medium leading-tight" style={{ fontFamily: SF }}>{tz.name}</span>
+                    <span className="text-[#8e8e93] text-[13px] mt-[3px]" style={{ fontFamily: SF }}>{tz.offset}</span>
+                  </div>
+                  <RadioButton selected={timezoneField === displayVal} />
+                </button>
+                {idx !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
+              </div>
+            )
+          })}
+        </Section>
       </div>
-      <div className="fixed bottom-8 left-4 right-4 pointer-events-none z-10">
+      <div className="fixed bottom-8 left-4 right-4 z-[100]">
         <button 
           onClick={() => setPage("additional_details")} 
           onPointerDown={createRipple}
-          className="relative overflow-hidden w-full py-3.5 rounded-full bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity pointer-events-auto shadow-lg" 
+          className="relative overflow-hidden w-full py-3.5 rounded-[14px] bg-[#3b82f6] text-white font-bold text-[16px] active:opacity-80 transition-opacity shadow-lg" 
           style={{ fontFamily: SF }}
         >
           <span className="relative z-10">Done</span>
@@ -831,69 +909,34 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
   // ── Basic Information Sub-page ─────────────────────────────────────────────
   if (page === "basic_info") return (
-    <div key="basic_info" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
-         style={{ background: "#000", minHeight: "100vh" }}>
+    <div key="basic_info" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Basic Information" />
-      <div className="px-4 pt-6 space-y-6">
+      
+      <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
         
-        <div className="space-y-2">
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
-            
-            <div className="flex items-center w-full px-4 py-3 relative z-10">
-              <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>Name<span className="text-[#ef4444]">*</span></span>
-              <input 
-                value={nameField}
-                onChange={(e) => setNameField(e.target.value)}
-                placeholder="Enter name"
-                className="bg-transparent text-[16px] font-medium text-white flex-1 outline-none placeholder:text-[#555558]"
-                style={{ fontFamily: SF }}
-              />
-            </div>
-
-            <button 
+        <ExpandingInput label="Name" maxLength={64} value={nameField} onChange={setNameField} />
+        
+        <div className="mb-8 mt-1 shrink-0">
+          <Section>
+            <Row 
+              label="Gender" 
+              value={genderField || "Select gender"} 
               onClick={() => setPage("gender_select")} 
-              onPointerDown={createRipple}
-              className="relative overflow-hidden flex items-center w-full px-4 py-3 active:bg-white/5 transition-colors text-left"
-            >
-              <span className="w-[85px] text-[16px] font-medium text-white shrink-0 relative z-10" style={{ fontFamily: SF }}>Gender</span>
-              <span className={`text-[16px] font-medium flex-1 relative z-10 ${genderField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
-                {genderField || "Select gender"}
-              </span>
-              <ChevronRight className="w-5 h-5 text-[#8e8e93] shrink-0 relative z-10" />
-            </button>
-
-            <div className="flex items-center w-full px-4 py-3 relative z-10">
-              <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>Age</span>
-              <input 
-                type="number"
-                value={ageField}
-                onChange={(e) => setAgeField(e.target.value)}
-                placeholder="Enter age"
-                className="bg-transparent text-[16px] font-medium text-white flex-1 outline-none placeholder:text-[#555558]"
-                style={{ fontFamily: SF }}
-              />
-            </div>
-
-            <div className="flex items-center w-full px-4 py-3 relative z-10">
-              <span className="w-[85px] text-[16px] font-medium text-white shrink-0" style={{ fontFamily: SF }}>City</span>
-              <input 
-                value={cityField}
-                onChange={(e) => setCityField(e.target.value)}
-                placeholder="Enter city"
-                className="bg-transparent text-[16px] font-medium text-white flex-1 outline-none placeholder:text-[#555558]"
-                style={{ fontFamily: SF }}
-              />
-            </div>
-
-          </div>
+              last 
+            />
+          </Section>
         </div>
 
-        <div className="flex items-center gap-4 mt-8 w-full">
+        <ExpandingInput label="Age" maxLength={3} value={ageField} onChange={setAgeField} />
+        
+        <ExpandingInput label="City" maxLength={64} value={cityField} onChange={setCityField} />
+
+        <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
-               onClick={() => setPage("prefs")} 
+              onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
               style={{ fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Cancel</span>
@@ -901,7 +944,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={saveBasicInfo} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Update</span>
@@ -913,65 +956,32 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
   // ── Additional Details Sub-page ────────────────────────────────────────────
   if (page === "additional_details") return (
-    <div key="additional_details" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
-         style={{ background: "#000", minHeight: "100vh" }}>
+    <div key="additional_details" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Additional Details" />
-      <div className="px-4 pt-6 space-y-6">
+      
+      <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
         
-        <div className="space-y-4">
-          
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2">
-            <button 
+        <div className="mb-8 mt-1 shrink-0">
+          <Section>
+            <Row 
+              label="Time zone" 
+              value={timezoneField || "Select time zone"} 
               onClick={() => setPage("timezone_select")} 
-              onPointerDown={createRipple}
-              className="relative overflow-hidden w-full flex flex-col px-4 py-3 text-left active:bg-white/5 transition-colors"
-            >
-              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2 relative z-10" style={{ fontFamily: SF }}>Time zone</h2>
-               <div className="flex items-center justify-between w-full relative z-10">
-                <span className={`text-[16px] font-medium flex-1 ${timezoneField ? "text-white" : "text-[#555558]"}`} style={{ fontFamily: SF }}>
-                  {timezoneField || "Select time zone"}
-                </span>
-                <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
-              </div>
-            </button>
-          </div>
-
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
-            <div className="flex flex-col w-full px-4 py-3 text-left">
-              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Occupation</h2>
-              <textarea 
-                value={occupationField}
-                onChange={(e) => setOccupationField(e.target.value)}
-                placeholder="Enter occupation"
-                rows={3}
-                className="bg-transparent text-[16px] font-medium text-white w-full outline-none placeholder:text-[#555558] resize-none"
-                style={{ fontFamily: SF }}
-              />
-            </div>
-          </div>
-
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
-            <div className="flex flex-col w-full px-4 py-3 text-left">
-              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Interests</h2>
-              <textarea 
-                value={interestsField}
-                onChange={(e) => setInterestsField(e.target.value)}
-                placeholder="Enter interests"
-                rows={3}
-                className="bg-transparent text-[16px] font-medium text-white w-full outline-none placeholder:text-[#555558] resize-none"
-                style={{ fontFamily: SF }}
-              />
-            </div>
-          </div>
-
+              last 
+            />
+          </Section>
         </div>
 
-        <div className="flex items-center gap-4 mt-8 w-full">
+        <ExpandingInput label="Occupation" maxLength={128} value={occupationField} onChange={setOccupationField} />
+        
+        <ExpandingInput label="Interests" maxLength={256} value={interestsField} onChange={setInterestsField} />
+
+        <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
               style={{ fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Cancel</span>
@@ -979,7 +989,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={saveAdditionalInfo} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Update</span>
@@ -991,48 +1001,21 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
   // ── Noir Personality Sub-page ──────────────────────────────────────────────
   if (page === "noir_personality") return (
-    <div key="noir_personality" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
-         style={{ background: "#000", minHeight: "100vh" }}>
+    <div key="noir_personality" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
-      <SubHeader title="Noir" />
-      <div className="px-4 pt-6 space-y-6">
+      <SubHeader title="Noir Personality" />
+      
+      <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
         
-        <div className="space-y-4">
-          
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
-            <div className="flex flex-col w-full px-4 py-3 text-left">
-              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Favorite emoji</h2>
-              <input 
-                value={favoriteEmojiField}
-                onChange={(e) => setFavoriteEmojiField(e.target.value)}
-                placeholder="Enter your favorite emoji"
-                className="bg-transparent text-[16px] font-medium text-white w-full outline-none placeholder:text-[#555558]"
-                style={{ fontFamily: SF }}
-              />
-            </div>
-          </div>
+        <ExpandingInput label="Favorite emoji" maxLength={16} value={favoriteEmojiField} onChange={setFavoriteEmojiField} />
+        
+        <ExpandingInput label="Personality" maxLength={512} value={personalityField} onChange={setPersonalityField} placeholder="Curious, smart, beautiful..." />
 
-          <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] pb-2 pt-2 relative z-10">
-            <div className="flex flex-col w-full px-4 py-3 text-left">
-              <h2 className="text-[#60a5fa] text-[15px] font-semibold mb-2" style={{ fontFamily: SF }}>Personality</h2>
-              <textarea 
-                value={personalityField}
-                onChange={(e) => setPersonalityField(e.target.value)}
-                placeholder="Curious, smart, beautiful..."
-                rows={3}
-                className="bg-transparent text-[16px] font-medium text-white w-full outline-none placeholder:text-[#555558] resize-none"
-                style={{ fontFamily: SF }}
-              />
-            </div>
-          </div>
-
-        </div>
-
-        <div className="flex items-center gap-4 mt-8 w-full">
+        <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
                style={{ fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Cancel</span>
@@ -1040,7 +1023,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={saveNoirInfo} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-[14px] text-black font-medium active:opacity-80 transition-opacity" 
               style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Update</span>
@@ -1056,11 +1039,11 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       
-      <div style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}></div>
+      <SubHeader title="Account Setup" />
 
       <div className="flex flex-col items-center mt-2 mb-6 relative z-10">
         
-        <div className="relative w-[130px] h-[130px] flex items-center justify-center rounded-full mb-6 mt-8">
+        <div className="relative w-[130px] h-[130px] flex items-center justify-center rounded-full mb-6 mt-4">
           
           <svg className="absolute inset-0 w-full h-full transform -rotate-90 z-20 pointer-events-none" viewBox="0 0 100 100">
             <circle cx="50" cy="50" r="47" stroke="#1c1c1e" strokeWidth="4" fill="none" />
@@ -1184,69 +1167,55 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
   // ── Capabilities Sub-page ──────────────────────────────────────────────────
   if (page === "capabilities") return (
-    <div key="capabilities" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto scrollbar-native"
+    <div key="capabilities" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto"
          style={{ background: "#000", minHeight: "100vh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Capabilities" />
       <div className="px-4 pt-6 pb-28 space-y-6">
 
-        {/* Memory Section */}
         <Section title="Memory">
-          <div className="flex items-center justify-between px-4 py-3 relative z-10">
-            <div className="flex flex-col flex-1 pr-4">
-              <span className="text-[16px] font-medium text-white leading-tight" style={{ fontFamily: SF }}>Generate memory from chat history</span>
-              <span className="text-[#8e8e93] text-[13px] mt-1.5 leading-snug" style={{ fontFamily: SF }}>
-                Allow Noir to remember relevant context from your chats. This setting controls memory for both chats and projects.
-              </span>
-            </div>
-            <Toggle on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />
-          </div>
+          <Row 
+            label="Generate memory from chat history"
+            sublabel="Allow Noir to remember relevant context from your chats. This setting controls memory for both chats and projects."
+            rightNode={<SwitchNode on={personalizeMemories} onToggle={handlePersonalizeToggle} disabled={saving === "personalize"} />}
+            onClick={handlePersonalizeToggle}
+            alignItems="start"
+            last
+          />
         </Section>
 
-        {/* Tool Access Section */}
         <Section title="Tool access">
           {[
             { id: "Auto", desc: "Noir chooses for you" },
             { id: "On demand", desc: "Load when needed. More messages, lower accuracy" },
             { id: "Always available", desc: "Ready from start. Fewer messages, better accuracy" },
             { id: "Off", desc: "Disabled. Saves usage — ideal for simple conversations" },
-          ].map((t) => (
-            <button
+          ].map((t, idx, arr) => (
+            <Row 
               key={t.id}
+              label={t.id}
+              sublabel={t.desc}
+              rightNode={savingToolAccess && toolAccess === t.id ? <Loader2 className="w-[18px] h-[18px] animate-spin text-[#60a5fa]" /> : <RadioButton selected={toolAccess === t.id} />}
               onClick={() => handleToolAccessChange(t.id)}
-              onPointerDown={createRipple}
-              disabled={savingToolAccess}
-              className="relative overflow-hidden w-full px-4 py-3 flex items-center justify-between active:bg-white/5 transition-colors text-left"
-            >
-              <div className="flex flex-col flex-1 pr-4 relative z-10">
-                <span className={`text-[16px] font-medium leading-tight ${toolAccess === t.id ? "text-[#60a5fa]" : "text-white"}`} style={{ fontFamily: SF }}>{t.id}</span>
-                <span className={`text-[13px] mt-[3px] leading-snug ${toolAccess === t.id ? "text-[#60a5fa]" : "text-[#8e8e93]"}`} style={{ fontFamily: SF }}>{t.desc}</span>
-              </div>
-              <div className="shrink-0 relative z-10 ml-2">
-                {savingToolAccess && toolAccess === t.id
-                  ? <Loader2 className="w-[18px] h-[18px] animate-spin text-[#60a5fa]" />
-                  : <RadioButton selected={toolAccess === t.id} />
-                }
-              </div>
-            </button>
+              alignItems="start"
+              last={idx === arr.length - 1}
+            />
           ))}
         </Section>
 
-        {/* Danger Zone Section */}
         <Section title="Danger Zone">
           <Row
             leftNode={<IconFlat icon={saving === "del_mem" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_mem"} />}
             label={saving === "del_mem" ? "Deleting..." : "Delete All Memories"}
             onClick={handleDeleteMemories}
             danger
-            hideArrow
           />
           <Row
             leftNode={<IconFlat icon={saving === "del_hist" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_hist"} />}
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
-            hideArrow
+            last
           />
         </Section>
 
@@ -1259,12 +1228,10 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     const grokInfo   = mergedTokenStatus?.["Grok 4.3"]
     const geminiInfo = mergedTokenStatus?.["Gemini 3.5 Flash"]
 
-    // Uso combinado para la barra principal (promedio ponderado)
     const combinedPct = (grokInfo && geminiInfo)
       ? Math.round((grokInfo.pct + geminiInfo.pct) / 2)
       : grokInfo?.pct ?? geminiInfo?.pct ?? 0
 
-    // Hora de reset más próxima entre los dos modelos
     const earliestResetIso = (() => {
       const times = [grokInfo?.reset_iso, geminiInfo?.reset_iso].filter(Boolean) as string[]
       if (!times.length) return undefined
@@ -1272,19 +1239,15 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     })()
 
     const resetTimeDisplay = formatResetTime(earliestResetIso)
-
     const barColor = combinedPct >= 90 ? "#ef4444" : combinedPct >= 70 ? "#f97316" : "#ffffff"
 
     return (
       <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
            style={{ background: "#000", minHeight: "100vh" }}>
         <style>{RIPPLE_STYLE}</style>
-        <div className="flex items-center justify-center px-4 pb-3 invisible pointer-events-none" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
-          <h2 className="font-semibold" style={{ fontSize: "16px", fontFamily: SFD }}>&nbsp;</h2>
-        </div>
+        <SubHeader title="" />
         
         <div className="px-4 pt-2 pb-28 space-y-6">
-          {/* Encabezado */}
           <div className="space-y-3">
             <div className="flex items-center gap-2.5">
               <h1 className="text-[28px] font-bold text-white leading-none" style={{ fontFamily: SFD }}>Usage Limits</h1>
@@ -1302,7 +1265,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             </p>
           </div>
 
-          {/* Barra de uso combinado */}
           <div className="space-y-3">
             <div className="rounded-[24px] bg-[#111111] p-5 border border-white/5 relative z-10 shadow-lg">
               <div className="flex items-center justify-between mb-3.5">
@@ -1342,7 +1304,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             </div>
           </div>
 
-          {/* Cards individuales por modelo */}
           <div className="space-y-3">
             {[
               { label: "Grok 4.3", info: grokInfo, logo: "/grok.png" },
@@ -1382,7 +1343,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             })}
           </div>
 
-          {/* Upgrade CTA para usuarios Free */}
           {!isPremium && (
             <button
               onClick={() => setCurrentView("premium")}
@@ -1403,13 +1363,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     <div key="main" className="flex-1 overflow-y-auto animate-in fade-in duration-500 ease-out" style={{ background: "#000" }}>
        <style>{RIPPLE_STYLE}</style>
       
-      <div className="flex items-center justify-center px-4 pb-3" style={{
-        paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
-      }}>
-        <h2 className="font-semibold text-white" style={{ fontSize: "16px", fontFamily: SFD, letterSpacing: "-0.01em" }}>
-          Settings
-        </h2>
-      </div>
+      <SubHeader title="Settings" />
 
       <div className="px-4 pt-4 pb-28 space-y-6">
 
@@ -1432,6 +1386,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             label="Account Setup"
             value="Edit"
             onClick={() => { setPage("prefs") }}
+            last
           />
         </Section>
 
@@ -1446,6 +1401,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             leftNode={<IconFlat icon={ChartPie} color="#34c759" />}
             label="Usage Limits"
             onClick={() => setPage("usage_limits")}
+            last
           />
         </Section>
 
@@ -1455,6 +1411,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             leftNode={<IconFlat icon={Settings2} color="#8e8e93" />}
             label="Capabilities"
             onClick={() => setPage("capabilities")}
+            last
           />
         </Section>
 
@@ -1476,6 +1433,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             onClick={() => setShowReportModal(true)}
             leftNode={<IconFlat icon={MessageCircle} color="#ff9500" />}
             label="Feedback & Support"
+            last
           />
          </Section>
       </div>
