@@ -3,8 +3,8 @@
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { 
-  Clock, X, Loader2, CheckCircle2, AlertCircle, 
-  Trash2, ChevronDown
+  Clock, Plus, X, Loader2, CheckCircle2, AlertCircle, 
+  Trash2, ChevronDown, Pause
 } from "lucide-react"
 import React from "react"
 
@@ -13,7 +13,7 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
 
-// ── Estilos Globales y Glow ──
+// ── Styles ──
 const RIPPLE_STYLE = `
   .ripple {
     position: absolute;
@@ -71,7 +71,7 @@ async function apiPost(endpoint: string, body: Record<string, unknown>) {
   return res.json()
 }
 
-// ── Tipos ──
+// ── Types ──
 interface ScheduleItem {
   id: number;
   title: string; 
@@ -81,41 +81,58 @@ interface ScheduleItem {
   extra: string; 
 }
 
-// ── Tareas Prediseñadas (Rotativas) ──
+// ── English Mocks ──
 const MOCK_TASKS = [
   {
-    title: "Resumen Diario de Tecnología",
+    title: "Tech Daily Brief",
     frequency: "Daily", time: "08:00", dayOfWeek: "Mon",
-    prompt: "Resume los desarrollos más importantes en IA y Tecnología de las últimas 24 horas, incluyendo nuevas herramientas, actualizaciones y anuncios. Prioriza lanzamientos de modelos, nuevos artículos y proyectos de código abierto e incluye enlaces a fuentes de búsquedas web. Organiza la información para que sea fácilmente digerible y legible."
+    prompt: "Summarize the most important developments in AI and Tech from the last 24 hours, including new tools, updates, and announcements. Prioritize model releases and open-source projects, including web search links. Organize the information to be easily digestible and readable."
   },
   {
-    title: "Rendimiento de Acciones",
+    title: "Stock Performance",
     frequency: "Daily", time: "16:00", dayOfWeek: "Mon",
-    prompt: "Dame las últimas actualizaciones sobre $TON, $BTC, $NVDA, $PLTR, $ETH, incluyendo precio actual, cambios recientes y proyecciones. Analiza el sentimiento, indicadores de mercado y posibles razones de los movimientos. Organiza la información para que sea fácilmente digerible y legible."
+    prompt: "Give me the latest updates on $TON, $BTC, $NVDA, $PLTR, $ETH, including current price, recent changes, and projections. Analyze market sentiment and possible reasons for the movements. Organize the information to be easily digestible."
   },
   {
-    title: "Pronóstico del Clima y Ropa",
+    title: "Weather & Wardrobe",
     frequency: "Daily", time: "07:00", dayOfWeek: "Mon",
-    prompt: "Investiga el clima de hoy para mi ubicación, proporcionando probabilidad de lluvia, temperaturas máximas/mínimas y una recomendación práctica sobre cómo vestirme o qué llevar (paraguas, abrigo)."
+    prompt: "Research today's weather for my location, providing rain probability, high/low temperatures, and a practical recommendation on how to dress or what to carry."
   },
   {
-    title: "Reflexión Estoica Nocturna",
+    title: "Stoic Reflection",
     frequency: "Daily", time: "21:30", dayOfWeek: "Mon",
-    prompt: "Proporciona una cita estoica poderosa para cerrar el día y una pregunta de introspección profunda de un párrafo para reflexionar antes de dormir."
+    prompt: "Provide a powerful stoic quote to close the day and a deep introspection question for me to reflect on before going to sleep."
   },
   {
-    title: "Resumen Semanal Cripto",
+    title: "Weekly Crypto Recap",
     frequency: "Weekly", time: "18:00", dayOfWeek: "Fri",
-    prompt: "Haz un análisis completo del movimiento semanal del top 10 criptomonedas. Señala cuáles subieron más, cuáles bajaron, y las noticias clave que definieron el mercado esta semana."
+    prompt: "Do a comprehensive analysis of the weekly movement of the top 10 cryptocurrencies. Point out which ones went up the most, which dropped, and the key news that defined the market this week."
   },
   {
-    title: "Coaching de Metas",
+    title: "Goal Coaching",
     frequency: "Weekly", time: "10:00", dayOfWeek: "Sun",
-    prompt: "Genera 3 preguntas de coaching de alto rendimiento para evaluar mi productividad de la semana que termina y ayudarme a priorizar estratégicamente la que comienza."
+    prompt: "Generate 3 high-performance coaching questions to evaluate my productivity for the week ending today and help me strategically prioritize the one starting tomorrow."
   }
 ]
 
-// ── Componentes UI ──
+const FREQ_OPTIONS = [
+  { value: "Once", label: "Once" },
+  { value: "Daily", label: "Daily" },
+  { value: "Weekly", label: "Weekly" },
+  { value: "Monthly", label: "Monthly" }
+]
+
+const DOW_OPTIONS = [
+  { value: "Mon", label: "Monday" },
+  { value: "Tue", label: "Tuesday" },
+  { value: "Wed", label: "Wednesday" },
+  { value: "Thu", label: "Thursday" },
+  { value: "Fri", label: "Friday" },
+  { value: "Sat", label: "Saturday" },
+  { value: "Sun", label: "Sunday" }
+]
+
+// ── UI Components ──
 function Toggle({ on, onToggle, disabled, activeColor = "#ffffff" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <button
@@ -130,11 +147,7 @@ function Toggle({ on, onToggle, disabled, activeColor = "#ffffff" }: { on: boole
 }
 
 function SwitchNode({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean; }) {
-  return (
-    <div className="flex items-center">
-      <Toggle on={on} onToggle={onToggle} disabled={disabled} activeColor="#ffffff" />
-    </div>
-  )
+  return <div className="flex items-center"><Toggle on={on} onToggle={onToggle} disabled={disabled} activeColor="#ffffff" /></div>
 }
 
 function Section({ children }: { children: React.ReactNode }) {
@@ -241,33 +254,15 @@ function Toast({ msg, type }: { msg: string; type: "success"|"error" }) {
   )
 }
 
-// ── Opciones para Dropdowns ──
-const FREQ_OPTIONS = [
-  { value: "Once", label: "Una vez" },
-  { value: "Daily", label: "Diariamente" },
-  { value: "Weekly", label: "Semanalmente" },
-  { value: "Monthly", label: "Mensualmente" }
-]
-
-const DOW_OPTIONS = [
-  { value: "Mon", label: "Lunes" },
-  { value: "Tue", label: "Martes" },
-  { value: "Wed", label: "Miércoles" },
-  { value: "Thu", label: "Jueves" },
-  { value: "Fri", label: "Viernes" },
-  { value: "Sat", label: "Sábado" },
-  { value: "Sun", label: "Domingo" }
-]
-
-// ── Componente Principal ──
+// ── Main Component ──
 export function ScheduleView() {
   const { setCurrentView } = useApp()
   const [tasks, setTasks] = useState<ScheduleItem[]>([])
   const [loadingItems, setLoadingItems] = useState(true)
   const [toast, setToast] = useState<{msg:string;type:"success"|"error"}|null>(null)
   const [suggestedTasks, setSuggestedTasks] = useState<typeof MOCK_TASKS>([])
+  const [selectedTask, setSelectedTask] = useState<ScheduleItem | null>(null)
 
-  // ── Lógica del Calendario ──
   const monthStr = new Date().toLocaleDateString('en-US',{month:'short'}).toUpperCase()
   const yearStr  = new Date().getFullYear().toString()
   const [selectedDate, setSelectedDate] = useState<string|"All">("All")
@@ -287,12 +282,17 @@ export function ScheduleView() {
     return tasks.filter(t => { try{ return new Date(t.fire_at).toDateString() === selectedDate }catch{return false} })
   }, [tasks, selectedDate])
 
-  // Contadores para la barra flotante
+  const totalTasks = tasks.length
   const dailyTasksCount = tasks.filter(t => t.repeat_type === "Daily").length
-  const remainingDaily = Math.max(0, 2 - dailyTasksCount)
-  const ringOffset = 88 - (dailyTasksCount / 2) * 88
 
-  // Estados del Formulario
+  // Counters for the UI
+  const limitTotal = 10
+  const limitDaily = 2
+  
+  const remainingTotal = Math.max(0, limitTotal - totalTasks)
+  const ringOffsetTotal = 88 - (totalTasks / limitTotal) * 88
+
+  // States for Create Form
   const [isCreating, setIsCreating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [title, setTitle] = useState("")
@@ -306,6 +306,13 @@ export function ScheduleView() {
   const [emailEnabled, setEmailEnabled] = useState(false)
   
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+
+  // Dynamic counter inside the creation modal based on frequency
+  const isDailyForm = frequency === "Daily"
+  const remainingForm = isDailyForm ? Math.max(0, limitDaily - dailyTasksCount) : remainingTotal
+  const maxForm = isDailyForm ? limitDaily : limitTotal
+  const currentForm = isDailyForm ? dailyTasksCount : totalTasks
+  const ringOffsetForm = 88 - (currentForm / maxForm) * 88
 
   const showToast = useCallback((msg:string,type:"success"|"error")=>{
     setToast({msg,type}); setTimeout(()=>setToast(null),3500)
@@ -321,7 +328,6 @@ export function ScheduleView() {
     finally { setLoadingItems(false) }
   },[])
 
-  // Fetch Items & Mezclar Prompts Sugeridos
   useEffect(()=>{ 
     fetchItems() 
     const shuffled = [...MOCK_TASKS].sort(() => 0.5 - Math.random())
@@ -333,13 +339,14 @@ export function ScheduleView() {
     if(!tg?.BackButton) return
     tg.BackButton.show()
     const handleBack=()=>{
-      if (activeDropdown) setActiveDropdown(null)
+      if (selectedTask) setSelectedTask(null)
+      else if (activeDropdown) setActiveDropdown(null)
       else if (isCreating) setIsCreating(false)
       else { setCurrentView("home" as any); tg.BackButton.hide() }
     }
     tg.BackButton.onClick(handleBack)
     return ()=>tg.BackButton.offClick(handleBack)
-  },[isCreating, activeDropdown, setCurrentView])
+  },[isCreating, activeDropdown, selectedTask, setCurrentView])
 
   const openMockCard = (mock: typeof MOCK_TASKS[0]) => {
     setIsCreating(true)
@@ -358,17 +365,16 @@ export function ScheduleView() {
 
   const handleSaveTask = async () => {
     if (!title.trim() || !prompt.trim()) {
-      showToast("Título y Prompt son obligatorios.", "error")
+      showToast("Title and Prompt are required.", "error")
       return
     }
 
-    const totalTasks = tasks.length
-    if (totalTasks >= 10) {
-      showToast("Has alcanzado el límite de 10 tareas activas.", "error")
+    if (totalTasks >= limitTotal) {
+      showToast("You have reached the limit of 10 active tasks.", "error")
       return
     }
-    if (frequency === "Daily" && dailyTasksCount >= 2) {
-      showToast("Solo puedes tener 2 tareas diarias activas simultáneamente.", "error")
+    if (frequency === "Daily" && dailyTasksCount >= limitDaily) {
+      showToast("You can only have 2 daily tasks active simultaneously.", "error")
       return
     }
 
@@ -380,11 +386,11 @@ export function ScheduleView() {
         extra: extraData, event_type: "Custom Prompt", fire_at: new Date().toISOString()
       })
       if(data.success){
-        showToast("Tarea programada exitosamente ✨","success")
+        showToast("Task scheduled successfully ✨","success")
         await fetchItems()
         setIsCreating(false)
         resetForm()
-      } else { showToast(data.message||"No se pudo guardar.","error") }
+      } else { showToast(data.message||"Could not save.","error") }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch(e:any){ showToast(`Error: ${e.message}`,"error") }
     finally{ setIsSaving(false) }
@@ -393,8 +399,17 @@ export function ScheduleView() {
   const handleDelete = async (id: number) => {
     try {
       const data = await apiPost("/api/schedule_delete",{item_id:id})
-      if(data.success){ setTasks(p=>p.filter(t=>t.id!==id)); showToast("Tarea eliminada.","success") }
+      if(data.success){ 
+        setTasks(p=>p.filter(t=>t.id!==id))
+        showToast("Task archived.","success") 
+        setSelectedTask(null)
+      }
     } catch(e) { console.error(e) }
+  }
+
+  const handlePause = () => {
+    showToast("Task paused.", "success")
+    setSelectedTask(null)
   }
 
   const formatFrequencyText = (item: ScheduleItem) => {
@@ -408,57 +423,67 @@ export function ScheduleView() {
 
     const [h, m] = t.split(":")
     let hh = parseInt(h)
-    const ampm = hh >= 12 ? "p.m." : "a.m."
+    const ampm = hh >= 12 ? "PM" : "AM"
     hh = hh % 12 || 12
     const timeStr = `${hh}:${m} ${ampm}`
 
     switch (item.repeat_type) {
-      case "Once": return `Una vez a las ${timeStr}`
-      case "Daily": return `Diariamente a las ${timeStr}`
-      case "Weekly": return `Los ${DOW_OPTIONS.find(d=>d.value===day)?.label || day} a las ${timeStr}`
-      case "Monthly": return `Mensualmente a las ${timeStr}`
-      default: return `A las ${timeStr}`
+      case "Once": return `Once at ${timeStr}`
+      case "Daily": return `Daily at ${timeStr}`
+      case "Weekly": return `${DOW_OPTIONS.find(d=>d.value===day)?.label || day}s at ${timeStr}`
+      case "Monthly": return `Monthly at ${timeStr}`
+      default: return `At ${timeStr}`
     }
   }
 
-  const GrokTaskCard = ({ item }: { item: ScheduleItem }) => {
-    return (
-      <div className="w-full bg-[#111111] rounded-[20px] p-4 flex flex-col gap-2.5 border border-white/5 relative group shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <Clock className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
-            <span className="text-white text-[16px] font-bold tracking-tight" style={{ fontFamily: SFD }}>
-              {item.title}
-            </span>
-          </div>
-          <button onClick={() => handleDelete(item.id)} className="p-1.5 text-[#555558] hover:text-[#ff453a] transition-colors active:scale-90">
-             <Trash2 className="w-[18px] h-[18px]"/>
-          </button>
-        </div>
-        <span className="text-[#8e8e93] text-[14px] font-medium -mt-1" style={{ fontFamily: SF }}>
-          {formatFrequencyText(item)}
-        </span>
-        <p className="text-[#636366] text-[14px] leading-relaxed line-clamp-2" style={{ fontFamily: SF }}>
-          {item.description}
-        </p>
-      </div>
-    )
+  const getNextRunMock = (item: ScheduleItem) => {
+    const today = new Date()
+    today.setDate(today.getDate() + 1)
+    const dtStr = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    let t = "00:00:00"
+    try {
+      const ex = JSON.parse(item.extra || "{}")
+      if (ex.time) t = ex.time + ":00"
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {}
+    
+    const [h, m, s] = t.split(":")
+    let hh = parseInt(h)
+    const ampm = hh >= 12 ? "PM" : "AM"
+    hh = hh % 12 || 12
+    return `${dtStr}, ${hh}:${m}:${s} ${ampm}`
   }
+
+  const LimitsIndicator = ({ offset, remaining, current, max, label }: { offset: number, remaining: number, current: number, max: number, label: string }) => (
+    <div className="flex items-center gap-3">
+      <div className="relative w-[34px] h-[34px] flex items-center justify-center">
+        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="14" fill="none" stroke="#2c2c2e" strokeWidth="4.5" />
+          <circle cx="18" cy="18" r="14" fill="none" stroke="#ffffff" strokeWidth="4.5" strokeDasharray="88" strokeDashoffset={offset} strokeLinecap="round" className="transition-all duration-700" />
+        </svg>
+      </div>
+      <div className="flex flex-col -mt-0.5">
+        <span className="text-white text-[14px] font-bold tracking-tight" style={{fontFamily: SF}}>
+          {remaining} {label} remaining
+        </span>
+        <span className="text-[#8e8e93] text-[12.5px]" style={{fontFamily: SF}}>
+          Current: {current}/{max} active {label}
+        </span>
+      </div>
+    </div>
+  )
 
   return (
     <div className="flex-1 flex flex-col min-h-screen bg-[#000000] text-white select-none overflow-hidden relative">
       <style>{RIPPLE_STYLE}</style>
       {toast && <Toast msg={toast.msg} type={toast.type}/>}
 
-      {/* ── Calendario Superior ── */}
+      {/* ── Top Calendar ── */}
       <div className="pt-[calc(var(--tg-safe-area-inset-top,24px)+20px)] relative z-10 flex flex-col">
-        {/* Mes y Año */}
         <div className="flex justify-center items-end gap-1">
           <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
           <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
         </div>
-
-        {/* Semanal */}
         <div className="flex justify-between items-center px-6 mt-4 mb-2">
           <button onClick={()=>setSelectedDate("All")} className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate==="All"?"text-white":"text-[#8e8e93]"}`} style={selectedDate==="All" ? greyGlowStyle : {}}>
             <span className="text-[14px] font-bold" style={{fontFamily:SF}}>All</span>
@@ -469,7 +494,6 @@ export function ScheduleView() {
             let dotClass = ""
             if(isSel) dotClass = "bg-white"
             else if(day.isToday) dotClass = "bg-[#ef4444]"
-            
             return (
               <button key={idx} onClick={()=>setSelectedDate(day.full)} className={`flex flex-col items-center gap-1.5 relative w-10 transition-all ${isSel?"opacity-100":"opacity-60 hover:opacity-80"}`}>
                 <div className={`w-[5px] h-[5px] rounded-full transition-colors ${dotClass}`} style={{opacity:dotClass?1:0}}/>
@@ -481,73 +505,111 @@ export function ScheduleView() {
         </div>
       </div>
 
-      {/* ── Título y Lista de Tareas ── */}
-      <div className="px-5 mt-4">
+      {/* ── Header ── */}
+      <div className="px-5 mt-4 flex items-center justify-between">
         <h1 className="text-[28px] font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>Tasks</h1>
-      </div>
-
-      <div className="px-5 mt-3 pb-32 flex flex-col gap-4 overflow-y-auto no-scrollbar relative z-10 flex-1">
-        {loadingItems ? (
-           <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-[#555558]"/></div>
-        ) : filteredTasks.length === 0 ? (
-          
-          <div className="grid grid-cols-2 gap-3 mt-1">
-             {suggestedTasks.map((mock, idx) => (
-                <div key={idx} onClick={() => openMockCard(mock)} className="w-full bg-[#111111] rounded-[20px] p-4 flex flex-col gap-1.5 border border-white/5 cursor-pointer active:bg-white/5 transition-colors shadow-sm">
-                   <Clock className="w-[16px] h-[16px] text-white shrink-0 mb-1" strokeWidth={2.5} />
-                   <span className="text-white text-[14px] font-bold tracking-tight leading-tight line-clamp-2" style={{ fontFamily: SFD }}>
-                     {mock.title}
-                   </span>
-                   <span className="text-[#8e8e93] text-[12px] font-medium" style={{ fontFamily: SF }}>
-                     {mock.frequency === 'Daily' ? 'Diario' : 'Semanal'}
-                   </span>
-                   <p className="text-[#636366] text-[12px] leading-snug line-clamp-3 mt-1" style={{ fontFamily: SF }}>
-                     {mock.prompt}
-                   </p>
-                </div>
-             ))}
-          </div>
-
-        ) : (
-          filteredTasks.map(t => <GrokTaskCard key={t.id} item={t} />)
-        )}
-      </div>
-
-      {/* ── Barra Flotante Inferior (Bottom Bar) ── */}
-      <div className="fixed left-4 right-4 z-40 p-2 rounded-full flex items-center justify-between" 
-           style={{ ...greyGlowStyle, bottom: "calc(var(--tg-safe-area-inset-bottom, 16px) + 16px)" }}>
-        
-        <div className="flex items-center gap-3 pl-2">
-          {/* Anillo de Progreso SVG */}
-          <div className="relative w-[34px] h-[34px] flex items-center justify-center">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-              <circle cx="18" cy="18" r="14" fill="none" stroke="#2c2c2e" strokeWidth="4.5" />
-              <circle cx="18" cy="18" r="14" fill="none" stroke="#ffffff" strokeWidth="4.5" strokeDasharray="88" strokeDashoffset={ringOffset} strokeLinecap="round" className="transition-all duration-700" />
-            </svg>
-          </div>
-          <div className="flex flex-col -mt-0.5">
-            <span className="text-white text-[14px] font-bold tracking-tight" style={{fontFamily: SF}}>
-              Quedan {remainingDaily} tareas diarias
-            </span>
-            <span className="text-[#8e8e93] text-[12.5px]" style={{fontFamily: SF}}>
-              Actual: {dailyTasksCount}/2 tareas diarias activas
-            </span>
-          </div>
-        </div>
-
-        <button 
-          onClick={() => {resetForm(); setIsCreating(true)}} 
-          className="bg-white text-black px-5 h-[38px] flex items-center justify-center rounded-full font-bold text-[14px] active:scale-95 transition-transform" 
-          style={{fontFamily: SF}}
-        >
-          Crear tarea
+        <button onClick={() => {resetForm(); setIsCreating(true)}} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-90 transition-transform">
+          <Plus className="w-5 h-5 text-white" />
         </button>
       </div>
 
-      {/* ── Modal de Creación Plana ── */}
+      {/* ── Content ── */}
+      <div className="px-5 mt-3 pb-32 flex flex-col overflow-y-auto no-scrollbar relative z-10 flex-1">
+        
+        {/* Compact Mocks */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+           {suggestedTasks.map((mock, idx) => (
+              <div key={idx} onClick={() => openMockCard(mock)} className="w-full bg-[#1c1c1e] rounded-[16px] p-3.5 flex flex-col gap-1 cursor-pointer active:bg-[#2c2c2e] transition-colors shadow-sm">
+                 <span className="text-white text-[15px] font-bold tracking-tight leading-tight line-clamp-1" style={{ fontFamily: SFD }}>
+                   {mock.title}
+                 </span>
+                 <p className="text-[#8e8e93] text-[12px] leading-snug line-clamp-2 mt-0.5" style={{ fontFamily: SF }}>
+                   {mock.prompt}
+                 </p>
+              </div>
+           ))}
+        </div>
+
+        {/* Real Tasks List */}
+        {loadingItems ? (
+           <div className="flex items-center justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-[#555558]"/></div>
+        ) : filteredTasks.length > 0 ? (
+          <div className="flex flex-col">
+            {filteredTasks.map((item, idx) => (
+              <div key={item.id} onClick={() => setSelectedTask(item)} className={`w-full flex items-center justify-between py-3.5 ${idx !== filteredTasks.length - 1 ? 'border-b border-[#1c1c1e]' : ''} active:opacity-60 transition-opacity cursor-pointer`}>
+                 <div className="flex flex-col gap-1">
+                    <span className="text-white text-[17px] font-medium tracking-tight" style={{ fontFamily: SFD }}>{item.title}</span>
+                    <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{formatFrequencyText(item)}</span>
+                 </div>
+                 <div className="flex items-center gap-1.5 text-[#636366]">
+                    <Clock className="w-[14px] h-[14px]" strokeWidth={2.5}/>
+                    <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>Scheduled</span>
+                 </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-10 opacity-50">
+             <span className="text-[#8e8e93] text-[15px]" style={{fontFamily: SF}}>No active tasks</span>
+          </div>
+        )}
+      </div>
+
+      {/* ── Bottom Bar ── */}
+      <div className="fixed left-4 right-4 z-40 p-2 rounded-full flex items-center justify-between shadow-2xl" 
+           style={{ ...greyGlowStyle, bottom: "calc(var(--tg-safe-area-inset-bottom, 16px) + 16px)" }}>
+        <div className="pl-2">
+          <LimitsIndicator offset={ringOffsetTotal} remaining={remainingTotal} current={totalTasks} max={limitTotal} label="tasks" />
+        </div>
+        <button onClick={() => {resetForm(); setIsCreating(true)}} className="bg-white text-black px-5 h-[38px] flex items-center justify-center rounded-full font-bold text-[14px] active:scale-95 transition-transform" style={{fontFamily: SF}}>
+          Create task
+        </button>
+      </div>
+
+      {/* ── View Task Bottom Sheet ── */}
+      {selectedTask && (
+        <div className="absolute inset-0 z-[70] flex flex-col justify-end animate-in fade-in duration-300">
+           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedTask(null)} />
+           <div className="relative w-full bg-[#111111] rounded-t-[28px] p-6 pb-12 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#1c1c1e] animate-in slide-in-from-bottom duration-400">
+              <div className="w-10 h-1.5 bg-[#2c2c2e] rounded-full self-center mb-6" />
+              
+              <h2 className="text-white text-center text-[22px] font-bold mb-8" style={{fontFamily: SFD}}>{selectedTask.title}</h2>
+
+              <div className="flex flex-col gap-6">
+                 <div>
+                    <h3 className="text-white text-[17px] font-semibold mb-1" style={{fontFamily: SFD}}>Schedule</h3>
+                    <p className="text-[#8e8e93] text-[15px]" style={{fontFamily: SF}}>{formatFrequencyText(selectedTask)}</p>
+                    <p className="text-[#555558] text-[13px] mt-1" style={{fontFamily: SF}}>Next run: {getNextRunMock(selectedTask)}</p>
+                 </div>
+
+                 <div>
+                    <h3 className="text-white text-[17px] font-semibold mb-1.5" style={{fontFamily: SFD}}>Instruction</h3>
+                    <p className="text-[#8e8e93] text-[15px] leading-relaxed" style={{fontFamily: SF}}>{selectedTask.description}</p>
+                 </div>
+
+                 <div className="flex flex-col gap-3 mt-2">
+                    <button onClick={handlePause} className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[20px] bg-[#1c1c1e] active:scale-[0.98] transition-transform">
+                       <Pause className="w-5 h-5 text-white fill-white" />
+                       <span className="text-white font-bold text-[16px]" style={{fontFamily: SF}}>Pause</span>
+                    </button>
+                    <button onClick={() => handleDelete(selectedTask.id)} className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[20px] bg-[#1c1c1e] active:scale-[0.98] transition-transform">
+                       <Trash2 className="w-5 h-5 text-white" />
+                       <span className="text-white font-bold text-[16px]" style={{fontFamily: SF}}>Archive</span>
+                    </button>
+                 </div>
+
+                 <div className="mt-4">
+                    <h3 className="text-white text-[17px] font-semibold mb-3" style={{fontFamily: SFD}}>History</h3>
+                    <p className="text-[#555558] text-[14px]" style={{fontFamily: SF}}>No records yet</p>
+                 </div>
+              </div>
+           </div>
+        </div>
+      )}
+
+      {/* ── Create Task Modal ── */}
       {isCreating && (
-        <div className="absolute inset-0 z-[60] bg-[#000000] flex flex-col animate-in slide-in-from-bottom duration-300">
-          
+        <div className="absolute inset-0 z-[80] bg-[#000000] flex flex-col animate-in slide-in-from-bottom duration-300">
           <div className="flex items-center justify-between px-5 pt-[calc(var(--tg-safe-area-inset-top,24px)+40px)] pb-6 shrink-0">
             <button onClick={() => setIsCreating(false)} className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity bg-[#1c1c1e] rounded-full">
               <X className="w-5 h-5 text-[#8e8e93]" strokeWidth={2.5} />
@@ -560,47 +622,27 @@ export function ScheduleView() {
 
           <div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-32 space-y-6 pt-2">
             
-            <ExpandingInput label="Title" maxLength={60} value={title} onChange={setTitle} placeholder="Ej. Resumen Diario" />
+            <ExpandingInput label="Title" maxLength={60} value={title} onChange={setTitle} placeholder="e.g. Daily Recap" />
 
             <div className="flex flex-col gap-5">
-               <DropdownSelect 
-                 label="Frequency"
-                 value={frequency}
-                 options={FREQ_OPTIONS}
-                 isOpen={activeDropdown === 'frequency'}
-                 onToggle={() => setActiveDropdown(activeDropdown === 'frequency' ? null : 'frequency')}
-                 onSelect={setFrequency}
-               />
-
-               {frequency === "Once" && (
-                 <ExpandingInput label="Date" type="date" value={specificDate} onChange={setSpecificDate} />
-               )}
-
-               {frequency === "Weekly" && (
-                 <DropdownSelect 
-                   label="Day of Week"
-                   value={dayOfWeek}
-                   options={DOW_OPTIONS}
-                   isOpen={activeDropdown === 'dayOfWeek'}
-                   onToggle={() => setActiveDropdown(activeDropdown === 'dayOfWeek' ? null : 'dayOfWeek')}
-                   onSelect={setDayOfWeek}
-                 />
-               )}
-
-               {frequency === "Monthly" && (
-                 <ExpandingInput label="Day of Month" type="number" min="1" max="31" value={dayOfMonth} onChange={setDayOfMonth} />
-               )}
-
+               <DropdownSelect label="Frequency" value={frequency} options={FREQ_OPTIONS} isOpen={activeDropdown === 'frequency'} onToggle={() => setActiveDropdown(activeDropdown === 'frequency' ? null : 'frequency')} onSelect={setFrequency} />
+               {frequency === "Once" && ( <ExpandingInput label="Date" type="date" value={specificDate} onChange={setSpecificDate} /> )}
+               {frequency === "Weekly" && ( <DropdownSelect label="Day of Week" value={dayOfWeek} options={DOW_OPTIONS} isOpen={activeDropdown === 'dayOfWeek'} onToggle={() => setActiveDropdown(activeDropdown === 'dayOfWeek' ? null : 'dayOfWeek')} onSelect={setDayOfWeek} /> )}
+               {frequency === "Monthly" && ( <ExpandingInput label="Day of Month" type="number" min="1" max="31" value={dayOfMonth} onChange={setDayOfMonth} /> )}
                <ExpandingInput label="Time" type="time" value={time} onChange={setTime} />
             </div>
 
-            <ExpandingInput label="Prompt" maxLength={500} value={prompt} onChange={setPrompt} placeholder="Escribe las instrucciones exactas para la IA..." isTextArea />
+            <ExpandingInput label="Prompt" maxLength={500} value={prompt} onChange={setPrompt} placeholder="Write the exact instructions for the AI..." isTextArea />
 
             <Section>
                <Row label="Push notifications" rightNode={<SwitchNode on={pushEnabled} onToggle={()=>setPushEnabled(!pushEnabled)} />} />
                <Row label="Email notifications" rightNode={<SwitchNode on={emailEnabled} onToggle={()=>setEmailEnabled(!emailEnabled)} />} last />
             </Section>
 
+            {/* Modal limits counter */}
+            <div className="pt-2 pb-6 px-1 flex items-center justify-center">
+              <LimitsIndicator offset={ringOffsetForm} remaining={remainingForm} current={currentForm} max={maxForm} label={isDailyForm ? "daily tasks" : "tasks"} />
+            </div>
           </div>
         </div>
       )}
