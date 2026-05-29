@@ -39,7 +39,6 @@ const RIPPLE_STYLE = `
     opacity: 0; width: 100%; height: 100%;
     position: absolute; top: 0; left: 0; cursor: pointer;
   }
-
 `
 
 const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
@@ -334,7 +333,6 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
   const [tgUser, setTgUser] = useState<TgUser | undefined>(undefined)
   const [localAfkText, setLocalAfkText] = useState("")
 
-  }
 
   const [config, setConfig] = useState({
     tone: "adaptive",
@@ -365,6 +363,8 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
     if (apiBaseUrl) return apiBaseUrl.replace(/\/$/, "")
     const g = (typeof window !== "undefined") ? (window as any).__XBLUM_API_BASE__ : undefined
     if (g) return String(g).replace(/\/$/, "")
+    const envUrl = process.env.NEXT_PUBLIC_API_URL
+    if (envUrl) return envUrl.replace(/\/$/, "")
     if (typeof window !== "undefined") return window.location.origin
     return ""
   }, [apiBaseUrl])
@@ -499,14 +499,6 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
   // Sync local AFK text with config
   useEffect(() => { setLocalAfkText(config.afk_text) }, [config.afk_text])
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 z-[60] bg-[#000] flex items-center justify-center w-full h-full">
-        <Loader2 className="w-7 h-7 text-[#60a5fa] animate-spin" />
-      </div>
-    )
-  }
-
   const getRoleDisplayName = () => {
     const def = ROLES_DATA.find(r => r.id === config.use_case)
     if (def) return def.label
@@ -526,6 +518,14 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
   }
 
   // ────────────────────────────────────────────────────────────────────────────
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-[60] bg-[#000] flex items-center justify-center w-full h-full">
+        <Loader2 className="w-7 h-7 text-[#60a5fa] animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-300">
