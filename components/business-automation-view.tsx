@@ -49,8 +49,8 @@ const RIPPLE_STYLE = `
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  /* Ocultar el icono de calendario por defecto en inputs nativos webkit */
-  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  /* Ocultar el icono de reloj/calendario nativo para que solo responda al toque en toda el área */
+  input[type="time"]::-webkit-calendar-picker-indicator {
     opacity: 0;
     width: 100%;
     height: 100%;
@@ -61,8 +61,7 @@ const RIPPLE_STYLE = `
   }
 `
 
-const getTg = () => typeof window !== "undefined" ?
-(window as any).Telegram?.WebApp : null
+const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
 
 const triggerVibration = (type: 'light' | 'medium' | 'heavy' | 'error' | 'success') => {
   const tg = getTg();
@@ -99,6 +98,17 @@ const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) =>
   setTimeout(() => {
     circle.remove()
   }, 600)
+}
+
+// ── UTILIDAD PARA FORMATEAR HORA 24h a 12h AM/PM ──
+const formatTime = (timeStr: string) => {
+  if (!timeStr) return "";
+  const [hours, minutes] = timeStr.split(':');
+  let h = parseInt(hours, 10);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  h = h ? h : 12;
+  return `${h.toString().padStart(2, '0')}:${minutes} ${ampm}`;
 }
 
 // ── DATOS DE LOS PRESETS Y ROLES ──
@@ -528,8 +538,11 @@ export function BusinessAutomationView({
     afk_enabled: false,
     afk_text: "Esta é uma mensagem de ausência",
     afk_schedule: "custom", 
-    afk_start_time: "2026-05-28T18:13", 
-    afk_end_time: "2026-05-29T18:13",
+    afk_start_time: "18:00", 
+    afk_end_time: "08:00",
+    afk_business_days: [1, 2, 3, 4, 5], // 1=Lunes, 7=Domingo
+    afk_business_start: "09:00",
+    afk_business_end: "18:00",
     afk_offline_only: false, 
     read_enabled: true,
     spam_filter_enabled: true,
@@ -984,17 +997,18 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── AFK MESSAGE (ANTIGUO AWAY MESSAGE) ── */}
+        {/* ── AFK MESSAGE ── */}
         {activePage === 'afk_msg' && (
           <div className="animate-in slide-in-from-right duration-300 w-full pb-10 relative">
             <SubHeader title="AFK Message" />
             
             <div className="flex flex-col items-center pt-2 pb-6 px-4 text-center relative z-0">
-              <div className="relative w-[100px] h-[80px] mb-4 pointer-events-none select-none">
-                <span className="absolute bottom-2 left-6 text-[28px] font-bold text-[#60a5fa]" style={{ transform: "rotate(-10deg)" }}>z</span>
-                <span className="absolute top-6 left-12 text-[42px] font-bold text-[#60a5fa]" style={{ transform: "rotate(-5deg)" }}>z</span>
-                <span className="absolute -top-4 right-2 text-[64px] font-bold text-[#60a5fa]" style={{ transform: "rotate(5deg)" }}>Z</span>
-              </div>
+              <img 
+                src="/afk-zzz.webp" 
+                alt="AFK Mode" 
+                className="w-[84px] h-[84px] object-contain drop-shadow-2xl mb-4 pointer-events-none select-none" 
+                draggable={false}
+              />
               <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "250px", lineHeight: "1.4" }}>
                 Automatically reply with a message<br/>when you are away.
               </p>
@@ -1022,13 +1036,13 @@ export function BusinessAutomationView({
                           <img src={tgUser.photo_url} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
                           <span className="text-white font-bold text-xl" style={{ fontFamily: SFD }}>
-                            {(tgUser?.first_name?.[0] || tgUser?.username?.[0] || "U").toUpperCase()}
+                            {(tgUser?.first_name?.[0] || tgUser?.username?.[0] || "L").toUpperCase()}
                           </span>
                         )}
                       </div>
                       <div className="flex flex-col flex-1 min-w-0 justify-center ml-4">
-                        <span className="text-white text-[18px] mb-0.5 tracking-wide" style={{ fontFamily: "Georgia, serif", fontWeight: "bold" }}>
-                          {tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ") || tgUser.username : "𝕷𝖚𝖈𝖆𝖘"}
+                        <span className="text-white text-[18px] mb-0.5 tracking-tight font-bold" style={{ fontFamily: SFD }}>
+                          {tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ") || tgUser.username : "Lucas"}
                         </span>
                       </div>
                     </div>
@@ -1049,7 +1063,7 @@ export function BusinessAutomationView({
                         triggerVibration('success'); 
                       }}
                       disabled={!localAfkText.trim()}
-                      className="w-full bg-[#60a5fa] text-white font-bold rounded-[14px] py-3.5 transition-opacity disabled:opacity-50 relative overflow-hidden"
+                      className="w-full bg-[#60a5fa] text-white font-bold rounded-[14px] py-3.5 mt-2 transition-opacity disabled:opacity-50 relative overflow-hidden"
                       style={{ fontSize: "16px", fontFamily: SF }}
                     >
                       <span className="relative z-10">Save Message</span>
@@ -1070,7 +1084,82 @@ export function BusinessAutomationView({
                         label="Outside of Business Hours"
                         hideArrow
                         onClick={() => setAndSave('afk_schedule', 'outside')}
+                        last={config.afk_schedule !== 'custom' && config.afk_schedule !== 'outside'}
                       />
+                      
+                      {/* Opciones de Business Hours (Días y Hora) */}
+                      {config.afk_schedule === 'outside' && (
+                        <div className="animate-in fade-in duration-200 bg-[#151515] border-t border-white/5">
+                          <div className="px-5 py-4 flex flex-col gap-3">
+                            <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>Active Days</span>
+                            <div className="flex items-center justify-between">
+                              {[{id:1, l:'M'},{id:2, l:'T'},{id:3, l:'W'},{id:4, l:'T'},{id:5, l:'F'},{id:6, l:'S'},{id:7, l:'S'}].map((d, index) => {
+                                const isSelected = config.afk_business_days.includes(d.id);
+                                return (
+                                  <button 
+                                    key={`${d.id}-${index}`}
+                                    onClick={(e) => {
+                                      createRipple(e);
+                                      const newDays = isSelected 
+                                        ? config.afk_business_days.filter(day => day !== d.id)
+                                        : [...config.afk_business_days, d.id];
+                                      setAndSave('afk_business_days', newDays);
+                                    }}
+                                    className={`relative overflow-hidden w-9 h-9 rounded-full flex items-center justify-center font-semibold text-[15px] transition-colors`}
+                                    style={{ 
+                                      fontFamily: SF, 
+                                      backgroundColor: isSelected ? "#60a5fa" : "#1c1c1e",
+                                      color: isSelected ? "#ffffff" : "#8e8e93",
+                                      border: isSelected ? "none" : "1px solid rgba(255,255,255,0.05)"
+                                    }}
+                                  >
+                                    <span className="relative z-10">{d.l}</span>
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                          
+                          <div className="h-[1px] bg-white/5 ml-5" />
+                          
+                          <Row 
+                            label="Business Start"
+                            rightNode={
+                              <div className="relative flex items-center justify-end w-[100px] h-[30px]">
+                                <input 
+                                  type="time" 
+                                  value={config.afk_business_start}
+                                  onChange={(e) => setAndSave('afk_business_start', e.target.value)}
+                                  className="absolute inset-0 w-full h-full opacity-0 z-20"
+                                />
+                                <span className="text-[16px] relative z-10" style={{ color: "#60a5fa", fontFamily: SF }}>
+                                  {formatTime(config.afk_business_start)}
+                                </span>
+                              </div>
+                            }
+                            hideArrow
+                          />
+                          <Row 
+                            label="Business End"
+                            rightNode={
+                              <div className="relative flex items-center justify-end w-[100px] h-[30px]">
+                                <input 
+                                  type="time" 
+                                  value={config.afk_business_end}
+                                  onChange={(e) => setAndSave('afk_business_end', e.target.value)}
+                                  className="absolute inset-0 w-full h-full opacity-0 z-20"
+                                />
+                                <span className="text-[16px] relative z-10" style={{ color: "#60a5fa", fontFamily: SF }}>
+                                  {formatTime(config.afk_business_end)}
+                                </span>
+                              </div>
+                            }
+                            hideArrow
+                            last
+                          />
+                        </div>
+                      )}
+
                       <Row 
                         leftNode={<div className="mt-[1px]"><RadioButton selected={config.afk_schedule === 'custom'} activeColor="#60a5fa" /></div>}
                         label="Custom Schedule"
@@ -1078,24 +1167,22 @@ export function BusinessAutomationView({
                         onClick={() => setAndSave('afk_schedule', 'custom')}
                         last={config.afk_schedule !== 'custom'}
                       />
-                    </Section>
 
-                    {/* Selector de Horas Nativo para Custom Schedule */}
-                    {config.afk_schedule === 'custom' && (
-                      <div className="animate-in fade-in duration-200 mt-[-10px]">
-                        <Section>
+                      {/* Selector de Horas Nativo para Custom Schedule */}
+                      {config.afk_schedule === 'custom' && (
+                        <div className="animate-in fade-in duration-200 bg-[#151515] border-t border-white/5">
                           <Row 
                             label="Start Time"
                             rightNode={
-                              <div className="relative flex items-center justify-end w-[150px]">
+                              <div className="relative flex items-center justify-end w-[100px] h-[30px]">
                                 <input 
-                                  type="datetime-local" 
+                                  type="time" 
                                   value={config.afk_start_time}
                                   onChange={(e) => setAndSave('afk_start_time', e.target.value)}
                                   className="absolute inset-0 w-full h-full opacity-0 z-20"
                                 />
                                 <span className="text-[16px] relative z-10" style={{ color: "#60a5fa", fontFamily: SF }}>
-                                  {new Date(config.afk_start_time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '')}
+                                  {formatTime(config.afk_start_time)}
                                 </span>
                               </div>
                             }
@@ -1104,24 +1191,25 @@ export function BusinessAutomationView({
                           <Row 
                             label="End Time"
                             rightNode={
-                              <div className="relative flex items-center justify-end w-[150px]">
+                              <div className="relative flex items-center justify-end w-[100px] h-[30px]">
                                 <input 
-                                  type="datetime-local" 
+                                  type="time" 
                                   value={config.afk_end_time}
                                   onChange={(e) => setAndSave('afk_end_time', e.target.value)}
                                   className="absolute inset-0 w-full h-full opacity-0 z-20"
                                 />
                                 <span className="text-[16px] relative z-10" style={{ color: "#60a5fa", fontFamily: SF }}>
-                                  {new Date(config.afk_end_time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '')}
+                                  {formatTime(config.afk_end_time)}
                                 </span>
                               </div>
                             }
                             hideArrow
                             last
                           />
-                        </Section>
-                      </div>
-                    )}
+                        </div>
+                      )}
+
+                    </Section>
                   </div>
 
                   <Section>
@@ -1334,76 +1422,6 @@ export function BusinessAutomationView({
                   hideArrow
                   last
                 />
-              </Section>
-            </div>
-          </div>
-        )}
-
-        {/* ── MESSAGES & WORKFLOWS ── */}
-        {activePage === 'workflows' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full">
-            <SubHeader title="Messages & Workflows" />
-            <div className="pt-6 px-4">
-
-              <Section title="Basic Behaviors">
-                <Row 
-                  leftNode={<Eye className="w-[20px] h-[20px] text-[#8e8e93]" />}
-                  label="Mark messages as read"
-                  sublabel="Automatically mark inbound messages as read."
-                  rightNode={<SwitchNode on={config.read_enabled} onToggle={() => setAndSave('read_enabled', !config.read_enabled)} />}
-                  onClick={() => setAndSave('read_enabled', !config.read_enabled)}
-                  last
-                />
-              </Section>
-
-              <Section title="Engagement Loops">
-                <Row 
-                  leftNode={<Workflow className="w-[20px] h-[20px] text-[#8e8e93]" />}
-                  label="Smart Follow-ups"
-                  sublabel="Trigger automated follow-ups if user drops engagement."
-                  rightNode={<SwitchNode on={config.followup_enabled} onToggle={() => setAndSave('followup_enabled', !config.followup_enabled)} />}
-                  onClick={() => setAndSave('followup_enabled', !config.followup_enabled)}
-                  last={!config.followup_enabled}
-                />
-                {config.followup_enabled && (
-                  <div className="px-5 py-4 flex gap-5 w-full bg-[#111111]">
-                    <div className="flex-1">
-                      <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "6px" }}>Delay (Hours)</p>
-                      <input 
-                        type="number" defaultValue={config.followup_delay_h} onBlur={(e) => setAndSave('followup_delay_h', parseInt(e.target.value) || 0)} 
-                        className="w-full bg-[#1c1c1e] text-white outline-none rounded-xl px-4 py-2 border border-white/5" style={{ fontSize: "16px", fontFamily: SF }} 
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "6px" }}>Max Retries</p>
-                      <input 
-                        type="number" defaultValue={config.followup_max} onBlur={(e) => setAndSave('followup_max', parseInt(e.target.value) || 1)} 
-                        className="w-full bg-[#1c1c1e] text-white outline-none rounded-xl px-4 py-2 border border-white/5" style={{ fontSize: "16px", fontFamily: SF }} 
-                      />
-                    </div>
-                  </div>
-                )}
-              </Section>
-
-              <Section title="Inline Agent">
-                <Row 
-                  label="Passive Mentions"
-                  sublabel="Replies when its name is mentioned in groups."
-                  rightNode={<SwitchNode on={config.invocation_enabled} onToggle={() => setAndSave('invocation_enabled', !config.invocation_enabled)} />}
-                  onClick={() => setAndSave('invocation_enabled', !config.invocation_enabled)}
-                  last={!config.invocation_enabled}
-                />
-                {config.invocation_enabled && (
-                  <div className="w-full px-5 pb-5 pt-2 bg-[#111111]">
-                    <p style={{ fontSize: "13px", color: "#8e8e93", fontFamily: SF, marginBottom: "6px" }}>Trigger Keywords</p>
-                    <input 
-                      type="text" defaultValue={config.bot_names} onBlur={(e) => setAndSave('bot_names', e.target.value)}
-                      placeholder="e.g., agent, bot"
-                      className="w-full bg-[#1c1c1e] text-white outline-none placeholder:text-[#636366] rounded-xl px-4 py-2.5 border border-white/5"
-                      style={{ fontSize: "16px", fontFamily: SF }}
-                    />
-                  </div>
-                )}
               </Section>
             </div>
           </div>
