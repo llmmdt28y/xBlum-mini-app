@@ -5,7 +5,7 @@ import {
   Loader2, Sparkles, Shield, Workflow, 
   ChevronRight, Check, MessageSquare, Bot, User, FileText, Book,
   Clock, MessageSquarePlus, Eye, Globe, CircleUserRound, Plus,
-  Pencil, Copy, Trash2
+  Pencil, Copy, Trash2, UserRoundPen
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -473,7 +473,7 @@ export function BusinessAutomationView({
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState<
     'main' | 'presets' | 'chat_access' | 'agent_profile' | 'workflows' | 'safety' | 'reports' | 
-    'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg' | 'roles' | 'new_role'
+    'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg' | 'roles' | 'new_role' | 'tone'
   >('main')
   
   const [activeModal, setActiveModal] = useState<string | null>(null)
@@ -634,7 +634,7 @@ export function BusinessAutomationView({
         setActivePage('workflows')
       } else if (activePage === 'new_role') {
         setActivePage('roles')
-      } else if (activePage === 'roles') {
+      } else if (activePage === 'roles' || activePage === 'tone') {
         setActivePage('main')
       } else {
         setActivePage('main')
@@ -794,10 +794,15 @@ export function BusinessAutomationView({
                 footer="Conversation history allows the AI to understand previous requests and consider them when generating new responses."
               >
                 <Row 
+                  leftNode={<UserRoundPen className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
+                  label="Tone" 
+                  value={config.tone.charAt(0).toUpperCase() + config.tone.slice(1)}
+                  onClick={() => setActivePage('tone')} 
+                />
+                <Row 
                   leftNode={<CircleUserRound className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
                   label="Roles" 
                   value={getRoleDisplayName()}
-                  hideArrow
                   onClick={() => setActivePage('roles')}
                 />
                 <Row 
@@ -805,33 +810,6 @@ export function BusinessAutomationView({
                   label="History" 
                   rightNode={<SwitchNode on={config.history_enabled} onToggle={() => setAndSave('history_enabled', !config.history_enabled)} activeColor="#60a5fa" />}
                   onClick={() => setAndSave('history_enabled', !config.history_enabled)}
-                  last
-                />
-              </Section>
-
-              <Section title="Tone">
-                {['adaptive', 'casual', 'formal', 'empathetic'].map((opt, idx, arr) => (
-                  <Row 
-                    key={opt}
-                    alignItems="center"
-                    leftNode={
-                      <div className="mt-[1px]">
-                        <RadioButton selected={config.tone === opt} />
-                      </div>
-                    }
-                    label={opt.charAt(0).toUpperCase() + opt.slice(1)}
-                    hideArrow
-                    last={idx === arr.length - 1}
-                    onClick={() => setAndSave('tone', opt)}
-                  />
-                ))}
-              </Section>
-
-              <Section>
-                <Row 
-                  label="Simulate Typing"
-                  rightNode={<SwitchNode on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} activeColor="#60a5fa" />}
-                  onClick={() => setAndSave('humanize_enabled', !config.humanize_enabled)}
                   last
                 />
               </Section>
@@ -866,6 +844,50 @@ export function BusinessAutomationView({
                     />
                   </div>
                 )}
+              </Section>
+            </div>
+          </div>
+        )}
+
+        {/* ── TONE PAGE ── */}
+        {activePage === 'tone' && (
+          <div className="animate-in slide-in-from-right duration-300 w-full pb-10 relative">
+            <SubHeader title="Tone" />
+            
+            <div className="flex flex-col items-center mt-4 mb-8 px-4 text-center relative z-0">
+               <UserRoundPen className="w-[64px] h-[64px] text-[#8e8e93] mb-4 drop-shadow-2xl" strokeWidth={1} />
+               <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "250px", lineHeight: "1.4" }}>
+                 Adjust the AI's communication style and overall behavior.
+               </p>
+            </div>
+
+            <div className="px-4">
+              <Section title="Communication Style">
+                {['adaptive', 'casual', 'formal', 'empathetic'].map((opt, idx, arr) => (
+                  <Row 
+                    key={opt}
+                    alignItems="center"
+                    leftNode={
+                      <div className="mt-[1px]">
+                        <RadioButton selected={config.tone === opt} />
+                      </div>
+                    }
+                    label={opt.charAt(0).toUpperCase() + opt.slice(1)}
+                    hideArrow
+                    last={idx === arr.length - 1}
+                    onClick={() => setAndSave('tone', opt)}
+                  />
+                ))}
+              </Section>
+
+              <Section title="Behavior">
+                <Row 
+                  label="Simulate Typing"
+                  sublabel="Inject artificial typing delays for a more organic rhythm."
+                  rightNode={<SwitchNode on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} activeColor="#60a5fa" />}
+                  onClick={() => setAndSave('humanize_enabled', !config.humanize_enabled)}
+                  last
+                />
               </Section>
             </div>
           </div>
