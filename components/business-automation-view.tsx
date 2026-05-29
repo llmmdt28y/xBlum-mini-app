@@ -531,9 +531,6 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
     <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-300">
       <style>{RIPPLE_STYLE}</style>
 
-      {/* ── SAVE TOAST ────────────────────────────────────────────────────── */}
-
-
       {/* ── CONTEXT MENU ──────────────────────────────────────────────────── */}
       {contextMenu?.visible && (
         <>
