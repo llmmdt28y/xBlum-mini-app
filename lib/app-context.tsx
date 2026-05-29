@@ -339,7 +339,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function submitFeedback(type: string, description: string): Promise<boolean> {
     try {
-      const data = await apiCall("/api/submit_feedback", { feedback_type: type, description }) as { ok?: boolean }
+      const data = await apiCall("/api/submit_feedback", { feedback_type: type, description, initData: (window as any).Telegram?.WebApp?.initData }) as { ok?: boolean }
       return data.ok !== false
     } catch (e) { 
       console.error(e); 
