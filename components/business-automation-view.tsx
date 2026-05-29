@@ -370,27 +370,44 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
     setTgUser(getTgUser())
   }, [])
 
+  // Resolve the API base URL: explicit prop → window global → same origin
+  const getApiBase = useCallback((): string => {
+    if (apiBaseUrl) return apiBaseUrl.replace(/\/$/, "")
+    const g = (typeof window !== "undefined") ? (window as any).__XBLUM_API_BASE__ : undefined
+    if (g) return String(g).replace(/\/$/, "")
+    if (typeof window !== "undefined") return window.location.origin
+    return ""
+  }, [apiBaseUrl])
+
   const saveConfigToServer = useCallback(async (
     currentConfig: typeof config,
     silent = false
   ): Promise<boolean> => {
     try {
-      const tg = getTg()
+      const tg       = getTg()
       const initData = tg?.initData ?? ""
-      const res = await fetch(`${apiBaseUrl}/api/business_config_v2`, {
+      const userId   = tg?.initDataUnsafe?.user?.id   // fallback auth — server accepts when initData absent
+      const base     = getApiBase()
+      const url      = `${base}/api/business_config_v2`
+      console.log("[xBlum] POST", url, "initData:", initData ? "present" : "absent", "userId:", userId)
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData, config: currentConfig })
+        body: JSON.stringify({ initData, userId, config: currentConfig })
       })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "")
+        console.error("[xBlum] POST error", res.status, txt)
+        throw new Error(`HTTP ${res.status}`)
+      }
       if (!silent) showToast("saved")
       return true
     } catch (err) {
-      console.error("[AutoSave] Error:", err)
+      console.error("[xBlum] saveConfigToServer error:", err)
       if (!silent) showToast("error")
       return false
     }
-  }, [apiBaseUrl])  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [apiBaseUrl, getApiBase])  // eslint-disable-line react-hooks/exhaustive-deps
 
   const setAndSave = (key: keyof typeof config, value: any) => {
     setConfig(prev => {
@@ -464,21 +481,32 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
   useEffect(() => {
     async function loadInitial() {
       try {
-        const tg = getTg()
+        const tg       = getTg()
         const initData = tg?.initData ?? ""
-        const res = await fetch(`${apiBaseUrl}/api/business_config_v2?initData=${encodeURIComponent(initData)}`)
+        const userId   = tg?.initDataUnsafe?.user?.id
+        const base     = getApiBase()
+        const params   = new URLSearchParams()
+        if (initData)  params.set("initData", initData)
+        if (userId)    params.set("userId",   String(userId))
+        const url = `${base}/api/business_config_v2?${params.toString()}`
+        console.log("[xBlum] GET", url)
+        const res = await fetch(url)
         if (res.ok) {
           const data = await res.json()
+          console.log("[xBlum] config loaded:", Object.keys(data))
           setConfig(prev => ({ ...prev, ...data }))
+        } else {
+          const txt = await res.text().catch(() => "")
+          console.error("[xBlum] GET error", res.status, txt)
         }
       } catch (err) {
-        console.error(err)
+        console.error("[xBlum] loadInitial error:", err)
       } finally {
         setLoading(false)
       }
     }
     loadInitial()
-  }, [apiBaseUrl])
+  }, [getApiBase])
 
   // Sync local AFK text with config
   useEffect(() => { setLocalAfkText(config.afk_text) }, [config.afk_text])
