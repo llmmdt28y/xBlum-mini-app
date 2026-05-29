@@ -5,10 +5,11 @@ import {
   ChevronRight, Check, Earth, CircleUserRound, Lock,
   FileText, ShieldCheck, MessageCircle, ChevronDown, X, Trash2, 
   Loader2, Sparkles, UserPen, SmilePlus, WandSparkles, Settings2,
-  CircleStar, ChartPie, Info
+  CircleStar, ChartPie, Info, Asterisk
 } from "lucide-react"
 import { useState, useEffect, useCallback, useRef } from "react"
 import React from "react"
+import { BusinessAutomationView } from "./business-automation-view"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -40,7 +41,8 @@ const RIPPLE_STYLE = `
 `
 
 // ── Helper API & Telegram ──
-const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
+const getTg = () => typeof window !== "undefined" ?
+(window as any).Telegram?.WebApp : null
 
 const triggerVibration = (type: 'light' | 'medium' | 'heavy' | 'error' | 'success') => {
   const tg = getTg();
@@ -226,6 +228,15 @@ function IconCircularLarge({ icon: Icon, color }: { icon: any, color: string }) 
       }}
     >
       <Icon className="w-[24px] h-[24px]" strokeWidth={2.2} />
+    </div>
+  )
+}
+
+function ChatAsteriskIcon({ className, strokeWidth }: any) {
+  return (
+    <div className={`relative flex items-center justify-center ${className}`}>
+      <MessageCircle className="absolute inset-0 w-full h-full" strokeWidth={strokeWidth} />
+      <Asterisk className="absolute w-[45%] h-[45%]" strokeWidth={strokeWidth} />
     </div>
   )
 }
@@ -461,8 +472,8 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
   }
 
   let colorHex = "#555558"; 
-  let labelHex = "#8e8e93"; 
-  
+  let labelHex = "#8e8e93";
+
   if (warningActive) {
     colorHex = "#ff453a";
     labelHex = "#ff453a";
@@ -494,7 +505,7 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
   )
 }
 
-export type SettingsPage = "main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits";
+export type SettingsPage = "main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits" | "business_automation";
 
 // ── Main component ────────────────────────────────────────────────────────────
 
@@ -634,6 +645,12 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
+    
+    if (page === "business_automation") {
+      // Dejar que BusinessAutomationView maneje su propio BackButton logic
+      return;
+    }
+
     tg.BackButton.show()
     const handleBack = () => {
       if (page === "gender_select") setPage("basic_info")
@@ -996,7 +1013,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               onClick={() => setPage("prefs")} 
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
-               style={{ fontFamily: SF, fontSize: "16px" }}
+              style={{ fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Cancel</span>
             </button>
@@ -1128,7 +1145,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                  <div className="py-2.5 flex items-center shrink-0">
                     <IconCircularLarge icon={SmilePlus} color="#af52de" />
                   </div>
-                 <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
+                  <div className="ml-4 flex-1 flex items-center justify-between relative z-10">
                     <p className="text-[17px] font-medium text-white" style={{ fontFamily: SF }}>Noir Personality</p>
                     {isNoirPersonalityComplete ? (
                       <div className="w-[22px] h-[22px] rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm">
@@ -1190,7 +1207,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             danger
           />
           <Row
-            leftNode={<IconFlat icon={saving === "del_hist" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_hist"} />}
+             leftNode={<IconFlat icon={saving === "del_hist" ? Loader2 : Trash2} color="#ff3b30" spin={saving === "del_hist"} />}
             label={saving === "del_hist" ? "Deleting..." : "Delete All History"}
             onClick={handleDeleteHistory}
             danger
@@ -1235,8 +1252,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               </span>
             </div>
             <p className="text-[#8e8e93] text-[15px] leading-snug" style={{ fontFamily: SF }}>
-              Your plan limits determine how much you can use Noir over time. Advanced models and features may consume more usage.
-              <br/>
+              Your plan limits determine how much you can use Noir over time. Advanced models and features may consume more usage.<br/>
               <span className="text-[#60a5fa] mt-1 inline-block cursor-pointer">More information</span>
             </p>
             <p className="text-[#8e8e93] text-[14px] pt-2" style={{ fontFamily: SF }}>
@@ -1264,8 +1280,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                 <div className="mb-4 p-3.5 rounded-xl bg-[#1c1c1e] border border-white/5 animate-in fade-in slide-in-from-top-2">
                   <h3 className="text-white font-bold text-[16px] mb-1" style={{ fontFamily: SFD }}>How limits work</h3>
                   <p className="text-[#8e8e93] text-[14px] leading-snug" style={{ fontFamily: SF }}>
-                    Each model has independent limits that reset every 3 hours. If Grok 4.3 reaches its limit, you can still use Gemini 3.5 Flash and vice versa.
-                    {isPremium ? " Pro users get 5× more tokens than free users." : " Upgrade to Pro for 5× more usage."}
+                    Each model has independent limits that reset every 3 hours. If Grok 4.3 reaches its limit, you can still use Gemini 3.5 Flash and vice versa. {isPremium ? " Pro users get 5× more tokens than free users." : " Upgrade to Pro for 5× more usage."}
                   </p>
                 </div>
               )}
@@ -1324,7 +1339,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
           {!isPremium && (
             <button
-              onClick={() => setCurrentView("premium")}
+               onClick={() => setCurrentView("premium")}
               onPointerDown={createRipple}
               className="relative overflow-hidden w-full py-4 rounded-[20px] text-white font-bold text-[16px] active:opacity-80 transition-opacity shadow-lg"
               style={{ background: "linear-gradient(135deg, #1d4ed8 0%, #7c3aed 100%)", fontFamily: SF }}
@@ -1336,6 +1351,11 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       </div>
     )
   }
+
+  // ── Business Automation Sub-page ──────────────────────────────────────
+  if (page === "business_automation") return (
+    <BusinessAutomationView onClose={() => setPage("main")} />
+  )
 
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
@@ -1386,6 +1406,11 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
         {/* ── Tools ── */}
         <Section title="Tools">
+          <Row
+            leftNode={<IconFlat icon={ChatAsteriskIcon} color="#5e5ce6" />}
+            label="AI Chat"
+            onClick={() => setPage("business_automation")}
+          />
           <Row
             leftNode={<IconFlat icon={Settings2} color="#8e8e93" />}
             label="Capabilities"
@@ -1443,7 +1468,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                 </div>
               ) : (
                 <button
-                   onClick={async () => {
+                    onClick={async () => {
                     if (!reportDescription.trim() || submittingReport) return
                     setSubmittingReport(true)
                     const ok = await submitFeedback(reportType, reportDescription.trim())
@@ -1488,7 +1513,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                       onPointerDown={createRipple}
                       className="relative overflow-hidden w-full flex items-center gap-3 px-4 py-4 rounded-2xl active:scale-[0.98] transition-transform"
                       style={{ background: "#1c1c1e" }}>
-                      <MessageCircle className="w-5 h-5 relative z-10" style={{ color: "#8e8e93" }} />
+                        <MessageCircle className="w-5 h-5 relative z-10" style={{ color: "#8e8e93" }} />
                       <span className="flex-1 text-left text-white font-medium relative z-10" style={{ fontSize: "15px", fontFamily: SF }}>
                         {reportType}
                       </span>
@@ -1508,7 +1533,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                             style={{ fontFamily: SF }}>
                             <span className="relative z-10">{type}</span>
                           </button>
-                        ))}
+                         ))}
                       </div>
                     )}
                   </div>
