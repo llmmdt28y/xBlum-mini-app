@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import {
-  Loader2,
+  Loader2, Check,
   ChevronRight, Clock, MessageSquare,
   CircleUserRound, Plus, Pencil, Copy, Trash2, UserRoundPen
 } from "lucide-react"
 
-const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
-const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+const SF    = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
+const SFD   = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+const EMOJI = "'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','Twemoji Mozilla',sans-serif"
 
 // ── TELEGRAM USER ──────────────────────────────────────────────────────────────
 type TgUser = {
@@ -38,6 +39,10 @@ const RIPPLE_STYLE = `
     opacity: 0; width: 100%; height: 100%;
     position: absolute; top: 0; left: 0; cursor: pointer;
   }
+  @keyframes toast-in  { from { opacity:0; transform:translateY(8px) scale(.95) } to   { opacity:1; transform:translateY(0)    scale(1)    } }
+  @keyframes toast-out { from { opacity:1; transform:translateY(0)    scale(1)   } to   { opacity:0; transform:translateY(-6px)  scale(.95)  } }
+  .toast-enter { animation: toast-in  280ms cubic-bezier(.34,1.56,.64,1) forwards }
+  .toast-exit  { animation: toast-out 220ms ease-in forwards }
 `
 
 const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
@@ -299,7 +304,11 @@ const ExpandingInput = ({
         onBlur={() => { setIsFocused(false); onBlur?.() }}
         placeholder={placeholder}
         className="w-full bg-transparent border-[1.5px] rounded-[12px] px-4 py-3.5 text-white focus:outline-none resize-none overflow-hidden placeholder:text-[#636366] transition-colors duration-200"
-        style={{ fontFamily: SF, fontSize: "16px", minHeight: "56px", borderColor: colorHex }}
+        style={{
+          fontFamily: `${SF}, ${EMOJI}`,
+          fontSize: "16px", minHeight: "56px", borderColor: colorHex,
+          unicodeBidi: "plaintext", whiteSpace: "pre-wrap"
+        }}
         rows={1}
       />
     </div>
@@ -327,6 +336,15 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
   const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; roleId: string } | null>(null)
   const [tgUser, setTgUser] = useState<TgUser | undefined>(undefined)
   const [localAfkText, setLocalAfkText] = useState("")
+  const [saveToast, setSaveToast]     = useState<"idle"|"saving"|"saved"|"error">("idle")
+  const [afkSaving, setAfkSaving]     = useState<"idle"|"saving"|"saved"|"error">("idle")
+  const toastTimerRef = useRef<any>(null)
+
+  const showToast = (state: "saved"|"error") => {
+    setSaveToast(state)
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    toastTimerRef.current = setTimeout(() => setSaveToast("idle"), 1800)
+  }
 
   const [config, setConfig] = useState({
     tone: "adaptive",
@@ -352,19 +370,27 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
     setTgUser(getTgUser())
   }, [])
 
-  const saveConfigToServer = useCallback(async (currentConfig: typeof config) => {
+  const saveConfigToServer = useCallback(async (
+    currentConfig: typeof config,
+    silent = false
+  ): Promise<boolean> => {
     try {
       const tg = getTg()
       const initData = tg?.initData ?? ""
-      await fetch(`${apiBaseUrl}/api/business_config_v2`, {
+      const res = await fetch(`${apiBaseUrl}/api/business_config_v2`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ initData, config: currentConfig })
       })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (!silent) showToast("saved")
+      return true
     } catch (err) {
       console.error("[AutoSave] Error:", err)
+      if (!silent) showToast("error")
+      return false
     }
-  }, [apiBaseUrl])
+  }, [apiBaseUrl])  // eslint-disable-line react-hooks/exhaustive-deps
 
   const setAndSave = (key: keyof typeof config, value: any) => {
     setConfig(prev => {
@@ -488,6 +514,24 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
   return (
     <div className="fixed inset-0 z-[60] bg-[#000000] flex flex-col overflow-hidden w-full max-w-full animate-in fade-in duration-300">
       <style>{RIPPLE_STYLE}</style>
+
+      {/* ── SAVE TOAST ────────────────────────────────────────────────────── */}
+      {saveToast !== "idle" && (
+        <div
+          className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-2 px-5 py-3 rounded-[14px] shadow-2xl border border-white/10 pointer-events-none ${saveToast === "error" ? "toast-exit" : "toast-enter"}`}
+          style={{
+            background: saveToast === "error" ? "rgba(255,69,58,0.92)" : "rgba(52,199,89,0.92)",
+            backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)"
+          }}
+        >
+          {saveToast === "saved"
+            ? <Check  className="w-4 h-4 text-white" strokeWidth={3} />
+            : <span   className="text-white text-[15px]" style={{fontFamily:SF}}>✕</span>}
+          <span className="text-white font-semibold text-[14px]" style={{ fontFamily: SF }}>
+            {saveToast === "saved" ? "Saved" : "Error saving"}
+          </span>
+        </div>
+      )}
 
       {/* ── CONTEXT MENU ──────────────────────────────────────────────────── */}
       {contextMenu?.visible && (
@@ -766,12 +810,38 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
                     />
 
                     <button
-                      onClick={(e) => { createRipple(e); setAndSave("afk_text", localAfkText); triggerVibration("success") }}
-                      disabled={!localAfkText.trim()}
-                      className="w-full bg-[#60a5fa] text-white font-bold rounded-[14px] py-3.5 mt-2 transition-opacity disabled:opacity-50 relative overflow-hidden"
-                      style={{ fontSize: "16px", fontFamily: SF }}
+                      onClick={async (e) => {
+                        createRipple(e)
+                        if (afkSaving === "saving") return
+                        setAfkSaving("saving")
+                        setConfig(prev => {
+                          const next = { ...prev, afk_text: localAfkText }
+                          saveConfigToServer(next, true).then(ok => {
+                            setAfkSaving(ok ? "saved" : "error")
+                            triggerVibration(ok ? "success" : "error")
+                            setTimeout(() => setAfkSaving("idle"), 2000)
+                          })
+                          return next
+                        })
+                      }}
+                      disabled={!localAfkText.trim() || afkSaving === "saving"}
+                      className="w-full text-white font-bold rounded-[14px] py-3.5 mt-2 relative overflow-hidden flex items-center justify-center gap-2 transition-all duration-200"
+                      style={{
+                        fontSize: "16px", fontFamily: SF,
+                        background: afkSaving === "saved"  ? "#34c759"
+                                  : afkSaving === "error"  ? "#ff453a"
+                                  : "#60a5fa",
+                        opacity: !localAfkText.trim() ? 0.5 : 1
+                      }}
                     >
-                      <span className="relative z-10">Save Message</span>
+                      {afkSaving === "saving" && <Loader2 className="w-4 h-4 animate-spin relative z-10" />}
+                      {afkSaving === "saved"  && <Check   className="w-4 h-4 relative z-10" strokeWidth={3} />}
+                      <span className="relative z-10">
+                        {afkSaving === "saving" ? "Saving…"
+                       : afkSaving === "saved"  ? "Saved"
+                       : afkSaving === "error"  ? "Error — retry"
+                       : "Save Message"}
+                      </span>
                     </button>
                   </div>
 
