@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import {
-  Loader2, Check,
+  Loader2,
   ChevronRight, Clock, MessageSquare,
   CircleUserRound, Plus, Pencil, Copy, Trash2, UserRoundPen
 } from "lucide-react"
@@ -39,10 +39,7 @@ const RIPPLE_STYLE = `
     opacity: 0; width: 100%; height: 100%;
     position: absolute; top: 0; left: 0; cursor: pointer;
   }
-  @keyframes toast-in  { from { opacity:0; transform:translateY(8px) scale(.95) } to   { opacity:1; transform:translateY(0)    scale(1)    } }
-  @keyframes toast-out { from { opacity:1; transform:translateY(0)    scale(1)   } to   { opacity:0; transform:translateY(-6px)  scale(.95)  } }
-  .toast-enter { animation: toast-in  280ms cubic-bezier(.34,1.56,.64,1) forwards }
-  .toast-exit  { animation: toast-out 220ms ease-in forwards }
+
 `
 
 const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
@@ -336,14 +333,7 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
   const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; roleId: string } | null>(null)
   const [tgUser, setTgUser] = useState<TgUser | undefined>(undefined)
   const [localAfkText, setLocalAfkText] = useState("")
-  const [saveToast, setSaveToast]     = useState<"idle"|"saving"|"saved"|"error">("idle")
-  const [afkSaving, setAfkSaving]     = useState<"idle"|"saving"|"saved"|"error">("idle")
-  const toastTimerRef = useRef<any>(null)
 
-  const showToast = (state: "saved"|"error") => {
-    setSaveToast(state)
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
-    toastTimerRef.current = setTimeout(() => setSaveToast("idle"), 1800)
   }
 
   const [config, setConfig] = useState({
@@ -375,10 +365,6 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
     if (apiBaseUrl) return apiBaseUrl.replace(/\/$/, "")
     const g = (typeof window !== "undefined") ? (window as any).__XBLUM_API_BASE__ : undefined
     if (g) return String(g).replace(/\/$/, "")
-    // Read the same env var that app-context uses so this component
-    // always hits the FastAPI backend, not window.location.origin (Vercel)
-    const envUrl = process.env.NEXT_PUBLIC_API_URL
-    if (envUrl) return envUrl.replace(/\/$/, "")
     if (typeof window !== "undefined") return window.location.origin
     return ""
   }, [apiBaseUrl])
@@ -404,11 +390,9 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
         console.error("[xBlum] POST error", res.status, txt)
         throw new Error(`HTTP ${res.status}`)
       }
-      if (!silent) showToast("saved")
       return true
     } catch (err) {
       console.error("[xBlum] saveConfigToServer error:", err)
-      if (!silent) showToast("error")
       return false
     }
   }, [apiBaseUrl, getApiBase])  // eslint-disable-line react-hooks/exhaustive-deps
@@ -548,22 +532,7 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
       <style>{RIPPLE_STYLE}</style>
 
       {/* ── SAVE TOAST ────────────────────────────────────────────────────── */}
-      {saveToast !== "idle" && (
-        <div
-          className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-2 px-5 py-3 rounded-[14px] shadow-2xl border border-white/10 pointer-events-none ${saveToast === "error" ? "toast-exit" : "toast-enter"}`}
-          style={{
-            background: saveToast === "error" ? "rgba(255,69,58,0.92)" : "rgba(52,199,89,0.92)",
-            backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)"
-          }}
-        >
-          {saveToast === "saved"
-            ? <Check  className="w-4 h-4 text-white" strokeWidth={3} />
-            : <span   className="text-white text-[15px]" style={{fontFamily:SF}}>✕</span>}
-          <span className="text-white font-semibold text-[14px]" style={{ fontFamily: SF }}>
-            {saveToast === "saved" ? "Saved" : "Error saving"}
-          </span>
-        </div>
-      )}
+
 
       {/* ── CONTEXT MENU ──────────────────────────────────────────────────── */}
       {contextMenu?.visible && (
@@ -842,38 +811,23 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
                     />
 
                     <button
-                      onClick={async (e) => {
+                      onClick={(e) => {
                         createRipple(e)
-                        if (afkSaving === "saving") return
-                        setAfkSaving("saving")
                         setConfig(prev => {
                           const next = { ...prev, afk_text: localAfkText }
-                          saveConfigToServer(next, true).then(ok => {
-                            setAfkSaving(ok ? "saved" : "error")
-                            triggerVibration(ok ? "success" : "error")
-                            setTimeout(() => setAfkSaving("idle"), 2000)
-                          })
+                          saveConfigToServer(next, true)
                           return next
                         })
                       }}
-                      disabled={!localAfkText.trim() || afkSaving === "saving"}
+                      disabled={!localAfkText.trim()}
                       className="w-full text-white font-bold rounded-[14px] py-3.5 mt-2 relative overflow-hidden flex items-center justify-center gap-2 transition-all duration-200"
                       style={{
                         fontSize: "16px", fontFamily: SF,
-                        background: afkSaving === "saved"  ? "#34c759"
-                                  : afkSaving === "error"  ? "#ff453a"
-                                  : "#60a5fa",
+                        background: "#60a5fa",
                         opacity: !localAfkText.trim() ? 0.5 : 1
                       }}
                     >
-                      {afkSaving === "saving" && <Loader2 className="w-4 h-4 animate-spin relative z-10" />}
-                      {afkSaving === "saved"  && <Check   className="w-4 h-4 relative z-10" strokeWidth={3} />}
-                      <span className="relative z-10">
-                        {afkSaving === "saving" ? "Saving…"
-                       : afkSaving === "saved"  ? "Saved"
-                       : afkSaving === "error"  ? "Error — retry"
-                       : "Save Message"}
-                      </span>
+                      <span className="relative z-10">Save Message</span>
                     </button>
                   </div>
 
