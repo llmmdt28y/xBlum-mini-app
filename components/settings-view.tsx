@@ -1345,7 +1345,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
   // ── Business Automation Sub-page ──────────────────────────────────────
   if (page === "business_automation") return (
-    <BusinessAutomationView onClose={() => setPage("main")} />
+    <BusinessAutomationView onClose={() => setPage("main")} apiBaseUrl={process.env.NEXT_PUBLIC_API_URL ?? ""} />
   )
 
   // ── Main settings page ─────────────────────────────────────────────────────
