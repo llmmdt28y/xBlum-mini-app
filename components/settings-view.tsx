@@ -5,7 +5,7 @@ import {
   ChevronRight, Check, Earth, CircleUserRound, Lock,
   FileText, ShieldCheck, MessageCircle, ChevronDown, X, Trash2, 
   Loader2, Sparkles, UserPen, SmilePlus, WandSparkles, Settings2,
-  CircleStar, ChartPie, Info, Sparkle
+  CircleStar, ChartPie, Info, MessageCirclePlus
 } from "lucide-react"
 import { useState, useEffect, useCallback, useRef } from "react"
 import React from "react"
@@ -228,15 +228,6 @@ function IconCircularLarge({ icon: Icon, color }: { icon: any, color: string }) 
       }}
     >
       <Icon className="w-[24px] h-[24px]" strokeWidth={2.2} />
-    </div>
-  )
-}
-
-function ChatSparkleIcon({ className, strokeWidth }: any) {
-  return (
-    <div className={`relative flex items-center justify-center ${className}`}>
-      <MessageCircle className="absolute inset-0 w-full h-full" strokeWidth={strokeWidth} />
-      <Sparkle className="absolute w-[45%] h-[45%]" strokeWidth={strokeWidth} />
     </div>
   )
 }
@@ -1412,7 +1403,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             onClick={() => setPage("capabilities")}
           />
           <Row
-            leftNode={<IconFlat icon={ChatSparkleIcon} color="#5e5ce6" />}
+            leftNode={<IconFlat icon={MessageCirclePlus} color="#5e5ce6" />}
             label="AI Chat"
             onClick={() => setPage("business_automation")}
             last
