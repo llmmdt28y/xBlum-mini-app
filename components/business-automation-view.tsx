@@ -375,6 +375,10 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
     if (apiBaseUrl) return apiBaseUrl.replace(/\/$/, "")
     const g = (typeof window !== "undefined") ? (window as any).__XBLUM_API_BASE__ : undefined
     if (g) return String(g).replace(/\/$/, "")
+    // Read the same env var that app-context uses so this component
+    // always hits the FastAPI backend, not window.location.origin (Vercel)
+    const envUrl = process.env.NEXT_PUBLIC_API_URL
+    if (envUrl) return envUrl.replace(/\/$/, "")
     if (typeof window !== "undefined") return window.location.origin
     return ""
   }, [apiBaseUrl])
