@@ -3,7 +3,7 @@
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { 
-  Clock, Plus, X, Loader2, CheckCircle2, AlertCircle, 
+  Clock, X, Loader2, CheckCircle2, AlertCircle, 
   Trash2, ChevronDown
 } from "lucide-react"
 import React from "react"
@@ -13,7 +13,7 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
 
-// ── Estilos Globales ──
+// ── Estilos Globales y Glow ──
 const RIPPLE_STYLE = `
   .ripple {
     position: absolute;
@@ -31,10 +31,10 @@ const RIPPLE_STYLE = `
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 `
 
-const blueGlowStyle = {
-  backgroundColor: "#2b63eb",
-  border: "1px solid rgba(255, 255, 255, 0.15)",
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.3)",
+const greyGlowStyle = {
+  backgroundColor: "#1c1c1e",
+  border: "1px solid rgba(255, 255, 255, 0.10)",
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)",
   transform: "translateZ(0)",
 }
 
@@ -81,7 +81,41 @@ interface ScheduleItem {
   extra: string; 
 }
 
-// ── Componentes UI (Estilo Settings) ──
+// ── Tareas Prediseñadas (Rotativas) ──
+const MOCK_TASKS = [
+  {
+    title: "Resumen Diario de Tecnología",
+    frequency: "Daily", time: "08:00", dayOfWeek: "Mon",
+    prompt: "Resume los desarrollos más importantes en IA y Tecnología de las últimas 24 horas, incluyendo nuevas herramientas, actualizaciones y anuncios. Prioriza lanzamientos de modelos, nuevos artículos y proyectos de código abierto e incluye enlaces a fuentes de búsquedas web. Organiza la información para que sea fácilmente digerible y legible."
+  },
+  {
+    title: "Rendimiento de Acciones",
+    frequency: "Daily", time: "16:00", dayOfWeek: "Mon",
+    prompt: "Dame las últimas actualizaciones sobre $TON, $BTC, $NVDA, $PLTR, $ETH, incluyendo precio actual, cambios recientes y proyecciones. Analiza el sentimiento, indicadores de mercado y posibles razones de los movimientos. Organiza la información para que sea fácilmente digerible y legible."
+  },
+  {
+    title: "Pronóstico del Clima y Ropa",
+    frequency: "Daily", time: "07:00", dayOfWeek: "Mon",
+    prompt: "Investiga el clima de hoy para mi ubicación, proporcionando probabilidad de lluvia, temperaturas máximas/mínimas y una recomendación práctica sobre cómo vestirme o qué llevar (paraguas, abrigo)."
+  },
+  {
+    title: "Reflexión Estoica Nocturna",
+    frequency: "Daily", time: "21:30", dayOfWeek: "Mon",
+    prompt: "Proporciona una cita estoica poderosa para cerrar el día y una pregunta de introspección profunda de un párrafo para reflexionar antes de dormir."
+  },
+  {
+    title: "Resumen Semanal Cripto",
+    frequency: "Weekly", time: "18:00", dayOfWeek: "Fri",
+    prompt: "Haz un análisis completo del movimiento semanal del top 10 criptomonedas. Señala cuáles subieron más, cuáles bajaron, y las noticias clave que definieron el mercado esta semana."
+  },
+  {
+    title: "Coaching de Metas",
+    frequency: "Weekly", time: "10:00", dayOfWeek: "Sun",
+    prompt: "Genera 3 preguntas de coaching de alto rendimiento para evaluar mi productividad de la semana que termina y ayudarme a priorizar estratégicamente la que comienza."
+  }
+]
+
+// ── Componentes UI ──
 function Toggle({ on, onToggle, disabled, activeColor = "#ffffff" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <button
@@ -231,6 +265,7 @@ export function ScheduleView() {
   const [tasks, setTasks] = useState<ScheduleItem[]>([])
   const [loadingItems, setLoadingItems] = useState(true)
   const [toast, setToast] = useState<{msg:string;type:"success"|"error"}|null>(null)
+  const [suggestedTasks, setSuggestedTasks] = useState<typeof MOCK_TASKS>([])
 
   // ── Lógica del Calendario ──
   const monthStr = new Date().toLocaleDateString('en-US',{month:'short'}).toUpperCase()
@@ -252,7 +287,12 @@ export function ScheduleView() {
     return tasks.filter(t => { try{ return new Date(t.fire_at).toDateString() === selectedDate }catch{return false} })
   }, [tasks, selectedDate])
 
-  // Estados del Formulario de Creación
+  // Contadores para la barra flotante
+  const dailyTasksCount = tasks.filter(t => t.repeat_type === "Daily").length
+  const remainingDaily = Math.max(0, 2 - dailyTasksCount)
+  const ringOffset = 88 - (dailyTasksCount / 2) * 88
+
+  // Estados del Formulario
   const [isCreating, setIsCreating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [title, setTitle] = useState("")
@@ -281,7 +321,12 @@ export function ScheduleView() {
     finally { setLoadingItems(false) }
   },[])
 
-  useEffect(()=>{ fetchItems() },[fetchItems])
+  // Fetch Items & Mezclar Prompts Sugeridos
+  useEffect(()=>{ 
+    fetchItems() 
+    const shuffled = [...MOCK_TASKS].sort(() => 0.5 - Math.random())
+    setSuggestedTasks(shuffled.slice(0, 2))
+  }, [fetchItems])
 
   useEffect(()=>{
     const tg = getTg()
@@ -296,20 +341,13 @@ export function ScheduleView() {
     return ()=>tg.BackButton.offClick(handleBack)
   },[isCreating, activeDropdown, setCurrentView])
 
-  const openMockCard = (mockType: 'news' | 'prod') => {
+  const openMockCard = (mock: typeof MOCK_TASKS[0]) => {
     setIsCreating(true)
-    if (mockType === 'news') {
-      setTitle("Boletín informativo")
-      setFrequency("Weekly")
-      setDayOfWeek("Sun")
-      setTime("09:50")
-      setPrompt("Proporciona un resumen conciso de las principales noticias de las últimas 24 horas, enfocándote en política, tecnología y ciencia. Incluye un punto clave para cada historia. Formatea como un Boletín Personalizado.")
-    } else {
-      setTitle("Mejora de productividad")
-      setFrequency("Daily")
-      setTime("07:50")
-      setPrompt("Sugiere 1 consejo práctico de productividad para el día, personalizado para alguien trabajando en un entorno acelerado. Incluye una frase motivacional para comenzar.")
-    }
+    setTitle(mock.title)
+    setFrequency(mock.frequency)
+    setDayOfWeek(mock.dayOfWeek)
+    setTime(mock.time)
+    setPrompt(mock.prompt)
   }
 
   const resetForm = () => {
@@ -325,8 +363,6 @@ export function ScheduleView() {
     }
 
     const totalTasks = tasks.length
-    const dailyTasksCount = tasks.filter(t => t.repeat_type === "Daily").length
-
     if (totalTasks >= 10) {
       showToast("Has alcanzado el límite de 10 tareas activas.", "error")
       return
@@ -339,12 +375,10 @@ export function ScheduleView() {
     setIsSaving(true)
     try {
       const extraData = JSON.stringify({ pushEnabled, emailEnabled, time, specificDate, dayOfWeek, dayOfMonth })
-      
       const data = await apiPost("/api/schedule_create", {
         title, description: prompt, repeat_type: frequency, 
         extra: extraData, event_type: "Custom Prompt", fire_at: new Date().toISOString()
       })
-      
       if(data.success){
         showToast("Tarea programada exitosamente ✨","success")
         await fetchItems()
@@ -364,8 +398,7 @@ export function ScheduleView() {
   }
 
   const formatFrequencyText = (item: ScheduleItem) => {
-    let t = "00:00"
-    let day = ""
+    let t = "00:00"; let day = ""
     try {
       const ex = JSON.parse(item.extra || "{}")
       if (ex.time) t = ex.time
@@ -390,7 +423,7 @@ export function ScheduleView() {
 
   const GrokTaskCard = ({ item }: { item: ScheduleItem }) => {
     return (
-      <div className="w-full bg-[#111111] rounded-[20px] p-4 flex flex-col gap-2.5 border border-white/5 relative group">
+      <div className="w-full bg-[#111111] rounded-[20px] p-4 flex flex-col gap-2.5 border border-white/5 relative group shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <Clock className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
@@ -417,26 +450,17 @@ export function ScheduleView() {
       <style>{RIPPLE_STYLE}</style>
       {toast && <Toast msg={toast.msg} type={toast.type}/>}
 
-      {/* ── Header Principal y Calendario ── */}
-      <div className="pt-[calc(var(--tg-safe-area-inset-top,24px)+16px)] relative z-10 flex flex-col">
-        
-        {/* Fila del Header (Tasks + Botón Plus) */}
-        <div className="px-5 flex items-center justify-between mb-4">
-          <h1 className="text-[28px] font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>Tasks</h1>
-          <button onClick={() => {resetForm(); setIsCreating(true)}} className="w-10 h-10 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-90 transition-transform">
-            <Plus className="w-6 h-6 text-white" />
-          </button>
-        </div>
-
+      {/* ── Calendario Superior ── */}
+      <div className="pt-[calc(var(--tg-safe-area-inset-top,24px)+20px)] relative z-10 flex flex-col">
         {/* Mes y Año */}
         <div className="flex justify-center items-end gap-1">
           <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
           <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
         </div>
 
-        {/* Calendario Semanal */}
-        <div className="flex justify-between items-center px-6 mt-4 mb-6">
-          <button onClick={()=>setSelectedDate("All")} className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate==="All"?"bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)]":"bg-[#111111] text-[#8e8e93] border border-white/5"}`}>
+        {/* Semanal */}
+        <div className="flex justify-between items-center px-6 mt-4 mb-2">
+          <button onClick={()=>setSelectedDate("All")} className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate==="All"?"text-white":"text-[#8e8e93]"}`} style={selectedDate==="All" ? greyGlowStyle : {}}>
             <span className="text-[14px] font-bold" style={{fontFamily:SF}}>All</span>
           </button>
           <div className="w-px h-8 bg-[#2c2c2e] mx-1 shrink-0"/>
@@ -457,57 +481,88 @@ export function ScheduleView() {
         </div>
       </div>
 
-      {/* ── Lista de Tareas ── */}
-      <div className="px-5 pb-10 flex flex-col gap-4 overflow-y-auto no-scrollbar relative z-10 flex-1">
+      {/* ── Título y Lista de Tareas ── */}
+      <div className="px-5 mt-4">
+        <h1 className="text-[28px] font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>Tasks</h1>
+      </div>
+
+      <div className="px-5 mt-3 pb-32 flex flex-col gap-4 overflow-y-auto no-scrollbar relative z-10 flex-1">
         {loadingItems ? (
            <div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-[#555558]"/></div>
         ) : filteredTasks.length === 0 ? (
-          <div className="flex flex-col gap-4 mt-2">
-             <div onClick={() => openMockCard('news')} className="w-full bg-[#111111] rounded-[20px] p-4 flex flex-col gap-2.5 border border-white/5 cursor-pointer active:bg-white/5 transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <Clock className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
-                  <span className="text-white text-[16px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Crear un boletín informativo personalizado</span>
+          
+          <div className="grid grid-cols-2 gap-3 mt-1">
+             {suggestedTasks.map((mock, idx) => (
+                <div key={idx} onClick={() => openMockCard(mock)} className="w-full bg-[#111111] rounded-[20px] p-4 flex flex-col gap-1.5 border border-white/5 cursor-pointer active:bg-white/5 transition-colors shadow-sm">
+                   <Clock className="w-[16px] h-[16px] text-white shrink-0 mb-1" strokeWidth={2.5} />
+                   <span className="text-white text-[14px] font-bold tracking-tight leading-tight line-clamp-2" style={{ fontFamily: SFD }}>
+                     {mock.title}
+                   </span>
+                   <span className="text-[#8e8e93] text-[12px] font-medium" style={{ fontFamily: SF }}>
+                     {mock.frequency === 'Daily' ? 'Diario' : 'Semanal'}
+                   </span>
+                   <p className="text-[#636366] text-[12px] leading-snug line-clamp-3 mt-1" style={{ fontFamily: SF }}>
+                     {mock.prompt}
+                   </p>
                 </div>
-                <span className="text-[#8e8e93] text-[14px] font-medium -mt-1" style={{ fontFamily: SF }}>Domingos a las 9:50 a.m.</span>
-                <p className="text-[#636366] text-[14px] leading-relaxed line-clamp-2" style={{ fontFamily: SF }}>Proporciona un resumen conciso de las principales noticias de las últimas 24 horas, enfocándote en...</p>
-             </div>
-             
-             <div onClick={() => openMockCard('prod')} className="w-full bg-[#111111] rounded-[20px] p-4 flex flex-col gap-2.5 border border-white/5 cursor-pointer active:bg-white/5 transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <Clock className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
-                  <span className="text-white text-[16px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Recibe una mejora de productividad diaria</span>
-                </div>
-                <span className="text-[#8e8e93] text-[14px] font-medium -mt-1" style={{ fontFamily: SF }}>Diariamente a las 7:50 a.m.</span>
-                <p className="text-[#636366] text-[14px] leading-relaxed line-clamp-2" style={{ fontFamily: SF }}>Sugiere 1 consejo práctico de productividad para el día, personalizado para alguien trabajando en un entorno acelerado...</p>
-             </div>
+             ))}
           </div>
+
         ) : (
           filteredTasks.map(t => <GrokTaskCard key={t.id} item={t} />)
         )}
+      </div>
+
+      {/* ── Barra Flotante Inferior (Bottom Bar) ── */}
+      <div className="fixed left-4 right-4 z-40 p-2 rounded-full flex items-center justify-between" 
+           style={{ ...greyGlowStyle, bottom: "calc(var(--tg-safe-area-inset-bottom, 16px) + 16px)" }}>
+        
+        <div className="flex items-center gap-3 pl-2">
+          {/* Anillo de Progreso SVG */}
+          <div className="relative w-[34px] h-[34px] flex items-center justify-center">
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#2c2c2e" strokeWidth="4.5" />
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#ffffff" strokeWidth="4.5" strokeDasharray="88" strokeDashoffset={ringOffset} strokeLinecap="round" className="transition-all duration-700" />
+            </svg>
+          </div>
+          <div className="flex flex-col -mt-0.5">
+            <span className="text-white text-[14px] font-bold tracking-tight" style={{fontFamily: SF}}>
+              Quedan {remainingDaily} tareas diarias
+            </span>
+            <span className="text-[#8e8e93] text-[12.5px]" style={{fontFamily: SF}}>
+              Actual: {dailyTasksCount}/2 tareas diarias activas
+            </span>
+          </div>
+        </div>
+
+        <button 
+          onClick={() => {resetForm(); setIsCreating(true)}} 
+          className="bg-white text-black px-5 h-[38px] flex items-center justify-center rounded-full font-bold text-[14px] active:scale-95 transition-transform" 
+          style={{fontFamily: SF}}
+        >
+          Crear tarea
+        </button>
       </div>
 
       {/* ── Modal de Creación Plana ── */}
       {isCreating && (
         <div className="absolute inset-0 z-[60] bg-[#000000] flex flex-col animate-in slide-in-from-bottom duration-300">
           
-          <div className="flex items-center justify-between px-5 pt-[calc(var(--tg-safe-area-inset-top,24px)+16px)] pb-4 shrink-0">
-            <button onClick={() => setIsCreating(false)} className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity">
-              <X className="w-6 h-6 text-white" strokeWidth={2.5} />
+          <div className="flex items-center justify-between px-5 pt-[calc(var(--tg-safe-area-inset-top,24px)+40px)] pb-6 shrink-0">
+            <button onClick={() => setIsCreating(false)} className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity bg-[#1c1c1e] rounded-full">
+              <X className="w-5 h-5 text-[#8e8e93]" strokeWidth={2.5} />
             </button>
             <h2 className="font-bold text-white tracking-tight" style={{ fontSize: "17px", fontFamily: SFD }}>Create Task</h2>
-            <button onClick={handleSaveTask} disabled={isSaving} className="px-4 py-1.5 text-white font-bold text-[14px] rounded-full active:scale-95 transition-transform disabled:opacity-50" style={{ ...blueGlowStyle, fontFamily: SF }}>
+            <button onClick={handleSaveTask} disabled={isSaving} className="px-5 py-1.5 text-black font-bold text-[14px] rounded-full bg-white active:scale-95 transition-transform disabled:opacity-50" style={{ fontFamily: SF }}>
               {isSaving ? "Saving..." : "Save"}
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-32 space-y-6 pt-4">
+          <div className="flex-1 overflow-y-auto no-scrollbar px-5 pb-32 space-y-6 pt-2">
             
             <ExpandingInput label="Title" maxLength={60} value={title} onChange={setTitle} placeholder="Ej. Resumen Diario" />
 
-            {/* Selectores de Frecuencia y Tiempo */}
             <div className="flex flex-col gap-5">
-               
-               {/* Custom Dropdown para Frecuencia */}
                <DropdownSelect 
                  label="Frequency"
                  value={frequency}
@@ -537,7 +592,6 @@ export function ScheduleView() {
                )}
 
                <ExpandingInput label="Time" type="time" value={time} onChange={setTime} />
-
             </div>
 
             <ExpandingInput label="Prompt" maxLength={500} value={prompt} onChange={setPrompt} placeholder="Escribe las instrucciones exactas para la IA..." isTextArea />
