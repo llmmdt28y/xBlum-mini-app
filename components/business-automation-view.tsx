@@ -37,7 +37,8 @@ const RIPPLE_STYLE = `
   }
 `
 
-const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
+const getTg = () => typeof window !== "undefined" ?
+(window as any).Telegram?.WebApp : null
 
 const triggerVibration = (type: 'light' | 'medium' | 'heavy' | 'error' | 'success') => {
   const tg = getTg();
@@ -194,12 +195,10 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (onClick && !onLongPress) createRipple(e);
-    
     if (onLongPress) {
       touchRef.current.startX = e.clientX;
       touchRef.current.startY = e.clientY;
       touchRef.current.triggered = false;
-      
       touchRef.current.timer = setTimeout(() => {
         touchRef.current.triggered = true;
         triggerVibration('medium'); 
@@ -366,8 +365,8 @@ const AutoResizeTextarea = ({ defaultValue, onBlurSave, placeholder }: { default
   )
 }
 
-// ── COMPONENTE EXPANDIBLE CON LIMITE Y VIBRACIÓN ──
-const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }: { label: string, maxLength: number, value: string, onChange: (v: string) => void, placeholder?: string }) => {
+// ── COMPONENTE EXPANDIBLE CON LIMITE Y VIBRACIÓN (Soporta onBlur y labelBg dinámico) ──
+const ExpandingInput = ({ label, maxLength, value, onChange, onBlur, placeholder = "", labelBg = "#000000" }: { label: string, maxLength: number, value: string, onChange: (v: string) => void, onBlur?: () => void, placeholder?: string, labelBg?: string }) => {
   const textRef = useRef<HTMLTextAreaElement>(null)
   const [warningActive, setWarningActive] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -409,8 +408,8 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
   return (
     <div className="relative w-full mb-8 mt-3">
       <label 
-        className="absolute -top-2.5 left-3 px-1.5 text-[13px] bg-[#000000] z-10 font-medium transition-colors duration-200" 
-        style={{ fontFamily: SF, color: labelHex }}
+        className="absolute -top-2.5 left-3 px-1.5 text-[13px] z-10 font-medium transition-colors duration-200" 
+        style={{ fontFamily: SF, color: labelHex, backgroundColor: labelBg }}
       >
         {label} • {remaining}
       </label>
@@ -419,7 +418,7 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
         value={value}
         onChange={handleChange}
         onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onBlur={() => { setIsFocused(false); if (onBlur) onBlur(); }}
         placeholder={placeholder}
         className="w-full bg-transparent border-[1.5px] rounded-[12px] px-4 py-3.5 text-white focus:outline-none resize-none overflow-hidden placeholder:text-[#636366] transition-colors duration-200"
         style={{ fontFamily: SF, fontSize: "16px", minHeight: "56px", borderColor: colorHex }}
@@ -524,6 +523,9 @@ export function BusinessAutomationView({
     custom_roles: [] as { id: string, label: string, desc: string }[]
   })
 
+  // Estado local para el Welcome Message en la vista "main"
+  const [localGreeting, setLocalGreeting] = useState("")
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       setViewportHeight(`${window.innerHeight}px`)
@@ -556,7 +558,6 @@ export function BusinessAutomationView({
 
   const handleSaveRole = () => {
     if (!newRoleName.trim() || !newRolePrompt.trim()) return;
-    
     if (editingRoleId) {
       const updatedRoles = config.custom_roles.map(r => 
         r.id === editingRoleId ? { ...r, label: newRoleName, desc: newRolePrompt } : r
@@ -612,7 +613,6 @@ export function BusinessAutomationView({
     if (!contextMenu) return;
     const updatedRoles = config.custom_roles.filter(r => r.id !== contextMenu.roleId);
     setAndSave('custom_roles', updatedRoles);
-    
     if (config.use_case === contextMenu.roleId) {
       setAndSave('use_case', 'assistant');
     }
@@ -664,6 +664,11 @@ export function BusinessAutomationView({
     loadInitial()
   }, [apiBaseUrl])
 
+  // Mantener en sincronía el text local del Welcome Message con el config cuando carga de la red
+  useEffect(() => {
+    setLocalGreeting(config.greeting_text)
+  }, [config.greeting_text])
+
   if (loading) {
     return (
       <div className="fixed inset-0 z-[60] bg-[#000] flex items-center justify-center w-full h-full">
@@ -674,7 +679,7 @@ export function BusinessAutomationView({
 
   const currentTheme = PRESETS_DATA.find(p => p.id === selectedPresetId)?.theme || "#60a5fa";
   const currentPresetName = PRESETS_DATA.find(p => p.id === selectedPresetId)?.name || "Preset";
-  
+
   const getRoleDisplayName = () => {
     const defaultRole = ROLES_DATA.find(r => r.id === config.use_case);
     if (defaultRole) return defaultRole.label;
@@ -688,7 +693,6 @@ export function BusinessAutomationView({
   if (contextMenu?.visible) {
     let top = contextMenu.y;
     let left = contextMenu.x;
-    
     if (typeof window !== "undefined") {
       if (left > window.innerWidth - 150) left = window.innerWidth - 150;
       if (top > window.innerHeight - 150) top = window.innerHeight - 150;
@@ -790,13 +794,6 @@ export function BusinessAutomationView({
                 footer="Conversation history allows the AI to understand previous requests and consider them when generating new responses."
               >
                 <Row 
-                  leftNode={<Globe className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
-                  label="Services" 
-                  value="None"
-                  hideArrow
-                  onClick={() => setActivePage('presets')} 
-                />
-                <Row 
                   leftNode={<CircleUserRound className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
                   label="Roles" 
                   value={getRoleDisplayName()}
@@ -812,24 +809,63 @@ export function BusinessAutomationView({
                 />
               </Section>
 
-              <Section title="Other">
+              <Section title="Tone">
+                {['adaptive', 'casual', 'formal', 'empathetic'].map((opt, idx, arr) => (
+                  <Row 
+                    key={opt}
+                    alignItems="center"
+                    leftNode={
+                      <div className="mt-[1px]">
+                        <RadioButton selected={config.tone === opt} />
+                      </div>
+                    }
+                    label={opt.charAt(0).toUpperCase() + opt.slice(1)}
+                    hideArrow
+                    last={idx === arr.length - 1}
+                    onClick={() => setAndSave('tone', opt)}
+                  />
+                ))}
+              </Section>
+
+              <Section>
                 <Row 
-                  label="Response Streaming" 
-                  sublabel="Ensures smoother and faster display of responses."
-                  rightNode={<SwitchNode on={config.response_streaming} onToggle={() => setAndSave('response_streaming', !config.response_streaming)} activeColor="#60a5fa" />}
-                  onClick={() => setAndSave('response_streaming', !config.response_streaming)}
-                />
-                <Row 
-                  label="Show Response Only" 
-                  rightNode={<SwitchNode on={config.show_response_only} onToggle={() => setAndSave('show_response_only', !config.show_response_only)} activeColor="#60a5fa" />}
-                  onClick={() => setAndSave('show_response_only', !config.show_response_only)}
-                />
-                <Row 
-                  label="Insert Response as Quote" 
-                  rightNode={<SwitchNode on={config.insert_quote} onToggle={() => setAndSave('insert_quote', !config.insert_quote)} activeColor="#60a5fa" />}
-                  onClick={() => setAndSave('insert_quote', !config.insert_quote)}
+                  label="Simulate Typing"
+                  rightNode={<SwitchNode on={config.humanize_enabled} onToggle={() => setAndSave('humanize_enabled', !config.humanize_enabled)} activeColor="#60a5fa" />}
+                  onClick={() => setAndSave('humanize_enabled', !config.humanize_enabled)}
                   last
                 />
+              </Section>
+
+              <Section title="Other">
+                <Row 
+                  label="Mark as Read" 
+                  rightNode={<SwitchNode on={config.read_enabled} onToggle={() => setAndSave('read_enabled', !config.read_enabled)} activeColor="#60a5fa" />}
+                  onClick={() => setAndSave('read_enabled', !config.read_enabled)}
+                />
+                <Row 
+                  label="Spam Filter" 
+                  rightNode={<SwitchNode on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} activeColor="#60a5fa" />}
+                  onClick={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)}
+                />
+                <Row 
+                  label="Welcome Message" 
+                  rightNode={<SwitchNode on={config.greeting_enabled} onToggle={() => setAndSave('greeting_enabled', !config.greeting_enabled)} activeColor="#60a5fa" />}
+                  onClick={() => setAndSave('greeting_enabled', !config.greeting_enabled)}
+                  last={!config.greeting_enabled}
+                />
+                {config.greeting_enabled && (
+                  <div className="px-4 pb-2 pt-2 w-full bg-[#111111]">
+                    <ExpandingInput 
+                      label="Message text"
+                      maxLength={1024}
+                      value={localGreeting}
+                      onChange={setLocalGreeting}
+                      onBlur={() => setAndSave('greeting_text', localGreeting)}
+                      placeholder="E.g., Hi there! How can I help you today?"
+                      labelBg="#111111"
+                    />
+                  </div>
+                )}
               </Section>
             </div>
           </div>
@@ -880,7 +916,7 @@ export function BusinessAutomationView({
                     onClick={() => setAndSave('use_case', role.id)}
                   />
                 ))}
-              </Section>
+               </Section>
 
               {config.custom_roles && config.custom_roles.length > 0 && (
                 <div className="mt-6">
@@ -956,7 +992,7 @@ export function BusinessAutomationView({
 
             <div className="px-4">
                <Section title={`${currentPresetName} Configuration`} footer="Changes here override the preset automatically.">
-                <Row 
+                 <Row 
                   leftNode={<Sparkles className="w-[20px] h-[20px] text-[#8e8e93]" />}
                   label="AI Auto-Reply"
                   rightNode={<SwitchNode on={config.ai_autoreply_enabled} onToggle={() => setAndSave('ai_autoreply_enabled', !config.ai_autoreply_enabled)} activeColor={currentTheme} />}
@@ -981,7 +1017,7 @@ export function BusinessAutomationView({
                   onClick={() => setAndSave('followup_enabled', !config.followup_enabled)}
                   last
                 />
-              </Section>
+               </Section>
             </div>
           </div>
         )}
@@ -990,7 +1026,7 @@ export function BusinessAutomationView({
         {activePage === 'agent_profile' && (
           <div className="animate-in slide-in-from-right duration-300 w-full">
             <SubHeader title="Agent Profile" />
-            <p className="px-5 mt-4 mb-8 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
+             <p className="px-5 mt-4 mb-8 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, lineHeight: "1.4" }}>
               Configure your agent's identity, behavior rules, and reference knowledge.
             </p>
             
@@ -1049,7 +1085,7 @@ export function BusinessAutomationView({
                   </Section>
                 </div>
               )}
-             </div>
+              </div>
           </div>
         )}
 
@@ -1187,7 +1223,7 @@ export function BusinessAutomationView({
                   onClick={() => setAndSave('away_enabled', !config.away_enabled)}
                   last={!config.away_enabled}
                 />
-                 {config.away_enabled && (
+                  {config.away_enabled && (
                   <TextPreviewRow 
                     title="Edit Away Message"
                     placeholder="Click to write your away message..."
