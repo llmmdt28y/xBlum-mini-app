@@ -49,6 +49,16 @@ const RIPPLE_STYLE = `
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  /* Ocultar el icono de calendario por defecto en inputs nativos webkit */
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+  }
 `
 
 const getTg = () => typeof window !== "undefined" ?
@@ -420,7 +430,7 @@ const ExpandingInput = ({ label, maxLength, value, onChange, onBlur, placeholder
   }
 
   return (
-    <div className="relative w-full mb-8 mt-3">
+    <div className="relative w-full mb-2 mt-3">
       <label 
         className="absolute -top-2.5 left-3 px-1.5 text-[13px] z-10 font-medium transition-colors duration-200" 
         style={{ fontFamily: SF, color: labelHex, backgroundColor: labelBg }}
@@ -487,8 +497,7 @@ export function BusinessAutomationView({
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState<
     'main' | 'presets' | 'chat_access' | 'agent_profile' | 'workflows' | 'safety' | 'reports' | 
-    'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg' | 'away_msg_edit' | 
-    'roles' | 'new_role' | 'tone'
+    'system_instructions' | 'knowledge_base' | 'afk_msg' | 'roles' | 'new_role' | 'tone'
   >('main')
   
   const [activeModal, setActiveModal] = useState<string | null>(null)
@@ -506,7 +515,7 @@ export function BusinessAutomationView({
   // Estado para el menú contextual de Roles
   const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, roleId: string } | null>(null)
 
-  // Usuario de Telegram (Para mostrar su perfil real en la vista Away Message)
+  // Usuario de Telegram (Para mostrar su perfil real en la vista AFK Message)
   const [tgUser, setTgUser] = useState<TgUser | undefined>(undefined)
 
   const [config, setConfig] = useState({
@@ -516,14 +525,12 @@ export function BusinessAutomationView({
     tone: "adaptive", 
     ai_persona_hint: "",
     kb_text: "",
-    greeting_enabled: false,
-    greeting_text: "",
-    away_enabled: true, // Master toggle from image
-    away_text: "",
-    away_schedule: "custom", // 'always' | 'outside' | 'custom'
-    away_start_time: "Feb 29, 18:13", // Mock times as per image request
-    away_end_time: "Mar 1, 18:13",
-    away_offline_only: false, // "Only if Offline" toggle
+    afk_enabled: false,
+    afk_text: "Esta é uma mensagem de ausência",
+    afk_schedule: "custom", 
+    afk_start_time: "2026-05-28T18:13", 
+    afk_end_time: "2026-05-29T18:13",
+    afk_offline_only: false, 
     read_enabled: true,
     spam_filter_enabled: true,
     spam_sensitivity: "medium", 
@@ -545,8 +552,8 @@ export function BusinessAutomationView({
     custom_roles: [] as { id: string, label: string, desc: string }[]
   })
 
-  // Estado local para el Welcome Message en la vista "main"
-  const [localGreeting, setLocalGreeting] = useState("")
+  // Estado local para el AFK Message en su vista dedicada
+  const [localAfkText, setLocalAfkText] = useState("")
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -653,13 +660,9 @@ export function BusinessAutomationView({
         onClose()
       } else if (activePage === 'system_instructions' || activePage === 'knowledge_base') {
         setActivePage('agent_profile')
-      } else if (activePage === 'away_msg_edit') {
-        setActivePage('away_msg')
-      } else if (activePage === 'greeting_msg' || activePage === 'away_msg') {
-        setActivePage('workflows')
       } else if (activePage === 'new_role') {
         setActivePage('roles')
-      } else if (activePage === 'roles' || activePage === 'tone') {
+      } else if (activePage === 'roles' || activePage === 'tone' || activePage === 'afk_msg') {
         setActivePage('main')
       } else {
         setActivePage('main')
@@ -689,10 +692,10 @@ export function BusinessAutomationView({
     loadInitial()
   }, [apiBaseUrl])
 
-  // Mantener en sincronía el text local del Welcome Message con el config cuando carga de la red
+  // Mantener en sincronía el text local del AFK Message con el config
   useEffect(() => {
-    setLocalGreeting(config.greeting_text)
-  }, [config.greeting_text])
+    setLocalAfkText(config.afk_text)
+  }, [config.afk_text])
 
   if (loading) {
     return (
@@ -832,6 +835,12 @@ export function BusinessAutomationView({
                 />
                 <Row 
                   leftNode={<MessageSquare className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
+                  label="AFK Message" 
+                  value={config.afk_enabled ? "On" : "Off"}
+                  onClick={() => setActivePage('afk_msg')}
+                />
+                <Row 
+                  leftNode={<Clock className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
                   label="History" 
                   rightNode={<SwitchNode on={config.history_enabled} onToggle={() => setAndSave('history_enabled', !config.history_enabled)} activeColor="#60a5fa" />}
                   onClick={() => setAndSave('history_enabled', !config.history_enabled)}
@@ -849,26 +858,8 @@ export function BusinessAutomationView({
                   label="Spam Filter" 
                   rightNode={<SwitchNode on={config.spam_filter_enabled} onToggle={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)} activeColor="#60a5fa" />}
                   onClick={() => setAndSave('spam_filter_enabled', !config.spam_filter_enabled)}
+                  last
                 />
-                <Row 
-                  label="Welcome Message" 
-                  rightNode={<SwitchNode on={config.greeting_enabled} onToggle={() => setAndSave('greeting_enabled', !config.greeting_enabled)} activeColor="#60a5fa" />}
-                  onClick={() => setAndSave('greeting_enabled', !config.greeting_enabled)}
-                  last={!config.greeting_enabled}
-                />
-                {config.greeting_enabled && (
-                  <div className="px-4 pb-2 pt-2 w-full bg-[#111111]">
-                    <ExpandingInput 
-                      label="Message text"
-                      maxLength={1024}
-                      value={localGreeting}
-                      onChange={setLocalGreeting}
-                      onBlur={() => setAndSave('greeting_text', localGreeting)}
-                      placeholder="E.g., Hi there! How can I help you today?"
-                      labelBg="#111111"
-                    />
-                  </div>
-                )}
               </Section>
             </div>
           </div>
@@ -987,6 +978,161 @@ export function BusinessAutomationView({
                       />
                     ))}
                   </Section>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── AFK MESSAGE (ANTIGUO AWAY MESSAGE) ── */}
+        {activePage === 'afk_msg' && (
+          <div className="animate-in slide-in-from-right duration-300 w-full pb-10 relative">
+            <SubHeader title="AFK Message" />
+            
+            <div className="flex flex-col items-center pt-2 pb-6 px-4 text-center relative z-0">
+              <div className="relative w-[100px] h-[80px] mb-4 pointer-events-none select-none">
+                <span className="absolute bottom-2 left-6 text-[28px] font-bold text-[#60a5fa]" style={{ transform: "rotate(-10deg)" }}>z</span>
+                <span className="absolute top-6 left-12 text-[42px] font-bold text-[#60a5fa]" style={{ transform: "rotate(-5deg)" }}>z</span>
+                <span className="absolute -top-4 right-2 text-[64px] font-bold text-[#60a5fa]" style={{ transform: "rotate(5deg)" }}>Z</span>
+              </div>
+              <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "250px", lineHeight: "1.4" }}>
+                Automatically reply with a message<br/>when you are away.
+              </p>
+            </div>
+
+            <div className="px-4">
+              <Section>
+                <Row 
+                  label="Send AFK Message"
+                  rightNode={<SwitchNode on={config.afk_enabled} onToggle={() => setAndSave('afk_enabled', !config.afk_enabled)} activeColor="#60a5fa" />}
+                  onClick={() => setAndSave('afk_enabled', !config.afk_enabled)}
+                  last
+                />
+              </Section>
+
+              {config.afk_enabled && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300 w-full">
+                  
+                  {/* Contenedor Integrado: Perfil + Cuadro de Texto + Botón */}
+                  <div className="bg-[#111111] border border-white/5 shadow-lg rounded-[24px] mb-4 p-4">
+                    
+                    <div className="flex items-center mb-4 px-2">
+                      <div className="w-[52px] h-[52px] rounded-full overflow-hidden bg-[#1c1c1e] flex items-center justify-center shrink-0 border border-white/5 shadow-inner">
+                        {tgUser?.photo_url ? (
+                          <img src={tgUser.photo_url} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-white font-bold text-xl" style={{ fontFamily: SFD }}>
+                            {(tgUser?.first_name?.[0] || tgUser?.username?.[0] || "U").toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-col flex-1 min-w-0 justify-center ml-4">
+                        <span className="text-white text-[18px] mb-0.5 tracking-wide" style={{ fontFamily: "Georgia, serif", fontWeight: "bold" }}>
+                          {tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ") || tgUser.username : "𝕷𝖚𝖈𝖆𝖘"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <ExpandingInput 
+                      label="Message text"
+                      maxLength={1024}
+                      value={localAfkText}
+                      onChange={setLocalAfkText}
+                      placeholder="E.g., I'm currently away..."
+                      labelBg="#111111"
+                    />
+
+                    <button
+                      onClick={(e) => { 
+                        createRipple(e); 
+                        setAndSave('afk_text', localAfkText); 
+                        triggerVibration('success'); 
+                      }}
+                      disabled={!localAfkText.trim()}
+                      className="w-full bg-[#60a5fa] text-white font-bold rounded-[14px] py-3.5 transition-opacity disabled:opacity-50 relative overflow-hidden"
+                      style={{ fontSize: "16px", fontFamily: SF }}
+                    >
+                      <span className="relative z-10">Save Message</span>
+                    </button>
+                  </div>
+
+                  {/* Schedule Container. Se atenúa y bloquea si Only Offline está activo */}
+                  <div className={config.afk_offline_only ? "opacity-50 pointer-events-none transition-all duration-300" : "transition-all duration-300"}>
+                    <Section title="Schedule" titleColor="#60a5fa">
+                      <Row 
+                        leftNode={<div className="mt-[1px]"><RadioButton selected={config.afk_schedule === 'always'} activeColor="#60a5fa" /></div>}
+                        label="Send Always"
+                        hideArrow
+                        onClick={() => setAndSave('afk_schedule', 'always')}
+                      />
+                      <Row 
+                        leftNode={<div className="mt-[1px]"><RadioButton selected={config.afk_schedule === 'outside'} activeColor="#60a5fa" /></div>}
+                        label="Outside of Business Hours"
+                        hideArrow
+                        onClick={() => setAndSave('afk_schedule', 'outside')}
+                      />
+                      <Row 
+                        leftNode={<div className="mt-[1px]"><RadioButton selected={config.afk_schedule === 'custom'} activeColor="#60a5fa" /></div>}
+                        label="Custom Schedule"
+                        hideArrow
+                        onClick={() => setAndSave('afk_schedule', 'custom')}
+                        last={config.afk_schedule !== 'custom'}
+                      />
+                    </Section>
+
+                    {/* Selector de Horas Nativo para Custom Schedule */}
+                    {config.afk_schedule === 'custom' && (
+                      <div className="animate-in fade-in duration-200 mt-[-10px]">
+                        <Section>
+                          <Row 
+                            label="Start Time"
+                            rightNode={
+                              <div className="relative flex items-center justify-end w-[150px]">
+                                <input 
+                                  type="datetime-local" 
+                                  value={config.afk_start_time}
+                                  onChange={(e) => setAndSave('afk_start_time', e.target.value)}
+                                  className="absolute inset-0 w-full h-full opacity-0 z-20"
+                                />
+                                <span className="text-[16px] relative z-10" style={{ color: "#60a5fa", fontFamily: SF }}>
+                                  {new Date(config.afk_start_time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '')}
+                                </span>
+                              </div>
+                            }
+                            hideArrow
+                          />
+                          <Row 
+                            label="End Time"
+                            rightNode={
+                              <div className="relative flex items-center justify-end w-[150px]">
+                                <input 
+                                  type="datetime-local" 
+                                  value={config.afk_end_time}
+                                  onChange={(e) => setAndSave('afk_end_time', e.target.value)}
+                                  className="absolute inset-0 w-full h-full opacity-0 z-20"
+                                />
+                                <span className="text-[16px] relative z-10" style={{ color: "#60a5fa", fontFamily: SF }}>
+                                  {new Date(config.afk_end_time).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '')}
+                                </span>
+                              </div>
+                            }
+                            hideArrow
+                            last
+                          />
+                        </Section>
+                      </div>
+                    )}
+                  </div>
+
+                  <Section>
+                    <Row 
+                      label="Only if Offline"
+                      rightNode={<SwitchNode on={config.afk_offline_only} onToggle={() => setAndSave('afk_offline_only', !config.afk_offline_only)} activeColor="#60a5fa" />}
+                      onClick={() => setAndSave('afk_offline_only', !config.afk_offline_only)}
+                      last
+                    />
+                  </Section>
+
                 </div>
               )}
             </div>
@@ -1169,132 +1315,6 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {/* ── NUEVA VISTA: AWAY MESSAGE (SETTINGS PRINCIPAL) ── */}
-        {activePage === 'away_msg' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full pb-10 relative">
-            <SubHeader title="Away Message" />
-            
-            <div className="flex flex-col items-center pt-2 pb-6 px-4 text-center relative z-0">
-              <div className="relative w-[100px] h-[80px] mb-4">
-                <span className="absolute bottom-2 left-6 text-[28px] font-bold text-[#3390ec]" style={{ transform: "rotate(-10deg)" }}>z</span>
-                <span className="absolute top-6 left-12 text-[42px] font-bold text-[#3390ec]" style={{ transform: "rotate(-5deg)" }}>z</span>
-                <span className="absolute -top-4 right-2 text-[64px] font-bold text-[#3390ec]" style={{ transform: "rotate(5deg)" }}>Z</span>
-              </div>
-              <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "250px", lineHeight: "1.4" }}>
-                Automatically reply with a message<br/>when you are away.
-              </p>
-            </div>
-
-            <div className="px-4">
-              <Section>
-                <Row 
-                  label="Send Away Message"
-                  rightNode={<SwitchNode on={config.away_enabled} onToggle={() => setAndSave('away_enabled', !config.away_enabled)} activeColor="#8774e1" />}
-                  onClick={() => setAndSave('away_enabled', !config.away_enabled)}
-                  last
-                />
-              </Section>
-
-              {config.away_enabled && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-300 w-full">
-                  
-                  {/* Tarjeta de Perfil para editar el texto */}
-                  <button 
-                    onClick={(e) => { createRipple(e); setActivePage('away_msg_edit'); }}
-                    className="relative overflow-hidden w-full flex items-center px-4 py-3 active:bg-white/5 transition-colors text-left bg-[#111111] border border-white/5 shadow-lg rounded-[24px] mb-4"
-                  >
-                    <div className="w-[52px] h-[52px] rounded-full overflow-hidden bg-[#1c1c1e] flex items-center justify-center mr-4 shrink-0 border border-white/5">
-                      {tgUser?.photo_url ? (
-                        <img src={tgUser.photo_url} alt="Profile" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-white font-bold text-xl" style={{ fontFamily: SFD }}>
-                          {(tgUser?.first_name?.[0] || tgUser?.username?.[0] || "U").toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-col flex-1 min-w-0 justify-center">
-                      <span className="text-white text-[17px] mb-0.5" style={{ fontFamily: "Georgia, serif", fontWeight: "bold", letterSpacing: "0.5px" }}>
-                        {tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ") || tgUser.username : "𝕷𝖚𝖈𝖆𝖘"}
-                      </span>
-                      <span className="text-[14px] truncate text-[#8e8e93]" style={{ fontFamily: SF }}>
-                        {config.away_text || "Esta é uma mensagem de ausência"}
-                      </span>
-                    </div>
-                    <ChevronRight className="w-5 h-5 shrink-0 ml-2 text-[#8e8e93]" strokeWidth={1.5} />
-                  </button>
-
-                  <Section title="Schedule" titleColor="#8774e1">
-                    <Row 
-                      leftNode={<div className="mt-[1px]"><RadioButton selected={config.away_schedule === 'always'} activeColor="#8774e1" /></div>}
-                      label="Send Always"
-                      hideArrow
-                      onClick={() => setAndSave('away_schedule', 'always')}
-                    />
-                    <Row 
-                      leftNode={<div className="mt-[1px]"><RadioButton selected={config.away_schedule === 'outside'} activeColor="#8774e1" /></div>}
-                      label="Outside of Business Hours"
-                      hideArrow
-                      onClick={() => setAndSave('away_schedule', 'outside')}
-                    />
-                    <Row 
-                      leftNode={<div className="mt-[1px]"><RadioButton selected={config.away_schedule === 'custom'} activeColor="#8774e1" /></div>}
-                      label="Custom Schedule"
-                      hideArrow
-                      onClick={() => setAndSave('away_schedule', 'custom')}
-                      last
-                    />
-                  </Section>
-
-                  {config.away_schedule === 'custom' && (
-                    <div className="animate-in fade-in duration-200">
-                      <Section title="Schedule" titleColor="#8774e1">
-                        <Row 
-                          label="Start Time"
-                          rightNode={<span className="text-[16px]" style={{ color: "#8774e1", fontFamily: SF }}>{config.away_start_time}</span>}
-                          onClick={() => { triggerVibration('medium') }} // Placeholder for time picker
-                        />
-                        <Row 
-                          label="End Time"
-                          rightNode={<span className="text-[16px]" style={{ color: "#8774e1", fontFamily: SF }}>{config.away_end_time}</span>}
-                          onClick={() => { triggerVibration('medium') }}
-                          last
-                        />
-                      </Section>
-                    </div>
-                  )}
-
-                  <Section>
-                    <Row 
-                      label="Only if Offline"
-                      rightNode={<SwitchNode on={config.away_offline_only} onToggle={() => setAndSave('away_offline_only', !config.away_offline_only)} activeColor="#8774e1" />}
-                      onClick={() => setAndSave('away_offline_only', !config.away_offline_only)}
-                      last
-                    />
-                  </Section>
-
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── TEXT EDITOR: AWAY MESSAGE ── */}
-        {activePage === 'away_msg_edit' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full h-[85vh] flex flex-col">
-            <SubHeader title="Edit Away Message" />
-            <div className="px-4 flex-1 flex flex-col">
-              <p className="px-2 mb-4 mt-4 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
-                Sent automatically when you are scheduled as away.
-              </p>
-              <AutoResizeTextarea
-                defaultValue={config.away_text}
-                onBlurSave={(v) => setAndSave('away_text', v)}
-                placeholder="E.g., I'm currently away but will reply as soon as possible."
-              />
-            </div>
-          </div>
-        )}
-
         {/* ── CHAT ACCESS SCOPE ── */}
         {activePage === 'chat_access' && (
           <div className="animate-in slide-in-from-right duration-300 w-full">
@@ -1334,44 +1354,6 @@ export function BusinessAutomationView({
                   onClick={() => setAndSave('read_enabled', !config.read_enabled)}
                   last
                 />
-              </Section>
-
-              <Section title="Auto-Replies">
-                <Row 
-                  leftNode={<MessageSquarePlus className="w-[20px] h-[20px] text-[#8e8e93]" />}
-                  label="Welcome Message"
-                  sublabel="Greet first-time contacts automatically."
-                  rightNode={<SwitchNode on={config.greeting_enabled} onToggle={() => setAndSave('greeting_enabled', !config.greeting_enabled)} />}
-                  onClick={() => setAndSave('greeting_enabled', !config.greeting_enabled)}
-                  last={!config.greeting_enabled}
-                />
-                {config.greeting_enabled && (
-                  <TextPreviewRow 
-                    title="Edit Welcome Message"
-                    placeholder="Click to write your greeting message..."
-                    value={config.greeting_text}
-                    onClick={() => setActivePage('greeting_msg')}
-                  />
-                )}
-              </Section>
-
-              <Section>
-                <Row 
-                  leftNode={<Clock className="w-[20px] h-[20px] text-[#8e8e93]" />}
-                  label="Away Message"
-                  sublabel="Reply when you are out of office."
-                  rightNode={<SwitchNode on={config.away_enabled} onToggle={() => setAndSave('away_enabled', !config.away_enabled)} />}
-                  onClick={() => setAndSave('away_enabled', !config.away_enabled)}
-                  last={!config.away_enabled}
-                />
-                  {config.away_enabled && (
-                  <TextPreviewRow 
-                    title="Configure Away Message"
-                    placeholder="Set up schedule, filters, and text..."
-                    value={config.away_text}
-                    onClick={() => setActivePage('away_msg')}
-                  />
-                )}
               </Section>
 
               <Section title="Engagement Loops">
