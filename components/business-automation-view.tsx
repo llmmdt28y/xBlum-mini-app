@@ -11,6 +11,20 @@ import {
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
+// ── OBTENCIÓN DEL USUARIO DE TELEGRAM ──
+type TgUser = {
+  id: number
+  first_name?: string
+  last_name?: string
+  username?: string
+  photo_url?: string
+}
+
+function getTgUser(): TgUser | undefined {
+  if (typeof window === "undefined") return undefined
+  return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
+}
+
 // ── ESTILOS GLOBALES PARA EL EFECTO RIPPLE Y SCROLLBAR ──
 const RIPPLE_STYLE = `
   .ripple {
@@ -156,12 +170,12 @@ function SubHeader({ title, rightNode }: { title: string, rightNode?: React.Reac
   )
 }
 
-function Section({ title, footer, children }: { title?: string; footer?: React.ReactNode; children: React.ReactNode }) {
+function Section({ title, footer, titleColor = "#60a5fa", children }: { title?: string; footer?: React.ReactNode; titleColor?: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2 mb-4 w-full"> 
       {title && (
         <div className="px-4 mb-1.5 flex items-center justify-between">
-          <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
+          <h2 className="text-[15px] font-semibold" style={{ fontFamily: SF, color: titleColor }}>{title}</h2>
         </div>
       )}
       <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] relative">
@@ -179,7 +193,7 @@ function Section({ title, footer, children }: { title?: string; footer?: React.R
 interface RowProps {
   label: string | React.ReactNode;
   sublabel?: string | React.ReactNode;
-  value?: string;
+  value?: string | React.ReactNode;
   leftNode?: React.ReactNode;
   rightNode?: React.ReactNode;
   onClick?: () => void;
@@ -278,10 +292,10 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, onLongPress
   )
 }
 
-function RadioButton({ selected }: { selected: boolean }) {
+function RadioButton({ selected, activeColor = "#60a5fa" }: { selected: boolean; activeColor?: string }) {
   return (
-    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10 ${selected ? 'border-[#60a5fa]' : 'border-[#555558]'}`}>
-      {selected && <div className="w-[12px] h-[12px] rounded-full bg-[#60a5fa]" />}
+    <div className={`shrink-0 w-[22px] h-[22px] rounded-full border-[2px] flex items-center justify-center transition-colors relative z-10`} style={{ borderColor: selected ? activeColor : "#555558" }}>
+      {selected && <div className="w-[12px] h-[12px] rounded-full" style={{ backgroundColor: activeColor }} />}
     </div>
   )
 }
@@ -473,7 +487,8 @@ export function BusinessAutomationView({
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState<
     'main' | 'presets' | 'chat_access' | 'agent_profile' | 'workflows' | 'safety' | 'reports' | 
-    'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg' | 'roles' | 'new_role' | 'tone'
+    'system_instructions' | 'knowledge_base' | 'greeting_msg' | 'away_msg' | 'away_msg_edit' | 
+    'roles' | 'new_role' | 'tone'
   >('main')
   
   const [activeModal, setActiveModal] = useState<string | null>(null)
@@ -491,6 +506,9 @@ export function BusinessAutomationView({
   // Estado para el menú contextual de Roles
   const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, roleId: string } | null>(null)
 
+  // Usuario de Telegram (Para mostrar su perfil real en la vista Away Message)
+  const [tgUser, setTgUser] = useState<TgUser | undefined>(undefined)
+
   const [config, setConfig] = useState({
     auto_reply_filter: "everyone", 
     ai_autoreply_enabled: true,
@@ -500,8 +518,12 @@ export function BusinessAutomationView({
     kb_text: "",
     greeting_enabled: false,
     greeting_text: "",
-    away_enabled: false,
+    away_enabled: true, // Master toggle from image
     away_text: "",
+    away_schedule: "custom", // 'always' | 'outside' | 'custom'
+    away_start_time: "Feb 29, 18:13", // Mock times as per image request
+    away_end_time: "Mar 1, 18:13",
+    away_offline_only: false, // "Only if Offline" toggle
     read_enabled: true,
     spam_filter_enabled: true,
     spam_sensitivity: "medium", 
@@ -530,6 +552,7 @@ export function BusinessAutomationView({
     if (typeof window !== "undefined") {
       setViewportHeight(`${window.innerHeight}px`)
     }
+    setTgUser(getTgUser())
   }, [])
 
   const saveConfigToServer = useCallback(async (currentConfig: typeof config) => {
@@ -630,6 +653,8 @@ export function BusinessAutomationView({
         onClose()
       } else if (activePage === 'system_instructions' || activePage === 'knowledge_base') {
         setActivePage('agent_profile')
+      } else if (activePage === 'away_msg_edit') {
+        setActivePage('away_msg')
       } else if (activePage === 'greeting_msg' || activePage === 'away_msg') {
         setActivePage('workflows')
       } else if (activePage === 'new_role') {
@@ -1144,25 +1169,119 @@ export function BusinessAutomationView({
           </div>
         )}
 
-        {activePage === 'greeting_msg' && (
-          <div className="animate-in slide-in-from-right duration-300 w-full h-[85vh] flex flex-col">
-            <SubHeader title="Welcome Message" />
-            <div className="px-4 flex-1 flex flex-col">
-              <p className="px-2 mb-4 mt-4 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
-                Sent automatically to users contacting you for the first time.
+        {/* ── NUEVA VISTA: AWAY MESSAGE (SETTINGS PRINCIPAL) ── */}
+        {activePage === 'away_msg' && (
+          <div className="animate-in slide-in-from-right duration-300 w-full pb-10 relative">
+            <SubHeader title="Away Message" />
+            
+            <div className="flex flex-col items-center pt-2 pb-6 px-4 text-center relative z-0">
+              <div className="relative w-[100px] h-[80px] mb-4">
+                <span className="absolute bottom-2 left-6 text-[28px] font-bold text-[#3390ec]" style={{ transform: "rotate(-10deg)" }}>z</span>
+                <span className="absolute top-6 left-12 text-[42px] font-bold text-[#3390ec]" style={{ transform: "rotate(-5deg)" }}>z</span>
+                <span className="absolute -top-4 right-2 text-[64px] font-bold text-[#3390ec]" style={{ transform: "rotate(5deg)" }}>Z</span>
+              </div>
+              <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "250px", lineHeight: "1.4" }}>
+                Automatically reply with a message<br/>when you are away.
               </p>
-              <AutoResizeTextarea
-                defaultValue={config.greeting_text}
-                onBlurSave={(v) => setAndSave('greeting_text', v)}
-                placeholder="E.g., Hi there! How can I help you today?"
-              />
+            </div>
+
+            <div className="px-4">
+              <Section>
+                <Row 
+                  label="Send Away Message"
+                  rightNode={<SwitchNode on={config.away_enabled} onToggle={() => setAndSave('away_enabled', !config.away_enabled)} activeColor="#8774e1" />}
+                  onClick={() => setAndSave('away_enabled', !config.away_enabled)}
+                  last
+                />
+              </Section>
+
+              {config.away_enabled && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300 w-full">
+                  
+                  {/* Tarjeta de Perfil para editar el texto */}
+                  <button 
+                    onClick={(e) => { createRipple(e); setActivePage('away_msg_edit'); }}
+                    className="relative overflow-hidden w-full flex items-center px-4 py-3 active:bg-white/5 transition-colors text-left bg-[#111111] border border-white/5 shadow-lg rounded-[24px] mb-4"
+                  >
+                    <div className="w-[52px] h-[52px] rounded-full overflow-hidden bg-[#1c1c1e] flex items-center justify-center mr-4 shrink-0 border border-white/5">
+                      {tgUser?.photo_url ? (
+                        <img src={tgUser.photo_url} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-white font-bold text-xl" style={{ fontFamily: SFD }}>
+                          {(tgUser?.first_name?.[0] || tgUser?.username?.[0] || "U").toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col flex-1 min-w-0 justify-center">
+                      <span className="text-white text-[17px] mb-0.5" style={{ fontFamily: "Georgia, serif", fontWeight: "bold", letterSpacing: "0.5px" }}>
+                        {tgUser ? [tgUser.first_name, tgUser.last_name].filter(Boolean).join(" ") || tgUser.username : "𝕷𝖚𝖈𝖆𝖘"}
+                      </span>
+                      <span className="text-[14px] truncate text-[#8e8e93]" style={{ fontFamily: SF }}>
+                        {config.away_text || "Esta é uma mensagem de ausência"}
+                      </span>
+                    </div>
+                    <ChevronRight className="w-5 h-5 shrink-0 ml-2 text-[#8e8e93]" strokeWidth={1.5} />
+                  </button>
+
+                  <Section title="Schedule" titleColor="#8774e1">
+                    <Row 
+                      leftNode={<div className="mt-[1px]"><RadioButton selected={config.away_schedule === 'always'} activeColor="#8774e1" /></div>}
+                      label="Send Always"
+                      hideArrow
+                      onClick={() => setAndSave('away_schedule', 'always')}
+                    />
+                    <Row 
+                      leftNode={<div className="mt-[1px]"><RadioButton selected={config.away_schedule === 'outside'} activeColor="#8774e1" /></div>}
+                      label="Outside of Business Hours"
+                      hideArrow
+                      onClick={() => setAndSave('away_schedule', 'outside')}
+                    />
+                    <Row 
+                      leftNode={<div className="mt-[1px]"><RadioButton selected={config.away_schedule === 'custom'} activeColor="#8774e1" /></div>}
+                      label="Custom Schedule"
+                      hideArrow
+                      onClick={() => setAndSave('away_schedule', 'custom')}
+                      last
+                    />
+                  </Section>
+
+                  {config.away_schedule === 'custom' && (
+                    <div className="animate-in fade-in duration-200">
+                      <Section title="Schedule" titleColor="#8774e1">
+                        <Row 
+                          label="Start Time"
+                          rightNode={<span className="text-[16px]" style={{ color: "#8774e1", fontFamily: SF }}>{config.away_start_time}</span>}
+                          onClick={() => { triggerVibration('medium') }} // Placeholder for time picker
+                        />
+                        <Row 
+                          label="End Time"
+                          rightNode={<span className="text-[16px]" style={{ color: "#8774e1", fontFamily: SF }}>{config.away_end_time}</span>}
+                          onClick={() => { triggerVibration('medium') }}
+                          last
+                        />
+                      </Section>
+                    </div>
+                  )}
+
+                  <Section>
+                    <Row 
+                      label="Only if Offline"
+                      rightNode={<SwitchNode on={config.away_offline_only} onToggle={() => setAndSave('away_offline_only', !config.away_offline_only)} activeColor="#8774e1" />}
+                      onClick={() => setAndSave('away_offline_only', !config.away_offline_only)}
+                      last
+                    />
+                  </Section>
+
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {activePage === 'away_msg' && (
+        {/* ── TEXT EDITOR: AWAY MESSAGE ── */}
+        {activePage === 'away_msg_edit' && (
           <div className="animate-in slide-in-from-right duration-300 w-full h-[85vh] flex flex-col">
-            <SubHeader title="Away Message" />
+            <SubHeader title="Edit Away Message" />
             <div className="px-4 flex-1 flex flex-col">
               <p className="px-2 mb-4 mt-4 text-center" style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF }}>
                 Sent automatically when you are scheduled as away.
@@ -1247,8 +1366,8 @@ export function BusinessAutomationView({
                 />
                   {config.away_enabled && (
                   <TextPreviewRow 
-                    title="Edit Away Message"
-                    placeholder="Click to write your away message..."
+                    title="Configure Away Message"
+                    placeholder="Set up schedule, filters, and text..."
                     value={config.away_text}
                     onClick={() => setActivePage('away_msg')}
                   />
