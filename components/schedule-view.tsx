@@ -4,7 +4,7 @@ import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { 
   Clock, Plus, X, Loader2, CheckCircle2, AlertCircle, 
-  Trash2, ChevronDown, Pause
+  Trash2, ChevronDown, Pause, Play
 } from "lucide-react"
 import React from "react"
 
@@ -278,6 +278,7 @@ export function ScheduleView() {
   const [toast, setToast] = useState<{msg:string;type:"success"|"error"}|null>(null)
   const [suggestedTasks, setSuggestedTasks] = useState<typeof MOCK_TASKS>([])
   const [selectedTask, setSelectedTask] = useState<ScheduleItem | null>(null)
+  const [pausedTasks, setPausedTasks] = useState<Set<number>>(new Set())
 
   const monthStr = new Date().toLocaleDateString('en-US',{month:'short'}).toUpperCase()
   const yearStr  = new Date().getFullYear().toString()
@@ -403,7 +404,6 @@ export function ScheduleView() {
         extra: extraData, event_type: "Custom Prompt", fire_at: new Date().toISOString()
       })
       if(data.success){
-        showToast("Task scheduled successfully ✨","success")
         await fetchItems()
         setIsCreating(false)
         resetForm()
@@ -420,15 +420,19 @@ export function ScheduleView() {
       const data = await apiPost("/api/schedule_delete",{item_id:id})
       if(data.success){ 
         setTasks(p=>p.filter(t=>t.id!==id))
-        showToast("Task archived.","success") 
         setSelectedTask(null)
       }
     } catch(e) { console.error(e) }
   }
 
-  const handlePause = () => {
-    showToast("Task paused.", "success")
-    setSelectedTask(null)
+  const handleTogglePause = () => {
+    if (!selectedTask) return;
+    setPausedTasks(prev => {
+      const next = new Set(prev)
+      if (next.has(selectedTask.id)) next.delete(selectedTask.id)
+      else next.add(selectedTask.id)
+      return next
+    })
   }
 
   const formatFrequencyText = (item: ScheduleItem) => {
@@ -612,9 +616,15 @@ export function ScheduleView() {
                  </div>
 
                  <div className="flex flex-col gap-3 mt-2">
-                    <button onClick={handlePause} className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[20px] bg-[#1c1c1e] active:scale-[0.98] transition-transform">
-                       <Pause className="w-5 h-5 text-white fill-white" />
-                       <span className="text-white font-bold text-[16px]" style={{fontFamily: SF}}>Pause</span>
+                    <button onClick={handleTogglePause} className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[20px] bg-[#1c1c1e] active:scale-[0.98] transition-transform">
+                       {pausedTasks.has(selectedTask.id) ? (
+                         <Play className="w-5 h-5 text-white fill-white" />
+                       ) : (
+                         <Pause className="w-5 h-5 text-white fill-white" />
+                       )}
+                       <span className="text-white font-bold text-[16px]" style={{fontFamily: SF}}>
+                         {pausedTasks.has(selectedTask.id) ? "Continue" : "Pause"}
+                       </span>
                     </button>
                     <button onClick={() => handleDelete(selectedTask.id)} className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[20px] bg-[#1c1c1e] active:scale-[0.98] transition-transform">
                        <Trash2 className="w-5 h-5 text-white" />
@@ -665,7 +675,7 @@ export function ScheduleView() {
 
             {/* Modal limits counter */}
             <div className="pt-2 pb-6 flex items-center justify-center">
-              <div className="px-5 py-3 rounded-[24px] flex items-center shadow-2xl" style={greyGlowStyle}>
+              <div className="p-2 pl-4 pr-5 rounded-full flex items-center shadow-2xl" style={greyGlowStyle}>
                  <LimitsIndicator offset={ringOffsetForm} remaining={remainingForm} current={currentForm} max={maxForm} label={isDailyForm ? "daily tasks" : "tasks"} />
               </div>
             </div>
