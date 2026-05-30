@@ -530,7 +530,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const [showReportTypeDropdown, setShowReportTypeDropdown] = useState(false)
   const [submittingReport, setSubmittingReport] = useState(false)
   const [reportSent, setReportSent] = useState(false)
-  const [showLimitsInfo, setShowLimitsInfo] = useState(false)
 
   // Viewport height to prevent keyboard jumps
   const [viewportHeight, setViewportHeight] = useState("100vh")
@@ -620,6 +619,13 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     if (page === "model" || page === "usage_limits") {
       fetchTokenStatus()
     }
+  }, [page, fetchTokenStatus])
+
+  // Auto-refresh token status every 30s while viewing usage_limits
+  useEffect(() => {
+    if (page !== "usage_limits") return
+    const interval = setInterval(fetchTokenStatus, 30_000)
+    return () => clearInterval(interval)
   }, [page, fetchTokenStatus])
 
   async function handleToolAccessChange(value: string) {
@@ -1233,19 +1239,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   if (page === "usage_limits") {
     const grokInfo   = mergedTokenStatus?.["Grok 4.3"]
     const geminiInfo = mergedTokenStatus?.["Gemini 3.5 Flash"]
-
-    const combinedPct = (grokInfo && geminiInfo)
-      ? Math.round((grokInfo.pct + geminiInfo.pct) / 2)
-      : grokInfo?.pct ?? geminiInfo?.pct ?? 0
-
-    const earliestResetIso = (() => {
-      const times = [grokInfo?.reset_iso, geminiInfo?.reset_iso].filter(Boolean) as string[]
-      if (!times.length) return undefined
-      return times.sort()[0]
-    })()
-
-    const resetTimeDisplay = formatResetTime(earliestResetIso)
-    const barColor = combinedPct >= 90 ? "#ef4444" : combinedPct >= 70 ? "#f97316" : "#ffffff"
 
     return (
       <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
