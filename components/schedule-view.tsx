@@ -284,24 +284,24 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "", i
 
 // ── Main Component ──
 export function ScheduleView() {
-  const { setCurrentView } = useApp()
+  const { setCurrentView, userPreferences } = useApp()
   const [tasks, setTasks] = useState<ScheduleItem[]>([])
   const [loadingItems, setLoadingItems] = useState(true)
   const [suggestedTasks, setSuggestedTasks] = useState<typeof MOCK_TASKS>([])
   
-  const [formTouchY, setFormTouchY] = useState<number | null>(null)
-  const [formTranslateY, setFormTranslateY] = useState(0)
+  const [sheetTouchY, setSheetTouchY] = useState<number | null>(null)
+  const [sheetTranslateY, setSheetTranslateY] = useState(0)
 
-  const handleFormTouchStart = (e: React.TouchEvent) => setFormTouchY(e.touches[0].clientY)
-  const handleFormTouchMove = (e: React.TouchEvent) => {
-    if (formTouchY === null) return
-    const diff = e.touches[0].clientY - formTouchY
-    if (diff > 0) setFormTranslateY(diff)
+  const handleSheetTouchStart = (e: React.TouchEvent) => setSheetTouchY(e.touches[0].clientY)
+  const handleSheetTouchMove = (e: React.TouchEvent) => {
+    if (sheetTouchY === null) return
+    const diff = e.touches[0].clientY - sheetTouchY
+    if (diff > 0) setSheetTranslateY(diff)
   }
-  const handleFormTouchEnd = () => {
-    if (formTranslateY > 100) setIsCreating(false)
-    setFormTranslateY(0)
-    setFormTouchY(null)
+  const handleSheetTouchEnd = () => {
+    if (sheetTranslateY > 100) setSelectedTask(null)
+    setSheetTranslateY(0)
+    setSheetTouchY(null)
   }
   const [selectedTask, setSelectedTask] = useState<ScheduleItem | null>(null)
   const [pausedTasks, setPausedTasks] = useState<Set<number>>(new Set())
@@ -395,13 +395,33 @@ export function ScheduleView() {
     return ()=>tg.BackButton.offClick(handleBack)
   },[isCreating, activeDropdown, selectedTask, setCurrentView])
 
+  const checkTimezoneAndOpen = (callback: () => void) => {
+    if (!userPreferences?.timezone) {
+      triggerVibration('error')
+      const tg = getTg()
+      if (tg?.showConfirm) {
+        tg.showConfirm("You need to select a Time Zone to create tasks. Configure it now?", (ok: boolean) => {
+          if (ok) setCurrentView("additional_details" as any)
+        })
+      } else {
+        if (confirm("You need to select a Time Zone to create tasks. Configure it now?")) {
+          setCurrentView("additional_details" as any)
+        }
+      }
+      return
+    }
+    callback()
+  }
+
   const openMockCard = (mock: typeof MOCK_TASKS[0]) => {
-    setIsCreating(true)
-    setTitle(mock.title)
-    setFrequency(mock.frequency)
-    setDayOfWeek(mock.dayOfWeek)
-    setTime(mock.time)
-    setPrompt(mock.prompt)
+    checkTimezoneAndOpen(() => {
+      setIsCreating(true)
+      setTitle(mock.title)
+      setFrequency(mock.frequency)
+      setDayOfWeek(mock.dayOfWeek)
+      setTime(mock.time)
+      setPrompt(mock.prompt)
+    })
   }
 
   const resetForm = () => {
@@ -564,10 +584,9 @@ export function ScheduleView() {
         </div>
       </div>
 
-      {/* ── Header ── */}
       <div className="px-5 mt-4 flex items-center justify-between">
         <h1 className="text-[28px] font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>Tasks</h1>
-        <button onClick={() => {resetForm(); setIsCreating(true)}} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-90 transition-transform">
+        <button onClick={() => checkTimezoneAndOpen(() => {resetForm(); setIsCreating(true)})} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-90 transition-transform">
           <Plus className="w-5 h-5 text-white" />
         </button>
       </div>
@@ -620,7 +639,7 @@ export function ScheduleView() {
         <div className="pl-2">
           <LimitsIndicator offset={ringOffsetTotal} remaining={remainingTotal} current={totalTasks} max={limitTotal} label="tasks" />
         </div>
-        <button onClick={() => {resetForm(); setIsCreating(true)}} className="bg-white text-black px-5 h-[38px] flex items-center justify-center rounded-full font-bold text-[14px] active:scale-95 transition-transform" style={{fontFamily: SF}}>
+        <button onClick={() => checkTimezoneAndOpen(() => {resetForm(); setIsCreating(true)})} className="bg-white text-black px-5 h-[38px] flex items-center justify-center rounded-full font-bold text-[14px] active:scale-95 transition-transform" style={{fontFamily: SF}}>
           Create task
         </button>
       </div>
@@ -629,8 +648,12 @@ export function ScheduleView() {
       {selectedTask && (
         <div className="absolute inset-0 z-[70] flex flex-col justify-end animate-in fade-in duration-300">
            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedTask(null)} />
-           <div className="relative w-full bg-[#111111] rounded-t-[28px] p-6 pb-12 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#1c1c1e] animate-in slide-in-from-bottom duration-400">
-              <div className="w-10 h-1.5 bg-[#2c2c2e] rounded-full self-center mb-6" />
+           <div 
+             className="relative w-full bg-[#111111] rounded-t-[28px] p-6 pb-12 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#1c1c1e] animate-in slide-in-from-bottom duration-400"
+             style={{ transform: `translateY(${sheetTranslateY}px)`, transition: sheetTouchY === null ? 'transform 0.3s ease-out' : 'none' }}
+             onTouchStart={handleSheetTouchStart} onTouchMove={handleSheetTouchMove} onTouchEnd={handleSheetTouchEnd}
+           >
+              <div className="w-12 h-1.5 bg-[#2c2c2e] rounded-full self-center mb-6 shrink-0" />
               
               <h2 className="text-white text-center text-[22px] font-bold mb-8" style={{fontFamily: SFD}}>{selectedTask.title}</h2>
 
@@ -674,15 +697,8 @@ export function ScheduleView() {
 
       {/* ── Create Task Modal ── */}
       {isCreating && (
-        <div 
-          className="absolute inset-0 z-[80] bg-[#000000] flex flex-col animate-in slide-in-from-bottom duration-300"
-          style={{ transform: `translateY(${formTranslateY}px)`, transition: formTouchY === null ? 'transform 0.3s ease-out' : 'none' }}
-        >
-          <div 
-            className="flex items-center justify-between px-5 pt-[calc(var(--tg-safe-area-inset-top,24px)+40px)] pb-6 shrink-0"
-            onTouchStart={handleFormTouchStart} onTouchMove={handleFormTouchMove} onTouchEnd={handleFormTouchEnd}
-          >
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-[#2c2c2e] rounded-full" />
+        <div className="absolute inset-0 z-[80] bg-[#000000] flex flex-col animate-in slide-in-from-bottom duration-300">
+          <div className="flex items-center justify-between px-5 pt-[calc(var(--tg-safe-area-inset-top,24px)+40px)] pb-6 shrink-0">
             <button onClick={() => setIsCreating(false)} className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity bg-[#1c1c1e] rounded-full">
               <X className="w-5 h-5 text-[#8e8e93]" strokeWidth={2.5} />
             </button>
