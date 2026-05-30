@@ -766,9 +766,9 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
           {MODELS.map((m, idx, arr) => {
             const locked = m.proOnly && !isPremium
             const tokenInfo: ModelTokenInfo | undefined = mergedTokenStatus?.[m.name]
-            const limitHit = !isPremium && tokenInfo && tokenInfo.limit > 0 && tokenInfo.used >= tokenInfo.limit
-            const minsLeft = limitHit ? tokenInfo.mins_left : 0
             const pct      = tokenInfo?.pct ?? 0
+            const limitHit = !isPremium && tokenInfo && pct >= 100
+            const minsLeft = limitHit ? tokenInfo.mins_left : 0
             const active = m.name === selectedModel || (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
             const isDisabled = locked || saving === "model" || !!limitHit
 
@@ -807,7 +807,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                         {limitHit && !locked && (
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#ef4444]/15 text-[#ef4444]"
                             style={{ fontFamily: SF }}>
-                              limit reached · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
+                              LOCKED · {minsLeft > 0 ? `${minsLeft}min` : "resetting…"}
                           </span>
                         )}
 
