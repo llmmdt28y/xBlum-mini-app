@@ -756,7 +756,7 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
               <img
                 src="/afk-zzz.webp"
                 alt="AFK"
-                className="w-[84px] h-[84px] object-contain drop-shadow-2xl mb-4 pointer-events-none select-none"
+                className="w-[100px] h-[100px] object-contain drop-shadow-2xl mb-4 pointer-events-none select-none"
                 draggable={false}
               />
               <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "250px", lineHeight: "1.4" }}>
