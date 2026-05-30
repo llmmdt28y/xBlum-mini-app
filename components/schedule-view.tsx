@@ -64,10 +64,23 @@ async function apiPost(endpoint: string, body: Record<string, unknown>) {
   const userId = tg?.initDataUnsafe?.user?.id ?? null
   const res = await fetch(`${API_BASE}${endpoint}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      "x-init-data": initData
+    },
     body: JSON.stringify({ ...body, initData, userId }),
   })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  
+  if (!res.ok) {
+    let errorMsg = `HTTP Error ${res.status}`
+    try {
+      const errJson = await res.json()
+      if (errJson.message) errorMsg = errJson.message
+    } catch (_) {
+      // Ignored
+    }
+    throw new Error(errorMsg)
+  }
   return res.json()
 }
 
@@ -188,20 +201,23 @@ const DropdownSelect = ({ label, value, options, onSelect, isOpen, onToggle }: {
       </button>
       
       {isOpen && (
-        <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-[#111111] border border-white/10 rounded-[16px] overflow-hidden z-[70] shadow-[0_8px_30px_rgba(0,0,0,0.6)] animate-in fade-in zoom-in-95 duration-200">
-           <div className="max-h-[220px] overflow-y-auto no-scrollbar py-2">
-             {options.map((opt, idx) => (
-               <button 
-                 key={opt.value} 
-                 onClick={(e) => { e.preventDefault(); onSelect(opt.value); onToggle(); }}
-                 className={`w-full flex items-center gap-3.5 px-4 py-3.5 active:bg-[#1c1c1e] transition-colors ${idx !== options.length - 1 ? 'border-b border-[#1c1c1e]' : ''}`}
-               >
-                 <RadioButton selected={value === opt.value} />
-                 <span className="text-white text-[16px] font-medium" style={{ fontFamily: SF }}>{opt.label}</span>
-               </button>
-             ))}
-           </div>
-        </div>
+        <>
+          <div className="fixed inset-0 z-[60]" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggle(); }} />
+          <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-[#111111] border border-white/10 rounded-[16px] overflow-hidden z-[70] shadow-[0_8px_30px_rgba(0,0,0,0.6)] animate-in fade-in zoom-in-95 duration-200">
+             <div className="max-h-[220px] overflow-y-auto no-scrollbar py-2">
+               {options.map((opt, idx) => (
+                 <button 
+                   key={opt.value} 
+                   onClick={(e) => { e.preventDefault(); onSelect(opt.value); onToggle(); }}
+                   className={`w-full flex items-center gap-3.5 px-4 py-3.5 active:bg-[#1c1c1e] transition-colors ${idx !== options.length - 1 ? 'border-b border-[#1c1c1e]' : ''}`}
+                 >
+                   <RadioButton selected={value === opt.value} />
+                   <span className="text-white text-[16px] font-medium" style={{ fontFamily: SF }}>{opt.label}</span>
+                 </button>
+               ))}
+             </div>
+          </div>
+        </>
       )}
     </div>
   )
@@ -267,15 +283,16 @@ export function ScheduleView() {
   const yearStr  = new Date().getFullYear().toString()
   const [selectedDate, setSelectedDate] = useState<string|"All">("All")
   
+  const todayStr = new Date().toDateString()
   const calendarDays = useMemo(()=>{
     const arr=[]; const today=new Date(); const sow=new Date(today)
     sow.setDate(today.getDate()-(today.getDay()||7)+1)
     for(let i=0;i<7;i++){
       const d=new Date(sow); d.setDate(sow.getDate()+i)
-      arr.push({full:d.toDateString(),label:d.toLocaleDateString('en-US',{weekday:'narrow'}),num:d.getDate().toString(),isToday:d.toDateString()===today.toDateString()})
+      arr.push({full:d.toDateString(),label:d.toLocaleDateString('en-US',{weekday:'narrow'}),num:d.getDate().toString(),isToday:d.toDateString()===todayStr})
     }
     return arr
-  },[])
+  },[todayStr])
 
   const filteredTasks = useMemo(()=>{
     if(selectedDate==="All") return tasks
@@ -391,9 +408,11 @@ export function ScheduleView() {
         setIsCreating(false)
         resetForm()
       } else { showToast(data.message||"Could not save.","error") }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch(e:any){ showToast(`Error: ${e.message}`,"error") }
-    finally{ setIsSaving(false) }
+    } catch (e) { 
+      const msg = e instanceof Error ? e.message : String(e)
+      showToast(`Error: ${msg}`, "error") 
+    }
+    finally { setIsSaving(false) }
   }
 
   const handleDelete = async (id: number) => {
@@ -418,11 +437,13 @@ export function ScheduleView() {
       const ex = JSON.parse(item.extra || "{}")
       if (ex.time) t = ex.time
       if (ex.dayOfWeek) day = ex.dayOfWeek
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Parse error:", e)
+    }
 
-    const [h, m] = t.split(":")
-    let hh = parseInt(h)
+    const parts = t.split(":")
+    let hh = parseInt(parts[0] || "0")
+    const m = parts[1] || "00"
     const ampm = hh >= 12 ? "PM" : "AM"
     hh = hh % 12 || 12
     const timeStr = `${hh}:${m} ${ampm}`
@@ -444,11 +465,14 @@ export function ScheduleView() {
     try {
       const ex = JSON.parse(item.extra || "{}")
       if (ex.time) t = ex.time + ":00"
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {}
+    } catch (e) {
+      console.warn("Parse error:", e)
+    }
     
-    const [h, m, s] = t.split(":")
-    let hh = parseInt(h)
+    const parts = t.split(":")
+    let hh = parseInt(parts[0] || "0")
+    const m = parts[1] || "00"
+    const s = parts[2] || "00"
     const ampm = hh >= 12 ? "PM" : "AM"
     hh = hh % 12 || 12
     return `${dtStr}, ${hh}:${m}:${s} ${ampm}`
@@ -640,8 +664,10 @@ export function ScheduleView() {
             </Section>
 
             {/* Modal limits counter */}
-            <div className="pt-2 pb-6 px-1 flex items-center justify-center">
-              <LimitsIndicator offset={ringOffsetForm} remaining={remainingForm} current={currentForm} max={maxForm} label={isDailyForm ? "daily tasks" : "tasks"} />
+            <div className="pt-2 pb-6 flex items-center justify-center">
+              <div className="px-5 py-3 rounded-[24px] flex items-center shadow-2xl" style={greyGlowStyle}>
+                 <LimitsIndicator offset={ringOffsetForm} remaining={remainingForm} current={currentForm} max={maxForm} label={isDailyForm ? "daily tasks" : "tasks"} />
+              </div>
             </div>
           </div>
         </div>
