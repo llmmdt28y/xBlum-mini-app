@@ -389,6 +389,7 @@ function AppContent() {
         {currentView === "shop" && <ShopView />} 
         {currentView === "settings"  && <SettingsView />}
         {currentView === "account_setup" && <SettingsView initialPage="prefs" returnView="home" />}
+        {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
         {currentView === "premium"   && <PremiumView />}
         {currentView === "referral"  && <ReferralView />}
         {currentView === "profile"   && <ProfileView />}
