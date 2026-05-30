@@ -41,6 +41,25 @@ const greyGlowStyle = {
 // ── Helpers ──
 const getTg = () => typeof window !== "undefined" ? (window as any).Telegram?.WebApp : null
 
+const triggerVibration = (type: 'light' | 'medium' | 'heavy' | 'error' | 'success') => {
+  const tg = getTg();
+  if (!tg?.HapticFeedback) return;
+  if (type === 'error' || type === 'success') {
+    tg.HapticFeedback.notificationOccurred(type);
+  } else {
+    tg.HapticFeedback.impactOccurred(type);
+  }
+}
+
+const showAlert = (msg: string) => {
+  const tg = getTg()
+  if (tg?.showAlert) {
+    tg.showAlert(msg)
+  } else {
+    alert(msg)
+  }
+}
+
 const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
   const element = event.currentTarget
   if (element.disabled) return
@@ -261,22 +280,29 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "", i
   )
 }
 
-function Toast({ msg, type }: { msg: string; type: "success"|"error" }) {
-  return (
-    <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl border animate-in slide-in-from-top-4 duration-300 max-w-[90vw] ${type==="success" ? "bg-[#1a2e1a] border-[#22c55e]/40 text-[#22c55e]" : "bg-[#2e1a1a] border-[#f43f5e]/40 text-[#f43f5e]"}`}>
-      {type==="success" ? <CheckCircle2 className="w-4 h-4 shrink-0"/> : <AlertCircle className="w-4 h-4 shrink-0"/>}
-      <span className="text-[14px] font-medium" style={{fontFamily:SF}}>{msg}</span>
-    </div>
-  )
-}
+
 
 // ── Main Component ──
 export function ScheduleView() {
   const { setCurrentView } = useApp()
   const [tasks, setTasks] = useState<ScheduleItem[]>([])
   const [loadingItems, setLoadingItems] = useState(true)
-  const [toast, setToast] = useState<{msg:string;type:"success"|"error"}|null>(null)
   const [suggestedTasks, setSuggestedTasks] = useState<typeof MOCK_TASKS>([])
+  
+  const [formTouchY, setFormTouchY] = useState<number | null>(null)
+  const [formTranslateY, setFormTranslateY] = useState(0)
+
+  const handleFormTouchStart = (e: React.TouchEvent) => setFormTouchY(e.touches[0].clientY)
+  const handleFormTouchMove = (e: React.TouchEvent) => {
+    if (formTouchY === null) return
+    const diff = e.touches[0].clientY - formTouchY
+    if (diff > 0) setFormTranslateY(diff)
+  }
+  const handleFormTouchEnd = () => {
+    if (formTranslateY > 100) setIsCreating(false)
+    setFormTranslateY(0)
+    setFormTouchY(null)
+  }
   const [selectedTask, setSelectedTask] = useState<ScheduleItem | null>(null)
   const [pausedTasks, setPausedTasks] = useState<Set<number>>(new Set())
 
@@ -333,7 +359,10 @@ export function ScheduleView() {
   const ringOffsetForm = 88 - (currentForm / maxForm) * 88
 
   const showToast = useCallback((msg:string,type:"success"|"error")=>{
-    setToast({msg,type}); setTimeout(()=>setToast(null),3500)
+    if (type === "error") {
+      triggerVibration('error')
+      showAlert(msg)
+    }
   },[])
 
   const fetchItems = useCallback(async()=>{
@@ -404,6 +433,7 @@ export function ScheduleView() {
         extra: extraData, event_type: "Custom Prompt", fire_at: new Date().toISOString()
       })
       if(data.success){
+        triggerVibration('success')
         await fetchItems()
         setIsCreating(false)
         resetForm()
@@ -419,6 +449,7 @@ export function ScheduleView() {
     try {
       const data = await apiPost("/api/schedule_delete",{item_id:id})
       if(data.success){ 
+        triggerVibration('success')
         setTasks(p=>p.filter(t=>t.id!==id))
         setSelectedTask(null)
       }
@@ -427,6 +458,7 @@ export function ScheduleView() {
 
   const handleTogglePause = () => {
     if (!selectedTask) return;
+    triggerVibration('light')
     setPausedTasks(prev => {
       const next = new Set(prev)
       if (next.has(selectedTask.id)) next.delete(selectedTask.id)
@@ -502,9 +534,8 @@ export function ScheduleView() {
   )
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-[#000000] text-white select-none overflow-hidden relative">
+    <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto min-h-screen bg-[#000000] text-white select-none relative">
       <style>{RIPPLE_STYLE}</style>
-      {toast && <Toast msg={toast.msg} type={toast.type}/>}
 
       {/* ── Top Calendar ── */}
       <div className="pt-[calc(var(--tg-safe-area-inset-top,24px)+20px)] relative z-10 flex flex-col">
@@ -643,8 +674,15 @@ export function ScheduleView() {
 
       {/* ── Create Task Modal ── */}
       {isCreating && (
-        <div className="absolute inset-0 z-[80] bg-[#000000] flex flex-col animate-in slide-in-from-bottom duration-300">
-          <div className="flex items-center justify-between px-5 pt-[calc(var(--tg-safe-area-inset-top,24px)+40px)] pb-6 shrink-0">
+        <div 
+          className="absolute inset-0 z-[80] bg-[#000000] flex flex-col animate-in slide-in-from-bottom duration-300"
+          style={{ transform: `translateY(${formTranslateY}px)`, transition: formTouchY === null ? 'transform 0.3s ease-out' : 'none' }}
+        >
+          <div 
+            className="flex items-center justify-between px-5 pt-[calc(var(--tg-safe-area-inset-top,24px)+40px)] pb-6 shrink-0"
+            onTouchStart={handleFormTouchStart} onTouchMove={handleFormTouchMove} onTouchEnd={handleFormTouchEnd}
+          >
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-[#2c2c2e] rounded-full" />
             <button onClick={() => setIsCreating(false)} className="w-8 h-8 flex items-center justify-center active:opacity-60 transition-opacity bg-[#1c1c1e] rounded-full">
               <X className="w-5 h-5 text-[#8e8e93]" strokeWidth={2.5} />
             </button>
