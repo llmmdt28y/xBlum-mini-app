@@ -101,7 +101,20 @@ function formatResetTime(isoString: string | undefined): string {
   if (!isoString) return "—"
   try {
     const date = new Date(isoString)
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    const now = new Date()
+    const diffMs = date.getTime() - now.getTime()
+    if (diffMs <= 0) return "Refreshed"
+    
+    const diffHours = diffMs / (1000 * 60 * 60)
+    const roundedHours = Math.round(diffHours * 2) / 2
+    
+    if (roundedHours >= 1) {
+      return `Refreshes in ${roundedHours} hour${roundedHours === 1 ? '' : 's'}`
+    } else if (roundedHours === 0.5) {
+      return `Refreshes in 30 mins`
+    } else {
+      return `Refreshes soon`
+    }
   } catch {
     return "—"
   }
@@ -1288,12 +1301,9 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                       style={{ width: `${pct}%`, background: mColor }}
                     />
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-end">
                     <span className="text-[12px] text-[#555558]" style={{ fontFamily: SF }}>
-                      {limit > 0 ? `${(used / 1000).toFixed(1)}k / ${(limit / 1000).toFixed(0)}k tokens` : "—"}
-                    </span>
-                    <span className="text-[12px] text-[#555558]" style={{ fontFamily: SF }}>
-                      Resets at {reset}
+                      {reset}
                     </span>
                   </div>
                 </div>
