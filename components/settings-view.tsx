@@ -14,7 +14,7 @@ import { BusinessAutomationView } from "./business-automation-view"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
-// ── Estilos Globales para el Efecto Ripple ──
+// Global Styles for Ripple Effect
 const RIPPLE_STYLE = `
   .ripple {
     position: absolute;
@@ -40,7 +40,7 @@ const RIPPLE_STYLE = `
   }
 `
 
-// ── Helper API & Telegram ──
+// Helper API & Telegram
 const getTg = () => typeof window !== "undefined" ?
 (window as any).Telegram?.WebApp : null
 
@@ -54,7 +54,7 @@ const triggerVibration = (type: 'light' | 'medium' | 'heavy' | 'error' | 'succes
   }
 }
 
-// ── Función Helper para crear el Efecto Ripple ──
+// Helper Function to create Ripple Effect
 const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
   const element = event.currentTarget
   if (element.disabled) return
@@ -96,7 +96,7 @@ async function apiPost(path: string, body: Record<string, unknown>) {
   return res.json()
 }
 
-// ── Formato de hora real desde ISO string ──
+// Real Time Format from ISO string
 function formatResetTime(isoString: string | undefined): string {
   if (!isoString) return "—"
   try {
@@ -107,7 +107,7 @@ function formatResetTime(isoString: string | undefined): string {
   }
 }
 
-// ── Data ──
+// Data
 const GENDERS = ["Female", "Male"]
 
 const TIMEZONES = [
@@ -196,7 +196,7 @@ const LANGS = [
   { code: "en", name: "English", subName: "English" },
 ]
 
-// ── Componentes UI ──
+// UI Components
 
 function IconFlat({ icon: Icon, color, spin }: { icon: any, color: string, spin?: boolean }) {
   return (
@@ -307,18 +307,19 @@ interface RowProps {
   danger?: boolean;
   isLink?: boolean;
   href?: string;
+  selected?: boolean;
 }
 
-function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false, alignItems = "center", danger, isLink, href }: RowProps) {
+function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false, alignItems = "center", danger, isLink, href, selected }: RowProps) {
   const content = (
     <>
       {leftNode}
       <div className={`flex flex-col flex-1 min-w-0 relative z-10 ${alignItems === "center" ? "py-0.5" : ""}`}>
-        <span className={`text-[16px] font-medium leading-[1.2] ${danger ? "text-[#ef4444]" : "text-white"}`} style={{ fontFamily: SF }}>
+        <span className={`text-[16px] font-medium leading-[1.2] ${danger ? "text-[#ef4444]" : (selected ? "text-[#60a5fa]" : "text-white")}`} style={{ fontFamily: SF }}>
           {label}
         </span>
         {sublabel && (
-          <span className={`text-[13px] text-[#8e8e93] leading-[1.4] mt-[5px]`} style={{ fontFamily: SF }}>
+          <span className={`text-[13px] ${selected ? "text-[#60a5fa]" : "text-[#8e8e93]"} leading-[1.4] mt-[5px]`} style={{ fontFamily: SF }}>
             {sublabel}
           </span>
         )}
@@ -434,13 +435,14 @@ function TokenBar({ pct }: { pct: number }) {
   )
 }
 
-// ── COMPONENTE EXPANDIBLE CON LIMITE Y VIBRACIÓN ──
+// Expandable Component with Limit and Vibration
 const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }: { label: string, maxLength: number, value: string, onChange: (v: string) => void, placeholder?: string }) => {
   const textRef = useRef<HTMLTextAreaElement>(null)
-  const [warningActive, setWarningActive] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [warningActive, setWarningActive] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
   
-  const remaining = maxLength - value.length;
+  const remaining = maxLength - value.length
 
   const adjustHeight = () => {
     if (textRef.current) {
@@ -451,26 +453,33 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
 
   useEffect(() => { adjustHeight() }, [value])
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    let val = e.target.value;
-    if (val.length > maxLength) {
-      val = val.slice(0, maxLength);
-      setWarningActive(true);
-      setTimeout(() => setWarningActive(false), 500);
-      triggerVibration('error');
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-    onChange(val);
+  }, [])
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    let val = e.target.value
+    if (val.length > maxLength) {
+      val = val.slice(0, maxLength)
+      setWarningActive(true)
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      timeoutRef.current = setTimeout(() => setWarningActive(false), 500)
+      triggerVibration('error')
+    }
+    onChange(val)
   }
 
-  let colorHex = "#555558"; 
-  let labelHex = "#8e8e93";
+  let colorHex = "#555558"
+  let labelHex = "#8e8e93"
 
   if (warningActive) {
-    colorHex = "#ff453a";
-    labelHex = "#ff453a";
+    colorHex = "#ff453a"
+    labelHex = "#ff453a"
   } else if (isFocused) {
-    colorHex = "#60a5fa";
-    labelHex = "#60a5fa";
+    colorHex = "#60a5fa"
+    labelHex = "#60a5fa"
   }
 
   return (
@@ -523,7 +532,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const [reportSent, setReportSent] = useState(false)
   const [showLimitsInfo, setShowLimitsInfo] = useState(false)
 
-  // Altura del viewport para evitar saltos de teclado
+  // Viewport height to prevent keyboard jumps
   const [viewportHeight, setViewportHeight] = useState("100vh")
 
   const [toolAccess, setToolAccessLocal] = useState("Auto")
@@ -620,7 +629,13 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     setSavingToolAccess(false)
   }
 
-  const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .map((w: string) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase()
 
   const completionFields = [nameField, genderField, ageField, cityField, timezoneField, occupationField, interestsField, favoriteEmojiField, personalityField]
   const totalFields = 9
@@ -638,8 +653,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     if (!tg?.BackButton) return
     
     if (page === "business_automation") {
-      // Dejar que BusinessAutomationView maneje su propio BackButton logic
-      return;
+      // Let BusinessAutomationView handle its own BackButton logic
+      return
     }
 
     tg.BackButton.show()
@@ -698,6 +713,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         setSaving("del_mem")
         await deleteAllMemories()
         setSaving("")
+        triggerVibration('success')
         window.Telegram?.WebApp?.showAlert("All memories deleted.")
       }
     )
@@ -712,6 +728,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         setSaving("del_hist")
         await deleteAllHistory()
         setSaving("")
+        triggerVibration('success')
         window.Telegram?.WebApp?.showAlert("History deleted.")
       }
     )
@@ -821,13 +838,13 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               <button 
                 onClick={() => { setLanguage(lang.code); setPage("main") }}
                 onPointerDown={createRipple}
-                className="relative overflow-hidden w-full px-4 py-3.5 flex items-center justify-between active:bg-white/5 transition-colors text-left"
+                className="relative overflow-hidden w-full px-4 py-3.5 flex items-center gap-3.5 active:bg-white/5 transition-colors text-left"
               >
-                <div className="flex flex-col relative z-10">
-                  <span className="text-[16px] font-medium text-white leading-tight" style={{ fontFamily: SF }}>{lang.name}</span>
-                  <span className="text-[#8e8e93] text-[13px] mt-[3px]" style={{ fontFamily: SF }}>{lang.subName}</span>
-                </div>
                 <RadioButton selected={language === lang.code} />
+                <div className="flex flex-col relative z-10 flex-1">
+                  <span className={`text-[16px] font-medium leading-tight ${language === lang.code ? 'text-[#60a5fa]' : 'text-white'}`} style={{ fontFamily: SF }}>{lang.name}</span>
+                  <span className={`text-[13px] mt-[3px] ${language === lang.code ? 'text-[#60a5fa]' : 'text-[#8e8e93]'}`} style={{ fontFamily: SF }}>{lang.subName}</span>
+                </div>
               </button>
               {idx !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
             </div>
@@ -850,10 +867,10 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               <button 
                 onClick={() => { setGenderField(g); setPage("basic_info") }} 
                 onPointerDown={createRipple}
-                className="relative overflow-hidden w-full px-4 py-3.5 flex items-center justify-between active:bg-white/5 transition-colors text-left"
+                className="relative overflow-hidden w-full px-4 py-3.5 flex items-center gap-3.5 active:bg-white/5 transition-colors text-left"
               >
-                <span className="text-[16px] font-medium text-white relative z-10" style={{ fontFamily: SF }}>{g}</span>
                 <RadioButton selected={genderField === g} />
+                <span className={`text-[16px] font-medium relative z-10 flex-1 ${genderField === g ? 'text-[#60a5fa]' : 'text-white'}`} style={{ fontFamily: SF }}>{g}</span>
               </button>
               {idx !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
             </div>
@@ -878,13 +895,13 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                 <button 
                   onClick={() => { setTimezoneField(displayVal); setPage("additional_details") }} 
                   onPointerDown={createRipple}
-                  className="relative overflow-hidden w-full px-4 py-3.5 flex items-center justify-between active:bg-white/5 transition-colors text-left"
+                  className="relative overflow-hidden w-full px-4 py-3.5 flex items-center gap-3.5 active:bg-white/5 transition-colors text-left"
                 >
-                  <div className="flex flex-col relative z-10 pr-4">
-                    <span className="text-white text-[16px] font-medium leading-tight" style={{ fontFamily: SF }}>{tz.name}</span>
-                    <span className="text-[#8e8e93] text-[13px] mt-[3px]" style={{ fontFamily: SF }}>{tz.offset}</span>
-                  </div>
                   <RadioButton selected={timezoneField === displayVal} />
+                  <div className="flex flex-col relative z-10 pr-4 flex-1">
+                    <span className={`text-[16px] font-medium leading-tight ${timezoneField === displayVal ? 'text-[#60a5fa]' : 'text-white'}`} style={{ fontFamily: SF }}>{tz.name}</span>
+                    <span className={`text-[13px] mt-[3px] ${timezoneField === displayVal ? 'text-[#60a5fa]' : 'text-[#8e8e93]'}`} style={{ fontFamily: SF }}>{tz.offset}</span>
+                  </div>
                 </button>
                 {idx !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
               </div>
@@ -1182,7 +1199,9 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               key={t.id}
               label={t.id}
               sublabel={t.desc}
-              rightNode={savingToolAccess && toolAccess === t.id ? <Loader2 className="w-[18px] h-[18px] animate-spin text-[#60a5fa]" /> : <RadioButton selected={toolAccess === t.id} />}
+              leftNode={savingToolAccess && toolAccess === t.id ? <Loader2 className="w-[18px] h-[18px] animate-spin text-[#60a5fa]" /> : <RadioButton selected={toolAccess === t.id} />}
+              selected={toolAccess === t.id}
+              hideArrow={true}
               onClick={() => handleToolAccessChange(t.id)}
               alignItems="start"
               last={idx === arr.length - 1}
@@ -1234,7 +1253,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         <style>{RIPPLE_STYLE}</style>
         <SubHeader title="" />
         
-        <div className="px-4 pt-2 pb-28 space-y-6">
+        <div className="px-4 pt-10 pb-28 space-y-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2.5">
               <h1 className="text-[28px] font-bold text-white leading-none" style={{ fontFamily: SFD }}>Usage Limits</h1>
@@ -1243,50 +1262,11 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               </span>
             </div>
             <p className="text-[#8e8e93] text-[15px] leading-snug" style={{ fontFamily: SF }}>
-              Your plan limits determine how much you can use Noir over time. Advanced models and features may consume more usage.<br/>
-              <span className="text-[#60a5fa] mt-1 inline-block cursor-pointer">More information</span>
+              Your plan limits determine how much you can use Noir over time. Advanced models and features may consume more usage.
             </p>
             <p className="text-[#8e8e93] text-[14px] pt-2" style={{ fontFamily: SF }}>
               Updated just now
             </p>
-          </div>
-
-          <div className="space-y-3">
-            <div className="rounded-[24px] bg-[#111111] p-5 border border-white/5 relative z-10 shadow-lg">
-              <div className="flex items-center justify-between mb-3.5">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[17px] font-semibold text-white" style={{ fontFamily: SF }}>Current usage</span>
-                  <button 
-                    onClick={() => setShowLimitsInfo(!showLimitsInfo)}
-                    onPointerDown={createRipple}
-                    className="relative overflow-hidden rounded-full p-1 -ml-1 active:bg-white/10 transition-colors"
-                  >
-                    <Info className="w-[15px] h-[15px] text-[#8e8e93] relative z-10" />
-                  </button>
-                </div>
-                <span className="text-[16px] font-bold text-white" style={{ fontFamily: SF }}>{combinedPct}% used</span>
-              </div>
-
-              {showLimitsInfo && (
-                <div className="mb-4 p-3.5 rounded-xl bg-[#1c1c1e] border border-white/5 animate-in fade-in slide-in-from-top-2">
-                  <h3 className="text-white font-bold text-[16px] mb-1" style={{ fontFamily: SFD }}>How limits work</h3>
-                  <p className="text-[#8e8e93] text-[14px] leading-snug" style={{ fontFamily: SF }}>
-                    Each model has independent limits that reset every 3 hours. If Grok 4.3 reaches its limit, you can still use Gemini 3.5 Flash and vice versa. {isPremium ? " Pro users get 5× more tokens than free users." : " Upgrade to Pro for 5× more usage."}
-                  </p>
-                </div>
-              )}
-              
-              <div className="w-full h-[6px] bg-[#1c1c1e] rounded-full mb-3.5 overflow-hidden flex">
-                <div
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{ width: `${combinedPct}%`, background: barColor, boxShadow: combinedPct > 0 ? `0 0 10px ${barColor}66` : "none" }}
-                />
-              </div>
-              
-              <p className="text-[15px] text-[#8e8e93] font-medium" style={{ fontFamily: SF }}>
-                Resets at {resetTimeDisplay}
-              </p>
-            </div>
           </div>
 
           <div className="space-y-3">
@@ -1303,7 +1283,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               return (
                 <div key={label} className="rounded-[20px] bg-[#111111] p-4 border border-white/5 shadow-lg">
                   <div className="flex items-center gap-3 mb-3">
-                    <img src={logo} alt={label} className="w-7 h-7 object-contain" />
+                    <img src={logo} alt={label} className="w-7 h-7 object-contain pointer-events-none select-none" draggable={false} onContextMenu={e => e.preventDefault()} style={{ WebkitTouchCallout: "none", userSelect: "none" }} />
                     <span className="text-[15px] font-semibold text-white flex-1" style={{ fontFamily: SF }}>{label}</span>
                     <span className="text-[13px] font-medium" style={{ fontFamily: SF, color: pct >= 90 ? "#ef4444" : "#8e8e93" }}>
                       {pct}%
@@ -1465,12 +1445,14 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                     const ok = await submitFeedback(reportType, reportDescription.trim())
                     setSubmittingReport(false)
                     if (ok) {
+                      triggerVibration('success')
                       setReportSent(true)
                       setTimeout(() => {
                         setShowReportModal(false); setReportSent(false)
                         setReportDescription(""); setReportType("General feedback")
                       }, 1800)
                     } else {
+                      triggerVibration('error')
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       ;(window as any).Telegram?.WebApp?.showAlert("Could not send. Please try again.")
                     }
