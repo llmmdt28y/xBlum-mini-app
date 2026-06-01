@@ -1561,9 +1561,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     <BusinessAutomationView onClose={() => setPage("main")} apiBaseUrl={process.env.NEXT_PUBLIC_API_URL ?? ""} />
   )
 
-    </div>
-  )
-
   if (page === "group_settings_detail") {
     // Auto-select first group if none active
     useEffect(() => {
