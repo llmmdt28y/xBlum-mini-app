@@ -34,7 +34,7 @@ type GroupMember = {
   tag_source: string
 }
 
-async function apiGet(endpoint: string) {
+async function apiGetGroups(endpoint: string) {
   const tg = getTg()
   const initData = tg?.initData ?? ""
   const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -44,7 +44,7 @@ async function apiGet(endpoint: string) {
   return res.json()
 }
 
-async function apiPost(endpoint: string, body: Record<string, unknown>) {
+async function apiPostGroups(endpoint: string, body: Record<string, unknown>) {
   const tg = getTg()
   const initData = tg?.initData ?? ""
   const userId = tg?.initDataUnsafe?.user?.id ?? null
@@ -650,7 +650,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const loadGroupsList = useCallback(async () => {
     setGroupsLoading(true)
     try {
-      const data = await apiGet("/api/group_admin_list")
+      const data = await apiGetGroups("/api/group_admin_list")
       setAdminGroups(data.groups || [])
     } catch (e) {
       console.error(e)
@@ -665,9 +665,9 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     setPage("group_settings_detail")
     try {
       const [setRes, statRes, memRes] = await Promise.all([
-        apiGet(`/api/group_settings/${chatId}`),
-        apiGet(`/api/group_stats/${chatId}`),
-        apiGet(`/api/group_members/${chatId}`)
+        apiGetGroups(`/api/group_settings/${chatId}`),
+        apiGetGroups(`/api/group_stats/${chatId}`),
+        apiGetGroups(`/api/group_members/${chatId}`)
       ])
       setGroupSettings(setRes)
       setGroupStats(statRes)
@@ -683,7 +683,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     if (!activeGroup || !groupSettings) return
     setSavingGroupSettings(true)
     try {
-      await apiPost("/api/group_settings", { chat_id: activeGroup, ...groupSettings })
+      await apiPostGroups("/api/group_settings", { chat_id: activeGroup, ...groupSettings })
       triggerVibration("success")
     } catch (e) {
       console.error(e)
@@ -697,7 +697,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     if (!activeGroup) return
     setRefreshingTags(true)
     try {
-      await apiPost("/api/group_tag_refresh", { chat_id: activeGroup })
+      await apiPostGroups("/api/group_tag_refresh", { chat_id: activeGroup })
       getTg()?.showAlert?.("Tag refresh started in background.")
     } catch (e) {
       console.error(e)
@@ -709,7 +709,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const handleSaveTag = async () => {
     if (!editingGroupTag || !activeGroup) return
     try {
-      await apiPost("/api/group_tag", { chat_id: activeGroup, user_id: editingGroupTag.uid, tag: editingGroupTag.tag })
+      await apiPostGroups("/api/group_tag", { chat_id: activeGroup, user_id: editingGroupTag.uid, tag: editingGroupTag.tag })
       setGroupMembers(m => m.map(x => x.user_id === editingGroupTag.uid ? { ...x, tag_text: editingGroupTag.tag, tag_source: "admin_manual" } : x))
       setEditingGroupTag(null)
       triggerVibration("success")
@@ -722,7 +722,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const handleAutoScan = async () => {
     setScanningGroups(true)
     try {
-      const res = await apiPost("/api/group_auto_scan", {})
+      const res = await apiPostGroups("/api/group_auto_scan", {})
       if (res.found > 0) {
         triggerVibration("success")
         alert(`Success! Found and linked ${res.found} group(s).`)
