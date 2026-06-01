@@ -11,53 +11,11 @@ import {
 import { useState, useEffect, useCallback, useRef } from "react"
 import React from "react"
 import { BusinessAutomationView } from "./business-automation-view"
+import { GroupConfigView } from "./group-config-view"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
-
-// --- Tipos para Grupos ---
-type GroupInfo = {
-  chat_id: number
-  chat_title: string
-  total_msgs: number
-  updated_at: string
-}
-
-type GroupMember = {
-  user_id: number
-  username: string
-  first_name: string
-  msg_count: number
-  warn_count: number
-  join_label: string
-  tag_text: string
-  tag_source: string
-}
-
-async function apiGetGroups(endpoint: string) {
-  const tg = getTg()
-  const initData = tg?.initData ?? ""
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    headers: { "x-init-data": initData },
-  })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  return res.json()
-}
-
-async function apiPostGroups(endpoint: string, body: Record<string, unknown>) {
-  const tg = getTg()
-  const initData = tg?.initData ?? ""
-  const userId = tg?.initDataUnsafe?.user?.id ?? null
-  
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...body, initData, userId }),
-  })
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  return res.json()
-}
 
 // Global Styles for Ripple Effect
 const RIPPLE_STYLE = `
@@ -613,7 +571,7 @@ const TelegramInput = ({ label, maxLength, value, onChange, placeholder = "", is
   )
 }
 
-export type SettingsPage = "main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits" | "business_automation" | "group_settings_list" | "group_settings_detail" | "group_settings_noir_ai" | "group_settings_auto_tags";
+export type SettingsPage = "main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits" | "business_automation" | "group_config";
 
 // ── Main component ────────────────────────────────────────────────────────────
 
@@ -631,124 +589,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   } = useApp()
 
   const [page, setPage] = useState<SettingsPage>(initialPage)
-  
-  // --- Group Settings States ---
-  const [adminGroups, setAdminGroups] = useState<GroupInfo[]>([])
-  const [groupsLoading, setGroupsLoading] = useState(false)
-  const [scanningGroups, setScanningGroups] = useState(false)
-  
-  const [activeGroup, setActiveGroup] = useState<number | null>(null)
-  const [activeGroupTab, setActiveGroupTab] = useState<"settings" | "members">("settings")
-  const [groupSettings, setGroupSettings] = useState<any>(null)
-  const [groupStats, setGroupStats] = useState<any>(null)
-  const [groupMembers, setGroupMembers] = useState<GroupMember[]>([])
-  
-  const [savingGroupSettings, setSavingGroupSettings] = useState(false)
-  const [refreshingTags, setRefreshingTags] = useState(false)
-  
-  const [editingGroupTag, setEditingGroupTag] = useState<{uid: number, tag: string} | null>(null)
-
-  const loadGroupsList = useCallback(async () => {
-    setGroupsLoading(true)
-    try {
-      const scanRes = await apiPostGroups("/api/group_auto_scan", {})
-      const data = await apiGetGroups("/api/group_admin_list")
-      const groups = data.groups || []
-      setAdminGroups(groups)
-      
-      if (groups.length > 0) {
-        // Auto-select the first group if none active
-        setActiveGroup(groups[0].chat_id)
-      }
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setGroupsLoading(false)
-    }
-  }, [])
-
-  const loadGroupDetail = useCallback(async (chatId: number) => {
-    setGroupsLoading(true)
-    setActiveGroup(chatId)
-    try {
-      const [setRes, statRes, memRes] = await Promise.all([
-        apiGetGroups(`/api/group_settings/${chatId}`),
-        apiGetGroups(`/api/group_stats/${chatId}`),
-        apiGetGroups(`/api/group_members/${chatId}`)
-      ])
-      setGroupSettings(setRes)
-      setGroupStats(statRes)
-      setGroupMembers(memRes.members || [])
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setGroupsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (page === "group_settings_detail" && activeGroup && !groupSettings && !groupsLoading) {
-      loadGroupDetail(activeGroup)
-    }
-  }, [page, activeGroup])
-
-  const updateGroupSetting = async (key: string, value: any) => {
-    if (!activeGroup || !groupSettings) return
-    const updated = { ...groupSettings, [key]: value }
-    setGroupSettings(updated)
-    try {
-      await apiPostGroups("/api/group_settings", { chat_id: activeGroup, ...updated })
-      triggerVibration("light")
-    } catch (e) {
-      console.error(e)
-    }
-  }
-
-  const handleRefreshTags = async () => {
-    if (!activeGroup) return
-    setRefreshingTags(true)
-    try {
-      await apiPostGroups("/api/group_tag_refresh", { chat_id: activeGroup })
-      getTg()?.showAlert?.("Tag refresh started in background.")
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setRefreshingTags(false)
-    }
-  }
-
-  const handleSaveTag = async () => {
-    if (!editingGroupTag || !activeGroup) return
-    try {
-      await apiPostGroups("/api/group_tag", { chat_id: activeGroup, user_id: editingGroupTag.uid, tag: editingGroupTag.tag })
-      setGroupMembers(m => m.map(x => x.user_id === editingGroupTag.uid ? { ...x, tag_text: editingGroupTag.tag, tag_source: "admin_manual" } : x))
-      setEditingGroupTag(null)
-      triggerVibration("success")
-    } catch (e) {
-      console.error(e)
-      triggerVibration("error")
-    }
-  }
-
-  const handleAutoScan = async () => {
-    setScanningGroups(true)
-    try {
-      const res = await apiPostGroups("/api/group_auto_scan", {})
-      if (res.found > 0) {
-        triggerVibration("success")
-        alert(`Success! Found and linked ${res.found} group(s).`)
-        await loadGroupsList() 
-      } else {
-        triggerVibration("light")
-        alert("No missing groups found. Make sure NOIR has seen at least one message in the group.")
-      }
-    } catch (e) {
-      console.error(e)
-      alert("An error occurred while scanning.")
-    } finally {
-      setScanningGroups(false)
-    }
-  }
 
   // -----------------------------
   const [saving, setSaving] = useState("")
@@ -896,23 +736,12 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       else if (page === "timezone_select") setPage("additional_details")
       else if (page === "basic_info" || page === "additional_details" || page === "noir_personality") setPage("prefs")
       else if (page === "usage_limits") setPage("main")
-      else if (page === "group_settings_noir_ai" || page === "group_settings_auto_tags") setPage("group_settings_detail")
-      else if (page === "group_settings_detail") {
-        setActiveGroup(null)
-        setPage("main")
-      }
       else if (page !== "main" && initialPage === "main") setPage("main")
       else { setCurrentView(returnView as any); tg.BackButton.hide() }
     }
     tg.BackButton.onClick(handleBack)
     return () => { tg.BackButton.offClick(handleBack) }
-  }, [page, setCurrentView, initialPage, returnView, loadGroupsList])
-
-  useEffect(() => {
-    if (page === "group_settings_detail") {
-      loadGroupsList()
-    }
-  }, [page, loadGroupsList])
+  }, [page, setCurrentView, initialPage, returnView])
 
   const saveBasicInfo = async () => {
     const updated = { ...prefs, name: nameField, gender: genderField, age: ageField, city: cityField }
@@ -1561,267 +1390,12 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     <BusinessAutomationView onClose={() => setPage("main")} apiBaseUrl={process.env.NEXT_PUBLIC_API_URL ?? ""} />
   )
 
-  if (page === "group_settings_detail") {
-    // Auto-select first group if none active
-    useEffect(() => {
-      if (!activeGroup && adminGroups.length > 0) {
-         loadGroupDetail(adminGroups[0].chat_id)
-      }
-    }, [adminGroups, activeGroup, loadGroupDetail])
+  // ── Group Config Sub-page ─────────────────────────────────────────────
+  if (page === "group_config") return (
+    <GroupConfigView onClose={() => setPage("main")} apiBaseUrl={process.env.NEXT_PUBLIC_API_URL ?? ""} />
+  )
 
-    if (groupsLoading) {
-      return (
-        <div className="flex-1 flex flex-col absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
-          <SubHeader title="Group Settings" />
-          <div className="flex-1 flex items-center justify-center">
-             <Loader2 className="w-8 h-8 animate-spin text-[#48484a]" />
-          </div>
-        </div>
-      )
-    }
 
-    return (
-      <div key="group_settings_detail" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
-        <style>{RIPPLE_STYLE}</style>
-        <SubHeader title="Group Settings" />
-        
-        <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8 space-y-6">
-
-          {/* ── Group Selector UI ── */}
-          <div className="space-y-4">
-             <Section>
-               <div className="relative">
-                 <Row 
-                   leftNode={<div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Users className="w-4 h-4 text-[#3b82f6]" /></div>}
-                   label={activeGroup ? adminGroups.find(g => g.chat_id === activeGroup)?.chat_title || "Select Group" : "Select Group"}
-                   rightNode={
-                     <div className="flex items-center gap-1">
-                       <span className="text-[#8e8e93] text-[16px]">Change</span>
-                       <ChevronDown className="w-5 h-5 text-[#8e8e93]" />
-                     </div>
-                   }
-                   last
-                 />
-                 <select 
-                   className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
-                   value={activeGroup || ""}
-                   onChange={(e) => {
-                     const newId = Number(e.target.value)
-                     if (newId !== activeGroup) {
-                       setGroupSettings(null)
-                       loadGroupDetail(newId)
-                     }
-                   }}
-                 >
-                   <option value="" disabled>Select Group</option>
-                   {adminGroups.map(g => (
-                     <option key={g.chat_id} value={g.chat_id}>{g.chat_title}</option>
-                   ))}
-                 </select>
-               </div>
-             </Section>
-
-             <button 
-                onClick={() => getTg()?.openTelegramLink?.("https://t.me/xblum_bot?startgroup=true")}
-                onPointerDown={createRipple}
-                className="relative overflow-hidden w-full py-3.5 rounded-full font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
-                style={{ background: "#34c759", color: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Add New Group
-                </span>
-              </button>
-          </div>
-
-          {!activeGroup ? (
-             <div className="flex-1 flex flex-col items-center justify-center pt-10 text-[#8e8e93] text-center space-y-3">
-               <Shield className="w-12 h-12 text-[#2c2c2e]" />
-               <p style={{ fontFamily: SF }}>Select or add a group to configure its settings.</p>
-             </div>
-          ) : (
-            <div className="space-y-8 pt-4">
-              <img src="/group-emoji.webp" alt="Group Emoji" className="w-32 h-32 mx-auto object-contain" />
-          
-          <Section title="General">
-            <Row
-              leftNode={<Bot className="w-6 h-6 text-[#8e8e93]" />}
-              label="Noir AI"
-              rightNode={<div className="flex items-center gap-1"><span className="text-[#007aff] text-[16px]">Noir AI</span><ChevronRight className="w-5 h-5 text-[#8e8e93]" /></div>}
-              onClick={() => setPage("group_settings_noir_ai")}
-            />
-            <Row
-              leftNode={<Tags className="w-6 h-6 text-[#8e8e93]" />}
-              label="Auto-Tags"
-              rightNode={<div className="flex items-center gap-1"><span className="text-[#007aff] text-[16px]">Auto-Tags</span><ChevronRight className="w-5 h-5 text-[#8e8e93]" /></div>}
-              onClick={() => setPage("group_settings_auto_tags")}
-              last
-            />
-          </Section>
-
-          <Section title="Security & Filters">
-            <Row
-              leftNode={<Shield className="w-6 h-6 text-[#8e8e93]" />}
-              label="Use Noir Anti-Spam"
-              rightNode={
-                <SwitchNode checked={groupSettings.antispam_enabled ?? false} onChange={(v) => updateGroupSetting("antispam_enabled", v)} />
-              }
-            />
-            <Row
-              leftNode={<MessageSquare className="w-6 h-6 text-[#8e8e93]" />}
-              label="Welcome Message"
-              rightNode={
-                <SwitchNode checked={groupSettings.welcome_enabled ?? false} onChange={(v) => updateGroupSetting("welcome_enabled", v)} />
-              }
-              last
-            />
-          </Section>
-
-            </div>
-          )}
-
-        </div>
-      </div>
-    )
-  }
-
-  // ── Noir AI Sub-page ────────────────────────────────────────────────
-  if (page === "group_settings_noir_ai") {
-    return (
-      <div key="group_settings_noir_ai" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
-        <style>{RIPPLE_STYLE}</style>
-        <SubHeader title="Noir AI" />
-        
-        <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8 space-y-6">
-          <Section>
-             <Row
-               label="Enable Noir AI"
-               rightNode={
-                 <SwitchNode checked={groupSettings.noir_ai_enabled ?? false} onChange={(v) => updateGroupSetting("noir_ai_enabled", v)} />
-               }
-               last
-             />
-          </Section>
-
-          <TelegramInputGroup>
-             <TelegramInput 
-               label="System Prompt"
-               value={groupSettings.group_context || ""}
-               onChange={(v) => updateGroupSetting("group_context", v)}
-               placeholder="You are a helpful assistant for this group..."
-               multiline
-             />
-          </TelegramInputGroup>
-          <p className="text-[#8e8e93] text-[13px] px-2 -mt-4" style={{ fontFamily: SF }}>
-             Customize how Noir AI behaves and responds specifically in this group.
-          </p>
-
-          <Section title="Behavior">
-             <Row
-               label="Respond to Mentions Only"
-               rightNode={
-                 <SwitchNode checked={groupSettings.mentions_only ?? false} onChange={(v) => updateGroupSetting("mentions_only", v)} />
-               }
-               last
-             />
-          </Section>
-
-          <div className="mt-6 mb-8">
-            <button 
-              onClick={() => { triggerVibration("success"); setPage("group_settings_detail") }}
-              onPointerDown={createRipple}
-              className="relative overflow-hidden w-full py-3.5 mt-2 rounded-[14px] font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
-              style={{ background: "#34c759", color: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                <Save className="w-5 h-5" />
-                Save Message
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // ── Auto-Tags Sub-page ──────────────────────────────────────────────
-  if (page === "group_settings_auto_tags") {
-    return (
-      <div key="group_settings_auto_tags" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
-        <style>{RIPPLE_STYLE}</style>
-        <SubHeader title="Auto-Tags" />
-        
-        <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8 space-y-6">
-          
-          <Section>
-            <Row
-              label="Enable Auto-Tags"
-              rightNode={
-                <SwitchNode checked={groupSettings.auto_tags_enabled ?? false} onChange={(v) => updateGroupSetting("auto_tags_enabled", v)} />
-              }
-              last
-            />
-          </Section>
-
-          {groupSettings.auto_tags_enabled && (
-            <>
-              <Section title="Tag Mode">
-                <Row
-                  label="Activity Based"
-                  rightNode={<RadioButton checked={groupSettings.tag_mode === "activity"} />}
-                  onClick={() => updateGroupSetting("tag_mode", "activity")}
-                />
-                <Row
-                  label="Join Date Based"
-                  rightNode={<RadioButton checked={groupSettings.tag_mode === "join_date"} />}
-                  onClick={() => updateGroupSetting("tag_mode", "join_date")}
-                />
-                <Row
-                  label="Custom Rules"
-                  rightNode={<RadioButton checked={groupSettings.tag_mode === "custom"} />}
-                  onClick={() => updateGroupSetting("tag_mode", "custom")}
-                  last
-                />
-              </Section>
-
-              {groupSettings.tag_mode === "custom" && (
-                <TelegramInputGroup>
-                  <TelegramInput 
-                    label="Custom Rules (JSON)"
-                    value={groupSettings.tag_rules_json ? JSON.stringify(groupSettings.tag_rules_json) : ""}
-                    onChange={(v) => {
-                      try {
-                        updateGroupSetting("tag_rules_json", JSON.parse(v))
-                      } catch(e) {
-                         // wait until valid JSON
-                      }
-                    }}
-                    placeholder='[{"condition": "msg_count > 50", "tag": "VIP"}]'
-                    multiline
-                  />
-                </TelegramInputGroup>
-              )}
-            </>
-          )}
-
-          <div className="mt-6 mb-8">
-            <button 
-              onClick={() => { triggerVibration("success"); setPage("group_settings_detail") }}
-              onPointerDown={createRipple}
-              className="relative overflow-hidden w-full py-3.5 mt-2 rounded-[14px] font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
-              style={{ background: "#34c759", color: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                <Save className="w-5 h-5" />
-                Save Message
-              </span>
-            </button>
-          </div>
-
-        </div>
-      </div>
-    )
-  }
 
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
@@ -1887,9 +1461,9 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             onClick={() => setPage("business_automation")}
           />
           <Row
-            leftNode={<IconFlat icon={Users} color="#10b981" />}
-            label="Group Settings"
-            onClick={() => setPage("group_settings_list")}
+            leftNode={<IconFlat icon={Users} color="#34c759" />}
+            label="Group Config"
+            onClick={() => setPage("group_config")}
             last
           />
         </Section>
