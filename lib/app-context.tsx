@@ -8,7 +8,7 @@ import {
 // Se ha simplificado para dejar solo inglés
 export type Language  = "en"
 export type ModelName = "Grok 4.3" | "Gemini 3.5 Flash" | "Grok 4.1" | "GPT-5.4" | "GPT-5.2"
-export type View      = "home" | "settings" | "store" | "premium" | "referral" | "analytics" | "profile" | "x-rewards" | "group-settings" | "schedule" | "account_setup" | "additional_details" | "levels" | "shop" | "market"
+export type View      = "home" | "settings" | "store" | "premium" | "referral" | "profile" | "x-rewards" | "schedule" | "account_setup" | "additional_details" | "levels" | "shop" | "market"
 
 export type UserPreferences = {
   name?: string
