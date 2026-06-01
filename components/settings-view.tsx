@@ -650,6 +650,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const loadGroupsList = useCallback(async () => {
     setGroupsLoading(true)
     try {
+      const scanRes = await apiPostGroups("/api/group_auto_scan", {})
       const data = await apiGetGroups("/api/group_admin_list")
       setAdminGroups(data.groups || [])
     } catch (e) {
@@ -679,17 +680,15 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     }
   }, [])
 
-  const handleSaveGroupSettings = async () => {
+  const updateGroupSetting = async (key: string, value: any) => {
     if (!activeGroup || !groupSettings) return
-    setSavingGroupSettings(true)
+    const updated = { ...groupSettings, [key]: value }
+    setGroupSettings(updated)
     try {
-      await apiPostGroups("/api/group_settings", { chat_id: activeGroup, ...groupSettings })
-      triggerVibration("success")
+      await apiPostGroups("/api/group_settings", { chat_id: activeGroup, ...updated })
+      triggerVibration("light")
     } catch (e) {
       console.error(e)
-      triggerVibration("error")
-    } finally {
-      setSavingGroupSettings(false)
     }
   }
 
@@ -729,7 +728,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         await loadGroupsList() 
       } else {
         triggerVibration("light")
-        alert("No missing groups found. Make sure xBlum has seen at least one message in the group.")
+        alert("No missing groups found. Make sure NOIR has seen at least one message in the group.")
       }
     } catch (e) {
       console.error(e)
@@ -1573,7 +1572,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               <Shield className="w-8 h-8 text-[#3a3a3c]" />
             </div>
             <p className="text-[#48484a] text-[15px] max-w-[240px]" style={{ fontFamily: SF }}>
-              No groups found. Add xBlum as an admin to your Telegram group to configure it here.
+              No groups found. Add NOIR as an admin to your Telegram group to configure it here.
             </p>
           </div>
         ) : (
@@ -1600,10 +1599,10 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         <div className="mt-auto pt-4 shrink-0">
           <Section>
             <Row
-              leftNode={<IconFlat icon={RefreshCw} color="#3b82f6" />}
-              label={scanningGroups ? "Scanning databases..." : "Scan & Link My Groups"}
-              subLabel="Find missing groups automatically"
-              onClick={scanningGroups ? undefined : handleAutoScan}
+              leftNode={<div className="w-9 h-9 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Users className="w-5 h-5 text-[#3b82f6]" /></div>}
+              label="Add New Group"
+              subLabel="Add Noir as an admin to a group"
+              onClick={() => getTg()?.openTelegramLink?.("https://t.me/NoirHereBot?startgroup=true")}
               last
             />
           </Section>
@@ -1630,163 +1629,55 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         <style>{RIPPLE_STYLE}</style>
         <SubHeader title={groupStats?.chat_title || "Group Settings"} />
         
-        <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
+        <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8 space-y-6">
           
-          <div className="flex p-1 mb-6 rounded-[14px] bg-[#1c1c1e] w-full shrink-0">
-            <button 
-              onClick={() => setActiveGroupTab("settings")}
-              className={`flex-1 py-1.5 text-[13px] font-medium rounded-[10px] transition-all duration-300 ${activeGroupTab === "settings" ? 'bg-[#3a3a3c] text-white shadow-sm' : 'text-[#8e8e93]'}`}
-              style={{ fontFamily: SF }}
-            >
-              Settings
-            </button>
-            <button 
-              onClick={() => setActiveGroupTab("members")}
-              className={`flex-1 py-1.5 text-[13px] font-medium rounded-[10px] transition-all duration-300 ${activeGroupTab === "members" ? 'bg-[#3a3a3c] text-white shadow-sm' : 'text-[#8e8e93]'}`}
-              style={{ fontFamily: SF }}
-            >
-              Members
-            </button>
-          </div>
-
-          {activeGroupTab === "settings" && (
-            <div className="space-y-6">
-              
-              <Section title="AI MODERATION">
-                <div className="px-4 pt-3 pb-2">
-                  <span className="text-[14px] font-medium text-white block mb-2" style={{ fontFamily: SF }}>Custom Rules</span>
-                  <textarea 
-                    value={groupSettings.natural_rules}
-                    onChange={(e) => setGroupSettings({...groupSettings, natural_rules: e.target.value})}
-                    placeholder="e.g. No crypto links, be polite..."
-                    className="w-full bg-[#1c1c1e] rounded-[10px] p-3 text-white text-[15px] outline-none resize-none placeholder-[#48484a] h-20"
-                    style={{ fontFamily: SF }}
-                  />
-                </div>
-                <div className="h-[1px] bg-[#2c2c2e] ml-4" />
-                <Row
-                  label="Sensitivity"
-                  rightNode={
-                    <span className="text-[#8e8e93] text-[15px]">
-                      {groupSettings.sensitivity === "soft" ? "Soft" : groupSettings.sensitivity === "strict" ? "Strict" : "Balanced"}
-                    </span>
-                  }
-                  onClick={() => {
-                    const order = ["soft", "balanced", "strict"];
-                    const next = order[(order.indexOf(groupSettings.sensitivity) + 1) % 3];
-                    setGroupSettings({...groupSettings, sensitivity: next})
-                  }}
-                />
-                <Row
-                  label="Adapt to Context"
-                  rightNode={
-                    <SwitchNode checked={groupSettings.adapt_to_group} onChange={(v) => setGroupSettings({...groupSettings, adapt_to_group: v})} />
-                  }
-                  last={!groupSettings.adapt_to_group}
-                />
-                {groupSettings.adapt_to_group && (
-                  <div className="px-4 pb-3">
-                    <textarea 
-                      value={groupSettings.group_context || ""}
-                      onChange={(e) => setGroupSettings({...groupSettings, group_context: e.target.value})}
-                      placeholder="Describe the group's normal tone..."
-                      className="w-full bg-[#1c1c1e] rounded-[10px] p-3 text-white text-[15px] outline-none resize-none placeholder-[#48484a] h-16"
-                      style={{ fontFamily: SF }}
-                    />
-                  </div>
-                )}
-              </Section>
-
-              <Section title="ANTI-FLOOD">
-                <Row
-                  label="Enable Anti-Flood"
-                  rightNode={
-                    <SwitchNode checked={groupSettings.flood_enabled} onChange={(v) => setGroupSettings({...groupSettings, flood_enabled: v})} />
-                  }
-                  last={!groupSettings.flood_enabled}
-                />
-                {groupSettings.flood_enabled && (
-                  <>
-                    <Row label="Window (sec)" rightNode={<input type="number" value={groupSettings.flood_window_sec} onChange={e => setGroupSettings({...groupSettings, flood_window_sec: Number(e.target.value)})} className="bg-transparent text-right text-white w-20 outline-none"/>} />
-                    <Row label="Max Messages" rightNode={<input type="number" value={groupSettings.flood_max_msgs} onChange={e => setGroupSettings({...groupSettings, flood_max_msgs: Number(e.target.value)})} className="bg-transparent text-right text-white w-20 outline-none"/>} />
-                    <Row
-                      label="Action"
-                      rightNode={
-                        <span className="text-[#8e8e93] text-[15px]">
-                          {groupSettings.flood_action === "mute" ? "Mute" : groupSettings.flood_action === "delete" ? "Delete" : "Warn"}
-                        </span>
-                      }
-                      onClick={() => {
-                        const order = ["warn", "mute", "delete"];
-                        const next = order[(order.indexOf(groupSettings.flood_action) + 1) % 3];
-                        setGroupSettings({...groupSettings, flood_action: next})
-                      }}
-                      last
-                    />
-                  </>
-                )}
-              </Section>
-
-              <Section title="AUTO-TAGS">
-                <Row
-                  label="Enable Auto-Tags"
-                  rightNode={
-                    <SwitchNode checked={groupSettings.auto_tags_enabled} onChange={(v) => setGroupSettings({...groupSettings, auto_tags_enabled: v})} />
-                  }
-                  last={!groupSettings.auto_tags_enabled}
-                />
-                {groupSettings.auto_tags_enabled && (
-                  <Row
-                    label="Mode"
-                    rightNode={
-                      <span className="text-[#8e8e93] text-[15px]">
-                        {groupSettings.tag_mode === "join_date" ? "Join Date" : groupSettings.tag_mode === "custom" ? "Custom" : "Activity"}
-                      </span>
-                    }
-                    onClick={() => {
-                      const order = ["activity", "join_date", "custom"];
-                      const next = order[(order.indexOf(groupSettings.tag_mode) + 1) % 3];
-                      setGroupSettings({...groupSettings, tag_mode: next})
-                    }}
-                    last
-                  />
-                )}
-              </Section>
-
-              <div className="mt-6 mb-8">
-                <button 
-                  onClick={handleSaveGroupSettings} 
-                  onPointerDown={createRipple}
-                  className="relative overflow-hidden w-full py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
-                  style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    {savingGroupSettings ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                    {savingGroupSettings ? "Saving..." : "Save Settings"}
+          <Section title="Auto-tags">
+            <Row
+              label="Enable Auto-Tags"
+              rightNode={
+                <SwitchNode checked={groupSettings.auto_tags_enabled} onChange={(v) => updateGroupSetting("auto_tags_enabled", v)} />
+              }
+              last={!groupSettings.auto_tags_enabled}
+            />
+            {groupSettings.auto_tags_enabled && (
+              <Row
+                label="Mode"
+                rightNode={
+                  <span className="text-[#8e8e93] text-[15px]">
+                    {groupSettings.tag_mode === "join_date" ? "Join Date" : groupSettings.tag_mode === "custom" ? "Custom" : "Activity"}
                   </span>
-                </button>
-              </div>
+                }
+                onClick={() => {
+                  const order = ["activity", "join_date", "custom"];
+                  const next = order[(order.indexOf(groupSettings.tag_mode) + 1) % 3];
+                  updateGroupSetting("tag_mode", next)
+                }}
+                last
+              />
+            )}
+          </Section>
 
-            </div>
-          )}
+          <div className="space-y-4">
+            <button 
+              onClick={handleRefreshTags}
+              disabled={refreshingTags}
+              onPointerDown={createRipple}
+              className="relative overflow-hidden w-full py-3.5 rounded-[14px] border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors flex items-center justify-center gap-2" 
+              style={{ fontFamily: SF, fontSize: "15px" }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                {refreshingTags ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4 text-[#8e8e93]" />}
+                Refresh Tags
+              </span>
+            </button>
 
-          {activeGroupTab === "members" && (
-            <div className="space-y-4 pb-8">
-              <button 
-                onClick={handleRefreshTags}
-                disabled={refreshingTags}
-                onPointerDown={createRipple}
-                className="relative overflow-hidden w-full py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors flex items-center justify-center gap-2" 
-                style={{ fontFamily: SF, fontSize: "15px" }}
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  {refreshingTags ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4 text-blue-500" />}
-                  Refresh Tags
-                </span>
-              </button>
-
-              <Section>
-                {groupMembers.map((m, idx) => (
+            <Section title="Members">
+              {groupMembers.length === 0 ? (
+                <div className="px-4 py-6 text-center text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>
+                  No members found yet.
+                </div>
+              ) : (
+                groupMembers.map((m, idx) => (
                   <Row
                     key={m.user_id}
                     leftNode={
@@ -1805,10 +1696,10 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                     }
                     last={idx === groupMembers.length - 1}
                   />
-                ))}
-              </Section>
-            </div>
-          )}
+                ))
+              )}
+            </Section>
+          </div>
 
         </div>
       </div>
