@@ -5,7 +5,7 @@ import {
   ChevronRight, Check, Earth, CircleUserRound, Lock,
   FileText, ShieldCheck, MessageCircle, ChevronDown, X, Trash2, 
   Loader2, Sparkles, UserPen, SmilePlus, WandSparkles, Settings2,
-  CircleStar, ChartPie, Info, MessageCirclePlus
+  CircleStar, ChartPie, Info, MessageCirclePlus, Users, Shield, RefreshCw, Save
 } from "lucide-react"
 import { useState, useEffect, useCallback, useRef } from "react"
 import React from "react"
@@ -13,6 +13,50 @@ import { BusinessAutomationView } from "./business-automation-view"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
+
+// --- Tipos para Grupos ---
+type GroupInfo = {
+  chat_id: number
+  chat_title: string
+  total_msgs: number
+  updated_at: string
+}
+
+type GroupMember = {
+  user_id: number
+  username: string
+  first_name: string
+  msg_count: number
+  warn_count: number
+  join_label: string
+  tag_text: string
+  tag_source: string
+}
+
+async function apiGet(endpoint: string) {
+  const tg = getTg()
+  const initData = tg?.initData ?? ""
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    headers: { "x-init-data": initData },
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
+
+async function apiPost(endpoint: string, body: Record<string, unknown>) {
+  const tg = getTg()
+  const initData = tg?.initData ?? ""
+  const userId = tg?.initDataUnsafe?.user?.id ?? null
+  
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...body, initData, userId }),
+  })
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  return res.json()
+}
 
 // Global Styles for Ripple Effect
 const RIPPLE_STYLE = `
@@ -568,7 +612,7 @@ const TelegramInput = ({ label, maxLength, value, onChange, placeholder = "", is
   )
 }
 
-export type SettingsPage = "main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits" | "business_automation";
+export type SettingsPage = "main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits" | "business_automation" | "group_settings_list" | "group_settings_detail";
 
 // ── Main component ────────────────────────────────────────────────────────────
 
@@ -586,6 +630,116 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   } = useApp()
 
   const [page, setPage] = useState<SettingsPage>(initialPage)
+  
+  // --- Group Settings States ---
+  const [adminGroups, setAdminGroups] = useState<GroupInfo[]>([])
+  const [groupsLoading, setGroupsLoading] = useState(false)
+  const [scanningGroups, setScanningGroups] = useState(false)
+  
+  const [activeGroup, setActiveGroup] = useState<number | null>(null)
+  const [activeGroupTab, setActiveGroupTab] = useState<"settings" | "members">("settings")
+  const [groupSettings, setGroupSettings] = useState<any>(null)
+  const [groupStats, setGroupStats] = useState<any>(null)
+  const [groupMembers, setGroupMembers] = useState<GroupMember[]>([])
+  
+  const [savingGroupSettings, setSavingGroupSettings] = useState(false)
+  const [refreshingTags, setRefreshingTags] = useState(false)
+  
+  const [editingGroupTag, setEditingGroupTag] = useState<{uid: number, tag: string} | null>(null)
+
+  const loadGroupsList = useCallback(async () => {
+    setGroupsLoading(true)
+    try {
+      const data = await apiGet("/api/group_admin_list")
+      setAdminGroups(data.groups || [])
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setGroupsLoading(false)
+    }
+  }, [])
+
+  const loadGroupDetail = useCallback(async (chatId: number) => {
+    setGroupsLoading(true)
+    setActiveGroup(chatId)
+    setPage("group_settings_detail")
+    try {
+      const [setRes, statRes, memRes] = await Promise.all([
+        apiGet(`/api/group_settings/${chatId}`),
+        apiGet(`/api/group_stats/${chatId}`),
+        apiGet(`/api/group_members/${chatId}`)
+      ])
+      setGroupSettings(setRes)
+      setGroupStats(statRes)
+      setGroupMembers(memRes.members || [])
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setGroupsLoading(false)
+    }
+  }, [])
+
+  const handleSaveGroupSettings = async () => {
+    if (!activeGroup || !groupSettings) return
+    setSavingGroupSettings(true)
+    try {
+      await apiPost("/api/group_settings", { chat_id: activeGroup, ...groupSettings })
+      triggerVibration("success")
+    } catch (e) {
+      console.error(e)
+      triggerVibration("error")
+    } finally {
+      setSavingGroupSettings(false)
+    }
+  }
+
+  const handleRefreshTags = async () => {
+    if (!activeGroup) return
+    setRefreshingTags(true)
+    try {
+      await apiPost("/api/group_tag_refresh", { chat_id: activeGroup })
+      getTg()?.showAlert?.("Tag refresh started in background.")
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setRefreshingTags(false)
+    }
+  }
+
+  const handleSaveTag = async () => {
+    if (!editingGroupTag || !activeGroup) return
+    try {
+      await apiPost("/api/group_tag", { chat_id: activeGroup, user_id: editingGroupTag.uid, tag: editingGroupTag.tag })
+      setGroupMembers(m => m.map(x => x.user_id === editingGroupTag.uid ? { ...x, tag_text: editingGroupTag.tag, tag_source: "admin_manual" } : x))
+      setEditingGroupTag(null)
+      triggerVibration("success")
+    } catch (e) {
+      console.error(e)
+      triggerVibration("error")
+    }
+  }
+
+  const handleAutoScan = async () => {
+    setScanningGroups(true)
+    try {
+      const res = await apiPost("/api/group_auto_scan", {})
+      if (res.found > 0) {
+        triggerVibration("success")
+        alert(`Success! Found and linked ${res.found} group(s).`)
+        await loadGroupsList() 
+      } else {
+        triggerVibration("light")
+        alert("No missing groups found. Make sure xBlum has seen at least one message in the group.")
+      }
+    } catch (e) {
+      console.error(e)
+      alert("An error occurred while scanning.")
+    } finally {
+      setScanningGroups(false)
+    }
+  }
+
+  // -----------------------------
   const [saving, setSaving] = useState("")
   const [showReportModal, setShowReportModal] = useState(false)
   const [reportType, setReportType] = useState("General feedback")
@@ -732,12 +886,24 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       else if (page === "timezone_select") setPage("additional_details")
       else if (page === "basic_info" || page === "additional_details" || page === "noir_personality") setPage("prefs")
       else if (page === "usage_limits") setPage("main")
+      else if (page === "group_settings_detail") {
+        setActiveGroup(null)
+        setPage("group_settings_list")
+        loadGroupsList()
+      }
+      else if (page === "group_settings_list") setPage("main")
       else if (page !== "main" && initialPage === "main") setPage("main")
       else { setCurrentView(returnView as any); tg.BackButton.hide() }
     }
     tg.BackButton.onClick(handleBack)
     return () => { tg.BackButton.offClick(handleBack) }
-  }, [page, setCurrentView, initialPage, returnView])
+  }, [page, setCurrentView, initialPage, returnView, loadGroupsList])
+
+  useEffect(() => {
+    if (page === "group_settings_list") {
+      loadGroupsList()
+    }
+  }, [page, loadGroupsList])
 
   const saveBasicInfo = async () => {
     const updated = { ...prefs, name: nameField, gender: genderField, age: ageField, city: cityField }
@@ -1386,6 +1552,269 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     <BusinessAutomationView onClose={() => setPage("main")} apiBaseUrl={process.env.NEXT_PUBLIC_API_URL ?? ""} />
   )
 
+  // ── Group Settings List Sub-page ────────────────────────────────────
+  if (page === "group_settings_list") return (
+    <div key="group_settings_list" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+      <style>{RIPPLE_STYLE}</style>
+      <SubHeader title="My Groups" />
+      
+      <div className="px-5 pt-6 flex-1 w-full overflow-y-auto flex flex-col pb-8">
+        <p className="text-[#8e8e93] text-[14px] leading-snug px-1 mb-6" style={{ fontFamily: SF }}>
+          Manage AI moderation rules, anti-flood systems, and automatic member tags for your groups.
+        </p>
+
+        {groupsLoading ? (
+          <div className="flex-1 flex items-center justify-center py-10">
+            <Loader2 className="w-8 h-8 animate-spin text-[#48484a]" />
+          </div>
+        ) : adminGroups.length === 0 ? (
+          <div className="flex flex-col items-center justify-center pt-10 pb-6 text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-[#1c1c1e] flex items-center justify-center">
+              <Shield className="w-8 h-8 text-[#3a3a3c]" />
+            </div>
+            <p className="text-[#48484a] text-[15px] max-w-[240px]" style={{ fontFamily: SF }}>
+              No groups found. Add xBlum as an admin to your Telegram group to configure it here.
+            </p>
+          </div>
+        ) : (
+          <div className="mb-6">
+            <Section>
+              {adminGroups.map((g, idx) => (
+                <Row
+                  key={g.chat_id}
+                  leftNode={
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2c2c2e] to-[#1c1c1e] flex items-center justify-center font-bold text-white text-md">
+                      {g.chat_title.charAt(0).toUpperCase()}
+                    </div>
+                  }
+                  label={g.chat_title}
+                  subLabel={g.updated_at ? `${g.total_msgs.toLocaleString()} msgs` : "New group"}
+                  onClick={() => loadGroupDetail(g.chat_id)}
+                  last={idx === adminGroups.length - 1}
+                />
+              ))}
+            </Section>
+          </div>
+        )}
+
+        <div className="mt-auto pt-4 shrink-0">
+          <Section>
+            <Row
+              leftNode={<IconFlat icon={RefreshCw} color="#3b82f6" />}
+              label={scanningGroups ? "Scanning databases..." : "Scan & Link My Groups"}
+              subLabel="Find missing groups automatically"
+              onClick={scanningGroups ? undefined : handleAutoScan}
+              last
+            />
+          </Section>
+        </div>
+      </div>
+    </div>
+  )
+
+  // ── Group Settings Detail Sub-page ──────────────────────────────────
+  if (page === "group_settings_detail") {
+    if (groupsLoading || !activeGroup || !groupSettings) {
+      return (
+        <div className="flex-1 flex flex-col absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+          <SubHeader title="Loading..." />
+          <div className="flex-1 flex items-center justify-center">
+             <Loader2 className="w-8 h-8 animate-spin text-[#48484a]" />
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div key="group_settings_detail" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+        <style>{RIPPLE_STYLE}</style>
+        <SubHeader title={groupStats?.chat_title || "Group Settings"} />
+        
+        <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
+          
+          <div className="flex p-1 mb-6 rounded-[14px] bg-[#1c1c1e] w-full shrink-0">
+            <button 
+              onClick={() => setActiveGroupTab("settings")}
+              className={`flex-1 py-1.5 text-[13px] font-medium rounded-[10px] transition-all duration-300 ${activeGroupTab === "settings" ? 'bg-[#3a3a3c] text-white shadow-sm' : 'text-[#8e8e93]'}`}
+              style={{ fontFamily: SF }}
+            >
+              Settings
+            </button>
+            <button 
+              onClick={() => setActiveGroupTab("members")}
+              className={`flex-1 py-1.5 text-[13px] font-medium rounded-[10px] transition-all duration-300 ${activeGroupTab === "members" ? 'bg-[#3a3a3c] text-white shadow-sm' : 'text-[#8e8e93]'}`}
+              style={{ fontFamily: SF }}
+            >
+              Members
+            </button>
+          </div>
+
+          {activeGroupTab === "settings" && (
+            <div className="space-y-6">
+              
+              <Section title="AI MODERATION">
+                <div className="px-4 pt-3 pb-2">
+                  <span className="text-[14px] font-medium text-white block mb-2" style={{ fontFamily: SF }}>Custom Rules</span>
+                  <textarea 
+                    value={groupSettings.natural_rules}
+                    onChange={(e) => setGroupSettings({...groupSettings, natural_rules: e.target.value})}
+                    placeholder="e.g. No crypto links, be polite..."
+                    className="w-full bg-[#1c1c1e] rounded-[10px] p-3 text-white text-[15px] outline-none resize-none placeholder-[#48484a] h-20"
+                    style={{ fontFamily: SF }}
+                  />
+                </div>
+                <div className="h-[1px] bg-[#2c2c2e] ml-4" />
+                <Row
+                  label="Sensitivity"
+                  rightNode={
+                    <span className="text-[#8e8e93] text-[15px]">
+                      {groupSettings.sensitivity === "soft" ? "Soft" : groupSettings.sensitivity === "strict" ? "Strict" : "Balanced"}
+                    </span>
+                  }
+                  onClick={() => {
+                    const order = ["soft", "balanced", "strict"];
+                    const next = order[(order.indexOf(groupSettings.sensitivity) + 1) % 3];
+                    setGroupSettings({...groupSettings, sensitivity: next})
+                  }}
+                />
+                <Row
+                  label="Adapt to Context"
+                  rightNode={
+                    <SwitchNode checked={groupSettings.adapt_to_group} onChange={(v) => setGroupSettings({...groupSettings, adapt_to_group: v})} />
+                  }
+                  last={!groupSettings.adapt_to_group}
+                />
+                {groupSettings.adapt_to_group && (
+                  <div className="px-4 pb-3">
+                    <textarea 
+                      value={groupSettings.group_context || ""}
+                      onChange={(e) => setGroupSettings({...groupSettings, group_context: e.target.value})}
+                      placeholder="Describe the group's normal tone..."
+                      className="w-full bg-[#1c1c1e] rounded-[10px] p-3 text-white text-[15px] outline-none resize-none placeholder-[#48484a] h-16"
+                      style={{ fontFamily: SF }}
+                    />
+                  </div>
+                )}
+              </Section>
+
+              <Section title="ANTI-FLOOD">
+                <Row
+                  label="Enable Anti-Flood"
+                  rightNode={
+                    <SwitchNode checked={groupSettings.flood_enabled} onChange={(v) => setGroupSettings({...groupSettings, flood_enabled: v})} />
+                  }
+                  last={!groupSettings.flood_enabled}
+                />
+                {groupSettings.flood_enabled && (
+                  <>
+                    <Row label="Window (sec)" rightNode={<input type="number" value={groupSettings.flood_window_sec} onChange={e => setGroupSettings({...groupSettings, flood_window_sec: Number(e.target.value)})} className="bg-transparent text-right text-white w-20 outline-none"/>} />
+                    <Row label="Max Messages" rightNode={<input type="number" value={groupSettings.flood_max_msgs} onChange={e => setGroupSettings({...groupSettings, flood_max_msgs: Number(e.target.value)})} className="bg-transparent text-right text-white w-20 outline-none"/>} />
+                    <Row
+                      label="Action"
+                      rightNode={
+                        <span className="text-[#8e8e93] text-[15px]">
+                          {groupSettings.flood_action === "mute" ? "Mute" : groupSettings.flood_action === "delete" ? "Delete" : "Warn"}
+                        </span>
+                      }
+                      onClick={() => {
+                        const order = ["warn", "mute", "delete"];
+                        const next = order[(order.indexOf(groupSettings.flood_action) + 1) % 3];
+                        setGroupSettings({...groupSettings, flood_action: next})
+                      }}
+                      last
+                    />
+                  </>
+                )}
+              </Section>
+
+              <Section title="AUTO-TAGS">
+                <Row
+                  label="Enable Auto-Tags"
+                  rightNode={
+                    <SwitchNode checked={groupSettings.auto_tags_enabled} onChange={(v) => setGroupSettings({...groupSettings, auto_tags_enabled: v})} />
+                  }
+                  last={!groupSettings.auto_tags_enabled}
+                />
+                {groupSettings.auto_tags_enabled && (
+                  <Row
+                    label="Mode"
+                    rightNode={
+                      <span className="text-[#8e8e93] text-[15px]">
+                        {groupSettings.tag_mode === "join_date" ? "Join Date" : groupSettings.tag_mode === "custom" ? "Custom" : "Activity"}
+                      </span>
+                    }
+                    onClick={() => {
+                      const order = ["activity", "join_date", "custom"];
+                      const next = order[(order.indexOf(groupSettings.tag_mode) + 1) % 3];
+                      setGroupSettings({...groupSettings, tag_mode: next})
+                    }}
+                    last
+                  />
+                )}
+              </Section>
+
+              <div className="mt-6 mb-8">
+                <button 
+                  onClick={handleSaveGroupSettings} 
+                  onPointerDown={createRipple}
+                  className="relative overflow-hidden w-full py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
+                  style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {savingGroupSettings ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                    {savingGroupSettings ? "Saving..." : "Save Settings"}
+                  </span>
+                </button>
+              </div>
+
+            </div>
+          )}
+
+          {activeGroupTab === "members" && (
+            <div className="space-y-4 pb-8">
+              <button 
+                onClick={handleRefreshTags}
+                disabled={refreshingTags}
+                onPointerDown={createRipple}
+                className="relative overflow-hidden w-full py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors flex items-center justify-center gap-2" 
+                style={{ fontFamily: SF, fontSize: "15px" }}
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  {refreshingTags ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4 text-blue-500" />}
+                  Refresh Tags
+                </span>
+              </button>
+
+              <Section>
+                {groupMembers.map((m, idx) => (
+                  <Row
+                    key={m.user_id}
+                    leftNode={
+                      <div className="w-9 h-9 rounded-full bg-[#1c1c1e] flex items-center justify-center font-bold text-white/60 text-sm">
+                        {m.first_name.charAt(0).toUpperCase()}
+                      </div>
+                    }
+                    label={m.first_name}
+                    subLabel={`${m.msg_count} msgs • ${m.join_label}`}
+                    rightNode={
+                      <div className="flex flex-col items-end">
+                        <span className="text-[12px] font-medium px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.1)", color: "#e5e5ea" }}>
+                          {m.tag_text || "No tag"}
+                        </span>
+                      </div>
+                    }
+                    last={idx === groupMembers.length - 1}
+                  />
+                ))}
+              </Section>
+            </div>
+          )}
+
+        </div>
+      </div>
+    )
+  }
+
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
     <div key="main" className="flex-1 overflow-y-auto animate-in fade-in duration-500 ease-out" style={{ background: "#000" }}>
@@ -1448,6 +1877,11 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             leftNode={<IconFlat icon={MessageCirclePlus} color="#5e5ce6" />}
             label="AI Chat"
             onClick={() => setPage("business_automation")}
+          />
+          <Row
+            leftNode={<IconFlat icon={Users} color="#10b981" />}
+            label="Group Settings"
+            onClick={() => setPage("group_settings_list")}
             last
           />
         </Section>
