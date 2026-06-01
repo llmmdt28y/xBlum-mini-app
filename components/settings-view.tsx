@@ -5,7 +5,8 @@ import {
   ChevronRight, Check, Earth, CircleUserRound, Lock,
   FileText, ShieldCheck, MessageCircle, ChevronDown, X, Trash2, 
   Loader2, Sparkles, UserPen, SmilePlus, WandSparkles, Settings2,
-  CircleStar, ChartPie, Info, MessageCirclePlus, Users, Shield, RefreshCw, Save
+  CircleStar, ChartPie, Info, MessageCirclePlus, Users, Shield, RefreshCw, Save,
+  Bot, Tags, MessageSquare
 } from "lucide-react"
 import { useState, useEffect, useCallback, useRef } from "react"
 import React from "react"
@@ -612,7 +613,7 @@ const TelegramInput = ({ label, maxLength, value, onChange, placeholder = "", is
   )
 }
 
-export type SettingsPage = "main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits" | "business_automation" | "group_settings_list" | "group_settings_detail";
+export type SettingsPage = "main" | "model" | "lang" | "prefs" | "basic_info" | "additional_details" | "gender_select" | "timezone_select" | "noir_personality" | "capabilities" | "usage_limits" | "business_automation" | "group_settings_list" | "group_settings_detail" | "group_settings_noir_ai" | "group_settings_auto_tags";
 
 // ── Main component ────────────────────────────────────────────────────────────
 
@@ -885,6 +886,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       else if (page === "timezone_select") setPage("additional_details")
       else if (page === "basic_info" || page === "additional_details" || page === "noir_personality") setPage("prefs")
       else if (page === "usage_limits") setPage("main")
+      else if (page === "group_settings_noir_ai" || page === "group_settings_auto_tags") setPage("group_settings_detail")
       else if (page === "group_settings_detail") {
         setActiveGroup(null)
         setPage("group_settings_list")
@@ -1612,6 +1614,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   )
 
   // ── Group Settings Detail Sub-page ──────────────────────────────────
+  // ── Group Settings Detail Sub-page ──────────────────────────────────
   if (page === "group_settings_detail") {
     if (groupsLoading || !activeGroup || !groupSettings) {
       return (
@@ -1629,76 +1632,209 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         <style>{RIPPLE_STYLE}</style>
         <SubHeader title={groupStats?.chat_title || "Group Settings"} />
         
-        <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8 space-y-6">
+        <div className="px-5 pt-6 flex-1 w-full overflow-y-auto flex flex-col pb-8 space-y-6">
           
-          <Section title="Auto-tags">
+          <img src="/group-emoji.webp" alt="Group Emoji" className="w-20 h-20 mx-auto rounded-full object-cover" style={{ filter: 'drop-shadow(0px 4px 12px rgba(255, 255, 255, 0.1))' }} />
+          
+          <Section title="General">
             <Row
-              label="Enable Auto-Tags"
-              rightNode={
-                <SwitchNode checked={groupSettings.auto_tags_enabled} onChange={(v) => updateGroupSetting("auto_tags_enabled", v)} />
-              }
-              last={!groupSettings.auto_tags_enabled}
+              leftNode={<div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Bot className="w-4 h-4 text-[#af52de]" /></div>}
+              label="Noir AI"
+              rightNode={<ChevronRight className="w-4 h-4 text-[#48484a]" />}
+              onClick={() => setPage("group_settings_noir_ai")}
             />
-            {groupSettings.auto_tags_enabled && (
-              <Row
-                label="Mode"
-                rightNode={
-                  <span className="text-[#8e8e93] text-[15px]">
-                    {groupSettings.tag_mode === "join_date" ? "Join Date" : groupSettings.tag_mode === "custom" ? "Custom" : "Activity"}
-                  </span>
-                }
-                onClick={() => {
-                  const order = ["activity", "join_date", "custom"];
-                  const next = order[(order.indexOf(groupSettings.tag_mode) + 1) % 3];
-                  updateGroupSetting("tag_mode", next)
-                }}
-                last
-              />
+            <Row
+              leftNode={<div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Tags className="w-4 h-4 text-[#34c759]" /></div>}
+              label="Auto-Tags"
+              rightNode={<ChevronRight className="w-4 h-4 text-[#48484a]" />}
+              onClick={() => setPage("group_settings_auto_tags")}
+              last
+            />
+          </Section>
+
+          <Section title="Security & Filters">
+            <Row
+              leftNode={<div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Shield className="w-4 h-4 text-[#ff3b30]" /></div>}
+              label="Use Noir Anti-Spam"
+              rightNode={
+                <SwitchNode checked={groupSettings.antispam_enabled ?? false} onChange={(v) => updateGroupSetting("antispam_enabled", v)} />
+              }
+            />
+            <Row
+              leftNode={<div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><MessageSquare className="w-4 h-4 text-[#007aff]" /></div>}
+              label="Welcome Message"
+              rightNode={
+                <SwitchNode checked={groupSettings.welcome_enabled ?? false} onChange={(v) => updateGroupSetting("welcome_enabled", v)} />
+              }
+              last
+            />
+          </Section>
+
+          <Section title="Members">
+            {groupMembers.length === 0 ? (
+              <div className="px-4 py-6 text-center text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>
+                No members found yet.
+              </div>
+            ) : (
+              groupMembers.map((m, idx) => (
+                <Row
+                  key={m.user_id}
+                  leftNode={
+                    <div className="w-9 h-9 rounded-full bg-[#1c1c1e] flex items-center justify-center font-bold text-white/60 text-sm">
+                      {m.first_name.charAt(0).toUpperCase()}
+                    </div>
+                  }
+                  label={m.first_name}
+                  subLabel={`${m.msg_count} msgs • ${m.join_label}`}
+                  rightNode={
+                    <div className="flex flex-col items-end">
+                      <span className="text-[12px] font-medium px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.1)", color: "#e5e5ea" }}>
+                        {m.tag_text || "No tag"}
+                      </span>
+                    </div>
+                  }
+                  last={idx === groupMembers.length - 1}
+                />
+              ))
             )}
           </Section>
 
-          <div className="space-y-4">
+        </div>
+      </div>
+    )
+  }
+
+  // ── Noir AI Sub-page ────────────────────────────────────────────────
+  if (page === "group_settings_noir_ai") {
+    return (
+      <div key="group_settings_noir_ai" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+        <style>{RIPPLE_STYLE}</style>
+        <SubHeader title="Noir AI" />
+        
+        <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8 space-y-6">
+          <Section>
+             <Row
+               label="Enable Noir AI"
+               rightNode={
+                 <SwitchNode checked={groupSettings.noir_ai_enabled ?? false} onChange={(v) => updateGroupSetting("noir_ai_enabled", v)} />
+               }
+               last
+             />
+          </Section>
+
+          <TelegramInputGroup>
+             <TelegramInput 
+               label="System Prompt"
+               value={groupSettings.group_context || ""}
+               onChange={(v) => updateGroupSetting("group_context", v)}
+               placeholder="You are a helpful assistant for this group..."
+               multiline
+             />
+          </TelegramInputGroup>
+          <p className="text-[#8e8e93] text-[13px] px-2 -mt-4" style={{ fontFamily: SF }}>
+             Customize how Noir AI behaves and responds specifically in this group.
+          </p>
+
+          <Section title="Behavior">
+             <Row
+               label="Respond to Mentions Only"
+               rightNode={
+                 <SwitchNode checked={groupSettings.mentions_only ?? false} onChange={(v) => updateGroupSetting("mentions_only", v)} />
+               }
+               last
+             />
+          </Section>
+
+          <div className="mt-6 mb-8">
             <button 
-              onClick={handleRefreshTags}
-              disabled={refreshingTags}
+              onClick={() => { triggerVibration("success"); setPage("group_settings_detail") }}
               onPointerDown={createRipple}
-              className="relative overflow-hidden w-full py-3.5 rounded-[14px] border border-[#2c2c2e] text-white font-medium active:bg-[#1c1c1e] transition-colors flex items-center justify-center gap-2" 
-              style={{ fontFamily: SF, fontSize: "15px" }}
+              className="relative overflow-hidden w-full py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
+              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10 flex items-center gap-2">
-                {refreshingTags ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4 text-[#8e8e93]" />}
-                Refresh Tags
+                <Save className="w-5 h-5" />
+                Save Message
               </span>
             </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-            <Section title="Members">
-              {groupMembers.length === 0 ? (
-                <div className="px-4 py-6 text-center text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>
-                  No members found yet.
-                </div>
-              ) : (
-                groupMembers.map((m, idx) => (
-                  <Row
-                    key={m.user_id}
-                    leftNode={
-                      <div className="w-9 h-9 rounded-full bg-[#1c1c1e] flex items-center justify-center font-bold text-white/60 text-sm">
-                        {m.first_name.charAt(0).toUpperCase()}
-                      </div>
-                    }
-                    label={m.first_name}
-                    subLabel={`${m.msg_count} msgs • ${m.join_label}`}
-                    rightNode={
-                      <div className="flex flex-col items-end">
-                        <span className="text-[12px] font-medium px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.1)", color: "#e5e5ea" }}>
-                          {m.tag_text || "No tag"}
-                        </span>
-                      </div>
-                    }
-                    last={idx === groupMembers.length - 1}
+  // ── Auto-Tags Sub-page ──────────────────────────────────────────────
+  if (page === "group_settings_auto_tags") {
+    return (
+      <div key="group_settings_auto_tags" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+        <style>{RIPPLE_STYLE}</style>
+        <SubHeader title="Auto-Tags" />
+        
+        <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8 space-y-6">
+          
+          <Section>
+            <Row
+              label="Enable Auto-Tags"
+              rightNode={
+                <SwitchNode checked={groupSettings.auto_tags_enabled ?? false} onChange={(v) => updateGroupSetting("auto_tags_enabled", v)} />
+              }
+              last
+            />
+          </Section>
+
+          {groupSettings.auto_tags_enabled && (
+            <>
+              <Section title="Tag Mode">
+                <Row
+                  label="Activity Based"
+                  rightNode={<RadioButton checked={groupSettings.tag_mode === "activity"} />}
+                  onClick={() => updateGroupSetting("tag_mode", "activity")}
+                />
+                <Row
+                  label="Join Date Based"
+                  rightNode={<RadioButton checked={groupSettings.tag_mode === "join_date"} />}
+                  onClick={() => updateGroupSetting("tag_mode", "join_date")}
+                />
+                <Row
+                  label="Custom Rules"
+                  rightNode={<RadioButton checked={groupSettings.tag_mode === "custom"} />}
+                  onClick={() => updateGroupSetting("tag_mode", "custom")}
+                  last
+                />
+              </Section>
+
+              {groupSettings.tag_mode === "custom" && (
+                <TelegramInputGroup>
+                  <TelegramInput 
+                    label="Custom Rules (JSON)"
+                    value={groupSettings.tag_rules_json ? JSON.stringify(groupSettings.tag_rules_json) : ""}
+                    onChange={(v) => {
+                      try {
+                        updateGroupSetting("tag_rules_json", JSON.parse(v))
+                      } catch(e) {
+                         // wait until valid JSON
+                      }
+                    }}
+                    placeholder='[{"condition": "msg_count > 50", "tag": "VIP"}]'
+                    multiline
                   />
-                ))
+                </TelegramInputGroup>
               )}
-            </Section>
+            </>
+          )}
+
+          <div className="mt-6 mb-8">
+            <button 
+              onClick={() => { triggerVibration("success"); setPage("group_settings_detail") }}
+              onPointerDown={createRipple}
+              className="relative overflow-hidden w-full py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
+              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                <Save className="w-5 h-5" />
+                Save Message
+              </span>
+            </button>
           </div>
 
         </div>
