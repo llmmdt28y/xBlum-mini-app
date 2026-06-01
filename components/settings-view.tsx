@@ -653,7 +653,13 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     try {
       const scanRes = await apiPostGroups("/api/group_auto_scan", {})
       const data = await apiGetGroups("/api/group_admin_list")
-      setAdminGroups(data.groups || [])
+      const groups = data.groups || []
+      setAdminGroups(groups)
+      
+      if (groups.length > 0) {
+        // Auto-select the first group if none active
+        setActiveGroup(groups[0].chat_id)
+      }
     } catch (e) {
       console.error(e)
     } finally {
@@ -664,7 +670,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const loadGroupDetail = useCallback(async (chatId: number) => {
     setGroupsLoading(true)
     setActiveGroup(chatId)
-    setPage("group_settings_detail")
     try {
       const [setRes, statRes, memRes] = await Promise.all([
         apiGetGroups(`/api/group_settings/${chatId}`),
@@ -680,6 +685,12 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       setGroupsLoading(false)
     }
   }, [])
+
+  useEffect(() => {
+    if (page === "group_settings_detail" && activeGroup && !groupSettings && !groupsLoading) {
+      loadGroupDetail(activeGroup)
+    }
+  }, [page, activeGroup])
 
   const updateGroupSetting = async (key: string, value: any) => {
     if (!activeGroup || !groupSettings) return
@@ -879,7 +890,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       // Let BusinessAutomationView handle its own BackButton logic
       return
     }
-
     tg.BackButton.show()
     const handleBack = () => {
       if (page === "gender_select") setPage("basic_info")
@@ -889,10 +899,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       else if (page === "group_settings_noir_ai" || page === "group_settings_auto_tags") setPage("group_settings_detail")
       else if (page === "group_settings_detail") {
         setActiveGroup(null)
-        setPage("group_settings_list")
-        loadGroupsList()
+        setPage("main")
       }
-      else if (page === "group_settings_list") setPage("main")
       else if (page !== "main" && initialPage === "main") setPage("main")
       else { setCurrentView(returnView as any); tg.BackButton.hide() }
     }
@@ -901,7 +909,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   }, [page, setCurrentView, initialPage, returnView, loadGroupsList])
 
   useEffect(() => {
-    if (page === "group_settings_list") {
+    if (page === "group_settings_detail") {
       loadGroupsList()
     }
   }, [page, loadGroupsList])
@@ -1553,73 +1561,21 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     <BusinessAutomationView onClose={() => setPage("main")} apiBaseUrl={process.env.NEXT_PUBLIC_API_URL ?? ""} />
   )
 
-  // ── Group Settings List Sub-page ────────────────────────────────────
-  if (page === "group_settings_list") return (
-    <div key="group_settings_list" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
-      <style>{RIPPLE_STYLE}</style>
-      <SubHeader title="My Groups" />
-      
-      <div className="px-5 pt-6 flex-1 w-full overflow-y-auto flex flex-col pb-8">
-        <p className="text-[#8e8e93] text-[14px] leading-snug px-1 mb-6" style={{ fontFamily: SF }}>
-          Manage AI moderation rules, anti-flood systems, and automatic member tags for your groups.
-        </p>
-
-        {groupsLoading ? (
-          <div className="flex-1 flex items-center justify-center py-10">
-            <Loader2 className="w-8 h-8 animate-spin text-[#48484a]" />
-          </div>
-        ) : adminGroups.length === 0 ? (
-          <div className="flex flex-col items-center justify-center pt-10 pb-6 text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-[#1c1c1e] flex items-center justify-center">
-              <Shield className="w-8 h-8 text-[#3a3a3c]" />
-            </div>
-            <p className="text-[#48484a] text-[15px] max-w-[240px]" style={{ fontFamily: SF }}>
-              No groups found. Add NOIR as an admin to your Telegram group to configure it here.
-            </p>
-          </div>
-        ) : (
-          <div className="mb-6">
-            <Section>
-              {adminGroups.map((g, idx) => (
-                <Row
-                  key={g.chat_id}
-                  leftNode={
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2c2c2e] to-[#1c1c1e] flex items-center justify-center font-bold text-white text-md">
-                      {g.chat_title.charAt(0).toUpperCase()}
-                    </div>
-                  }
-                  label={g.chat_title}
-                  subLabel={g.updated_at ? `${g.total_msgs.toLocaleString()} msgs` : "New group"}
-                  onClick={() => loadGroupDetail(g.chat_id)}
-                  last={idx === adminGroups.length - 1}
-                />
-              ))}
-            </Section>
-          </div>
-        )}
-
-        <div className="mt-auto pt-4 shrink-0">
-          <Section>
-            <Row
-              leftNode={<div className="w-9 h-9 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Users className="w-5 h-5 text-[#3b82f6]" /></div>}
-              label="Add New Group"
-              subLabel="Add Noir as an admin to a group"
-              onClick={() => getTg()?.openTelegramLink?.("https://t.me/NoirHereBot?startgroup=true")}
-              last
-            />
-          </Section>
-        </div>
-      </div>
     </div>
   )
 
-  // ── Group Settings Detail Sub-page ──────────────────────────────────
-  // ── Group Settings Detail Sub-page ──────────────────────────────────
   if (page === "group_settings_detail") {
-    if (groupsLoading || !activeGroup || !groupSettings) {
+    // Auto-select first group if none active
+    useEffect(() => {
+      if (!activeGroup && adminGroups.length > 0) {
+         loadGroupDetail(adminGroups[0].chat_id)
+      }
+    }, [adminGroups, activeGroup, loadGroupDetail])
+
+    if (groupsLoading) {
       return (
         <div className="flex-1 flex flex-col absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
-          <SubHeader title="Loading..." />
+          <SubHeader title="Group Settings" />
           <div className="flex-1 flex items-center justify-center">
              <Loader2 className="w-8 h-8 animate-spin text-[#48484a]" />
           </div>
@@ -1630,23 +1586,77 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     return (
       <div key="group_settings_detail" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
         <style>{RIPPLE_STYLE}</style>
-        <SubHeader title={groupStats?.chat_title || "Group Settings"} />
+        <SubHeader title="Group Settings" />
         
-        <div className="px-5 pt-6 flex-1 w-full overflow-y-auto flex flex-col pb-8 space-y-6">
-          
-          <img src="/group-emoji.webp" alt="Group Emoji" className="w-20 h-20 mx-auto rounded-full object-cover" style={{ filter: 'drop-shadow(0px 4px 12px rgba(255, 255, 255, 0.1))' }} />
+        <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8 space-y-6">
+
+          {/* ── Group Selector UI ── */}
+          <div className="space-y-4">
+             <Section>
+               <div className="relative">
+                 <Row 
+                   leftNode={<div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Users className="w-4 h-4 text-[#3b82f6]" /></div>}
+                   label={activeGroup ? adminGroups.find(g => g.chat_id === activeGroup)?.chat_title || "Select Group" : "Select Group"}
+                   rightNode={
+                     <div className="flex items-center gap-1">
+                       <span className="text-[#8e8e93] text-[16px]">Change</span>
+                       <ChevronDown className="w-5 h-5 text-[#8e8e93]" />
+                     </div>
+                   }
+                   last
+                 />
+                 <select 
+                   className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
+                   value={activeGroup || ""}
+                   onChange={(e) => {
+                     const newId = Number(e.target.value)
+                     if (newId !== activeGroup) {
+                       setGroupSettings(null)
+                       loadGroupDetail(newId)
+                     }
+                   }}
+                 >
+                   <option value="" disabled>Select Group</option>
+                   {adminGroups.map(g => (
+                     <option key={g.chat_id} value={g.chat_id}>{g.chat_title}</option>
+                   ))}
+                 </select>
+               </div>
+             </Section>
+
+             <button 
+                onClick={() => getTg()?.openTelegramLink?.("https://t.me/xblum_bot?startgroup=true")}
+                onPointerDown={createRipple}
+                className="relative overflow-hidden w-full py-3.5 rounded-full font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
+                style={{ background: "#34c759", color: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Add New Group
+                </span>
+              </button>
+          </div>
+
+          {!activeGroup ? (
+             <div className="flex-1 flex flex-col items-center justify-center pt-10 text-[#8e8e93] text-center space-y-3">
+               <Shield className="w-12 h-12 text-[#2c2c2e]" />
+               <p style={{ fontFamily: SF }}>Select or add a group to configure its settings.</p>
+             </div>
+          ) : (
+            <div className="space-y-8 pt-4">
+              <img src="/group-emoji.webp" alt="Group Emoji" className="w-32 h-32 mx-auto object-contain" />
           
           <Section title="General">
             <Row
-              leftNode={<div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Bot className="w-4 h-4 text-[#af52de]" /></div>}
+              leftNode={<Bot className="w-6 h-6 text-[#8e8e93]" />}
               label="Noir AI"
-              rightNode={<ChevronRight className="w-4 h-4 text-[#48484a]" />}
+              rightNode={<div className="flex items-center gap-1"><span className="text-[#007aff] text-[16px]">Noir AI</span><ChevronRight className="w-5 h-5 text-[#8e8e93]" /></div>}
               onClick={() => setPage("group_settings_noir_ai")}
             />
             <Row
-              leftNode={<div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Tags className="w-4 h-4 text-[#34c759]" /></div>}
+              leftNode={<Tags className="w-6 h-6 text-[#8e8e93]" />}
               label="Auto-Tags"
-              rightNode={<ChevronRight className="w-4 h-4 text-[#48484a]" />}
+              rightNode={<div className="flex items-center gap-1"><span className="text-[#007aff] text-[16px]">Auto-Tags</span><ChevronRight className="w-5 h-5 text-[#8e8e93]" /></div>}
               onClick={() => setPage("group_settings_auto_tags")}
               last
             />
@@ -1654,14 +1664,14 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
           <Section title="Security & Filters">
             <Row
-              leftNode={<div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><Shield className="w-4 h-4 text-[#ff3b30]" /></div>}
+              leftNode={<Shield className="w-6 h-6 text-[#8e8e93]" />}
               label="Use Noir Anti-Spam"
               rightNode={
                 <SwitchNode checked={groupSettings.antispam_enabled ?? false} onChange={(v) => updateGroupSetting("antispam_enabled", v)} />
               }
             />
             <Row
-              leftNode={<div className="w-7 h-7 rounded-full bg-[#1c1c1e] flex items-center justify-center"><MessageSquare className="w-4 h-4 text-[#007aff]" /></div>}
+              leftNode={<MessageSquare className="w-6 h-6 text-[#8e8e93]" />}
               label="Welcome Message"
               rightNode={
                 <SwitchNode checked={groupSettings.welcome_enabled ?? false} onChange={(v) => updateGroupSetting("welcome_enabled", v)} />
@@ -1670,34 +1680,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             />
           </Section>
 
-          <Section title="Members">
-            {groupMembers.length === 0 ? (
-              <div className="px-4 py-6 text-center text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>
-                No members found yet.
-              </div>
-            ) : (
-              groupMembers.map((m, idx) => (
-                <Row
-                  key={m.user_id}
-                  leftNode={
-                    <div className="w-9 h-9 rounded-full bg-[#1c1c1e] flex items-center justify-center font-bold text-white/60 text-sm">
-                      {m.first_name.charAt(0).toUpperCase()}
-                    </div>
-                  }
-                  label={m.first_name}
-                  subLabel={`${m.msg_count} msgs • ${m.join_label}`}
-                  rightNode={
-                    <div className="flex flex-col items-end">
-                      <span className="text-[12px] font-medium px-2 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.1)", color: "#e5e5ea" }}>
-                        {m.tag_text || "No tag"}
-                      </span>
-                    </div>
-                  }
-                  last={idx === groupMembers.length - 1}
-                />
-              ))
-            )}
-          </Section>
+            </div>
+          )}
 
         </div>
       </div>
@@ -1749,8 +1733,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={() => { triggerVibration("success"); setPage("group_settings_detail") }}
               onPointerDown={createRipple}
-              className="relative overflow-hidden w-full py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
-              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+              className="relative overflow-hidden w-full py-3.5 mt-2 rounded-[14px] font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
+              style={{ background: "#34c759", color: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10 flex items-center gap-2">
                 <Save className="w-5 h-5" />
@@ -1827,8 +1811,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={() => { triggerVibration("success"); setPage("group_settings_detail") }}
               onPointerDown={createRipple}
-              className="relative overflow-hidden w-full py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
-              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+              className="relative overflow-hidden w-full py-3.5 mt-2 rounded-[14px] font-medium active:opacity-80 transition-opacity flex items-center justify-center gap-2" 
+              style={{ background: "#34c759", color: "#ffffff", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10 flex items-center gap-2">
                 <Save className="w-5 h-5" />
