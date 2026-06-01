@@ -321,18 +321,19 @@ interface RowProps {
   isLink?: boolean;
   href?: string;
   selected?: boolean;
+  selectedBlueText?: boolean;
 }
 
-function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false, alignItems = "center", danger, isLink, href, selected }: RowProps) {
+function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow = false, last = false, alignItems = "center", danger, isLink, href, selected, selectedBlueText }: RowProps) {
   const content = (
     <>
       {leftNode}
       <div className={`flex flex-col flex-1 min-w-0 relative z-10 ${alignItems === "center" ? "py-0.5" : ""}`}>
-        <span className={`text-[16px] font-medium leading-[1.2] ${danger ? "text-[#ef4444]" : (selected ? "text-[#60a5fa]" : "text-white")}`} style={{ fontFamily: SF }}>
+        <span className={`text-[16px] font-medium leading-[1.2] ${danger ? "text-[#ef4444]" : (selected && selectedBlueText ? "text-[#60a5fa]" : "text-white")}`} style={{ fontFamily: SF }}>
           {label}
         </span>
         {sublabel && (
-          <span className={`text-[13px] ${selected ? "text-[#60a5fa]" : "text-[#8e8e93]"} leading-[1.4] mt-[5px]`} style={{ fontFamily: SF }}>
+          <span className={`text-[13px] ${selected && selectedBlueText ? "text-[#60a5fa]" : "text-[#8e8e93]"} leading-[1.4] mt-[5px]`} style={{ fontFamily: SF }}>
             {sublabel}
           </span>
         )}
@@ -514,6 +515,55 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
         style={{ fontFamily: SF, fontSize: "16px", minHeight: "56px", borderColor: colorHex }}
         rows={1}
       />
+    </div>
+  )
+}
+
+const TelegramInputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div className="bg-[#111111] rounded-[24px] overflow-hidden flex flex-col mb-4 border border-white/5 shadow-lg">
+    {children}
+  </div>
+)
+
+const TelegramInput = ({ label, maxLength, value, onChange, placeholder = "", isLast = false }: { label: string, maxLength: number, value: string, onChange: (v: string) => void, placeholder?: string, isLast?: boolean }) => {
+  const [isFocused, setIsFocused] = useState(false)
+  const textRef = useRef<HTMLTextAreaElement>(null)
+  
+  const adjustHeight = () => {
+    if (textRef.current) {
+      textRef.current.style.height = "auto"
+      textRef.current.style.height = `${textRef.current.scrollHeight}px`
+    }
+  }
+  useEffect(() => { adjustHeight() }, [value])
+
+  let labelColor = isFocused ? "#60a5fa" : "#8e8e93"
+
+  return (
+    <div className="relative w-full px-4 pt-3 flex flex-col transition-colors duration-200 bg-transparent">
+      <div className="flex justify-between items-center mb-0.5">
+        <span className="text-[13px] font-medium transition-colors duration-200" style={{ color: labelColor, fontFamily: SF }}>
+          {label}
+        </span>
+      </div>
+      <textarea
+        ref={textRef}
+        value={value}
+        onChange={(e) => {
+          let val = e.target.value
+          if (val.length > maxLength) val = val.slice(0, maxLength)
+          onChange(val)
+        }}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        placeholder={placeholder}
+        className="w-full bg-transparent text-white focus:outline-none resize-none overflow-hidden placeholder:text-[#555558] pb-3"
+        style={{ fontFamily: SF, fontSize: "16px", minHeight: "24px" }}
+        rows={1}
+      />
+      {!isLast && (
+        <div className="absolute bottom-0 left-4 right-0 h-[1px] bg-[#2c2c2e]" />
+      )}
     </div>
   )
 }
@@ -767,7 +817,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             const locked = m.proOnly && !isPremium
             const tokenInfo: ModelTokenInfo | undefined = mergedTokenStatus?.[m.name]
             const pct      = tokenInfo?.pct ?? 0
-            const limitHit = !isPremium && tokenInfo && pct >= 100
+            const limitHit = !!tokenInfo && pct >= 100
             const minsLeft = limitHit ? tokenInfo.mins_left : 0
             const active = m.name === selectedModel || (m.name === "Gemini 3.5 Flash" && legacyModels.includes(selectedModel))
             const isDisabled = locked || saving === "model" || !!limitHit
@@ -861,8 +911,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               >
                 <RadioButton selected={language === lang.code} />
                 <div className="flex flex-col relative z-10 flex-1">
-                  <span className={`text-[16px] font-medium leading-tight ${language === lang.code ? 'text-[#60a5fa]' : 'text-white'}`} style={{ fontFamily: SF }}>{lang.name}</span>
-                  <span className={`text-[13px] mt-[3px] ${language === lang.code ? 'text-[#60a5fa]' : 'text-[#8e8e93]'}`} style={{ fontFamily: SF }}>{lang.subName}</span>
+                  <span className={`text-[16px] font-medium leading-tight text-white`} style={{ fontFamily: SF }}>{lang.name}</span>
+                  <span className={`text-[13px] mt-[3px] text-[#8e8e93]`} style={{ fontFamily: SF }}>{lang.subName}</span>
                 </div>
               </button>
               {idx !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
@@ -889,7 +939,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                 className="relative overflow-hidden w-full px-4 py-3.5 flex items-center gap-3.5 active:bg-white/5 transition-colors text-left"
               >
                 <RadioButton selected={genderField === g} />
-                <span className={`text-[16px] font-medium relative z-10 flex-1 ${genderField === g ? 'text-[#60a5fa]' : 'text-white'}`} style={{ fontFamily: SF }}>{g}</span>
+                <span className={`text-[16px] font-medium relative z-10 flex-1 text-white`} style={{ fontFamily: SF }}>{g}</span>
               </button>
               {idx !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
             </div>
@@ -918,8 +968,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                 >
                   <RadioButton selected={timezoneField === displayVal} />
                   <div className="flex flex-col relative z-10 pr-4 flex-1">
-                    <span className={`text-[16px] font-medium leading-tight ${timezoneField === displayVal ? 'text-[#60a5fa]' : 'text-white'}`} style={{ fontFamily: SF }}>{tz.name}</span>
-                    <span className={`text-[13px] mt-[3px] ${timezoneField === displayVal ? 'text-[#60a5fa]' : 'text-[#8e8e93]'}`} style={{ fontFamily: SF }}>{tz.offset}</span>
+                    <span className={`text-[16px] font-medium leading-tight text-white`} style={{ fontFamily: SF }}>{tz.name}</span>
+                    <span className={`text-[13px] mt-[3px] text-[#8e8e93]`} style={{ fontFamily: SF }}>{tz.offset}</span>
                   </div>
                 </button>
                 {idx !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
@@ -939,7 +989,9 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       
       <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
         
-        <ExpandingInput label="Name" maxLength={64} value={nameField} onChange={setNameField} />
+        <TelegramInputGroup>
+          <TelegramInput label="Name" maxLength={64} value={nameField} onChange={setNameField} isLast />
+        </TelegramInputGroup>
         
         <div className="mb-4 mt-2 shrink-0">
           <Section>
@@ -952,9 +1004,10 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
           </Section>
         </div>
 
-        <ExpandingInput label="Age" maxLength={3} value={ageField} onChange={setAgeField} />
-        
-        <ExpandingInput label="City" maxLength={64} value={cityField} onChange={setCityField} />
+        <TelegramInputGroup>
+          <TelegramInput label="Age" maxLength={3} value={ageField} onChange={setAgeField} />
+          <TelegramInput label="City" maxLength={64} value={cityField} onChange={setCityField} isLast />
+        </TelegramInputGroup>
 
         <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
@@ -997,9 +1050,10 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
           </Section>
         </div>
 
-        <ExpandingInput label="Occupation" maxLength={128} value={occupationField} onChange={setOccupationField} />
-        
-        <ExpandingInput label="Interests" maxLength={256} value={interestsField} onChange={setInterestsField} />
+        <TelegramInputGroup>
+          <TelegramInput label="Occupation" maxLength={128} value={occupationField} onChange={setOccupationField} />
+          <TelegramInput label="Interests" maxLength={256} value={interestsField} onChange={setInterestsField} isLast />
+        </TelegramInputGroup>
 
         <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
@@ -1218,8 +1272,9 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
               key={t.id}
               label={t.id}
               sublabel={t.desc}
-              leftNode={savingToolAccess && toolAccess === t.id ? <Loader2 className="w-[18px] h-[18px] animate-spin text-[#60a5fa]" /> : <RadioButton selected={toolAccess === t.id} />}
               selected={toolAccess === t.id}
+              selectedBlueText={true}
+              leftNode={savingToolAccess && toolAccess === t.id ? <Loader2 className="w-[18px] h-[18px] animate-spin text-[#60a5fa]" /> : <RadioButton selected={toolAccess === t.id} />}
               hideArrow={true}
               onClick={() => handleToolAccessChange(t.id)}
               alignItems="start"
@@ -1347,12 +1402,14 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             label="LLM Model"
             value={displayModelName + (isThrottled ? " · cooling" : "")}
             onClick={() => setPage("model")}
+            last
           />
           <Row
             leftNode={<IconFlat icon={Earth} color="#af52de" />}
             label="Language"
             value={LANGS.find(l => l.code === language)?.name || "English"}
             onClick={() => setPage("lang")}
+            last
           />
           <Row
             leftNode={<IconFlat icon={CircleUserRound} color="#007aff" />}
@@ -1369,6 +1426,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             leftNode={<IconFlat icon={CircleStar} color="#f59e0b" />}
             label="Manage Subscription"
             onClick={() => setCurrentView("premium")}
+            last
           />
           <Row
             leftNode={<IconFlat icon={ChartPie} color="#34c759" />}
@@ -1384,6 +1442,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             leftNode={<IconFlat icon={Settings2} color="#8e8e93" />}
             label="Capabilities"
             onClick={() => setPage("capabilities")}
+            last
           />
           <Row
             leftNode={<IconFlat icon={MessageCirclePlus} color="#5e5ce6" />}
@@ -1400,12 +1459,14 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             href="https://xblum.gitbook.io/home/xblum/terms"
             leftNode={<IconFlat icon={FileText} color="#8e8e93" />}
             label="Terms of Use"
+            last
           />
           <Row
             isLink
             href="https://xblum.gitbook.io/home/xblum/privacy"
             leftNode={<IconFlat icon={ShieldCheck} color="#8e8e93" />}
             label="Privacy Policy"
+            last
           />
           <Row
             onClick={() => setShowReportModal(true)}
