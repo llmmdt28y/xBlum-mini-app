@@ -9,7 +9,6 @@ import { ReferralView } from "@/components/referral-view"
 import { ProfileView } from "@/components/profile-view"
 import { XRewardsView } from "@/components/x-rewards-view" 
 import { MarketView } from "@/components/market-view" 
-import { GroupSettingsView } from "@/components/group-settings-view"
 import { ScheduleView } from "@/components/schedule-view"
 import { LevelsView } from "@/components/levels-view" 
 import { ShopView } from "@/components/shop-view" 
@@ -395,7 +394,6 @@ function AppContent() {
         {currentView === "profile"   && <ProfileView />}
         {currentView === "x-rewards" && <XRewardsView />}
         {currentView === "market"    && <MarketView />}
-        {currentView === "group-settings" && <GroupSettingsView />}
         {currentView === "schedule"  && <ScheduleView />}
         
         {/* Renderizado de la NavBar */}
