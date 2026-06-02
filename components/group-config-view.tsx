@@ -287,13 +287,21 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
           {/* Member Tag Preview */}
           {autoTagsEnabled && (
-            <div className="mt-8 flex flex-col items-start animate-in fade-in duration-300 w-full">
-              <h3 className="text-[#60a5fa] font-bold text-[14px] mb-3 tracking-wider pl-1" style={{ fontFamily: SF }}>MEMBER TAG</h3>
+            <div className="mt-4 -ml-2 flex flex-col items-start animate-in fade-in duration-300 w-full max-w-[320px]">
+              <h3 className="text-[#60a5fa] font-bold text-[14px] mb-2 tracking-wider pl-2" style={{ fontFamily: SF }}>MEMBER TAG</h3>
               <img 
                 src={tagMode === "activity" ? "/tag-preview-activity.png" : "/tag-preview-joindate.png"} 
                 alt="Tag Preview" 
                 className="w-full h-auto object-contain rounded-[12px]"
               />
+              <div className="w-full pl-2 pr-2 mt-3">
+                <button 
+                  className="relative overflow-hidden w-full py-3 rounded-[12px] bg-[#60a5fa] text-black font-bold text-[15px] shadow-sm active:opacity-80 transition-opacity" 
+                  style={{ fontFamily: SF }}
+                >
+                  Save Message
+                </button>
+              </div>
             </div>
           )}
 
