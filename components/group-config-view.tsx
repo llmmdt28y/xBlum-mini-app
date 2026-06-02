@@ -185,7 +185,6 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     async function fetchGroups() {
       try {
         const initData = typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initData : ""
-        // Fix: Use correct GET endpoint with header
         const res = await fetch("/api/group_admin_list", {
           method: "GET",
           headers: { 
@@ -205,6 +204,28 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     fetchGroups()
   }, [])
 
+  // Manage Telegram Native MainButton
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window as any).Telegram?.WebApp) {
+      const tg = (window as any).Telegram.WebApp;
+      if (subPage === "noir_ai" || subPage === "auto_tags") {
+        tg.MainButton.setText("SAVE CHANGES");
+        tg.MainButton.show();
+        // Here you would add the onClick listener to save data
+        const handleSave = () => {
+          // Perform save logic, then go back
+          setSubPage("main");
+        };
+        tg.MainButton.onClick(handleSave);
+        return () => {
+          tg.MainButton.offClick(handleSave);
+        };
+      } else {
+        tg.MainButton.hide();
+      }
+    }
+  }, [subPage]);
+
   const selectedGroup = groups.find(g => g.chat_id === selectedGroupId)
   const selectedGroupTitle = selectedGroup ? selectedGroup.chat_title : "No Group Selected"
   const initials = selectedGroupTitle.charAt(0).toUpperCase()
@@ -212,12 +233,8 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   if (subPage === "noir_ai") {
     return (
       <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
-        <SubHeader title="Noir AI" onBack={() => setSubPage("main")} rightNode={
-          <button className="bg-[#60a5fa] text-black px-3 py-1.5 rounded-full text-[13px] font-bold active:opacity-80 transition-opacity">
-            Save
-          </button>
-        } />
-        <div className="px-4 pt-4 pb-28 space-y-6">
+        <SubHeader title="Noir AI" onBack={() => setSubPage("main")} />
+        <div className="px-4 pt-8 pb-28 space-y-6">
           <Section>
             <Row 
               label="Enable Noir AI" 
@@ -245,12 +262,8 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   if (subPage === "auto_tags") {
     return (
       <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
-        <SubHeader title="Auto-Tags" onBack={() => setSubPage("main")} rightNode={
-          <button className="bg-[#60a5fa] text-black px-3 py-1.5 rounded-full text-[13px] font-bold active:opacity-80 transition-opacity">
-            Save
-          </button>
-        } />
-        <div className="px-4 pt-4 pb-28 space-y-6">
+        <SubHeader title="Auto-Tags" onBack={() => setSubPage("main")} />
+        <div className="px-4 pt-8 pb-28 space-y-6">
           <Section>
             <Row 
               label="Enable Auto-Tags" 
@@ -260,19 +273,41 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             />
             {autoTagsEnabled && (
               <div className="bg-[#111111] border-t border-[#1c1c1e]">
-                {["Activity", "Join Date", "Custom"].map((m, idx, arr) => (
-                  <Row 
-                    key={m} 
-                    label={m} 
-                    rightNode={<RadioButton selected={tagMode === m.toLowerCase().replace(' ', '_')} />} 
-                    onClick={() => setTagMode(m.toLowerCase().replace(' ', '_'))} 
-                    hideArrow 
-                    last={idx === arr.length - 1} 
-                  />
-                ))}
+                {["Activity", "Join Date", "Custom"].map((m, idx, arr) => {
+                  const modeKey = m.toLowerCase().replace(' ', '_');
+                  return (
+                    <Row 
+                      key={m} 
+                      label={m} 
+                      rightNode={<RadioButton selected={tagMode === modeKey} />} 
+                      onClick={() => setTagMode(modeKey)} 
+                      hideArrow 
+                      last={idx === arr.length - 1} 
+                    />
+                  );
+                })}
               </div>
             )}
           </Section>
+
+          {/* Member Tag Preview */}
+          {autoTagsEnabled && (
+            <div className="mt-8 flex flex-col items-center animate-in fade-in duration-300">
+              <h3 className="text-[#60a5fa] font-bold text-[14px] mb-3 tracking-wider" style={{ fontFamily: SF }}>MEMBER TAG</h3>
+              <div className="w-full max-w-[320px] flex flex-col rounded-[20px] overflow-hidden bg-[#111111] border border-[#1c1c1e] shadow-xl">
+                <img 
+                  src={tagMode === "activity" ? "/tag-preview-activity.png" : "/tag-preview-joindate.png"}
+                  alt="Tag Preview" 
+                  className="w-full h-auto object-cover"
+                />
+                <div className="p-3">
+                  <button className="w-full py-3.5 rounded-[14px] bg-[#60a5fa] text-black font-bold text-[15px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -282,7 +317,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
       <SubHeader title="Group Configuration" onBack={onClose} />
       
-      <div className="px-4 pt-2 pb-28 space-y-6">
+      <div className="px-4 pt-6 pb-28 space-y-6">
         
         {/* Top Profile and Group Selector */}
         <div className="flex flex-col items-center justify-center relative pt-2">
