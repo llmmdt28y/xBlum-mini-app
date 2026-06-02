@@ -1,28 +1,10 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react"
-import { ChevronRight, X, ChevronDown, Check, Shield, Zap, Users, MessageSquare, Save, Settings2, Trash2 } from "lucide-react"
+import { ChevronRight, ChevronDown, Check, Shield, Zap, Users, MessageSquare, Save, Settings2, Trash2 } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
-
-// -- Copied UI Components --
-const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
-  const element = event.currentTarget
-  if (element.disabled) return
-  const circle = document.createElement("span")
-  const diameter = Math.max(element.clientWidth, element.clientHeight)
-  const radius = diameter / 2
-  const rect = element.getBoundingClientRect()
-  circle.style.width = circle.style.height = `${diameter}px`
-  circle.style.left = `${event.clientX - rect.left - radius}px`
-  circle.style.top = `${event.clientY - rect.top - radius}px`
-  circle.classList.add("ripple")
-  const existingRipple = element.querySelector(".ripple")
-  if (existingRipple) existingRipple.remove()
-  element.appendChild(circle)
-  setTimeout(() => { circle.remove() }, 600)
-}
 
 function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
@@ -91,14 +73,14 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
     </>
   );
 
-  const className = `relative overflow-hidden w-full flex gap-3.5 px-4 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems}`;
+  const className = `relative w-full flex gap-3.5 px-4 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems}`;
 
   return (
     <>
-      <button onClick={onClick} onPointerDown={onClick ? createRipple : undefined} disabled={!onClick && !rightNode} className={className}>
+      <button onClick={onClick} disabled={!onClick && !rightNode} className={className}>
         {content}
       </button>
-      {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+      {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[46px]' : 'ml-4'}`} />}
     </>
   )
 }
@@ -107,7 +89,7 @@ function SubHeader({ title, rightNode, onBack }: { title: string, rightNode?: Re
   return (
     <div className="relative flex items-center justify-center px-4 pb-3 z-10 w-full" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
       {onBack && (
-        <button onClick={onBack} onPointerDown={createRipple} className="absolute left-4 bottom-1 w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-60 transition-opacity z-20">
+        <button onClick={onBack} className="absolute left-4 bottom-1 w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-60 transition-opacity z-20">
           <ChevronRight className="w-5 h-5 text-white rotate-180 relative z-10" />
         </button>
       )}
@@ -150,12 +132,37 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
   )
 }
 
+const TelegramInputGroup = ({ children }: { children: React.ReactNode }) => (
+  <div className="bg-[#111111] rounded-[24px] overflow-hidden flex flex-col mb-4 border border-white/5 shadow-lg">
+    {children}
+  </div>
+)
+
+const TelegramInput = ({ label, maxLength, value, onChange, placeholder = "", isLast = false, type = "text" }: any) => {
+  const [isFocused, setIsFocused] = useState(false)
+  const labelColor = isFocused ? "#60a5fa" : "#8e8e93"
+
+  return (
+    <div className="relative w-full px-4 pt-3 flex flex-col transition-colors duration-200 bg-transparent">
+      <div className="flex justify-between items-center mb-0.5">
+        <span className="text-[13px] font-medium transition-colors duration-200" style={{ color: labelColor, fontFamily: SF }}>{label}</span>
+      </div>
+      <input type={type} value={value} onChange={(e) => {
+        let val = e.target.value
+        if (maxLength && val.length > maxLength) val = val.slice(0, maxLength)
+        onChange(val)
+      }} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} placeholder={placeholder} className="w-full bg-transparent text-white focus:outline-none resize-none overflow-hidden placeholder:text-[#555558] pb-3" style={{ fontFamily: SF, fontSize: "16px", minHeight: "24px" }} />
+      {!isLast && <div className="absolute bottom-0 left-4 right-0 h-[1px] bg-[#2c2c2e]" />}
+    </div>
+  )
+}
+
 export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, apiBaseUrl: string }) {
   // Navigation state
   const [subPage, setSubPage] = useState<"main" | "noir_ai" | "auto_tags">("main")
 
   // Groups state
-  const [groups, setGroups] = useState<{chat_id: number, title: string}[]>([])
+  const [groups, setGroups] = useState<{chat_id: number, chat_title: string}[]>([])
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null)
   const [showGroupDropdown, setShowGroupDropdown] = useState(false)
 
@@ -165,22 +172,29 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   const [adaptToGroup, setAdaptToGroup] = useState(false)
   
   const [floodEnabled, setFloodEnabled] = useState(true)
-  const [antispamEnabled, setAntispamEnabled] = useState(true)
+  const [floodWindowSec, setFloodWindowSec] = useState("30")
+  const [floodMaxMsgs, setFloodMaxMsgs] = useState("5")
+  const [floodDominancePct, setFloodDominancePct] = useState("40")
   
   const [autoTagsEnabled, setAutoTagsEnabled] = useState(false)
   const [tagMode, setTagMode] = useState("activity")
+  
+  const [antispamEnabled, setAntispamEnabled] = useState(true)
 
   useEffect(() => {
     async function fetchGroups() {
       try {
         const initData = typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initData : ""
-        const res = await fetch("/api/get_admin_groups", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ initData })
+        // Fix: Use correct GET endpoint with header
+        const res = await fetch("/api/group_admin_list", {
+          method: "GET",
+          headers: { 
+            "Content-Type": "application/json",
+            "x-init-data": initData || ""
+          }
         })
         const data = await res.json()
-        if (data.ok && data.groups) {
+        if (data.groups) {
           setGroups(data.groups)
           if (data.groups.length > 0) setSelectedGroupId(data.groups[0].chat_id)
         }
@@ -191,13 +205,15 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     fetchGroups()
   }, [])
 
-  const selectedGroupTitle = groups.find(g => g.chat_id === selectedGroupId)?.title || "No Group Selected"
+  const selectedGroup = groups.find(g => g.chat_id === selectedGroupId)
+  const selectedGroupTitle = selectedGroup ? selectedGroup.chat_title : "No Group Selected"
+  const initials = selectedGroupTitle.charAt(0).toUpperCase()
 
   if (subPage === "noir_ai") {
     return (
       <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
         <SubHeader title="Noir AI" onBack={() => setSubPage("main")} rightNode={
-          <button onPointerDown={createRipple} className="bg-[#60a5fa] text-black px-3 py-1.5 rounded-full text-[13px] font-bold active:opacity-80 transition-opacity">
+          <button className="bg-[#60a5fa] text-black px-3 py-1.5 rounded-full text-[13px] font-bold active:opacity-80 transition-opacity">
             Save
           </button>
         } />
@@ -205,7 +221,6 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
           <Section>
             <Row 
               label="Enable Noir AI" 
-              sublabel="Activate AI moderation and intelligence"
               rightNode={<SwitchNode on={noirAIEnabled} onToggle={() => setNoirAIEnabled(!noirAIEnabled)} />} 
               onClick={() => setNoirAIEnabled(!noirAIEnabled)} 
               last={!noirAIEnabled} 
@@ -231,7 +246,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     return (
       <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
         <SubHeader title="Auto-Tags" onBack={() => setSubPage("main")} rightNode={
-          <button onPointerDown={createRipple} className="bg-[#60a5fa] text-black px-3 py-1.5 rounded-full text-[13px] font-bold active:opacity-80 transition-opacity">
+          <button className="bg-[#60a5fa] text-black px-3 py-1.5 rounded-full text-[13px] font-bold active:opacity-80 transition-opacity">
             Save
           </button>
         } />
@@ -269,14 +284,15 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
       
       <div className="px-4 pt-2 pb-28 space-y-6">
         
-        {/* Top Emoji and Group Selector */}
-        <div className="flex flex-col items-center justify-center relative">
-          <div className="text-[52px] mb-4">💬</div>
+        {/* Top Profile and Group Selector */}
+        <div className="flex flex-col items-center justify-center relative pt-2">
+          <div className="w-[84px] h-[84px] rounded-full bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] flex items-center justify-center mb-4 shadow-lg text-white font-bold text-[36px]" style={{ fontFamily: SFD }}>
+            {initials}
+          </div>
           
           <button 
             onClick={() => setShowGroupDropdown(!showGroupDropdown)}
-            onPointerDown={createRipple} 
-            className="relative overflow-hidden flex items-center gap-2 px-5 py-2.5 rounded-full active:scale-95 transition-transform border border-white/10"
+            className="relative overflow-hidden flex items-center gap-2 px-5 py-2.5 rounded-full active:bg-[#2c2c2e] transition-colors border border-white/10"
             style={{ background: "#1c1c1e" }}
           >
             <span className="text-white font-medium text-[15px]" style={{ fontFamily: SF }}>Selected: {selectedGroupTitle}</span>
@@ -288,7 +304,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             <div className="absolute top-full mt-2 w-full max-w-[280px] bg-[#111111] border border-[#1c1c1e] rounded-[20px] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
               {groups.length === 0 ? (
                 <div className="p-4 text-center text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>
-                  No groups found where you are admin.
+                  No groups found.
                 </div>
               ) : (
                 groups.map((g, i) => (
@@ -298,7 +314,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
                     className="w-full text-left px-4 py-3.5 text-white active:bg-white/5 transition-colors"
                     style={{ fontFamily: SF, fontSize: "15px", borderBottom: i === groups.length - 1 ? "none" : "1px solid #1c1c1e" }}
                   >
-                    {g.title}
+                    {g.chat_title}
                   </button>
                 ))
               )}
@@ -310,36 +326,42 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         <Section title="General">
           <Row 
             label="Noir AI" 
-            sublabel="Configure system prompts and AI responses"
-            leftNode={<div className="w-[32px] h-[32px] bg-[#5e5ce6] rounded-full flex items-center justify-center shrink-0 relative z-10"><MessageSquare className="w-4 h-4 text-white" /></div>}
+            leftNode={<MessageSquare className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
+            rightNode={<span className="text-[#60a5fa] font-medium" style={{ fontFamily: SF, fontSize: "15px" }}>{noirAIEnabled ? "On" : "Off"}</span>}
             onClick={() => setSubPage("noir_ai")} 
           />
           <Row 
             label="Auto-Tags" 
-            sublabel="Set automatic member titles"
-            leftNode={<div className="w-[32px] h-[32px] bg-[#34c759] rounded-full flex items-center justify-center shrink-0 relative z-10"><Zap className="w-4 h-4 text-white" /></div>}
+            leftNode={<Zap className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
+            rightNode={<span className="text-[#60a5fa] font-medium" style={{ fontFamily: SF, fontSize: "15px" }}>{autoTagsEnabled ? "On" : "Off"}</span>}
             onClick={() => setSubPage("auto_tags")} 
             last
           />
         </Section>
         
-        {/* All Toggles Together */}
+        {/* Features Toggle Category */}
         <Section title="Features">
           <Row 
             label="Anti-Flood" 
-            sublabel="Automatically delete spam bursts"
             rightNode={<SwitchNode on={floodEnabled} onToggle={() => setFloodEnabled(!floodEnabled)} />} 
             onClick={() => setFloodEnabled(!floodEnabled)} 
           />
+          {floodEnabled && (
+            <div className="px-4 py-2 bg-[#111111] border-t border-b border-[#1c1c1e]">
+              <TelegramInputGroup>
+                <TelegramInput label="Time Window (sec)" maxLength={3} value={floodWindowSec} onChange={setFloodWindowSec} type="number" />
+                <TelegramInput label="Max Messages" maxLength={3} value={floodMaxMsgs} onChange={setFloodMaxMsgs} type="number" />
+                <TelegramInput label="Dominance %" maxLength={3} value={floodDominancePct} onChange={setFloodDominancePct} type="number" isLast />
+              </TelegramInputGroup>
+            </div>
+          )}
           <Row 
             label="Anti-Spam" 
-            sublabel="Block suspicious links and bots"
             rightNode={<SwitchNode on={antispamEnabled} onToggle={() => setAntispamEnabled(!antispamEnabled)} />} 
             onClick={() => setAntispamEnabled(!antispamEnabled)} 
           />
           <Row 
             label="Adapt to Group" 
-            sublabel="Learn group's normal behavior" 
             rightNode={<SwitchNode on={adaptToGroup} onToggle={() => setAdaptToGroup(!adaptToGroup)} />} 
             onClick={() => setAdaptToGroup(!adaptToGroup)} 
             last 
