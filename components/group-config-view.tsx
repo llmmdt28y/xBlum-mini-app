@@ -204,28 +204,6 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     fetchGroups()
   }, [])
 
-  // Manage Telegram Native MainButton
-  useEffect(() => {
-    if (typeof window !== "undefined" && (window as any).Telegram?.WebApp) {
-      const tg = (window as any).Telegram.WebApp;
-      if (subPage === "noir_ai" || subPage === "auto_tags") {
-        tg.MainButton.setText("SAVE CHANGES");
-        tg.MainButton.show();
-        // Here you would add the onClick listener to save data
-        const handleSave = () => {
-          // Perform save logic, then go back
-          setSubPage("main");
-        };
-        tg.MainButton.onClick(handleSave);
-        return () => {
-          tg.MainButton.offClick(handleSave);
-        };
-      } else {
-        tg.MainButton.hide();
-      }
-    }
-  }, [subPage]);
-
   const selectedGroup = groups.find(g => g.chat_id === selectedGroupId)
   const selectedGroupTitle = selectedGroup ? selectedGroup.chat_title : "No Group Selected"
   const initials = selectedGroupTitle.charAt(0).toUpperCase()
@@ -234,7 +212,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     return (
       <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
         <SubHeader title="Noir AI" onBack={() => setSubPage("main")} />
-        <div className="px-4 pt-8 pb-28 space-y-6">
+        <div className="px-4 pt-8 pb-8 flex-1 flex flex-col space-y-6">
           <Section>
             <Row 
               label="Enable Noir AI" 
@@ -254,6 +232,23 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
               </div>
             )}
           </Section>
+
+          <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
+            <button 
+              onClick={() => setSubPage("main")} 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
+              style={{ fontFamily: SF, fontSize: "16px" }}
+            >
+              <span className="relative z-10">Cancel</span>
+            </button>
+            <button 
+              onClick={() => setSubPage("main")} 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+            >
+              <span className="relative z-10">Update</span>
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -263,7 +258,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     return (
       <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
         <SubHeader title="Auto-Tags" onBack={() => setSubPage("main")} />
-        <div className="px-4 pt-8 pb-28 space-y-6">
+        <div className="px-4 pt-8 pb-8 flex-1 flex flex-col space-y-6">
           <Section>
             <Row 
               label="Enable Auto-Tags" 
@@ -292,22 +287,32 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
           {/* Member Tag Preview */}
           {autoTagsEnabled && (
-            <div className="mt-8 flex flex-col items-center animate-in fade-in duration-300">
-              <h3 className="text-[#60a5fa] font-bold text-[14px] mb-3 tracking-wider" style={{ fontFamily: SF }}>MEMBER TAG</h3>
-              <div className="w-full max-w-[320px] flex flex-col rounded-[20px] overflow-hidden bg-[#111111] border border-[#1c1c1e] shadow-xl">
-                <img 
-                  src={tagMode === "activity" ? "/tag-preview-activity.png" : "/tag-preview-joindate.png"}
-                  alt="Tag Preview" 
-                  className="w-full h-auto object-cover"
-                />
-                <div className="p-3">
-                  <button className="w-full py-3.5 rounded-[14px] bg-[#60a5fa] text-black font-bold text-[15px] active:opacity-80 transition-opacity" style={{ fontFamily: SF }}>
-                    Save Changes
-                  </button>
-                </div>
-              </div>
+            <div className="mt-8 flex flex-col items-start animate-in fade-in duration-300 w-full">
+              <h3 className="text-[#60a5fa] font-bold text-[14px] mb-3 tracking-wider pl-1" style={{ fontFamily: SF }}>MEMBER TAG</h3>
+              <img 
+                src={tagMode === "activity" ? "/tag-preview-activity.jpg" : "/tag-preview-joindate.jpg"} 
+                alt="Tag Preview" 
+                className="w-full h-auto object-contain rounded-[12px]"
+              />
             </div>
           )}
+
+          <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
+            <button 
+              onClick={() => setSubPage("main")} 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
+              style={{ fontFamily: SF, fontSize: "16px" }}
+            >
+              <span className="relative z-10">Cancel</span>
+            </button>
+            <button 
+              onClick={() => setSubPage("main")} 
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
+              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+            >
+              <span className="relative z-10">Update</span>
+            </button>
+          </div>
         </div>
       </div>
     )
