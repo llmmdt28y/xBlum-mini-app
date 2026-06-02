@@ -264,17 +264,32 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
               label="Enable Auto-Tags" 
               rightNode={<SwitchNode on={autoTagsEnabled} onToggle={() => setAutoTagsEnabled(!autoTagsEnabled)} />} 
               onClick={() => setAutoTagsEnabled(!autoTagsEnabled)} 
-              last={!autoTagsEnabled} 
+              last
             />
-            {autoTagsEnabled && (
-              <div className="bg-[#111111] border-t border-[#1c1c1e]">
+          </Section>
+
+          {/* Member Tag Preview Full Width */}
+          {autoTagsEnabled && (
+            <div className="-mx-4 flex flex-col items-start animate-in fade-in duration-300 w-[calc(100%+32px)]">
+              <h3 className="text-[#8e8e93] font-semibold text-[13px] mb-2 uppercase tracking-wider px-4" style={{ fontFamily: SF }}>Preview</h3>
+              <img 
+                src={tagMode === "activity" ? "/tag-preview-activity.png" : "/tag-preview-joindate.png"} 
+                alt="Tag Preview" 
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          )}
+
+          {autoTagsEnabled && (
+            <Section>
+              <div className="bg-[#111111]">
                 {["Activity", "Join Date", "Custom"].map((m, idx, arr) => {
                   const modeKey = m.toLowerCase().replace(' ', '_');
                   return (
                     <Row 
                       key={m} 
                       label={m} 
-                      rightNode={<RadioButton selected={tagMode === modeKey} />} 
+                      leftNode={<div className="mr-1"><RadioButton selected={tagMode === modeKey} /></div>} 
                       onClick={() => setTagMode(modeKey)} 
                       hideArrow 
                       last={idx === arr.length - 1} 
@@ -282,45 +297,8 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
                   );
                 })}
               </div>
-            )}
-          </Section>
-
-          {/* Member Tag Preview */}
-          {autoTagsEnabled && (
-            <div className="mt-4 -ml-2 flex flex-col items-start animate-in fade-in duration-300 w-full max-w-[320px]">
-              <h3 className="text-[#60a5fa] font-bold text-[14px] mb-2 tracking-wider pl-2" style={{ fontFamily: SF }}>MEMBER TAG</h3>
-              <img 
-                src={tagMode === "activity" ? "/tag-preview-activity.png" : "/tag-preview-joindate.png"} 
-                alt="Tag Preview" 
-                className="w-full h-auto object-contain rounded-[12px]"
-              />
-              <div className="w-full pl-2 pr-2 mt-3">
-                <button 
-                  className="relative overflow-hidden w-full py-3 rounded-[12px] bg-[#60a5fa] text-black font-bold text-[15px] shadow-sm active:opacity-80 transition-opacity" 
-                  style={{ fontFamily: SF }}
-                >
-                  Save Message
-                </button>
-              </div>
-            </div>
+            </Section>
           )}
-
-          <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
-            <button 
-              onClick={() => setSubPage("main")} 
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
-              style={{ fontFamily: SF, fontSize: "16px" }}
-            >
-              <span className="relative z-10">Cancel</span>
-            </button>
-            <button 
-              onClick={() => setSubPage("main")} 
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
-              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-            >
-              <span className="relative z-10">Update</span>
-            </button>
-          </div>
         </div>
       </div>
     )
