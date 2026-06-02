@@ -290,7 +290,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             <div className="mt-8 flex flex-col items-start animate-in fade-in duration-300 w-full">
               <h3 className="text-[#60a5fa] font-bold text-[14px] mb-3 tracking-wider pl-1" style={{ fontFamily: SF }}>MEMBER TAG</h3>
               <img 
-                src={tagMode === "activity" ? "/tag-preview-activity.jpg" : "/tag-preview-joindate.jpg"} 
+                src={tagMode === "activity" ? "/tag-preview-activity.png" : "/tag-preview-joindate.png"} 
                 alt="Tag Preview" 
                 className="w-full h-auto object-contain rounded-[12px]"
               />
