@@ -263,7 +263,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         <div className="p-4 bg-[#000] border-t border-[#1c1c1e] z-10 shrink-0">
           <button 
             onClick={() => setSubPage("main")} 
-            className="w-full relative overflow-hidden py-3.5 rounded-[16px] text-black font-bold active:opacity-80 transition-opacity shadow-lg" 
+            className="w-full relative overflow-hidden py-3.5 rounded-full text-black font-bold active:opacity-80 transition-opacity shadow-lg" 
             style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
           >
             <span className="relative z-10">Save Changes</span>
@@ -306,7 +306,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         <div className="p-4 bg-[#000] border-t border-[#1c1c1e] z-10 shrink-0">
           <button 
             onClick={() => setSubPage("main")} 
-            className="w-full relative overflow-hidden py-3.5 rounded-[16px] text-black font-bold active:opacity-80 transition-opacity shadow-lg" 
+            className="w-full relative overflow-hidden py-3.5 rounded-full text-black font-bold active:opacity-80 transition-opacity shadow-lg" 
             style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
           >
             <span className="relative z-10">Save Changes</span>
