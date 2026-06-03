@@ -207,6 +207,28 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     fetchGroups()
   }, [])
 
+  // Telegram Native BackButton Management
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window as any).Telegram?.WebApp) {
+      const tg = (window as any).Telegram.WebApp;
+      if (!tg.BackButton) return;
+      
+      tg.BackButton.show();
+      const handleBack = () => {
+        if (subPage !== "main") {
+          setSubPage("main");
+        } else {
+          onClose();
+        }
+      };
+      
+      tg.BackButton.onClick(handleBack);
+      return () => {
+        tg.BackButton.offClick(handleBack);
+      };
+    }
+  }, [subPage, onClose]);
+
   const selectedGroup = groups.find(g => g.chat_id === selectedGroupId)
   const selectedGroupTitle = selectedGroup ? selectedGroup.chat_title : "No Group Selected"
   const initials = selectedGroupTitle.charAt(0).toUpperCase()
@@ -214,7 +236,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   if (subPage === "noir_ai") {
     return (
       <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
-        <SubHeader title="Noir AI" onBack={() => setSubPage("main")} />
+        <SubHeader title="Noir AI" />
         <div className="px-4 pt-8 pb-8 flex-1 flex flex-col space-y-6">
           <Section>
             <Row 
@@ -260,8 +282,21 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   if (subPage === "auto_tags") {
     return (
       <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
-        <SubHeader title="Auto-Tags" onBack={() => setSubPage("main")} />
-        <div className="px-4 pt-8 pb-8 flex-1 flex flex-col space-y-6">
+        <SubHeader title="Auto-Tags" />
+        
+        <div className="flex flex-col items-center justify-center pt-6 pb-2">
+          <img 
+            src="/member-title-tags.webp" 
+            alt="Member Title Tags" 
+            className="w-36 h-36 object-contain pointer-events-none select-none drop-shadow-2xl"
+            draggable={false}
+          />
+          <p className="text-[#8e8e93] text-[14px] text-center mt-5 px-8 leading-relaxed" style={{ fontFamily: SF }}>
+            Automatically assign custom titles to your group members based on their activity or time spent in the chat.
+          </p>
+        </div>
+
+        <div className="px-4 pt-4 pb-8 flex-1 flex flex-col space-y-6">
           <Section>
             <Row 
               label="Enable Auto-Tags" 
@@ -274,7 +309,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
           {/* New CSS Preview & Picker */}
           {autoTagsEnabled && (
             <div className="flex flex-col animate-in fade-in duration-300">
-               <h3 className="text-[#8e8e93] font-semibold text-[13px] mb-2 uppercase tracking-wider px-4" style={{ fontFamily: SF }}>Appearance & Mode</h3>
+               <h3 className="text-[#60a5fa] font-semibold text-[15px] mb-2 px-4" style={{ fontFamily: SF }}>Appearance & Mode</h3>
                <div className="bg-[#111111] rounded-[20px] border border-white/5 p-3 flex items-center shadow-lg relative overflow-hidden">
                  
                  {/* Left: Preview Card */}
@@ -297,13 +332,13 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
                  {/* Right: Picker List */}
                  <div 
-                   className="relative h-[90px] w-[110px] shrink-0"
+                   className="relative h-[120px] w-[110px] shrink-0"
                    style={{ 
                      WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)",
                      maskImage: "linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)"
                    }}
                  >
-                   <div className="absolute top-[30px] w-full h-[30px] border-y-[1.5px] border-[#60a5fa] pointer-events-none z-10" />
+                   <div className="absolute top-[40px] w-full h-[40px] border-y-[1.5px] border-[#60a5fa] pointer-events-none z-10" />
                    
                    <div 
                      ref={pickerRef}
@@ -311,14 +346,14 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
                      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                      onScroll={(e) => {
                         const top = e.currentTarget.scrollTop;
-                        const index = Math.round(top / 30);
+                        const index = Math.round(top / 40);
                         const modes = ["activity", "join_date", "custom"];
                         if (modes[index] && tagMode !== modes[index]) {
                           setTagMode(modes[index]);
                         }
                      }}
                    >
-                     <div className="h-[30px] shrink-0" />
+                     <div className="h-[40px] shrink-0" />
                      {["Activity", "Join Date", "Custom"].map((m, idx) => {
                        const modeKey = m.toLowerCase().replace(' ', '_');
                        const isSelected = tagMode === modeKey;
@@ -328,17 +363,17 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
                            onClick={() => {
                              setTagMode(modeKey);
                              if (pickerRef.current) {
-                               pickerRef.current.scrollTo({ top: idx * 30, behavior: "smooth" });
+                               pickerRef.current.scrollTo({ top: idx * 40, behavior: "smooth" });
                              }
                            }}
-                           className={`h-[30px] w-full flex items-center justify-center snap-center transition-all duration-200 cursor-pointer ${isSelected ? 'text-white text-[14px] font-medium' : 'text-[#8e8e93] text-[13px] opacity-60'}`}
+                           className={`h-[40px] w-full flex items-center justify-center snap-center transition-all duration-200 cursor-pointer ${isSelected ? 'text-white text-[15px] font-medium' : 'text-[#8e8e93] text-[14px] opacity-60'}`}
                            style={{ fontFamily: SF }}
                          >
                            {m}
                          </div>
                        )
                      })}
-                     <div className="h-[30px] shrink-0" />
+                     <div className="h-[40px] shrink-0" />
                    </div>
                  </div>
 
@@ -352,7 +387,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
-      <SubHeader title="Group Configuration" onBack={onClose} />
+      <SubHeader title="Group Configuration" />
       
       <div className="px-4 pt-6 pb-28 space-y-6">
         
