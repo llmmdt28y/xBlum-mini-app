@@ -235,10 +235,10 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "noir_ai") {
     return (
-      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Noir AI" />
         
-        <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-8 space-y-6">
+        <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-4 space-y-6">
           <Section>
             <Row 
               label="Enable Noir AI" 
@@ -275,10 +275,10 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "anti_flood") {
     return (
-      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Anti-Flood" />
         
-        <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-8 space-y-6">
+        <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-4 space-y-6">
           <Section>
             <Row 
               label="Enable Anti-Flood" 
@@ -318,22 +318,23 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "auto_tags") {
     return (
-      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
+      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Auto-Tags" />
         
-        <div className="flex flex-col items-center justify-center pt-6 pb-2">
-          <img 
-            src="/member-title-tags.webp" 
-            alt="Member Title Tags" 
-            className="w-36 h-36 object-contain pointer-events-none select-none drop-shadow-2xl"
-            draggable={false}
-          />
-          <p className="text-[#8e8e93] text-[14px] text-center mt-5 px-8 leading-relaxed" style={{ fontFamily: SF }}>
-            Automatically assign custom titles to your group members based on their activity or time spent in the chat.
-          </p>
-        </div>
+        <div className="flex-1 flex flex-col overflow-y-auto pb-6">
+          <div className="flex flex-col items-center justify-center pt-6 pb-2 shrink-0">
+            <img 
+              src="/member-title-tags.webp" 
+              alt="Member Title Tags" 
+              className="w-36 h-36 object-contain pointer-events-none select-none drop-shadow-2xl"
+              draggable={false}
+            />
+            <p className="text-[#8e8e93] text-[14px] text-center mt-5 px-8 leading-relaxed" style={{ fontFamily: SF }}>
+              Automatically assign custom titles to your group members based on their activity or time spent in the chat.
+            </p>
+          </div>
 
-        <div className="px-4 pt-4 pb-8 flex-1 flex flex-col space-y-6">
+          <div className="px-4 pt-4 flex-1 flex flex-col space-y-6">
           <Section>
             <Row 
               label="Enable Auto-Tags" 
@@ -415,6 +416,9 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
                  </div>
 
                </div>
+               <p className="px-4 text-[#8e8e93] text-[13px] mt-2 leading-relaxed" style={{ fontFamily: SF }}>
+                 choose which action you want to perform when you swipe to the left in the chat list
+               </p>
             </div>
           )}
         </div>
@@ -423,10 +427,10 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   }
 
   return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
-      <SubHeader title="Group Configuration" />
+    <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <SubHeader title="Group Moderation" />
       
-      <div className="px-4 pt-6 pb-28 space-y-6">
+      <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-6 pb-6 space-y-6">
         
         {/* Top Profile and Group Selector */}
         <div className="flex flex-col items-center justify-center relative pt-2">
@@ -467,7 +471,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         </div>
 
         {/* General Category */}
-        <Section title="General">
+        <Section title="General" footer="Manage the core settings for moderating and interacting with your groups.">
           <Row 
             label="Noir AI" 
             leftNode={<MessageSquare className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
@@ -505,7 +509,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         </Section>
 
         {/* Add New Group Button */}
-        <div className="pt-2">
+        <div className="pt-2 shrink-0">
           <a 
             href="https://t.me/NoirHereBot?startgroup=true" 
             target="_blank" 
