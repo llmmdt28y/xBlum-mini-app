@@ -258,16 +258,16 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
               </div>
             )}
           </Section>
-        </div>
 
-        <div className="p-4 bg-[#000] border-t border-[#1c1c1e] z-10 shrink-0">
-          <button 
-            onClick={() => setSubPage("main")} 
-            className="w-full relative overflow-hidden py-3.5 rounded-full text-black font-bold active:opacity-80 transition-opacity shadow-lg" 
-            style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
-          >
-            <span className="relative z-10">Save Changes</span>
-          </button>
+          <div className="mt-auto pt-4 flex items-center w-full relative z-10 shrink-0">
+            <button 
+              onClick={() => setSubPage("main")} 
+              className="w-full relative overflow-hidden py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg" 
+              style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
+            >
+              <span className="relative z-10">Save Changes</span>
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -301,16 +301,16 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
               </p>
             </div>
           )}
-        </div>
 
-        <div className="p-4 bg-[#000] border-t border-[#1c1c1e] z-10 shrink-0">
-          <button 
-            onClick={() => setSubPage("main")} 
-            className="w-full relative overflow-hidden py-3.5 rounded-full text-black font-bold active:opacity-80 transition-opacity shadow-lg" 
-            style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
-          >
-            <span className="relative z-10">Save Changes</span>
-          </button>
+          <div className="mt-auto pt-4 flex items-center w-full relative z-10 shrink-0">
+            <button 
+              onClick={() => setSubPage("main")} 
+              className="w-full relative overflow-hidden py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg" 
+              style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
+            >
+              <span className="relative z-10">Save Changes</span>
+            </button>
+          </div>
         </div>
       </div>
     )
