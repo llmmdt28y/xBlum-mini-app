@@ -726,8 +726,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
     
-    if (page === "business_automation") {
-      // Let BusinessAutomationView handle its own BackButton logic
+    if (page === "business_automation" || page === "group_config") {
+      // Let BusinessAutomationView and GroupConfigView handle their own BackButton logic
       return
     }
     tg.BackButton.show()
