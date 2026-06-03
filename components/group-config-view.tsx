@@ -159,7 +159,7 @@ const TelegramInput = ({ label, maxLength, value, onChange, placeholder = "", is
 
 export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, apiBaseUrl: string }) {
   // Navigation state
-  const [subPage, setSubPage] = useState<"main" | "noir_ai" | "auto_tags">("main")
+  const [subPage, setSubPage] = useState<"main" | "noir_ai" | "auto_tags" | "anti_flood">("main")
 
   // Refs
   const pickerRef = useRef<HTMLDivElement>(null)
@@ -235,9 +235,10 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "noir_ai") {
     return (
-      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out overflow-y-auto" style={{ background: "#000", minHeight: "100vh" }}>
+      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Noir AI" />
-        <div className="px-4 pt-8 pb-8 flex-1 flex flex-col space-y-6">
+        
+        <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-8 space-y-6">
           <Section>
             <Row 
               label="Enable Noir AI" 
@@ -257,23 +258,59 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
               </div>
             )}
           </Section>
+        </div>
 
-          <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
-            <button 
-              onClick={() => setSubPage("main")} 
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
-              style={{ fontFamily: SF, fontSize: "16px" }}
-            >
-              <span className="relative z-10">Cancel</span>
-            </button>
-            <button 
-              onClick={() => setSubPage("main")} 
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
-              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
-            >
-              <span className="relative z-10">Update</span>
-            </button>
-          </div>
+        <div className="p-4 bg-[#000] border-t border-[#1c1c1e] z-10 shrink-0">
+          <button 
+            onClick={() => setSubPage("main")} 
+            className="w-full relative overflow-hidden py-3.5 rounded-[16px] text-black font-bold active:opacity-80 transition-opacity shadow-lg" 
+            style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
+          >
+            <span className="relative z-10">Save Changes</span>
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (subPage === "anti_flood") {
+    return (
+      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+        <SubHeader title="Anti-Flood" />
+        
+        <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-8 space-y-6">
+          <Section>
+            <Row 
+              label="Enable Anti-Flood" 
+              rightNode={<SwitchNode on={floodEnabled} onToggle={() => setFloodEnabled(!floodEnabled)} />} 
+              onClick={() => setFloodEnabled(!floodEnabled)} 
+              last
+            />
+          </Section>
+
+          {floodEnabled && (
+            <div className="flex flex-col animate-in fade-in duration-300">
+              <h3 className="text-[#60a5fa] font-semibold text-[14px] mb-2 px-4" style={{ fontFamily: SF }}>Flood Limits</h3>
+              <TelegramInputGroup>
+                <TelegramInput label="Time Window (sec)" maxLength={3} value={floodWindowSec} onChange={setFloodWindowSec} type="number" />
+                <TelegramInput label="Max Messages" maxLength={3} value={floodMaxMsgs} onChange={setFloodMaxMsgs} type="number" />
+                <TelegramInput label="Dominance %" maxLength={3} value={floodDominancePct} onChange={setFloodDominancePct} type="number" isLast />
+              </TelegramInputGroup>
+              <p className="px-4 text-[#8e8e93] text-[13px] mt-2 leading-relaxed" style={{ fontFamily: SF }}>
+                Define how many messages a user can send within a specific time window before being restricted.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="p-4 bg-[#000] border-t border-[#1c1c1e] z-10 shrink-0">
+          <button 
+            onClick={() => setSubPage("main")} 
+            className="w-full relative overflow-hidden py-3.5 rounded-[16px] text-black font-bold active:opacity-80 transition-opacity shadow-lg" 
+            style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
+          >
+            <span className="relative z-10">Save Changes</span>
+          </button>
         </div>
       </div>
     )
@@ -442,26 +479,18 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             leftNode={<Zap className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
             rightNode={<span className="text-[#60a5fa] font-medium" style={{ fontFamily: SF, fontSize: "15px" }}>{autoTagsEnabled ? "On" : "Off"}</span>}
             onClick={() => setSubPage("auto_tags")} 
+          />
+          <Row 
+            label="Anti-Flood" 
+            leftNode={<Shield className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
+            rightNode={<span className="text-[#60a5fa] font-medium" style={{ fontFamily: SF, fontSize: "15px" }}>{floodEnabled ? "On" : "Off"}</span>}
+            onClick={() => setSubPage("anti_flood")} 
             last
           />
         </Section>
         
         {/* Features Toggle Category */}
         <Section title="Features">
-          <Row 
-            label="Anti-Flood" 
-            rightNode={<SwitchNode on={floodEnabled} onToggle={() => setFloodEnabled(!floodEnabled)} />} 
-            onClick={() => setFloodEnabled(!floodEnabled)} 
-          />
-          {floodEnabled && (
-            <div className="px-4 py-2 bg-[#111111] border-t border-b border-[#1c1c1e]">
-              <TelegramInputGroup>
-                <TelegramInput label="Time Window (sec)" maxLength={3} value={floodWindowSec} onChange={setFloodWindowSec} type="number" />
-                <TelegramInput label="Max Messages" maxLength={3} value={floodMaxMsgs} onChange={setFloodMaxMsgs} type="number" />
-                <TelegramInput label="Dominance %" maxLength={3} value={floodDominancePct} onChange={setFloodDominancePct} type="number" isLast />
-              </TelegramInputGroup>
-            </div>
-          )}
           <Row 
             label="Anti-Spam" 
             rightNode={<SwitchNode on={antispamEnabled} onToggle={() => setAntispamEnabled(!antispamEnabled)} />} 
