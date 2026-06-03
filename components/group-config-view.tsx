@@ -161,6 +161,9 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   // Navigation state
   const [subPage, setSubPage] = useState<"main" | "noir_ai" | "auto_tags">("main")
 
+  // Refs
+  const pickerRef = useRef<HTMLDivElement>(null)
+
   // Groups state
   const [groups, setGroups] = useState<{chat_id: number, chat_title: string}[]>([])
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null)
@@ -272,42 +275,71 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
           {autoTagsEnabled && (
             <div className="flex flex-col animate-in fade-in duration-300">
                <h3 className="text-[#8e8e93] font-semibold text-[13px] mb-2 uppercase tracking-wider px-4" style={{ fontFamily: SF }}>Appearance & Mode</h3>
-               <div className="bg-[#111111] rounded-[24px] border border-white/5 p-4 flex items-center shadow-lg relative overflow-hidden">
+               <div className="bg-[#111111] rounded-[20px] border border-white/5 p-3 flex items-center shadow-lg relative overflow-hidden">
                  
                  {/* Left: Preview Card */}
-                 <div className="flex-1 bg-[#1c1c1e] rounded-[16px] p-3.5 relative overflow-hidden flex items-start mr-4">
-                   <div className="w-[36px] h-[36px] rounded-full bg-white/5 shrink-0 mr-3 flex items-center justify-center">
-                      <Users className="w-4 h-4 text-white/20" />
+                 <div className="flex-1 bg-[#1c1c1e] rounded-[14px] p-2.5 relative overflow-hidden flex items-center mr-3 h-[74px]">
+                   <div className="w-[32px] h-[32px] rounded-full bg-white/5 shrink-0 mr-2.5 flex items-center justify-center">
+                      <Users className="w-3.5 h-3.5 text-white/20" />
                    </div>
-                   <div className="flex-1 flex flex-col pt-1.5 space-y-2">
-                      <div className="w-[45px] h-[6px] bg-[#60a5fa]/60 rounded-full" />
-                      <div className="w-[85%] h-[6px] bg-white/10 rounded-full mt-1" />
-                      <div className="w-[60%] h-[6px] bg-white/10 rounded-full" />
+                   <div className="flex-1 flex flex-col justify-center space-y-1.5">
+                      <div className="w-[45px] h-[5px] bg-[#60a5fa]/60 rounded-full" />
+                      <div className="w-[85%] h-[5px] bg-white/10 rounded-full mt-0.5" />
+                      <div className="w-[60%] h-[5px] bg-white/10 rounded-full" />
                    </div>
                    {/* Tag Pill */}
-                   <div className="absolute top-2.5 right-2.5 bg-white/10 px-2 py-[3px] rounded-[6px] flex items-center justify-center">
-                      <span className="text-white/90 text-[10px] font-medium" style={{ fontFamily: SF }}>
+                   <div className="absolute top-2 right-2 bg-white/10 px-1.5 py-[2px] rounded-[5px] flex items-center justify-center">
+                      <span className="text-white/90 text-[9px] font-medium" style={{ fontFamily: SF }}>
                         {tagMode === "activity" ? "👑 OG Member" : tagMode === "join_date" ? "joined 1mo 3d" : "🛡️ Custom"}
                       </span>
                    </div>
                  </div>
 
                  {/* Right: Picker List */}
-                 <div className="flex flex-col w-[110px] shrink-0 justify-center">
-                   {["Activity", "Join Date", "Custom"].map((m) => {
-                     const modeKey = m.toLowerCase().replace(' ', '_');
-                     const isSelected = tagMode === modeKey;
-                     return (
-                       <button 
-                         key={m} 
-                         onClick={() => setTagMode(modeKey)}
-                         className={`w-full py-2 flex items-center justify-center transition-all duration-200 ${isSelected ? 'border-y-[1.5px] border-[#60a5fa] text-white text-[14px] font-medium' : 'text-[#8e8e93] text-[13px] opacity-60'}`}
-                         style={{ fontFamily: SF }}
-                       >
-                         {m}
-                       </button>
-                     )
-                   })}
+                 <div 
+                   className="relative h-[90px] w-[110px] shrink-0"
+                   style={{ 
+                     WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)",
+                     maskImage: "linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)"
+                   }}
+                 >
+                   <div className="absolute top-[30px] w-full h-[30px] border-y-[1.5px] border-[#60a5fa] pointer-events-none z-10" />
+                   
+                   <div 
+                     ref={pickerRef}
+                     className="h-full w-full overflow-y-auto snap-y snap-mandatory [&::-webkit-scrollbar]:hidden"
+                     style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                     onScroll={(e) => {
+                        const top = e.currentTarget.scrollTop;
+                        const index = Math.round(top / 30);
+                        const modes = ["activity", "join_date", "custom"];
+                        if (modes[index] && tagMode !== modes[index]) {
+                          setTagMode(modes[index]);
+                        }
+                     }}
+                   >
+                     <div className="h-[30px] shrink-0" />
+                     {["Activity", "Join Date", "Custom"].map((m, idx) => {
+                       const modeKey = m.toLowerCase().replace(' ', '_');
+                       const isSelected = tagMode === modeKey;
+                       return (
+                         <div 
+                           key={m} 
+                           onClick={() => {
+                             setTagMode(modeKey);
+                             if (pickerRef.current) {
+                               pickerRef.current.scrollTo({ top: idx * 30, behavior: "smooth" });
+                             }
+                           }}
+                           className={`h-[30px] w-full flex items-center justify-center snap-center transition-all duration-200 cursor-pointer ${isSelected ? 'text-white text-[14px] font-medium' : 'text-[#8e8e93] text-[13px] opacity-60'}`}
+                           style={{ fontFamily: SF }}
+                         >
+                           {m}
+                         </div>
+                       )
+                     })}
+                     <div className="h-[30px] shrink-0" />
+                   </div>
                  </div>
 
                </div>
