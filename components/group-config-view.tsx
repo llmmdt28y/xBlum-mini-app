@@ -268,36 +268,50 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             />
           </Section>
 
-          {/* Member Tag Preview Full Width */}
+          {/* New CSS Preview & Picker */}
           {autoTagsEnabled && (
-            <div className="-mx-4 flex flex-col items-start animate-in fade-in duration-300 w-[calc(100%+32px)]">
-              <h3 className="text-[#8e8e93] font-semibold text-[13px] mb-2 uppercase tracking-wider px-4" style={{ fontFamily: SF }}>Preview</h3>
-              <img 
-                src={tagMode === "activity" ? "/tag-preview-activity.png" : "/tag-preview-joindate.png"} 
-                alt="Tag Preview" 
-                className="w-full h-auto object-cover"
-              />
-            </div>
-          )}
+            <div className="flex flex-col animate-in fade-in duration-300">
+               <h3 className="text-[#8e8e93] font-semibold text-[13px] mb-2 uppercase tracking-wider px-4" style={{ fontFamily: SF }}>Appearance & Mode</h3>
+               <div className="bg-[#111111] rounded-[24px] border border-white/5 p-4 flex items-center shadow-lg relative overflow-hidden">
+                 
+                 {/* Left: Preview Card */}
+                 <div className="flex-1 bg-[#1c1c1e] rounded-[16px] p-3.5 relative overflow-hidden flex items-start mr-4">
+                   <div className="w-[36px] h-[36px] rounded-full bg-white/5 shrink-0 mr-3 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-white/20" />
+                   </div>
+                   <div className="flex-1 flex flex-col pt-1.5 space-y-2">
+                      <div className="w-[45px] h-[6px] bg-[#60a5fa]/60 rounded-full" />
+                      <div className="w-[85%] h-[6px] bg-white/10 rounded-full mt-1" />
+                      <div className="w-[60%] h-[6px] bg-white/10 rounded-full" />
+                   </div>
+                   {/* Tag Pill */}
+                   <div className="absolute top-2.5 right-2.5 bg-white/10 px-2 py-[3px] rounded-[6px] flex items-center justify-center">
+                      <span className="text-white/90 text-[10px] font-medium" style={{ fontFamily: SF }}>
+                        {tagMode === "activity" ? "👑 OG Member" : tagMode === "join_date" ? "joined 1mo 3d" : "🛡️ Custom"}
+                      </span>
+                   </div>
+                 </div>
 
-          {autoTagsEnabled && (
-            <Section>
-              <div className="bg-[#111111]">
-                {["Activity", "Join Date", "Custom"].map((m, idx, arr) => {
-                  const modeKey = m.toLowerCase().replace(' ', '_');
-                  return (
-                    <Row 
-                      key={m} 
-                      label={m} 
-                      leftNode={<div className="mr-1"><RadioButton selected={tagMode === modeKey} /></div>} 
-                      onClick={() => setTagMode(modeKey)} 
-                      hideArrow 
-                      last={idx === arr.length - 1} 
-                    />
-                  );
-                })}
-              </div>
-            </Section>
+                 {/* Right: Picker List */}
+                 <div className="flex flex-col w-[110px] shrink-0 justify-center">
+                   {["Activity", "Join Date", "Custom"].map((m) => {
+                     const modeKey = m.toLowerCase().replace(' ', '_');
+                     const isSelected = tagMode === modeKey;
+                     return (
+                       <button 
+                         key={m} 
+                         onClick={() => setTagMode(modeKey)}
+                         className={`w-full py-2 flex items-center justify-center transition-all duration-200 ${isSelected ? 'border-y-[1.5px] border-[#60a5fa] text-white text-[14px] font-medium' : 'text-[#8e8e93] text-[13px] opacity-60'}`}
+                         style={{ fontFamily: SF }}
+                       >
+                         {m}
+                       </button>
+                     )
+                   })}
+                 </div>
+
+               </div>
+            </div>
           )}
         </div>
       </div>
