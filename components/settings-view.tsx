@@ -1459,10 +1459,11 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             leftNode={<IconFlat icon={MessageCirclePlus} color="#5e5ce6" />}
             label="AI Chat"
             onClick={() => setPage("business_automation")}
+            last
           />
           <Row
             leftNode={<IconFlat icon={Users} color="#34c759" />}
-            label="Group Config"
+            label="Group Moderation"
             onClick={() => setPage("group_config")}
             last
           />
