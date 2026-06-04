@@ -422,6 +422,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             </div>
           )}
         </div>
+        </div>
       </div>
     )
   }
