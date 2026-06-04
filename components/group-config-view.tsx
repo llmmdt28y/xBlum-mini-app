@@ -241,7 +241,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "noir_ai") {
     return (
-      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Noir AI" />
         
         <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-4 pb-4 space-y-6">
@@ -287,7 +287,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "anti_flood") {
     return (
-      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Anti-Flood" />
         
         <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-4 space-y-6">
@@ -330,7 +330,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "auto_tags") {
     return (
-      <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Auto-Tags" />
         
         <div className="flex-1 flex flex-col overflow-y-auto pb-6">
@@ -446,23 +446,28 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
       <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-6 pb-6 space-y-6">
         
         {/* Top Profile and Group Selector */}
-        <div className="flex flex-col items-center justify-center relative pt-2">
-          <div className="w-[84px] h-[84px] rounded-full bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] flex items-center justify-center mb-4 shadow-lg text-white font-bold text-[36px]" style={{ fontFamily: SFD }}>
-            {initials}
-          </div>
-          
+        <div className="relative pt-2 shrink-0">
           <button 
             onClick={() => setShowGroupDropdown(!showGroupDropdown)}
-            className="relative overflow-hidden flex items-center gap-2 px-5 py-2.5 rounded-full active:bg-[#2c2c2e] transition-colors border border-white/10"
-            style={{ background: "#1c1c1e" }}
+            className="w-full bg-[#111111] border border-white/5 rounded-[24px] p-3 flex items-center gap-3 active:bg-[#1c1c1e] transition-colors shadow-lg"
           >
-            <span className="text-white font-medium text-[15px]" style={{ fontFamily: SF }}>Selected: {selectedGroupTitle}</span>
-            <ChevronDown className={`w-4 h-4 text-[#8e8e93] transition-transform ${showGroupDropdown ? "rotate-180" : ""}`} />
+            <div className="w-[44px] h-[44px] shrink-0 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] flex items-center justify-center shadow-md text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
+              {initials}
+            </div>
+            
+            <div className="flex-1 flex flex-col text-left overflow-hidden">
+              <span className="text-[#8e8e93] text-[13px] font-medium leading-tight" style={{ fontFamily: SF }}>Selected Group</span>
+              <span className="text-white text-[16px] font-semibold truncate leading-tight mt-0.5" style={{ fontFamily: SF }}>{selectedGroupTitle}</span>
+            </div>
+            
+            <div className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center shrink-0">
+              <ChevronDown className={`w-4 h-4 text-[#8e8e93] transition-transform ${showGroupDropdown ? "rotate-180" : ""}`} />
+            </div>
           </button>
 
           {/* Group Dropdown */}
           {showGroupDropdown && (
-            <div className="absolute top-full mt-2 w-full max-w-[280px] bg-[#111111] border border-[#1c1c1e] rounded-[20px] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute top-full mt-3 w-full bg-[#111111] border border-white/5 rounded-[24px] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
               {groups.length === 0 ? (
                 <div className="p-4 text-center text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>
                   No groups found.
@@ -472,10 +477,11 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
                   <button 
                     key={g.chat_id}
                     onClick={() => { setSelectedGroupId(g.chat_id); setShowGroupDropdown(false); }}
-                    className="w-full text-left px-4 py-3.5 text-white active:bg-white/5 transition-colors"
-                    style={{ fontFamily: SF, fontSize: "15px", borderBottom: i === groups.length - 1 ? "none" : "1px solid #1c1c1e" }}
+                    className="w-full text-left px-5 py-4 text-white active:bg-white/5 transition-colors flex items-center justify-between"
+                    style={{ fontFamily: SF, fontSize: "16px", borderBottom: i === groups.length - 1 ? "none" : "1px solid #1c1c1e" }}
                   >
-                    {g.chat_title}
+                    <span className="truncate">{g.chat_title}</span>
+                    {g.chat_id === selectedGroupId && <Check className="w-5 h-5 text-[#60a5fa]" />}
                   </button>
                 ))
               )}
