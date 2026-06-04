@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react"
-import { ChevronRight, ChevronDown, Check, Shield, Zap, Users, MessageSquare, Save, Settings2, Trash2 } from "lucide-react"
+import { ChevronRight, ChevronDown, Check, Shield, Zap, Users, MessageSquare, Save, Settings2, Trash2, Astroid, Tags, BrickWall } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -238,7 +238,13 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
       <div className="flex-1 flex flex-col animate-in slide-in-from-right-4 duration-300 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Noir AI" />
         
-        <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-4 space-y-6">
+        <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-4 pb-4 space-y-6">
+          <div className="flex flex-col items-center justify-center pt-4 pb-2 shrink-0">
+            <span className="text-[56px] grayscale opacity-60">🤖</span>
+            <p className="text-[#8e8e93] text-[14px] text-center mt-4 px-6 leading-relaxed" style={{ fontFamily: SF }}>
+              Customize Noir AI's personality and system prompt specifically for this group.
+            </p>
+          </div>
           <Section>
             <Row 
               label="Enable Noir AI" 
@@ -259,7 +265,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             )}
           </Section>
 
-          <div className="mt-auto pt-4 flex items-center w-full relative z-10 shrink-0">
+          <div className="pt-2 flex items-center w-full relative z-10 shrink-0">
             <button 
               onClick={() => setSubPage("main")} 
               className="w-full relative overflow-hidden py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg" 
@@ -302,7 +308,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             </div>
           )}
 
-          <div className="mt-auto pt-4 flex items-center w-full relative z-10 shrink-0">
+          <div className="pt-2 flex items-center w-full relative z-10 shrink-0">
             <button 
               onClick={() => setSubPage("main")} 
               className="w-full relative overflow-hidden py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg" 
@@ -475,19 +481,19 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         <Section title="General" footer="Manage the core settings for moderating and interacting with your groups.">
           <Row 
             label="Noir AI" 
-            leftNode={<MessageSquare className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
+            leftNode={<Astroid className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
             rightNode={<span className="text-[#60a5fa] font-medium" style={{ fontFamily: SF, fontSize: "15px" }}>{noirAIEnabled ? "On" : "Off"}</span>}
             onClick={() => setSubPage("noir_ai")} 
           />
           <Row 
             label="Auto-Tags" 
-            leftNode={<Zap className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
+            leftNode={<Tags className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
             rightNode={<span className="text-[#60a5fa] font-medium" style={{ fontFamily: SF, fontSize: "15px" }}>{autoTagsEnabled ? "On" : "Off"}</span>}
             onClick={() => setSubPage("auto_tags")} 
           />
           <Row 
             label="Anti-Flood" 
-            leftNode={<Shield className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
+            leftNode={<BrickWall className="w-[20px] h-[20px] text-[#8e8e93] shrink-0" />}
             rightNode={<span className="text-[#60a5fa] font-medium" style={{ fontFamily: SF, fontSize: "15px" }}>{floodEnabled ? "On" : "Off"}</span>}
             onClick={() => setSubPage("anti_flood")} 
             last
