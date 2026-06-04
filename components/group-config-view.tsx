@@ -263,31 +263,38 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     fetchSettings()
   }, [selectedGroupId, apiBaseUrl])
 
-  const handleSave = async () => {
+  const handleSave = async (overrides: any = {}) => {
     if (!selectedGroupId) return
     setIsSaving(true)
     try {
       const initData = typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initData : ""
       const url = apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/api/group_settings` : `/api/group_settings`
+      
+      const payload = {
+          initData,
+          chat_id: selectedGroupId,
+          natural_rules: ("noirAIEnabled" in overrides ? overrides.noirAIEnabled : noirAIEnabled) 
+                          ? ("systemPrompt" in overrides ? overrides.systemPrompt : systemPrompt) 
+                          : "",
+          adapt_to_group: "adaptToGroup" in overrides ? overrides.adaptToGroup : adaptToGroup,
+          flood_enabled: "floodEnabled" in overrides ? overrides.floodEnabled : floodEnabled,
+          flood_window_sec: parseInt("floodWindowSec" in overrides ? overrides.floodWindowSec : floodWindowSec) || 30,
+          flood_max_msgs: parseInt("floodMaxMsgs" in overrides ? overrides.floodMaxMsgs : floodMaxMsgs) || 5,
+          flood_dominance_pct: parseInt("floodDominancePct" in overrides ? overrides.floodDominancePct : floodDominancePct) || 40,
+          auto_tags_enabled: "autoTagsEnabled" in overrides ? overrides.autoTagsEnabled : autoTagsEnabled,
+          tag_mode: "tagMode" in overrides ? overrides.tagMode : tagMode,
+          antispam_enabled: "antispamEnabled" in overrides ? overrides.antispamEnabled : antispamEnabled
+      }
+
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          initData,
-          chat_id: selectedGroupId,
-          natural_rules: noirAIEnabled ? systemPrompt : "",
-          adapt_to_group: adaptToGroup,
-          flood_enabled: floodEnabled,
-          flood_window_sec: parseInt(floodWindowSec),
-          flood_max_msgs: parseInt(floodMaxMsgs),
-          flood_dominance_pct: parseInt(floodDominancePct),
-          auto_tags_enabled: autoTagsEnabled,
-          tag_mode: tagMode,
-          antispam_enabled: antispamEnabled
-        })
+        body: JSON.stringify(payload)
       })
       if (res.ok) {
-        setSubPage("main")
+        if (!overrides._silent) {
+          setSubPage("main")
+        }
       }
     } catch (e) {
       console.log("Error saving settings", e)
@@ -652,13 +659,29 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         <Section title="Features">
           <Row 
             label="Anti-Spam" 
-            rightNode={<SwitchNode on={antispamEnabled} onToggle={() => setAntispamEnabled(!antispamEnabled)} />} 
-            onClick={() => setAntispamEnabled(!antispamEnabled)} 
+            rightNode={<SwitchNode on={antispamEnabled} onToggle={() => {
+              const newVal = !antispamEnabled;
+              setAntispamEnabled(newVal);
+              handleSave({ antispamEnabled: newVal, _silent: true });
+            }} />} 
+            onClick={() => {
+              const newVal = !antispamEnabled;
+              setAntispamEnabled(newVal);
+              handleSave({ antispamEnabled: newVal, _silent: true });
+            }} 
           />
           <Row 
             label="Adapt to Group" 
-            rightNode={<SwitchNode on={adaptToGroup} onToggle={() => setAdaptToGroup(!adaptToGroup)} />} 
-            onClick={() => setAdaptToGroup(!adaptToGroup)} 
+            rightNode={<SwitchNode on={adaptToGroup} onToggle={() => {
+              const newVal = !adaptToGroup;
+              setAdaptToGroup(newVal);
+              handleSave({ adaptToGroup: newVal, _silent: true });
+            }} />} 
+            onClick={() => {
+              const newVal = !adaptToGroup;
+              setAdaptToGroup(newVal);
+              handleSave({ adaptToGroup: newVal, _silent: true });
+            }} 
             last 
           />
         </Section>
