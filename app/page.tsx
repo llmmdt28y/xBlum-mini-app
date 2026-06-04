@@ -95,6 +95,20 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
+// ── Helper para convertir HEX a RGBA dinámicamente ────────────────────
+const hexToRgba = (hex: string, alpha = 1) => {
+  if (!hex) return `rgba(255, 255, 255, ${alpha})`
+  let cleanHex = hex.replace('#', '')
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex.split('').map(char => char + char).join('')
+  }
+  const r = parseInt(cleanHex.slice(0, 2), 16)
+  const g = parseInt(cleanHex.slice(2, 4), 16)
+  const b = parseInt(cleanHex.slice(4, 6), 16)
+  if (isNaN(r)) return `rgba(255, 255, 255, ${alpha})`
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 // ── Floating Liquid NavBar ────────────────────────────────────────────
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
@@ -107,10 +121,39 @@ function NavBar() {
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
 
+  // Estado para el cristal dinámico realista
+  const [glassStyles, setGlassStyles] = useState({
+    background: "linear-gradient(135deg, rgba(30, 30, 30, 0.4) 0%, rgba(30, 30, 30, 0.15) 100%)",
+    borderColor: "rgba(255, 255, 255, 0.12)",
+    boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(0,0,0,0.3)",
+  })
+
   useEffect(() => {
     const user = getTgUser()
-    if (!user) return
-    if (user.photo_url) setPhotoUrl(user.photo_url)
+    if (user && user.photo_url) setPhotoUrl(user.photo_url)
+
+    // Lógica dinámica de Telegram para el cristal líquido
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tgParams = (window as any).Telegram?.WebApp?.themeParams || {}
+    const bgColor = tgParams.bg_color || '#1e1e1e'
+    
+    // Chequeo de luminosidad para adaptar el cristal al tema (claro/oscuro)
+    const r = parseInt(bgColor.replace('#','').slice(0, 2) || '1e', 16)
+    const g = parseInt(bgColor.replace('#','').slice(2, 4) || '1e', 16)
+    const b = parseInt(bgColor.replace('#','').slice(4, 6) || '1e', 16)
+    const isDark = (r * 0.299 + g * 0.587 + b * 0.114) < 128
+
+    const dynamicBgStart = hexToRgba(bgColor, isDark ? 0.35 : 0.6)
+    const dynamicBgEnd = hexToRgba(bgColor, isDark ? 0.05 : 0.2)
+    const dynamicBorderColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.4)'
+    const topHighlight = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.7)'
+    const shadowColor = isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.15)'
+
+    setGlassStyles({
+      background: `linear-gradient(135deg, ${dynamicBgStart} 0%, ${dynamicBgEnd} 100%)`,
+      borderColor: dynamicBorderColor,
+      boxShadow: `0 12px 40px ${shadowColor}, inset 0 1.5px 1px ${topHighlight}, inset 0 -1px 1px rgba(0,0,0,0.2)`,
+    })
   }, [])
 
   // ── LÓGICA DE SCROLL PARA OCULTAR/MOSTRAR LA BARRA ──
@@ -169,13 +212,13 @@ function NavBar() {
         { id: "none2", label: "None", icon: null, disabled: true },
       ]
 
-  // ── ESTILO CRISTAL ÓPTICO REALISTA ──
+  // ── ESTILO CRISTAL ÓPTICO REALISTA (LIQUID GLASS) ──
   const liquidGlassStyle = {
-    background: "rgba(30, 30, 30, 0.35)", 
-    backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", 
-    WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(1.1)",
-    border: "1px solid rgba(255, 255, 255, 0.12)", 
-    boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
+    background: glassStyles.background, 
+    backdropFilter: "blur(32px) saturate(250%) brightness(1.1) contrast(1.05)", 
+    WebkitBackdropFilter: "blur(32px) saturate(250%) brightness(1.1) contrast(1.05)",
+    border: `1px solid ${glassStyles.borderColor}`, 
+    boxShadow: glassStyles.boxShadow,
     transform: "translateZ(0)", 
     WebkitTransform: "translateZ(0)",
   }
