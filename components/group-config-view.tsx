@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react"
-import { ChevronRight, ChevronDown, Check, Shield, Zap, Users, MessageSquare, Save, Settings2, Trash2, Tags, BrickWall } from "lucide-react"
+import { ChevronRight, ChevronDown, Check, Shield, Zap, Users, MessageSquare, Save, Settings2, Trash2, Tags, BrickWall, PenOff } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -246,7 +246,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         
         <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-4 pb-4 space-y-6">
           <div className="flex flex-col items-center justify-center pt-4 pb-2 shrink-0">
-            <span className="text-[56px] grayscale opacity-60">🤖</span>
+            <PenOff className="w-[56px] h-[56px] text-[#8e8e93]" strokeWidth={1.5} />
             <p className="text-[#8e8e93] text-[14px] text-center mt-4 px-6 leading-relaxed" style={{ fontFamily: SF }}>
               Customize Noir AI's personality and system prompt specifically for this group.
             </p>
@@ -441,6 +441,23 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <style>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .shimmer-btn::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 40%;
+          height: 100%;
+          background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+          transform: translateX(-100%);
+          animation: shimmer 1.2s infinite linear;
+        }
+      `}</style>
       <SubHeader title="Group Moderation" />
       
       <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-6 pb-6 space-y-6">
@@ -533,7 +550,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             href="https://t.me/NoirHereBot?startgroup=true" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="w-full relative overflow-hidden flex items-center justify-center gap-2.5 py-4 rounded-[20px] font-bold text-white shadow-lg active:scale-[0.98] transition-transform" 
+            className="w-full shimmer-btn relative overflow-hidden flex items-center justify-center gap-2.5 py-3.5 rounded-full font-bold text-white shadow-lg active:scale-[0.98] transition-transform" 
             style={{ background: "linear-gradient(135deg, #1d4ed8 0%, #7c3aed 100%)", fontFamily: SF, fontSize: "16px" }}
           >
              <Users className="w-[22px] h-[22px]" strokeWidth={2.5} />
