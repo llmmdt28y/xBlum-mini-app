@@ -212,20 +212,35 @@ function NavBar() {
         { id: "none2", label: "None", icon: null, disabled: true },
       ]
 
-  // ── ESTILO CRISTAL ÓPTICO REALISTA (LIQUID GLASS) ──
-  const liquidGlassStyle = {
-    background: glassStyles.background, 
-    backdropFilter: "blur(32px) saturate(250%) brightness(1.1) contrast(1.05)", 
-    WebkitBackdropFilter: "blur(32px) saturate(250%) brightness(1.1) contrast(1.05)",
-    border: `1px solid ${glassStyles.borderColor}`, 
-    boxShadow: glassStyles.boxShadow,
-    transform: "translateZ(0)", 
-    WebkitTransform: "translateZ(0)",
-  }
-
   // Colores de interfaz 
   const neonBlue = "#33b5f7" 
   const inactiveGlassText = "rgba(255, 255, 255, 0.6)" 
+
+  // Componente de fondo líquido para evitar repetición (Método Snipzy)
+  const LiquidBackground = ({ radius = "100px" }: { radius?: string }) => (
+    <>
+      <div 
+        className="absolute inset-0 z-[1] pointer-events-none" 
+        style={{ 
+          backdropFilter: "blur(12px)", 
+          WebkitBackdropFilter: "blur(12px)", 
+          filter: "url(#glass-distortion) saturate(180%) brightness(1.15)" 
+        }} 
+      />
+      <div 
+        className="absolute inset-0 z-[2] pointer-events-none" 
+        style={{ background: glassStyles.background }} 
+      />
+      <div 
+        className="absolute inset-0 z-[3] pointer-events-none" 
+        style={{ 
+          border: `1px solid ${glassStyles.borderColor}`, 
+          boxShadow: glassStyles.boxShadow, 
+          borderRadius: radius 
+        }} 
+      />
+    </>
+  )
 
   return (
     <div
@@ -235,13 +250,22 @@ function NavBar() {
       }`}
       style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)" }}
     >
+      {/* Filtro SVG oculto para la distorsión líquida (Refracción Snipzy) */}
+      <svg style={{ width: 0, height: 0, position: "absolute", pointerEvents: "none" }}>
+        <filter id="glass-distortion">
+          <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
+        </filter>
+      </svg>
       
       {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
       <button
         onClick={handleLeftActionButton}
-        className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
-        style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
+        className="pointer-events-auto relative overflow-hidden flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
+        style={{ width: "64px", height: "64px", borderRadius: "100px" }}
       >
+        <LiquidBackground />
+        <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none">
         {activeNavMode === 'market' ? (
           <>
             <Home size={22} color={inactiveGlassText} strokeWidth={2} />
@@ -253,13 +277,16 @@ function NavBar() {
             <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Market</span>
           </>
         )}
+        </div>
       </button>
 
       {/* ── PÍLDORA CENTRAL: Módulos Fijos ── */}
       <div
-        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
-        style={{ ...liquidGlassStyle, borderRadius: "100px", height: "64px" }}
+        className="pointer-events-auto relative overflow-hidden flex items-center justify-between flex-1 mx-3 px-1.5"
+        style={{ borderRadius: "100px", height: "64px" }}
       >
+        <LiquidBackground />
+        <div className="relative z-10 flex items-center justify-between w-full">
         {centerTabs.map((tab, idx) => {
           const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
           const isDisabled = !!tab.disabled
@@ -302,14 +329,17 @@ function NavBar() {
             </button>
           )
         })}
+        </div>
       </div>
 
       {/* ── BOTÓN DERECHO: Profile ── */}
       <button
         onClick={() => setCurrentView('profile')}
-        className="pointer-events-auto flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
-        style={{ ...liquidGlassStyle, width: "64px", height: "64px", borderRadius: "100px" }}
+        className="pointer-events-auto relative overflow-hidden flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
+        style={{ width: "64px", height: "64px", borderRadius: "100px" }}
       >
+        <LiquidBackground />
+        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pointer-events-none">
         {photoUrl ? (
           <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
             <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
@@ -329,6 +359,7 @@ function NavBar() {
             </span>
           </div>
         )}
+        </div>
       </button>
 
     </div>
