@@ -169,12 +169,15 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   // Refs
   const pickerRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Groups state
   const [groups, setGroups] = useState<{chat_id: number, chat_title: string}[]>([])
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null)
   const [showGroupDropdown, setShowGroupDropdown] = useState(false)
   const [loadingGroups, setLoadingGroups] = useState(true)
+  const [loadingSettings, setLoadingSettings] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   // Config state
   const [noirAIEnabled, setNoirAIEnabled] = useState(false)
@@ -217,6 +220,81 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     }
     fetchGroups()
   }, [apiBaseUrl])
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowGroupDropdown(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    async function fetchSettings() {
+      if (!selectedGroupId) return
+      setLoadingSettings(true)
+      try {
+        const initData = typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initData : ""
+        const url = apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/api/group_settings/${selectedGroupId}` : `/api/group_settings/${selectedGroupId}`
+        const res = await fetch(url, {
+          headers: { "x-init-data": initData || "" }
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setSystemPrompt(data.natural_rules || "")
+          setNoirAIEnabled(!!data.natural_rules)
+          setAdaptToGroup(!!data.adapt_to_group)
+          setFloodEnabled(!!data.flood_enabled)
+          setFloodWindowSec(String(data.flood_window_sec || 30))
+          setFloodMaxMsgs(String(data.flood_max_msgs || 5))
+          setFloodDominancePct(String(data.flood_dominance_pct || 40))
+          setAutoTagsEnabled(!!data.auto_tags_enabled)
+          setTagMode(data.tag_mode || "activity")
+          setAntispamEnabled(!!data.antispam_enabled)
+        }
+      } catch (e) {
+        console.log("Error fetching settings", e)
+      } finally {
+        setLoadingSettings(false)
+      }
+    }
+    fetchSettings()
+  }, [selectedGroupId, apiBaseUrl])
+
+  const handleSave = async () => {
+    if (!selectedGroupId) return
+    setIsSaving(true)
+    try {
+      const initData = typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initData : ""
+      const url = apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/api/group_settings` : `/api/group_settings`
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          initData,
+          chat_id: selectedGroupId,
+          natural_rules: noirAIEnabled ? systemPrompt : "",
+          adapt_to_group: adaptToGroup,
+          flood_enabled: floodEnabled,
+          flood_window_sec: parseInt(floodWindowSec),
+          flood_max_msgs: parseInt(floodMaxMsgs),
+          flood_dominance_pct: parseInt(floodDominancePct),
+          auto_tags_enabled: autoTagsEnabled,
+          tag_mode: tagMode,
+          antispam_enabled: antispamEnabled
+        })
+      })
+      if (res.ok) {
+        setSubPage("main")
+      }
+    } catch (e) {
+      console.log("Error saving settings", e)
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   // Telegram Native BackButton Management
   useEffect(() => {
@@ -288,11 +366,16 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
           <div className="pt-2 flex items-center w-full relative z-10 shrink-0">
             <button 
-              onClick={() => setSubPage("main")} 
-              className="w-full relative overflow-hidden py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg" 
+              onClick={handleSave} 
+              disabled={isSaving}
+              className="w-full relative overflow-hidden flex items-center justify-center py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg disabled:opacity-70" 
               style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
             >
-              <span className="relative z-10">Save Changes</span>
+              {isSaving ? (
+                <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin relative z-10" />
+              ) : (
+                <span className="relative z-10">Save Changes</span>
+              )}
             </button>
           </div>
         </div>
@@ -331,11 +414,16 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
           <div className="pt-2 flex items-center w-full relative z-10 shrink-0">
             <button 
-              onClick={() => setSubPage("main")} 
-              className="w-full relative overflow-hidden py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg" 
+              onClick={handleSave} 
+              disabled={isSaving}
+              className="w-full relative overflow-hidden flex items-center justify-center py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg disabled:opacity-70" 
               style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
             >
-              <span className="relative z-10">Save Changes</span>
+              {isSaving ? (
+                <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin relative z-10" />
+              ) : (
+                <span className="relative z-10">Save Changes</span>
+              )}
             </button>
           </div>
         </div>
@@ -448,6 +536,21 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
                </p>
             </div>
           )}
+
+          <div className="pt-2 flex items-center w-full relative z-10 shrink-0">
+            <button 
+              onClick={handleSave} 
+              disabled={isSaving}
+              className="w-full relative overflow-hidden flex items-center justify-center py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg disabled:opacity-70" 
+              style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
+            >
+              {isSaving ? (
+                <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin relative z-10" />
+              ) : (
+                <span className="relative z-10">Save Changes</span>
+              )}
+            </button>
+          </div>
         </div>
         </div>
       </div>
@@ -479,12 +582,12 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
       <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-6 pb-6 space-y-6">
         
         {/* Top Profile and Group Selector */}
-        <div className="relative pt-2 shrink-0">
+        <div ref={dropdownRef} className="relative pt-2 shrink-0">
           <button 
             onClick={() => setShowGroupDropdown(!showGroupDropdown)}
             className="w-full bg-[#111111] border border-white/5 rounded-[24px] p-3 flex items-center gap-3 active:bg-[#1c1c1e] transition-colors shadow-lg"
           >
-            <div className="w-[44px] h-[44px] shrink-0 rounded-full bg-gradient-to-br from-[#3b82f6] to-[#8b5cf6] flex items-center justify-center shadow-md text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>
+            <div className="w-[44px] h-[44px] shrink-0 rounded-full bg-[#1c1c1e] flex items-center justify-center text-[#8e8e93] font-medium text-[18px]" style={{ fontFamily: SFD }}>
               {initials}
             </div>
             
