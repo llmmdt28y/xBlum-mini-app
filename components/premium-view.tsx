@@ -2,12 +2,17 @@
 
 import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
-import { Sparkles, ImagePlus, Bot, Zap, Check } from "lucide-react"
 
 const PLANS = [
   { id: "premium_1m", label: "Monthly", stars: 800, months: 1 },
-  { id: "premium_3m", label: "3 Months", stars: 1800, months: 3, save: "25%" },
+  { id: "premium_6m", label: "6 Months", stars: 4000, months: 6, save: "17%" },
 ]
+
+const StarIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-white">
+    <path d="M12 1.5L14.3 9.7L22.5 12L14.3 14.3L12 22.5L9.7 14.3L1.5 12L9.7 9.7L12 1.5Z" />
+  </svg>
+)
 
 export function PremiumView() {
   const { setCurrentView, isPremium, openInvoice } = useApp()
@@ -47,97 +52,101 @@ export function PremiumView() {
   }
 
   const features = [
-    { icon: Sparkles, text: "Unlock GPT-5.2 & GPT-5.4" },
-    { icon: ImagePlus, text: "1,000 tokens/month" },
-    { icon: Bot, text: "Group image creation" },
-    { icon: Zap, text: "Agent mode with deep research" },
-    { icon: Check, text: "Priority access at peak" },
+    "Guaranteed access during peak hours",
+    "Unlock DeepSearch and Think",
+    "Up to 10 active Scheduled Tasks",
+    "Early access to new features",
+    "17% discount compared to Monthly",
   ]
 
-  return (
-    <div className="flex-1 min-h-screen flex flex-col" style={{ background: "#000" }}>
+  const activePlanData = PLANS.find(p => p.id === selectedPlan) || PLANS[0]
 
-      {/* Header with title (Respetando el safe area de Telegram) */}
+  return (
+    <div className="flex-1 min-h-screen flex flex-col bg-[#050505] relative overflow-hidden text-white font-sans">
+      
+      {/* Botón Skip (Arriba a la derecha) */}
       <div 
-        className="pb-6 px-6 text-center"
-        style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}
+        className="absolute right-4 z-20"
+        style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 16px)" }}
       >
-        <h1 className="text-4xl font-bold text-white tracking-tight">xBlum Pro</h1>
-        <p className="text-[#636366] text-base mt-2 font-medium">Access to premium intelligence</p>
+        <button 
+          onClick={() => setCurrentView("home")}
+          className="px-4 py-1.5 bg-[#1c1c1e] text-[#8e8e93] text-sm font-semibold rounded-full active:scale-95 transition-transform"
+        >
+          Skip
+        </button>
       </div>
 
-      {/* Features card */}
-      <div className="px-4 flex-1">
-        <div className="bg-[#111] border border-[#1c1c1e] rounded-3xl p-5 space-y-4">
-          {features.map((feature, i) => (
-            <div key={i} className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0">
-                <feature.icon className="w-5 h-5 text-white" />
+      <div className="flex-1 flex flex-col items-center pt-24 px-6 relative z-10">
+        
+        {/* Título: SuperNoir */}
+        <h1 className="text-5xl font-bold tracking-tight mb-3">
+          Super<span className="text-[#8e8e93]">Noir</span>
+        </h1>
+        
+        <p className="text-lg font-medium text-white mb-10">
+          Unlock advanced capabilities
+        </p>
+
+        {/* Lista de beneficios */}
+        <div className="w-full max-w-sm space-y-4 mb-10">
+          {features.map((text, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="shrink-0">
+                <StarIcon />
               </div>
-              <p className="text-white font-medium text-[15px]">{feature.text}</p>
+              <p className="text-[15px] font-medium leading-tight">{text}</p>
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Bottom section */}
-      <div className="px-4 pb-6 pt-8 mt-auto space-y-4">
-        {/* Plan selection */}
-        <div className="flex gap-3">
+        {/* Toggle de Planes */}
+        <div className="w-full max-w-sm p-1 bg-[#111] border border-[#1c1c1e] rounded-full flex relative mb-4">
+          <div 
+            className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-[#2c2c2e] rounded-full transition-all duration-300 ease-out"
+            style={{ left: selectedPlan === "premium_1m" ? "4px" : "calc(50%)" }}
+          />
           {PLANS.map((plan) => (
             <button
               key={plan.id}
               onClick={() => setSelectedPlan(plan.id)}
-              className={`flex-1 p-4 rounded-2xl text-left transition-all border-2 active:scale-95 ${
-                selectedPlan === plan.id
-                  ? "bg-[#1c1c1e] border-white"
-                  : "bg-[#111] border-[#1c1c1e] hover:border-[#2c2c2e]"
+              className={`flex-1 py-3 text-sm font-semibold rounded-full relative z-10 transition-colors duration-200 ${
+                selectedPlan === plan.id ? "text-white" : "text-[#8e8e93]"
               }`}
             >
-              <div className="flex items-center gap-2">
-                <p className="text-white font-semibold text-sm">{plan.label}</p>
-                {plan.save && (
-                  <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded font-semibold">
-                    Save {plan.save}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-1.5 mt-2">
-                {/* SOLUCIÓN IMAGEN: pointer-events-none hace que la imagen sea intocable */}
-                <img
-                  src="/telegram-star-icon.png"
-                  alt="star"
-                  className="w-4 h-4 object-contain pointer-events-none select-none"
-                  draggable={false}
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none"
-                  }}
-                />
-                <span className="text-xl font-black text-white">{plan.stars}</span>
-              </div>
-              {plan.months === 1 ? (
-                <p className="text-[#636366] text-xs mt-1 font-medium">/month</p>
-              ) : (
-                <p className="text-[#636366] text-xs mt-1 font-medium">
-                  {Math.round(plan.stars / plan.months)} ⭐/month
-                </p>
-              )}
+              {plan.label}
             </button>
           ))}
         </div>
 
-        {/* Upgrade button */}
+        {/* Pricing Info */}
+        <p className="text-center text-[#636366] text-xs font-medium mb-6">
+          {activePlanData.months === 1 
+            ? `Billed monthly at ${activePlanData.stars} ⭐. Cancel anytime.` 
+            : `Billed every 6 months at ${activePlanData.stars} ⭐. Cancel anytime.`}
+        </p>
+
+        {/* Upgrade Button */}
         <button
           onClick={subscribe}
           disabled={isLoading || isPremium}
-          className="w-full py-4 bg-white text-black font-bold text-base rounded-2xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full max-w-sm py-4 bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-[18px] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-6 shadow-[0_0_20px_rgba(255,106,0,0.3)]"
         >
-          {isPremium ? "xBlum Pro Active" : isLoading ? "Processing..." : "Upgrade to xBlum Pro"}
+          {isPremium ? "SuperNoir Active" : isLoading ? "Processing..." : "Upgrade to SuperNoir"}
         </button>
 
-        <p className="text-center text-xs text-[#636366] font-medium">
-          Cancel anytime · Paid via Telegram Stars
-        </p>
+        {/* Footer Links */}
+        <div className="flex flex-col items-center gap-2 mt-auto pb-8">
+          <div className="flex items-center gap-2 text-[11px] text-[#555558] font-medium">
+            <button className="hover:text-[#8e8e93]">Terms & Conditions</button>
+            <span>|</span>
+            <button className="hover:text-[#8e8e93]">Privacy Policy</button>
+          </div>
+          <button className="text-[11px] text-[#555558] font-medium hover:text-[#8e8e93]">
+            Restore Purchases
+          </button>
+        </div>
+
       </div>
     </div>
   )
