@@ -174,6 +174,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   const [groups, setGroups] = useState<{chat_id: number, chat_title: string}[]>([])
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null)
   const [showGroupDropdown, setShowGroupDropdown] = useState(false)
+  const [loadingGroups, setLoadingGroups] = useState(true)
 
   // Config state
   const [noirAIEnabled, setNoirAIEnabled] = useState(false)
@@ -194,13 +195,15 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
     async function fetchGroups() {
       try {
         const initData = typeof window !== "undefined" ? (window as any).Telegram?.WebApp?.initData : ""
-        const res = await fetch("/api/group_admin_list", {
+        const url = apiBaseUrl ? `${apiBaseUrl.replace(/\/$/, '')}/api/group_admin_list` : "/api/group_admin_list"
+        const res = await fetch(url, {
           method: "GET",
           headers: { 
             "Content-Type": "application/json",
             "x-init-data": initData || ""
           }
         })
+        if (!res.ok) throw new Error("Failed to fetch")
         const data = await res.json()
         if (data.groups) {
           setGroups(data.groups)
@@ -208,10 +211,12 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         }
       } catch (e) {
         console.log("Error fetching groups", e)
+      } finally {
+        setLoadingGroups(false)
       }
     }
     fetchGroups()
-  }, [])
+  }, [apiBaseUrl])
 
   // Telegram Native BackButton Management
   useEffect(() => {
@@ -228,12 +233,22 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         }
       };
       
-      tg.BackButton.onClick(handleBack);
+      tg.onEvent('backButtonClicked', handleBack);
       return () => {
-        tg.BackButton.offClick(handleBack);
+        tg.offEvent('backButtonClicked', handleBack);
+        tg.BackButton.hide();
       };
     }
   }, [subPage, onClose]);
+
+  if (loadingGroups) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in duration-500 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+        <div className="w-8 h-8 rounded-full border-2 border-[#60a5fa] border-t-transparent animate-spin mb-4" />
+        <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Loading groups...</span>
+      </div>
+    )
+  }
 
   const selectedGroup = groups.find(g => g.chat_id === selectedGroupId)
   const selectedGroupTitle = selectedGroup ? selectedGroup.chat_title : "No Group Selected"
@@ -444,18 +459,19 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
       <style>{`
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+          20% { transform: translateX(300%); }
+          100% { transform: translateX(300%); }
         }
         .shimmer-btn::after {
           content: "";
           position: absolute;
           top: 0;
           left: 0;
-          width: 40%;
+          width: 50%;
           height: 100%;
-          background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+          background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);
           transform: translateX(-100%);
-          animation: shimmer 1.2s infinite linear;
+          animation: shimmer 5s infinite linear;
         }
       `}</style>
       <SubHeader title="Group Moderation" />
