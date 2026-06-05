@@ -54,7 +54,7 @@ export function PremiumView() {
         }
         .shimmer-btn {
           border: 1.5px solid rgba(255,106,0,1);
-          animation: shimmer-border 6s infinite linear;
+          animation: shimmer-border 2.5s infinite linear;
         }
         .shimmer-btn::after {
           content: "";
@@ -65,30 +65,19 @@ export function PremiumView() {
           height: 100%;
           background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
           transform: translateX(-100%);
-          animation: shimmer-shine 6s infinite linear;
+          animation: shimmer-shine 2.5s infinite linear;
         }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       
-      {/* Botón Skip (Arriba a la derecha) */}
-      <div 
-        className="absolute right-4 z-20"
-        style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 16px)" }}
-      >
-        <button 
-          onClick={() => setCurrentView("home")}
-          className="px-4 py-1.5 bg-[#1c1c1e] text-[#8e8e93] text-sm font-semibold rounded-full active:scale-95 transition-transform"
-        >
-          Skip
-        </button>
-      </div>
-
-      <div className="flex-1 flex flex-col items-center pt-24 px-6 relative z-10">
+      <div className="flex-1 flex flex-col items-center pt-[calc(var(--tg-safe-area-inset-top,24px)+24px)] px-4 relative z-10 overflow-y-auto no-scrollbar pb-8">
         
         {/* Título: SuperNoir */}
         <h1 
-          className="text-5xl font-extrabold tracking-tighter mb-2 pb-1"
+          className="text-[64px] font-extrabold tracking-tighter mb-8 pb-1 leading-none"
           style={{
-            background: "linear-gradient(to right, #ffffff 0%, #c7c7cc 40%, #3a3a3c 100%)",
+            background: "linear-gradient(to right, #ffffff 0%, #d1d1d6 35%, #48484a 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif"
@@ -96,36 +85,69 @@ export function PremiumView() {
         >
           SuperNoir
         </h1>
-        
-        <p className="text-[17px] font-medium text-[#8e8e93] mb-10">
-          Unlock advanced capabilities
-        </p>
 
-        {/* Cuadros Comparativos */}
-        <div className="w-full max-w-sm grid grid-cols-2 gap-3 mb-10">
+        {/* Cuadros Comparativos (Estilo Mira Pro) */}
+        <div className="w-full max-w-md grid grid-cols-2 gap-2 mb-10">
           
-          {/* Tarjeta Free */}
-          <div className="bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-5 flex flex-col items-center text-center shadow-lg">
-            <div className="text-[32px] mb-3 leading-none">🤍</div>
-            <h3 className="text-white font-bold text-[17px] mb-2" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Basic</h3>
-            <p className="text-[#8e8e93] text-[13px] leading-[1.4] font-medium">Standard limits, 2 daily tasks & basic models.</p>
+          {/* Columna Free */}
+          <div className="flex flex-col pt-3">
+            <div className="text-center pb-4 text-[#8e8e93] font-bold text-[17px] tracking-wide" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>
+              Free
+            </div>
+            
+            <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
+              <div className="text-[28px] mb-2 leading-none">📝</div>
+              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Basic AI models</h3>
+              <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Standard access to Grok & Gemini Flash.</p>
+            </div>
+            
+            <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
+              <div className="text-[28px] mb-2 leading-none">🔍</div>
+              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Search</h3>
+              <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Basic web search for everyday questions.</p>
+            </div>
+            
+            <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
+              <div className="text-[28px] mb-2 leading-none">⚙️</div>
+              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Limits</h3>
+              <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Basic tokens & up to 2 active tasks.</p>
+            </div>
           </div>
 
-          {/* Tarjeta Premium */}
-          <div className="bg-[#1c1c1e] border border-[#ff6a00]/40 rounded-[24px] p-5 flex flex-col items-center text-center shadow-[0_0_20px_rgba(255,106,0,0.1)] relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-[#ff6a00]/10 to-transparent pointer-events-none" />
-            <div className="text-[32px] mb-3 leading-none relative z-10">✦</div>
-            <h3 className="text-white font-bold text-[17px] mb-2 relative z-10" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>SuperNoir</h3>
-            <p className="text-[#e5e5ea] text-[13px] leading-[1.4] font-medium relative z-10">Noir 3, DeepSearch & up to 10 active tasks.</p>
+          {/* Columna Premium (SuperNoir) */}
+          <div className="flex flex-col border-[2px] border-[#ff6a00] rounded-[24px] bg-[#111111] shadow-[0_0_20px_rgba(255,106,0,0.15)] overflow-hidden">
+            <div className="bg-[#ff6a00] text-center py-3">
+              <span className="text-white font-bold text-[17px] tracking-wide" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>SuperNoir</span>
+            </div>
+            
+            <div className="flex flex-col items-center text-center p-3 min-h-[140px]">
+              <div className="text-[28px] mb-2 leading-none">🧠</div>
+              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Autonomous AI</h3>
+              <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Guaranteed priority access during peak hours.</p>
+            </div>
+            
+            <div className="flex flex-col items-center text-center p-3 border-t border-[#ff6a00]/30 min-h-[140px]">
+              <div className="text-[28px] mb-2 leading-none">⚡️</div>
+              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>DeepSearch</h3>
+              <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Advanced reasoning and deep thinking tools.</p>
+            </div>
+            
+            <div className="flex flex-col items-center text-center p-3 border-t border-[#ff6a00]/30 min-h-[140px]">
+              <div className="text-[28px] mb-2 leading-none">🚀</div>
+              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Increased Limits</h3>
+              <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Higher tokens & up to 10 active tasks.</p>
+            </div>
           </div>
 
         </div>
+
+        <div className="flex-1" />
 
         {/* Upgrade Button */}
         <button
           onClick={subscribe}
           disabled={isLoading || isPremium}
-          className="w-full max-w-sm py-[18px] shimmer-btn relative overflow-hidden bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-6 shadow-[0_0_20px_rgba(255,106,0,0.3)]"
+          className="w-full max-w-sm py-[18px] shimmer-btn relative overflow-hidden bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-6 shadow-[0_0_20px_rgba(255,106,0,0.3)] shrink-0"
         >
           {isPremium ? (
             <span className="relative z-10">SuperNoir Active</span>
@@ -141,12 +163,10 @@ export function PremiumView() {
         </button>
 
         {/* Footer Links */}
-        <div className="flex flex-col items-center gap-2 mt-auto pb-8">
-          <div className="flex items-center gap-2 text-[11px] text-[#555558] font-medium">
-            <button className="hover:text-[#8e8e93]">Terms & Conditions</button>
-            <span>|</span>
-            <button className="hover:text-[#8e8e93]">Privacy Policy</button>
-          </div>
+        <div className="flex items-center gap-2 text-[11px] text-[#555558] font-medium shrink-0">
+          <button className="hover:text-[#8e8e93]">Terms & Conditions</button>
+          <span>|</span>
+          <button className="hover:text-[#8e8e93]">Privacy Policy</button>
         </div>
 
       </div>
