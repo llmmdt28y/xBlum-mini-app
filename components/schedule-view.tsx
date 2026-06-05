@@ -597,7 +597,7 @@ export function ScheduleView() {
       </div>
 
       {/* ── Content ── */}
-      <div className="px-5 mt-3 pb-32 flex flex-col overflow-y-auto no-scrollbar relative z-10 flex-1">
+      <div className="px-5 mt-3 pb-48 flex flex-col overflow-y-auto no-scrollbar relative z-10 flex-1">
         
         {/* Compact Mocks */}
         <div className="grid grid-cols-2 gap-3 mb-6">
@@ -673,7 +673,7 @@ export function ScheduleView() {
 
       {/* ── Bottom Bar ── */}
       <div className="fixed left-4 right-4 z-40 p-2 rounded-full flex items-center justify-between shadow-2xl" 
-           style={{ ...greyGlowStyle, bottom: "calc(var(--tg-safe-area-inset-bottom, 16px) + 16px)" }}>
+           style={{ ...greyGlowStyle, bottom: "calc(var(--tg-safe-area-inset-bottom, 16px) + 100px)" }}>
         <div className="pl-2">
           <LimitsIndicator offset={ringOffsetTotal} remaining={remainingTotal} current={totalTasks} max={limitTotal} label="tasks" />
         </div>
