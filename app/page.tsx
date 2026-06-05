@@ -13,7 +13,8 @@ import { ScheduleView } from "@/components/schedule-view"
 import { LevelsView } from "@/components/levels-view" 
 import { ShopView } from "@/components/shop-view" 
 import { useEffect, useState } from "react"
-import { Home, Target, Store, CircleUser, Loader2 } from "lucide-react" 
+// Importamos los nuevos iconos para igualar la Imagen 2
+import { Gamepad2, Store, Gift, PiggyBank, CircleUser, Loader2 } from "lucide-react" 
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = { 
@@ -114,18 +115,15 @@ function NavBar() {
   const { currentView, setCurrentView } = useApp()
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   
-  // Memoria del modo de navegación para cuando el usuario abra el Perfil
-  const [storedNavMode, setStoredNavMode] = useState<'home' | 'market'>('home')
-
   // Estados para ocultar/mostrar la barra al hacer scroll
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
 
-  // Estado para el cristal dinámico realista
+  // Estado para el cristal dinámico realista (Fórmula Liquid Glass Ajustada)
   const [glassStyles, setGlassStyles] = useState({
-    background: "linear-gradient(135deg, rgba(30, 30, 30, 0.4) 0%, rgba(30, 30, 30, 0.15) 100%)",
-    borderColor: "rgba(255, 255, 255, 0.12)",
-    boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(0,0,0,0.3)",
+    background: "linear-gradient(135deg, rgba(30, 30, 30, 0.45) 0%, rgba(30, 30, 30, 0.15) 100%)",
+    borderColor: "rgba(255, 255, 255, 0.08)", // Borde más suave
+    boxShadow: "0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1), inset 0 -1px 2px rgba(0,0,0,0.3)",
   })
 
   useEffect(() => {
@@ -137,22 +135,23 @@ function NavBar() {
     const tgParams = (window as any).Telegram?.WebApp?.themeParams || {}
     const bgColor = tgParams.bg_color || '#1e1e1e'
     
-    // Chequeo de luminosidad para adaptar el cristal al tema (claro/oscuro)
+    // Chequeo de luminosidad
     const r = parseInt(bgColor.replace('#','').slice(0, 2) || '1e', 16)
     const g = parseInt(bgColor.replace('#','').slice(2, 4) || '1e', 16)
     const b = parseInt(bgColor.replace('#','').slice(4, 6) || '1e', 16)
     const isDark = (r * 0.299 + g * 0.587 + b * 0.114) < 128
 
-    const dynamicBgStart = hexToRgba(bgColor, isDark ? 0.35 : 0.6)
-    const dynamicBgEnd = hexToRgba(bgColor, isDark ? 0.05 : 0.2)
-    const dynamicBorderColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.4)'
-    const topHighlight = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.7)'
-    const shadowColor = isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.15)'
+    const dynamicBgStart = hexToRgba(bgColor, isDark ? 0.45 : 0.6)
+    const dynamicBgEnd = hexToRgba(bgColor, isDark ? 0.15 : 0.2)
+    // Bordes suavizados para evitar el aspecto plástico
+    const dynamicBorderColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.2)'
+    const topHighlight = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.5)'
+    const shadowColor = isDark ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.2)'
 
     setGlassStyles({
       background: `linear-gradient(135deg, ${dynamicBgStart} 0%, ${dynamicBgEnd} 100%)`,
       borderColor: dynamicBorderColor,
-      boxShadow: `0 12px 40px ${shadowColor}, inset 0 1.5px 1px ${topHighlight}, inset 0 -1px 1px rgba(0,0,0,0.2)`,
+      boxShadow: `0 16px 40px ${shadowColor}, inset 0 1.5px 1px ${topHighlight}, inset 0 -1px 2px rgba(0,0,0,0.3)`,
     })
   }, [])
 
@@ -160,18 +159,13 @@ function NavBar() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-
-      // Umbral para ignorar pequeños rebotes (bounces) y no activar la animación por error
       if (Math.abs(currentScrollY - lastScrollY) < 10) return
 
-      // Si hacemos scroll hacia abajo y hemos pasado un margen de 50px
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
         setIsVisible(false)
       } else {
-        // Si hacemos scroll hacia arriba o estamos en la cima
         setIsVisible(true)
       }
-      
       setLastScrollY(currentScrollY)
     }
 
@@ -179,53 +173,28 @@ function NavBar() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [lastScrollY])
 
-  // Determinamos el modo síncronamente durante el render
-  const isMarketSection = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
-  const isHomeSection = currentView === 'home'
-  
-  const activeNavMode = isMarketSection ? 'market' : (isHomeSection ? 'home' : storedNavMode)
+  // Pestañas centrales actualizadas según la Imagen 2
+  // Mapeadas a las vistas existentes en tu AppContent
+  const centerTabs = [
+    { id: "market", label: "Store", icon: Store, disabled: false },
+    { id: "x-rewards", label: "My gifts", icon: Gift, disabled: false },
+    { id: "premium", label: "Staking", icon: PiggyBank, disabled: false }, // Puedes mapearlo a 'premium' o 'schedule'
+  ]
 
-  useEffect(() => {
-    if (activeNavMode !== storedNavMode) {
-      setStoredNavMode(activeNavMode)
-    }
-  }, [activeNavMode, storedNavMode])
-
-  const handleLeftActionButton = () => {
-    if (activeNavMode === 'market') {
-      setCurrentView('home' as any)
-    } else {
-      setCurrentView('market' as any)
-    }
-  }
-
-  // Pestañas dinámicas basadas en el MODO ACTIVO
-  const centerTabs = activeNavMode === 'market' 
-    ? [
-        { id: "market", label: "Market", icon: Store, disabled: false },
-        { id: "shop", label: "Shop", icon: Target, disabled: false },
-        { id: "levels", label: "BP Levels", icon: Target, disabled: false },
-      ]
-    : [
-        { id: "home", label: "Home", icon: Home, disabled: false },
-        { id: "none1", label: "None", icon: null, disabled: true },
-        { id: "none2", label: "None", icon: null, disabled: true },
-      ]
-
-  // Colores de interfaz 
+  // Colores de interfaz
   const neonBlue = "#33b5f7" 
-  const inactiveGlassText = "rgba(255, 255, 255, 0.6)" 
+  const inactiveGlassText = "rgba(255, 255, 255, 0.55)" 
 
-  // Componente de fondo líquido usando SVG aislado para evitar el bug de iOS/Safari (Técnica de Ekino France)
+  // Componente de fondo líquido usando SVG aislado
   const LiquidBackground = ({ radius = "100px" }: { radius?: string }) => (
     <>
       <div 
         className="absolute inset-0 z-[1] pointer-events-none" 
         style={{ 
-          contain: "paint", // <- CLAVE: aísla el renderizado del SVG para que no explote la pantalla
-          backdropFilter: "blur(12px)", 
-          WebkitBackdropFilter: "blur(12px)", 
-          filter: "url(#glass-distortion) saturate(180%) brightness(1.15)"
+          contain: "paint", 
+          backdropFilter: "blur(16px)", // Aumentado para un cristal más espeso
+          WebkitBackdropFilter: "blur(16px)", 
+          filter: "url(#glass-distortion) saturate(200%) brightness(1.1)"
         }} 
       />
       <div 
@@ -246,12 +215,11 @@ function NavBar() {
   return (
     <div
       id="main-nav-bar"
-      className={`fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none transition-transform duration-300 ease-in-out ${
+      className={`fixed left-0 right-0 z-50 flex justify-between items-center px-3 pointer-events-none transition-transform duration-300 ease-in-out ${
         isVisible ? "translate-y-0" : "translate-y-[150px]"
       }`}
       style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)" }}
     >
-      {/* Filtro SVG oculto para la distorsión líquida (Aislado con contain: paint) */}
       <svg style={{ width: 0, height: 0, position: "absolute", pointerEvents: "none" }}>
         <filter id="glass-distortion">
           <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
@@ -259,37 +227,50 @@ function NavBar() {
         </filter>
       </svg>
       
-      {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
+      {/* ── BOTÓN IZQUIERDO: Games (Mapeado a 'home') ── */}
       <button
-        onClick={handleLeftActionButton}
+        onClick={() => setCurrentView('home' as any)}
         className="pointer-events-auto relative overflow-hidden flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
         style={{ width: "64px", height: "64px", borderRadius: "100px" }}
       >
         <LiquidBackground />
-        <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none">
-        {activeNavMode === 'market' ? (
-          <>
-            <Home size={22} color={inactiveGlassText} strokeWidth={2} />
-            <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Home</span>
-          </>
-        ) : (
-          <>
-            <Store size={22} color={inactiveGlassText} strokeWidth={2} />
-            <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Market</span>
-          </>
-        )}
+        <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none w-full h-full">
+          <div 
+             className="flex flex-col items-center justify-center transition-all duration-300 w-full h-full rounded-[100px]"
+             style={{
+               background: currentView === 'home' ? "linear-gradient(180deg, rgba(45, 55, 70, 0.9) 0%, rgba(20, 25, 30, 0.95) 100%)" : "transparent",
+               boxShadow: currentView === 'home' 
+                 ? `0 10px 24px -6px rgba(0, 0, 0, 0.6), inset 0 1.5px 2px rgba(255, 255, 255, 0.15), inset 0 0 16px rgba(51, 181, 247, 0.15), inset 0 -4px 6px rgba(0, 0, 0, 0.4)` 
+                 : "none",
+               border: currentView === 'home' ? "1px solid rgba(255, 255, 255, 0.05)" : "1px solid transparent",
+             }}
+          >
+            <Gamepad2 
+              size={24} 
+              // En la imagen 2 son iconos sólidos
+              fill={currentView === 'home' ? neonBlue : inactiveGlassText}
+              color={currentView === 'home' ? neonBlue : inactiveGlassText} 
+              strokeWidth={0} 
+            />
+            <span 
+              className={`text-[11px] mt-1 tracking-tight ${currentView === 'home' ? "font-bold" : "font-semibold"}`} 
+              style={{ color: currentView === 'home' ? neonBlue : inactiveGlassText }}
+            >
+              Games
+            </span>
+          </div>
         </div>
       </button>
 
-      {/* ── PÍLDORA CENTRAL: Módulos Fijos ── */}
+      {/* ── PÍLDORA CENTRAL: Store, Gifts, Staking ── */}
       <div
-        className="pointer-events-auto relative overflow-hidden flex items-center justify-between flex-1 mx-3 px-1.5"
+        className="pointer-events-auto relative overflow-hidden flex items-center justify-between flex-1 mx-2.5 px-1.5"
         style={{ borderRadius: "100px", height: "64px" }}
       >
         <LiquidBackground />
-        <div className="relative z-10 flex items-center justify-between w-full">
+        <div className="relative z-10 flex items-center justify-between w-full gap-1">
         {centerTabs.map((tab, idx) => {
-          const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
+          const isActive = currentView === tab.id
           const isDisabled = !!tab.disabled
           const Icon = tab.icon
 
@@ -298,24 +279,31 @@ function NavBar() {
               key={`${tab.id}-${idx}`}
               disabled={isDisabled}
               onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-              // Aumentamos el tiempo de transición para que el escalado sea fluido (ease-out)
               className="relative flex flex-col items-center justify-center transition-all duration-300 ease-out rounded-[100px] flex-1 h-[54px]"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
-                // Fondo oscurecido transparente restaurado con la sombra interior del bisel blanco superior
-                background: isActive ? "rgba(0, 0, 0, 0.4)" : "transparent",
-                boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)" : "none",
-                // Animación de crecimiento del botón (Gota/Lupa)
-                transform: isActive ? "scale(1.08)" : "scale(1)", 
+                // FÓRMULA REAL LIQUID GLASS 3D (Efecto volumen de la Imagen 2)
+                background: isActive 
+                  ? "linear-gradient(180deg, rgba(45, 55, 70, 0.9) 0%, rgba(20, 25, 30, 0.95) 100%)" 
+                  : "transparent",
+                boxShadow: isActive 
+                  ? `0 10px 24px -6px rgba(0, 0, 0, 0.8), 
+                     inset 0 1.5px 2px rgba(255, 255, 255, 0.15), 
+                     inset 0 0 16px rgba(51, 181, 247, 0.15), 
+                     inset 0 -4px 6px rgba(0, 0, 0, 0.5)` 
+                  : "none",
+                border: isActive ? "1px solid rgba(255, 255, 255, 0.05)" : "1px solid transparent",
+                transform: isActive ? "scale(1.03)" : "scale(1)", 
               }}
             >
-              {Icon ? (
+              {Icon && (
                 <>
                   <Icon 
                     size={22} 
+                    fill={isActive ? neonBlue : inactiveGlassText}
                     color={isActive ? neonBlue : inactiveGlassText} 
-                    strokeWidth={isActive ? 2.5 : 2} 
-                    className={`transition-colors duration-300 ${isActive ? "drop-shadow-md" : ""}`}
+                    strokeWidth={0} // Forzamos el icono a verse sólido como en la Imagen 2
+                    className={`transition-all duration-300 ${isActive ? "drop-shadow-lg" : ""}`}
                   />
                   <span 
                     className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
@@ -324,8 +312,6 @@ function NavBar() {
                     {tab.label}
                   </span>
                 </>
-              ) : (
-                <div className="w-[6px] h-[6px] rounded-full bg-white/10"></div>
               )}
             </button>
           )
@@ -340,24 +326,28 @@ function NavBar() {
         style={{ width: "64px", height: "64px", borderRadius: "100px" }}
       >
         <LiquidBackground />
-        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pointer-events-none">
+        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pointer-events-none p-[6px]">
         {photoUrl ? (
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
+          <div className="w-full h-full rounded-full overflow-hidden shadow-inner border-[1.5px] border-white/10">
             <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center">
+          <div 
+             className="flex flex-col items-center justify-center w-full h-full rounded-full transition-all duration-300"
+             style={{
+               background: currentView === 'profile' ? "linear-gradient(180deg, rgba(45, 55, 70, 0.9) 0%, rgba(20, 25, 30, 0.95) 100%)" : "transparent",
+               boxShadow: currentView === 'profile' 
+                 ? `0 10px 24px -6px rgba(0, 0, 0, 0.6), inset 0 1.5px 2px rgba(255, 255, 255, 0.15), inset 0 0 16px rgba(51, 181, 247, 0.15), inset 0 -4px 6px rgba(0, 0, 0, 0.4)` 
+                 : "none",
+               border: currentView === 'profile' ? "1px solid rgba(255, 255, 255, 0.05)" : "1px solid transparent",
+             }}
+          >
             <CircleUser 
-              size={22} 
+              size={24} 
+              fill={currentView === 'profile' ? neonBlue : inactiveGlassText}
               color={currentView === 'profile' ? neonBlue : inactiveGlassText} 
-              strokeWidth={currentView === 'profile' ? 2.5 : 2} 
+              strokeWidth={0} 
             />
-            <span 
-              className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
-              style={{ color: currentView === 'profile' ? neonBlue : inactiveGlassText }}
-            >
-              Profile
-            </span>
           </div>
         )}
         </div>
@@ -370,14 +360,13 @@ function NavBar() {
 // ── App shell ──────────────────────────────────────────
 function AppContent() {
   const { currentView, isLoading } = useApp()
-  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards"].includes(currentView)
+  const showNav = ["home", "levels", "market", "premium", "profile", "shop", "x-rewards"].includes(currentView)
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
   const [fadeLoading, setFadeLoading] = useState(false)
   
-  // Estado que controla si la pantalla de mantenimiento está activa
-  const [isMaintenance, setIsMaintenance] = useState(false) // <-- Cambiar a true si necesitas activarlo
+  const [isMaintenance, setIsMaintenance] = useState(false)
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -438,7 +427,6 @@ function AppContent() {
     }
   }, [isLoading, imagesLoaded])
 
-  // Si está en mantenimiento, bloquear la app devolviendo solo la pantalla
   if (isMaintenance) {
     return <MaintenanceScreen onUnlock={() => setIsMaintenance(false)} />
   }
