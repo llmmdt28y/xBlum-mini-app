@@ -326,9 +326,20 @@ export function ScheduleView() {
     return tasks.filter(t => { try{ return new Date(t.fire_at).toDateString() === selectedDate }catch{return false} })
   }, [tasks, selectedDate])
 
+  const isTaskDaily = (t: ScheduleItem) => {
+    let rt = (t.repeat_type || "").trim().toLowerCase()
+    if (!rt || rt === "undefined") {
+      try {
+        const ex = JSON.parse(t.extra || "{}")
+        if (ex.frequency) rt = ex.frequency.trim().toLowerCase()
+      } catch (e) {}
+    }
+    return rt === "daily"
+  }
+
   const totalTasks = tasks.length
-  const dailyTasksCount = tasks.filter(t => t.repeat_type === "Daily").length
-  const generalTasksCount = tasks.filter(t => t.repeat_type !== "Daily").length
+  const dailyTasksCount = tasks.filter(isTaskDaily).length
+  const generalTasksCount = tasks.filter(t => !isTaskDaily(t)).length
 
   // Counters for the UI
   const limitGeneral = isPremium ? 15 : 5
@@ -338,8 +349,8 @@ export function ScheduleView() {
   const remainingTotal = Math.max(0, limitGeneral - generalTasksCount) + Math.max(0, limitDaily - dailyTasksCount)
   const ringOffsetTotal = 88 - (totalTasks / limitTotal) * 88
 
-  const dailyTasks = filteredTasks.filter(t => t.repeat_type === "Daily")
-  const generalTasks = filteredTasks.filter(t => t.repeat_type !== "Daily")
+  const dailyTasks = filteredTasks.filter(isTaskDaily)
+  const generalTasks = filteredTasks.filter(t => !isTaskDaily(t))
 
   // States for Create Form
   const [isCreating, setIsCreating] = useState(false)
@@ -452,7 +463,7 @@ export function ScheduleView() {
 
     setIsSaving(true)
     try {
-      const extraData = JSON.stringify({ pushEnabled, emailEnabled, time, specificDate, dayOfWeek, dayOfMonth })
+      const extraData = JSON.stringify({ pushEnabled, emailEnabled, time, specificDate, dayOfWeek, dayOfMonth, frequency })
       const data = await apiPost("/api/schedule_create", {
         title, description: prompt, repeat_type: frequency, 
         extra: extraData, event_type: "Custom Prompt", fire_at: new Date().toISOString()
@@ -509,11 +520,19 @@ export function ScheduleView() {
     hh = hh % 12 || 12
     const timeStr = `${hh}:${m} ${ampm}`
 
-    switch (item.repeat_type) {
-      case "Once": return `Once at ${timeStr}`
-      case "Daily": return `Daily at ${timeStr}`
-      case "Weekly": return `${DOW_OPTIONS.find(d=>d.value===day)?.label || day}s at ${timeStr}`
-      case "Monthly": return `Monthly at ${timeStr}`
+    let rt = (item.repeat_type || "").trim().toLowerCase()
+    if (!rt || rt === "undefined") {
+      try {
+        const ex = JSON.parse(item.extra || "{}")
+        if (ex.frequency) rt = ex.frequency.trim().toLowerCase()
+      } catch (e) {}
+    }
+
+    switch (rt) {
+      case "once": return `Once at ${timeStr}`
+      case "daily": return `Daily at ${timeStr}`
+      case "weekly": return `${DOW_OPTIONS.find(d=>d.value===day)?.label || day}s at ${timeStr}`
+      case "monthly": return `Monthly at ${timeStr}`
       default: return `At ${timeStr}`
     }
   }
@@ -561,6 +580,7 @@ export function ScheduleView() {
   return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto min-h-screen bg-[#000000] text-white select-none relative">
       <style>{RIPPLE_STYLE}</style>
+      {(isCreating || !!selectedTask) && <style>{`#main-nav-bar { display: none !important; }`}</style>}
 
       {/* ── Top Calendar ── */}
       <div className="pt-[calc(var(--tg-safe-area-inset-top,24px)+20px)] relative z-10 flex flex-col">
@@ -673,7 +693,7 @@ export function ScheduleView() {
 
       {/* ── Bottom Bar ── */}
       <div className="fixed left-4 right-4 z-40 p-2 rounded-full flex items-center justify-between shadow-2xl" 
-           style={{ ...greyGlowStyle, bottom: "calc(var(--tg-safe-area-inset-bottom, 16px) + 100px)" }}>
+           style={{ ...greyGlowStyle, bottom: "calc(var(--tg-safe-area-inset-bottom, 16px) + 115px)" }}>
         <div className="pl-2">
           <LimitsIndicator offset={ringOffsetTotal} remaining={remainingTotal} current={totalTasks} max={limitTotal} label="tasks" />
         </div>
