@@ -74,13 +74,15 @@ export function PremiumView() {
       <div className="flex-1 flex flex-col items-center pt-[calc(var(--tg-safe-area-inset-top,24px)+48px)] px-4 relative z-10 overflow-y-auto no-scrollbar pb-8">
         
         {/* Título: SuperNoir */}
-        <img 
-          src="/SuperNoir-subscription-banner.png" 
-          alt="SuperNoir" 
-          className="h-[64px] w-auto object-contain mb-8 mt-4 pointer-events-none select-none" 
-          draggable={false} 
-          onContextMenu={(e) => e.preventDefault()} 
-        />
+        <div className="h-[64px] mb-8 mt-4 flex items-center justify-center relative w-full pointer-events-none z-20">
+          <img 
+            src="/SuperNoir-subscription-banner.png" 
+            alt="SuperNoir" 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[200px] w-auto max-w-[150vw] object-contain pointer-events-none select-none" 
+            draggable={false} 
+            onContextMenu={(e) => e.preventDefault()} 
+          />
+        </div>
 
         {/* Cuadros Comparativos (Estilo Mira Pro) */}
         <div className="w-full max-w-md grid grid-cols-2 gap-2 mb-10">
