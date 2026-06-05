@@ -43,18 +43,18 @@ export function PremiumView() {
       <style>{`
         @keyframes shimmer-shine {
           0% { transform: translateX(-100%); }
-          20% { transform: translateX(300%); }
+          50% { transform: translateX(300%); }
           100% { transform: translateX(300%); }
         }
         @keyframes shimmer-border {
           0% { border-color: rgba(255,106,0,1); }
-          10% { border-color: rgba(255,255,255,0.9); box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-          20% { border-color: rgba(255,106,0,1); box-shadow: 0 0 0px transparent; }
+          25% { border-color: rgba(255,255,255,0.9); box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+          50% { border-color: rgba(255,106,0,1); box-shadow: 0 0 0px transparent; }
           100% { border-color: rgba(255,106,0,1); }
         }
         .shimmer-btn {
           border: 1.5px solid rgba(255,106,0,1);
-          animation: shimmer-border 2.5s infinite linear;
+          animation: shimmer-border 3.5s infinite linear;
         }
         .shimmer-btn::after {
           content: "";
@@ -65,17 +65,17 @@ export function PremiumView() {
           height: 100%;
           background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
           transform: translateX(-100%);
-          animation: shimmer-shine 2.5s infinite linear;
+          animation: shimmer-shine 3.5s infinite linear;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       
-      <div className="flex-1 flex flex-col items-center pt-[calc(var(--tg-safe-area-inset-top,24px)+24px)] px-4 relative z-10 overflow-y-auto no-scrollbar pb-8">
+      <div className="flex-1 flex flex-col items-center pt-[calc(var(--tg-safe-area-inset-top,24px)+48px)] px-4 relative z-10 overflow-y-auto no-scrollbar pb-8">
         
         {/* Título: SuperNoir */}
         <h1 
-          className="text-[64px] font-extrabold tracking-tighter mb-8 pb-1 leading-none"
+          className="text-[64px] font-extrabold tracking-tighter mb-8 pb-1 leading-none mt-4"
           style={{
             background: "linear-gradient(to right, #ffffff 0%, #d1d1d6 35%, #48484a 100%)",
             WebkitBackgroundClip: "text",
@@ -110,7 +110,7 @@ export function PremiumView() {
             <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
               <div className="text-[28px] mb-2 leading-none">⚙️</div>
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Limits</h3>
-              <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Basic tokens & up to 2 active tasks.</p>
+              <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Fewer limits & up to 5 active tasks.</p>
             </div>
           </div>
 
@@ -135,7 +135,7 @@ export function PremiumView() {
             <div className="flex flex-col items-center text-center p-3 border-t border-[#ff6a00]/30 min-h-[140px]">
               <div className="text-[28px] mb-2 leading-none">🚀</div>
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Increased Limits</h3>
-              <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Higher tokens & up to 10 active tasks.</p>
+              <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Higher limits & up to 15 active tasks.</p>
             </div>
           </div>
 
