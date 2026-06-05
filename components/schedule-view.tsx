@@ -284,7 +284,7 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "", i
 
 // ── Main Component ──
 export function ScheduleView() {
-  const { setCurrentView, userPreferences } = useApp()
+  const { setCurrentView, userPreferences, isPremium } = useApp()
   const [tasks, setTasks] = useState<ScheduleItem[]>([])
   const [loadingItems, setLoadingItems] = useState(true)
   const [suggestedTasks, setSuggestedTasks] = useState<typeof MOCK_TASKS>([])
@@ -328,13 +328,18 @@ export function ScheduleView() {
 
   const totalTasks = tasks.length
   const dailyTasksCount = tasks.filter(t => t.repeat_type === "Daily").length
+  const generalTasksCount = tasks.filter(t => t.repeat_type !== "Daily").length
 
   // Counters for the UI
-  const limitTotal = 10
-  const limitDaily = 2
+  const limitGeneral = isPremium ? 15 : 5
+  const limitDaily = isPremium ? 5 : 2
+  const limitTotal = limitGeneral + limitDaily
   
-  const remainingTotal = Math.max(0, limitTotal - totalTasks)
+  const remainingTotal = Math.max(0, limitGeneral - generalTasksCount) + Math.max(0, limitDaily - dailyTasksCount)
   const ringOffsetTotal = 88 - (totalTasks / limitTotal) * 88
+
+  const dailyTasks = filteredTasks.filter(t => t.repeat_type === "Daily")
+  const generalTasks = filteredTasks.filter(t => t.repeat_type !== "Daily")
 
   // States for Create Form
   const [isCreating, setIsCreating] = useState(false)
@@ -353,9 +358,9 @@ export function ScheduleView() {
 
   // Dynamic counter inside the creation modal based on frequency
   const isDailyForm = frequency === "Daily"
-  const remainingForm = isDailyForm ? Math.max(0, limitDaily - dailyTasksCount) : remainingTotal
-  const maxForm = isDailyForm ? limitDaily : limitTotal
-  const currentForm = isDailyForm ? dailyTasksCount : totalTasks
+  const remainingForm = isDailyForm ? Math.max(0, limitDaily - dailyTasksCount) : Math.max(0, limitGeneral - generalTasksCount)
+  const maxForm = isDailyForm ? limitDaily : limitGeneral
+  const currentForm = isDailyForm ? dailyTasksCount : generalTasksCount
   const ringOffsetForm = 88 - (currentForm / maxForm) * 88
 
   const showToast = useCallback((msg:string,type:"success"|"error")=>{
@@ -436,12 +441,12 @@ export function ScheduleView() {
       return
     }
 
-    if (totalTasks >= limitTotal) {
-      showToast("You have reached the limit of 10 active tasks.", "error")
+    if (frequency === "Daily" && dailyTasksCount >= limitDaily) {
+      showToast(`You can only have ${limitDaily} daily tasks active simultaneously.`, "error")
       return
     }
-    if (frequency === "Daily" && dailyTasksCount >= limitDaily) {
-      showToast("You can only have 2 daily tasks active simultaneously.", "error")
+    if (frequency !== "Daily" && generalTasksCount >= limitGeneral) {
+      showToast(`You have reached the limit of ${limitGeneral} general tasks.`, "error")
       return
     }
 
@@ -612,19 +617,52 @@ export function ScheduleView() {
         {loadingItems ? (
            <div className="flex items-center justify-center py-10"><Loader2 className="w-6 h-6 animate-spin text-[#555558]"/></div>
         ) : filteredTasks.length > 0 ? (
-          <div className="flex flex-col">
-            {filteredTasks.map((item, idx) => (
-              <div key={item.id} onClick={() => setSelectedTask(item)} className={`w-full flex items-center justify-between py-3.5 ${idx !== filteredTasks.length - 1 ? 'border-b border-[#1c1c1e]' : ''} active:opacity-60 transition-opacity cursor-pointer`}>
-                 <div className="flex flex-col gap-1">
-                    <span className="text-white text-[17px] font-medium tracking-tight" style={{ fontFamily: SFD }}>{item.title}</span>
-                    <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{formatFrequencyText(item)}</span>
-                 </div>
-                 <div className="flex items-center gap-1.5 text-[#636366]">
-                    <Clock className="w-[14px] h-[14px]" strokeWidth={2.5}/>
-                    <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>Scheduled</span>
-                 </div>
+          <div className="flex flex-col gap-6">
+            {dailyTasks.length > 0 && (
+              <div className="flex flex-col">
+                <div className="flex items-center gap-3 mb-1">
+                  <h3 className="text-white text-[15px] font-bold tracking-tight" style={{fontFamily: SFD}}>Daily Tasks</h3>
+                  <div className="flex-1 h-[1px] bg-[#1c1c1e]" />
+                </div>
+                <div className="flex flex-col">
+                  {dailyTasks.map((item, idx) => (
+                    <div key={item.id} onClick={() => setSelectedTask(item)} className={`w-full flex items-center justify-between py-3.5 ${idx !== dailyTasks.length - 1 ? 'border-b border-[#1c1c1e]' : ''} active:opacity-60 transition-opacity cursor-pointer`}>
+                       <div className="flex flex-col gap-1">
+                          <span className="text-white text-[17px] font-medium tracking-tight" style={{ fontFamily: SFD }}>{item.title}</span>
+                          <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{formatFrequencyText(item)}</span>
+                       </div>
+                       <div className="flex items-center gap-1.5 text-[#636366]">
+                          <Clock className="w-[14px] h-[14px]" strokeWidth={2.5}/>
+                          <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>Scheduled</span>
+                       </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            )}
+            
+            {generalTasks.length > 0 && (
+              <div className="flex flex-col">
+                <div className="flex items-center gap-3 mb-1">
+                  <h3 className="text-white text-[15px] font-bold tracking-tight" style={{fontFamily: SFD}}>General Tasks</h3>
+                  <div className="flex-1 h-[1px] bg-[#1c1c1e]" />
+                </div>
+                <div className="flex flex-col">
+                  {generalTasks.map((item, idx) => (
+                    <div key={item.id} onClick={() => setSelectedTask(item)} className={`w-full flex items-center justify-between py-3.5 ${idx !== generalTasks.length - 1 ? 'border-b border-[#1c1c1e]' : ''} active:opacity-60 transition-opacity cursor-pointer`}>
+                       <div className="flex flex-col gap-1">
+                          <span className="text-white text-[17px] font-medium tracking-tight" style={{ fontFamily: SFD }}>{item.title}</span>
+                          <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{formatFrequencyText(item)}</span>
+                       </div>
+                       <div className="flex items-center gap-1.5 text-[#636366]">
+                          <Clock className="w-[14px] h-[14px]" strokeWidth={2.5}/>
+                          <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>Scheduled</span>
+                       </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-10 opacity-50">
