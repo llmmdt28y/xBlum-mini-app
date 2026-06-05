@@ -13,7 +13,7 @@ import { ScheduleView } from "@/components/schedule-view"
 import { LevelsView } from "@/components/levels-view" 
 import { ShopView } from "@/components/shop-view" 
 import { useEffect, useState } from "react"
-import { Home, Target, Store, CircleUser, Loader2 } from "lucide-react" 
+import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react" 
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = { 
@@ -181,7 +181,7 @@ function NavBar() {
 
   // Determinamos el modo síncronamente durante el render
   const isMarketSection = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
-  const isHomeSection = currentView === 'home'
+  const isHomeSection = currentView === 'home' || currentView === 'schedule'
   
   const activeNavMode = isMarketSection ? 'market' : (isHomeSection ? 'home' : storedNavMode)
 
@@ -208,7 +208,7 @@ function NavBar() {
       ]
     : [
         { id: "home", label: "Home", icon: Home, disabled: false },
-        { id: "none1", label: "None", icon: null, disabled: true },
+        { id: "schedule", label: "Tasks", icon: Clock, disabled: false },
         { id: "none2", label: "None", icon: null, disabled: true },
       ]
 
@@ -370,7 +370,7 @@ function NavBar() {
 // ── App shell ──────────────────────────────────────────
 function AppContent() {
   const { currentView, isLoading } = useApp()
-  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards"].includes(currentView)
+  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards", "schedule"].includes(currentView)
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [showLoading, setShowLoading] = useState(true)
