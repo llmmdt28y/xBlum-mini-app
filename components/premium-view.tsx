@@ -79,7 +79,7 @@ export function PremiumView() {
             src="/SuperNoir-subscription-banner.png" 
             alt="SuperNoir" 
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none" 
-            style={{ height: "280px", width: "auto", maxWidth: "none" }}
+            style={{ height: "120px", width: "auto", maxWidth: "none" }}
             draggable={false} 
             onContextMenu={(e) => e.preventDefault()} 
           />
