@@ -74,17 +74,13 @@ export function PremiumView() {
       <div className="flex-1 flex flex-col items-center pt-[calc(var(--tg-safe-area-inset-top,24px)+48px)] px-4 relative z-10 overflow-y-auto no-scrollbar pb-8">
         
         {/* Título: SuperNoir */}
-        <h1 
-          className="text-[64px] font-extrabold tracking-tighter mb-8 pb-1 leading-none mt-4"
-          style={{
-            background: "linear-gradient(to right, #ffffff 0%, #d1d1d6 35%, #48484a 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif"
-          }}
-        >
-          SuperNoir
-        </h1>
+        <img 
+          src="/SuperNoir-subscription-banner.png" 
+          alt="SuperNoir" 
+          className="h-[64px] w-auto object-contain mb-8 mt-4 pointer-events-none select-none" 
+          draggable={false} 
+          onContextMenu={(e) => e.preventDefault()} 
+        />
 
         {/* Cuadros Comparativos (Estilo Mira Pro) */}
         <div className="w-full max-w-md grid grid-cols-2 gap-2 mb-10">
@@ -96,19 +92,19 @@ export function PremiumView() {
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
-              <img src="/memo.webp" alt="Memo" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md" />
+              <img src="/memo.webp" alt="Memo" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Basic Features</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Standard access to core tools and stable AI models.</p>
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
-              <img src="/search.webp" alt="Search" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md" />
+              <img src="/search.webp" alt="Search" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Search</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Basic web search for everyday questions.</p>
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
-              <img src="/hourglass.webp" alt="Limits" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md" />
+              <img src="/hourglass.webp" alt="Limits" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Limits</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Fewer limits & up to 5 active tasks.</p>
             </div>
@@ -121,19 +117,19 @@ export function PremiumView() {
             </div>
             
             <div className="flex flex-col items-center text-center p-3 min-h-[140px]">
-              <img src="/robot.webp" alt="Autonomous AI" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
+              <img src="/robot.webp" alt="Autonomous AI" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Beta Access</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Early access to experimental tools, beta features & latest models.</p>
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#ff6a00]/30 min-h-[140px]">
-              <img src="/lightning.webp" alt="Lightning" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
+              <img src="/lightning.webp" alt="Lightning" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>DeepSearch</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Advanced reasoning and deep thinking tools.</p>
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#ff6a00]/30 min-h-[140px]">
-              <img src="/rocket.webp" alt="Rocket" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
+              <img src="/rocket.webp" alt="Rocket" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Increased Limits</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Higher limits & up to 15 active tasks.</p>
             </div>
@@ -156,7 +152,7 @@ export function PremiumView() {
           ) : (
             <div className="flex items-center justify-center gap-1.5 relative z-10">
               <span className="leading-none mt-[1px]">Subscribe for</span>
-              <img src="/telegram-star-icon.png" alt="Star" className="w-[18px] h-[18px] object-contain -mt-[1px]" style={{ filter: "brightness(0) invert(1)" }} />
+              <img src="/telegram-star-icon.png" alt="Star" className="w-[18px] h-[18px] object-contain -mt-[1px] pointer-events-none select-none" style={{ filter: "brightness(0) invert(1)" }} draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <span className="leading-none mt-[1px]">1,150</span>
             </div>
           )}
