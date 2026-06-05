@@ -78,7 +78,8 @@ export function PremiumView() {
           <img 
             src="/SuperNoir-subscription-banner.png" 
             alt="SuperNoir" 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[200px] w-auto max-w-[150vw] object-contain pointer-events-none select-none" 
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none" 
+            style={{ height: "280px", width: "auto", maxWidth: "none" }}
             draggable={false} 
             onContextMenu={(e) => e.preventDefault()} 
           />
