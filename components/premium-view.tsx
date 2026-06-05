@@ -3,20 +3,8 @@
 import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
 
-const PLANS = [
-  { id: "premium_1m", label: "Monthly", stars: 800, months: 1 },
-  { id: "premium_6m", label: "6 Months", stars: 4000, months: 6, save: "17%" },
-]
-
-const StarIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-white">
-    <path d="M12 1.5L14.3 9.7L22.5 12L14.3 14.3L12 22.5L9.7 14.3L1.5 12L9.7 9.7L12 1.5Z" />
-  </svg>
-)
-
 export function PremiumView() {
   const { setCurrentView, isPremium, openInvoice } = useApp()
-  const [selectedPlan, setSelectedPlan] = useState<string>("premium_1m")
   const [isLoading, setIsLoading] = useState(false)
 
   // ── Botón Nativo de Telegram ──
@@ -40,26 +28,15 @@ export function PremiumView() {
   }, [setCurrentView])
 
   async function subscribe() {
-    if (!selectedPlan) return
     setIsLoading(true)
     try {
-      await openInvoice(selectedPlan)
+      await openInvoice("premium_1m")
     } catch (e) {
       console.error("[Subscribe]", e)
     } finally {
       setIsLoading(false)
     }
   }
-
-  const features = [
-    "Guaranteed access during peak hours",
-    "Unlock DeepSearch and Think",
-    "Up to 10 active Scheduled Tasks",
-    "Early access to new features",
-    "17% discount compared to Monthly",
-  ]
-
-  const activePlanData = PLANS.find(p => p.id === selectedPlan) || PLANS[0]
 
   return (
     <div className="flex-1 min-h-screen flex flex-col bg-[#000000] relative overflow-hidden text-white" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" }}>
@@ -77,7 +54,7 @@ export function PremiumView() {
         }
         .shimmer-btn {
           border: 1.5px solid rgba(255,106,0,1);
-          animation: shimmer-border 3s infinite linear;
+          animation: shimmer-border 6s infinite linear;
         }
         .shimmer-btn::after {
           content: "";
@@ -88,7 +65,7 @@ export function PremiumView() {
           height: 100%;
           background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
           transform: translateX(-100%);
-          animation: shimmer-shine 3s infinite linear;
+          animation: shimmer-shine 6s infinite linear;
         }
       `}</style>
       
@@ -108,67 +85,57 @@ export function PremiumView() {
       <div className="flex-1 flex flex-col items-center pt-24 px-6 relative z-10">
         
         {/* Título: SuperNoir */}
-        <h1 className="text-5xl font-bold tracking-tight mb-3">
-          Super<span className="text-[#8e8e93]">Noir</span>
+        <h1 
+          className="text-5xl font-extrabold tracking-tighter mb-2 pb-1"
+          style={{
+            background: "linear-gradient(to right, #ffffff 0%, #c7c7cc 40%, #3a3a3c 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif"
+          }}
+        >
+          SuperNoir
         </h1>
         
-        <p className="text-lg font-medium text-white mb-10">
+        <p className="text-[17px] font-medium text-[#8e8e93] mb-10">
           Unlock advanced capabilities
         </p>
 
-        {/* Lista de beneficios */}
-        <div className="flex flex-col items-start space-y-4 mb-10">
-          {features.map((text, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className="shrink-0">
-                <StarIcon />
-              </div>
-              <p className="text-[15px] font-medium leading-tight">{text}</p>
-            </div>
-          ))}
-        </div>
+        {/* Cuadros Comparativos */}
+        <div className="w-full max-w-sm grid grid-cols-2 gap-3 mb-10">
+          
+          {/* Tarjeta Free */}
+          <div className="bg-[#111111] border border-[#1c1c1e] rounded-[24px] p-5 flex flex-col items-center text-center shadow-lg">
+            <div className="text-[32px] mb-3 leading-none">🤍</div>
+            <h3 className="text-white font-bold text-[17px] mb-2" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Basic</h3>
+            <p className="text-[#8e8e93] text-[13px] leading-[1.4] font-medium">Standard limits, 2 daily tasks & basic models.</p>
+          </div>
 
-        {/* Toggle de Planes */}
-        <div className="w-full max-w-sm p-1 bg-[#111] border border-[#1c1c1e] rounded-full flex relative mb-4">
-          <div 
-            className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-[#2c2c2e] rounded-full transition-all duration-300 ease-out"
-            style={{ left: selectedPlan === "premium_1m" ? "4px" : "calc(50%)" }}
-          />
-          {PLANS.map((plan) => (
-            <button
-              key={plan.id}
-              onClick={() => setSelectedPlan(plan.id)}
-              className={`flex-1 py-3 text-sm font-semibold rounded-full relative z-10 transition-colors duration-200 ${
-                selectedPlan === plan.id ? "text-white" : "text-[#8e8e93]"
-              }`}
-            >
-              {plan.label}
-            </button>
-          ))}
-        </div>
+          {/* Tarjeta Premium */}
+          <div className="bg-[#1c1c1e] border border-[#ff6a00]/40 rounded-[24px] p-5 flex flex-col items-center text-center shadow-[0_0_20px_rgba(255,106,0,0.1)] relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-[#ff6a00]/10 to-transparent pointer-events-none" />
+            <div className="text-[32px] mb-3 leading-none relative z-10">✦</div>
+            <h3 className="text-white font-bold text-[17px] mb-2 relative z-10" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>SuperNoir</h3>
+            <p className="text-[#e5e5ea] text-[13px] leading-[1.4] font-medium relative z-10">Noir 3, DeepSearch & up to 10 active tasks.</p>
+          </div>
 
-        {/* Pricing Info */}
-        <p className="text-center text-[#636366] text-xs font-medium mb-6">
-          {activePlanData.months === 1 
-            ? `Billed monthly at ${activePlanData.stars} ⭐. Cancel anytime.` 
-            : `Billed every 6 months at ${activePlanData.stars} ⭐. Cancel anytime.`}
-        </p>
+        </div>
 
         {/* Upgrade Button */}
         <button
           onClick={subscribe}
           disabled={isLoading || isPremium}
-          className="w-full max-w-sm py-4 shimmer-btn relative overflow-hidden bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-6 shadow-[0_0_20px_rgba(255,106,0,0.3)]"
+          className="w-full max-w-sm py-[18px] shimmer-btn relative overflow-hidden bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-6 shadow-[0_0_20px_rgba(255,106,0,0.3)]"
         >
           {isPremium ? (
             <span className="relative z-10">SuperNoir Active</span>
           ) : isLoading ? (
             <span className="relative z-10">Processing...</span>
           ) : (
-            <div className="flex items-center justify-center gap-2 relative z-10">
-              <span>Subscribe for</span>
-              <img src="/telegram-star-icon.png" alt="Star" className="w-5 h-5 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
-              <span>1,150</span>
+            <div className="flex items-center justify-center gap-1.5 relative z-10">
+              <span className="leading-none mt-[1px]">Subscribe for</span>
+              <img src="/telegram-star-icon.png" alt="Star" className="w-[18px] h-[18px] object-contain -mt-[1px]" style={{ filter: "brightness(0) invert(1)" }} />
+              <span className="leading-none mt-[1px]">1,150</span>
             </div>
           )}
         </button>
