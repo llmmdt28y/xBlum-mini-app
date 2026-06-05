@@ -34,6 +34,7 @@ function getTgUser(): TgUser | undefined {
 function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   const [tapCount, setTapCount] = useState(0)
 
+  // Función para desbloquear si se presiona 7 veces rápidamente en la esquina
   const handleSecretTap = () => {
     setTapCount(prev => {
       if (prev + 1 >= 7) {
@@ -44,6 +45,7 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
     })
   }
 
+  // Reiniciar los toques si pasan más de 1.5 segundos sin interacción
   useEffect(() => {
     if (tapCount > 0) {
       const timer = setTimeout(() => setTapCount(0), 1500)
@@ -53,21 +55,39 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center select-none overflow-hidden">
-      <div onClick={handleSecretTap} className="absolute top-0 left-0 w-24 h-24 z-50" />
+      
+      {/* Botón invisible en la esquina superior izquierda (Backdoor para Devs) */}
+      <div 
+        onClick={handleSecretTap} 
+        className="absolute top-0 left-0 w-24 h-24 z-50"
+      />
+
+      {/* Contenedor protegido para la imagen */}
       <div className="relative mb-8 pointer-events-none select-none">
         <img 
           src="/steampunkjulia_agadsqcaakb7raq.webp" 
           alt="Maintenance" 
           draggable={false}
           className="w-48 h-48 object-contain pointer-events-none select-none"
-          style={{ WebkitUserSelect: "none", WebkitTouchCallout: "none", userSelect: "none" }} 
+          style={{ 
+            WebkitUserSelect: "none", 
+            WebkitTouchCallout: "none",
+            userSelect: "none"
+          }} 
         />
       </div>
+
       <div className="flex flex-col items-center gap-1">
-        <h1 className="text-white text-[24px] font-bold tracking-tight" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}>
+        <h1 
+          className="text-white text-[24px] font-bold tracking-tight" 
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}
+        >
           Currently working
         </h1>
-        <p className="text-[#8e8e93] text-[17px] font-medium" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}>
+        <p 
+          className="text-[#8e8e93] text-[17px] font-medium" 
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}
+        >
           come back later 🚀
         </p>
       </div>
@@ -94,26 +114,64 @@ function NavBar() {
   const { currentView, setCurrentView } = useApp()
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   
+  // Memoria del modo de navegación para cuando el usuario abra el Perfil
   const [storedNavMode, setStoredNavMode] = useState<'home' | 'market'>('home')
+
+  // Estados para ocultar/mostrar la barra al hacer scroll
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
+
+  // Estado para el cristal dinámico realista
+  const [glassStyles, setGlassStyles] = useState({
+    background: "linear-gradient(135deg, rgba(30, 30, 30, 0.4) 0%, rgba(30, 30, 30, 0.15) 100%)",
+    borderColor: "rgba(255, 255, 255, 0.12)",
+    boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(0,0,0,0.3)",
+  })
 
   useEffect(() => {
     const user = getTgUser()
     if (user && user.photo_url) setPhotoUrl(user.photo_url)
+
+    // Lógica dinámica de Telegram para el cristal líquido
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tgParams = (window as any).Telegram?.WebApp?.themeParams || {}
+    const bgColor = tgParams.bg_color || '#1e1e1e'
+    
+    // Chequeo de luminosidad para adaptar el cristal al tema (claro/oscuro)
+    const r = parseInt(bgColor.replace('#','').slice(0, 2) || '1e', 16)
+    const g = parseInt(bgColor.replace('#','').slice(2, 4) || '1e', 16)
+    const b = parseInt(bgColor.replace('#','').slice(4, 6) || '1e', 16)
+    const isDark = (r * 0.299 + g * 0.587 + b * 0.114) < 128
+
+    const dynamicBgStart = hexToRgba(bgColor, isDark ? 0.35 : 0.6)
+    const dynamicBgEnd = hexToRgba(bgColor, isDark ? 0.05 : 0.2)
+    const dynamicBorderColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.4)'
+    const topHighlight = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.7)'
+    const shadowColor = isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.15)'
+
+    setGlassStyles({
+      background: `linear-gradient(135deg, ${dynamicBgStart} 0%, ${dynamicBgEnd} 100%)`,
+      borderColor: dynamicBorderColor,
+      boxShadow: `0 12px 40px ${shadowColor}, inset 0 1.5px 1px ${topHighlight}, inset 0 -1px 1px rgba(0,0,0,0.2)`,
+    })
   }, [])
 
-  // ── LÓGICA DE SCROLL ──
+  // ── LÓGICA DE SCROLL PARA OCULTAR/MOSTRAR LA BARRA ──
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
+
+      // Umbral para ignorar pequeños rebotes (bounces) y no activar la animación por error
       if (Math.abs(currentScrollY - lastScrollY) < 10) return
 
+      // Si hacemos scroll hacia abajo y hemos pasado un margen de 50px
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
         setIsVisible(false)
       } else {
+        // Si hacemos scroll hacia arriba o estamos en la cima
         setIsVisible(true)
       }
+      
       setLastScrollY(currentScrollY)
     }
 
@@ -121,6 +179,7 @@ function NavBar() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [lastScrollY])
 
+  // Determinamos el modo síncronamente durante el render
   const isMarketSection = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
   const isHomeSection = currentView === 'home'
   
@@ -134,14 +193,13 @@ function NavBar() {
 
   const handleLeftActionButton = () => {
     if (activeNavMode === 'market') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setCurrentView('home' as any)
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setCurrentView('market' as any)
     }
   }
 
+  // Pestañas dinámicas basadas en el MODO ACTIVO
   const centerTabs = activeNavMode === 'market' 
     ? [
         { id: "market", label: "Market", icon: Store, disabled: false },
@@ -154,36 +212,32 @@ function NavBar() {
         { id: "none2", label: "None", icon: null, disabled: true },
       ]
 
+  // Colores de interfaz 
   const neonBlue = "#33b5f7" 
   const inactiveGlassText = "rgba(255, 255, 255, 0.6)" 
 
-  // Componente LiquidBackground Ajustado (Esmerilado Suave)
+  // Componente de fondo líquido usando SVG aislado para evitar el bug de iOS/Safari (Técnica de Ekino France)
   const LiquidBackground = ({ radius = "100px" }: { radius?: string }) => (
     <>
       <div 
         className="absolute inset-0 z-[1] pointer-events-none" 
         style={{ 
-          backdropFilter: "blur(32px) saturate(150%)", /* Mayor blur, saturación más controlada */
-          WebkitBackdropFilter: "blur(32px) saturate(150%)",
-          borderRadius: radius
+          contain: "paint", // <- CLAVE: aísla el renderizado del SVG para que no explote la pantalla
+          backdropFilter: "blur(12px)", 
+          WebkitBackdropFilter: "blur(12px)", 
+          filter: "url(#glass-distortion) saturate(180%) brightness(1.15)"
         }} 
       />
       <div 
         className="absolute inset-0 z-[2] pointer-events-none" 
-        style={{ 
-          background: "rgba(22, 22, 22, 0.55)", /* Tinte grisáceo plano para homogeneizar los colores fuertes del fondo */
-          borderRadius: radius
-        }} 
+        style={{ background: glassStyles.background }} 
       />
       <div 
         className="absolute inset-0 z-[3] pointer-events-none" 
         style={{ 
-          borderRadius: radius,
-          boxShadow: `
-            inset 0 1px 1px rgba(255, 255, 255, 0.08), /* Reflejo superior muy sutil */
-            inset 0 0 0 1px rgba(255, 255, 255, 0.03), /* Micro-borde perimetral */
-            0 8px 32px rgba(0, 0, 0, 0.6) /* Sombra proyectada */
-          `
+          border: `1px solid ${glassStyles.borderColor}`, 
+          boxShadow: glassStyles.boxShadow, 
+          borderRadius: radius 
         }} 
       />
     </>
@@ -197,6 +251,14 @@ function NavBar() {
       }`}
       style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)" }}
     >
+      {/* Filtro SVG oculto para la distorsión líquida (Aislado con contain: paint) */}
+      <svg style={{ width: 0, height: 0, position: "absolute", pointerEvents: "none" }}>
+        <filter id="glass-distortion">
+          <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="40" />
+        </filter>
+      </svg>
+      
       {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
       <button
         onClick={handleLeftActionButton}
@@ -204,7 +266,6 @@ function NavBar() {
         style={{ width: "64px", height: "64px", borderRadius: "100px" }}
       >
         <LiquidBackground />
-       
         <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none">
         {activeNavMode === 'market' ? (
           <>
@@ -222,12 +283,11 @@ function NavBar() {
 
       {/* ── PÍLDORA CENTRAL: Módulos Fijos ── */}
       <div
-        className="pointer-events-auto relative flex items-center justify-between flex-1 mx-3 px-1.5"
+        className="pointer-events-auto relative overflow-hidden flex items-center justify-between flex-1 mx-3 px-1.5"
         style={{ borderRadius: "100px", height: "64px" }}
       >
         <LiquidBackground />
-        
-        <div className="relative z-10 flex items-center justify-between w-full h-full py-1.5 gap-1">
+        <div className="relative z-10 flex items-center justify-between w-full">
         {centerTabs.map((tab, idx) => {
           const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
           const isDisabled = !!tab.disabled
@@ -237,21 +297,16 @@ function NavBar() {
             <button
               key={`${tab.id}-${idx}`}
               disabled={isDisabled}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-              className="relative flex flex-col items-center justify-center transition-all duration-400 ease-out rounded-[100px] flex-1 h-full"
+              // Aumentamos el tiempo de transición para que el escalado sea fluido (ease-out)
+              className="relative flex flex-col items-center justify-center transition-all duration-300 ease-out rounded-[100px] flex-1 h-[54px]"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
-                background: isActive ? "rgba(0, 0, 0, 0.45)" : "transparent",
-                /* Neumorfismo Inverso Suavizado */
-                boxShadow: isActive 
-                  ? `
-                    inset 0 4px 8px rgba(0, 0, 0, 0.5), /* Hundimiento suave superior */
-                    inset 0 1px 3px rgba(0, 0, 0, 0.8), /* Borde superior afilado interno */
-                    inset 0 -1px 1px rgba(255, 255, 255, 0.08) /* Reflejo inferior para dar volumen */
-                  ` 
-                  : "none",
-                transform: isActive ? "scale(0.97)" : "scale(1)", 
+                // Fondo oscurecido transparente restaurado con la sombra interior del bisel blanco superior
+                background: isActive ? "rgba(0, 0, 0, 0.4)" : "transparent",
+                boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)" : "none",
+                // Animación de crecimiento del botón (Gota/Lupa)
+                transform: isActive ? "scale(1.08)" : "scale(1)", 
               }}
             >
               {Icon ? (
@@ -280,24 +335,15 @@ function NavBar() {
 
       {/* ── BOTÓN DERECHO: Profile ── */}
       <button
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onClick={() => setCurrentView('profile' as any)}
+        onClick={() => setCurrentView('profile')}
         className="pointer-events-auto relative overflow-hidden flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
         style={{ width: "64px", height: "64px", borderRadius: "100px" }}
       >
         <LiquidBackground />
         <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pointer-events-none">
         {photoUrl ? (
-          /* Ajuste: Contenedor con borde oscuro y padding para crear el efecto de "anillo" */
-          <div 
-            className="w-[50px] h-[50px] rounded-full overflow-hidden p-[2px]" 
-            style={{ 
-              background: "rgba(0,0,0,0.5)", 
-              border: "1px solid rgba(255,255,255,0.05)",
-              boxShadow: "inset 0 2px 4px rgba(0,0,0,0.5)" 
-            }}
-          >
-            <img src={photoUrl} alt="User" className="w-full h-full object-cover rounded-full" />
+          <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
+            <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center">
@@ -330,7 +376,8 @@ function AppContent() {
   const [showLoading, setShowLoading] = useState(true)
   const [fadeLoading, setFadeLoading] = useState(false)
   
-  const [isMaintenance, setIsMaintenance] = useState(false)
+  // Estado que controla si la pantalla de mantenimiento está activa
+  const [isMaintenance, setIsMaintenance] = useState(false) // <-- Cambiar a true si necesitas activarlo
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -391,6 +438,7 @@ function AppContent() {
     }
   }, [isLoading, imagesLoaded])
 
+  // Si está en mantenimiento, bloquear la app devolviendo solo la pantalla
   if (isMaintenance) {
     return <MaintenanceScreen onUnlock={() => setIsMaintenance(false)} />
   }
@@ -409,6 +457,7 @@ function AppContent() {
         className="bg-black flex flex-col relative" 
         style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
       >
+        {/* Renderizado de Vistas */}
         {currentView === "home" && (<><Header /><HomeView /></>)}
         {currentView === "levels" && <LevelsView />} 
         {currentView === "shop" && <ShopView />} 
@@ -422,6 +471,7 @@ function AppContent() {
         {currentView === "market"    && <MarketView />}
         {currentView === "schedule"  && <ScheduleView />}
         
+        {/* Renderizado de la NavBar */}
         {showNav && <NavBar />}
       </div>
     </>
