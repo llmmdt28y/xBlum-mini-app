@@ -62,7 +62,35 @@ export function PremiumView() {
   const activePlanData = PLANS.find(p => p.id === selectedPlan) || PLANS[0]
 
   return (
-    <div className="flex-1 min-h-screen flex flex-col bg-[#050505] relative overflow-hidden text-white font-sans">
+    <div className="flex-1 min-h-screen flex flex-col bg-[#000000] relative overflow-hidden text-white" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" }}>
+      <style>{`
+        @keyframes shimmer-shine {
+          0% { transform: translateX(-100%); }
+          20% { transform: translateX(300%); }
+          100% { transform: translateX(300%); }
+        }
+        @keyframes shimmer-border {
+          0% { border-color: rgba(255,106,0,1); }
+          10% { border-color: rgba(255,255,255,0.9); box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+          20% { border-color: rgba(255,106,0,1); box-shadow: 0 0 0px transparent; }
+          100% { border-color: rgba(255,106,0,1); }
+        }
+        .shimmer-btn {
+          border: 1.5px solid rgba(255,106,0,1);
+          animation: shimmer-border 3s infinite linear;
+        }
+        .shimmer-btn::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+          transform: translateX(-100%);
+          animation: shimmer-shine 3s infinite linear;
+        }
+      `}</style>
       
       {/* Botón Skip (Arriba a la derecha) */}
       <div 
@@ -89,7 +117,7 @@ export function PremiumView() {
         </p>
 
         {/* Lista de beneficios */}
-        <div className="w-full max-w-sm space-y-4 mb-10">
+        <div className="flex flex-col items-start space-y-4 mb-10">
           {features.map((text, i) => (
             <div key={i} className="flex items-center gap-3">
               <div className="shrink-0">
@@ -130,9 +158,19 @@ export function PremiumView() {
         <button
           onClick={subscribe}
           disabled={isLoading || isPremium}
-          className="w-full max-w-sm py-4 bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-[18px] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-6 shadow-[0_0_20px_rgba(255,106,0,0.3)]"
+          className="w-full max-w-sm py-4 shimmer-btn relative overflow-hidden bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-6 shadow-[0_0_20px_rgba(255,106,0,0.3)]"
         >
-          {isPremium ? "SuperNoir Active" : isLoading ? "Processing..." : "Upgrade to SuperNoir"}
+          {isPremium ? (
+            <span className="relative z-10">SuperNoir Active</span>
+          ) : isLoading ? (
+            <span className="relative z-10">Processing...</span>
+          ) : (
+            <div className="flex items-center justify-center gap-2 relative z-10">
+              <span>Subscribe for</span>
+              <img src="/telegram-star-icon.png" alt="Star" className="w-5 h-5 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
+              <span>1,150</span>
+            </div>
+          )}
         </button>
 
         {/* Footer Links */}
@@ -142,9 +180,6 @@ export function PremiumView() {
             <span>|</span>
             <button className="hover:text-[#8e8e93]">Privacy Policy</button>
           </div>
-          <button className="text-[11px] text-[#555558] font-medium hover:text-[#8e8e93]">
-            Restore Purchases
-          </button>
         </div>
 
       </div>
