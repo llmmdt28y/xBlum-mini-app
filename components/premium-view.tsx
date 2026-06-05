@@ -96,19 +96,19 @@ export function PremiumView() {
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
-              <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Memo.png" alt="Memo" className="w-[32px] h-[32px] mb-2 object-contain" />
+              <img src="/emojis/Memo.webp" alt="Memo" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Basic AI models</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Standard access to Grok & Gemini Flash.</p>
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
-              <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Magnifying%20Glass%20Tilted%20Right.png" alt="Search" className="w-[32px] h-[32px] mb-2 object-contain" />
+              <img src="/emojis/Magnifying%20Glass%20Tilted%20Right.webp" alt="Search" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Search</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Basic web search for everyday questions.</p>
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
-              <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Gear.png" alt="Gear" className="w-[32px] h-[32px] mb-2 object-contain" />
+              <img src="/emojis/Hourglass%20Done.webp" alt="Limits" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Limits</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Fewer limits & up to 5 active tasks.</p>
             </div>
@@ -121,19 +121,19 @@ export function PremiumView() {
             </div>
             
             <div className="flex flex-col items-center text-center p-3 min-h-[140px]">
-              <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Brain.png" alt="Brain" className="w-[32px] h-[32px] mb-2 object-contain" />
+              <img src="/emojis/Robot.webp" alt="Autonomous AI" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Autonomous AI</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Guaranteed priority access during peak hours.</p>
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#ff6a00]/30 min-h-[140px]">
-              <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/High%20Voltage.png" alt="Lightning" className="w-[32px] h-[32px] mb-2 object-contain" />
+              <img src="/emojis/High%20Voltage.webp" alt="Lightning" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>DeepSearch</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Advanced reasoning and deep thinking tools.</p>
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#ff6a00]/30 min-h-[140px]">
-              <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" alt="Rocket" className="w-[32px] h-[32px] mb-2 object-contain" />
+              <img src="/emojis/Rocket.webp" alt="Rocket" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Increased Limits</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Higher limits & up to 15 active tasks.</p>
             </div>
