@@ -97,8 +97,8 @@ export function PremiumView() {
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
               <img src="/memo.webp" alt="Memo" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md" />
-              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Basic AI models</h3>
-              <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Standard access to Grok & Gemini Flash.</p>
+              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Basic Features</h3>
+              <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Standard access to core tools and stable AI models.</p>
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
@@ -122,8 +122,8 @@ export function PremiumView() {
             
             <div className="flex flex-col items-center text-center p-3 min-h-[140px]">
               <img src="/robot.webp" alt="Autonomous AI" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
-              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Autonomous AI</h3>
-              <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Guaranteed priority access during peak hours.</p>
+              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Beta Access</h3>
+              <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Early access to experimental tools, beta features & latest models.</p>
             </div>
             
             <div className="flex flex-col items-center text-center p-3 border-t border-[#ff6a00]/30 min-h-[140px]">
