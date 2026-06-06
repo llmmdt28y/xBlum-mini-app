@@ -91,17 +91,19 @@ function GlassSVGFilter() {
       <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
         <defs>
           {/* Filtro para botones circulares y píldora exterior */}
-          <filter id="nav-glass-filter" primitiveUnits="objectBoundingBox">
+          <filter id="nav-glass-filter" primitiveUnits="objectBoundingBox"
+            x="-10%" y="-10%" width="120%" height="120%">
             <feImage result="map" width="100%" height="100%" x="0" y="0" href={{GLASS_DISPMAP}} />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.04" result="blur" />
-            <feDisplacementMap in="blur" in2="map" scale="0.5"
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.008" result="blur" />
+            <feDisplacementMap in="blur" in2="map" scale="0.06"
               xChannelSelector="R" yChannelSelector="G" />
           </filter>
           {/* Filtro más sutil para la píldora activa interna */}
-          <filter id="nav-glass-pill" primitiveUnits="objectBoundingBox">
+          <filter id="nav-glass-pill" primitiveUnits="objectBoundingBox"
+            x="-10%" y="-10%" width="120%" height="120%">
             <feImage result="map" width="100%" height="100%" x="0" y="0" href={{GLASS_DISPMAP}} />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.01" result="blur" />
-            <feDisplacementMap in="blur" in2="map" scale="0.3"
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.005" result="blur" />
+            <feDisplacementMap in="blur" in2="map" scale="0.04"
               xChannelSelector="R" yChannelSelector="G" />
           </filter>
         </defs>
@@ -448,4 +450,3 @@ export default function Page() {
     </AppProvider>
   )
 }
-
