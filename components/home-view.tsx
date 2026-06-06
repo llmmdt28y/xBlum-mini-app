@@ -186,6 +186,55 @@ export function HomeView() {
         .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}} />
 
+      {/* --- COMPLETE ACCOUNT SUPERIOR --- */}
+      <div className="absolute top-0 w-full flex justify-center z-50 pointer-events-none" style={{
+        paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
+      }}>
+        <button 
+          onClick={() => setCurrentView("account_setup")}
+          className="flex items-center gap-2.5 rounded-full p-2 pr-3 active:scale-95 transition-transform shadow-lg pointer-events-auto border border-white/5" 
+          style={{ 
+            background: "#0c1524",
+            maxWidth: "280px"
+          }}
+        >
+          {/* Anillo de Progreso */}
+          <div className="relative flex items-center justify-center w-[36px] h-[36px] shrink-0">
+            <svg className="w-full h-full rotate-180 transform absolute inset-0">
+              <circle 
+                cx="18" 
+                cy="18" 
+                r="15" 
+                stroke="#38bdf8" 
+                strokeWidth="3.5" 
+                fill="none" 
+                strokeDasharray="94.24" 
+                strokeDashoffset={strokeDashoffset} 
+                strokeLinecap="round" 
+                style={{ transition: "stroke-dashoffset 0.5s ease-in-out" }}
+              />
+            </svg>
+            <span className="text-[11px] font-semibold text-[#8e8e93]">{completedSections}/{totalSections}</span>
+          </div>
+          
+          {/* Textos */}
+          <div className="flex flex-col items-start leading-tight min-w-0 pr-1">
+            <span className="text-white text-[14px] font-semibold mb-0.5 whitespace-nowrap truncate text-left" style={{ fontFamily: SFD }}>
+              {completedSections === 3 ? "Account completed" : "Complete account"}
+            </span>
+            <span className="text-[#8e8e93] text-[12px] font-medium whitespace-nowrap truncate text-left" style={{ fontFamily: SF }}>
+              {completedSections === 3 ? "All details are set" : "It will take 2 minutes"}
+            </span>
+          </div>
+          
+          {completedSections < 3 ? (
+            <ChevronRight className="w-4 h-4 text-[#38bdf8] shrink-0 ml-1" strokeWidth={2.5} />
+          ) : (
+            <Check className="w-4 h-4 text-[#38bdf8] shrink-0 ml-1" strokeWidth={2.5} />
+          )}
+        </button>
+      </div>
+
       {/* --- SECCIÓN HERO UNIFICADA (IMAGEN) --- */}
       <div className="w-full relative z-0 -translate-y-2">
         <img 
@@ -201,56 +250,7 @@ export function HomeView() {
       {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
         
-        {/* Contenedor Fila Superior (Con espacio invisible a la derecha para mantener proporciones) */}
-        <div className="w-full flex items-center justify-between gap-3 relative">
-          
-          <button 
-            onClick={() => setCurrentView("account_setup")}
-            className="flex-1 flex items-center gap-2.5 rounded-full p-2 pr-3 active:scale-95 transition-transform overflow-hidden shadow-lg" 
-            style={{ 
-              background: "#0c1524" // Azul marino oscuro
-            }}
-          >
-            {/* Anillo de Progreso */}
-            <div className="relative flex items-center justify-center w-[36px] h-[36px] shrink-0">
-              <svg className="w-full h-full rotate-180 transform absolute inset-0">
-                <circle 
-                  cx="18" 
-                  cy="18" 
-                  r="15" 
-                  stroke="#38bdf8" 
-                  strokeWidth="3.5" 
-                  fill="none" 
-                  strokeDasharray="94.24" 
-                  strokeDashoffset={strokeDashoffset} 
-                  strokeLinecap="round" 
-                  style={{ transition: "stroke-dashoffset 0.5s ease-in-out" }}
-                />
-              </svg>
-              <span className="text-[11px] font-semibold text-[#8e8e93]">{completedSections}/{totalSections}</span>
-            </div>
-            
-            {/* Textos */}
-            <div className="flex flex-col items-start leading-tight flex-1 min-w-0 pr-1">
-              <span className="text-white text-[14px] font-semibold mb-0.5 whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SFD }}>
-                {completedSections === 3 ? "Account completed" : "Complete account"}
-              </span>
-              <span className="text-[#8e8e93] text-[12px] font-medium whitespace-nowrap truncate w-full text-left" style={{ fontFamily: SF }}>
-                {completedSections === 3 ? "All details are set" : "It will take 2 minutes"}
-              </span>
-            </div>
-            
-            {completedSections < 3 ? (
-              <ChevronRight className="w-4 h-4 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
-            ) : (
-              <Check className="w-4 h-4 text-[#38bdf8] shrink-0 ml-auto" strokeWidth={2.5} />
-            )}
-          </button>
 
-          {/* Div fantasma que ocupa el mismo espacio (135px) que tenía el menú de modelo, para forzar el tamaño original */}
-          <div className="w-[135px] shrink-0 pointer-events-none" />
-          
-        </div>
 
         {/* Tarjeta Schedules */}
         <div className="bg-[#111111] rounded-[24px] p-4 border border-white/5 shadow-lg relative">
