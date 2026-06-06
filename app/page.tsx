@@ -75,57 +75,51 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Ultra-Clear Lens & Full Rim Light) ───────────
+// ── Liquid Glass Styles (Smoked Native Apple/Portals Look) ────────────
 
 const BTN_BASE: React.CSSProperties = {
-  // Tinte muy tenue para no oscurecer la refracción
-  backgroundColor: "rgba(20, 20, 20, 0.15)", 
-  // Efecto Lupa: Poco blur (8px), contraste extremo (140%) y súper saturación (400%)
-  backdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(115%)",
-  WebkitBackdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(115%)",
+  // 1. Tinte negro ahumado intenso: Calma los colores y los oscurece suavemente
+  backgroundColor: "rgba(10, 10, 10, 0.55)", 
+  // 2. Blur de nube densa (32px) para deshacer las líneas de las figuras. Saturación neutra-alta.
+  backdropFilter: "blur(32px) saturate(140%)",
+  WebkitBackdropFilter: "blur(32px) saturate(140%)",
   transform: "translateZ(0)", 
   willChange: "backdrop-filter, box-shadow, transform", 
   boxShadow: [
-    // 1. Hilo de luz perimetral continuo en todas las esquinas
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.08)",
-    // 2. Destello fuerte (fuente de luz primaria arriba/izquierda)
-    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.3)",
-    // 3. Rebote de luz (fuente secundaria abajo/derecha)
-    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.12)",
-    // 4. Sombra interior sutil para "hundir" el cristal tipo lente
-    "inset 0 0 16px 0px rgba(0, 0, 0, 0.15)",
-    // 5. Sombra de separación del fondo
-    "0 10px 24px 0px rgba(0, 0, 0, 0.4)"
+    // Borde perimetral continuo súper sutil (simula el pulido del cristal)
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
+    // Rebote cenital: La luz principal que viene de arriba
+    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.15)",
+    // Rebote sutil inferior
+    "inset 0 -1.5px 1px 0px rgba(255, 255, 255, 0.03)",
+    // Sombra pesada para fundirlo con el fondo oscuro
+    "0 8px 30px rgba(0, 0, 0, 0.6)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(115%)",
-  WebkitBackdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(115%)",
-  // Contenedor de las pestañas: un poco menos de sombra proyectada que los botones flotantes
+  backdropFilter: "blur(32px) saturate(140%)",
+  WebkitBackdropFilter: "blur(32px) saturate(140%)",
   boxShadow: [
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.08)",
-    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.3)",
-    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.12)",
-    "inset 0 0 16px 0px rgba(0, 0, 0, 0.15)",
-    "0 8px 20px 0px rgba(0, 0, 0, 0.3)"
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
+    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.15)",
+    "0 8px 30px rgba(0, 0, 0, 0.6)"
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // La píldora activa tiene un brillo blanco más puro
-  backgroundColor: "rgba(255, 255, 255, 0.08)",
-  // Ligeramente más luminosa
-  backdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(125%)",
-  WebkitBackdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(125%)",
+  // La píldora no brilla como neón, solo aclara el tinte "ahumado"
+  backgroundColor: "rgba(255, 255, 255, 0.04)",
+  backdropFilter: "blur(32px) saturate(140%)",
+  WebkitBackdropFilter: "blur(32px) saturate(140%)",
   boxShadow: [
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.12)",      // Hilo de luz más marcado
-    "inset 2px 2px 3px 0px rgba(255, 255, 255, 0.35)", // Destello principal intensificado
-    "inset -1.5px -1.5px 3px 0px rgba(255, 255, 255, 0.15)", // Rebote secundario
-    "0 4px 12px 0px rgba(0, 0, 0, 0.25)"              // Sombra contenida
+    // Destello de borde activo un poco más pronunciado
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.08)",
+    "inset 0 1.5px 2px 0px rgba(255, 255, 255, 0.20)",
+    "0 4px 15px rgba(0, 0, 0, 0.3)"
   ].join(", "),
 }
 
