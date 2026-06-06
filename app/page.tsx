@@ -12,7 +12,7 @@ import { MarketView } from "@/components/market-view"
 import { ScheduleView } from "@/components/schedule-view"
 import { LevelsView } from "@/components/levels-view" 
 import { ShopView } from "@/components/shop-view" 
-import { GroupConfigView } from "./group-config-view"
+import { GroupConfigView } from "@/components/group-config-view"
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react" 
 
