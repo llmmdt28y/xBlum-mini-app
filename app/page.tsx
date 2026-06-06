@@ -75,43 +75,43 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Portals Native Method) ───────────────────────────
+// ── Liquid Glass Styles (Extreme Refraction Method) ───────────────────
 
 const BTN_BASE: React.CSSProperties = {
-  // Tinte Ahumado oscuro para evitar el aspecto lechoso/plástico
-  backgroundColor: "rgba(15, 15, 15, 0.45)", 
-  // Desenfoque profundo con saturación alta para amplificar el cofre galáctico
-  backdropFilter: "blur(24px) saturate(180%)",
-  WebkitBackdropFilter: "blur(24px) saturate(180%)",
-  // Borde súper fino, casi invisible para emular el corte de cristal
-  border: "1px solid rgba(255, 255, 255, 0.06)", 
+  // 1. Opacidad reducida drásticamente (15% en lugar de 45%) para dejar pasar la luz del cofre
+  backgroundColor: "rgba(0, 0, 0, 0.15)", 
+  // 2. El truco maestro: Saturación al 350% + Brillo + Contraste para forzar colores neón
+  backdropFilter: "blur(24px) saturate(350%) brightness(115%) contrast(110%)",
+  WebkitBackdropFilter: "blur(24px) saturate(350%) brightness(115%) contrast(110%)",
+  // 3. Borde fino reflectante
+  border: "1px solid rgba(255, 255, 255, 0.08)", 
   transform: "translateZ(0)", 
   willChange: "backdrop-filter, box-shadow, transform", 
   boxShadow: [
-    // Luz muy fina de 1px en el borde superior (reflejo cenital)
-    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.15)",
-    // Sombra interna profunda abajo para dar volumen al cristal
-    "inset 0 -4px 16px 0px rgba(0, 0, 0, 0.4)",
-    // Sombra proyectada difusa en el exterior para despegarlo del fondo
-    "0 8px 24px 0px rgba(0, 0, 0, 0.3)"
+    // Luz cenital fuerte para simular el borde pulido del cristal
+    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.18)",
+    // Sombra interna muy difuminada para dar sensación de grosor
+    "inset 0 -10px 20px 0px rgba(0, 0, 0, 0.25)",
+    // Sombra proyectada oscura para separar la barra del fondo
+    "0 8px 24px 0px rgba(0, 0, 0, 0.4)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(24px) saturate(180%)",
-  WebkitBackdropFilter: "blur(24px) saturate(180%)",
+  backdropFilter: "blur(24px) saturate(350%) brightness(115%) contrast(110%)",
+  WebkitBackdropFilter: "blur(24px) saturate(350%) brightness(115%) contrast(110%)",
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // La píldora activa se aclara solo un toque sutilmente
-  backgroundColor: "rgba(255, 255, 255, 0.06)",
-  border: "1px solid rgba(255, 255, 255, 0.12)",
+  // La píldora activa recibe un toque sutil extra de claridad
+  backgroundColor: "rgba(255, 255, 255, 0.05)",
+  border: "1px solid rgba(255, 255, 255, 0.15)",
   boxShadow: [
-    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.25)", // Reflejo interno ligeramente más fuerte
-    "0 4px 12px 0px rgba(0, 0, 0, 0.2)"             // Caída de sombra para separación de la base
+    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.25)",
+    "0 4px 12px 0px rgba(0, 0, 0, 0.2)"
   ].join(", "),
 }
 
