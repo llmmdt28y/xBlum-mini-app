@@ -136,28 +136,41 @@ function GlassSVGFilter() {
 //    8%  × 2   = 16%  → rgba(0,0,0,0.16)
 
 const BTN_BASE: React.CSSProperties = {
-  backdropFilter: "blur(8px) url(#nav-glass-filter) saturate(150%)",
-  WebkitBackdropFilter: "blur(8px) saturate(150%)",
-  backgroundColor: "rgba(187,187,188,0.12)",
+  // backdrop: blur real del contenido detrás + saturate para vibrar colores
+  // SIN SVG filter aquí: sobre fondo negro no hay qué refractar, solo da artefactos
+  backdropFilter: "blur(12px) saturate(180%)",
+  WebkitBackdropFilter: "blur(12px) saturate(180%)",
+  // Fondo casi nulo — el vidrio se ve a través del blur del backdrop
+  backgroundColor: "rgba(255,255,255,0.04)",
+  // box-shadow = toda la magia visual:
+  // Capa 1: borde perimetral muy sutil (rim)
+  // Capas 2-4: reflexo claro en aristas superior-izquierda (simula luz incidente)
+  // Capas 5-8: sombras internas que dan grosor/profundidad al vidrio
+  // Capas 9-10: sombra exterior de elevación
   boxShadow: [
-    "inset 0 0 0 1px rgba(255,255,255,0.03)",
+    // Rim perimetral — apenas visible
+    "inset 0 0 0 0.5px rgba(255,255,255,0.08)",
+    // Arista top-left brillante (reflex-light × 0.3 del original)
     "inset 1.8px 3px 0px -2px rgba(255,255,255,0.27)",
-    "inset -2px -2px 0px -2px rgba(255,255,255,0.24)",
-    "inset -3px -8px 1px -6px rgba(255,255,255,0.18)",
+    "inset -2px -2px 0px -2px rgba(255,255,255,0.18)",
+    "inset -3px -8px 1px -6px rgba(255,255,255,0.10)",
+    // Profundidad interna (reflex-dark × 2 del original)
     "inset -0.3px -1px 4px 0px rgba(0,0,0,0.24)",
-    "inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.40)",
-    "inset 0px 3px 4px -2px rgba(0,0,0,0.40)",
-    "inset 2px -6.5px 1px -4px rgba(0,0,0,0.20)",
-    "0px 1px 5px 0px rgba(0,0,0,0.20)",
-    "0px 6px 16px 0px rgba(0,0,0,0.16)",
+    "inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.35)",
+    "inset 0px 3px 4px -2px rgba(0,0,0,0.35)",
+    "inset 2px -6.5px 1px -4px rgba(0,0,0,0.18)",
+    // Sombra de elevación exterior
+    "0px 2px 8px 0px rgba(0,0,0,0.30)",
+    "0px 8px 24px 0px rgba(0,0,0,0.20)",
   ].join(", "),
   transition: "box-shadow 400ms cubic-bezier(1, 0.0, 0.4, 1), transform 0.2s ease",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(8px) url(#nav-glass-filter) saturate(150%)",
-  WebkitBackdropFilter: "blur(8px) saturate(150%)",
+  // La píldora sí puede tener el SVG filter porque tiene contenido colorido detrás (tabs)
+  backdropFilter: "blur(12px) saturate(180%)",
+  WebkitBackdropFilter: "blur(12px) saturate(180%)",
 }
 
 // ── NavBar ────────────────────────────────────────────────────────────
@@ -209,15 +222,21 @@ function NavBar() {
   //   dark  10% × 2   = 20%  → rgba(0,0,0,0.20)
   //    8%  × 2   = 16%  → rgba(0,0,0,0.16)
   const activePillStyle: React.CSSProperties = {
-    background: "rgba(187,187,188,0.36)",
+    // Tint grisáceo muy leve — suficiente para distinguir la tab activa
+    // sin parecer un bloque sólido blanco/gris
+    background: "rgba(255,255,255,0.10)",
     boxShadow: [
-      "inset 0 0 0 1px rgba(255,255,255,0.03)",
-      "inset 2px 1px 0px -1px rgba(255,255,255,0.27)",
-      "inset -1.5px -1px 0px -1px rgba(255,255,255,0.24)",
-      "inset -2px -6px 1px -5px rgba(255,255,255,0.18)",
-      "inset -1px 2px 3px -1px rgba(0,0,0,0.40)",
-      "inset 0px -4px 1px -2px rgba(0,0,0,0.20)",
-      "0px 3px 6px 0px rgba(0,0,0,0.16)",
+      // Rim perimetral
+      "inset 0 0 0 0.5px rgba(255,255,255,0.12)",
+      // Arista top-left brillante
+      "inset 2px 1px 0px -1px rgba(255,255,255,0.30)",
+      "inset -1.5px -1px 0px -1px rgba(255,255,255,0.18)",
+      "inset -2px -6px 1px -5px rgba(255,255,255,0.10)",
+      // Profundidad interna
+      "inset -1px 2px 3px -1px rgba(0,0,0,0.35)",
+      "inset 0px -4px 1px -2px rgba(0,0,0,0.18)",
+      // Sombra de elevación sutil
+      "0px 3px 8px 0px rgba(0,0,0,0.20)",
     ].join(", "),
     transition: "all 400ms cubic-bezier(1, 0.0, 0.4, 1)",
   }
