@@ -13,7 +13,6 @@ import { ScheduleView } from "@/components/schedule-view"
 import { LevelsView } from "@/components/levels-view" 
 import { ShopView } from "@/components/shop-view" 
 import { GroupConfigView } from "@/components/group-config-view"
-import Script from "next/script"
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react" 
 
@@ -123,39 +122,11 @@ function NavBar() {
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
 
-  // Estado para el cristal dinámico realista (fallback cuando liquidGL no está activo)
-  const [glassStyles, setGlassStyles] = useState({
-    background: "linear-gradient(135deg, rgba(30, 30, 30, 0.4) 0%, rgba(30, 30, 30, 0.15) 100%)",
-    borderColor: "rgba(255, 255, 255, 0.12)",
-    boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(0,0,0,0.3)",
-  })
+
 
   useEffect(() => {
     const user = getTgUser()
     if (user && user.photo_url) setPhotoUrl(user.photo_url)
-
-    // Lógica dinámica de Telegram para el cristal líquido
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tgParams = (window as any).Telegram?.WebApp?.themeParams || {}
-    const bgColor = tgParams.bg_color || '#1e1e1e'
-    
-    // Chequeo de luminosidad para adaptar el cristal al tema (claro/oscuro)
-    const r = parseInt(bgColor.replace('#','').slice(0, 2) || '1e', 16)
-    const g = parseInt(bgColor.replace('#','').slice(2, 4) || '1e', 16)
-    const b = parseInt(bgColor.replace('#','').slice(4, 6) || '1e', 16)
-    const isDark = (r * 0.299 + g * 0.587 + b * 0.114) < 128
-
-    const dynamicBgStart = hexToRgba(bgColor, isDark ? 0.35 : 0.6)
-    const dynamicBgEnd = hexToRgba(bgColor, isDark ? 0.05 : 0.2)
-    const dynamicBorderColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.4)'
-    const topHighlight = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.7)'
-    const shadowColor = isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.15)'
-
-    setGlassStyles({
-      background: `linear-gradient(135deg, ${dynamicBgStart} 0%, ${dynamicBgEnd} 100%)`,
-      borderColor: dynamicBorderColor,
-      boxShadow: `0 12px 40px ${shadowColor}, inset 0 1.5px 1px ${topHighlight}, inset 0 -1px 1px rgba(0,0,0,0.2)`,
-    })
   }, [])
 
   // ── LÓGICA DE SCROLL PARA OCULTAR/MOSTRAR LA BARRA ──
@@ -218,69 +189,21 @@ function NavBar() {
   const neonBlue = "#33b5f7" 
   const inactiveGlassText = "rgba(255, 255, 255, 0.6)" 
 
-  // ── FIX: Fallback glass para cuando liquidGL aún no ha cargado ──
-  // Este div NO tiene ID — liquidGL se aplica directamente al botón/contenedor padre
+  // ── Glass effect con backdrop-filter CSS nativo ──
+  // Funciona de forma nativa en el WebView de Telegram sin dependencias externas.
   const GlassFallback = ({ radius = "100px" }: { radius?: string }) => (
     <div 
       className="absolute inset-0 z-[1] pointer-events-none" 
       style={{ 
-        background: glassStyles.background,
-        border: `1px solid ${glassStyles.borderColor}`,
-        boxShadow: glassStyles.boxShadow,
-        borderRadius: radius
+        borderRadius: radius,
+        backdropFilter: "blur(20px) saturate(180%) brightness(0.9)",
+        WebkitBackdropFilter: "blur(20px) saturate(180%) brightness(0.9)",
+        background: "rgba(255, 255, 255, 0.08)",
+        border: "1px solid rgba(255, 255, 255, 0.18)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.25), inset 0 -1px 1px rgba(0,0,0,0.2)",
       }} 
     />
   )
-
-  // ── Inicialización robusta de liquidGL ──
-  // FIX: Los IDs ahora están en los elementos padre (button/div), no en el div interno.
-  // FIX: Se usa polling en lugar de timeout fijo para garantizar que el DOM esté listo.
-  useEffect(() => {
-    let attempts = 0
-    const maxAttempts = 20 // máximo ~4 segundos (20 * 200ms)
-
-    const tryInit = () => {
-      attempts++
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const liquidGL = (window as any).liquidGL
-
-      if (!liquidGL) {
-        if (attempts < maxAttempts) setTimeout(tryInit, 200)
-        return
-      }
-
-      const targets = ["#liquid-btn-left", "#liquid-btn-center", "#liquid-btn-right"]
-      const allFound = targets.every(sel => !!document.querySelector(sel))
-
-      if (!allFound) {
-        if (attempts < maxAttempts) setTimeout(tryInit, 200)
-        return
-      }
-
-      try {
-        targets.forEach(selector => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ;(window as any).liquidGL({
-            selector,
-            refraction: 0.6,
-            bevelDepth: 0.05,
-            bevelWidth: 0.2,
-            frost: 0.5,
-            magnify: 1.05,
-            shadow: true,
-            tilt: false,
-            reveal: "fade"
-          })
-        })
-      } catch (error) {
-        console.error("Error al montar LiquidGL:", error)
-      }
-    }
-
-    // Pequeño delay inicial para dejar que React pinte el DOM
-    const initialTimer = setTimeout(tryInit, 300)
-    return () => clearTimeout(initialTimer)
-  }, [currentView])
 
   return (
     <div
@@ -292,11 +215,10 @@ function NavBar() {
     >
       
       {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
-      {/* FIX: ID movido aquí (al elemento raíz del botón). Sin overflow-hidden. */}
       <button
         id="liquid-btn-left"
         onClick={handleLeftActionButton}
-        className="pointer-events-auto relative flex flex-col items-center justify-center transition-all active:scale-95 shrink-0"
+        className="pointer-events-auto relative isolate flex flex-col items-center justify-center transition-all active:scale-95 shrink-0"
         style={{ 
           width: "64px", 
           height: "64px", 
@@ -304,7 +226,6 @@ function NavBar() {
           transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), background 0.35s" 
         }}
       >
-        {/* Fallback visual mientras liquidGL no ha cargado */}
         <GlassFallback />
         <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none">
           {activeNavMode === 'market' ? (
@@ -322,13 +243,11 @@ function NavBar() {
       </button>
 
       {/* ── PÍLDORA CENTRAL: Módulos Fijos ── */}
-      {/* FIX: ID movido aquí (al div raíz). Sin overflow-hidden. */}
       <div
         id="liquid-btn-center"
-        className="pointer-events-auto relative flex items-center justify-between flex-1 mx-3 px-1.5"
+        className="pointer-events-auto relative isolate flex items-center justify-between flex-1 mx-3 px-1.5"
         style={{ borderRadius: "100px", height: "64px" }}
       >
-        {/* Fallback visual mientras liquidGL no ha cargado */}
         <GlassFallback radius="100px" />
         <div className="relative z-10 flex items-center justify-between w-full">
           {centerTabs.map((tab, idx) => {
@@ -345,10 +264,8 @@ function NavBar() {
                 style={{
                   pointerEvents: isDisabled ? "none" : "auto",
                   transition: "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
-                  // Estilo iOS/Apple para los botones activos dentro de liquidGL
                   background: isActive ? "rgba(255, 255, 255, 0.15)" : "transparent",
                   boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.2)" : "none",
-                  // Animación de crecimiento del botón (Gota/Lupa)
                   transform: isActive ? "scale(1.08)" : "scale(1)", 
                 }}
               >
@@ -377,18 +294,15 @@ function NavBar() {
       </div>
 
       {/* ── BOTÓN DERECHO: Profile ── */}
-      {/* FIX: ID movido aquí (al elemento raíz del botón). Sin overflow-hidden. */}
       <button
         id="liquid-btn-right"
         onClick={() => setCurrentView('profile')}
-        className="pointer-events-auto relative flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
+        className="pointer-events-auto relative isolate flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
         style={{ width: "64px", height: "64px", borderRadius: "100px" }}
       >
-        {/* Fallback visual mientras liquidGL no ha cargado */}
         <GlassFallback />
         <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pointer-events-none">
           {photoUrl ? (
-            // La foto del usuario va en un div interno con overflow-hidden — esto es correcto
             <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
               <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
             </div>
@@ -523,8 +437,6 @@ function AppContent() {
         {showNav && <NavBar />}
       </div>
 
-      <Script src="/js/html2canvas.min.js" strategy="afterInteractive" />
-      <Script src="/js/liquidGL.js" strategy="afterInteractive" />
     </>
   )
 }
