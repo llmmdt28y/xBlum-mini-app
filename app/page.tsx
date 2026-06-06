@@ -15,15 +15,14 @@ import { ShopView } from "@/components/shop-view"
 import { GroupConfigView } from "@/components/group-config-view"
 import Script from "next/script"
 import { useEffect, useState, useRef } from "react"
-import { createPortal } from "react-dom"
 import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = {
-  id: number;
-  first_name?: string;
-  last_name?: string;
-  username?: string;
+  id: number
+  first_name?: string
+  last_name?: string
+  username?: string
   photo_url?: string
 }
 
@@ -33,7 +32,7 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Pantalla de Mantenimiento / Acceso Restringido ────────────────────
+// ── Pantalla de Mantenimiento ─────────────────────────────────────────
 function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   const [tapCount, setTapCount] = useState(0)
 
@@ -64,16 +63,12 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
         />
       </div>
       <div className="flex flex-col items-center gap-1">
-        <h1
-          className="text-white text-[24px] font-bold tracking-tight"
-          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}
-        >
+        <h1 className="text-white text-[24px] font-bold tracking-tight"
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}>
           Currently working
         </h1>
-        <p
-          className="text-[#8e8e93] text-[17px] font-medium"
-          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}
-        >
+        <p className="text-[#8e8e93] text-[17px] font-medium"
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}>
           come back later 🚀
         </p>
       </div>
@@ -81,79 +76,42 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Floating Liquid NavBar ────────────────────────────────────────────
+// ── CSS Glass style ────────────────────────────────────────────────────
+// Aplica el glass effect via CSS backdrop-filter.
+// Razón: liquidGL.js arranca su renderer canvas con opacity:0 y solo lo
+// muestra DESPUÉS de que html2canvas completa un snapshot exitoso. El
+// snapshot falla cuando los elementos target son position:relative dentro
+// de un ancestor fixed, porque liquidGL ignora position:fixed en
+// ignoreElements. El canvas queda en opacity:0 para siempre, tapando los
+// botones del navbar que sí son visibles abajo.
 //
-// FIXES aplicados:
+// CSS backdrop-filter es lo que liquidGL usa internamente como fallback
+// para browsers sin WebGL — es el mismo efecto glass, 100% estable,
+// nunca desaparece, y funciona en todos los dispositivos incluyendo
+// Telegram WebApp en iOS/Android.
 //
-// 1. Navbar SIEMPRE visible — se eliminó el scroll hide/show (translate-y).
-//    Era la causa directa de la desaparición combinada con el reveal:"fade".
-//
-// 2. reveal: "none" en lugar de "fade" — con "fade" el canvas de liquidGL
-//    arranca en opacity:0 y depende de que el snapshot asíncrono complete
-//    para subir a opacity:1. Si algo falla (elementos fixed ignorados por
-//    html2canvas, timeout, CORS) el navbar queda invisible forever.
-//    Con "none" el canvas es visible desde el primer frame.
-//
-// 3. liquidReadyRef — init único de liquidGL, sin re-init por cambio de vista.
-//
-// 4. createPortal → hijos directos de <body> para que html2canvas
-//    no atraviese stacking contexts fixed al tomar el snapshot.
-//
+// liquidGL SIGUE CARGADO para usarlo correctamente en otros elementos
+// de la app que cumplan sus requisitos (position:fixed en el target mismo,
+// no en un ancestor). Para el navbar, CSS es la solución correcta.
+const glassStyle: React.CSSProperties = {
+  backdropFilter: "blur(20px) saturate(180%)",
+  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+  background: "rgba(255, 255, 255, 0.06)",
+  border: "1px solid rgba(255, 255, 255, 0.12)",
+  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
+}
+
+// ── Floating NavBar ───────────────────────────────────────────────────
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [storedNavMode, setStoredNavMode] = useState<'home' | 'market'>('home')
-
-  // Navbar siempre visible — sin scroll hide/show.
-  // El reveal:"fade" de liquidGL era el causante real de la desaparición:
-  // el canvas WebGL arranca en opacity:0, toma el snapshot, y si algo falla
-  // nunca sube a opacity:1. Al quitar el toggle de visibilidad el navbar
-  // queda siempre renderizado independientemente del estado de liquidGL.
-  const liquidReadyRef = useRef(false)
 
   useEffect(() => {
     const user = getTgUser()
     if (user?.photo_url) setPhotoUrl(user.photo_url)
   }, [])
 
-  // ── liquidGL: inicialización única ───────────────────────────────
-  // Se ejecuta en cada render pero sale inmediatamente si ya inicializó
-  // o si las condiciones no se cumplen. NO depende de currentView.
-  useEffect(() => {
-    if (liquidReadyRef.current) return
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (typeof window === "undefined" || !(window as any).liquidGL) return
-
-    const targets = ["#liquid-btn-left", "#liquid-btn-center", "#liquid-btn-right"]
-    const allFound = targets.every(sel => !!document.querySelector(sel))
-    if (!allFound) return
-
-    try {
-      targets.forEach(target => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ;(window as any).liquidGL({
-          target,
-          snapshot: "body",
-          resolution: 1.5,
-          refraction: 0.01,
-          bevelDepth: 0.08,
-          bevelWidth: 0.15,
-          frost: 2,
-          shadow: true,
-          specular: true,
-          tilt: false,
-          magnify: 1,
-          reveal: "none", // "fade" causa que el canvas arranque en opacity:0 y nunca suba si el snapshot falla
-        })
-      })
-      liquidReadyRef.current = true
-      console.log("[liquidGL] ✅ Inicializado (único init)")
-    } catch (err) {
-      console.error("[liquidGL] Error:", err)
-    }
-  })
-
-  // ── Nav mode logic ────────────────────────────────────────────────
   const isMarketSection = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
   const isHomeSection   = currentView === 'home'   || currentView === 'schedule'
   const activeNavMode   = isMarketSection ? 'market' : (isHomeSection ? 'home' : storedNavMode)
@@ -168,9 +126,9 @@ function NavBar() {
 
   const centerTabs = activeNavMode === 'market'
     ? [
-        { id: "market", label: "Market",   icon: Store,  disabled: false },
-        { id: "shop",   label: "Shop",     icon: Target, disabled: false },
-        { id: "levels", label: "BP Levels",icon: Target, disabled: false },
+        { id: "market", label: "Market",    icon: Store,  disabled: false },
+        { id: "shop",   label: "Shop",      icon: Target, disabled: false },
+        { id: "levels", label: "BP Levels", icon: Target, disabled: false },
       ]
     : [
         { id: "home",     label: "Home",  icon: Home,  disabled: false },
@@ -181,42 +139,29 @@ function NavBar() {
   const neonBlue          = "#33b5f7"
   const inactiveGlassText = "rgba(255, 255, 255, 0.6)"
 
-  // ── JSX del nav ──────────────────────────────────────────────────
-  // FIX BUG #1 + #3:
-  //   • createPortal() → renderizado como hijo directo de <body>
-  //   • data-liquid-ignore en el wrapper → excluido del html2canvas snapshot
-  //     (evita que el snapshot incluya el wrapper fixed que produciría artefactos)
-  //   • Los botones target (#liquid-btn-*) NO tienen data-liquid-ignore
-  //     → el renderer WebGL los procesa correctamente
-  const navContent = (
+  // safe area bottom
+  const safeBottom = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)"
+
+  return (
     <div
-      id="main-nav-bar"
-      // FIX: data-liquid-ignore aquí para que liquidGL no intente snapshotear
-      // este wrapper fixed. Los botones hijos siguen siendo targets válidos.
-      data-liquid-ignore
       className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
-      style={{
-        bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)",
-      }}
+      style={{ bottom: safeBottom }}
     >
 
       {/* ── BOTÓN IZQUIERDO ── */}
       <button
-        id="liquid-btn-left"
         onClick={handleLeftActionButton}
-        className="pointer-events-auto relative flex flex-col items-center justify-center active:scale-95 shrink-0"
+        className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
         style={{
           width: "64px",
           height: "64px",
           borderRadius: "100px",
-          zIndex: 10,
+          zIndex: 51,
           transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
+          ...glassStyle,
         }}
       >
-        <div
-          className="relative flex flex-col items-center justify-center pointer-events-none"
-          style={{ zIndex: 3 }}
-        >
+        <div className="flex flex-col items-center justify-center pointer-events-none">
           {activeNavMode === 'market' ? (
             <>
               <Home size={22} color={inactiveGlassText} strokeWidth={2} />
@@ -233,15 +178,15 @@ function NavBar() {
 
       {/* ── PÍLDORA CENTRAL ── */}
       <div
-        id="liquid-btn-center"
-        className="pointer-events-auto relative flex items-center justify-between flex-1 mx-3 px-1.5"
+        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
         style={{
           borderRadius: "100px",
           height: "64px",
-          zIndex: 10,
+          zIndex: 51,
+          ...glassStyle,
         }}
       >
-        <div className="flex items-center justify-between w-full" style={{ position: "relative", zIndex: 3 }}>
+        <div className="flex items-center justify-between w-full">
           {centerTabs.map((tab, idx) => {
             const isActive   = currentView === tab.id
             const isDisabled = !!tab.disabled
@@ -255,9 +200,9 @@ function NavBar() {
                 className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95"
                 style={{
                   pointerEvents: isDisabled ? "none" : "auto",
-                  transition:    "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
-                  background:    isActive ? "rgba(255, 255, 255, 0.15)" : "transparent",
-                  boxShadow:     isActive
+                  transition: "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
+                  background: isActive ? "rgba(255, 255, 255, 0.15)" : "transparent",
+                  boxShadow: isActive
                     ? "0 4px 12px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.2)"
                     : "none",
                   transform: isActive ? "scale(1.08)" : "scale(1)",
@@ -289,21 +234,18 @@ function NavBar() {
 
       {/* ── BOTÓN DERECHO: Profile ── */}
       <button
-        id="liquid-btn-right"
         onClick={() => setCurrentView('profile')}
-        className="pointer-events-auto relative flex flex-col items-center justify-center active:scale-95 shrink-0"
+        className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
         style={{
-          width:        "64px",
-          height:       "64px",
+          width: "64px",
+          height: "64px",
           borderRadius: "100px",
-          zIndex:       10,
-          transition:   "transform 0.2s ease",
+          zIndex: 51,
+          transition: "transform 0.2s ease",
+          ...glassStyle,
         }}
       >
-        <div
-          className="flex flex-col items-center justify-center w-full h-full pointer-events-none"
-          style={{ position: "relative", zIndex: 3 }}
-        >
+        <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none">
           {photoUrl ? (
             <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
               <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
@@ -328,12 +270,6 @@ function NavBar() {
 
     </div>
   )
-
-  // FIX BUG #1: Portal → los botones son hijos directos de <body>.
-  // html2canvas ya no atraviesa un stacking context fixed ignorado.
-  // SSR-safe: createPortal solo corre en el cliente.
-  if (typeof window === "undefined") return null
-  return createPortal(navContent, document.body)
 }
 
 // ── App shell ──────────────────────────────────────────────────────────
@@ -341,9 +277,9 @@ function AppContent() {
   const { currentView, setCurrentView, isLoading } = useApp()
   const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards", "schedule"].includes(currentView)
 
-  const [imagesLoaded, setImagesLoaded] = useState(false)
-  const [showLoading,  setShowLoading]  = useState(true)
-  const [fadeLoading,  setFadeLoading]  = useState(false)
+  const [imagesLoaded,  setImagesLoaded]  = useState(false)
+  const [showLoading,   setShowLoading]   = useState(true)
+  const [fadeLoading,   setFadeLoading]   = useState(false)
   const [isMaintenance, setIsMaintenance] = useState(false)
 
   useEffect(() => {
@@ -390,7 +326,6 @@ function AppContent() {
 
   return (
     <>
-      {/* data-liquid-ignore excluye el loading overlay del snapshot de liquidGL */}
       {showLoading && (
         <div
           data-liquid-ignore
@@ -425,18 +360,15 @@ function AppContent() {
           />
         )}
 
-        {/* NavBar se renderiza via portal en <body> — ver componente NavBar */}
         {showNav && <NavBar />}
       </div>
 
       {/*
-        ── Scripts de liquidGL ─────────────────────────────────────────────
-        IMPORTANTE:
-        - html2canvas DEBE cargar antes que liquidGL → strategy="beforeInteractive"
-        - liquidGL se carga con strategy="afterInteractive"
-        - NO hay onLoad aquí: el componente NavBar maneja su propio init
-          con liquidReadyRef para garantizar una sola inicialización.
-        - El archivo liquidGL.js debe estar en /public/js/liquidGL.js
+        liquidGL se mantiene cargado para uso en otros elementos de la app.
+        El navbar usa CSS backdrop-filter (más confiable para elementos
+        dentro de stacking contexts complejos como Telegram WebApp).
+        Para usar liquidGL en un elemento nuevo: el target DEBE tener
+        position:fixed directamente (no heredado de un ancestor).
       */}
       <Script
         src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
@@ -445,9 +377,6 @@ function AppContent() {
       <Script
         src="/js/liquidGL.js"
         strategy="afterInteractive"
-        // FIX BUG #2: Sin onLoad duplicado aquí.
-        // NavBar.useEffect() detecta window.liquidGL en cada render
-        // y se auto-inicializa la primera vez que la librería está disponible.
       />
     </>
   )
