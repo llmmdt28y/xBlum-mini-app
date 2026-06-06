@@ -219,9 +219,10 @@ function NavBar() {
   const inactiveGlassText = "rgba(255, 255, 255, 0.6)" 
 
   // Componente de fondo líquido preparado para liquidGL
-  const LiquidBackground = ({ radius = "100px" }: { radius?: string }) => (
+  const LiquidBackground = ({ id, radius = "100px" }: { id: string, radius?: string }) => (
     <div 
-      className="liquid-nav absolute inset-0 z-[1] pointer-events-none" 
+      id={id}
+      className="absolute inset-0 z-[1] pointer-events-none" 
       style={{ 
         background: "rgba(255, 255, 255, 0.05)",
         border: "1px solid rgba(255, 255, 255, 0.15)",
@@ -230,32 +231,37 @@ function NavBar() {
     />
   )
 
-  // Inicialización de liquidGL sincronizada con las vistas de React
+  // Inicialización robusta de liquidGL sincronizada con las vistas de React
   useEffect(() => {
-    // Retraso de 500ms para asegurar que la vista esté completamente renderizada
-    const timer = setTimeout(() => {
-      // @ts-ignore
-      if (typeof window !== "undefined" && window.liquidGL) {
+    const initLiquidGL = () => {
+      // Verificamos que Next.js ya haya terminado de inyectar el script
+      if (typeof window !== "undefined" && (window as any).liquidGL) {
         try {
-          // @ts-ignore
-          window.liquidGL({
-            selector: ".liquid-nav",
-            refraction: 0,
-            bevelDepth: 0.052,
-            bevelWidth: 0.211,
-            frost: 2,
-            magnify: 1,
-            shadow: true,
-            specular: true,
-            tilt: false,
-            tiltFactor: 5,
-            reveal: "fade"
+          // Instanciamos el WebGL en cada botón por separado
+          const targets = ["#liquid-btn-left", "#liquid-btn-center", "#liquid-btn-right"];
+          
+          targets.forEach(targetElement => {
+            // @ts-ignore
+            (window as any).liquidGL({
+              selector: targetElement,
+              refraction: 0.6,
+              bevelDepth: 0.05,
+              bevelWidth: 0.2,
+              frost: 0.5,
+              magnify: 1.05,
+              shadow: true,
+              tilt: false,
+              reveal: "fade"
+            });
           });
         } catch (error) {
           console.error("Error al montar LiquidGL:", error);
         }
       }
-    }, 500);
+    };
+
+    // 1500ms para evitar la captura de la pantalla negra
+    const timer = setTimeout(initLiquidGL, 1500);
 
     return () => clearTimeout(timer);
   }, [currentView]);
@@ -280,7 +286,7 @@ function NavBar() {
           transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), background 0.35s" 
         }}
       >
-        <LiquidBackground />
+        <LiquidBackground id="liquid-btn-left" />
         <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none">
         {activeNavMode === 'market' ? (
           <>
@@ -301,7 +307,7 @@ function NavBar() {
         className="pointer-events-auto relative overflow-hidden flex items-center justify-between flex-1 mx-3 px-1.5"
         style={{ borderRadius: "100px", height: "64px" }}
       >
-        <LiquidBackground />
+        <LiquidBackground id="liquid-btn-center" />
         <div className="relative z-10 flex items-center justify-between w-full">
         {centerTabs.map((tab, idx) => {
           const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
@@ -355,7 +361,7 @@ function NavBar() {
         className="pointer-events-auto relative overflow-hidden flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
         style={{ width: "64px", height: "64px", borderRadius: "100px" }}
       >
-        <LiquidBackground />
+        <LiquidBackground id="liquid-btn-right" />
         <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pointer-events-none">
         {photoUrl ? (
           <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
