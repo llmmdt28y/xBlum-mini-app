@@ -50,12 +50,7 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   }, [tapCount])
 
   return (
-    // ❌ REMOVIDO: bg-black
-    // ✅ AÑADIDO: Color de fondo nativo de Telegram con un fallback oscuro muy leve
-    <div 
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center select-none overflow-hidden"
-      style={{ backgroundColor: "var(--tg-theme-bg-color, #0a0a0a)" }}
-    >
+    <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center select-none overflow-hidden">
       <div onClick={handleSecretTap} className="absolute top-0 left-0 w-24 h-24 z-50" />
       <div className="relative mb-8 pointer-events-none select-none">
         <img
@@ -67,18 +62,12 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
         />
       </div>
       <div className="flex flex-col items-center gap-1">
-        <h1 className="text-[24px] font-bold tracking-tight"
-          style={{ 
-            color: "var(--tg-theme-text-color, #ffffff)",
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" 
-          }}>
+        <h1 className="text-white text-[24px] font-bold tracking-tight"
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}>
           Currently working
         </h1>
-        <p className="text-[17px] font-medium"
-          style={{ 
-            color: "var(--tg-theme-hint-color, #8e8e93)",
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" 
-          }}>
+        <p className="text-[#8e8e93] text-[17px] font-medium"
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}>
           come back later 🚀
         </p>
       </div>
@@ -86,29 +75,20 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Optimizado para Telegram) ─────────────────────
+// ── Liquid Glass Styles (Crystal Clear Dark Mode - OPTIMIZADO) ────────
 
 const BTN_BASE: React.CSSProperties = {
-  // ✅ Base dinámica vinculada al tema del usuario. Casi transparente (3%)
-  backgroundColor: "color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 3%, transparent)", 
-  
-  // ✅ Desenfoque limpio sin sobresaturar ni inyectar brillo artificial
+  backgroundColor: "rgba(255, 255, 255, 0.03)", 
   backdropFilter: "blur(24px) saturate(180%)",
   WebkitBackdropFilter: "blur(24px) saturate(180%)",
-  
-  // ✅ El borde superior simula la refracción (la luz pegando desde arriba)
-  border: "1px solid color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 4%, transparent)", 
-  borderTop: "1px solid color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 15%, transparent)", 
-  
-  // ✅ Forzado de GPU para evitar lag en iOS Safari
+  // Refracción superior
+  border: "1px solid rgba(255, 255, 255, 0.04)", 
+  borderTop: "1px solid rgba(255, 255, 255, 0.15)", 
   transform: "translateZ(0)", 
   willChange: "transform", 
-  
   boxShadow: [
-    // Luz interior sutil
-    "inset 0px 1px 1px 0px color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 10%, transparent)",
-    // Sombra exterior suave para despegar sin crear un parche negro
-    "0 12px 32px 0px rgba(0, 0, 0, 0.25)"
+    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.10)",
+    "0 12px 32px 0px rgba(0, 0, 0, 0.35)" // Sombra reducida para evitar agujero negro
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
@@ -116,23 +96,21 @@ const BTN_BASE: React.CSSProperties = {
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
   boxShadow: [
-    "inset 0px 1px 1px 0px color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 10%, transparent)",
-    "0 8px 24px 0px rgba(0, 0, 0, 0.20)" // Sombra aún más ligera para contenedor principal
+    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.10)",
+    "0 8px 24px 0px rgba(0, 0, 0, 0.25)"
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // ✅ Ligero incremento del tinte al estar activo
-  backgroundColor: "color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 8%, transparent)",
-  
-  // ✅ Borde superior tintado con el color de acento para dar vida
-  border: "1px solid color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 8%, transparent)",
-  borderTop: "1px solid rgba(51, 181, 247, 0.3)", 
-  
+  backgroundColor: "rgba(255, 255, 255, 0.08)",
+  backdropFilter: "blur(24px) saturate(200%) brightness(110%)", 
+  WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(110%)",
+  border: "1px solid rgba(255, 255, 255, 0.08)",
+  borderTop: "1px solid rgba(51, 181, 247, 0.3)", // Tinte sutil neón en el borde superior
   boxShadow: [
-    "inset 0px 1px 2px 0px color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 20%, transparent)", 
-    "0 4px 16px 0px rgba(0, 0, 0, 0.3)"
+    "inset 0px 1px 2px 0px rgba(255, 255, 255, 0.20)", 
+    "0 4px 16px 0px rgba(0, 0, 0, 0.4)"
   ].join(", "),
 }
 
@@ -155,18 +133,28 @@ function NavBar() {
     if (activeNavMode !== storedNavMode) setStoredNavMode(activeNavMode)
   }, [activeNavMode, storedNavMode])
 
-  const handleLeftActionButton = () => {
-    // Implementación de Haptic Feedback para dar textura al cristal
-    if (typeof window !== "undefined" && (window as any).Telegram?.WebApp?.HapticFeedback) {
-      (window as any).Telegram.WebApp.HapticFeedback.impactOccurred('light')
+  // Función segura para Feedback Háptico
+  const triggerHaptic = (type: 'light' | 'selection') => {
+    if (typeof window !== "undefined") {
+      const haptic = (window as any).Telegram?.WebApp?.HapticFeedback
+      if (haptic) {
+        try {
+          if (type === 'light' && haptic.impactOccurred) haptic.impactOccurred('light')
+          if (type === 'selection' && haptic.selectionChanged) haptic.selectionChanged()
+        } catch (e) {
+          console.warn("Haptic API error", e)
+        }
+      }
     }
+  }
+
+  const handleLeftActionButton = () => {
+    triggerHaptic('light')
     setCurrentView(activeNavMode === 'market' ? 'home' as any : 'market' as any)
   }
 
   const handleCenterTabClick = (tabId: string) => {
-    if (typeof window !== "undefined" && (window as any).Telegram?.WebApp?.HapticFeedback) {
-      (window as any).Telegram.WebApp.HapticFeedback.selectionChanged()
-    }
+    triggerHaptic('selection')
     setCurrentView(tabId as any)
   }
 
@@ -182,8 +170,9 @@ function NavBar() {
         { id: "none2",    label: "None",  icon: null,  disabled: true  },
       ]
 
-  const neonBlue          = "var(--tg-theme-button-color, #33b5f7)"
-  const inactiveColor     = "color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 62%, transparent)"
+  // Restaurados los colores estáticos para garantizar que no falle Lucide
+  const neonBlue          = "#33b5f7"
+  const inactiveColor     = "rgba(255,255,255,0.62)"
   const safeBottom        = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)"
 
   return (
@@ -191,10 +180,10 @@ function NavBar() {
       className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
       style={{ bottom: safeBottom }}
     >
-      {/* ✅ AÑADIDO: Gradientes dinámicos desenfocados DETRÁS del cristal para darle refracción */}
+      {/* Fondo dinámico desenfocado DETRÁS del cristal (Motor Visual) */}
       <div className="absolute inset-0 z-[-1] pointer-events-none opacity-40 overflow-hidden px-4">
-        <div className="absolute top-1/2 left-[10%] w-20 h-20 bg-purple-600 rounded-full mix-blend-screen filter blur-[35px] transform -translate-y-1/2" />
-        <div className="absolute top-1/2 right-[10%] w-20 h-20 bg-[#33b5f7] rounded-full mix-blend-screen filter blur-[35px] transform -translate-y-1/2" />
+        <div className="absolute top-1/2 left-[15%] w-20 h-20 bg-purple-600 rounded-full mix-blend-screen filter blur-[35px] transform -translate-y-1/2" />
+        <div className="absolute top-1/2 right-[15%] w-20 h-20 bg-[#33b5f7] rounded-full mix-blend-screen filter blur-[35px] transform -translate-y-1/2" />
       </div>
 
       {/* ── BOTÓN IZQUIERDO ── */}
@@ -269,7 +258,7 @@ function NavBar() {
                     </span>
                   </>
                 ) : (
-                  <div className="w-[6px] h-[6px] rounded-full" style={{ backgroundColor: "color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 10%, transparent)" }} />
+                  <div className="w-[6px] h-[6px] rounded-full bg-white/10" />
                 )}
               </button>
             )
@@ -291,7 +280,7 @@ function NavBar() {
       >
         <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none">
           {photoUrl ? (
-            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border" style={{ borderColor: "color-mix(in srgb, var(--tg-theme-text-color, #ffffff) 10%, transparent)" }}>
+            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-white/10">
               <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
             </div>
           ) : (
@@ -371,26 +360,19 @@ function AppContent() {
   return (
     <>
       {showLoading && (
-        // ❌ REMOVIDO: bg-black
-        // ✅ AÑADIDO: Color nativo
         <div
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-400 ease-in-out ${
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
             fadeLoading ? "opacity-0" : "opacity-100"
           }`}
-          style={{ backgroundColor: "var(--tg-theme-bg-color, #0a0a0a)" }}
         >
-          <Loader2 className="w-10 h-10 animate-spin" style={{ color: "var(--tg-theme-button-color, #ffffff)" }} />
+          <Loader2 className="w-10 h-10 text-white animate-spin" />
         </div>
       )}
 
-      {/* ❌ REMOVIDO: bg-black */}
-      {/* ✅ AÑADIDO: Fondo dinámico para que el App completa no sea un hoyo negro */}
+      {/* Restaurado el bg-black original para que tus otros componentes no se rompan visualmente */}
       <div
-        className="flex flex-col relative overflow-x-hidden"
-        style={{ 
-          minHeight: "var(--tg-viewport-height, 100dvh)",
-          backgroundColor: "var(--tg-theme-bg-color, #0a0a0a)"
-        }}
+        className="bg-black flex flex-col relative overflow-x-hidden"
+        style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
       >
         {currentView === "home"               && (<><Header /><HomeView /></>)}
         {currentView === "levels"             && <LevelsView />}
