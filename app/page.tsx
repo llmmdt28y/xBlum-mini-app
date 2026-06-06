@@ -75,57 +75,57 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Lens & Lateral Bounce Method) ────────────────
+// ── Liquid Glass Styles (Ultra-Clear Lens & Full Rim Light) ───────────
 
 const BTN_BASE: React.CSSProperties = {
-  backgroundColor: "rgba(5, 5, 5, 0.2)", 
-  // 1. Blur reducido a 12px para mayor visibilidad del fondo.
-  // 2. Contraste al 125% para simular la nitidez óptica de una lente (efecto lupa).
-  backdropFilter: "blur(12px) saturate(280%) brightness(110%) contrast(125%)",
-  WebkitBackdropFilter: "blur(12px) saturate(280%) brightness(110%) contrast(125%)",
-  border: "1px solid rgba(255, 255, 255, 0.04)", 
+  // Tinte muy tenue para no oscurecer la refracción
+  backgroundColor: "rgba(20, 20, 20, 0.15)", 
+  // Efecto Lupa: Poco blur (8px), contraste extremo (140%) y súper saturación (400%)
+  backdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(115%)",
+  WebkitBackdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(115%)",
   transform: "translateZ(0)", 
   willChange: "backdrop-filter, box-shadow, transform", 
   boxShadow: [
-    // Rebote de luz cenital (borde superior)
-    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.28)",
-    // Rebote de luz lateral Izquierdo
-    "inset 1.5px 0px 3px 0px rgba(255, 255, 255, 0.12)",
-    // Rebote de luz lateral Derecho
-    "inset -1.5px 0px 3px 0px rgba(255, 255, 255, 0.12)",
-    // Profundidad de lente ahumada inferior
-    "inset 0 -12px 24px 0px rgba(0, 0, 0, 0.4)",
-    // Sombra exterior pronunciada
-    "0 12px 30px 0px rgba(0, 0, 0, 0.4)"
+    // 1. Hilo de luz perimetral continuo en todas las esquinas
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.08)",
+    // 2. Destello fuerte (fuente de luz primaria arriba/izquierda)
+    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.3)",
+    // 3. Rebote de luz (fuente secundaria abajo/derecha)
+    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.12)",
+    // 4. Sombra interior sutil para "hundir" el cristal tipo lente
+    "inset 0 0 16px 0px rgba(0, 0, 0, 0.15)",
+    // 5. Sombra de separación del fondo
+    "0 10px 24px 0px rgba(0, 0, 0, 0.4)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(12px) saturate(280%) brightness(110%) contrast(125%)",
-  WebkitBackdropFilter: "blur(12px) saturate(280%) brightness(110%) contrast(125%)",
+  backdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(115%)",
+  WebkitBackdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(115%)",
+  // Contenedor de las pestañas: un poco menos de sombra proyectada que los botones flotantes
   boxShadow: [
-    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.20)",
-    "inset 1px 0px 2px 0px rgba(255, 255, 255, 0.08)",
-    "inset -1px 0px 2px 0px rgba(255, 255, 255, 0.08)",
-    "inset 0 -8px 16px 0px rgba(0, 0, 0, 0.3)",
-    "0 0 0 0 transparent" // El contenedor de la píldora no necesita sombra exterior
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.08)",
+    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.3)",
+    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.12)",
+    "inset 0 0 16px 0px rgba(0, 0, 0, 0.15)",
+    "0 8px 20px 0px rgba(0, 0, 0, 0.3)"
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
+  // La píldora activa tiene un brillo blanco más puro
   backgroundColor: "rgba(255, 255, 255, 0.08)",
-  border: "1px solid rgba(255, 255, 255, 0.15)",
-  // Ligeramente más nítida para resaltar al seleccionarse
-  backdropFilter: "blur(10px) saturate(300%) brightness(120%) contrast(130%)",
-  WebkitBackdropFilter: "blur(10px) saturate(300%) brightness(120%) contrast(130%)",
+  // Ligeramente más luminosa
+  backdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(125%)",
+  WebkitBackdropFilter: "blur(8px) saturate(400%) contrast(140%) brightness(125%)",
   boxShadow: [
-    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.35)", 
-    "inset 1px 0px 3px 0px rgba(255, 255, 255, 0.15)",
-    "inset -1px 0px 3px 0px rgba(255, 255, 255, 0.15)",
-    "0 4px 14px 0px rgba(0, 0, 0, 0.25)"
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.12)",      // Hilo de luz más marcado
+    "inset 2px 2px 3px 0px rgba(255, 255, 255, 0.35)", // Destello principal intensificado
+    "inset -1.5px -1.5px 3px 0px rgba(255, 255, 255, 0.15)", // Rebote secundario
+    "0 4px 12px 0px rgba(0, 0, 0, 0.25)"              // Sombra contenida
   ].join(", "),
 }
 
@@ -268,7 +268,7 @@ function NavBar() {
       >
         <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none">
           {photoUrl ? (
-            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-white/10">
+            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/20">
               <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
             </div>
           ) : (
