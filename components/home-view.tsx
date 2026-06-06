@@ -5,7 +5,7 @@ import {
   Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
   ChevronRight, ChevronDown, Loader2, CalendarDays, Search, ShieldCheck, Github, 
   Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2, Sparkles,
-  Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight, Check
+  Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight, Check, MessageCirclePlus, Users, Bookmark, Laptop
 } from "lucide-react"
 
 import { BusinessAutomationView } from "./business-automation-view"
@@ -252,32 +252,95 @@ export function HomeView() {
         
 
 
-        {/* Tarjeta Schedules */}
-        <div className="bg-[#111111] rounded-[24px] p-4 border border-white/5 shadow-lg relative">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-[46px] h-[46px] bg-[#1a1a1c] rounded-full flex items-center justify-center">
-                <CalendarDays className="w-5 h-5 text-[#8e8e93]" />
-              </div>
-              <div className="flex flex-col">
-                <h2 className="text-[18px] font-bold text-white leading-tight" style={{ fontFamily: SFD }}>Schedules</h2>
-                <p className="text-[13px] text-[#8e8e93] flex items-center gap-1.5 mt-0.5" style={{ fontFamily: SF }}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#8e8e93] opacity-60"></span> Relax
-                  <span className="mx-0.5">•</span> 
-                  No upcoming events
+        {/* Recommended For You Section */}
+        <div className="mt-2 mb-2 px-1">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-[18px] h-[18px] bg-white rounded-sm flex items-center justify-center shrink-0">
+              <Bookmark className="w-3 h-3 text-black" />
+            </div>
+            <h2 className="text-white font-semibold text-[15px]" style={{ fontFamily: SFD }}>
+              Recommended for your Level
+            </h2>
+          </div>
+          <p className="text-[#8e8e93] text-[13px] mb-4" style={{ fontFamily: SF }}>
+            Challenges picked just for you.
+          </p>
+
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4 -mx-5 px-5">
+            
+            {/* Card 1: AI Chat */}
+            <div className="bg-[#1c1c1e] p-4 py-5 rounded-[16px] w-[150px] shrink-0 border border-white/5 relative overflow-hidden flex flex-col justify-between snap-center">
+              <div>
+                <MessageCirclePlus className="w-6 h-6 text-white mb-3" />
+                <h3 className="text-white font-semibold text-[14px] leading-tight mb-1.5" style={{ fontFamily: SFD }}>
+                  Configure AI Chat
+                </h3>
+                <p className="text-[#8e8e93] text-[11px] leading-tight" style={{ fontFamily: SF }}>
+                  Auto-reply and manage spam with Business Agent.
                 </p>
               </div>
+              <div className="mt-5">
+                <button 
+                  onClick={() => setIsBusinessModalOpen(true)}
+                  className="w-full py-2 bg-[#2c2c2e] rounded-[100px] text-white text-[13px] font-semibold relative overflow-hidden active:scale-95 transition-transform"
+                >
+                  <span className="relative z-10">Start</span>
+                  {/* Glow effects as requested */}
+                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#5e5ce6] rounded-full blur-[10px] opacity-70 pointer-events-none" />
+                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-[#38bdf8] rounded-full blur-[10px] opacity-70 pointer-events-none" />
+                </button>
+              </div>
             </div>
-            <button onClick={() => setCurrentView("schedule")} className="w-9 h-9 bg-[#1a1a1c] rounded-full flex items-center justify-center text-[#8e8e93] hover:bg-[#222] transition-colors relative z-10">
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
 
-        {/* PUNTOS INDICADORES DE PÁGINA */}
-        <div className="flex justify-center items-center gap-1.5 mt-0 mb-4">
-          <div className="w-4 h-1.5 rounded-full bg-[#3b82f6]" /> 
-          <div className="w-1.5 h-1.5 rounded-full bg-[#333]" /> 
+            {/* Card 2: Group Moderation */}
+            <div className="bg-[#1c1c1e] p-4 py-5 rounded-[16px] w-[150px] shrink-0 border border-white/5 relative overflow-hidden flex flex-col justify-between snap-center">
+              <div>
+                <Users className="w-6 h-6 text-white mb-3" />
+                <h3 className="text-white font-semibold text-[14px] leading-tight mb-1.5" style={{ fontFamily: SFD }}>
+                  Group Moderation
+                </h3>
+                <p className="text-[#8e8e93] text-[11px] leading-tight" style={{ fontFamily: SF }}>
+                  Set up AI bots to moderate your communities.
+                </p>
+              </div>
+              <div className="mt-5">
+                <button 
+                  onClick={() => setIsBotIntModalOpen(true)}
+                  className="w-full py-2 bg-[#2c2c2e] rounded-[100px] text-white text-[13px] font-semibold relative overflow-hidden active:scale-95 transition-transform"
+                >
+                  <span className="relative z-10">Start</span>
+                  {/* Glow effects */}
+                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#34c759] rounded-full blur-[10px] opacity-70 pointer-events-none" />
+                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-[#38bdf8] rounded-full blur-[10px] opacity-70 pointer-events-none" />
+                </button>
+              </div>
+            </div>
+
+            {/* Card 3: Schedules */}
+            <div className="bg-[#1c1c1e] p-4 py-5 rounded-[16px] w-[150px] shrink-0 border border-white/5 relative overflow-hidden flex flex-col justify-between snap-center">
+              <div>
+                <CalendarDays className="w-6 h-6 text-white mb-3" />
+                <h3 className="text-white font-semibold text-[14px] leading-tight mb-1.5" style={{ fontFamily: SFD }}>
+                  Manage Schedules
+                </h3>
+                <p className="text-[#8e8e93] text-[11px] leading-tight" style={{ fontFamily: SF }}>
+                  Track tasks and automated upcoming events.
+                </p>
+              </div>
+              <div className="mt-5">
+                <button 
+                  onClick={() => setCurrentView("schedule")}
+                  className="w-full py-2 bg-[#2c2c2e] rounded-[100px] text-white text-[13px] font-semibold relative overflow-hidden active:scale-95 transition-transform"
+                >
+                  <span className="relative z-10">Start</span>
+                  {/* Glow effects */}
+                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#f97316] rounded-full blur-[10px] opacity-70 pointer-events-none" />
+                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-[#38bdf8] rounded-full blur-[10px] opacity-70 pointer-events-none" />
+                </button>
+              </div>
+            </div>
+
+          </div>
         </div>
 
         {/* Carrusel Horizontal */}
