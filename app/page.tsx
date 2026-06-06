@@ -12,6 +12,7 @@ import { MarketView } from "@/components/market-view"
 import { ScheduleView } from "@/components/schedule-view"
 import { LevelsView } from "@/components/levels-view" 
 import { ShopView } from "@/components/shop-view" 
+import { GroupConfigView } from "./group-config-view"
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react" 
 
@@ -222,10 +223,8 @@ function NavBar() {
       <div 
         className="absolute inset-0 z-[1] pointer-events-none" 
         style={{ 
-          contain: "paint", // <- CLAVE: aísla el renderizado del SVG para que no explote la pantalla
-          backdropFilter: "blur(12px)", 
-          WebkitBackdropFilter: "blur(12px)", 
-          filter: "url(#glass-distortion) saturate(180%) brightness(1.15)"
+          backdropFilter: "blur(40px) saturate(140%) brightness(1.15)", 
+          WebkitBackdropFilter: "blur(40px) saturate(140%) brightness(1.15)", 
         }} 
       />
       <div 
@@ -251,13 +250,6 @@ function NavBar() {
       }`}
       style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)" }}
     >
-      {/* Filtro SVG oculto para la distorsión líquida (Aislado con contain: paint) */}
-      <svg style={{ width: 0, height: 0, position: "absolute", pointerEvents: "none" }}>
-        <filter id="glass-distortion">
-          <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="40" />
-        </filter>
-      </svg>
       
       {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
       <button
@@ -470,6 +462,7 @@ function AppContent() {
         {currentView === "x-rewards" && <XRewardsView />}
         {currentView === "market"    && <MarketView />}
         {currentView === "schedule"  && <ScheduleView />}
+        {currentView === "group_config" && <GroupConfigView onClose={() => setCurrentView("home")} apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""} />}
         
         {/* Renderizado de la NavBar */}
         {showNav && <NavBar />}
