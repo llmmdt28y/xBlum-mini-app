@@ -253,105 +253,102 @@ export function HomeView() {
 
 
         {/* Recommended For You Section */}
-        <div className="mt-2 mb-2">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="mt-2 mb-4">
+          <div className="flex items-center gap-2 mb-3">
             <div className="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center shrink-0">
               <BookOpen className="w-[13px] h-[13px] text-black" strokeWidth={2.5} />
             </div>
             <h2 className="text-white font-semibold text-[16px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-              Recommended for your Level
+              Recommended for you
             </h2>
           </div>
-          <p className="text-[#8e8e93] text-[13px] mb-4 leading-tight" style={{ fontFamily: SF }}>
-            Challenges picked just for you.
-          </p>
 
-          <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-4 -mx-4 px-4">
+          <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
             
             {/* Card 1: AI Chat */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[164px] min-h-[200px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-4 rounded-[20px] w-[240px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
               <div>
-                <MessageCirclePlus className="w-[22px] h-[22px] text-white mb-[14px]" />
-                <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-2" style={{ fontFamily: SFD }}>
+                <MessageCirclePlus className="w-[20px] h-[20px] text-white mb-[10px]" />
+                <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Configure AI Chat
                 </h3>
                 <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-4" style={{ fontFamily: SF }}>
                   Auto-reply and manage spam with Business Agent.
                 </p>
               </div>
-              <div className="mt-auto flex flex-col gap-[14px]">
+              <div className="mt-auto flex flex-col gap-[12px]">
                 <div className="flex items-center gap-[4px]">
-                  <div className="h-[3px] w-[18px] bg-[#38bdf8] rounded-full" />
+                  <div className="h-[3px] w-[18px] bg-white/70 rounded-full" />
                   <div className="h-[3px] w-[6px] bg-[#3a3a3c] rounded-full" />
                   <div className="h-[3px] w-[6px] bg-[#3a3a3c] rounded-full" />
                   <div className="h-[3px] w-[6px] bg-[#3a3a3c] rounded-full" />
                 </div>
                 <button 
                   onClick={() => setIsBusinessModalOpen(true)}
-                  className="w-full py-[9px] bg-transparent border border-white/10 rounded-full text-white text-[13.5px] font-semibold relative overflow-hidden active:bg-white/5 transition-colors shadow-[0_2px_10px_rgba(0,0,0,0.2)]"
+                  className="w-full py-[8px] bg-transparent border border-white/10 rounded-full text-white text-[13.5px] font-semibold relative overflow-hidden active:bg-white/5 transition-colors"
                   style={{ fontFamily: SF }}
                 >
                   <span className="relative z-10">Start</span>
-                  {/* Glow effects */}
-                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#5e5ce6] rounded-full blur-[12px] opacity-60 pointer-events-none" />
-                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-[#38bdf8] rounded-full blur-[12px] opacity-60 pointer-events-none" />
+                  {/* Gray Glow effects */}
+                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
+                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
                 </button>
               </div>
             </div>
 
             {/* Card 2: Group Moderation */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[164px] min-h-[200px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-4 rounded-[20px] w-[240px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
               <div>
-                <Users className="w-[22px] h-[22px] text-white mb-[14px]" />
-                <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-2" style={{ fontFamily: SFD }}>
+                <Users className="w-[20px] h-[20px] text-white mb-[10px]" />
+                <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Group Moderation
                 </h3>
                 <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-4" style={{ fontFamily: SF }}>
                   Set up AI bots to moderate your communities.
                 </p>
               </div>
-              <div className="mt-auto flex flex-col gap-[14px]">
+              <div className="mt-auto flex flex-col gap-[12px]">
                 <div className="flex items-center gap-[4px]">
-                  <div className="h-[3px] w-[18px] bg-[#34c759] rounded-full" />
+                  <div className="h-[3px] w-[18px] bg-white/70 rounded-full" />
                   <div className="h-[3px] w-[18px] bg-[#3a3a3c] rounded-full" />
                 </div>
                 <button 
                   onClick={() => setIsBotIntModalOpen(true)}
-                  className="w-full py-[9px] bg-transparent border border-white/10 rounded-full text-white text-[13.5px] font-semibold relative overflow-hidden active:bg-white/5 transition-colors shadow-[0_2px_10px_rgba(0,0,0,0.2)]"
+                  className="w-full py-[8px] bg-transparent border border-white/10 rounded-full text-white text-[13.5px] font-semibold relative overflow-hidden active:bg-white/5 transition-colors"
                   style={{ fontFamily: SF }}
                 >
                   <span className="relative z-10">Start</span>
-                  {/* Glow effects */}
-                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#34c759] rounded-full blur-[12px] opacity-60 pointer-events-none" />
-                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-[#38bdf8] rounded-full blur-[12px] opacity-60 pointer-events-none" />
+                  {/* Gray Glow effects */}
+                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
+                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
                 </button>
               </div>
             </div>
 
             {/* Card 3: Schedules */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[164px] min-h-[200px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-4 rounded-[20px] w-[240px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
               <div>
-                <CalendarDays className="w-[22px] h-[22px] text-white mb-[14px]" />
-                <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-2" style={{ fontFamily: SFD }}>
+                <CalendarDays className="w-[20px] h-[20px] text-white mb-[10px]" />
+                <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Manage Schedules
                 </h3>
                 <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-4" style={{ fontFamily: SF }}>
                   Track tasks and automated upcoming events.
                 </p>
               </div>
-              <div className="mt-auto flex flex-col gap-[14px]">
+              <div className="mt-auto flex flex-col gap-[12px]">
                 <div className="flex items-center gap-[4px]">
-                  <div className="h-[3px] w-[32px] bg-[#f97316] rounded-full" />
+                  <div className="h-[3px] w-[32px] bg-white/70 rounded-full" />
                 </div>
                 <button 
                   onClick={() => setCurrentView("schedule")}
-                  className="w-full py-[9px] bg-transparent border border-white/10 rounded-full text-white text-[13.5px] font-semibold relative overflow-hidden active:bg-white/5 transition-colors shadow-[0_2px_10px_rgba(0,0,0,0.2)]"
+                  className="w-full py-[8px] bg-transparent border border-white/10 rounded-full text-white text-[13.5px] font-semibold relative overflow-hidden active:bg-white/5 transition-colors"
                   style={{ fontFamily: SF }}
                 >
                   <span className="relative z-10">Start</span>
-                  {/* Glow effects */}
-                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-[#f97316] rounded-full blur-[12px] opacity-60 pointer-events-none" />
-                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-[#38bdf8] rounded-full blur-[12px] opacity-60 pointer-events-none" />
+                  {/* Gray Glow effects */}
+                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
+                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
                 </button>
               </div>
             </div>
