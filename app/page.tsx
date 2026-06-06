@@ -13,8 +13,7 @@ import { ScheduleView } from "@/components/schedule-view"
 import { LevelsView } from "@/components/levels-view"
 import { ShopView } from "@/components/shop-view"
 import { GroupConfigView } from "@/components/group-config-view"
-import Script from "next/script"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
@@ -32,7 +31,7 @@ function getTgUser(): TgUser | undefined {
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Pantalla de Mantenimiento ─────────────────────────────────────────
+// ── Maintenance Screen ────────────────────────────────────────────────
 function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   const [tapCount, setTapCount] = useState(0)
 
@@ -76,32 +75,82 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── CSS Glass style ────────────────────────────────────────────────────
-// Aplica el glass effect via CSS backdrop-filter.
-// Razón: liquidGL.js arranca su renderer canvas con opacity:0 y solo lo
-// muestra DESPUÉS de que html2canvas completa un snapshot exitoso. El
-// snapshot falla cuando los elementos target son position:relative dentro
-// de un ancestor fixed, porque liquidGL ignora position:fixed en
-// ignoreElements. El canvas queda en opacity:0 para siempre, tapando los
-// botones del navbar que sí son visibles abajo.
-//
-// CSS backdrop-filter es lo que liquidGL usa internamente como fallback
-// para browsers sin WebGL — es el mismo efecto glass, 100% estable,
-// nunca desaparece, y funciona en todos los dispositivos incluyendo
-// Telegram WebApp en iOS/Android.
-//
-// liquidGL SIGUE CARGADO para usarlo correctamente en otros elementos
-// de la app que cumplan sus requisitos (position:fixed en el target mismo,
-// no en un ancestor). Para el navbar, CSS es la solución correcta.
-const glassStyle: React.CSSProperties = {
-  backdropFilter: "blur(20px) saturate(180%)",
-  WebkitBackdropFilter: "blur(20px) saturate(180%)",
-  background: "rgba(255, 255, 255, 0.06)",
-  border: "1px solid rgba(255, 255, 255, 0.12)",
-  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.15)",
+// ── SVG Glass Filter ──────────────────────────────────────────────────
+// Técnica del ejemplo: un SVG filter con feDisplacementMap simula la
+// refracción física del vidrio. Se incrusta una vez en el body,
+// completamente oculto (width:0 height:0), y se referencia desde
+// backdrop-filter: url(#nav-glass-filter) en los elementos de la navbar.
+// Esto es 100% CSS, sin JS, sin WebGL, sin dependencias externas.
+// El efecto funciona siempre, no puede desaparecer.
+function GlassSVGFilter() {
+  return (
+    <div
+      aria-hidden="true"
+      style={{ position: "absolute", width: 0, height: 0, overflow: "hidden", zIndex: -1 }}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="nav-glass-filter" x="0%" y="0%" width="100%" height="100%"
+            filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox"
+            colorInterpolationFilters="sRGB">
+            {/* Blur leve para suavizar bordes */}
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.012" result="blur" />
+            {/* Displacement map simula la refracción del vidrio */}
+            <feTurbulence type="fractalNoise" baseFrequency="0.65 0.65"
+              numOctaves="1" seed="2" result="noise" />
+            <feDisplacementMap in="blur" in2="noise"
+              scale="0.018" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+          <filter id="nav-glass-pill" x="0%" y="0%" width="100%" height="100%"
+            filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox"
+            colorInterpolationFilters="sRGB">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.008" result="blur" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.65 0.65"
+              numOctaves="1" seed="2" result="noise" />
+            <feDisplacementMap in="blur" in2="noise"
+              scale="0.012" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
+    </div>
+  )
 }
 
-// ── Floating NavBar ───────────────────────────────────────────────────
+// ── Glass styles ──────────────────────────────────────────────────────
+// Replicamos la técnica del ejemplo: box-shadow con múltiples capas
+// simula los reflexos de bordes del vidrio (bright top-left, dark bottom).
+// backdrop-filter con url() aplica la distorsión SVG + blur + saturate.
+//
+// --glass-reflex-light y --glass-reflex-dark controlan la intensidad
+// de los reflexos en dark mode (mismo sistema que el ejemplo de Vadik Matveev).
+
+const BTN_BASE: React.CSSProperties = {
+  backdropFilter: "blur(16px) url(#nav-glass-filter) saturate(180%)",
+  WebkitBackdropFilter: "blur(16px) saturate(180%)", // Safari fallback sin SVG filter
+  backgroundColor: "rgba(255,255,255,0.07)",
+  // Reflexos de vidrio: bordes claros arriba-izquierda, oscuros abajo-derecha
+  boxShadow: `
+    inset 0 0 0 1px rgba(255,255,255,0.13),
+    inset 1.8px 3px 0px -2px rgba(255,255,255,0.70),
+    inset -2px -2px 0px -2px rgba(255,255,255,0.55),
+    inset -3px -8px 1px -6px rgba(255,255,255,0.40),
+    inset -0.3px -1px 4px 0px rgba(0,0,0,0.20),
+    inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.28),
+    inset 0px 3px 4px -2px rgba(0,0,0,0.25),
+    inset 2px -6.5px 1px -4px rgba(0,0,0,0.14),
+    0px 1px 5px 0px rgba(0,0,0,0.18),
+    0px 6px 20px 0px rgba(0,0,0,0.22)
+  `.trim(),
+  transition: "box-shadow 300ms ease, transform 0.2s ease",
+}
+
+const PILL_STYLE: React.CSSProperties = {
+  ...BTN_BASE,
+  backdropFilter: "blur(16px) url(#nav-glass-pill) saturate(180%)",
+  WebkitBackdropFilter: "blur(16px) saturate(180%)",
+}
+
+// ── NavBar ────────────────────────────────────────────────────────────
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
@@ -137,10 +186,23 @@ function NavBar() {
       ]
 
   const neonBlue          = "#33b5f7"
-  const inactiveGlassText = "rgba(255, 255, 255, 0.6)"
+  const inactiveColor     = "rgba(255,255,255,0.62)"
+  const safeBottom        = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)"
 
-  // safe area bottom
-  const safeBottom = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)"
+  // Tab activa: píldora interna con reflexo propio (igual que el ::after del ejemplo)
+  const activePillStyle: React.CSSProperties = {
+    background: "rgba(255,255,255,0.15)",
+    boxShadow: `
+      inset 0 0 0 1px rgba(255,255,255,0.18),
+      inset 2px 1px 0px -1px rgba(255,255,255,0.70),
+      inset -1.5px -1px 0px -1px rgba(255,255,255,0.55),
+      inset -2px -6px 1px -5px rgba(255,255,255,0.40),
+      inset -1px 2px 3px -1px rgba(0,0,0,0.25),
+      inset 0px -4px 1px -2px rgba(0,0,0,0.14),
+      0px 3px 6px 0px rgba(0,0,0,0.14)
+    `.trim(),
+    transition: "all 400ms cubic-bezier(1, 0.0, 0.4, 1)",
+  }
 
   return (
     <div
@@ -153,24 +215,23 @@ function NavBar() {
         onClick={handleLeftActionButton}
         className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
         style={{
+          ...BTN_BASE,
           width: "64px",
           height: "64px",
           borderRadius: "100px",
           zIndex: 51,
-          transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
-          ...glassStyle,
         }}
       >
-        <div className="flex flex-col items-center justify-center pointer-events-none">
+        <div className="flex flex-col items-center justify-center pointer-events-none select-none">
           {activeNavMode === 'market' ? (
             <>
-              <Home size={22} color={inactiveGlassText} strokeWidth={2} />
-              <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Home</span>
+              <Home size={22} color={inactiveColor} strokeWidth={2} />
+              <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Home</span>
             </>
           ) : (
             <>
-              <Store size={22} color={inactiveGlassText} strokeWidth={2} />
-              <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Market</span>
+              <Store size={22} color={inactiveColor} strokeWidth={2} />
+              <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Market</span>
             </>
           )}
         </div>
@@ -180,13 +241,13 @@ function NavBar() {
       <div
         className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
         style={{
+          ...PILL_STYLE,
           borderRadius: "100px",
           height: "64px",
           zIndex: 51,
-          ...glassStyle,
         }}
       >
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full relative">
           {centerTabs.map((tab, idx) => {
             const isActive   = currentView === tab.id
             const isDisabled = !!tab.disabled
@@ -197,28 +258,25 @@ function NavBar() {
                 key={`${tab.id}-${idx}`}
                 disabled={isDisabled}
                 onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-                className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95"
+                className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95 select-none"
                 style={{
                   pointerEvents: isDisabled ? "none" : "auto",
-                  transition: "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
-                  background: isActive ? "rgba(255, 255, 255, 0.15)" : "transparent",
-                  boxShadow: isActive
-                    ? "0 4px 12px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.2)"
-                    : "none",
-                  transform: isActive ? "scale(1.08)" : "scale(1)",
+                  transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
+                  transform: isActive ? "scale(1.06)" : "scale(1)",
+                  ...(isActive ? activePillStyle : {}),
                 }}
               >
                 {Icon ? (
                   <>
                     <Icon
                       size={22}
-                      color={isActive ? neonBlue : inactiveGlassText}
+                      color={isActive ? neonBlue : inactiveColor}
                       strokeWidth={isActive ? 2.5 : 2}
-                      className={`transition-colors duration-300 ${isActive ? "drop-shadow-md" : ""}`}
+                      className="transition-colors duration-300"
                     />
                     <span
                       className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
-                      style={{ color: isActive ? neonBlue : inactiveGlassText }}
+                      style={{ color: isActive ? neonBlue : inactiveColor }}
                     >
                       {tab.label}
                     </span>
@@ -237,29 +295,28 @@ function NavBar() {
         onClick={() => setCurrentView('profile')}
         className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
         style={{
+          ...BTN_BASE,
           width: "64px",
           height: "64px",
           borderRadius: "100px",
           zIndex: 51,
-          transition: "transform 0.2s ease",
-          ...glassStyle,
         }}
       >
-        <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none">
+        <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none">
           {photoUrl ? (
-            <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
+            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-white/10">
               <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center">
               <CircleUser
                 size={22}
-                color={currentView === 'profile' ? neonBlue : inactiveGlassText}
+                color={currentView === 'profile' ? neonBlue : inactiveColor}
                 strokeWidth={currentView === 'profile' ? 2.5 : 2}
               />
               <span
                 className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
-                style={{ color: currentView === 'profile' ? neonBlue : inactiveGlassText }}
+                style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
               >
                 Profile
               </span>
@@ -326,9 +383,11 @@ function AppContent() {
 
   return (
     <>
+      {/* SVG filter global — se incrusta una vez, invisible, referenciado desde CSS */}
+      <GlassSVGFilter />
+
       {showLoading && (
         <div
-          data-liquid-ignore
           className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
             fadeLoading ? "opacity-0" : "opacity-100"
           }`}
@@ -362,22 +421,6 @@ function AppContent() {
 
         {showNav && <NavBar />}
       </div>
-
-      {/*
-        liquidGL se mantiene cargado para uso en otros elementos de la app.
-        El navbar usa CSS backdrop-filter (más confiable para elementos
-        dentro de stacking contexts complejos como Telegram WebApp).
-        Para usar liquidGL en un elemento nuevo: el target DEBE tener
-        position:fixed directamente (no heredado de un ancestor).
-      */}
-      <Script
-        src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
-        strategy="beforeInteractive"
-      />
-      <Script
-        src="/js/liquidGL.js"
-        strategy="afterInteractive"
-      />
     </>
   )
 }
