@@ -75,53 +75,50 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (High Transmission & Lens Flare) ──────────────
+// ── Liquid Glass Styles (Reddit Consensus - True Dark Material) ───────
 
 const BTN_BASE: React.CSSProperties = {
-  // 1. Alta transmisión: Casi transparente para no matar los colores vivos del fondo
-  backgroundColor: "rgba(255, 255, 255, 0.03)", 
-  // 2. Motor de Lupa: Blur medio (16px), saturación alta (250%) y brillo extra para refractar
-  backdropFilter: "blur(16px) saturate(250%) brightness(110%)",
-  WebkitBackdropFilter: "blur(16px) saturate(250%) brightness(110%)",
+  // 1. Tinte NEGRO (no blanco). Elimina el aspecto lechoso/empañado por completo.
+  backgroundColor: "rgba(0, 0, 0, 0.25)", 
+  // 2. SIN brightness(). Solo un blur sólido (24px) y saturación (200%) para revivir los colores neón que pasan debajo.
+  backdropFilter: "blur(24px) saturate(200%)",
+  WebkitBackdropFilter: "blur(24px) saturate(200%)",
+  // 3. Borde perimetral ultra tenue para definir el corte del cristal sin parecer un borde sólido
+  border: "1px solid rgba(255, 255, 255, 0.03)", 
   transform: "translateZ(0)", 
   willChange: "backdrop-filter, box-shadow, transform", 
   boxShadow: [
-    // Hilo perimetral fino
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
-    // Destello de lente curvo (Arriba a la izquierda)
-    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.25)",
-    // Rebote de luz (Abajo a la derecha)
-    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.08)",
-    // Sombra proyectada profunda para separar el cristal del cofre
-    "0 8px 32px 0px rgba(0, 0, 0, 0.5)"
+    // El "hilo de luz" nativo de iOS: un reflejo sutilísimo solo en el borde superior
+    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.12)",
+    // Una sombra profunda para asentar la barra sobre los elementos del fondo
+    "0 8px 32px 0px rgba(0, 0, 0, 0.6)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(16px) saturate(250%) brightness(110%)",
-  WebkitBackdropFilter: "blur(16px) saturate(250%) brightness(110%)",
+  backdropFilter: "blur(24px) saturate(200%)",
+  WebkitBackdropFilter: "blur(24px) saturate(200%)",
   boxShadow: [
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
-    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.25)",
-    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.08)",
-    "0 6px 20px 0px rgba(0, 0, 0, 0.3)"
+    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.12)",
+    // El contenedor central lleva una sombra proyectada más suave
+    "0 4px 16px 0px rgba(0, 0, 0, 0.3)"
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // La píldora activa recibe más luz interior
-  backgroundColor: "rgba(255, 255, 255, 0.08)",
-  // Y se vuelve un poco más brillante
-  backdropFilter: "blur(16px) saturate(250%) brightness(120%)",
-  WebkitBackdropFilter: "blur(16px) saturate(250%) brightness(120%)",
+  // La pestaña activa SÍ recibe un levísimo tinte blanco para diferenciarse, pero sin exagerar
+  backgroundColor: "rgba(255, 255, 255, 0.05)",
+  border: "1px solid rgba(255, 255, 255, 0.08)",
+  backdropFilter: "blur(24px) saturate(200%)",
+  WebkitBackdropFilter: "blur(24px) saturate(200%)",
   boxShadow: [
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.12)",
-    "inset 1.5px 1.5px 3px 0px rgba(255, 255, 255, 0.35)", // Destello más pronunciado
-    "inset -1.5px -1.5px 3px 0px rgba(255, 255, 255, 0.1)", // Rebote más pronunciado
-    "0 4px 12px 0px rgba(0, 0, 0, 0.2)"
+    // Reflejo superior un poco más brillante
+    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.2)",
+    // Sombra cerrada para darle profundidad al botón
+    "0 4px 12px 0px rgba(0, 0, 0, 0.4)"
   ].join(", "),
 }
 
@@ -264,7 +261,7 @@ function NavBar() {
       >
         <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none">
           {photoUrl ? (
-            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/20">
+            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
               <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
             </div>
           ) : (
