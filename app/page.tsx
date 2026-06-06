@@ -123,7 +123,7 @@ function NavBar() {
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
 
-  // Estado para el cristal dinámico realista
+  // Estado para el cristal dinámico realista (fallback cuando liquidGL no está activo)
   const [glassStyles, setGlassStyles] = useState({
     background: "linear-gradient(135deg, rgba(30, 30, 30, 0.4) 0%, rgba(30, 30, 30, 0.15) 100%)",
     borderColor: "rgba(255, 255, 255, 0.12)",
@@ -218,53 +218,69 @@ function NavBar() {
   const neonBlue = "#33b5f7" 
   const inactiveGlassText = "rgba(255, 255, 255, 0.6)" 
 
-  // Componente de fondo líquido preparado para liquidGL
-  const LiquidBackground = ({ id, radius = "100px" }: { id: string, radius?: string }) => (
+  // ── FIX: Fallback glass para cuando liquidGL aún no ha cargado ──
+  // Este div NO tiene ID — liquidGL se aplica directamente al botón/contenedor padre
+  const GlassFallback = ({ radius = "100px" }: { radius?: string }) => (
     <div 
-      id={id}
       className="absolute inset-0 z-[1] pointer-events-none" 
       style={{ 
-        background: "rgba(255, 255, 255, 0.05)",
-        border: "1px solid rgba(255, 255, 255, 0.15)",
+        background: glassStyles.background,
+        border: `1px solid ${glassStyles.borderColor}`,
+        boxShadow: glassStyles.boxShadow,
         borderRadius: radius
       }} 
     />
   )
 
-  // Inicialización robusta de liquidGL sincronizada con las vistas de React
+  // ── Inicialización robusta de liquidGL ──
+  // FIX: Los IDs ahora están en los elementos padre (button/div), no en el div interno.
+  // FIX: Se usa polling en lugar de timeout fijo para garantizar que el DOM esté listo.
   useEffect(() => {
-    const initLiquidGL = () => {
-      // Verificamos que Next.js ya haya terminado de inyectar el script
-      if (typeof window !== "undefined" && (window as any).liquidGL) {
-        try {
-          // Instanciamos el WebGL en cada botón por separado
-          const targets = ["#liquid-btn-left", "#liquid-btn-center", "#liquid-btn-right"];
-          
-          targets.forEach(targetElement => {
-            // @ts-ignore
-            (window as any).liquidGL({
-              selector: targetElement,
-              refraction: 0.6,
-              bevelDepth: 0.05,
-              bevelWidth: 0.2,
-              frost: 0.5,
-              magnify: 1.05,
-              shadow: true,
-              tilt: false,
-              reveal: "fade"
-            });
-          });
-        } catch (error) {
-          console.error("Error al montar LiquidGL:", error);
-        }
+    let attempts = 0
+    const maxAttempts = 20 // máximo ~4 segundos (20 * 200ms)
+
+    const tryInit = () => {
+      attempts++
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const liquidGL = (window as any).liquidGL
+
+      if (!liquidGL) {
+        if (attempts < maxAttempts) setTimeout(tryInit, 200)
+        return
       }
-    };
 
-    // 1500ms para evitar la captura de la pantalla negra
-    const timer = setTimeout(initLiquidGL, 1500);
+      const targets = ["#liquid-btn-left", "#liquid-btn-center", "#liquid-btn-right"]
+      const allFound = targets.every(sel => !!document.querySelector(sel))
 
-    return () => clearTimeout(timer);
-  }, [currentView]);
+      if (!allFound) {
+        if (attempts < maxAttempts) setTimeout(tryInit, 200)
+        return
+      }
+
+      try {
+        targets.forEach(selector => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ;(window as any).liquidGL({
+            selector,
+            refraction: 0.6,
+            bevelDepth: 0.05,
+            bevelWidth: 0.2,
+            frost: 0.5,
+            magnify: 1.05,
+            shadow: true,
+            tilt: false,
+            reveal: "fade"
+          })
+        })
+      } catch (error) {
+        console.error("Error al montar LiquidGL:", error)
+      }
+    }
+
+    // Pequeño delay inicial para dejar que React pinte el DOM
+    const initialTimer = setTimeout(tryInit, 300)
+    return () => clearTimeout(initialTimer)
+  }, [currentView])
 
   return (
     <div
@@ -276,9 +292,11 @@ function NavBar() {
     >
       
       {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
+      {/* FIX: ID movido aquí (al elemento raíz del botón). Sin overflow-hidden. */}
       <button
+        id="liquid-btn-left"
         onClick={handleLeftActionButton}
-        className="pointer-events-auto relative overflow-hidden flex flex-col items-center justify-center transition-all active:scale-95 shrink-0"
+        className="pointer-events-auto relative flex flex-col items-center justify-center transition-all active:scale-95 shrink-0"
         style={{ 
           width: "64px", 
           height: "64px", 
@@ -286,102 +304,109 @@ function NavBar() {
           transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), background 0.35s" 
         }}
       >
-        <LiquidBackground id="liquid-btn-left" />
+        {/* Fallback visual mientras liquidGL no ha cargado */}
+        <GlassFallback />
         <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none">
-        {activeNavMode === 'market' ? (
-          <>
-            <Home size={22} color={inactiveGlassText} strokeWidth={2} />
-            <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Home</span>
-          </>
-        ) : (
-          <>
-            <Store size={22} color={inactiveGlassText} strokeWidth={2} />
-            <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Market</span>
-          </>
-        )}
+          {activeNavMode === 'market' ? (
+            <>
+              <Home size={22} color={inactiveGlassText} strokeWidth={2} />
+              <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Home</span>
+            </>
+          ) : (
+            <>
+              <Store size={22} color={inactiveGlassText} strokeWidth={2} />
+              <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveGlassText }}>Market</span>
+            </>
+          )}
         </div>
       </button>
 
       {/* ── PÍLDORA CENTRAL: Módulos Fijos ── */}
+      {/* FIX: ID movido aquí (al div raíz). Sin overflow-hidden. */}
       <div
-        className="pointer-events-auto relative overflow-hidden flex items-center justify-between flex-1 mx-3 px-1.5"
+        id="liquid-btn-center"
+        className="pointer-events-auto relative flex items-center justify-between flex-1 mx-3 px-1.5"
         style={{ borderRadius: "100px", height: "64px" }}
       >
-        <LiquidBackground id="liquid-btn-center" />
+        {/* Fallback visual mientras liquidGL no ha cargado */}
+        <GlassFallback radius="100px" />
         <div className="relative z-10 flex items-center justify-between w-full">
-        {centerTabs.map((tab, idx) => {
-          const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
-          const isDisabled = !!tab.disabled
-          const Icon = tab.icon
+          {centerTabs.map((tab, idx) => {
+            const isActive = currentView === tab.id || (tab.id === 'home' && currentView === 'home')
+            const isDisabled = !!tab.disabled
+            const Icon = tab.icon
 
-          return (
-            <button
-              key={`${tab.id}-${idx}`}
-              disabled={isDisabled}
-              onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-              // Aumentamos el tiempo de transición para que el escalado sea fluido (ease-out) con el rebote
-              className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95"
-              style={{
-                pointerEvents: isDisabled ? "none" : "auto",
-                transition: "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
-                // Estilo iOS/Apple para los botones activos dentro de liquidGL
-                background: isActive ? "rgba(255, 255, 255, 0.15)" : "transparent",
-                boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.2)" : "none",
-                // Animación de crecimiento del botón (Gota/Lupa)
-                transform: isActive ? "scale(1.08)" : "scale(1)", 
-              }}
-            >
-              {Icon ? (
-                <>
-                  <Icon 
-                    size={22} 
-                    color={isActive ? neonBlue : inactiveGlassText} 
-                    strokeWidth={isActive ? 2.5 : 2} 
-                    className={`transition-colors duration-300 ${isActive ? "drop-shadow-md" : ""}`}
-                  />
-                  <span 
-                    className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
-                    style={{ color: isActive ? neonBlue : inactiveGlassText }}
-                  >
-                    {tab.label}
-                  </span>
-                </>
-              ) : (
-                <div className="w-[6px] h-[6px] rounded-full bg-white/10"></div>
-              )}
-            </button>
-          )
-        })}
+            return (
+              <button
+                key={`${tab.id}-${idx}`}
+                disabled={isDisabled}
+                onClick={() => !isDisabled && setCurrentView(tab.id as any)}
+                className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95"
+                style={{
+                  pointerEvents: isDisabled ? "none" : "auto",
+                  transition: "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
+                  // Estilo iOS/Apple para los botones activos dentro de liquidGL
+                  background: isActive ? "rgba(255, 255, 255, 0.15)" : "transparent",
+                  boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.2)" : "none",
+                  // Animación de crecimiento del botón (Gota/Lupa)
+                  transform: isActive ? "scale(1.08)" : "scale(1)", 
+                }}
+              >
+                {Icon ? (
+                  <>
+                    <Icon 
+                      size={22} 
+                      color={isActive ? neonBlue : inactiveGlassText} 
+                      strokeWidth={isActive ? 2.5 : 2} 
+                      className={`transition-colors duration-300 ${isActive ? "drop-shadow-md" : ""}`}
+                    />
+                    <span 
+                      className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
+                      style={{ color: isActive ? neonBlue : inactiveGlassText }}
+                    >
+                      {tab.label}
+                    </span>
+                  </>
+                ) : (
+                  <div className="w-[6px] h-[6px] rounded-full bg-white/10"></div>
+                )}
+              </button>
+            )
+          })}
         </div>
       </div>
 
       {/* ── BOTÓN DERECHO: Profile ── */}
+      {/* FIX: ID movido aquí (al elemento raíz del botón). Sin overflow-hidden. */}
       <button
+        id="liquid-btn-right"
         onClick={() => setCurrentView('profile')}
-        className="pointer-events-auto relative overflow-hidden flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
+        className="pointer-events-auto relative flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
         style={{ width: "64px", height: "64px", borderRadius: "100px" }}
       >
-        <LiquidBackground id="liquid-btn-right" />
+        {/* Fallback visual mientras liquidGL no ha cargado */}
+        <GlassFallback />
         <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pointer-events-none">
-        {photoUrl ? (
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
-            <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center">
-            <CircleUser 
-              size={22} 
-              color={currentView === 'profile' ? neonBlue : inactiveGlassText} 
-              strokeWidth={currentView === 'profile' ? 2.5 : 2} 
-            />
-            <span 
-              className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
-              style={{ color: currentView === 'profile' ? neonBlue : inactiveGlassText }}
-            >
-              Profile
-            </span>
-          </div>
-        )}
+          {photoUrl ? (
+            // La foto del usuario va en un div interno con overflow-hidden — esto es correcto
+            <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
+              <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center">
+              <CircleUser 
+                size={22} 
+                color={currentView === 'profile' ? neonBlue : inactiveGlassText} 
+                strokeWidth={currentView === 'profile' ? 2.5 : 2} 
+              />
+              <span 
+                className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
+                style={{ color: currentView === 'profile' ? neonBlue : inactiveGlassText }}
+              >
+                Profile
+              </span>
+            </div>
+          )}
         </div>
       </button>
 
