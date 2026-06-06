@@ -223,14 +223,42 @@ function NavBar() {
     <div 
       className="liquid-nav absolute inset-0 z-[1] pointer-events-none" 
       style={{ 
-        background: "rgba(255, 255, 255, 0.02)",
-        backdropFilter: "blur(10px)", 
-        WebkitBackdropFilter: "blur(10px)",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
+        background: "rgba(255, 255, 255, 0.05)",
+        border: "1px solid rgba(255, 255, 255, 0.15)",
         borderRadius: radius
       }} 
     />
   )
+
+  // Inicialización de liquidGL sincronizada con las vistas de React
+  useEffect(() => {
+    // Retraso de 500ms para asegurar que la vista esté completamente renderizada
+    const timer = setTimeout(() => {
+      // @ts-ignore
+      if (typeof window !== "undefined" && window.liquidGL) {
+        try {
+          // @ts-ignore
+          window.liquidGL({
+            selector: ".liquid-nav",
+            refraction: 0,
+            bevelDepth: 0.052,
+            bevelWidth: 0.211,
+            frost: 2,
+            magnify: 1,
+            shadow: true,
+            specular: true,
+            tilt: false,
+            tiltFactor: 5,
+            reveal: "fade"
+          });
+        } catch (error) {
+          console.error("Error al montar LiquidGL:", error);
+        }
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [currentView]);
 
   return (
     <div
@@ -290,9 +318,9 @@ function NavBar() {
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
                 transition: "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
-                // Fondo oscurecido transparente restaurado con la sombra interior del bisel blanco superior
-                background: isActive ? "rgba(0, 0, 0, 0.4)" : "transparent",
-                boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)" : "none",
+                // Estilo iOS/Apple para los botones activos dentro de liquidGL
+                background: isActive ? "rgba(255, 255, 255, 0.15)" : "transparent",
+                boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.2)" : "none",
                 // Animación de crecimiento del botón (Gota/Lupa)
                 transform: isActive ? "scale(1.08)" : "scale(1)", 
               }}
@@ -465,22 +493,7 @@ function AppContent() {
       </div>
 
       <Script src="/js/html2canvas.min.js" strategy="afterInteractive" />
-      <Script 
-        src="/js/liquidGL.js" 
-        strategy="lazyOnload"
-        onLoad={() => {
-          if (typeof window !== "undefined" && (window as any).liquidGL) {
-            (window as any).liquidGL({
-              selector: ".liquid-nav",
-              refraction: 0.4,
-              frost: 0.2,
-              bevelWidth: 3.0,
-              shadow: false,
-              tilt: false
-            });
-          }
-        }}
-      />
+      <Script src="/js/liquidGL.js" strategy="afterInteractive" />
     </>
   )
 }
