@@ -100,18 +100,18 @@ function GlassSVGFilter() {
           <filter id="nav-glass-filter" primitiveUnits="objectBoundingBox"
             x="-5%" y="-5%" width="110%" height="110%">
             <feImage result="map" width="100%" height="100%" x="0" y="0"
-              href={{GLASS_DISPMAP}} />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.02" result="blur" />
-            <feDisplacementMap in="blur" in2="map" scale="0.12"
+              href={GLASS_DISPMAP} />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.04" result="blur" />
+            <feDisplacementMap in="blur" in2="map" scale="0.5"
               xChannelSelector="R" yChannelSelector="G" />
           </filter>
           {/* nav-glass-pill: para la píldora activa interna (más sutil) */}
           <filter id="nav-glass-pill" primitiveUnits="objectBoundingBox"
             x="-5%" y="-5%" width="110%" height="110%">
             <feImage result="map" width="100%" height="100%" x="0" y="0"
-              href={{GLASS_DISPMAP}} />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.01" result="blur" />
-            <feDisplacementMap in="blur" in2="map" scale="0.08"
+              href={GLASS_DISPMAP} />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.03" result="blur" />
+            <feDisplacementMap in="blur" in2="map" scale="0.35"
               xChannelSelector="R" yChannelSelector="G" />
           </filter>
         </defs>
@@ -233,7 +233,7 @@ function NavBar() {
     willChange: "transform",
     background: "rgba(187,187,188,0.28)",
     boxShadow: [
-      "inset 0 0 0 1px rgba(255,255,255,0.03)",           // rim perimetral
+      "inset 0 0 0 1px rgba(255,255,255,0.03)",          // rim perimetral
       "inset 2px 1px 0px -1px rgba(255,255,255,0.27)",    // highlight top-left
       "inset -1.5px -1px 0px -1px rgba(255,255,255,0.24)",// highlight right
       "inset -2px -6px 1px -5px rgba(255,255,255,0.18)",  // highlight bottom
@@ -290,7 +290,7 @@ function NavBar() {
       >
         <div className="flex items-center justify-between w-full relative">
           {centerTabs.map((tab, idx) => {
-            const isActive   = currentView === tab.id
+            const isActive = currentView === tab.id
             const isDisabled = !!tab.disabled
             const Icon       = tab.icon
 
