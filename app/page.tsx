@@ -75,51 +75,59 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Smoked Native Apple/Portals Look) ────────────
+// ── Liquid Glass Styles (Volumetric Lens - Portals Exact Replica) ─────
 
 const BTN_BASE: React.CSSProperties = {
-  // 1. Tinte negro ahumado intenso: Calma los colores y los oscurece suavemente
-  backgroundColor: "rgba(10, 10, 10, 0.55)", 
-  // 2. Blur de nube densa (32px) para deshacer las líneas de las figuras. Saturación neutra-alta.
-  backdropFilter: "blur(32px) saturate(140%)",
-  WebkitBackdropFilter: "blur(32px) saturate(140%)",
+  // EL TRUCO: Gradiente radial. Simula el grosor de una lente.
+  // Luz tenue blanca en el centro/arriba, que se difumina a un ahumado oscuro en los bordes.
+  background: "radial-gradient(130% 120% at 50% 0%, rgba(255, 255, 255, 0.08) 0%, rgba(12, 12, 12, 0.55) 100%)",
+  // Blur intermedio exacto y saturación controlada para no quemar el color
+  backdropFilter: "blur(20px) saturate(160%)",
+  WebkitBackdropFilter: "blur(20px) saturate(160%)",
+  // Hilo de borde para cerrar el objeto físico
+  border: "1px solid rgba(255, 255, 255, 0.05)", 
   transform: "translateZ(0)", 
   willChange: "backdrop-filter, box-shadow, transform", 
   boxShadow: [
-    // Borde perimetral continuo súper sutil (simula el pulido del cristal)
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
-    // Rebote cenital: La luz principal que viene de arriba
-    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.15)",
-    // Rebote sutil inferior
-    "inset 0 -1.5px 1px 0px rgba(255, 255, 255, 0.03)",
-    // Sombra pesada para fundirlo con el fondo oscuro
-    "0 8px 30px rgba(0, 0, 0, 0.6)"
+    // Luz cenital fuerte (impacto directo superior)
+    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.18)",
+    // Rebote de luz lateral Izquierdo
+    "inset 1px 0 2px 0px rgba(255, 255, 255, 0.07)",
+    // Rebote de luz lateral Derecho
+    "inset -1px 0 2px 0px rgba(255, 255, 255, 0.07)",
+    // Profundidad oscura en la base inferior que le da volumen 3D
+    "inset 0 -8px 16px 0px rgba(0, 0, 0, 0.45)",
+    // Sombra de contacto
+    "0 8px 24px 0px rgba(0, 0, 0, 0.4)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(32px) saturate(140%)",
-  WebkitBackdropFilter: "blur(32px) saturate(140%)",
+  backdropFilter: "blur(20px) saturate(160%)",
+  WebkitBackdropFilter: "blur(20px) saturate(160%)",
   boxShadow: [
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
-    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.15)",
-    "0 8px 30px rgba(0, 0, 0, 0.6)"
+    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.18)",
+    "inset 1px 0 2px 0px rgba(255, 255, 255, 0.07)",
+    "inset -1px 0 2px 0px rgba(255, 255, 255, 0.07)",
+    "inset 0 -8px 16px 0px rgba(0, 0, 0, 0.45)",
+    "0 6px 18px 0px rgba(0, 0, 0, 0.25)" // Sombra menor para el contenedor
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // La píldora no brilla como neón, solo aclara el tinte "ahumado"
-  backgroundColor: "rgba(255, 255, 255, 0.04)",
-  backdropFilter: "blur(32px) saturate(140%)",
-  WebkitBackdropFilter: "blur(32px) saturate(140%)",
+  // Aclara ligeramente el gradiente al estar activo
+  background: "radial-gradient(130% 120% at 50% 0%, rgba(255, 255, 255, 0.12) 0%, rgba(20, 20, 20, 0.45) 100%)",
+  backdropFilter: "blur(20px) saturate(160%)",
+  WebkitBackdropFilter: "blur(20px) saturate(160%)",
+  border: "1px solid rgba(255, 255, 255, 0.1)",
   boxShadow: [
-    // Destello de borde activo un poco más pronunciado
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.08)",
-    "inset 0 1.5px 2px 0px rgba(255, 255, 255, 0.20)",
-    "0 4px 15px rgba(0, 0, 0, 0.3)"
+    "inset 0 1.5px 2px 0px rgba(255, 255, 255, 0.25)", // Mayor impacto superior
+    "inset 1px 0 3px 0px rgba(255, 255, 255, 0.1)",   // Rebote lateral más marcado
+    "inset -1px 0 3px 0px rgba(255, 255, 255, 0.1)",
+    "0 4px 12px 0px rgba(0, 0, 0, 0.2)"               // Sombra cerrada al estar seleccionado
   ].join(", "),
 }
 
