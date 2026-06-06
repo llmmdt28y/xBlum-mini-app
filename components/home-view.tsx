@@ -5,7 +5,7 @@ import {
   Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
   ChevronRight, ChevronDown, Loader2, CalendarDays, Search, ShieldCheck, Github, 
   Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2, Sparkles,
-  Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight, Check, MessageCirclePlus, Users, NotepadTextDashed, Laptop
+  Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight, Check, MessageCirclePlus, Users, BookOpen
 } from "lucide-react"
 
 import { BusinessAutomationView } from "./business-automation-view"
@@ -256,7 +256,7 @@ export function HomeView() {
         <div className="mt-2 mb-2">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center shrink-0">
-              <NotepadTextDashed className="w-[13px] h-[13px] text-black" strokeWidth={2.5} />
+              <BookOpen className="w-[13px] h-[13px] text-black" strokeWidth={2.5} />
             </div>
             <h2 className="text-white font-semibold text-[16px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
               Recommended for your Level
