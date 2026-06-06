@@ -75,26 +75,44 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Portals Method) ──────────────────────────────────
+// ── Liquid Glass Styles (Portals Native Method) ───────────────────────────
+
 const BTN_BASE: React.CSSProperties = {
-  backgroundColor: "rgba(255, 255, 255, 0.04)", 
-  backdropFilter: "blur(24px) saturate(200%)",
-  WebkitBackdropFilter: "blur(24px) saturate(200%)",
-  border: "1px solid rgba(255, 255, 255, 0.15)", 
+  // Tinte Ahumado oscuro para evitar el aspecto lechoso/plástico
+  backgroundColor: "rgba(15, 15, 15, 0.45)", 
+  // Desenfoque profundo con saturación alta para amplificar el cofre galáctico
+  backdropFilter: "blur(24px) saturate(180%)",
+  WebkitBackdropFilter: "blur(24px) saturate(180%)",
+  // Borde súper fino, casi invisible para emular el corte de cristal
+  border: "1px solid rgba(255, 255, 255, 0.06)", 
   transform: "translateZ(0)", 
   willChange: "backdrop-filter, box-shadow, transform", 
   boxShadow: [
-    "inset 0 1.5px 0px 0px rgba(255, 255, 255, 0.40)",
-    "inset 0 -8px 20px 0px rgba(255, 255, 255, 0.03)",
-    "0 10px 30px 0px rgba(0, 0, 0, 0.2)"
+    // Luz muy fina de 1px en el borde superior (reflejo cenital)
+    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.15)",
+    // Sombra interna profunda abajo para dar volumen al cristal
+    "inset 0 -4px 16px 0px rgba(0, 0, 0, 0.4)",
+    // Sombra proyectada difusa en el exterior para despegarlo del fondo
+    "0 8px 24px 0px rgba(0, 0, 0, 0.3)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(24px) saturate(200%)",
-  WebkitBackdropFilter: "blur(24px) saturate(200%)",
+  backdropFilter: "blur(24px) saturate(180%)",
+  WebkitBackdropFilter: "blur(24px) saturate(180%)",
+}
+
+const activePillStyle: React.CSSProperties = {
+  ...BTN_BASE,
+  // La píldora activa se aclara solo un toque sutilmente
+  backgroundColor: "rgba(255, 255, 255, 0.06)",
+  border: "1px solid rgba(255, 255, 255, 0.12)",
+  boxShadow: [
+    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.25)", // Reflejo interno ligeramente más fuerte
+    "0 4px 12px 0px rgba(0, 0, 0, 0.2)"             // Caída de sombra para separación de la base
+  ].join(", "),
 }
 
 // ── NavBar ────────────────────────────────────────────────────────────
@@ -136,179 +154,128 @@ function NavBar() {
   const inactiveColor     = "rgba(255,255,255,0.62)"
   const safeBottom        = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)"
 
-  const activePillStyle: React.CSSProperties = {
-    ...BTN_BASE,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
-    backdropFilter: "blur(24px) saturate(220%)",
-    WebkitBackdropFilter: "blur(24px) saturate(220%)",
-    border: "1px solid rgba(255, 255, 255, 0.25)",
-    boxShadow: [
-      "inset 0 2px 1px 0px rgba(255, 255, 255, 0.55)", 
-      "inset 0 -8px 20px 0px rgba(255, 255, 255, 0.06)",
-      "0 8px 20px 0 rgba(0, 0, 0, 0.25)"
-    ].join(", "),
-  }
-
   return (
-    <>
-      {/* Inyección de keyframes para los orbes de luz dinámica */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          @keyframes floatBlob {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30px, -20px) scale(1.1); }
-          }
-          @keyframes floatBlobReverse {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(-30px, 20px) scale(1.1); }
-          }
-        `
-      }} />
+    <div
+      className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
+      style={{ bottom: safeBottom }}
+    >
 
-      <div
-        className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
-        style={{ bottom: safeBottom }}
+      {/* ── BOTÓN IZQUIERDO ── */}
+      <button
+        onClick={handleLeftActionButton}
+        className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
+        style={{
+          ...BTN_BASE,
+          width: "64px",
+          height: "64px",
+          borderRadius: "100px",
+          zIndex: 51,
+        }}
       >
-
-        {/* ── ORBES DE FONDO DINÁMICO ── */}
-        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none z-0 opacity-60">
-          <div 
-            className="absolute w-[120px] h-[120px] rounded-full mix-blend-screen"
-            style={{
-              background: "linear-gradient(135deg, #33b5f7, #7f00ff)",
-              filter: "blur(40px)",
-              left: "20%",
-              animation: "floatBlob 6s infinite alternate ease-in-out"
-            }}
-          />
-          <div 
-            className="absolute w-[100px] h-[100px] rounded-full mix-blend-screen"
-            style={{
-              background: "linear-gradient(135deg, #ff007f, #33b5f7)",
-              filter: "blur(50px)",
-              right: "20%",
-              animation: "floatBlobReverse 8s infinite alternate-reverse ease-in-out"
-            }}
-          />
+        <div className="flex flex-col items-center justify-center pointer-events-none select-none">
+          {activeNavMode === 'market' ? (
+            <>
+              <Home size={22} color={inactiveColor} strokeWidth={2} />
+              <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Home</span>
+            </>
+          ) : (
+            <>
+              <Store size={22} color={inactiveColor} strokeWidth={2} />
+              <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Market</span>
+            </>
+          )}
         </div>
+      </button>
 
-        {/* ── BOTÓN IZQUIERDO ── */}
-        <button
-          onClick={handleLeftActionButton}
-          className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
-          style={{
-            ...BTN_BASE,
-            width: "64px",
-            height: "64px",
-            borderRadius: "100px",
-            zIndex: 51,
-          }}
-        >
-          <div className="flex flex-col items-center justify-center pointer-events-none select-none">
-            {activeNavMode === 'market' ? (
-              <>
-                <Home size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Home</span>
-              </>
-            ) : (
-              <>
-                <Store size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Market</span>
-              </>
-            )}
-          </div>
-        </button>
+      {/* ── PÍLDORA CENTRAL ── */}
+      <div
+        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
+        style={{
+          ...PILL_STYLE,
+          borderRadius: "100px",
+          height: "64px",
+          zIndex: 51,
+        }}
+      >
+        <div className="flex items-center justify-between w-full relative">
+          {centerTabs.map((tab, idx) => {
+            const isActive   = currentView === tab.id
+            const isDisabled = !!tab.disabled
+            const Icon       = tab.icon
 
-        {/* ── PÍLDORA CENTRAL ── */}
-        <div
-          className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
-          style={{
-            ...PILL_STYLE,
-            borderRadius: "100px",
-            height: "64px",
-            zIndex: 51,
-          }}
-        >
-          <div className="flex items-center justify-between w-full relative">
-            {centerTabs.map((tab, idx) => {
-              const isActive   = currentView === tab.id
-              const isDisabled = !!tab.disabled
-              const Icon       = tab.icon
-
-              return (
-                <button
-                  key={`${tab.id}-${idx}`}
-                  disabled={isDisabled}
-                  onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-                  className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95 select-none"
-                  style={{
-                    pointerEvents: isDisabled ? "none" : "auto",
-                    transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                    transform: isActive ? "scale(1.06)" : "scale(1)",
-                    ...(isActive ? activePillStyle : {}),
-                  }}
-                >
-                  {Icon ? (
-                    <>
-                      <Icon
-                        size={22}
-                        color={isActive ? neonBlue : inactiveColor}
-                        strokeWidth={isActive ? 2.5 : 2}
-                        className="transition-colors duration-300"
-                      />
-                      <span
-                        className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
-                        style={{ color: isActive ? neonBlue : inactiveColor }}
-                      >
-                        {tab.label}
-                      </span>
-                    </>
-                  ) : (
-                    <div className="w-[6px] h-[6px] rounded-full bg-white/10" />
-                  )}
-                </button>
-              )
-            })}
-          </div>
+            return (
+              <button
+                key={`${tab.id}-${idx}`}
+                disabled={isDisabled}
+                onClick={() => !isDisabled && setCurrentView(tab.id as any)}
+                className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95 select-none"
+                style={{
+                  pointerEvents: isDisabled ? "none" : "auto",
+                  transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  transform: isActive ? "scale(1.06)" : "scale(1)",
+                  ...(isActive ? activePillStyle : {}),
+                }}
+              >
+                {Icon ? (
+                  <>
+                    <Icon
+                      size={22}
+                      color={isActive ? neonBlue : inactiveColor}
+                      strokeWidth={isActive ? 2.5 : 2}
+                      className="transition-colors duration-300"
+                    />
+                    <span
+                      className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
+                      style={{ color: isActive ? neonBlue : inactiveColor }}
+                    >
+                      {tab.label}
+                    </span>
+                  </>
+                ) : (
+                  <div className="w-[6px] h-[6px] rounded-full bg-white/10" />
+                )}
+              </button>
+            )
+          })}
         </div>
-
-        {/* ── BOTÓN DERECHO: Profile ── */}
-        <button
-          onClick={() => setCurrentView('profile')}
-          className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
-          style={{
-            ...BTN_BASE,
-            width: "64px",
-            height: "64px",
-            borderRadius: "100px",
-            zIndex: 51,
-          }}
-        >
-          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none">
-            {photoUrl ? (
-              <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-white/10">
-                <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center">
-                <CircleUser
-                  size={22}
-                  color={currentView === 'profile' ? neonBlue : inactiveColor}
-                  strokeWidth={currentView === 'profile' ? 2.5 : 2}
-                />
-                <span
-                  className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
-                  style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
-                >
-                  Profile
-                </span>
-              </div>
-            )}
-          </div>
-        </button>
-
       </div>
-    </>
+
+      {/* ── BOTÓN DERECHO: Profile ── */}
+      <button
+        onClick={() => setCurrentView('profile')}
+        className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
+        style={{
+          ...BTN_BASE,
+          width: "64px",
+          height: "64px",
+          borderRadius: "100px",
+          zIndex: 51,
+        }}
+      >
+        <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none">
+          {photoUrl ? (
+            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-white/10">
+              <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center">
+              <CircleUser
+                size={22}
+                color={currentView === 'profile' ? neonBlue : inactiveColor}
+                strokeWidth={currentView === 'profile' ? 2.5 : 2}
+              />
+              <span
+                className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
+                style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
+              >
+                Profile
+              </span>
+            </div>
+          )}
+        </div>
+      </button>
+
+    </div>
   )
 }
 
