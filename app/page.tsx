@@ -78,17 +78,17 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 // ── Liquid Glass Styles (Crystal Clear Dark Mode - OPTIMIZADO) ────────
 
 const BTN_BASE: React.CSSProperties = {
-  backgroundColor: "rgba(255, 255, 255, 0.03)", 
+  backgroundColor: "rgba(255, 255, 255, 0.05)", 
   backdropFilter: "blur(24px) saturate(180%)",
   WebkitBackdropFilter: "blur(24px) saturate(180%)",
   // Refracción superior
-  border: "1px solid rgba(255, 255, 255, 0.04)", 
-  borderTop: "1px solid rgba(255, 255, 255, 0.15)", 
+  border: "1px solid rgba(255, 255, 255, 0.06)", 
+  borderTop: "1px solid rgba(255, 255, 255, 0.20)", 
   transform: "translateZ(0)", 
   willChange: "transform", 
   boxShadow: [
-    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.10)",
-    "0 12px 32px 0px rgba(0, 0, 0, 0.35)" // Sombra reducida para evitar agujero negro
+    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.15)",
+    "0 12px 32px 0px rgba(0, 0, 0, 0.35)" 
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
@@ -96,7 +96,7 @@ const BTN_BASE: React.CSSProperties = {
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
   boxShadow: [
-    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.10)",
+    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.15)",
     "0 8px 24px 0px rgba(0, 0, 0, 0.25)"
   ].join(", "),
 }
@@ -170,7 +170,6 @@ function NavBar() {
         { id: "none2",    label: "None",  icon: null,  disabled: true  },
       ]
 
-  // Restaurados los colores estáticos para garantizar que no falle Lucide
   const neonBlue          = "#33b5f7"
   const inactiveColor     = "rgba(255,255,255,0.62)"
   const safeBottom        = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)"
@@ -180,10 +179,10 @@ function NavBar() {
       className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
       style={{ bottom: safeBottom }}
     >
-      {/* Fondo dinámico desenfocado DETRÁS del cristal (Motor Visual) */}
-      <div className="absolute inset-0 z-[-1] pointer-events-none opacity-40 overflow-hidden px-4">
-        <div className="absolute top-1/2 left-[15%] w-20 h-20 bg-purple-600 rounded-full mix-blend-screen filter blur-[35px] transform -translate-y-1/2" />
-        <div className="absolute top-1/2 right-[15%] w-20 h-20 bg-[#33b5f7] rounded-full mix-blend-screen filter blur-[35px] transform -translate-y-1/2" />
+      {/* Fondo dinámico desenfocado DETRÁS del cristal (Luz Ambiental Distribuida) */}
+      <div className="absolute -bottom-10 left-0 right-0 h-40 z-[-1] pointer-events-none opacity-25 overflow-visible">
+        <div className="absolute top-1/2 left-[10%] w-[150px] h-[100px] bg-[#8B5CF6] rounded-[100%] mix-blend-lighten filter blur-[50px] transform -translate-y-1/2" />
+        <div className="absolute top-1/2 right-[10%] w-[150px] h-[100px] bg-[#33b5f7] rounded-[100%] mix-blend-lighten filter blur-[50px] transform -translate-y-1/2" />
       </div>
 
       {/* ── BOTÓN IZQUIERDO ── */}
@@ -369,7 +368,7 @@ function AppContent() {
         </div>
       )}
 
-      {/* Restaurado el bg-black original para que tus otros componentes no se rompan visualmente */}
+      {/* bg-black mantenido para no romper la visibilidad de los componentes hijos */}
       <div
         className="bg-black flex flex-col relative overflow-x-hidden"
         style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
