@@ -75,43 +75,57 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Extreme Refraction Method) ───────────────────
+// ── Liquid Glass Styles (Lens & Lateral Bounce Method) ────────────────
 
 const BTN_BASE: React.CSSProperties = {
-  // 1. Opacidad reducida drásticamente (15% en lugar de 45%) para dejar pasar la luz del cofre
-  backgroundColor: "rgba(0, 0, 0, 0.15)", 
-  // 2. El truco maestro: Saturación al 350% + Brillo + Contraste para forzar colores neón
-  backdropFilter: "blur(24px) saturate(350%) brightness(115%) contrast(110%)",
-  WebkitBackdropFilter: "blur(24px) saturate(350%) brightness(115%) contrast(110%)",
-  // 3. Borde fino reflectante
-  border: "1px solid rgba(255, 255, 255, 0.08)", 
+  backgroundColor: "rgba(5, 5, 5, 0.2)", 
+  // 1. Blur reducido a 12px para mayor visibilidad del fondo.
+  // 2. Contraste al 125% para simular la nitidez óptica de una lente (efecto lupa).
+  backdropFilter: "blur(12px) saturate(280%) brightness(110%) contrast(125%)",
+  WebkitBackdropFilter: "blur(12px) saturate(280%) brightness(110%) contrast(125%)",
+  border: "1px solid rgba(255, 255, 255, 0.04)", 
   transform: "translateZ(0)", 
   willChange: "backdrop-filter, box-shadow, transform", 
   boxShadow: [
-    // Luz cenital fuerte para simular el borde pulido del cristal
-    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.18)",
-    // Sombra interna muy difuminada para dar sensación de grosor
-    "inset 0 -10px 20px 0px rgba(0, 0, 0, 0.25)",
-    // Sombra proyectada oscura para separar la barra del fondo
-    "0 8px 24px 0px rgba(0, 0, 0, 0.4)"
+    // Rebote de luz cenital (borde superior)
+    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.28)",
+    // Rebote de luz lateral Izquierdo
+    "inset 1.5px 0px 3px 0px rgba(255, 255, 255, 0.12)",
+    // Rebote de luz lateral Derecho
+    "inset -1.5px 0px 3px 0px rgba(255, 255, 255, 0.12)",
+    // Profundidad de lente ahumada inferior
+    "inset 0 -12px 24px 0px rgba(0, 0, 0, 0.4)",
+    // Sombra exterior pronunciada
+    "0 12px 30px 0px rgba(0, 0, 0, 0.4)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(24px) saturate(350%) brightness(115%) contrast(110%)",
-  WebkitBackdropFilter: "blur(24px) saturate(350%) brightness(115%) contrast(110%)",
+  backdropFilter: "blur(12px) saturate(280%) brightness(110%) contrast(125%)",
+  WebkitBackdropFilter: "blur(12px) saturate(280%) brightness(110%) contrast(125%)",
+  boxShadow: [
+    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.20)",
+    "inset 1px 0px 2px 0px rgba(255, 255, 255, 0.08)",
+    "inset -1px 0px 2px 0px rgba(255, 255, 255, 0.08)",
+    "inset 0 -8px 16px 0px rgba(0, 0, 0, 0.3)",
+    "0 0 0 0 transparent" // El contenedor de la píldora no necesita sombra exterior
+  ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // La píldora activa recibe un toque sutil extra de claridad
-  backgroundColor: "rgba(255, 255, 255, 0.05)",
+  backgroundColor: "rgba(255, 255, 255, 0.08)",
   border: "1px solid rgba(255, 255, 255, 0.15)",
+  // Ligeramente más nítida para resaltar al seleccionarse
+  backdropFilter: "blur(10px) saturate(300%) brightness(120%) contrast(130%)",
+  WebkitBackdropFilter: "blur(10px) saturate(300%) brightness(120%) contrast(130%)",
   boxShadow: [
-    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.25)",
-    "0 4px 12px 0px rgba(0, 0, 0, 0.2)"
+    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.35)", 
+    "inset 1px 0px 3px 0px rgba(255, 255, 255, 0.15)",
+    "inset -1px 0px 3px 0px rgba(255, 255, 255, 0.15)",
+    "0 4px 14px 0px rgba(0, 0, 0, 0.25)"
   ].join(", "),
 }
 
