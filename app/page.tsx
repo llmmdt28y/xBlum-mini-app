@@ -223,9 +223,7 @@ function NavBar() {
     <div 
       className="liquid-nav absolute inset-0 z-[1] pointer-events-none" 
       style={{ 
-        // Fallback clásico de CSS si WebGL no carga
-        backgroundColor: "rgba(255, 255, 255, 0.05)",
-        boxShadow: "inset 0 0 20px -5px rgba(255, 255, 255, 0.3), 0px 4px 24px rgba(0, 0, 0, 0.2)",
+        background: "rgba(255, 255, 255, 0.02)",
         backdropFilter: "blur(10px)", 
         WebkitBackdropFilter: "blur(10px)",
         border: "1px solid rgba(255, 255, 255, 0.1)",
