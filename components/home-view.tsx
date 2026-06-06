@@ -155,8 +155,8 @@ export function HomeView() {
   const totalSections = 3
   
   // Cálculo exacto del anillo SVG
-  const radius = 15 // Radio original de la píldora estrecha
-  const circumference = 2 * Math.PI * radius // ~94.24
+  const radius = 12 // Radio original de la píldora estrecha
+  const circumference = 2 * Math.PI * radius // ~75.40
   const strokeDashoffset = circumference - (completedSections / totalSections) * circumference
 
   useEffect(() => {
@@ -192,45 +192,45 @@ export function HomeView() {
       }}>
         <button 
           onClick={() => setCurrentView("account_setup")}
-          className="flex items-center gap-2.5 rounded-full p-2 pr-3 active:scale-95 transition-transform shadow-lg pointer-events-auto border border-white/5" 
+          className="flex items-center gap-2 rounded-full p-1.5 pr-2.5 active:scale-95 transition-transform shadow-lg pointer-events-auto border border-white/5" 
           style={{ 
             background: "#0c1524",
-            maxWidth: "280px"
+            maxWidth: "260px"
           }}
         >
           {/* Anillo de Progreso */}
-          <div className="relative flex items-center justify-center w-[36px] h-[36px] shrink-0">
+          <div className="relative flex items-center justify-center w-[28px] h-[28px] shrink-0">
             <svg className="w-full h-full rotate-180 transform absolute inset-0">
               <circle 
-                cx="18" 
-                cy="18" 
-                r="15" 
+                cx="14" 
+                cy="14" 
+                r="12" 
                 stroke="#38bdf8" 
-                strokeWidth="3.5" 
+                strokeWidth="2.5" 
                 fill="none" 
-                strokeDasharray="94.24" 
+                strokeDasharray="75.40" 
                 strokeDashoffset={strokeDashoffset} 
                 strokeLinecap="round" 
                 style={{ transition: "stroke-dashoffset 0.5s ease-in-out" }}
               />
             </svg>
-            <span className="text-[11px] font-semibold text-[#8e8e93]">{completedSections}/{totalSections}</span>
+            <span className="text-[10px] font-semibold text-[#8e8e93]">{completedSections}/{totalSections}</span>
           </div>
           
           {/* Textos */}
           <div className="flex flex-col items-start leading-tight min-w-0 pr-1">
-            <span className="text-white text-[14px] font-semibold mb-0.5 whitespace-nowrap truncate text-left" style={{ fontFamily: SFD }}>
+            <span className="text-white text-[13px] font-semibold mb-0.5 whitespace-nowrap truncate text-left" style={{ fontFamily: SFD }}>
               {completedSections === 3 ? "Account completed" : "Complete account"}
             </span>
-            <span className="text-[#8e8e93] text-[12px] font-medium whitespace-nowrap truncate text-left" style={{ fontFamily: SF }}>
+            <span className="text-[#8e8e93] text-[11px] font-medium whitespace-nowrap truncate text-left" style={{ fontFamily: SF }}>
               {completedSections === 3 ? "All details are set" : "It will take 2 minutes"}
             </span>
           </div>
           
           {completedSections < 3 ? (
-            <ChevronRight className="w-4 h-4 text-[#38bdf8] shrink-0 ml-1" strokeWidth={2.5} />
+            <ChevronRight className="w-3.5 h-3.5 text-[#38bdf8] shrink-0 ml-1" strokeWidth={2.5} />
           ) : (
-            <Check className="w-4 h-4 text-[#38bdf8] shrink-0 ml-1" strokeWidth={2.5} />
+            <Check className="w-3.5 h-3.5 text-[#38bdf8] shrink-0 ml-1" strokeWidth={2.5} />
           )}
         </button>
       </div>
@@ -316,7 +316,7 @@ export function HomeView() {
                   <div className="h-[3px] w-[18px] bg-[#3a3a3c] rounded-full" />
                 </div>
                 <button 
-                  onClick={() => setIsBotIntModalOpen(true)}
+                  onClick={() => setCurrentView("group_config")}
                   className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
                   style={{ 
                     fontFamily: SF,
@@ -400,33 +400,7 @@ export function HomeView() {
             </button>
           </div>
 
-          {/* My Tools Card */}
-          <div className="min-w-[80%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg relative">
-            <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>My Tools</h2>
-            <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Automate your workflow</p>
-            
-            <div className="flex flex-col gap-1">
-                <button onClick={() => setIsBusinessModalOpen(true)} className="flex items-center gap-3 py-1.5 hover:opacity-70 transition-opacity text-left">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center bg-[#3b82f6]/10 border border-[#3b82f6]/20">
-                    <Briefcase className="w-4 h-4 text-[#3b82f6]" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-[14px] font-medium" style={{ fontFamily: SF }}>Business Agent</p>
-                    <p className="text-[#8e8e93] text-[11px]">Auto-reply & spam filter</p>
-                  </div>
-                </button>
-
-                <button onClick={() => setIsBotIntModalOpen(true)} className="flex items-center gap-3 py-1.5 hover:opacity-70 transition-opacity text-left mt-1">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center bg-[#a855f7]/10 border border-[#a855f7]/20">
-                    <Bot className="w-4 h-4 text-[#a855f7]" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white text-[14px] font-medium" style={{ fontFamily: SF }}>Group Agent</p>
-                    <p className="text-[#8e8e93] text-[11px]">AI bot interactions</p>
-                  </div>
-                </button>
-            </div>
-          </div>
+          {/* My Tools removed */}
 
         </div>
       </div>
