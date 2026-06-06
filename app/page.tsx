@@ -13,6 +13,7 @@ import { ScheduleView } from "@/components/schedule-view"
 import { LevelsView } from "@/components/levels-view" 
 import { ShopView } from "@/components/shop-view" 
 import { GroupConfigView } from "@/components/group-config-view"
+import Script from "next/script"
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react" 
 
@@ -217,29 +218,20 @@ function NavBar() {
   const neonBlue = "#33b5f7" 
   const inactiveGlassText = "rgba(255, 255, 255, 0.6)" 
 
-  // Componente de fondo líquido usando SVG aislado para evitar el bug de iOS/Safari (Técnica de Ekino France)
+  // Componente de fondo líquido preparado para liquidGL
   const LiquidBackground = ({ radius = "100px" }: { radius?: string }) => (
-    <>
-      <div 
-        className="absolute inset-0 z-[1] pointer-events-none" 
-        style={{ 
-          backdropFilter: "blur(40px) saturate(140%) brightness(1.15)", 
-          WebkitBackdropFilter: "blur(40px) saturate(140%) brightness(1.15)", 
-        }} 
-      />
-      <div 
-        className="absolute inset-0 z-[2] pointer-events-none" 
-        style={{ background: glassStyles.background }} 
-      />
-      <div 
-        className="absolute inset-0 z-[3] pointer-events-none" 
-        style={{ 
-          border: `1px solid ${glassStyles.borderColor}`, 
-          boxShadow: glassStyles.boxShadow, 
-          borderRadius: radius 
-        }} 
-      />
-    </>
+    <div 
+      className="liquid-nav absolute inset-0 z-[1] pointer-events-none" 
+      style={{ 
+        // Fallback clásico de CSS si WebGL no carga
+        backgroundColor: "rgba(255, 255, 255, 0.05)",
+        boxShadow: "inset 0 0 20px -5px rgba(255, 255, 255, 0.3), 0px 4px 24px rgba(0, 0, 0, 0.2)",
+        backdropFilter: "blur(10px)", 
+        WebkitBackdropFilter: "blur(10px)",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        borderRadius: radius
+      }} 
+    />
   )
 
   return (
@@ -254,8 +246,13 @@ function NavBar() {
       {/* ── BOTÓN IZQUIERDO: Market / Home ── */}
       <button
         onClick={handleLeftActionButton}
-        className="pointer-events-auto relative overflow-hidden flex flex-col items-center justify-center transition-all duration-200 active:scale-95 shrink-0"
-        style={{ width: "64px", height: "64px", borderRadius: "100px" }}
+        className="pointer-events-auto relative overflow-hidden flex flex-col items-center justify-center transition-all active:scale-95 shrink-0"
+        style={{ 
+          width: "64px", 
+          height: "64px", 
+          borderRadius: "100px",
+          transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), background 0.35s" 
+        }}
       >
         <LiquidBackground />
         <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none">
@@ -290,10 +287,11 @@ function NavBar() {
               key={`${tab.id}-${idx}`}
               disabled={isDisabled}
               onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-              // Aumentamos el tiempo de transición para que el escalado sea fluido (ease-out)
-              className="relative flex flex-col items-center justify-center transition-all duration-300 ease-out rounded-[100px] flex-1 h-[54px]"
+              // Aumentamos el tiempo de transición para que el escalado sea fluido (ease-out) con el rebote
+              className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95"
               style={{
                 pointerEvents: isDisabled ? "none" : "auto",
+                transition: "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
                 // Fondo oscurecido transparente restaurado con la sombra interior del bisel blanco superior
                 background: isActive ? "rgba(0, 0, 0, 0.4)" : "transparent",
                 boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.3), inset 0 1.5px 0 rgba(255, 255, 255, 0.2)" : "none",
@@ -467,6 +465,24 @@ function AppContent() {
         {/* Renderizado de la NavBar */}
         {showNav && <NavBar />}
       </div>
+
+      <Script src="/js/html2canvas.min.js" strategy="afterInteractive" />
+      <Script 
+        src="/js/liquidGL.js" 
+        strategy="lazyOnload"
+        onLoad={() => {
+          if (typeof window !== "undefined" && (window as any).liquidGL) {
+            (window as any).liquidGL({
+              selector: ".liquid-nav",
+              refraction: 0.4,
+              frost: 0.2,
+              bevelWidth: 3.0,
+              shadow: false,
+              tilt: false
+            });
+          }
+        }}
+      />
     </>
   )
 }
