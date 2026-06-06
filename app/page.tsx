@@ -75,51 +75,52 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Portals Clean Final Look) ────────────────────
+// ── Liquid Glass Styles (High Transmission & Lens Flare) ──────────────
 
 const BTN_BASE: React.CSSProperties = {
-  // Base limpia y altamente transparente (Gris carbón al 25%)
-  backgroundColor: "rgba(18, 18, 18, 0.25)", 
-  // El "Sweet Spot": Blur alto para limpiar figuras, saturación justa para revivir color
-  backdropFilter: "blur(28px) saturate(180%)",
-  WebkitBackdropFilter: "blur(28px) saturate(180%)",
-  // Borde perimetral ultra fino
-  border: "1px solid rgba(255, 255, 255, 0.06)", 
+  // 1. Alta transmisión: Casi transparente para no matar los colores vivos del fondo
+  backgroundColor: "rgba(255, 255, 255, 0.03)", 
+  // 2. Motor de Lupa: Blur medio (16px), saturación alta (250%) y brillo extra para refractar
+  backdropFilter: "blur(16px) saturate(250%) brightness(110%)",
+  WebkitBackdropFilter: "blur(16px) saturate(250%) brightness(110%)",
   transform: "translateZ(0)", 
   willChange: "backdrop-filter, box-shadow, transform", 
   boxShadow: [
-    // Hilo de luz limpio solo arriba
-    "inset 0 1px 0px 0px rgba(255, 255, 255, 0.12)",
-    // Sombra interna inferior suave para volumen
-    "inset 0 -4px 16px 0px rgba(0, 0, 0, 0.3)",
-    // Caída de sombra exterior limpia
-    "0 8px 24px 0px rgba(0, 0, 0, 0.4)"
+    // Hilo perimetral fino
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
+    // Destello de lente curvo (Arriba a la izquierda)
+    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.25)",
+    // Rebote de luz (Abajo a la derecha)
+    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.08)",
+    // Sombra proyectada profunda para separar el cristal del cofre
+    "0 8px 32px 0px rgba(0, 0, 0, 0.5)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(28px) saturate(180%)",
-  WebkitBackdropFilter: "blur(28px) saturate(180%)",
+  backdropFilter: "blur(16px) saturate(250%) brightness(110%)",
+  WebkitBackdropFilter: "blur(16px) saturate(250%) brightness(110%)",
   boxShadow: [
-    "inset 0 1px 0px 0px rgba(255, 255, 255, 0.12)",
-    "inset 0 -4px 16px 0px rgba(0, 0, 0, 0.3)",
-    "0 4px 16px 0px rgba(0, 0, 0, 0.2)"
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
+    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.25)",
+    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.08)",
+    "0 6px 20px 0px rgba(0, 0, 0, 0.3)"
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // La píldora se aclara con blanco suave, sin volverse neón
+  // La píldora activa recibe más luz interior
   backgroundColor: "rgba(255, 255, 255, 0.08)",
-  border: "1px solid rgba(255, 255, 255, 0.12)",
-  backdropFilter: "blur(28px) saturate(180%)",
-  WebkitBackdropFilter: "blur(28px) saturate(180%)",
+  // Y se vuelve un poco más brillante
+  backdropFilter: "blur(16px) saturate(250%) brightness(120%)",
+  WebkitBackdropFilter: "blur(16px) saturate(250%) brightness(120%)",
   boxShadow: [
-    // Resalte superior delicado para "levantar" el botón
-    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.25)",
-    // Sombra sutil para despegar de la base
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.12)",
+    "inset 1.5px 1.5px 3px 0px rgba(255, 255, 255, 0.35)", // Destello más pronunciado
+    "inset -1.5px -1.5px 3px 0px rgba(255, 255, 255, 0.1)", // Rebote más pronunciado
     "0 4px 12px 0px rgba(0, 0, 0, 0.2)"
   ].join(", "),
 }
