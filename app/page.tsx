@@ -136,41 +136,33 @@ function GlassSVGFilter() {
 //    8%  × 2   = 16%  → rgba(0,0,0,0.16)
 
 const BTN_BASE: React.CSSProperties = {
-  // backdrop: blur real del contenido detrás + saturate para vibrar colores
-  // SIN SVG filter aquí: sobre fondo negro no hay qué refractar, solo da artefactos
-  backdropFilter: "blur(12px) saturate(180%)",
-  WebkitBackdropFilter: "blur(12px) saturate(180%)",
-  // Fondo casi nulo — el vidrio se ve a través del blur del backdrop
-  backgroundColor: "rgba(255,255,255,0.04)",
-  // box-shadow = toda la magia visual:
-  // Capa 1: borde perimetral muy sutil (rim)
-  // Capas 2-4: reflexo claro en aristas superior-izquierda (simula luz incidente)
-  // Capas 5-8: sombras internas que dan grosor/profundidad al vidrio
-  // Capas 9-10: sombra exterior de elevación
+  // Blur bajo = se ve el contenido detrás con claridad (como Telegram)
+  // saturate alto = los colores del fondo se intensifican y "sangran" al vidrio
+  backdropFilter: "blur(4px) saturate(220%)",
+  WebkitBackdropFilter: "blur(4px) saturate(220%)",
+  // Casi sin relleno — el color viene del backdrop saturado
+  backgroundColor: "rgba(0,0,0,0.35)",
   boxShadow: [
-    // Rim perimetral — apenas visible
-    "inset 0 0 0 0.5px rgba(255,255,255,0.08)",
-    // Arista top-left brillante (reflex-light × 0.3 del original)
-    "inset 1.8px 3px 0px -2px rgba(255,255,255,0.27)",
-    "inset -2px -2px 0px -2px rgba(255,255,255,0.18)",
-    "inset -3px -8px 1px -6px rgba(255,255,255,0.10)",
-    // Profundidad interna (reflex-dark × 2 del original)
-    "inset -0.3px -1px 4px 0px rgba(0,0,0,0.24)",
-    "inset -1.5px 2.5px 0px -2px rgba(0,0,0,0.35)",
-    "inset 0px 3px 4px -2px rgba(0,0,0,0.35)",
-    "inset 2px -6.5px 1px -4px rgba(0,0,0,0.18)",
-    // Sombra de elevación exterior
-    "0px 2px 8px 0px rgba(0,0,0,0.30)",
-    "0px 8px 24px 0px rgba(0,0,0,0.20)",
+    // Rim perimetral fino y definido — clave en el estilo Telegram
+    "inset 0 0 0 0.75px rgba(255,255,255,0.14)",
+    // Highlight arista superior-izquierda: simula luz incidente desde arriba-izq
+    "inset 1.8px 3px 0px -2px rgba(255,255,255,0.32)",
+    "inset -2px -2px 0px -2px rgba(255,255,255,0.12)",
+    "inset -3px -8px 1px -6px rgba(255,255,255,0.06)",
+    // Sombra interna para grosor de vidrio
+    "inset -0.3px -1px 4px 0px rgba(0,0,0,0.20)",
+    "inset 0px 3px 4px -2px rgba(0,0,0,0.28)",
+    // Drop shadow exterior fuerte — separa del fondo (igual que Telegram)
+    "0px 4px 12px 0px rgba(0,0,0,0.50)",
+    "0px 1px 3px 0px rgba(0,0,0,0.40)",
   ].join(", "),
   transition: "box-shadow 400ms cubic-bezier(1, 0.0, 0.4, 1), transform 0.2s ease",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  // La píldora sí puede tener el SVG filter porque tiene contenido colorido detrás (tabs)
-  backdropFilter: "blur(12px) saturate(180%)",
-  WebkitBackdropFilter: "blur(12px) saturate(180%)",
+  backdropFilter: "blur(4px) saturate(220%)",
+  WebkitBackdropFilter: "blur(4px) saturate(220%)",
 }
 
 // ── NavBar ────────────────────────────────────────────────────────────
@@ -222,21 +214,21 @@ function NavBar() {
   //   dark  10% × 2   = 20%  → rgba(0,0,0,0.20)
   //    8%  × 2   = 16%  → rgba(0,0,0,0.16)
   const activePillStyle: React.CSSProperties = {
-    // Tint grisáceo muy leve — suficiente para distinguir la tab activa
-    // sin parecer un bloque sólido blanco/gris
-    background: "rgba(255,255,255,0.10)",
+    // El botón activo capta y amplifica el color del contenido detrás (purple/blue de Telegram)
+    // rgba semitransparente claro — el backdrop saturado hace el resto
+    background: "rgba(255,255,255,0.12)",
     boxShadow: [
-      // Rim perimetral
-      "inset 0 0 0 0.5px rgba(255,255,255,0.12)",
-      // Arista top-left brillante
-      "inset 2px 1px 0px -1px rgba(255,255,255,0.30)",
+      // Rim perimetral definido
+      "inset 0 0 0 0.75px rgba(255,255,255,0.22)",
+      // Highlight fuerte en arista top-left — más pronunciado que el elemento padre
+      "inset 2px 1.5px 0px -1px rgba(255,255,255,0.40)",
       "inset -1.5px -1px 0px -1px rgba(255,255,255,0.18)",
-      "inset -2px -6px 1px -5px rgba(255,255,255,0.10)",
-      // Profundidad interna
-      "inset -1px 2px 3px -1px rgba(0,0,0,0.35)",
-      "inset 0px -4px 1px -2px rgba(0,0,0,0.18)",
-      // Sombra de elevación sutil
-      "0px 3px 8px 0px rgba(0,0,0,0.20)",
+      "inset -2px -6px 1px -5px rgba(255,255,255,0.08)",
+      // Sombra interna grosor
+      "inset -1px 2px 3px -1px rgba(0,0,0,0.30)",
+      "inset 0px -4px 1px -2px rgba(0,0,0,0.15)",
+      // Drop shadow para elevarse sobre la píldora padre
+      "0px 4px 10px 0px rgba(0,0,0,0.40)",
     ].join(", "),
     transition: "all 400ms cubic-bezier(1, 0.0, 0.4, 1)",
   }
@@ -300,7 +292,13 @@ function NavBar() {
                   pointerEvents: isDisabled ? "none" : "auto",
                   transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
                   transform: isActive ? "scale(1.06)" : "scale(1)",
-                  ...(isActive ? activePillStyle : {}),
+                  // El backdropFilter en el elemento activo capta el color del contenido
+                  // detrás de la píldora (personajes, imágenes) — clave para la refracción de color
+                  ...(isActive ? {
+                    ...activePillStyle,
+                    backdropFilter: "blur(2px) saturate(280%)",
+                    WebkitBackdropFilter: "blur(2px) saturate(280%)",
+                  } : {}),
                 }}
               >
                 {Icon ? (
