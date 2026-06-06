@@ -83,57 +83,37 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 
 // ── Floating Liquid NavBar ────────────────────────────────────────────
 //
-// FIX HISTORY — root causes del bug "navbar aparece y desaparece":
+// FIXES aplicados:
 //
-// BUG #1 (ROOT CAUSE PRINCIPAL):
-//   liquidGL.js filtra position:fixed en ignoreElements durante el html2canvas
-//   snapshot. El wrapper fixed hacía que todos los botones fueran excluidos.
-//   Al completar el snapshot, el canvas WebGL sube a opacity:1 y cubre la
-//   zona de los botones con transparente/vacío. Resultado: se ven 1 frame y
-//   desaparecen.
-//   FIX: createPortal() renderiza el wrapper directamente en <body> como hijo
-//   inmediato. liquidGL ya no atraviesa un stacking context ignorado.
-//   El wrapper sigue siendo position:fixed para el layout visual, pero ahora
-//   es raíz del árbol desde la perspectiva de html2canvas.
+// 1. Navbar SIEMPRE visible — se eliminó el scroll hide/show (translate-y).
+//    Era la causa directa de la desaparición combinada con el reveal:"fade".
 //
-// BUG #2:
-//   Re-inicializar liquidGL en cada cambio de currentView acumulaba renderers
-//   y canvases WebGL en el DOM (liquidGL no expone destroy()).
-//   FIX: liquidReadyRef previene cualquier segundo init. Se inicializa una
-//   sola vez cuando el script está cargado y los 3 elementos están en el DOM.
+// 2. reveal: "none" en lugar de "fade" — con "fade" el canvas de liquidGL
+//    arranca en opacity:0 y depende de que el snapshot asíncrono complete
+//    para subir a opacity:1. Si algo falla (elementos fixed ignorados por
+//    html2canvas, timeout, CORS) el navbar queda invisible forever.
+//    Con "none" el canvas es visible desde el primer frame.
 //
-// BUG #3:
-//   data-liquid-ignore estaba en el loading overlay pero no en el wrapper de
-//   la navbar. liquidGL intentaba snapshotear el wrapper y fallaba silenciosamente.
-//   FIX: data-liquid-ignore en el wrapper (#main-nav-bar). Los botones target
-//   NO llevan este atributo — deben ser visibles para el renderer WebGL.
+// 3. liquidReadyRef — init único de liquidGL, sin re-init por cambio de vista.
+//
+// 4. createPortal → hijos directos de <body> para que html2canvas
+//    no atraviese stacking contexts fixed al tomar el snapshot.
 //
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [storedNavMode, setStoredNavMode] = useState<'home' | 'market'>('home')
-  const [isVisible, setIsVisible] = useState(true)
-  const lastScrollY = useRef(0)
 
-  // FIX BUG #2: flag de ref (no state) para evitar re-renders y garantizar
-  // que liquidGL solo se inicialice una vez durante toda la vida del componente.
+  // Navbar siempre visible — sin scroll hide/show.
+  // El reveal:"fade" de liquidGL era el causante real de la desaparición:
+  // el canvas WebGL arranca en opacity:0, toma el snapshot, y si algo falla
+  // nunca sube a opacity:1. Al quitar el toggle de visibilidad el navbar
+  // queda siempre renderizado independientemente del estado de liquidGL.
   const liquidReadyRef = useRef(false)
 
   useEffect(() => {
     const user = getTgUser()
     if (user?.photo_url) setPhotoUrl(user.photo_url)
-  }, [])
-
-  // ── Scroll hide/show ──────────────────────────────────────────────
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      if (Math.abs(currentScrollY - lastScrollY.current) < 10) return
-      setIsVisible(currentScrollY <= lastScrollY.current || currentScrollY <= 50)
-      lastScrollY.current = currentScrollY
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   // ── liquidGL: inicialización única ───────────────────────────────
@@ -163,7 +143,7 @@ function NavBar() {
           specular: true,
           tilt: false,
           magnify: 1,
-          reveal: "fade",
+          reveal: "none", // "fade" causa que el canvas arranque en opacity:0 y nunca suba si el snapshot falla
         })
       })
       liquidReadyRef.current = true
@@ -214,9 +194,7 @@ function NavBar() {
       // FIX: data-liquid-ignore aquí para que liquidGL no intente snapshotear
       // este wrapper fixed. Los botones hijos siguen siendo targets válidos.
       data-liquid-ignore
-      className={`fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none transition-transform duration-300 ease-in-out ${
-        isVisible ? "translate-y-0" : "translate-y-[150px]"
-      }`}
+      className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
       style={{
         bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)",
       }}
