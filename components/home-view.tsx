@@ -266,7 +266,7 @@ export function HomeView() {
           <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
             
             {/* Card 1: AI Chat */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[240px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-4 rounded-[20px] w-[164px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
               <div>
                 <MessageCirclePlus className="w-[20px] h-[20px] text-white mb-[10px]" />
                 <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -285,19 +285,22 @@ export function HomeView() {
                 </div>
                 <button 
                   onClick={() => setIsBusinessModalOpen(true)}
-                  className="w-full py-[8px] bg-transparent border border-white/10 rounded-full text-white text-[13.5px] font-semibold relative overflow-hidden active:bg-white/5 transition-colors"
-                  style={{ fontFamily: SF }}
+                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
+                  style={{ 
+                    fontFamily: SF,
+                    backgroundColor: "#1c1c1e", 
+                    border: "1px solid rgba(255, 255, 255, 0.10)", 
+                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)", 
+                    transform: "translateZ(0)"
+                  }}
                 >
-                  <span className="relative z-10">Start</span>
-                  {/* Gray Glow effects */}
-                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
-                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
+                  Start
                 </button>
               </div>
             </div>
 
             {/* Card 2: Group Moderation */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[240px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-4 rounded-[20px] w-[164px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
               <div>
                 <Users className="w-[20px] h-[20px] text-white mb-[10px]" />
                 <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -314,19 +317,22 @@ export function HomeView() {
                 </div>
                 <button 
                   onClick={() => setIsBotIntModalOpen(true)}
-                  className="w-full py-[8px] bg-transparent border border-white/10 rounded-full text-white text-[13.5px] font-semibold relative overflow-hidden active:bg-white/5 transition-colors"
-                  style={{ fontFamily: SF }}
+                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
+                  style={{ 
+                    fontFamily: SF,
+                    backgroundColor: "#1c1c1e", 
+                    border: "1px solid rgba(255, 255, 255, 0.10)", 
+                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)", 
+                    transform: "translateZ(0)"
+                  }}
                 >
-                  <span className="relative z-10">Start</span>
-                  {/* Gray Glow effects */}
-                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
-                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
+                  Start
                 </button>
               </div>
             </div>
 
             {/* Card 3: Schedules */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[240px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-4 rounded-[20px] w-[164px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
               <div>
                 <CalendarDays className="w-[20px] h-[20px] text-white mb-[10px]" />
                 <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -342,13 +348,16 @@ export function HomeView() {
                 </div>
                 <button 
                   onClick={() => setCurrentView("schedule")}
-                  className="w-full py-[8px] bg-transparent border border-white/10 rounded-full text-white text-[13.5px] font-semibold relative overflow-hidden active:bg-white/5 transition-colors"
-                  style={{ fontFamily: SF }}
+                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
+                  style={{ 
+                    fontFamily: SF,
+                    backgroundColor: "#1c1c1e", 
+                    border: "1px solid rgba(255, 255, 255, 0.10)", 
+                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)", 
+                    transform: "translateZ(0)"
+                  }}
                 >
-                  <span className="relative z-10">Start</span>
-                  {/* Gray Glow effects */}
-                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
-                  <div className="absolute -bottom-3 -right-3 w-8 h-8 bg-white/20 rounded-full blur-[10px] opacity-40 pointer-events-none" />
+                  Start
                 </button>
               </div>
             </div>
@@ -577,7 +586,7 @@ export function HomeView() {
                 </div>
              </div>
 
-             <div className="flex gap-3 pt-2">
+             <div className="flex gap-3 pt-2">a
                 <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95" style={{ fontFamily: SF }}>
                    <Save className="w-4 h-4" /> Apply to Group
                 </button>
