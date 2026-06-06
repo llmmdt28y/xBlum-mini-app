@@ -75,50 +75,51 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Reddit Consensus - True Dark Material) ───────
+// ── Liquid Glass Styles (Crystal Clear Dark Mode) ─────────────────────
 
 const BTN_BASE: React.CSSProperties = {
-  // 1. Tinte NEGRO (no blanco). Elimina el aspecto lechoso/empañado por completo.
-  backgroundColor: "rgba(0, 0, 0, 0.25)", 
-  // 2. SIN brightness(). Solo un blur sólido (24px) y saturación (200%) para revivir los colores neón que pasan debajo.
-  backdropFilter: "blur(24px) saturate(200%)",
-  WebkitBackdropFilter: "blur(24px) saturate(200%)",
-  // 3. Borde perimetral ultra tenue para definir el corte del cristal sin parecer un borde sólido
-  border: "1px solid rgba(255, 255, 255, 0.03)", 
+  // Base blanca muy tenue (5%) para dar cuerpo al vidrio sin opacarlo
+  backgroundColor: "rgba(255, 255, 255, 0.05)", 
+  // Brillo al 115% para levantar los fondos negros y evitar el efecto "agujero negro"
+  backdropFilter: "blur(20px) saturate(250%) brightness(115%)",
+  WebkitBackdropFilter: "blur(20px) saturate(250%) brightness(115%)",
+  // Borde blanco sutil
+  border: "1px solid rgba(255, 255, 255, 0.08)", 
   transform: "translateZ(0)", 
   willChange: "backdrop-filter, box-shadow, transform", 
   boxShadow: [
-    // El "hilo de luz" nativo de iOS: un reflejo sutilísimo solo en el borde superior
-    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.12)",
-    // Una sombra profunda para asentar la barra sobre los elementos del fondo
-    "0 8px 32px 0px rgba(0, 0, 0, 0.6)"
+    // Luz de impacto superior izquierda
+    "inset 1px 1px 1px 0px rgba(255, 255, 255, 0.15)",
+    // Rebote de luz ambiental inferior derecha
+    "inset -1px -1px 1px 0px rgba(255, 255, 255, 0.05)",
+    // Sombra proyectada pesada para separar el cristal del fondo negro
+    "0 10px 30px 0px rgba(0, 0, 0, 0.7)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(24px) saturate(200%)",
-  WebkitBackdropFilter: "blur(24px) saturate(200%)",
+  backdropFilter: "blur(20px) saturate(250%) brightness(115%)",
+  WebkitBackdropFilter: "blur(20px) saturate(250%) brightness(115%)",
   boxShadow: [
-    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.12)",
-    // El contenedor central lleva una sombra proyectada más suave
-    "0 4px 16px 0px rgba(0, 0, 0, 0.3)"
+    "inset 1px 1px 1px 0px rgba(255, 255, 255, 0.15)",
+    "inset -1px -1px 1px 0px rgba(255, 255, 255, 0.05)",
+    "0 6px 20px 0px rgba(0, 0, 0, 0.4)" // Sombra más contenida para el contenedor central
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // La pestaña activa SÍ recibe un levísimo tinte blanco para diferenciarse, pero sin exagerar
-  backgroundColor: "rgba(255, 255, 255, 0.05)",
-  border: "1px solid rgba(255, 255, 255, 0.08)",
-  backdropFilter: "blur(24px) saturate(200%)",
-  WebkitBackdropFilter: "blur(24px) saturate(200%)",
+  // La píldora activa tiene un tinte levemente mayor para destacar
+  backgroundColor: "rgba(255, 255, 255, 0.10)",
+  backdropFilter: "blur(20px) saturate(250%) brightness(125%)", // Extra brillo al activar
+  WebkitBackdropFilter: "blur(20px) saturate(250%) brightness(125%)",
+  border: "1px solid rgba(255, 255, 255, 0.15)",
   boxShadow: [
-    // Reflejo superior un poco más brillante
-    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.2)",
-    // Sombra cerrada para darle profundidad al botón
-    "0 4px 12px 0px rgba(0, 0, 0, 0.4)"
+    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.25)", // Destello más notorio
+    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.08)",
+    "0 4px 12px 0px rgba(0, 0, 0, 0.3)"
   ].join(", "),
 }
 
