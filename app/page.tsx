@@ -75,29 +75,24 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Volumetric Lens - Portals Exact Replica) ─────
+// ── Liquid Glass Styles (Portals Clean Final Look) ────────────────────
 
 const BTN_BASE: React.CSSProperties = {
-  // EL TRUCO: Gradiente radial. Simula el grosor de una lente.
-  // Luz tenue blanca en el centro/arriba, que se difumina a un ahumado oscuro en los bordes.
-  background: "radial-gradient(130% 120% at 50% 0%, rgba(255, 255, 255, 0.08) 0%, rgba(12, 12, 12, 0.55) 100%)",
-  // Blur intermedio exacto y saturación controlada para no quemar el color
-  backdropFilter: "blur(20px) saturate(160%)",
-  WebkitBackdropFilter: "blur(20px) saturate(160%)",
-  // Hilo de borde para cerrar el objeto físico
-  border: "1px solid rgba(255, 255, 255, 0.05)", 
+  // Base limpia y altamente transparente (Gris carbón al 25%)
+  backgroundColor: "rgba(18, 18, 18, 0.25)", 
+  // El "Sweet Spot": Blur alto para limpiar figuras, saturación justa para revivir color
+  backdropFilter: "blur(28px) saturate(180%)",
+  WebkitBackdropFilter: "blur(28px) saturate(180%)",
+  // Borde perimetral ultra fino
+  border: "1px solid rgba(255, 255, 255, 0.06)", 
   transform: "translateZ(0)", 
   willChange: "backdrop-filter, box-shadow, transform", 
   boxShadow: [
-    // Luz cenital fuerte (impacto directo superior)
-    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.18)",
-    // Rebote de luz lateral Izquierdo
-    "inset 1px 0 2px 0px rgba(255, 255, 255, 0.07)",
-    // Rebote de luz lateral Derecho
-    "inset -1px 0 2px 0px rgba(255, 255, 255, 0.07)",
-    // Profundidad oscura en la base inferior que le da volumen 3D
-    "inset 0 -8px 16px 0px rgba(0, 0, 0, 0.45)",
-    // Sombra de contacto
+    // Hilo de luz limpio solo arriba
+    "inset 0 1px 0px 0px rgba(255, 255, 255, 0.12)",
+    // Sombra interna inferior suave para volumen
+    "inset 0 -4px 16px 0px rgba(0, 0, 0, 0.3)",
+    // Caída de sombra exterior limpia
     "0 8px 24px 0px rgba(0, 0, 0, 0.4)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
@@ -105,29 +100,27 @@ const BTN_BASE: React.CSSProperties = {
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
-  backdropFilter: "blur(20px) saturate(160%)",
-  WebkitBackdropFilter: "blur(20px) saturate(160%)",
+  backdropFilter: "blur(28px) saturate(180%)",
+  WebkitBackdropFilter: "blur(28px) saturate(180%)",
   boxShadow: [
-    "inset 0 1.5px 1px 0px rgba(255, 255, 255, 0.18)",
-    "inset 1px 0 2px 0px rgba(255, 255, 255, 0.07)",
-    "inset -1px 0 2px 0px rgba(255, 255, 255, 0.07)",
-    "inset 0 -8px 16px 0px rgba(0, 0, 0, 0.45)",
-    "0 6px 18px 0px rgba(0, 0, 0, 0.25)" // Sombra menor para el contenedor
+    "inset 0 1px 0px 0px rgba(255, 255, 255, 0.12)",
+    "inset 0 -4px 16px 0px rgba(0, 0, 0, 0.3)",
+    "0 4px 16px 0px rgba(0, 0, 0, 0.2)"
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // Aclara ligeramente el gradiente al estar activo
-  background: "radial-gradient(130% 120% at 50% 0%, rgba(255, 255, 255, 0.12) 0%, rgba(20, 20, 20, 0.45) 100%)",
-  backdropFilter: "blur(20px) saturate(160%)",
-  WebkitBackdropFilter: "blur(20px) saturate(160%)",
-  border: "1px solid rgba(255, 255, 255, 0.1)",
+  // La píldora se aclara con blanco suave, sin volverse neón
+  backgroundColor: "rgba(255, 255, 255, 0.08)",
+  border: "1px solid rgba(255, 255, 255, 0.12)",
+  backdropFilter: "blur(28px) saturate(180%)",
+  WebkitBackdropFilter: "blur(28px) saturate(180%)",
   boxShadow: [
-    "inset 0 1.5px 2px 0px rgba(255, 255, 255, 0.25)", // Mayor impacto superior
-    "inset 1px 0 3px 0px rgba(255, 255, 255, 0.1)",   // Rebote lateral más marcado
-    "inset -1px 0 3px 0px rgba(255, 255, 255, 0.1)",
-    "0 4px 12px 0px rgba(0, 0, 0, 0.2)"               // Sombra cerrada al estar seleccionado
+    // Resalte superior delicado para "levantar" el botón
+    "inset 0 1px 1px 0px rgba(255, 255, 255, 0.25)",
+    // Sombra sutil para despegar de la base
+    "0 4px 12px 0px rgba(0, 0, 0, 0.2)"
   ].join(", "),
 }
 
