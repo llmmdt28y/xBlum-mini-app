@@ -14,7 +14,8 @@ import { LevelsView } from "@/components/levels-view"
 import { ShopView } from "@/components/shop-view"
 import { GroupConfigView } from "@/components/group-config-view"
 import Script from "next/script"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useRef } from "react"
+import { createPortal } from "react-dom"
 import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
@@ -63,12 +64,16 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
         />
       </div>
       <div className="flex flex-col items-center gap-1">
-        <h1 className="text-white text-[24px] font-bold tracking-tight"
-          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}>
+        <h1
+          className="text-white text-[24px] font-bold tracking-tight"
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}
+        >
           Currently working
         </h1>
-        <p className="text-[#8e8e93] text-[17px] font-medium"
-          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}>
+        <p
+          className="text-[#8e8e93] text-[17px] font-medium"
+          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}
+        >
           come back later 🚀
         </p>
       </div>
@@ -77,68 +82,65 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 }
 
 // ── Floating Liquid NavBar ────────────────────────────────────────────
+//
+// FIX HISTORY — root causes del bug "navbar aparece y desaparece":
+//
+// BUG #1 (ROOT CAUSE PRINCIPAL):
+//   liquidGL.js filtra position:fixed en ignoreElements durante el html2canvas
+//   snapshot. El wrapper fixed hacía que todos los botones fueran excluidos.
+//   Al completar el snapshot, el canvas WebGL sube a opacity:1 y cubre la
+//   zona de los botones con transparente/vacío. Resultado: se ven 1 frame y
+//   desaparecen.
+//   FIX: createPortal() renderiza el wrapper directamente en <body> como hijo
+//   inmediato. liquidGL ya no atraviesa un stacking context ignorado.
+//   El wrapper sigue siendo position:fixed para el layout visual, pero ahora
+//   es raíz del árbol desde la perspectiva de html2canvas.
+//
+// BUG #2:
+//   Re-inicializar liquidGL en cada cambio de currentView acumulaba renderers
+//   y canvases WebGL en el DOM (liquidGL no expone destroy()).
+//   FIX: liquidReadyRef previene cualquier segundo init. Se inicializa una
+//   sola vez cuando el script está cargado y los 3 elementos están en el DOM.
+//
+// BUG #3:
+//   data-liquid-ignore estaba en el loading overlay pero no en el wrapper de
+//   la navbar. liquidGL intentaba snapshotear el wrapper y fallaba silenciosamente.
+//   FIX: data-liquid-ignore en el wrapper (#main-nav-bar). Los botones target
+//   NO llevan este atributo — deben ser visibles para el renderer WebGL.
+//
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [storedNavMode, setStoredNavMode] = useState<'home' | 'market'>('home')
   const [isVisible, setIsVisible] = useState(true)
-  const [lastScrollY, setLastScrollY] = useState(0)
+  const lastScrollY = useRef(0)
+
+  // FIX BUG #2: flag de ref (no state) para evitar re-renders y garantizar
+  // que liquidGL solo se inicialice una vez durante toda la vida del componente.
+  const liquidReadyRef = useRef(false)
 
   useEffect(() => {
     const user = getTgUser()
     if (user?.photo_url) setPhotoUrl(user.photo_url)
   }, [])
 
-  // ── Scroll hide/show ──
+  // ── Scroll hide/show ──────────────────────────────────────────────
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-      if (Math.abs(currentScrollY - lastScrollY) < 10) return
-      setIsVisible(currentScrollY <= lastScrollY || currentScrollY <= 50)
-      setLastScrollY(currentScrollY)
+      if (Math.abs(currentScrollY - lastScrollY.current) < 10) return
+      setIsVisible(currentScrollY <= lastScrollY.current || currentScrollY <= 50)
+      lastScrollY.current = currentScrollY
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [lastScrollY])
+  }, [])
 
-  const isMarketSection = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
-  const isHomeSection = currentView === 'home' || currentView === 'schedule'
-  const activeNavMode = isMarketSection ? 'market' : (isHomeSection ? 'home' : storedNavMode)
-
+  // ── liquidGL: inicialización única ───────────────────────────────
+  // Se ejecuta en cada render pero sale inmediatamente si ya inicializó
+  // o si las condiciones no se cumplen. NO depende de currentView.
   useEffect(() => {
-    if (activeNavMode !== storedNavMode) setStoredNavMode(activeNavMode)
-  }, [activeNavMode, storedNavMode])
-
-  const handleLeftActionButton = () => {
-    setCurrentView(activeNavMode === 'market' ? 'home' as any : 'market' as any)
-  }
-
-  const centerTabs = activeNavMode === 'market'
-    ? [
-        { id: "market", label: "Market", icon: Store, disabled: false },
-        { id: "shop",   label: "Shop",   icon: Target, disabled: false },
-        { id: "levels", label: "BP Levels", icon: Target, disabled: false },
-      ]
-    : [
-        { id: "home",     label: "Home",  icon: Home,  disabled: false },
-        { id: "schedule", label: "Tasks", icon: Clock, disabled: false },
-        { id: "none2",    label: "None",  icon: null,  disabled: true  },
-      ]
-
-  const neonBlue = "#33b5f7"
-  const inactiveGlassText = "rgba(255, 255, 255, 0.6)"
-
-  // ── liquidGL init ──────────────────────────────────────────────────
-  // FIXES aplicados según la documentación oficial:
-  // 1. Usamos `target` en lugar de `selector` (API correcta)
-  // 2. Los IDs están en los elementos raíz (button/div), no en hijos
-  // 3. Los elementos NO son position:fixed (liquidGL los ignora por diseño)
-  //    → el wrapper externo es fixed, los botones son relative dentro de él
-  // 4. html2canvas se carga desde CDN con strategy="beforeInteractive"
-  // 5. liquidGL se inicializa en el callback onLoad del <Script>
-  //    para garantizar que ambas libs estén listas antes de llamar a liquidGL()
-  // 6. Se usa data-liquid-ignore en el loading overlay para excluirlo del snapshot
-  const initLiquidGL = useCallback(() => {
+    if (liquidReadyRef.current) return
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (typeof window === "undefined" || !(window as any).liquidGL) return
 
@@ -150,7 +152,7 @@ function NavBar() {
       targets.forEach(target => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ;(window as any).liquidGL({
-          target,           // ← "target", no "selector"
+          target,
           snapshot: "body",
           resolution: 1.5,
           refraction: 0.01,
@@ -164,33 +166,63 @@ function NavBar() {
           reveal: "fade",
         })
       })
-      console.log("[liquidGL] ✅ Inicializado correctamente")
+      liquidReadyRef.current = true
+      console.log("[liquidGL] ✅ Inicializado (único init)")
     } catch (err) {
       console.error("[liquidGL] Error:", err)
     }
-  }, [])
+  })
 
-  // Re-inicializar cuando cambia la vista (el DOM se reescribe)
+  // ── Nav mode logic ────────────────────────────────────────────────
+  const isMarketSection = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
+  const isHomeSection   = currentView === 'home'   || currentView === 'schedule'
+  const activeNavMode   = isMarketSection ? 'market' : (isHomeSection ? 'home' : storedNavMode)
+
   useEffect(() => {
-    // Esperamos 2 renders para que React haya pintado los botones
-    const t = setTimeout(initLiquidGL, 500)
-    return () => clearTimeout(t)
-  }, [currentView, initLiquidGL])
+    if (activeNavMode !== storedNavMode) setStoredNavMode(activeNavMode)
+  }, [activeNavMode, storedNavMode])
 
-  return (
-    // ── WRAPPER FIXED ─────────────────────────────────────────────────
-    // Este div es el que tiene position:fixed.
-    // Los botones hijos son position:relative — liquidGL los puede procesar.
+  const handleLeftActionButton = () => {
+    setCurrentView(activeNavMode === 'market' ? 'home' as any : 'market' as any)
+  }
+
+  const centerTabs = activeNavMode === 'market'
+    ? [
+        { id: "market", label: "Market",   icon: Store,  disabled: false },
+        { id: "shop",   label: "Shop",     icon: Target, disabled: false },
+        { id: "levels", label: "BP Levels",icon: Target, disabled: false },
+      ]
+    : [
+        { id: "home",     label: "Home",  icon: Home,  disabled: false },
+        { id: "schedule", label: "Tasks", icon: Clock, disabled: false },
+        { id: "none2",    label: "None",  icon: null,  disabled: true  },
+      ]
+
+  const neonBlue          = "#33b5f7"
+  const inactiveGlassText = "rgba(255, 255, 255, 0.6)"
+
+  // ── JSX del nav ──────────────────────────────────────────────────
+  // FIX BUG #1 + #3:
+  //   • createPortal() → renderizado como hijo directo de <body>
+  //   • data-liquid-ignore en el wrapper → excluido del html2canvas snapshot
+  //     (evita que el snapshot incluya el wrapper fixed que produciría artefactos)
+  //   • Los botones target (#liquid-btn-*) NO tienen data-liquid-ignore
+  //     → el renderer WebGL los procesa correctamente
+  const navContent = (
     <div
       id="main-nav-bar"
+      // FIX: data-liquid-ignore aquí para que liquidGL no intente snapshotear
+      // este wrapper fixed. Los botones hijos siguen siendo targets válidos.
+      data-liquid-ignore
       className={`fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none transition-transform duration-300 ease-in-out ${
         isVisible ? "translate-y-0" : "translate-y-[150px]"
       }`}
-      style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)" }}
+      style={{
+        bottom: "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)",
+      }}
     >
 
       {/* ── BOTÓN IZQUIERDO ── */}
-      {/* position: relative (NO fixed) → liquidGL puede snapshotear este elemento */}
       <button
         id="liquid-btn-left"
         onClick={handleLeftActionButton}
@@ -199,13 +231,14 @@ function NavBar() {
           width: "64px",
           height: "64px",
           borderRadius: "100px",
-          // z-index alto para que el canvas de liquidGL quede sobre el contenido
           zIndex: 10,
           transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
         }}
       >
-        {/* Contenido en z-index 3 para que quede sobre el canvas de liquidGL */}
-        <div className="relative flex flex-col items-center justify-center pointer-events-none" style={{ zIndex: 3 }}>
+        <div
+          className="relative flex flex-col items-center justify-center pointer-events-none"
+          style={{ zIndex: 3 }}
+        >
           {activeNavMode === 'market' ? (
             <>
               <Home size={22} color={inactiveGlassText} strokeWidth={2} />
@@ -221,7 +254,6 @@ function NavBar() {
       </button>
 
       {/* ── PÍLDORA CENTRAL ── */}
-      {/* position: relative (NO fixed) → liquidGL puede snapshotear este elemento */}
       <div
         id="liquid-btn-center"
         className="pointer-events-auto relative flex items-center justify-between flex-1 mx-3 px-1.5"
@@ -231,12 +263,11 @@ function NavBar() {
           zIndex: 10,
         }}
       >
-        {/* Contenido en z-index 3 */}
         <div className="flex items-center justify-between w-full" style={{ position: "relative", zIndex: 3 }}>
           {centerTabs.map((tab, idx) => {
-            const isActive = currentView === tab.id
+            const isActive   = currentView === tab.id
             const isDisabled = !!tab.disabled
-            const Icon = tab.icon
+            const Icon       = tab.icon
 
             return (
               <button
@@ -246,9 +277,11 @@ function NavBar() {
                 className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95"
                 style={{
                   pointerEvents: isDisabled ? "none" : "auto",
-                  transition: "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
-                  background: isActive ? "rgba(255, 255, 255, 0.15)" : "transparent",
-                  boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.2)" : "none",
+                  transition:    "all 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
+                  background:    isActive ? "rgba(255, 255, 255, 0.15)" : "transparent",
+                  boxShadow:     isActive
+                    ? "0 4px 12px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.2)"
+                    : "none",
                   transform: isActive ? "scale(1.08)" : "scale(1)",
                 }}
               >
@@ -277,21 +310,22 @@ function NavBar() {
       </div>
 
       {/* ── BOTÓN DERECHO: Profile ── */}
-      {/* position: relative (NO fixed) → liquidGL puede snapshotear este elemento */}
       <button
         id="liquid-btn-right"
         onClick={() => setCurrentView('profile')}
         className="pointer-events-auto relative flex flex-col items-center justify-center active:scale-95 shrink-0"
         style={{
-          width: "64px",
-          height: "64px",
+          width:        "64px",
+          height:       "64px",
           borderRadius: "100px",
-          zIndex: 10,
-          transition: "transform 0.2s ease",
+          zIndex:       10,
+          transition:   "transform 0.2s ease",
         }}
       >
-        {/* Contenido en z-index 3 */}
-        <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none" style={{ position: "relative", zIndex: 3 }}>
+        <div
+          className="flex flex-col items-center justify-center w-full h-full pointer-events-none"
+          style={{ position: "relative", zIndex: 3 }}
+        >
           {photoUrl ? (
             <div className="w-[50px] h-[50px] rounded-full overflow-hidden shadow-inner border border-white/5">
               <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
@@ -316,16 +350,22 @@ function NavBar() {
 
     </div>
   )
+
+  // FIX BUG #1: Portal → los botones son hijos directos de <body>.
+  // html2canvas ya no atraviesa un stacking context fixed ignorado.
+  // SSR-safe: createPortal solo corre en el cliente.
+  if (typeof window === "undefined") return null
+  return createPortal(navContent, document.body)
 }
 
-// ── App shell ──────────────────────────────────────────
+// ── App shell ──────────────────────────────────────────────────────────
 function AppContent() {
-  const { currentView, isLoading } = useApp()
+  const { currentView, setCurrentView, isLoading } = useApp()
   const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards", "schedule"].includes(currentView)
 
   const [imagesLoaded, setImagesLoaded] = useState(false)
-  const [showLoading, setShowLoading] = useState(true)
-  const [fadeLoading, setFadeLoading] = useState(false)
+  const [showLoading,  setShowLoading]  = useState(true)
+  const [fadeLoading,  setFadeLoading]  = useState(false)
   const [isMaintenance, setIsMaintenance] = useState(false)
 
   useEffect(() => {
@@ -348,12 +388,12 @@ function AppContent() {
       images.forEach(img => {
         if (img.complete) { checkDone() }
         else {
-          img.addEventListener('load', checkDone, { once: true })
+          img.addEventListener('load',  checkDone, { once: true })
           img.addEventListener('error', checkDone, { once: true })
         }
       })
     }
-    const timer = setTimeout(checkImages, 50)
+    const timer    = setTimeout(checkImages, 50)
     const fallback = setTimeout(() => setImagesLoaded(true), 3000)
     return () => { clearTimeout(timer); clearTimeout(fallback) }
   }, [currentView, isMaintenance])
@@ -376,7 +416,9 @@ function AppContent() {
       {showLoading && (
         <div
           data-liquid-ignore
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${fadeLoading ? "opacity-0" : "opacity-100"}`}
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
+            fadeLoading ? "opacity-0" : "opacity-100"
+          }`}
         >
           <Loader2 className="w-10 h-10 text-white animate-spin" />
         </div>
@@ -398,18 +440,25 @@ function AppContent() {
         {currentView === "x-rewards"          && <XRewardsView />}
         {currentView === "market"             && <MarketView />}
         {currentView === "schedule"           && <ScheduleView />}
-        {currentView === "group_config"       && <GroupConfigView onClose={() => setCurrentView("home")} apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""} />}
+        {currentView === "group_config"       && (
+          <GroupConfigView
+            onClose={() => setCurrentView("home")}
+            apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""}
+          />
+        )}
 
+        {/* NavBar se renderiza via portal en <body> — ver componente NavBar */}
         {showNav && <NavBar />}
       </div>
 
       {/*
-        ── Scripts de liquidGL ────────────────────────────────────────────
+        ── Scripts de liquidGL ─────────────────────────────────────────────
         IMPORTANTE:
-        - html2canvas DEBE cargar antes que liquidGL (beforeInteractive)
-        - liquidGL se inicializa en el onLoad callback cuando ambos están listos
+        - html2canvas DEBE cargar antes que liquidGL → strategy="beforeInteractive"
+        - liquidGL se carga con strategy="afterInteractive"
+        - NO hay onLoad aquí: el componente NavBar maneja su propio init
+          con liquidReadyRef para garantizar una sola inicialización.
         - El archivo liquidGL.js debe estar en /public/js/liquidGL.js
-          (descargado desde https://github.com/naughtyduk/liquidGL/blob/main/scripts/liquidGL.js)
       */}
       <Script
         src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
@@ -418,35 +467,9 @@ function AppContent() {
       <Script
         src="/js/liquidGL.js"
         strategy="afterInteractive"
-        onLoad={() => {
-          // Esperamos un tick para asegurar que el DOM de NavBar esté pintado
-          setTimeout(() => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (!(window as any).liquidGL) return
-            const targets = ["#liquid-btn-left", "#liquid-btn-center", "#liquid-btn-right"]
-            targets.forEach(target => {
-              try {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ;(window as any).liquidGL({
-                  target,
-                  snapshot: "body",
-                  resolution: 1.5,
-                  refraction: 0.01,
-                  bevelDepth: 0.08,
-                  bevelWidth: 0.15,
-                  frost: 2,
-                  shadow: true,
-                  specular: true,
-                  tilt: false,
-                  magnify: 1,
-                  reveal: "fade",
-                })
-              } catch (e) {
-                console.error("[liquidGL] Error en target:", target, e)
-              }
-            })
-          }, 800)
-        }}
+        // FIX BUG #2: Sin onLoad duplicado aquí.
+        // NavBar.useEffect() detecta window.liquidGL en cada render
+        // y se auto-inicializa la primera vez que la librería está disponible.
       />
     </>
   )
