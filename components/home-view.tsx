@@ -266,9 +266,9 @@ export function HomeView() {
           <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
             
             {/* Card 1: AI Chat */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[164px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-4 rounded-[20px] w-[176px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
               <div>
-                <MessageCirclePlus className="w-[20px] h-[20px] text-white mb-[10px]" />
+                <MessageCirclePlus className="w-[20px] h-[20px] text-[#d4a373] mb-[10px]" />
                 <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Configure AI Chat
                 </h3>
@@ -278,7 +278,7 @@ export function HomeView() {
               </div>
               <div className="mt-auto flex flex-col gap-[12px]">
                 <div className="flex items-center gap-[4px]">
-                  <div className="h-[3px] w-[18px] bg-white/70 rounded-full" />
+                  <div className="h-[3px] w-[18px] bg-[#d4a373] rounded-full" />
                   <div className="h-[3px] w-[6px] bg-[#3a3a3c] rounded-full" />
                   <div className="h-[3px] w-[6px] bg-[#3a3a3c] rounded-full" />
                   <div className="h-[3px] w-[6px] bg-[#3a3a3c] rounded-full" />
@@ -300,9 +300,9 @@ export function HomeView() {
             </div>
 
             {/* Card 2: Group Moderation */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[164px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-4 rounded-[20px] w-[176px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
               <div>
-                <Users className="w-[20px] h-[20px] text-white mb-[10px]" />
+                <Users className="w-[20px] h-[20px] text-[#ffffff] mb-[10px]" />
                 <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Group Moderation
                 </h3>
@@ -312,7 +312,7 @@ export function HomeView() {
               </div>
               <div className="mt-auto flex flex-col gap-[12px]">
                 <div className="flex items-center gap-[4px]">
-                  <div className="h-[3px] w-[18px] bg-white/70 rounded-full" />
+                  <div className="h-[3px] w-[18px] bg-[#ffffff] rounded-full" />
                   <div className="h-[3px] w-[18px] bg-[#3a3a3c] rounded-full" />
                 </div>
                 <button 
@@ -332,9 +332,9 @@ export function HomeView() {
             </div>
 
             {/* Card 3: Schedules */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[164px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-4 rounded-[20px] w-[176px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
               <div>
-                <CalendarDays className="w-[20px] h-[20px] text-white mb-[10px]" />
+                <CalendarDays className="w-[20px] h-[20px] text-[#f97316] mb-[10px]" />
                 <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Manage Schedules
                 </h3>
@@ -344,7 +344,7 @@ export function HomeView() {
               </div>
               <div className="mt-auto flex flex-col gap-[12px]">
                 <div className="flex items-center gap-[4px]">
-                  <div className="h-[3px] w-[32px] bg-white/70 rounded-full" />
+                  <div className="h-[3px] w-[32px] bg-[#f97316] rounded-full" />
                 </div>
                 <button 
                   onClick={() => setCurrentView("schedule")}
@@ -586,7 +586,7 @@ export function HomeView() {
                 </div>
              </div>
 
-             <div className="flex gap-3 pt-2">a
+             <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95" style={{ fontFamily: SF }}>
                    <Save className="w-4 h-4" /> Apply to Group
                 </button>
