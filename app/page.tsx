@@ -77,17 +77,34 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 
 // ── Liquid Glass layers ───────────────────────────────────────────────
 
-// Highlight superior: línea de luz en el borde top del cristal
-function GlassSurface() {
+function GlassRim() {
   return (
-    <div aria-hidden="true" style={{
-      position: "absolute", inset: 0, pointerEvents: "none",
-      borderRadius: "inherit", zIndex: 3,
-      // Reflejos especulares acentuados en los bordes para el rebote de luz
-      boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 -1px 1px rgba(255, 255, 255, 0.03)",
-      // Degradado que no interfiere con el color de fondo, solo da volumen
-      background: "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.0) 25%, rgba(0,0,0,0.0) 75%, rgba(0,0,0,0.15) 100%)",
-    }} />
+    <>
+      {/* CAPA 1: Efecto Óptico de Borde (La técnica de lente/lupa invertida) */}
+      <div aria-hidden="true" style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        borderRadius: "inherit", zIndex: 2,
+        backdropFilter: "invert(0.12) brightness(1.5)",
+        WebkitBackdropFilter: "invert(0.12) brightness(1.5)",
+        // La máscara oculta el centro y solo aplica la distorsión en los bordes curvos
+        maskImage: "radial-gradient(ellipse at center, transparent 65%, black 100%)",
+        WebkitMaskImage: "radial-gradient(ellipse at center, transparent 65%, black 100%)",
+      }} />
+
+      {/* CAPA 2: Reflejos Especulares (Brillos y sombras inset) */}
+      <div aria-hidden="true" style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        borderRadius: "inherit", zIndex: 3,
+        boxShadow: [
+          "inset 0 1px 1px rgba(255, 255, 255, 0.55)", // Brillo blanco fuerte arriba (como solicitaste)
+          "inset 0 -1px 1px rgba(0, 0, 0, 0.40)",      // Sombra base
+          "inset 1px 0 1px rgba(255, 255, 255, 0.05)", // Brillo lateral sutil
+          "inset -1px 0 1px rgba(255, 255, 255, 0.05)"
+        ].join(", "),
+        // Degradado muy sutil para dar volumen sin matar el color
+        background: "linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.0) 20%, rgba(0,0,0,0.0) 80%, rgba(0,0,0,0.15) 100%)",
+      }} />
+    </>
   )
 }
 
@@ -95,16 +112,16 @@ function GlassSurface() {
 const GLASS_BASE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  // Velo extremadamente translúcido para que el fondo domine
-  backgroundColor: "rgba(18, 18, 24, 0.15)",
-  // Blur medio para mantener la forma del color detrás, saturación alta para el "sangrado", brillo preservado
-  backdropFilter: "blur(28px) saturate(2.5) brightness(1.05)",
-  WebkitBackdropFilter: "blur(28px) saturate(2.5) brightness(1.05)",
+  // Base casi totalmente transparente para máxima claridad de color
+  backgroundColor: "rgba(18, 18, 24, 0.08)",
+  // Blur subido a 16px para mayor "sangrado", saturate a 2.4 para potenciar el fondo
+  backdropFilter: "blur(16px) saturate(2.4) brightness(1.05)",
+  WebkitBackdropFilter: "blur(16px) saturate(2.4) brightness(1.05)",
   border: "none", 
   boxShadow: [
-    "0 16px 32px rgba(0, 0, 0, 0.4)", // Sombra de caída más suave y expansiva
-    "0 4px 12px rgba(0, 0, 0, 0.2)",
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.08)", // Borde reflectante ultra fino encapsulando el cristal
+    "0 16px 32px rgba(0, 0, 0, 0.45)", 
+    "0 4px 12px rgba(0, 0, 0, 0.25)",
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.03)", // Delimitador levísimo
   ].join(", "),
 }
 
@@ -119,14 +136,13 @@ const PILL_STYLE: React.CSSProperties = {
 
 // Tab activo: cápsula INCRUSTADA dentro de la barra
 const activePillStyle: React.CSSProperties = {
-  // Transparencia suficiente para no bloquear el color sangrado del fondo
-  backgroundColor: "rgba(0, 0, 0, 0.25)",
+  // El tono oscuro que sugeriste para contrastar con el fondo amplificado
+  backgroundColor: "rgba(0, 0, 0, 0.42)",
   boxShadow: [
-    // Profundidad interna
-    "inset 0 4px 12px rgba(0, 0, 0, 0.4)",
-    "inset 0 1px 2px rgba(0, 0, 0, 0.6)",
-    // REBOTE DE LUZ EXTERIOR: Simulando el corte en el cristal inferior
-    "0 1px 1px rgba(255, 255, 255, 0.15)",
+    "inset 0 4px 10px rgba(0, 0, 0, 0.50)",
+    "inset 0 1px 3px rgba(0, 0, 0, 0.70)",
+    // Rebote de luz (simula el corte sobre el GlassRim)
+    "0 1px 1px rgba(255, 255, 255, 0.20)",
   ].join(", "),
 }
 
@@ -193,7 +209,8 @@ function NavBar() {
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          <GlassSurface />
+          {/* Se inserta GlassRim aquí */}
+          <GlassRim />
           <div className="flex flex-col items-center justify-center pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {activeNavMode === 'market' ? (
               <>
@@ -214,7 +231,8 @@ function NavBar() {
           className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
           style={{ ...PILL_STYLE, borderRadius: "100px", height: "64px", zIndex: 51 }}
         >
-          <GlassSurface />
+          {/* Se inserta GlassRim aquí */}
+          <GlassRim />
           <div className="flex items-center justify-between w-full relative" style={{ zIndex: 5 }}>
             {centerTabs.map((tab, idx) => {
               const isActive   = currentView === tab.id
@@ -276,7 +294,8 @@ function NavBar() {
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          <GlassSurface />
+          {/* Se inserta GlassRim aquí */}
+          <GlassRim />
           <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {photoUrl ? (
               <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
