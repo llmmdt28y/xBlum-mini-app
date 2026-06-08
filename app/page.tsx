@@ -116,32 +116,39 @@ function NavBar() {
 
   return (
     <>
-      {/* ── ESTILOS LIQUID GLASS HÍBRIDOS (React Style Block) ── */}
+      {/* ── ESTILOS LIQUID GLASS PUROS (Modo Oscuro, Sin SVG) ── */}
       <style>{`
         .nav-pill {
-          background: rgba(255, 255, 255, 0.04);
-          backdrop-filter: blur(20px) saturate(180%);
-          -webkit-backdrop-filter: blur(20px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          /* Fondo ultra translúcido para mantener el modo oscuro */
+          background: rgba(255, 255, 255, 0.02);
+          
+          /* Desenfoque fuerte y saturación agresiva para que los cofres resalten */
+          backdrop-filter: blur(24px) saturate(250%) brightness(105%);
+          -webkit-backdrop-filter: blur(24px) saturate(250%) brightness(105%);
+          
+          /* Borde de corte limpio */
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          
+          /* Iluminación volumétrica 3D */
           box-shadow: 
-            0 8px 32px rgba(0,0,0,0.4),
-            inset 1px 1px 1px rgba(255, 255, 255, 0.15),
-            inset -1px -1px 2px rgba(0,0,0,0.2);
+            0 12px 35px rgba(0,0,0,0.6),
+            inset 0 1px 1px rgba(255, 255, 255, 0.2), /* Luz rebotando arriba */
+            inset 0 -1px 2px rgba(0,0,0,0.3); /* Sombra pesada abajo */
+            
           position: relative;
           overflow: hidden;
           transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-          transform: translateZ(0);
-          will-change: transform, box-shadow, filter;
+          transform: translateZ(0); /* Aceleración GPU */
         }
 
-        /* El brillo líquido superior izquierdo */
+        /* ── EL SECRETO DEL VOLUMEN (Brillo radial) ── */
         .nav-pill::before {
           content: '';
           position: absolute;
-          inset: -30%;
-          background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.2) 0%, transparent 50%);
+          inset: -20%;
+          /* Un destello de luz suave en la parte superior que simula la curva del cristal */
+          background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 60%);
           pointer-events: none;
-          opacity: 0.8;
           border-radius: inherit;
         }
 
@@ -149,19 +156,15 @@ function NavBar() {
           transform: scale(0.96);
         }
 
+        /* Estado del botón activo (ej: Profile seleccionado) */
         .nav-pill.active-state {
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.25);
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.15);
           box-shadow: 
-            0 4px 16px rgba(0,0,0,0.3),
-            inset 1.5px 1.5px 2px rgba(255, 255, 255, 0.25),
-            inset -1px -1px 2px rgba(0,0,0,0.15);
+            0 4px 16px rgba(0,0,0,0.4),
+            inset 0 1.5px 2px rgba(255, 255, 255, 0.3),
+            inset 0 -1px 2px rgba(0,0,0,0.2);
           transform: scale(1.02);
-        }
-
-        /* ── MAGIA EXCLUSIVA PARA ANDROID (Refracción SVG) ── */
-        .android .nav-pill {
-          backdrop-filter: blur(18px) saturate(180%) url(#liquid-glass);
         }
       `}</style>
 
@@ -278,12 +281,6 @@ function AppContent() {
     const tg = (window as any).Telegram?.WebApp
     if (tg) {
       tg.ready()
-      
-      // ── DETECCIÓN DE PLATAFORMA PARA REFRACCIÓN SVG ──
-      if (tg.platform === 'android') {
-        document.documentElement.classList.add('android')
-      }
-
       try {
         if (tg.requestFullscreen) { tg.requestFullscreen() } else { tg.expand() }
       } catch { tg.expand() }
@@ -323,26 +320,6 @@ function AppContent() {
 
   return (
     <>
-      {/* ── FILTRO SVG (Oculto en el DOM, activo solo en Android) ── */}
-      <svg width="0" height="0" style={{ position: 'absolute', visibility: 'hidden' }}>
-        <defs>
-          <filter id="liquid-glass" colorInterpolationFilters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="turb"/>
-            <feDisplacementMap in="blur" in2="turb" scale="10" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
-            {/* Opcional: Iluminación especular si quieres que el SVG procese la luz en lugar del CSS */}
-            <feSpecularLighting in="blur" surfaceScale="3" specularConstant="1.1" specularExponent="10" lightingColor="#fff" result="spec">
-              <feDistantLight azimuth="45" elevation="65"/>
-            </feSpecularLighting>
-            <feComposite in="spec" in2="displaced" operator="in" result="highlight"/>
-            <feMerge>
-              <feMergeNode in="displaced" />
-              <feMergeNode in="highlight" />
-            </feMerge>
-          </filter>
-        </defs>
-      </svg>
-
       {showLoading && (
         <div
           className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
