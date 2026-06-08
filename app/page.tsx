@@ -27,8 +27,8 @@ type TgUser = {
 
 function getTgUser(): TgUser | undefined {
   if (typeof window === "undefined") return undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
 // ── Maintenance Screen ────────────────────────────────────────────────
@@ -51,26 +51,26 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center select-none overflow-hidden">
-      <div onClick={handleSecretTap} className="absolute top-0 left-0 w-24 h-24 z-50" />
-      <div className="relative mb-8 pointer-events-none select-none">
-        <img
-          src="/steampunkjulia_agadsqcaakb7raq.webp"
-          alt="Maintenance"
-          draggable={false}
-          className="w-48 h-48 object-contain pointer-events-none select-none"
-          style={{ WebkitUserSelect: "none", WebkitTouchCallout: "none", userSelect: "none" }}
-        />
-      </div>
-      <div className="flex flex-col items-center gap-1">
-        <h1 className="text-white text-[24px] font-bold tracking-tight"
-          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}>
-          Currently working
-        </h1>
-        <p className="text-[#8e8e93] text-[17px] font-medium"
-          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}>
-          come back later 🚀
-        </p>
-      </div>
+    <div onClick={handleSecretTap} className="absolute top-0 left-0 w-24 h-24 z-50" />
+    <div className="relative mb-8 pointer-events-none select-none">
+    <img
+    src="/steampunkjulia_agadsqcaakb7raq.webp"
+    alt="Maintenance"
+    draggable={false}
+    className="w-48 h-48 object-contain pointer-events-none select-none"
+    style={{ WebkitUserSelect: "none", WebkitTouchCallout: "none", userSelect: "none" }}
+    />
+    </div>
+    <div className="flex flex-col items-center gap-1">
+    <h1 className="text-white text-[24px] font-bold tracking-tight"
+    style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}>
+    Currently working
+    </h1>
+    <p className="text-[#8e8e93] text-[17px] font-medium"
+    style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}>
+    come back later 🚀
+    </p>
+    </div>
     </div>
   )
 }
@@ -100,16 +100,16 @@ function NavBar() {
   }
 
   const centerTabs = activeNavMode === 'market'
-    ? [
-        { id: "market", label: "Market",    icon: Store,  disabled: false },
-        { id: "shop",   label: "Shop",      icon: Target, disabled: false },
-        { id: "levels", label: "BP Levels", icon: Target, disabled: false },
-      ]
-    : [
-        { id: "home",     label: "Home",  icon: Home,  disabled: false },
-        { id: "schedule", label: "Tasks", icon: Clock, disabled: false },
-        { id: "none2",    label: "None",  icon: null,  disabled: true  },
-      ]
+  ? [
+    { id: "market", label: "Market",    icon: Store,  disabled: false },
+    { id: "shop",   label: "Shop",      icon: Target, disabled: false },
+    { id: "levels", label: "BP Levels", icon: Target, disabled: false },
+  ]
+  : [
+    { id: "home",     label: "Home",  icon: Home,  disabled: false },
+    { id: "schedule", label: "Tasks", icon: Clock, disabled: false },
+    { id: "none2",    label: "None",  icon: null,  disabled: true  },
+  ]
 
   const neonBlue      = "#33b5f7"
   const inactiveColor = "rgba(255,255,255,0.62)"
@@ -117,129 +117,129 @@ function NavBar() {
 
   return (
     <>
-      <div
-        className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
-        style={{ bottom: safeBottom }}
-      >
-        {/* ── BOTÓN IZQUIERDO ── */}
-        <button
-          onClick={handleLeftActionButton}
-          onPointerDown={() => setPressedId("left")}
-          onPointerUp={() => setPressedId(null)}
-          onPointerLeave={() => setPressedId(null)}
-          className="liquid-glass-panel pointer-events-auto shrink-0"
-          style={{
-            width: "64px",
-            height: "64px",
-            borderRadius: "100px",
-            zIndex: 51,
-            transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
-            transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
-          }}
-        >
-          <div className="flex flex-col items-center justify-center pointer-events-none select-none relative w-full h-full" style={{ zIndex: 10 }}>
-            {activeNavMode === 'market' ? (
-              <>
-                <Home size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Home</span>
-              </>
-            ) : (
-              <>
-                <Store size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Market</span>
-              </>
-            )}
-          </div>
-        </button>
+    <div
+    className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
+    style={{ bottom: safeBottom }}
+    >
+    {/* ── BOTÓN IZQUIERDO ── */}
+    <button
+    onClick={handleLeftActionButton}
+    onPointerDown={() => setPressedId("left")}
+    onPointerUp={() => setPressedId(null)}
+    onPointerLeave={() => setPressedId(null)}
+    className="liquid-glass-panel pointer-events-auto shrink-0"
+    style={{
+      width: "64px",
+      height: "64px",
+      borderRadius: "100px",
+      zIndex: 51,
+      transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
+          transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
+    }}
+    >
+    <div className="flex flex-col items-center justify-center pointer-events-none select-none relative w-full h-full" style={{ zIndex: 10 }}>
+    {activeNavMode === 'market' ? (
+      <>
+      <Home size={22} color={inactiveColor} strokeWidth={2} />
+      <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Home</span>
+      </>
+    ) : (
+      <>
+      <Store size={22} color={inactiveColor} strokeWidth={2} />
+      <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Market</span>
+      </>
+    )}
+    </div>
+    </button>
 
-        {/* ── PÍLDORA CENTRAL ── */}
-        <div
-          className="liquid-glass-panel pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
-          style={{ borderRadius: "100px", height: "64px", zIndex: 51 }}
-        >
-          <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
-            {centerTabs.map((tab, idx) => {
-              const isActive   = currentView === tab.id
-              const isDisabled = !!tab.disabled
-              const Icon       = tab.icon
-              return (
-                <button
-                  key={`${tab.id}-${idx}`}
-                  disabled={isDisabled}
-                  onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-                  onPointerDown={() => !isDisabled && setPressedId(tab.id)}
-                  onPointerUp={() => setPressedId(null)}
-                  onPointerLeave={() => setPressedId(null)}
-                  className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none ${isActive ? 'active-pill' : ''}`}
-                  style={{
-                    pointerEvents: isDisabled ? "none" : "auto",
-                    transition: "all 0.2s ease",
-                    transform: pressedId === tab.id ? "scale(0.93)" : "scale(1)",
-                  }}
-                >
-                  {Icon ? (
-                    <>
-                      <Icon
-                        size={22}
-                        color={isActive ? neonBlue : inactiveColor}
-                        strokeWidth={isActive ? 2.5 : 2}
-                        className="transition-colors duration-300 relative z-10"
-                      />
-                      <span
-                        className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 relative z-10 ${isActive ? "font-bold" : "font-semibold"}`}
-                        style={{ color: isActive ? neonBlue : inactiveColor }}
-                      >
-                        {tab.label}
-                      </span>
-                    </>
-                  ) : (
-                    <div className="w-[6px] h-[6px] rounded-full bg-white/10 relative z-10" />
-                  )}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* ── BOTÓN DERECHO: Profile ── */}
+    {/* ── PÍLDORA CENTRAL ── */}
+    <div
+    className="liquid-glass-panel pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
+    style={{ borderRadius: "100px", height: "64px", zIndex: 51 }}
+    >
+    <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
+    {centerTabs.map((tab, idx) => {
+      const isActive   = currentView === tab.id
+      const isDisabled = !!tab.disabled
+      const Icon       = tab.icon
+      return (
         <button
-          onClick={() => setCurrentView('profile')}
-          onPointerDown={() => setPressedId("right")}
-          onPointerUp={() => setPressedId(null)}
-          onPointerLeave={() => setPressedId(null)}
-          className="liquid-glass-panel pointer-events-auto shrink-0"
-          style={{
-            width: "64px",
-            height: "64px",
-            borderRadius: "100px",
-            zIndex: 51,
-            transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
-            transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
-          }}
+        key={`${tab.id}-${idx}`}
+        disabled={isDisabled}
+        onClick={() => !isDisabled && setCurrentView(tab.id as any)}
+        onPointerDown={() => !isDisabled && setPressedId(tab.id)}
+        onPointerUp={() => setPressedId(null)}
+        onPointerLeave={() => setPressedId(null)}
+        className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none ${isActive ? 'active-pill' : ''}`}
+        style={{
+          pointerEvents: isDisabled ? "none" : "auto",
+          transition: "all 0.2s ease",
+          transform: pressedId === tab.id ? "scale(0.93)" : "scale(1)",
+        }}
         >
-          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none relative" style={{ zIndex: 10 }}>
-            {photoUrl ? (
-              <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
-                <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center relative z-10">
-                <CircleUser
-                  size={22}
-                  color={currentView === 'profile' ? neonBlue : inactiveColor}
-                  strokeWidth={currentView === 'profile' ? 2.5 : 2}
-                />
-                <span
-                  className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
-                  style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
-                >
-                  Profile
-                </span>
-              </div>
-            )}
-          </div>
+        {Icon ? (
+          <>
+          <Icon
+          size={22}
+          color={isActive ? neonBlue : inactiveColor}
+          strokeWidth={isActive ? 2.5 : 2}
+          className="transition-colors duration-300 relative z-10"
+          />
+          <span
+          className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 relative z-10 ${isActive ? "font-bold" : "font-semibold"}`}
+          style={{ color: isActive ? neonBlue : inactiveColor }}
+          >
+          {tab.label}
+          </span>
+          </>
+        ) : (
+          <div className="w-[6px] h-[6px] rounded-full bg-white/10 relative z-10" />
+        )}
         </button>
+      )
+    })}
+    </div>
+    </div>
+
+    {/* ── BOTÓN DERECHO: Profile ── */}
+    <button
+    onClick={() => setCurrentView('profile')}
+    onPointerDown={() => setPressedId("right")}
+    onPointerUp={() => setPressedId(null)}
+    onPointerLeave={() => setPressedId(null)}
+    className="liquid-glass-panel pointer-events-auto shrink-0"
+    style={{
+      width: "64px",
+      height: "64px",
+      borderRadius: "100px",
+      zIndex: 51,
+      transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
+          transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
+    }}
+    >
+    <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none relative" style={{ zIndex: 10 }}>
+    {photoUrl ? (
+      <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
+      <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
       </div>
+    ) : (
+      <div className="flex flex-col items-center justify-center relative z-10">
+      <CircleUser
+      size={22}
+      color={currentView === 'profile' ? neonBlue : inactiveColor}
+      strokeWidth={currentView === 'profile' ? 2.5 : 2}
+      />
+      <span
+      className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
+      style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
+      >
+      Profile
+      </span>
+      </div>
+    )}
+    </div>
+    </button>
+    </div>
     </>
   )
 }
@@ -298,41 +298,41 @@ function AppContent() {
 
   return (
     <>
-      {showLoading && (
-        <div
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
-            fadeLoading ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          <Loader2 className="w-10 h-10 text-white animate-spin" />
-        </div>
-      )}
-
+    {showLoading && (
       <div
-        className="bg-black flex flex-col relative"
-        style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
+        fadeLoading ? "opacity-0" : "opacity-100"
+      }`}
       >
-        {currentView === "home"               && (<><Header /><HomeView /></>)}
-        {currentView === "levels"             && <LevelsView />}
-        {currentView === "shop"               && <ShopView />}
-        {currentView === "settings"           && <SettingsView />}
-        {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
-        {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
-        {currentView === "premium"            && <PremiumView />}
-        {currentView === "referral"           && <ReferralView />}
-        {currentView === "profile"            && <ProfileView />}
-        {currentView === "x-rewards"          && <XRewardsView />}
-        {currentView === "market"             && <MarketView />}
-        {currentView === "schedule"           && <ScheduleView />}
-        {currentView === "group_config"       && (
-          <GroupConfigView
-            onClose={() => setCurrentView("home")}
-            apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""}
-          />
-        )}
-
-        {showNav && <NavBar />}
+      <Loader2 className="w-10 h-10 text-white animate-spin" />
       </div>
+    )}
+
+    <div
+    className="bg-black flex flex-col relative"
+    style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
+    >
+    {currentView === "home"               && (<><Header /><HomeView /></>)}
+    {currentView === "levels"             && <LevelsView />}
+    {currentView === "shop"               && <ShopView />}
+    {currentView === "settings"           && <SettingsView />}
+    {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
+    {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
+    {currentView === "premium"            && <PremiumView />}
+    {currentView === "referral"           && <ReferralView />}
+    {currentView === "profile"            && <ProfileView />}
+    {currentView === "x-rewards"          && <XRewardsView />}
+    {currentView === "market"             && <MarketView />}
+    {currentView === "schedule"           && <ScheduleView />}
+    {currentView === "group_config"       && (
+      <GroupConfigView
+      onClose={() => setCurrentView("home")}
+      apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""}
+      />
+    )}
+
+    {showNav && <NavBar />}
+    </div>
     </>
   )
 }
@@ -340,77 +340,77 @@ function AppContent() {
 export default function Page() {
   return (
     <AppProvider>
-      {/* ── Filtro SVG Global (Aurora Gel) ── */}
-      <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }}>
-        <defs>
-          <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
-            <feTurbulence 
-              type="fractalNoise" 
-              baseFrequency="0.022 0.022"
-              numOctaves="2" 
-              seed="92" 
-              result="noise" 
-            />
-            <feGaussianBlur 
-              in="noise" 
-              stdDeviation="2" 
-              result="blurred" 
-            />
-            <feDisplacementMap 
-              in="SourceGraphic" 
-              in2="blurred" 
-              scale="100"
-              xChannelSelector="R" 
-              yChannelSelector="G" 
-            />
-          </filter>
-        </defs>
-      </svg>
+    {/* ── Filtro SVG Global (Aurora Gel) ── */}
+    <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }}>
+    <defs>
+    <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+    <feTurbulence
+    type="fractalNoise"
+    baseFrequency="0.022 0.022"
+    numOctaves="2"
+    seed="92"
+    result="noise"
+    />
+    <feGaussianBlur
+    in="noise"
+    stdDeviation="2"
+    result="blurred"
+    />
+    <feDisplacementMap
+    in="SourceGraphic"
+    in2="blurred"
+    scale="100"
+    xChannelSelector="R"
+    yChannelSelector="G"
+    />
+    </filter>
+    </defs>
+    </svg>
 
-      {/* ── Estilos CSS Globales (Valores exactos del fragmento Aurora Gel) ── */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .liquid-glass-panel {
-          position: relative;
-          isolation: isolate;
-          box-shadow: 0px 4px 24px -6px rgba(0, 0, 0, 0.6);
-        }
-        
-        .liquid-glass-panel::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-          border-radius: inherit;
-          box-shadow: inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.25),
-                      inset -1px -1px 3px rgba(255, 255, 255, 0.05);
-          background-color: rgba(20, 20, 25, 0.55);
-          pointer-events: none;
-        }
+    {/* ── Estilos CSS Globales (Valores exactos del fragmento Aurora Gel) ── */}
+    <style dangerouslySetInnerHTML={{ __html: `
+      .liquid-glass-panel {
+        position: relative;
+        isolation: isolate;
+        box-shadow: 0px 0px 21px -50px rgba(255, 255, 255, 0.3);
+      }
 
-        .liquid-glass-panel::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: -1;
-          border-radius: inherit;
-          backdrop-filter: blur(11px);
-          -webkit-backdrop-filter: blur(11px);
-          filter: url(#glass-distortion);
-          -webkit-filter: url(#glass-distortion);
-          isolation: isolate;
-          pointer-events: none;
-        }
+      .liquid-glass-panel::before {
+        content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 7px -5px rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0);
+  pointer-events: none;
+      }
 
-        .active-pill {
-          background: rgba(255, 255, 255, 0.08) !important;
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-          backdrop-filter: blur(8px) !important;
-          -webkit-backdrop-filter: blur(8px) !important;
-          box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.15), 0 4px 6px rgba(0, 0, 0, 0.2) !important;
-        }
+      .liquid-glass-panel::after {
+        content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
+  filter: url(#glass-distortion);
+  -webkit-filter: url(#glass-distortion);
+  isolation: isolate;
+  pointer-events: none;
+      }
+
+      .active-pill {
+        background: rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.10) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        transform: translateZ(0) !important;
+      }
       `}} />
 
       <AppContent />
-    </AppProvider>
+      </AppProvider>
   )
 }
