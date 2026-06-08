@@ -994,21 +994,12 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
         
         <TelegramInputGroup>
-          <TelegramInput label="Name" maxLength={64} value={nameField} onChange={setNameField} isLast />
-        </TelegramInputGroup>
-        
-        <div className="mb-4 mt-2 shrink-0">
-          <Section>
-            <Row 
-              label="Gender" 
-              value={genderField || "Select gender"} 
-              onClick={() => setPage("gender_select")} 
-              last 
-            />
-          </Section>
-        </div>
-
-        <TelegramInputGroup>
+          <TelegramInput label="Name" maxLength={64} value={nameField} onChange={setNameField} />
+          <Row 
+            label="Gender" 
+            value={genderField || "Select gender"} 
+            onClick={() => setPage("gender_select")} 
+          />
           <TelegramInput label="Age" maxLength={3} value={ageField} onChange={setAgeField} />
           <TelegramInput label="City" maxLength={64} value={cityField} onChange={setCityField} isLast />
         </TelegramInputGroup>
