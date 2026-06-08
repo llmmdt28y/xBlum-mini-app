@@ -76,11 +76,6 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 }
 
 // ── Liquid Glass layers ───────────────────────────────────────────────
-// Estrategia final basada en análisis de la imagen objetivo:
-// 1. backgroundColor MUY transparente (≤0.25) para que el fondo se vea
-// 2. backdropFilter blur fuerte y saturado para el frosted glass
-// 3. Borde superior brillante + borde exterior sutil = efecto lupa/cristal
-// 4. Sin capas hijas innecesarias que bloqueen el backdrop
 
 // Highlight superior: línea de luz en el borde top del cristal
 function GlassSurface() {
@@ -88,35 +83,28 @@ function GlassSurface() {
     <div aria-hidden="true" style={{
       position: "absolute", inset: 0, pointerEvents: "none",
       borderRadius: "inherit", zIndex: 3,
-      // Highlight superior nítido, sombra interior abajo, sin bordes sólidos
-      boxShadow: [
-        "inset 0 1px 1px rgba(255, 255, 255, 0.18)", // Brillo de arista superior
-        "inset 0 -1px 1px rgba(0, 0, 0, 0.40)",       // Sombra interna base
-        "inset 1px 0 1px rgba(255, 255, 255, 0.02)",  // Brillo lateral ultra sutil
-        "inset -1px 0 1px rgba(255, 255, 255, 0.02)"
-      ].join(", "),
-      // Degradado direccional simulando el volumen del cristal
-      background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 20%, rgba(0,0,0,0.1) 80%, rgba(0,0,0,0.3) 100%)",
+      // Reflejos especulares acentuados en los bordes para el rebote de luz
+      boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.25), inset 0 -1px 1px rgba(255, 255, 255, 0.03)",
+      // Degradado que no interfiere con el color de fondo, solo da volumen
+      background: "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.0) 25%, rgba(0,0,0,0.0) 75%, rgba(0,0,0,0.15) 100%)",
     }} />
   )
 }
 
 // ── Estilos base ──────────────────────────────────────────────────────
-// Cristal oscuro semitransparente con blur fuerte — fiel al prototipo
 const GLASS_BASE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  // Opacidad drásticamente reducida para permitir el sangrado de color
-  backgroundColor: "rgba(10, 10, 15, 0.22)",
-  // El filtro oscurece (brightness) y satura el fondo que logra atravesar
-  backdropFilter: "blur(40px) saturate(2) brightness(0.75)",
-  WebkitBackdropFilter: "blur(40px) saturate(2) brightness(0.75)",
-  // El borde real se elimina, usamos un anillo exterior ultra fino en la sombra
+  // Velo extremadamente translúcido para que el fondo domine
+  backgroundColor: "rgba(18, 18, 24, 0.15)",
+  // Blur medio para mantener la forma del color detrás, saturación alta para el "sangrado", brillo preservado
+  backdropFilter: "blur(28px) saturate(2.5) brightness(1.05)",
+  WebkitBackdropFilter: "blur(28px) saturate(2.5) brightness(1.05)",
   border: "none", 
   boxShadow: [
-    "0 12px 32px rgba(0, 0, 0, 0.55)", // Sombra de caída principal más difusa
-    "0 2px 8px rgba(0, 0, 0, 0.30)",   // Sombra de proximidad
-    "0 0 0 1px rgba(255, 255, 255, 0.04)" // Anillo delimitador en lugar de borde rígido
+    "0 16px 32px rgba(0, 0, 0, 0.4)", // Sombra de caída más suave y expansiva
+    "0 4px 12px rgba(0, 0, 0, 0.2)",
+    "inset 0 0 0 1px rgba(255, 255, 255, 0.08)", // Borde reflectante ultra fino encapsulando el cristal
   ].join(", "),
 }
 
@@ -130,15 +118,15 @@ const PILL_STYLE: React.CSSProperties = {
 }
 
 // Tab activo: cápsula INCRUSTADA dentro de la barra
-// Más oscura que el contenedor, con padding interno para dar sensación de hundido
 const activePillStyle: React.CSSProperties = {
-  backgroundColor: "rgba(0, 0, 0, 0.40)",
+  // Transparencia suficiente para no bloquear el color sangrado del fondo
+  backgroundColor: "rgba(0, 0, 0, 0.25)",
   boxShadow: [
-    // Sombras internas fuertes arriba/lados para crear el "hueco"
-    "inset 0 4px 10px rgba(0,0,0,0.6)",
-    "inset 0 1px 3px rgba(0,0,0,0.8)",
-    // Reborde de luz inferior exterior simulando el corte en el cristal base
-    "0 1px 0 rgba(255, 255, 255, 0.07)",
+    // Profundidad interna
+    "inset 0 4px 12px rgba(0, 0, 0, 0.4)",
+    "inset 0 1px 2px rgba(0, 0, 0, 0.6)",
+    // REBOTE DE LUZ EXTERIOR: Simulando el corte en el cristal inferior
+    "0 1px 1px rgba(255, 255, 255, 0.15)",
   ].join(", "),
 }
 
