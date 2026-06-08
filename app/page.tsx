@@ -82,15 +82,13 @@ function GlassRim() {
     <div aria-hidden="true" style={{
       position: "absolute", inset: 0, pointerEvents: "none",
       borderRadius: "inherit", zIndex: 3,
-      // Revertido a brillos de borde nítidos y sutiles (gris o blanco)
+      // Direccionalidad de luz: Brillo arriba-izquierda, Sombra abajo-derecha
       boxShadow: [
-        "inset 0 1px 0 rgba(255, 255, 255, 0.15)", // Brillo superior nítido pero sutil
-        "inset 0 -1px 0 rgba(0, 0, 0, 0.20)",       // Sombra inferior sutil
-        "inset 1px 0 0 rgba(255, 255, 255, 0.05)",  // Brillos laterales ultra sutiles
-        "inset -1px 0 0 rgba(255, 255, 255, 0.05)"
+        "inset 1px 1px 1px rgba(255, 255, 255, 0.18)", // Borde superior e izquierdo nítido
+        "inset -1px -1px 1px rgba(0, 0, 0, 0.30)"      // Sombra inferior y derecha
       ].join(", "),
-      // Degradado ultra sutil para dar volumen sin teñir
-      background: "linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.0) 20%, rgba(0,0,0,0.0) 80%, rgba(0,0,0,0.12) 100%)",
+      // Degradado sutil en diagonal acompañando la luz
+      background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.0) 30%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0.15) 100%)",
     }} />
   )
 }
@@ -99,16 +97,16 @@ function GlassRim() {
 const GLASS_BASE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  // Base ultra translúcida para máxima claridad y sangrado de color
-  backgroundColor: "rgba(18, 18, 24, 0.05)",
-  // Blur subido a 16px para mayor "sangrado", saturate a 2.4 para potenciar el fondo
-  backdropFilter: "blur(16px) saturate(2.4) brightness(1.05)",
-  WebkitBackdropFilter: "blur(16px) saturate(2.4) brightness(1.05)",
+  // Base casi totalmente transparente para no opacar
+  backgroundColor: "rgba(10, 10, 15, 0.10)",
+  // Blur REDUCIDO a 10px para retener la "inconsistencia" y formas del fondo
+  backdropFilter: "blur(10px) saturate(1.8) brightness(1.05)",
+  WebkitBackdropFilter: "blur(10px) saturate(1.8) brightness(1.05)",
   border: "none", 
   boxShadow: [
-    "0 20px 40px rgba(0, 0, 0, 0.50)",   // Sombra de caída más profunda y expansiva
-    "0 4px 12px rgba(0, 0, 0, 0.25)",    // Sombra de proximidad
-    "0 0 0 1px rgba(255, 255, 255, 0.04)" // Anillo delimitador exterior ultra fino (un brillo sutil)
+    "0 12px 32px rgba(0, 0, 0, 0.45)",   
+    "0 2px 8px rgba(0, 0, 0, 0.20)",    
+    "0 0 0 1px rgba(255, 255, 255, 0.04)"
   ].join(", "),
 }
 
@@ -123,13 +121,15 @@ const PILL_STYLE: React.CSSProperties = {
 
 // Tab activo: cápsula INCRUSTADA dentro de la barra
 const activePillStyle: React.CSSProperties = {
-  // Un tono más oscuro y nítido para la cápsula incrustada
-  backgroundColor: "rgba(0, 0, 0, 0.45)",
+  // Súper sutil, casi igual a la barra base pero con un levísimo oscurecimiento
+  backgroundColor: "rgba(0, 0, 0, 0.15)",
   boxShadow: [
-    "inset 0 4px 12px rgba(0, 0, 0, 0.55)", // Sombras internas profundas para el efecto de "corte"
-    "inset 0 1px 3px rgba(0, 0, 0, 0.75)",
-    // Rebote de luz nítido simulando el corte sobre el GlassRim
-    "0 1px 1px rgba(255, 255, 255, 0.22)",
+    // Hundimiento con radio mucho más grande (16px) para un difuminado suave
+    "inset 4px 6px 16px rgba(0, 0, 0, 0.30)", 
+    // Brillo sutil INTERIOR en la esquina superior izquierda
+    "inset 1.5px 1.5px 2px rgba(255, 255, 255, 0.12)",
+    // Brillo sutil EXTERIOR en la esquina inferior derecha simulando la arista
+    "1.5px 1.5px 2px rgba(255, 255, 255, 0.10)",
   ].join(", "),
 }
 
@@ -196,7 +196,6 @@ function NavBar() {
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          {/* Se inserta GlassRim simplificado aquí */}
           <GlassRim />
           <div className="flex flex-col items-center justify-center pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {activeNavMode === 'market' ? (
@@ -218,7 +217,6 @@ function NavBar() {
           className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
           style={{ ...PILL_STYLE, borderRadius: "100px", height: "64px", zIndex: 51 }}
         >
-          {/* Se inserta GlassRim simplificado aquí */}
           <GlassRim />
           <div className="flex items-center justify-between w-full relative" style={{ zIndex: 5 }}>
             {centerTabs.map((tab, idx) => {
@@ -281,7 +279,6 @@ function NavBar() {
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          {/* Se inserta GlassRim simplificado aquí */}
           <GlassRim />
           <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {photoUrl ? (
