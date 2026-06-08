@@ -721,6 +721,62 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const isAdditionalDetailsComplete = !!(timezoneField.trim() && occupationField.trim() && interestsField.trim())
   const isNoirPersonalityComplete = !!(favoriteEmojiField.trim() && personalityField.trim())
   
+  const revertUnsavedChanges = () => {
+    if (page === "basic_info") {
+      setNameField(prefs.name?.toString() || "")
+      setGenderField(prefs.gender?.toString() || "")
+      setAgeField(prefs.age?.toString() || "")
+      setCityField(prefs.city?.toString() || "")
+    } else if (page === "additional_details") {
+      setTimezoneField(prefs.timezone?.toString() || "")
+      setOccupationField(prefs.occupation?.toString() || "")
+      setInterestsField(prefs.interests?.toString() || "")
+    } else if (page === "noir_personality") {
+      setFavoriteEmojiField(prefs.favoriteEmoji?.toString() || "")
+      setPersonalityField(prefs.personality?.toString() || "")
+    }
+  }
+
+  const checkUnsavedChangesAndNavigate = (targetPage: SettingsPage) => {
+    let hasUnsaved = false;
+    
+    if (page === "basic_info") {
+      if (nameField !== (prefs.name?.toString() || "") ||
+          genderField !== (prefs.gender?.toString() || "") ||
+          ageField !== (prefs.age?.toString() || "") ||
+          cityField !== (prefs.city?.toString() || "")) {
+        hasUnsaved = true;
+      }
+    } else if (page === "additional_details") {
+      if (timezoneField !== (prefs.timezone?.toString() || "") ||
+          occupationField !== (prefs.occupation?.toString() || "") ||
+          interestsField !== (prefs.interests?.toString() || "")) {
+        hasUnsaved = true;
+      }
+    } else if (page === "noir_personality") {
+      if (favoriteEmojiField !== (prefs.favoriteEmoji?.toString() || "") ||
+          personalityField !== (prefs.personality?.toString() || "")) {
+        hasUnsaved = true;
+      }
+    }
+
+    if (hasUnsaved && window.Telegram?.WebApp) {
+      window.Telegram.WebApp.showPopup({
+        title: "Something went wrong.",
+        message: "You have unsaved changes. Do you want to exit without saving?",
+        buttons: [{ id: "ok", type: "ok", text: "OK" }, { id: "cancel", type: "cancel" }]
+      }, (buttonId: string) => {
+        if (buttonId === "ok") {
+          revertUnsavedChanges();
+          setPage(targetPage);
+        }
+      });
+    } else {
+      revertUnsavedChanges();
+      setPage(targetPage);
+    }
+  }
+
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
@@ -734,16 +790,34 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     const handleBack = () => {
       if (page === "gender_select") setPage("basic_info")
       else if (page === "timezone_select") setPage("additional_details")
-      else if (page === "basic_info" || page === "additional_details" || page === "noir_personality") setPage("prefs")
+      else if (page === "basic_info" || page === "additional_details" || page === "noir_personality") checkUnsavedChangesAndNavigate("prefs")
       else if (page === "usage_limits") setPage("main")
       else if (page !== "main" && initialPage === "main") setPage("main")
       else { setCurrentView(returnView as any); tg.BackButton.hide() }
     }
     tg.BackButton.onClick(handleBack)
     return () => { tg.BackButton.offClick(handleBack) }
-  }, [page, setCurrentView, initialPage, returnView])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    page, setCurrentView, initialPage, returnView,
+    nameField, genderField, ageField, cityField,
+    timezoneField, occupationField, interestsField,
+    favoriteEmojiField, personalityField, userPreferences
+  ])
 
   const saveBasicInfo = async () => {
+    if (ageField) {
+      const ageNum = parseInt(ageField, 10);
+      if (isNaN(ageNum) || ageNum < 1 || ageNum > 100) {
+        triggerVibration('error');
+        window.Telegram?.WebApp?.showPopup({
+          title: "Something went wrong.",
+          message: "Age should be a number in range from 1 to 100.",
+          buttons: [{ id: "ok", type: "ok", text: "OK" }]
+        });
+        return;
+      }
+    }
     const updated = { ...prefs, name: nameField, gender: genderField, age: ageField, city: cityField }
     setUserPreferences(updated)
     await apiPost("/api/save_user_profile", { profile: updated })
@@ -1019,7 +1093,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
         <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
-              onClick={() => setPage("prefs")} 
+              onClick={() => checkUnsavedChangesAndNavigate("prefs")} 
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
               style={{ fontFamily: SF, fontSize: "16px" }}
@@ -1064,7 +1138,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
         <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
-              onClick={() => setPage("prefs")} 
+              onClick={() => checkUnsavedChangesAndNavigate("prefs")} 
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
               style={{ fontFamily: SF, fontSize: "16px" }}
@@ -1098,7 +1172,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
         <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
-              onClick={() => setPage("prefs")} 
+              onClick={() => checkUnsavedChangesAndNavigate("prefs")} 
               onPointerDown={createRipple}
               className="relative overflow-hidden flex-1 py-3.5 rounded-full border border-[#2c2c2e] text-white font-medium active:bg-[#111111] transition-colors" 
               style={{ fontFamily: SF, fontSize: "16px" }}
