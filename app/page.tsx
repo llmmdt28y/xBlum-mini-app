@@ -78,22 +78,32 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 // ── Liquid Glass SVG Defs ─────────────────────────────────────────────
 // FIX: feDisplacementMap con mapa radial (lente convexo real)
 // vs. el feTurbulence anterior de alta frecuencia (ruido granular incorrecto)
+// FIX 2: useState+useEffect en lugar de guard window===undefined para evitar
+// que los filtros SVG sean null durante hydration y causen el parpadeo/desaparición
 function LiquidGlassDefs() {
-  if (typeof window === "undefined") return null
-  const pillMap    = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><defs><radialGradient id="g" cx="50%" cy="40%" r="58%"><stop offset="0%" stop-color="#8080ff"/><stop offset="55%" stop-color="#808080"/><stop offset="100%" stop-color="#3838b8"/></radialGradient></defs><rect width="200" height="80" fill="url(#g)"/></svg>`
-  const circleMap  = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><defs><radialGradient id="g" cx="50%" cy="38%" r="60%"><stop offset="0%" stop-color="#8080ff"/><stop offset="52%" stop-color="#808080"/><stop offset="100%" stop-color="#3030a8"/></radialGradient></defs><rect width="64" height="64" fill="url(#g)"/></svg>`
-  const pillUri    = `data:image/svg+xml;base64,${btoa(pillMap)}`
-  const circleUri  = `data:image/svg+xml;base64,${btoa(circleMap)}`
+  const [uris, setUris] = useState<{ pill: string; circle: string } | null>(null)
+
+  useEffect(() => {
+    const pillMap   = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><defs><radialGradient id="g" cx="50%" cy="40%" r="58%"><stop offset="0%" stop-color="#8080ff"/><stop offset="55%" stop-color="#808080"/><stop offset="100%" stop-color="#3838b8"/></radialGradient></defs><rect width="200" height="80" fill="url(#g)"/></svg>`
+    const circleMap = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><defs><radialGradient id="g" cx="50%" cy="38%" r="60%"><stop offset="0%" stop-color="#8080ff"/><stop offset="52%" stop-color="#808080"/><stop offset="100%" stop-color="#3030a8"/></radialGradient></defs><rect width="64" height="64" fill="url(#g)"/></svg>`
+    setUris({
+      pill:   `data:image/svg+xml;base64,${btoa(pillMap)}`,
+      circle: `data:image/svg+xml;base64,${btoa(circleMap)}`,
+    })
+  }, [])
+
+  if (!uris) return null
+
   return (
     <svg aria-hidden="true" style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}>
       <defs>
         <filter id="lg-pill" x="-8%" y="-20%" width="116%" height="140%" colorInterpolationFilters="sRGB">
-          <feImage href={pillUri} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
+          <feImage href={uris.pill} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
           <feDisplacementMap in="SourceGraphic" in2="map" scale="20" xChannelSelector="R" yChannelSelector="G" result="displaced" />
           <feGaussianBlur in="displaced" stdDeviation="0.6" />
         </filter>
         <filter id="lg-circle" x="-15%" y="-15%" width="130%" height="130%" colorInterpolationFilters="sRGB">
-          <feImage href={circleUri} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
+          <feImage href={uris.circle} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
           <feDisplacementMap in="SourceGraphic" in2="map" scale="15" xChannelSelector="R" yChannelSelector="G" result="displaced" />
           <feGaussianBlur in="displaced" stdDeviation="0.5" />
         </filter>
@@ -125,8 +135,9 @@ function LensBottom() {
   )
 }
 
-// Capa de refracción — KEY FIX: filter en div interno + backdropFilter:blur(0px)
-// fuerza stacking context en Chromium → distorsiona el FONDO, no el elemento
+// Capa de refracción — KEY FIX: filter en div interno + backdropFilter:blur(0.01px)
+// blur(0.01px) garantiza stacking context en Chromium/WebView (blur(0px) es un no-op
+// y no crea stacking context de forma fiable en el WebView de Telegram)
 function RefractLayer({ filterId }: { filterId: string }) {
   return (
     <div aria-hidden="true" style={{
@@ -134,8 +145,8 @@ function RefractLayer({ filterId }: { filterId: string }) {
       borderRadius: "inherit", zIndex: 1,
       filter: `url(#${filterId})`,
       background: "rgba(255,255,255,0.025)",
-      backdropFilter: "blur(0px)",
-      WebkitBackdropFilter: "blur(0px)",
+      backdropFilter: "blur(0.01px)",
+      WebkitBackdropFilter: "blur(0.01px)",
     }} />
   )
 }
