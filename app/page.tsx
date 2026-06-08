@@ -76,58 +76,55 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 }
 
 // ── Liquid Glass layers ───────────────────────────────────────────────
-// Técnica confirmada que funciona en Telegram WebView (Chromium mobile):
-// backdrop-filter: blur + brightness + saturate + contrast en el CONTENEDOR
-// (NO isolation:isolate, NO overflow:hidden en el padre — eso mata el backdrop)
-// Los reflectores de borde (efecto lupa) van en capas hijo con box-shadow inset.
-// Ref: github.com/clayharmon/webgl-liquid-glass — "backdrop-filter: brightness(1.2)
-// saturate(1.4) creates a refraction-like lens effect by enhancing blurred content"
+// Estrategia final basada en análisis de la imagen objetivo:
+// 1. backgroundColor MUY transparente (≤0.15) para que el fondo se vea
+// 2. backdropFilter blur moderado para el frosted glass
+// 3. Borde superior brillante + borde exterior sutil = efecto lupa/cristal
+// 4. Sin capas hijas innecesarias que bloqueen el backdrop
 
-// Capa de reflectores de borde — simula la acumulación de luz en los bordes del vidrio
-// como una lupa: borde superior brillante, inferior más sutil, lados tenues
-function GlassEdges({ shape }: { shape: "pill" | "circle" }) {
+// Franja especular superior — el reflector de luz principal del vidrio
+function SpecularTop({ opacity = 0.22 }: { opacity?: number }) {
   return (
     <div aria-hidden="true" style={{
-      position: "absolute", inset: 0, pointerEvents: "none",
-      borderRadius: "inherit", zIndex: 3,
-      // Múltiples inset shadows: reflector superior fuerte + inferior sutil + laterales
-      boxShadow: shape === "circle" ? [
-        "inset 0 2.5px 0 0 rgba(255,255,255,0.55)",   // reflector top fuerte
-        "inset 0 -2px 0 0 rgba(255,255,255,0.18)",     // reflector bottom sutil
-        "inset 2px 0 0 0 rgba(255,255,255,0.22)",      // reflector izquierda
-        "inset -2px 0 0 0 rgba(255,255,255,0.10)",     // reflector derecha
-        "inset 0 0 12px 2px rgba(255,255,255,0.06)",   // glow interior suave
-      ].join(", ") : [
-        "inset 0 2px 0 0 rgba(255,255,255,0.50)",      // reflector top fuerte
-        "inset 0 -1.5px 0 0 rgba(255,255,255,0.15)",   // reflector bottom sutil
-        "inset 2px 0 0 0 rgba(255,255,255,0.18)",      // reflector izquierda
-        "inset -2px 0 0 0 rgba(255,255,255,0.08)",     // reflector derecha
-        "inset 0 0 18px 3px rgba(255,255,255,0.04)",   // glow interior suave
-      ].join(", "),
-    }} />
-  )
-}
-
-// Franja especular superior — simula el reflejo directo de la fuente de luz
-function SpecularTop({ opacity = 0.28 }: { opacity?: number }) {
-  return (
-    <div aria-hidden="true" style={{
-      position: "absolute", inset: 0, pointerEvents: "none",
+      position: "absolute", top: 0, left: 0, right: 0,
+      height: "45%", pointerEvents: "none",
       borderRadius: "inherit", zIndex: 2,
       background: `linear-gradient(180deg,
         rgba(255,255,255,${opacity}) 0%,
-        rgba(255,255,255,${opacity * 0.35}) 18%,
-        rgba(255,255,255,0) 48%
+        rgba(255,255,255,${(opacity * 0.3).toFixed(3)}) 60%,
+        rgba(255,255,255,0) 100%
       )`,
     }} />
   )
 }
 
-// Gradiente radial tipo lupa — zona central más clara (el lente amplifica la luz)
+// Capa de brillo en bordes (lupa) — inset shadows que dan efecto de cristal con grosor
+function GlassEdges({ shape }: { shape: "pill" | "circle" }) {
+  const shadows = shape === "circle" ? [
+    "inset 0 1.5px 0 rgba(255,255,255,0.50)",  // reflector top
+    "inset 0 -1px 0 rgba(255,255,255,0.12)",   // reflector bottom
+    "inset 1px 0 0 rgba(255,255,255,0.18)",    // lateral izq
+    "inset -1px 0 0 rgba(255,255,255,0.08)",   // lateral der
+  ] : [
+    "inset 0 1.5px 0 rgba(255,255,255,0.45)",  // reflector top
+    "inset 0 -1px 0 rgba(255,255,255,0.10)",   // reflector bottom
+    "inset 1px 0 0 rgba(255,255,255,0.14)",    // lateral izq
+    "inset -1px 0 0 rgba(255,255,255,0.06)",   // lateral der
+  ]
+  return (
+    <div aria-hidden="true" style={{
+      position: "absolute", inset: 0, pointerEvents: "none",
+      borderRadius: "inherit", zIndex: 3,
+      boxShadow: shadows.join(", "),
+    }} />
+  )
+}
+
+// Gradiente radial tipo lupa — centro ligeramente más claro, bordes más oscuros
 function LensBulge({ shape }: { shape: "pill" | "circle" }) {
   const g = shape === "circle"
-    ? "radial-gradient(ellipse 72% 68% at 50% 42%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 50%, rgba(0,0,0,0.06) 85%, rgba(0,0,0,0.12) 100%)"
-    : "radial-gradient(ellipse 75% 72% at 50% 38%, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.02) 55%, rgba(0,0,0,0.05) 85%, rgba(0,0,0,0.10) 100%)"
+    ? "radial-gradient(ellipse 70% 65% at 50% 40%, rgba(255,255,255,0.08) 0%, transparent 65%, rgba(0,0,0,0.08) 100%)"
+    : "radial-gradient(ellipse 70% 65% at 50% 38%, rgba(255,255,255,0.07) 0%, transparent 60%, rgba(0,0,0,0.06) 100%)"
   return (
     <div aria-hidden="true" style={{
       position: "absolute", inset: 0, pointerEvents: "none",
@@ -138,22 +135,19 @@ function LensBulge({ shape }: { shape: "pill" | "circle" }) {
 }
 
 // ── Liquid Glass base styles ───────────────────────────────────────────
-// CLAVE: SIN isolation:isolate y SIN overflow:hidden en el contenedor —
-// esos dos rompen el backdrop-filter en Chromium mobile.
-// El efecto lupa/refracción viene de brightness(1.35) saturate(1.5) contrast(1.05)
-// que amplifica y distorsiona visualmente el contenido borroso detrás del elemento.
+// backgroundColor muy bajo (0.12-0.18) para que el fondo sea visible como en el objetivo.
+// El backdrop-filter hace el frosted glass real.
+// border con opacidad baja para el borde exterior del cristal.
 const BTN_BASE: React.CSSProperties = {
   position: "relative",
-  // overflow:hidden solo para clipear hijos — mantenemos pero sin isolation
   overflow: "hidden",
-  backgroundColor: "rgba(8, 8, 18, 0.45)",
-  // brightness > 1 + saturate alto = efecto lupa real sobre el backdrop blur
-  backdropFilter: "blur(32px) brightness(1.35) saturate(1.55) contrast(1.05)",
-  WebkitBackdropFilter: "blur(32px) brightness(1.35) saturate(1.55) contrast(1.05)",
-  border: "1px solid rgba(255,255,255,0.20)",
+  backgroundColor: "rgba(20, 15, 35, 0.18)",
+  backdropFilter: "blur(24px) saturate(180%) brightness(1.08)",
+  WebkitBackdropFilter: "blur(24px) saturate(180%) brightness(1.08)",
+  border: "1px solid rgba(255,255,255,0.22)",
   boxShadow: [
-    "0 8px 32px rgba(0,0,0,0.55)",
-    "0 2px 8px rgba(0,0,0,0.30)",
+    "0 4px 24px rgba(0,0,0,0.40)",
+    "0 1px 6px rgba(0,0,0,0.20)",
   ].join(", "),
   transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
 }
@@ -161,22 +155,24 @@ const BTN_BASE: React.CSSProperties = {
 const PILL_STYLE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  backgroundColor: "rgba(8, 8, 18, 0.45)",
-  backdropFilter: "blur(30px) brightness(1.30) saturate(1.50) contrast(1.04)",
-  WebkitBackdropFilter: "blur(30px) brightness(1.30) saturate(1.50) contrast(1.04)",
+  backgroundColor: "rgba(20, 15, 35, 0.18)",
+  backdropFilter: "blur(24px) saturate(180%) brightness(1.08)",
+  WebkitBackdropFilter: "blur(24px) saturate(180%) brightness(1.08)",
   border: "1px solid rgba(255,255,255,0.18)",
   boxShadow: [
-    "0 8px 36px rgba(0,0,0,0.52)",
-    "0 2px 8px rgba(0,0,0,0.30)",
+    "0 4px 24px rgba(0,0,0,0.38)",
+    "0 1px 6px rgba(0,0,0,0.18)",
   ].join(", "),
 }
 
+// El tab activo es más transparente que el resto — deja ver más el fondo
+// El "color" que se ve es el fondo de la página sangrando a través del glass
 const activePillStyle: React.CSSProperties = {
-  background: "linear-gradient(180deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.05) 100%)",
-  border: "1px solid rgba(255,255,255,0.22)",
+  background: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.28)",
   boxShadow: [
-    "inset 0 1.5px 0 rgba(255,255,255,0.38)",
-    "0 2px 10px rgba(0,0,0,0.22)",
+    "inset 0 1.5px 0 rgba(255,255,255,0.35)",
+    "inset 0 -1px 0 rgba(255,255,255,0.08)",
   ].join(", "),
 }
 
