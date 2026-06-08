@@ -599,24 +599,32 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const [submittingReport, setSubmittingReport] = useState(false)
   const [reportSent, setReportSent] = useState(false)
 
-  const [sheetTouchY, setSheetTouchY] = useState<number | null>(null)
-  const [sheetTranslateY, setSheetTranslateY] = useState(0)
+  const sheetRef = useRef<HTMLDivElement>(null)
+  const sheetTouchY = useRef<number | null>(null)
 
-  const handleSheetTouchStart = (e: React.TouchEvent) => setSheetTouchY(e.touches[0].clientY)
-  const handleSheetTouchMove = (e: React.TouchEvent) => {
-    if (sheetTouchY === null) return
-    const diff = e.touches[0].clientY - sheetTouchY
-    if (diff > 0) setSheetTranslateY(diff)
+  const handleSheetTouchStart = (e: React.TouchEvent) => {
+    sheetTouchY.current = e.touches[0].clientY
+    if (sheetRef.current) sheetRef.current.style.transition = 'none'
   }
-  const handleSheetTouchEnd = () => {
-    if (sheetTranslateY > 100) {
-      if (!submittingReport) {
-        setShowReportModal(false)
-        setReportSent(false)
-      }
+  const handleSheetTouchMove = (e: React.TouchEvent) => {
+    if (sheetTouchY.current === null) return
+    const diff = e.touches[0].clientY - sheetTouchY.current
+    if (diff > 0 && sheetRef.current) {
+      sheetRef.current.style.transform = `translateY(${diff}px)`
+      e.stopPropagation()
     }
-    setSheetTranslateY(0)
-    setSheetTouchY(null)
+  }
+  const handleSheetTouchEnd = (e: React.TouchEvent) => {
+    if (sheetTouchY.current === null) return
+    const diff = e.changedTouches[0].clientY - sheetTouchY.current
+    if (diff > 100 && !submittingReport) {
+      setShowReportModal(false)
+      setReportSent(false)
+    } else if (sheetRef.current) {
+      sheetRef.current.style.transition = 'transform 0.3s ease-out'
+      sheetRef.current.style.transform = `translateY(0px)`
+    }
+    sheetTouchY.current = null
   }
 
   // Viewport height to prevent keyboard jumps
@@ -1496,7 +1504,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
-    <div key="main" className="flex-1 overflow-y-auto animate-in fade-in duration-500 ease-out" style={{ background: "#000" }}>
+    <div key="main" className={`flex-1 ${showReportModal ? 'overflow-hidden' : 'overflow-y-auto'} animate-in fade-in duration-500 ease-out`} style={{ background: "#000" }}>
        <style>{RIPPLE_STYLE}</style>
       
       <SubHeader title="Settings" />
@@ -1598,11 +1606,11 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500 ease-out"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-          <div className="relative w-full rounded-t-[24px] animate-in fade-in duration-500 ease-out max-h-[90vh] flex flex-col"
-               style={{ background: "#111111", borderTop: "1px solid #1c1c1e", transform: `translateY(${sheetTranslateY}px)`, transition: sheetTouchY === null ? 'transform 0.3s ease-out' : 'none' }}
-               onTouchStart={handleSheetTouchStart} onTouchMove={handleSheetTouchMove} onTouchEnd={handleSheetTouchEnd}>
-            <div className="w-12 h-1.5 bg-[#2c2c2e] rounded-full self-center mt-4 mb-2 shrink-0" />
-            <div className="flex items-center justify-between px-5 pb-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
+          <div ref={sheetRef} className="relative w-full rounded-t-[24px] animate-in fade-in duration-500 ease-out max-h-[90vh] flex flex-col"
+               style={{ background: "#111111", borderTop: "1px solid #1c1c1e", transform: `translateY(0px)`, transition: 'transform 0.3s ease-out' }}>
+            <div className="w-full shrink-0" onTouchStart={handleSheetTouchStart} onTouchMove={handleSheetTouchMove} onTouchEnd={handleSheetTouchEnd}>
+              <div className="w-12 h-1.5 bg-[#2c2c2e] rounded-full self-center mt-4 mb-2 shrink-0" />
+              <div className="flex items-center justify-between px-5 pb-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
                <button
                 onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
                 onPointerDown={createRipple}
@@ -1644,6 +1652,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
                   <span className="relative z-10">{submittingReport ? "Sending..." : "Submit"}</span>
                 </button>
               )}
+            </div>
             </div>
 
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
