@@ -76,7 +76,6 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 }
 
 // ── Liquid Glass layers ───────────────────────────────────────────────
-
 function GlassRim() {
   return (
     <div aria-hidden="true" style={{
@@ -89,51 +88,6 @@ function GlassRim() {
       background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.0) 30%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0.1) 100%)",
     }} />
   )
-}
-
-// ── Estilos base ──────────────────────────────────────────────────────
-const GLASS_BASE: React.CSSProperties = {
-  position: "relative",
-  overflow: "hidden",
-  // Base sólida más oscura para estabilizar el color y evitar el sangrado del fondo
-  backgroundColor: "rgba(20, 20, 20, 0.45)",
-  
-  backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E\")",
-  
-  // Alto desenfoque para perder la forma del fondo, saturación neutral
-  backdropFilter: "blur(24px) saturate(1.15) brightness(0.9)",
-  WebkitBackdropFilter: "blur(24px) saturate(1.15) brightness(0.9)",
-  
-  border: "none", 
-  boxShadow: [
-    "0 16px 32px rgba(0, 0, 0, 0.40)",   
-    "0 4px 12px rgba(0, 0, 0, 0.15)",    
-    "0 0 0 1px rgba(255, 255, 255, 0.08)"
-  ].join(", "),
-}
-
-const BTN_BASE: React.CSSProperties = {
-  ...GLASS_BASE,
-  transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
-}
-
-const PILL_STYLE: React.CSSProperties = {
-  ...GLASS_BASE,
-}
-
-// Tab activo: cápsula INCRUSTADA dentro de la barra
-const activePillStyle: React.CSSProperties = {
-  // Solo un poco de oscurecimiento para dar profundidad sin matar la luz del fondo
-  backgroundColor: "rgba(0, 0, 0, 0.25)",
-  
-  boxShadow: [
-    // Sombra superior más difusa para la hendidura
-    "inset 0 4px 10px rgba(0, 0, 0, 0.30)", 
-    // Brillos laterales más sutiles para enmarcar
-    "inset 2px 0 6px -2px rgba(255, 255, 255, 0.12)",  
-    "inset -2px 0 6px -2px rgba(255, 255, 255, 0.12)", 
-    "0 1px 1px rgba(255, 255, 255, 0.05)",
-  ].join(", "),
 }
 
 // ── NavBar ────────────────────────────────────────────────────────────
@@ -178,7 +132,6 @@ function NavBar() {
 
   return (
     <>
-      
       <div
         className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
         style={{ bottom: safeBottom }}
@@ -189,18 +142,18 @@ function NavBar() {
           onPointerDown={() => setPressedId("left")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="pointer-events-auto shrink-0"
+          className="liquid-glass-panel pointer-events-auto shrink-0"
           style={{
-            ...BTN_BASE,
             width: "64px",
             height: "64px",
             borderRadius: "100px",
             zIndex: 51,
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
+            transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
           }}
         >
           <GlassRim />
-          <div className="flex flex-col items-center justify-center pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
+          <div className="flex flex-col items-center justify-center pointer-events-none select-none relative" style={{ zIndex: 5 }}>
             {activeNavMode === 'market' ? (
               <>
                 <Home size={22} color={inactiveColor} strokeWidth={2} />
@@ -217,8 +170,8 @@ function NavBar() {
 
         {/* ── PÍLDORA CENTRAL ── */}
         <div
-          className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
-          style={{ ...PILL_STYLE, borderRadius: "100px", height: "64px", zIndex: 51 }}
+          className="liquid-glass-panel pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
+          style={{ borderRadius: "100px", height: "64px", zIndex: 51 }}
         >
           <GlassRim />
           <div className="flex items-center justify-between w-full relative" style={{ zIndex: 5 }}>
@@ -234,12 +187,11 @@ function NavBar() {
                   onPointerDown={() => !isDisabled && setPressedId(tab.id)}
                   onPointerUp={() => setPressedId(null)}
                   onPointerLeave={() => setPressedId(null)}
-                  className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none"
+                  className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none ${isActive ? 'active-pill' : ''}`}
                   style={{
                     pointerEvents: isDisabled ? "none" : "auto",
                     transition: "all 0.25s ease",
                     transform: pressedId === tab.id ? "scale(0.93)" : "scale(1)",
-                    ...(isActive ? activePillStyle : {}),
                   }}
                 >
                   {Icon ? (
@@ -248,17 +200,17 @@ function NavBar() {
                         size={22}
                         color={isActive ? neonBlue : inactiveColor}
                         strokeWidth={isActive ? 2.5 : 2}
-                        className="transition-colors duration-300"
+                        className="transition-colors duration-300 relative z-10"
                       />
                       <span
-                        className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
+                        className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 relative z-10 ${isActive ? "font-bold" : "font-semibold"}`}
                         style={{ color: isActive ? neonBlue : inactiveColor }}
                       >
                         {tab.label}
                       </span>
                     </>
                   ) : (
-                    <div className="w-[6px] h-[6px] rounded-full bg-white/10" />
+                    <div className="w-[6px] h-[6px] rounded-full bg-white/10 relative z-10" />
                   )}
                 </button>
               )
@@ -272,18 +224,18 @@ function NavBar() {
           onPointerDown={() => setPressedId("right")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="pointer-events-auto shrink-0"
+          className="liquid-glass-panel pointer-events-auto shrink-0"
           style={{
-            ...BTN_BASE,
             width: "64px",
             height: "64px",
             borderRadius: "100px",
             zIndex: 51,
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
+            transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
           }}
         >
           <GlassRim />
-          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
+          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none relative" style={{ zIndex: 5 }}>
             {photoUrl ? (
               <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
                 <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
@@ -406,6 +358,75 @@ function AppContent() {
 export default function Page() {
   return (
     <AppProvider>
+      {/* ── Filtro SVG Global (Liquid Glass) ── */}
+      <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }}>
+        <defs>
+          <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+            <feTurbulence 
+              type="fractalNoise" 
+              baseFrequency="0.012 0.012"
+              numOctaves="2" 
+              seed="92" 
+              result="noise" 
+            />
+            <feGaussianBlur 
+              in="noise" 
+              stdDeviation="2" 
+              result="blurred" 
+            />
+            <feDisplacementMap 
+              in="SourceGraphic" 
+              in2="blurred" 
+              scale="85"
+              xChannelSelector="R" 
+              yChannelSelector="G" 
+            />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* ── Estilos CSS Globales ── */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .liquid-glass-panel {
+          position: relative;
+          isolation: isolate;
+          overflow: hidden;
+          border: none;
+          box-shadow: 0 16px 32px rgba(0, 0, 0, 0.40), 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.08);
+        }
+        
+        .liquid-glass-panel::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          border-radius: inherit;
+          background-color: rgba(20, 20, 20, 0.45); /* Base sutil para integrar en UI oscura */
+          pointer-events: none;
+        }
+
+        .liquid-glass-panel::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          z-index: -1;
+          border-radius: inherit;
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+          filter: url(#glass-distortion);
+          -webkit-filter: url(#glass-distortion);
+          pointer-events: none;
+        }
+
+        .active-pill {
+          background-color: rgba(0, 0, 0, 0.25) !important;
+          box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.30), 
+                      inset 2px 0 6px -2px rgba(255, 255, 255, 0.12), 
+                      inset -2px 0 6px -2px rgba(255, 255, 255, 0.12), 
+                      0 1px 1px rgba(255, 255, 255, 0.05) !important;
+        }
+      `}} />
+
       <AppContent />
     </AppProvider>
   )
