@@ -367,7 +367,7 @@ export default function Page() {
         </defs>
       </svg>
 
-      {/* ── Estilos CSS Globales (Valores exactos del fragmento Aurora Gel) ── */}
+      {/* ── Estilos CSS Globales ── */}
       <style dangerouslySetInnerHTML={{ __html: `
         .liquid-glass-panel {
           position: relative;
@@ -400,12 +400,20 @@ export default function Page() {
           pointer-events: none;
         }
 
+        /* ── CORRECCIÓN DEL BOTÓN ACTIVO ── */
         .active-pill {
-          background: rgba(255, 255, 255, 0.1) !important;
-          border: 1px solid rgba(255, 255, 255, 0.2) !important;
-          backdrop-filter: blur(8px) !important;
-          -webkit-backdrop-filter: blur(8px) !important;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+          background: rgba(0, 0, 0, 0.2) !important; /* Tinte oscuro semi-transparente */
+          border: none !important; /* Fuera línea blanca sólida */
+          
+          /* Saturación aumentada (1.6) para avivar los colores del fondo, con un blur coherente */
+          backdrop-filter: blur(12px) saturate(1.6) brightness(1.05) !important;
+          -webkit-backdrop-filter: blur(12px) saturate(1.6) brightness(1.05) !important;
+          
+          /* Esculpido del cristal: Brillo difuminado arriba/izquierda, sombra sutil abajo/derecha */
+          box-shadow: 
+            inset 1.5px 1.5px 2px -1px rgba(255, 255, 255, 0.25), 
+            inset -1.5px -1.5px 2px -1px rgba(0, 0, 0, 0.3),
+            0 4px 8px rgba(0, 0, 0, 0.15) !important;
         }
       `}} />
 
