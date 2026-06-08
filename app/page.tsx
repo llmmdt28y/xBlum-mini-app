@@ -1,20 +1,5 @@
 "use client"
 
-/**
- * NavBar — Liquid Glass Edition
- *
- * Fixes vs. original:
- *  1. SVG feDisplacementMap ahora se aplica vía backdrop-filter: url(#id)
- *     en lugar de filter: url(#id) — así distorsiona el FONDO, no el elemento.
- *  2. feTurbulence con baseFrequency bajo (0.008) para ondas suaves tipo vidrio,
- *     no ruido de alta frecuencia que daba textura granular incorrecta.
- *  3. El pill usa filter: url(#lg-refract) en un pseudo-layer interno para
- *     el efecto de lensing en los bordes (no en el texto/iconos).
- *  4. Los botones circulares usan isolation: isolate + backdrop-filter correcto.
- *  5. Specular highlight mejorado con gradiente en SVG rect superpuesto.
- *  6. Fallback elegante para Safari/Firefox: glassmorphism simple sin distorsión.
- */
-
 import React, { useEffect, useRef, useState } from "react"
 import { Home, Store, Clock, Target, CircleUser } from "lucide-react"
 
