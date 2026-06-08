@@ -82,13 +82,13 @@ function GlassRim() {
     <div aria-hidden="true" style={{
       position: "absolute", inset: 0, pointerEvents: "none",
       borderRadius: "inherit", zIndex: 3,
-      // Direccionalidad de luz: Brillo arriba-izquierda, Sombra abajo-derecha
+      // Reflejos del bisel del cristal
       boxShadow: [
-        "inset 1px 1px 1px rgba(255, 255, 255, 0.18)", // Borde superior e izquierdo nítido
-        "inset -1px -1px 1px rgba(0, 0, 0, 0.30)"      // Sombra inferior y derecha
+        "inset 1.5px 1.5px 1px rgba(255, 255, 255, 0.25)", // Brillo fuerte arriba/izquierda
+        "inset -1px -1px 2px rgba(0, 0, 0, 0.35)"          // Sombra abajo/derecha
       ].join(", "),
-      // Degradado sutil en diagonal acompañando la luz
-      background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.0) 30%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0.15) 100%)",
+      // Resplandor volumétrico suave
+      background: "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.0) 30%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0.2) 100%)",
     }} />
   )
 }
@@ -97,16 +97,21 @@ function GlassRim() {
 const GLASS_BASE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  // Base casi totalmente transparente para no opacar
-  backgroundColor: "rgba(10, 10, 15, 0.10)",
-  // Blur REDUCIDO a 10px para retener la "inconsistencia" y formas del fondo
-  backdropFilter: "blur(10px) saturate(1.8) brightness(1.05)",
-  WebkitBackdropFilter: "blur(10px) saturate(1.8) brightness(1.05)",
+  // Base ultra transparente para dejar subir el color
+  backgroundColor: "rgba(20, 20, 30, 0.15)",
+  
+  // CLAVE 1: TEXTURA ESMERILADA. Ruido fractal SVG en base64 para lograr el aspecto físico.
+  backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.07'/%3E%3C/svg%3E\")",
+  
+  // Blur medio (12px), saturación fuerte (2.2), MÁS contraste y brillo para el resplandor
+  backdropFilter: "blur(12px) saturate(2.2) contrast(1.15) brightness(1.15)",
+  WebkitBackdropFilter: "blur(12px) saturate(2.2) contrast(1.15) brightness(1.15)",
+  
   border: "none", 
   boxShadow: [
-    "0 12px 32px rgba(0, 0, 0, 0.45)",   
-    "0 2px 8px rgba(0, 0, 0, 0.20)",    
-    "0 0 0 1px rgba(255, 255, 255, 0.04)"
+    "0 16px 32px rgba(0, 0, 0, 0.50)",   
+    "0 4px 12px rgba(0, 0, 0, 0.25)",    
+    "0 0 0 1px rgba(255, 255, 255, 0.06)" // Anillo exterior delimitador
   ].join(", "),
 }
 
@@ -121,15 +126,18 @@ const PILL_STYLE: React.CSSProperties = {
 
 // Tab activo: cápsula INCRUSTADA dentro de la barra
 const activePillStyle: React.CSSProperties = {
-  // Súper sutil, casi igual a la barra base pero con un levísimo oscurecimiento
-  backgroundColor: "rgba(0, 0, 0, 0.15)",
+  backgroundColor: "rgba(0, 0, 0, 0.25)",
+  
+  // CLAVE 2: DOBLE REFRACCIÓN ("El Espejo"). Aplicar blur encima del blur genera la duplicación en los bordes.
+  backdropFilter: "blur(8px) saturate(1.2)",
+  WebkitBackdropFilter: "blur(8px) saturate(1.2)",
+  
   boxShadow: [
-    // Hundimiento con radio mucho más grande (16px) para un difuminado suave
-    "inset 4px 6px 16px rgba(0, 0, 0, 0.30)", 
-    // Brillo sutil INTERIOR en la esquina superior izquierda
-    "inset 1.5px 1.5px 2px rgba(255, 255, 255, 0.12)",
-    // Brillo sutil EXTERIOR en la esquina inferior derecha simulando la arista
-    "1.5px 1.5px 2px rgba(255, 255, 255, 0.10)",
+    // Hendidura suave
+    "inset 4px 6px 16px rgba(0, 0, 0, 0.40)", 
+    // Brillos de los recortes
+    "inset 1.5px 1.5px 2px rgba(255, 255, 255, 0.15)",
+    "1px 1px 2px rgba(255, 255, 255, 0.12)",
   ].join(", "),
 }
 
