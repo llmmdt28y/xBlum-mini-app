@@ -77,20 +77,10 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 
 // ── Liquid Glass layers ───────────────────────────────────────────────
 // Estrategia final basada en análisis de la imagen objetivo:
-// 1. backgroundColor MUY transparente (≤0.15) para que el fondo se vea
-// 2. backdropFilter blur moderado para el frosted glass
+// 1. backgroundColor MUY transparente (≤0.25) para que el fondo se vea
+// 2. backdropFilter blur fuerte y saturado para el frosted glass
 // 3. Borde superior brillante + borde exterior sutil = efecto lupa/cristal
 // 4. Sin capas hijas innecesarias que bloqueen el backdrop
-
-// Franja especular superior — línea blanca muy sutil en el borde superior
-// ── Liquid Glass — rewrite fiel al prototipo ──────────────────────────
-// Análisis pixel a pixel de la referencia:
-// • Barra: cristal oscuro ~0.80 opacidad, blur 36px, un solo bloque visual
-// • Botón activo: cápsula INCRUSTADA (más oscura, con margen interior)
-// • Círculos laterales: misma apariencia que la barra, integrados visualmente
-// • Borde: 1px blanco a 0.12 — casi imperceptible
-// • Sombra: pronunciada hacia abajo
-// • Sin colores artificiales — todo viene del backdrop
 
 // Highlight superior: línea de luz en el borde top del cristal
 function GlassSurface() {
@@ -98,13 +88,15 @@ function GlassSurface() {
     <div aria-hidden="true" style={{
       position: "absolute", inset: 0, pointerEvents: "none",
       borderRadius: "inherit", zIndex: 3,
-      // Línea brillante top, muy sutil en el resto
+      // Highlight superior nítido, sombra interior abajo, sin bordes sólidos
       boxShadow: [
-        "inset 0 1px 0 rgba(255,255,255,0.18)",
-        "inset 0 -1px 0 rgba(0,0,0,0.30)",
+        "inset 0 1px 1px rgba(255, 255, 255, 0.18)", // Brillo de arista superior
+        "inset 0 -1px 1px rgba(0, 0, 0, 0.40)",       // Sombra interna base
+        "inset 1px 0 1px rgba(255, 255, 255, 0.02)",  // Brillo lateral ultra sutil
+        "inset -1px 0 1px rgba(255, 255, 255, 0.02)"
       ].join(", "),
-      // Degradado sutil: ligeramente más claro arriba
-      background: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.00) 40%)",
+      // Degradado direccional simulando el volumen del cristal
+      background: "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 20%, rgba(0,0,0,0.1) 80%, rgba(0,0,0,0.3) 100%)",
     }} />
   )
 }
@@ -114,17 +106,17 @@ function GlassSurface() {
 const GLASS_BASE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  // Oscuro pero no totalmente opaco — el fondo se difumina dentro
-  backgroundColor: "rgba(12, 12, 18, 0.80)",
-  // Blur fuerte (36px) para frosted glass real, saturate moderado
-  backdropFilter: "blur(36px) saturate(1.4) brightness(0.95)",
-  WebkitBackdropFilter: "blur(36px) saturate(1.4) brightness(0.95)",
-  // Borde sutil — apenas visible como en el prototipo
-  border: "1px solid rgba(255,255,255,0.12)",
-  // Sombra flotante pronunciada
+  // Opacidad drásticamente reducida para permitir el sangrado de color
+  backgroundColor: "rgba(10, 10, 15, 0.22)",
+  // El filtro oscurece (brightness) y satura el fondo que logra atravesar
+  backdropFilter: "blur(40px) saturate(2) brightness(0.75)",
+  WebkitBackdropFilter: "blur(40px) saturate(2) brightness(0.75)",
+  // El borde real se elimina, usamos un anillo exterior ultra fino en la sombra
+  border: "none", 
   boxShadow: [
-    "0 8px 40px rgba(0,0,0,0.65)",
-    "0 2px 8px rgba(0,0,0,0.40)",
+    "0 12px 32px rgba(0, 0, 0, 0.55)", // Sombra de caída principal más difusa
+    "0 2px 8px rgba(0, 0, 0, 0.30)",   // Sombra de proximidad
+    "0 0 0 1px rgba(255, 255, 255, 0.04)" // Anillo delimitador en lugar de borde rígido
   ].join(", "),
 }
 
@@ -140,11 +132,13 @@ const PILL_STYLE: React.CSSProperties = {
 // Tab activo: cápsula INCRUSTADA dentro de la barra
 // Más oscura que el contenedor, con padding interno para dar sensación de hundido
 const activePillStyle: React.CSSProperties = {
-  backgroundColor: "rgba(0, 0, 0, 0.55)",
-  // Borde interior muy sutil
+  backgroundColor: "rgba(0, 0, 0, 0.40)",
   boxShadow: [
-    "inset 0 2px 6px rgba(0,0,0,0.50)",
-    "inset 0 1px 0 rgba(255,255,255,0.08)",
+    // Sombras internas fuertes arriba/lados para crear el "hueco"
+    "inset 0 4px 10px rgba(0,0,0,0.6)",
+    "inset 0 1px 3px rgba(0,0,0,0.8)",
+    // Reborde de luz inferior exterior simulando el corte en el cristal base
+    "0 1px 0 rgba(255, 255, 255, 0.07)",
   ].join(", "),
 }
 
