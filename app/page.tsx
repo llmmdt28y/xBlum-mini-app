@@ -278,4 +278,135 @@ function NavBar() {
             height: "64px",
             borderRadius: "100px",
             zIndex: 51,
-            transform: pressedId === "right"
+            transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
+          }}
+        >
+          {/* Se inserta GlassRim simplificado aquí */}
+          <GlassRim />
+          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
+            {photoUrl ? (
+              <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
+                <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <CircleUser
+                  size={22}
+                  color={currentView === 'profile' ? neonBlue : inactiveColor}
+                  strokeWidth={currentView === 'profile' ? 2.5 : 2}
+                />
+                <span
+                  className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
+                  style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
+                >
+                  Profile
+                </span>
+              </div>
+            )}
+          </div>
+        </button>
+      </div>
+    </>
+  )
+}
+
+// ── App shell ──────────────────────────────────────────────────────────
+function AppContent() {
+  const { currentView, setCurrentView, isLoading } = useApp()
+  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards", "schedule"].includes(currentView)
+
+  const [imagesLoaded,  setImagesLoaded]  = useState(false)
+  const [showLoading,   setShowLoading]   = useState(true)
+  const [fadeLoading,   setFadeLoading]   = useState(false)
+  const [isMaintenance, setIsMaintenance] = useState(false)
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tg = (window as any).Telegram?.WebApp
+    if (tg) {
+      tg.ready()
+      try {
+        if (tg.requestFullscreen) { tg.requestFullscreen() } else { tg.expand() }
+      } catch { tg.expand() }
+    }
+  }, [])
+
+  useEffect(() => {
+    const checkImages = () => {
+      const images = Array.from(document.images)
+      if (images.length === 0) { setImagesLoaded(true); return }
+      let loadedCount = 0
+      const checkDone = () => { if (++loadedCount === images.length) setImagesLoaded(true) }
+      images.forEach(img => {
+        if (img.complete) { checkDone() }
+        else {
+          img.addEventListener('load',  checkDone, { once: true })
+          img.addEventListener('error', checkDone, { once: true })
+        }
+      })
+    }
+    const timer    = setTimeout(checkImages, 50)
+    const fallback = setTimeout(() => setImagesLoaded(true), 3000)
+    return () => { clearTimeout(timer); clearTimeout(fallback) }
+  }, [currentView, isMaintenance])
+
+  useEffect(() => {
+    if (!isLoading && imagesLoaded) {
+      setFadeLoading(true)
+      const t = setTimeout(() => setShowLoading(false), 400)
+      return () => clearTimeout(t)
+    }
+  }, [isLoading, imagesLoaded])
+
+  if (isMaintenance) {
+    return <MaintenanceScreen onUnlock={() => setIsMaintenance(false)} />
+  }
+
+  return (
+    <>
+      {showLoading && (
+        <div
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
+            fadeLoading ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          <Loader2 className="w-10 h-10 text-white animate-spin" />
+        </div>
+      )}
+
+      <div
+        className="bg-black flex flex-col relative"
+        style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
+      >
+        {currentView === "home"               && (<><Header /><HomeView /></>)}
+        {currentView === "levels"             && <LevelsView />}
+        {currentView === "shop"               && <ShopView />}
+        {currentView === "settings"           && <SettingsView />}
+        {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
+        {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
+        {currentView === "premium"            && <PremiumView />}
+        {currentView === "referral"           && <ReferralView />}
+        {currentView === "profile"            && <ProfileView />}
+        {currentView === "x-rewards"          && <XRewardsView />}
+        {currentView === "market"             && <MarketView />}
+        {currentView === "schedule"           && <ScheduleView />}
+        {currentView === "group_config"       && (
+          <GroupConfigView
+            onClose={() => setCurrentView("home")}
+            apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""}
+          />
+        )}
+
+        {showNav && <NavBar />}
+      </div>
+    </>
+  )
+}
+
+export default function Page() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  )
+}
