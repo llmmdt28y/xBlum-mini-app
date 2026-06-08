@@ -75,50 +75,6 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Versión Definitiva Optimizada) ───────────────
-
-const BTN_BASE: React.CSSProperties = {
-  // Fondo casi inexistente para evitar el "efecto lechoso"
-  backgroundColor: "rgba(255, 255, 255, 0.02)",
-  // Desenfoque contenido, saturación vibrante y ajuste de brillo
-  backdropFilter: "blur(16px) saturate(180%) brightness(105%)",
-  WebkitBackdropFilter: "blur(16px) saturate(180%) brightness(105%)",
-  // Borde especular sutil
-  border: "1px solid rgba(255, 255, 255, 0.08)",
-  // Sombras volumétricas e iluminación
-  boxShadow: [
-    "inset 1px 1px 1px 0px rgba(255, 255, 255, 0.15)",
-    "inset -1px -1px 2px 0px rgba(0, 0, 0, 0.2)",
-    "0 8px 32px 0px rgba(0, 0, 0, 0.4)"
-  ].join(", "),
-  // Aceleración por hardware y transiciones seguras
-  transform: "translateZ(0)",
-  willChange: "transform, box-shadow",
-  transition: "background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
-}
-
-const PILL_STYLE: React.CSSProperties = {
-  ...BTN_BASE,
-  boxShadow: [
-    "inset 1px 1px 1px 0px rgba(255, 255, 255, 0.15)",
-    "inset -1px -1px 2px 0px rgba(0, 0, 0, 0.2)",
-    "0 6px 20px 0px rgba(0, 0, 0, 0.3)"
-  ].join(", "),
-}
-
-const activePillStyle: React.CSSProperties = {
-  ...BTN_BASE,
-  // Aumento sutil de opacidad y sombras más cerradas al estar activo
-  backgroundColor: "rgba(255, 255, 255, 0.06)",
-  border: "1px solid rgba(255, 255, 255, 0.15)",
-  transform: "translateZ(0) scale(0.98)",
-  boxShadow: [
-    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.25)",
-    "inset -1px -1px 2px 0px rgba(0, 0, 0, 0.15)",
-    "0 4px 16px 0px rgba(0, 0, 0, 0.3)"
-  ].join(", "),
-}
-
 // ── NavBar ────────────────────────────────────────────────────────────
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
@@ -159,146 +115,151 @@ function NavBar() {
   const safeBottom        = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)"
 
   return (
-    <div
-      className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
-      style={{ bottom: safeBottom }}
-    >
+    <>
+      {/* ── ESTILOS LIQUID GLASS HÍBRIDOS (React Style Block) ── */}
+      <style>{`
+        .nav-pill {
+          background: rgba(255, 255, 255, 0.04);
+          backdrop-filter: blur(20px) saturate(180%);
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow: 
+            0 8px 32px rgba(0,0,0,0.4),
+            inset 1px 1px 1px rgba(255, 255, 255, 0.15),
+            inset -1px -1px 2px rgba(0,0,0,0.2);
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+          transform: translateZ(0);
+          will-change: transform, box-shadow, filter;
+        }
 
-      {/* ── BOTÓN IZQUIERDO ── */}
-      <button
-        onClick={handleLeftActionButton}
-        className="pointer-events-auto flex flex-col items-center justify-center shrink-0 relative overflow-hidden group"
-        style={{
-          ...BTN_BASE,
-          width: "64px",
-          height: "64px",
-          borderRadius: "100px",
-          zIndex: 51,
-        }}
-        onMouseDown={(e) => {
-          Object.assign(e.currentTarget.style, activePillStyle);
-        }}
-        onMouseUp={(e) => {
-           Object.assign(e.currentTarget.style, BTN_BASE);
-        }}
-        onMouseLeave={(e) => {
-           Object.assign(e.currentTarget.style, BTN_BASE);
-        }}
-      >
-        <div className="flex flex-col items-center justify-center pointer-events-none select-none z-10 transition-transform duration-200 group-active:scale-95">
-          {activeNavMode === 'market' ? (
-            <>
-              <Home size={22} color={inactiveColor} strokeWidth={2} />
-              <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Home</span>
-            </>
-          ) : (
-            <>
-              <Store size={22} color={inactiveColor} strokeWidth={2} />
-              <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Market</span>
-            </>
-          )}
-        </div>
-      </button>
+        /* El brillo líquido superior izquierdo */
+        .nav-pill::before {
+          content: '';
+          position: absolute;
+          inset: -30%;
+          background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.2) 0%, transparent 50%);
+          pointer-events: none;
+          opacity: 0.8;
+          border-radius: inherit;
+        }
 
-      {/* ── PÍLDORA CENTRAL ── */}
+        .nav-pill:active {
+          transform: scale(0.96);
+        }
+
+        .nav-pill.active-state {
+          background: rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          box-shadow: 
+            0 4px 16px rgba(0,0,0,0.3),
+            inset 1.5px 1.5px 2px rgba(255, 255, 255, 0.25),
+            inset -1px -1px 2px rgba(0,0,0,0.15);
+          transform: scale(1.02);
+        }
+
+        /* ── MAGIA EXCLUSIVA PARA ANDROID (Refracción SVG) ── */
+        .android .nav-pill {
+          backdrop-filter: blur(18px) saturate(180%) url(#liquid-glass);
+        }
+      `}</style>
+
       <div
-        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5 relative overflow-hidden"
-        style={{
-          ...PILL_STYLE,
-          borderRadius: "100px",
-          height: "64px",
-          zIndex: 51,
-        }}
+        className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
+        style={{ bottom: safeBottom }}
       >
-        <div className="flex items-center justify-between w-full relative z-10">
-          {centerTabs.map((tab, idx) => {
-            const isActive   = currentView === tab.id
-            const isDisabled = !!tab.disabled
-            const Icon       = tab.icon
+        {/* ── BOTÓN IZQUIERDO ── */}
+        <button
+          onClick={handleLeftActionButton}
+          className="nav-pill pointer-events-auto flex flex-col items-center justify-center shrink-0 w-[64px] h-[64px] rounded-[100px] z-[51]"
+        >
+          <div className="flex flex-col items-center justify-center pointer-events-none select-none z-10">
+            {activeNavMode === 'market' ? (
+              <>
+                <Home size={22} color={inactiveColor} strokeWidth={2} />
+                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Home</span>
+              </>
+            ) : (
+              <>
+                <Store size={22} color={inactiveColor} strokeWidth={2} />
+                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Market</span>
+              </>
+            )}
+          </div>
+        </button>
 
-            return (
-              <button
-                key={`${tab.id}-${idx}`}
-                disabled={isDisabled}
-                onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-                className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none group"
-                style={{
-                  pointerEvents: isDisabled ? "none" : "auto",
-                  transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                  ...(isActive ? activePillStyle : { ...BTN_BASE, boxShadow: "none", border: "none", backgroundColor: "transparent" }),
-                }}
-              >
-                <div className="flex flex-col items-center justify-center transition-transform duration-200 group-active:scale-95">
-                  {Icon ? (
-                    <>
-                      <Icon
-                        size={22}
-                        color={isActive ? neonBlue : inactiveColor}
-                        strokeWidth={isActive ? 2.5 : 2}
-                        className="transition-colors duration-300 relative z-10"
-                      />
-                      <span
-                        className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 relative z-10 ${isActive ? "font-bold" : "font-semibold"}`}
-                        style={{ color: isActive ? neonBlue : inactiveColor }}
-                      >
-                        {tab.label}
-                      </span>
-                    </>
-                  ) : (
-                    <div className="w-[6px] h-[6px] rounded-full bg-white/10 relative z-10" />
-                  )}
-                </div>
-              </button>
-            )
-          })}
+        {/* ── PÍLDORA CENTRAL ── */}
+        <div className="nav-pill pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5 h-[64px] rounded-[100px] z-[51]">
+          <div className="flex items-center justify-between w-full relative z-10">
+            {centerTabs.map((tab, idx) => {
+              const isActive   = currentView === tab.id
+              const isDisabled = !!tab.disabled
+              const Icon       = tab.icon
+
+              return (
+                <button
+                  key={`${tab.id}-${idx}`}
+                  disabled={isDisabled}
+                  onClick={() => !isDisabled && setCurrentView(tab.id as any)}
+                  className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none transition-transform duration-200 active:scale-95 ${isActive ? 'active-state' : ''}`}
+                  style={{ pointerEvents: isDisabled ? "none" : "auto" }}
+                >
+                  <div className="flex flex-col items-center justify-center pointer-events-none z-10">
+                    {Icon ? (
+                      <>
+                        <Icon
+                          size={22}
+                          color={isActive ? neonBlue : inactiveColor}
+                          strokeWidth={isActive ? 2.5 : 2}
+                          className="transition-colors duration-300"
+                        />
+                        <span
+                          className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
+                          style={{ color: isActive ? neonBlue : inactiveColor }}
+                        >
+                          {tab.label}
+                        </span>
+                      </>
+                    ) : (
+                      <div className="w-[6px] h-[6px] rounded-full bg-white/10" />
+                    )}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
         </div>
+
+        {/* ── BOTÓN DERECHO: Profile ── */}
+        <button
+          onClick={() => setCurrentView('profile')}
+          className={`nav-pill pointer-events-auto flex flex-col items-center justify-center shrink-0 w-[64px] h-[64px] rounded-[100px] z-[51] ${currentView === 'profile' ? 'active-state' : ''}`}
+        >
+          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none z-10">
+            {photoUrl ? (
+              <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
+                <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <CircleUser
+                  size={22}
+                  color={currentView === 'profile' ? neonBlue : inactiveColor}
+                  strokeWidth={currentView === 'profile' ? 2.5 : 2}
+                />
+                <span
+                  className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
+                  style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
+                >
+                  Profile
+                </span>
+              </div>
+            )}
+          </div>
+        </button>
       </div>
-
-      {/* ── BOTÓN DERECHO: Profile ── */}
-      <button
-        onClick={() => setCurrentView('profile')}
-        className="pointer-events-auto flex flex-col items-center justify-center shrink-0 relative overflow-hidden group"
-        style={{
-          ...BTN_BASE,
-          width: "64px",
-          height: "64px",
-          borderRadius: "100px",
-          zIndex: 51,
-        }}
-         onMouseDown={(e) => {
-          Object.assign(e.currentTarget.style, activePillStyle);
-        }}
-        onMouseUp={(e) => {
-           Object.assign(e.currentTarget.style, BTN_BASE);
-        }}
-        onMouseLeave={(e) => {
-           Object.assign(e.currentTarget.style, BTN_BASE);
-        }}
-      >
-        <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none z-10 transition-transform duration-200 group-active:scale-95">
-          {photoUrl ? (
-            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
-              <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center">
-              <CircleUser
-                size={22}
-                color={currentView === 'profile' ? neonBlue : inactiveColor}
-                strokeWidth={currentView === 'profile' ? 2.5 : 2}
-              />
-              <span
-                className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
-                style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
-              >
-                Profile
-              </span>
-            </div>
-          )}
-        </div>
-      </button>
-
-    </div>
+    </>
   )
 }
 
@@ -317,6 +278,12 @@ function AppContent() {
     const tg = (window as any).Telegram?.WebApp
     if (tg) {
       tg.ready()
+      
+      // ── DETECCIÓN DE PLATAFORMA PARA REFRACCIÓN SVG ──
+      if (tg.platform === 'android') {
+        document.documentElement.classList.add('android')
+      }
+
       try {
         if (tg.requestFullscreen) { tg.requestFullscreen() } else { tg.expand() }
       } catch { tg.expand() }
@@ -356,6 +323,26 @@ function AppContent() {
 
   return (
     <>
+      {/* ── FILTRO SVG (Oculto en el DOM, activo solo en Android) ── */}
+      <svg width="0" height="0" style={{ position: 'absolute', visibility: 'hidden' }}>
+        <defs>
+          <filter id="liquid-glass" colorInterpolationFilters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="turb"/>
+            <feDisplacementMap in="blur" in2="turb" scale="10" xChannelSelector="R" yChannelSelector="G" result="displaced"/>
+            {/* Opcional: Iluminación especular si quieres que el SVG procese la luz en lugar del CSS */}
+            <feSpecularLighting in="blur" surfaceScale="3" specularConstant="1.1" specularExponent="10" lightingColor="#fff" result="spec">
+              <feDistantLight azimuth="45" elevation="65"/>
+            </feSpecularLighting>
+            <feComposite in="spec" in2="displaced" operator="in" result="highlight"/>
+            <feMerge>
+              <feMergeNode in="displaced" />
+              <feMergeNode in="highlight" />
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
+
       {showLoading && (
         <div
           className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
@@ -402,4 +389,3 @@ export default function Page() {
     </AppProvider>
   )
 }
-p
