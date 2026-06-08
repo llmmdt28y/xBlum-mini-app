@@ -95,18 +95,20 @@ function GlassRim() {
 const GLASS_BASE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  backgroundColor: "rgba(0, 0, 0, 0.03)",
+  // Base sólida más oscura para estabilizar el color y evitar el sangrado del fondo
+  backgroundColor: "rgba(20, 20, 20, 0.45)",
   
-  backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E\")",
+  backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E\")",
   
-  backdropFilter: "blur(14px) saturate(2.5) contrast(1.05) brightness(1.30)",
-  WebkitBackdropFilter: "blur(14px) saturate(2.5) contrast(1.05) brightness(1.30)",
+  // Alto desenfoque para perder la forma del fondo, saturación neutral
+  backdropFilter: "blur(24px) saturate(1.15) brightness(0.9)",
+  WebkitBackdropFilter: "blur(24px) saturate(1.15) brightness(0.9)",
   
   border: "none", 
   boxShadow: [
     "0 16px 32px rgba(0, 0, 0, 0.40)",   
     "0 4px 12px rgba(0, 0, 0, 0.15)",    
-    "0 0 0 1px rgba(255, 255, 255, 0.04)"
+    "0 0 0 1px rgba(255, 255, 255, 0.08)"
   ].join(", "),
 }
 
@@ -121,19 +123,15 @@ const PILL_STYLE: React.CSSProperties = {
 
 // Tab activo: cápsula INCRUSTADA dentro de la barra
 const activePillStyle: React.CSSProperties = {
-  // Oscurecimiento súper sutil solo para dar la sensación de profundidad
-  backgroundColor: "rgba(0, 0, 0, 0.15)",
-  
-  // ELIMINADO: backdrop-filter. Dejamos que el color fluya idéntico al de la barra principal.
+  // Solo un poco de oscurecimiento para dar profundidad sin matar la luz del fondo
+  backgroundColor: "rgba(0, 0, 0, 0.25)",
   
   boxShadow: [
-    // Sombra superior para la hendidura
-    "inset 0 4px 10px rgba(0, 0, 0, 0.25)", 
-    // CLAVE: Brillos concentrados exclusivamente en los lados (eje X)
-    // El spread negativo (-2px) evita que la luz se fugue hacia el centro o arriba/abajo
-    "inset 3px 0 8px -2px rgba(255, 255, 255, 0.20)",  // Arco de luz izquierdo
-    "inset -3px 0 8px -2px rgba(255, 255, 255, 0.20)", // Arco de luz derecho
-    // Rebote inferior sutil
+    // Sombra superior más difusa para la hendidura
+    "inset 0 4px 10px rgba(0, 0, 0, 0.30)", 
+    // Brillos laterales más sutiles para enmarcar
+    "inset 2px 0 6px -2px rgba(255, 255, 255, 0.12)",  
+    "inset -2px 0 6px -2px rgba(255, 255, 255, 0.12)", 
     "0 1px 1px rgba(255, 255, 255, 0.05)",
   ].join(", "),
 }
