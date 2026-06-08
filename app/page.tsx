@@ -75,41 +75,48 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass CSS Styles (Grado Apple iOS) ─────────────────────────
+// ── Liquid Glass Styles (Re-ingeniería Modo Oscuro iOS 26) ────────────
 
 const BTN_BASE: React.CSSProperties = {
-  backgroundColor: "rgba(255, 255, 255, 0.04)", 
-  // El filtro nativo que SÍ distorsiona el fondo HTML (cofres)
-  backdropFilter: "blur(24px) saturate(180%) brightness(110%)",
-  WebkitBackdropFilter: "blur(24px) saturate(180%) brightness(110%)", 
-  border: "1px solid rgba(255, 255, 255, 0.12)", 
+  // Cero blanco de base para evitar la "niebla lechosa"
+  backgroundColor: "transparent", 
+  // Motor del cristal: Blur extremo, súper saturación y contraste alto
+  backdropFilter: "blur(32px) saturate(300%) contrast(120%) brightness(95%)",
+  WebkitBackdropFilter: "blur(32px) saturate(300%) contrast(120%) brightness(95%)", 
+  // Micro-borde para definir la geometría
+  border: "1px solid rgba(255, 255, 255, 0.06)", 
   boxShadow: [
-    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.2)", // Brillo luz superior
-    "inset -1.5px -1.5px 2px 0px rgba(0, 0, 0, 0.1)", // Sombra volumen inferior
-    "0 10px 30px 0px rgba(0, 0, 0, 0.5)" // Sombra proyectada profunda
+    // Highlight afilado superior (1px)
+    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.25)", 
+    // Sombra inferior interna (da sensación de grosor)
+    "inset 0px -1px 2px 0px rgba(0, 0, 0, 0.3)", 
+    // Sombra proyectada exterior
+    "0 12px 35px 0px rgba(0, 0, 0, 0.6)" 
   ].join(", "),
+  transform: "translateZ(0)",
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
   boxShadow: [
-    "inset 1px 1px 2px 0px rgba(255, 255, 255, 0.15)",
-    "inset -1px -1px 2px 0px rgba(0, 0, 0, 0.1)",
-    "0 6px 20px 0px rgba(0, 0, 0, 0.4)" 
+    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.25)",
+    "inset 0px -1px 2px 0px rgba(0, 0, 0, 0.3)",
+    "0 8px 24px 0px rgba(0, 0, 0, 0.5)" 
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  backgroundColor: "rgba(255, 255, 255, 0.08)",
-  backdropFilter: "blur(28px) saturate(200%) brightness(120%)",
-  WebkitBackdropFilter: "blur(28px) saturate(200%) brightness(120%)",
-  border: "1px solid rgba(255, 255, 255, 0.25)",
+  // Leve tinte y esmerilado extra al activar
+  backgroundColor: "rgba(255, 255, 255, 0.03)",
+  backdropFilter: "blur(40px) saturate(350%) contrast(110%) brightness(115%)",
+  WebkitBackdropFilter: "blur(40px) saturate(350%) contrast(110%) brightness(115%)",
+  border: "1px solid rgba(255, 255, 255, 0.15)",
   boxShadow: [
-    "inset 2px 2px 3px 0px rgba(255, 255, 255, 0.3)", 
-    "inset -1px -1px 2px 0px rgba(0, 0, 0, 0.15)",
-    "0 4px 12px 0px rgba(0, 0, 0, 0.4)"
+    "inset 0px 1.5px 2px 0px rgba(255, 255, 255, 0.35)", 
+    "inset 0px -1px 2px 0px rgba(0, 0, 0, 0.2)",
+    "0 4px 15px 0px rgba(0, 0, 0, 0.4)" 
   ].join(", "),
 }
 
