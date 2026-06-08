@@ -1504,6 +1504,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
+    <>
     <div key="main" className={`flex-1 ${showReportModal ? 'overflow-hidden' : 'overflow-y-auto'} animate-in fade-in duration-500 ease-out`} style={{ background: "#000" }}>
        <style>{RIPPLE_STYLE}</style>
       
@@ -1598,6 +1599,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
           />
          </Section>
       </div>
+    </div>
 
       {/* ── Feedback Modal ── */}
       {showReportModal && (
@@ -1606,10 +1608,10 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500 ease-out"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
-          <div ref={sheetRef} className="relative w-full rounded-t-[24px] animate-in fade-in duration-500 ease-out max-h-[90vh] flex flex-col"
+          <div ref={sheetRef} className="relative w-full rounded-t-[24px] animate-in fade-in duration-500 ease-out flex flex-col"
                style={{ background: "#111111", borderTop: "1px solid #1c1c1e", transform: `translateY(0px)`, transition: 'transform 0.3s ease-out' }}>
             <div className="w-full shrink-0" onTouchStart={handleSheetTouchStart} onTouchMove={handleSheetTouchMove} onTouchEnd={handleSheetTouchEnd}>
-              <div className="w-12 h-1.5 bg-[#2c2c2e] rounded-full self-center mt-4 mb-2 shrink-0" />
+              <div className="w-12 h-1.5 bg-[#2c2c2e] rounded-full mx-auto mt-4 mb-2 shrink-0" />
               <div className="flex items-center justify-between px-5 pb-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
                <button
                 onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
@@ -1655,7 +1657,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             </div>
             </div>
 
-            <div className="p-5 space-y-4 overflow-y-auto flex-1">
+            <div className="p-5 space-y-4 pb-12">
               {reportSent ? (
                 <div className="flex flex-col items-center py-10 gap-3">
                   <div className="w-16 h-16 rounded-full flex items-center justify-center"
@@ -1721,6 +1723,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
