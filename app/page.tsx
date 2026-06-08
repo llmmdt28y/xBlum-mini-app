@@ -82,54 +82,14 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 // 3. Borde superior brillante + borde exterior sutil = efecto lupa/cristal
 // 4. Sin capas hijas innecesarias que bloqueen el backdrop
 
-// Franja especular superior — el reflector de luz principal del vidrio
+// Franja especular superior — línea blanca muy sutil en el borde superior
 function SpecularTop({ opacity = 0.22 }: { opacity?: number }) {
   return (
     <div aria-hidden="true" style={{
       position: "absolute", top: 0, left: 0, right: 0,
-      height: "45%", pointerEvents: "none",
+      height: "35%", pointerEvents: "none",
       borderRadius: "inherit", zIndex: 2,
-      background: `linear-gradient(180deg,
-        rgba(255,255,255,${opacity}) 0%,
-        rgba(255,255,255,${(opacity * 0.3).toFixed(3)}) 60%,
-        rgba(255,255,255,0) 100%
-      )`,
-    }} />
-  )
-}
-
-// Capa de brillo en bordes (lupa) — inset shadows que dan efecto de cristal con grosor
-function GlassEdges({ shape }: { shape: "pill" | "circle" }) {
-  const shadows = shape === "circle" ? [
-    "inset 0 1.5px 0 rgba(255,255,255,0.50)",  // reflector top
-    "inset 0 -1px 0 rgba(255,255,255,0.12)",   // reflector bottom
-    "inset 1px 0 0 rgba(255,255,255,0.18)",    // lateral izq
-    "inset -1px 0 0 rgba(255,255,255,0.08)",   // lateral der
-  ] : [
-    "inset 0 1.5px 0 rgba(255,255,255,0.45)",  // reflector top
-    "inset 0 -1px 0 rgba(255,255,255,0.10)",   // reflector bottom
-    "inset 1px 0 0 rgba(255,255,255,0.14)",    // lateral izq
-    "inset -1px 0 0 rgba(255,255,255,0.06)",   // lateral der
-  ]
-  return (
-    <div aria-hidden="true" style={{
-      position: "absolute", inset: 0, pointerEvents: "none",
-      borderRadius: "inherit", zIndex: 3,
-      boxShadow: shadows.join(", "),
-    }} />
-  )
-}
-
-// Gradiente radial tipo lupa — centro ligeramente más claro, bordes más oscuros
-function LensBulge({ shape }: { shape: "pill" | "circle" }) {
-  const g = shape === "circle"
-    ? "radial-gradient(ellipse 70% 65% at 50% 40%, rgba(255,255,255,0.08) 0%, transparent 65%, rgba(0,0,0,0.08) 100%)"
-    : "radial-gradient(ellipse 70% 65% at 50% 38%, rgba(255,255,255,0.07) 0%, transparent 60%, rgba(0,0,0,0.06) 100%)"
-  return (
-    <div aria-hidden="true" style={{
-      position: "absolute", inset: 0, pointerEvents: "none",
-      borderRadius: "inherit", zIndex: 1,
-      background: g,
+      background: `linear-gradient(180deg, rgba(255,255,255,${opacity}) 0%, rgba(255,255,255,0) 100%)`,
     }} />
   )
 }
@@ -141,39 +101,28 @@ function LensBulge({ shape }: { shape: "pill" | "circle" }) {
 const BTN_BASE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  backgroundColor: "rgba(20, 15, 35, 0.18)",
-  backdropFilter: "blur(24px) saturate(180%) brightness(1.08)",
-  WebkitBackdropFilter: "blur(24px) saturate(180%) brightness(1.08)",
-  border: "1px solid rgba(255,255,255,0.22)",
-  boxShadow: [
-    "0 4px 24px rgba(0,0,0,0.40)",
-    "0 1px 6px rgba(0,0,0,0.20)",
-  ].join(", "),
+  backgroundColor: "rgba(0, 0, 0, 0.08)",
+  backdropFilter: "blur(2px) saturate(1.2)",
+  WebkitBackdropFilter: "blur(2px) saturate(1.2)",
+  border: "1px solid rgba(255,255,255,0.28)",
+  boxShadow: "0 2px 12px rgba(0,0,0,0.20)",
   transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  backgroundColor: "rgba(20, 15, 35, 0.18)",
-  backdropFilter: "blur(24px) saturate(180%) brightness(1.08)",
-  WebkitBackdropFilter: "blur(24px) saturate(180%) brightness(1.08)",
-  border: "1px solid rgba(255,255,255,0.18)",
-  boxShadow: [
-    "0 4px 24px rgba(0,0,0,0.38)",
-    "0 1px 6px rgba(0,0,0,0.18)",
-  ].join(", "),
+  backgroundColor: "rgba(0, 0, 0, 0.08)",
+  backdropFilter: "blur(2px) saturate(1.2)",
+  WebkitBackdropFilter: "blur(2px) saturate(1.2)",
+  border: "1px solid rgba(255,255,255,0.22)",
+  boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
 }
 
-// El tab activo es más transparente que el resto — deja ver más el fondo
-// El "color" que se ve es el fondo de la página sangrando a través del glass
+// Tab activo: círculo oscuro semitransparente — igual que "Store" en la imagen objetivo
 const activePillStyle: React.CSSProperties = {
-  background: "rgba(255,255,255,0.06)",
-  border: "1px solid rgba(255,255,255,0.28)",
-  boxShadow: [
-    "inset 0 1.5px 0 rgba(255,255,255,0.35)",
-    "inset 0 -1px 0 rgba(255,255,255,0.08)",
-  ].join(", "),
+  background: "rgba(0, 0, 0, 0.45)",
+  border: "1px solid rgba(255,255,255,0.20)",
 }
 
 // ── NavBar ────────────────────────────────────────────────────────────
@@ -239,9 +188,7 @@ function NavBar() {
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          <LensBulge shape="circle" />
-          <GlassEdges shape="circle" />
-          <SpecularTop opacity={0.30} />
+          <SpecularTop opacity={0.15} />
           <div className="flex flex-col items-center justify-center pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {activeNavMode === 'market' ? (
               <>
@@ -262,9 +209,7 @@ function NavBar() {
           className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
           style={{ ...PILL_STYLE, borderRadius: "100px", height: "64px", zIndex: 51 }}
         >
-          <LensBulge shape="pill" />
-          <GlassEdges shape="pill" />
-          <SpecularTop opacity={0.26} />
+          <SpecularTop opacity={0.12} />
           <div className="flex items-center justify-between w-full relative" style={{ zIndex: 5 }}>
             {centerTabs.map((tab, idx) => {
               const isActive   = currentView === tab.id
@@ -326,9 +271,7 @@ function NavBar() {
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          <LensBulge shape="circle" />
-          <GlassEdges shape="circle" />
-          <SpecularTop opacity={0.30} />
+          <SpecularTop opacity={0.15} />
           <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {photoUrl ? (
               <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
