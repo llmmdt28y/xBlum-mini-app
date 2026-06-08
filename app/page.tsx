@@ -75,48 +75,47 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Re-ingeniería Modo Oscuro iOS 26) ────────────
+// ── Liquid Glass Styles (Versión Definitiva Optimizada) ───────────────
 
 const BTN_BASE: React.CSSProperties = {
-  // Cero blanco de base para evitar la "niebla lechosa"
-  backgroundColor: "transparent", 
-  // Motor del cristal: Blur extremo, súper saturación y contraste alto
-  backdropFilter: "blur(32px) saturate(300%) contrast(120%) brightness(95%)",
-  WebkitBackdropFilter: "blur(32px) saturate(300%) contrast(120%) brightness(95%)", 
-  // Micro-borde para definir la geometría
-  border: "1px solid rgba(255, 255, 255, 0.06)", 
+  // Fondo casi inexistente para evitar el "efecto lechoso"
+  backgroundColor: "rgba(255, 255, 255, 0.02)",
+  // Desenfoque contenido, saturación vibrante y ajuste de brillo
+  backdropFilter: "blur(16px) saturate(180%) brightness(105%)",
+  WebkitBackdropFilter: "blur(16px) saturate(180%) brightness(105%)",
+  // Borde especular sutil
+  border: "1px solid rgba(255, 255, 255, 0.08)",
+  // Sombras volumétricas e iluminación
   boxShadow: [
-    // Highlight afilado superior (1px)
-    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.25)", 
-    // Sombra inferior interna (da sensación de grosor)
-    "inset 0px -1px 2px 0px rgba(0, 0, 0, 0.3)", 
-    // Sombra proyectada exterior
-    "0 12px 35px 0px rgba(0, 0, 0, 0.6)" 
+    "inset 1px 1px 1px 0px rgba(255, 255, 255, 0.15)",
+    "inset -1px -1px 2px 0px rgba(0, 0, 0, 0.2)",
+    "0 8px 32px 0px rgba(0, 0, 0, 0.4)"
   ].join(", "),
+  // Aceleración por hardware y transiciones seguras
   transform: "translateZ(0)",
-  transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+  willChange: "transform, box-shadow",
+  transition: "background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
   boxShadow: [
-    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.25)",
-    "inset 0px -1px 2px 0px rgba(0, 0, 0, 0.3)",
-    "0 8px 24px 0px rgba(0, 0, 0, 0.5)" 
+    "inset 1px 1px 1px 0px rgba(255, 255, 255, 0.15)",
+    "inset -1px -1px 2px 0px rgba(0, 0, 0, 0.2)",
+    "0 6px 20px 0px rgba(0, 0, 0, 0.3)"
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // Leve tinte y esmerilado extra al activar
-  backgroundColor: "rgba(255, 255, 255, 0.03)",
-  backdropFilter: "blur(40px) saturate(350%) contrast(110%) brightness(115%)",
-  WebkitBackdropFilter: "blur(40px) saturate(350%) contrast(110%) brightness(115%)",
+  // Aumento sutil de opacidad y sombras más cerradas al estar activo
+  backgroundColor: "rgba(255, 255, 255, 0.06)",
   border: "1px solid rgba(255, 255, 255, 0.15)",
+  transform: "translateZ(0) scale(0.98)",
   boxShadow: [
-    "inset 0px 1.5px 2px 0px rgba(255, 255, 255, 0.35)", 
-    "inset 0px -1px 2px 0px rgba(0, 0, 0, 0.2)",
-    "0 4px 15px 0px rgba(0, 0, 0, 0.4)" 
+    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.25)",
+    "inset -1px -1px 2px 0px rgba(0, 0, 0, 0.15)",
+    "0 4px 16px 0px rgba(0, 0, 0, 0.3)"
   ].join(", "),
 }
 
@@ -168,7 +167,7 @@ function NavBar() {
       {/* ── BOTÓN IZQUIERDO ── */}
       <button
         onClick={handleLeftActionButton}
-        className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0 relative overflow-hidden"
+        className="pointer-events-auto flex flex-col items-center justify-center shrink-0 relative overflow-hidden group"
         style={{
           ...BTN_BASE,
           width: "64px",
@@ -176,8 +175,17 @@ function NavBar() {
           borderRadius: "100px",
           zIndex: 51,
         }}
+        onMouseDown={(e) => {
+          Object.assign(e.currentTarget.style, activePillStyle);
+        }}
+        onMouseUp={(e) => {
+           Object.assign(e.currentTarget.style, BTN_BASE);
+        }}
+        onMouseLeave={(e) => {
+           Object.assign(e.currentTarget.style, BTN_BASE);
+        }}
       >
-        <div className="flex flex-col items-center justify-center pointer-events-none select-none z-10">
+        <div className="flex flex-col items-center justify-center pointer-events-none select-none z-10 transition-transform duration-200 group-active:scale-95">
           {activeNavMode === 'market' ? (
             <>
               <Home size={22} color={inactiveColor} strokeWidth={2} />
@@ -213,32 +221,33 @@ function NavBar() {
                 key={`${tab.id}-${idx}`}
                 disabled={isDisabled}
                 onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-                className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95 select-none"
+                className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none group"
                 style={{
                   pointerEvents: isDisabled ? "none" : "auto",
                   transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                  transform: isActive ? "scale(1.06)" : "scale(1)",
-                  ...(isActive ? activePillStyle : {}),
+                  ...(isActive ? activePillStyle : { ...BTN_BASE, boxShadow: "none", border: "none", backgroundColor: "transparent" }),
                 }}
               >
-                {Icon ? (
-                  <>
-                    <Icon
-                      size={22}
-                      color={isActive ? neonBlue : inactiveColor}
-                      strokeWidth={isActive ? 2.5 : 2}
-                      className="transition-colors duration-300 relative z-10"
-                    />
-                    <span
-                      className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 relative z-10 ${isActive ? "font-bold" : "font-semibold"}`}
-                      style={{ color: isActive ? neonBlue : inactiveColor }}
-                    >
-                      {tab.label}
-                    </span>
-                  </>
-                ) : (
-                  <div className="w-[6px] h-[6px] rounded-full bg-white/10 relative z-10" />
-                )}
+                <div className="flex flex-col items-center justify-center transition-transform duration-200 group-active:scale-95">
+                  {Icon ? (
+                    <>
+                      <Icon
+                        size={22}
+                        color={isActive ? neonBlue : inactiveColor}
+                        strokeWidth={isActive ? 2.5 : 2}
+                        className="transition-colors duration-300 relative z-10"
+                      />
+                      <span
+                        className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 relative z-10 ${isActive ? "font-bold" : "font-semibold"}`}
+                        style={{ color: isActive ? neonBlue : inactiveColor }}
+                      >
+                        {tab.label}
+                      </span>
+                    </>
+                  ) : (
+                    <div className="w-[6px] h-[6px] rounded-full bg-white/10 relative z-10" />
+                  )}
+                </div>
               </button>
             )
           })}
@@ -248,7 +257,7 @@ function NavBar() {
       {/* ── BOTÓN DERECHO: Profile ── */}
       <button
         onClick={() => setCurrentView('profile')}
-        className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0 relative overflow-hidden"
+        className="pointer-events-auto flex flex-col items-center justify-center shrink-0 relative overflow-hidden group"
         style={{
           ...BTN_BASE,
           width: "64px",
@@ -256,8 +265,17 @@ function NavBar() {
           borderRadius: "100px",
           zIndex: 51,
         }}
+         onMouseDown={(e) => {
+          Object.assign(e.currentTarget.style, activePillStyle);
+        }}
+        onMouseUp={(e) => {
+           Object.assign(e.currentTarget.style, BTN_BASE);
+        }}
+        onMouseLeave={(e) => {
+           Object.assign(e.currentTarget.style, BTN_BASE);
+        }}
       >
-        <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none z-10">
+        <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none z-10 transition-transform duration-200 group-active:scale-95">
           {photoUrl ? (
             <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
               <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
@@ -384,3 +402,4 @@ export default function Page() {
     </AppProvider>
   )
 }
+p
