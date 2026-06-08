@@ -599,6 +599,26 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   const [submittingReport, setSubmittingReport] = useState(false)
   const [reportSent, setReportSent] = useState(false)
 
+  const [sheetTouchY, setSheetTouchY] = useState<number | null>(null)
+  const [sheetTranslateY, setSheetTranslateY] = useState(0)
+
+  const handleSheetTouchStart = (e: React.TouchEvent) => setSheetTouchY(e.touches[0].clientY)
+  const handleSheetTouchMove = (e: React.TouchEvent) => {
+    if (sheetTouchY === null) return
+    const diff = e.touches[0].clientY - sheetTouchY
+    if (diff > 0) setSheetTranslateY(diff)
+  }
+  const handleSheetTouchEnd = () => {
+    if (sheetTranslateY > 100) {
+      if (!submittingReport) {
+        setShowReportModal(false)
+        setReportSent(false)
+      }
+    }
+    setSheetTranslateY(0)
+    setSheetTouchY(null)
+  }
+
   // Viewport height to prevent keyboard jumps
   const [viewportHeight, setViewportHeight] = useState("100vh")
 
@@ -762,7 +782,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
     if (hasUnsaved && window.Telegram?.WebApp) {
       window.Telegram.WebApp.showPopup({
-        title: "Something went wrong.",
+        title: "Something went wrong",
         message: "You have unsaved changes. Do you want to exit without saving?",
         buttons: [{ id: "ok", type: "ok", text: "OK" }, { id: "cancel", type: "cancel" }]
       }, (buttonId: string) => {
@@ -811,7 +831,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       if (isNaN(ageNum) || ageNum < 1 || ageNum > 100) {
         triggerVibration('error');
         window.Telegram?.WebApp?.showPopup({
-          title: "Something went wrong.",
+          title: "Something went wrong",
           message: "Age should be a number in range from 1 to 100.",
           buttons: [{ id: "ok", type: "ok", text: "OK" }]
         });
@@ -1579,8 +1599,10 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
           />
           <div className="relative w-full rounded-t-[24px] animate-in fade-in duration-500 ease-out max-h-[90vh] flex flex-col"
-               style={{ background: "#111111", borderTop: "1px solid #1c1c1e" }}>
-            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
+               style={{ background: "#111111", borderTop: "1px solid #1c1c1e", transform: `translateY(${sheetTranslateY}px)`, transition: sheetTouchY === null ? 'transform 0.3s ease-out' : 'none' }}
+               onTouchStart={handleSheetTouchStart} onTouchMove={handleSheetTouchMove} onTouchEnd={handleSheetTouchEnd}>
+            <div className="w-12 h-1.5 bg-[#2c2c2e] rounded-full self-center mt-4 mb-2 shrink-0" />
+            <div className="flex items-center justify-between px-5 pb-4" style={{ borderBottom: "1px solid #1c1c1e" }}>
                <button
                 onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
                 onPointerDown={createRipple}
