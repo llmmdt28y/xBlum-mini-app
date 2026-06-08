@@ -111,6 +111,8 @@ function NavBar() {
     { id: "none2",    label: "None",  icon: null,  disabled: true  },
   ]
 
+  const activeIndex = centerTabs.findIndex(t => t.id === currentView)
+
   const neonBlue      = "#33b5f7"
   const inactiveColor = "rgba(255,255,255,0.62)"
   const safeBottom    = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)"
@@ -157,7 +159,21 @@ function NavBar() {
     className="liquid-glass-panel pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
     style={{ borderRadius: "100px", height: "64px", zIndex: 51 }}
     >
-    <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
+    <div className="flex items-center justify-between w-full relative h-[58px]" style={{ zIndex: 10 }}>
+    
+    {/* Fondo deslizante (Apple jelly effect) */}
+    <div 
+      className="absolute top-0 bottom-0 rounded-[100px] sliding-pill"
+      style={{
+        width: `${100 / centerTabs.length}%`,
+        transform: `translateX(${activeIndex * 100}%) ${pressedId === centerTabs[activeIndex]?.id ? 'scale(0.93)' : 'scale(1)'}`,
+        opacity: activeIndex >= 0 ? 1 : 0,
+        transition: "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease",
+        pointerEvents: "none",
+        zIndex: 0
+      }}
+    />
+
     {centerTabs.map((tab, idx) => {
       const isActive   = currentView === tab.id
       const isDisabled = !!tab.disabled
@@ -170,11 +186,12 @@ function NavBar() {
         onPointerDown={() => !isDisabled && setPressedId(tab.id)}
         onPointerUp={() => setPressedId(null)}
         onPointerLeave={() => setPressedId(null)}
-        className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none ${isActive ? 'active-pill' : ''}`}
+        className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[58px] select-none`}
         style={{
           pointerEvents: isDisabled ? "none" : "auto",
-          transition: "all 0.2s ease",
+          transition: "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
           transform: pressedId === tab.id ? "scale(0.93)" : "scale(1)",
+          zIndex: 10
         }}
         >
         {Icon ? (
@@ -400,13 +417,14 @@ export default function Page() {
   pointer-events: none;
       }
 
-      .active-pill {
-        background: rgba(0, 0, 0, 0.2) !important;
-        border: 1px solid rgba(255, 255, 255, 0.10) !important;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15) !important;
-        backdrop-filter: blur(8px) !important;
-        -webkit-backdrop-filter: blur(8px) !important;
-        transform: translateZ(0) !important;
+      .sliding-pill {
+        background: rgba(20, 20, 22, 0.65);
+        box-shadow: 
+          inset 0px 1.5px 1px rgba(255, 255, 255, 0.15), 
+          inset 0px -1.5px 1px rgba(255, 255, 255, 0.05),
+          0px 4px 10px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
       }
       `}} />
 
