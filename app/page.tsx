@@ -75,87 +75,85 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass CSS-only layers ─────────────────────────────────────
-// SVG filter: url(#id) no puede distorsionar el backdrop en Telegram WebView
-// porque el padre tiene isolation:isolate + overflow:hidden, lo que hace que
-// el hijo con backdropFilter solo "vea" su propio interior (vacío).
-// Reemplazamos con capas CSS puras que simulan el efecto óptico de lente convexo:
-//   1. LensRefract  — gradiente radial que simula la curvatura del vidrio
-//   2. SpecularTop  — franja brillante superior (reflexión especular)
-//   3. LensBottom   — acumulación de luz en borde inferior
-//   4. LensEdge     — borde interior brillante que da profundidad al vidrio
+// ── Liquid Glass layers ───────────────────────────────────────────────
+// Técnica confirmada que funciona en Telegram WebView (Chromium mobile):
+// backdrop-filter: blur + brightness + saturate + contrast en el CONTENEDOR
+// (NO isolation:isolate, NO overflow:hidden en el padre — eso mata el backdrop)
+// Los reflectores de borde (efecto lupa) van en capas hijo con box-shadow inset.
+// Ref: github.com/clayharmon/webgl-liquid-glass — "backdrop-filter: brightness(1.2)
+// saturate(1.4) creates a refraction-like lens effect by enhancing blurred content"
 
-// Simulación óptica de refracción: gradiente radial que imita un lente convexo
-function LensRefract({ shape }: { shape: "pill" | "circle" }) {
-  const gradient = shape === "circle"
-    ? // Círculo: gradiente radial centrado ligeramente arriba
-      "radial-gradient(ellipse 70% 65% at 48% 38%, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.04) 45%, rgba(0,0,0,0.10) 75%, rgba(0,0,0,0.18) 100%)"
-    : // Píldora: gradiente radial más ancho y aplanado
-      "radial-gradient(ellipse 80% 70% at 50% 35%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 50%, rgba(0,0,0,0.08) 80%, rgba(0,0,0,0.15) 100%)"
-  return (
-    <div aria-hidden="true" style={{
-      position: "absolute", inset: 0, pointerEvents: "none",
-      borderRadius: "inherit", zIndex: 1,
-      background: gradient,
-    }} />
-  )
-}
-
-// Franja especular superior (reflexión de luz en borde superior del vidrio)
-function SpecularTop() {
-  return (
-    <div aria-hidden="true" style={{
-      position: "absolute", inset: 0, pointerEvents: "none",
-      borderRadius: "inherit", zIndex: 2,
-      background: "linear-gradient(180deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.00) 55%)",
-    }} />
-  )
-}
-
-// Acumulación de luz en borde inferior del lente
-function LensBottom() {
-  return (
-    <div aria-hidden="true" style={{
-      position: "absolute", bottom: 0, left: 0, right: 0,
-      height: "40%", pointerEvents: "none",
-      borderRadius: "inherit", zIndex: 2,
-      background: "linear-gradient(0deg, rgba(255,255,255,0.12) 0%, transparent 100%)",
-    }} />
-  )
-}
-
-// Borde interior brillante (da sensación de grosor del vidrio)
-function LensEdge() {
+// Capa de reflectores de borde — simula la acumulación de luz en los bordes del vidrio
+// como una lupa: borde superior brillante, inferior más sutil, lados tenues
+function GlassEdges({ shape }: { shape: "pill" | "circle" }) {
   return (
     <div aria-hidden="true" style={{
       position: "absolute", inset: 0, pointerEvents: "none",
       borderRadius: "inherit", zIndex: 3,
-      boxShadow: [
-        "inset 0 1px 0 rgba(255,255,255,0.45)",
-        "inset 0 -1px 0 rgba(255,255,255,0.10)",
-        "inset 1px 0 0 rgba(255,255,255,0.12)",
-        "inset -1px 0 0 rgba(255,255,255,0.06)",
+      // Múltiples inset shadows: reflector superior fuerte + inferior sutil + laterales
+      boxShadow: shape === "circle" ? [
+        "inset 0 2.5px 0 0 rgba(255,255,255,0.55)",   // reflector top fuerte
+        "inset 0 -2px 0 0 rgba(255,255,255,0.18)",     // reflector bottom sutil
+        "inset 2px 0 0 0 rgba(255,255,255,0.22)",      // reflector izquierda
+        "inset -2px 0 0 0 rgba(255,255,255,0.10)",     // reflector derecha
+        "inset 0 0 12px 2px rgba(255,255,255,0.06)",   // glow interior suave
+      ].join(", ") : [
+        "inset 0 2px 0 0 rgba(255,255,255,0.50)",      // reflector top fuerte
+        "inset 0 -1.5px 0 0 rgba(255,255,255,0.15)",   // reflector bottom sutil
+        "inset 2px 0 0 0 rgba(255,255,255,0.18)",      // reflector izquierda
+        "inset -2px 0 0 0 rgba(255,255,255,0.08)",     // reflector derecha
+        "inset 0 0 18px 3px rgba(255,255,255,0.04)",   // glow interior suave
       ].join(", "),
     }} />
   )
 }
 
+// Franja especular superior — simula el reflejo directo de la fuente de luz
+function SpecularTop({ opacity = 0.28 }: { opacity?: number }) {
+  return (
+    <div aria-hidden="true" style={{
+      position: "absolute", inset: 0, pointerEvents: "none",
+      borderRadius: "inherit", zIndex: 2,
+      background: `linear-gradient(180deg,
+        rgba(255,255,255,${opacity}) 0%,
+        rgba(255,255,255,${opacity * 0.35}) 18%,
+        rgba(255,255,255,0) 48%
+      )`,
+    }} />
+  )
+}
+
+// Gradiente radial tipo lupa — zona central más clara (el lente amplifica la luz)
+function LensBulge({ shape }: { shape: "pill" | "circle" }) {
+  const g = shape === "circle"
+    ? "radial-gradient(ellipse 72% 68% at 50% 42%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 50%, rgba(0,0,0,0.06) 85%, rgba(0,0,0,0.12) 100%)"
+    : "radial-gradient(ellipse 75% 72% at 50% 38%, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.02) 55%, rgba(0,0,0,0.05) 85%, rgba(0,0,0,0.10) 100%)"
+  return (
+    <div aria-hidden="true" style={{
+      position: "absolute", inset: 0, pointerEvents: "none",
+      borderRadius: "inherit", zIndex: 1,
+      background: g,
+    }} />
+  )
+}
+
 // ── Liquid Glass base styles ───────────────────────────────────────────
+// CLAVE: SIN isolation:isolate y SIN overflow:hidden en el contenedor —
+// esos dos rompen el backdrop-filter en Chromium mobile.
+// El efecto lupa/refracción viene de brightness(1.35) saturate(1.5) contrast(1.05)
+// que amplifica y distorsiona visualmente el contenido borroso detrás del elemento.
 const BTN_BASE: React.CSSProperties = {
   position: "relative",
+  // overflow:hidden solo para clipear hijos — mantenemos pero sin isolation
   overflow: "hidden",
-  isolation: "isolate",
-  backgroundColor: "rgba(15, 15, 25, 0.58)",
-  backdropFilter: "blur(28px) saturate(210%) brightness(1.10)",
-  WebkitBackdropFilter: "blur(28px) saturate(210%) brightness(1.10)",
-  border: "1px solid rgba(255,255,255,0.13)",
+  backgroundColor: "rgba(8, 8, 18, 0.45)",
+  // brightness > 1 + saturate alto = efecto lupa real sobre el backdrop blur
+  backdropFilter: "blur(32px) brightness(1.35) saturate(1.55) contrast(1.05)",
+  WebkitBackdropFilter: "blur(32px) brightness(1.35) saturate(1.55) contrast(1.05)",
+  border: "1px solid rgba(255,255,255,0.20)",
   boxShadow: [
-    "inset 0 2px 1px rgba(255,255,255,0.40)",
-    "inset 0 -1.5px 1px rgba(0,0,0,0.38)",
-    "inset 1.5px 0 1px rgba(255,255,255,0.10)",
-    "inset -1.5px 0 1px rgba(0,0,0,0.20)",
-    "0 8px 32px rgba(0,0,0,0.58)",
-    "0 2px 8px rgba(0,0,0,0.35)",
+    "0 8px 32px rgba(0,0,0,0.55)",
+    "0 2px 8px rgba(0,0,0,0.30)",
   ].join(", "),
   transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
 }
@@ -163,28 +161,22 @@ const BTN_BASE: React.CSSProperties = {
 const PILL_STYLE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  isolation: "isolate",
-  backgroundColor: "rgba(15, 15, 25, 0.58)",
-  backdropFilter: "blur(26px) saturate(200%) brightness(1.08)",
-  WebkitBackdropFilter: "blur(26px) saturate(200%) brightness(1.08)",
-  border: "1px solid rgba(255,255,255,0.12)",
+  backgroundColor: "rgba(8, 8, 18, 0.45)",
+  backdropFilter: "blur(30px) brightness(1.30) saturate(1.50) contrast(1.04)",
+  WebkitBackdropFilter: "blur(30px) brightness(1.30) saturate(1.50) contrast(1.04)",
+  border: "1px solid rgba(255,255,255,0.18)",
   boxShadow: [
-    "inset 0 1.5px 1px rgba(255,255,255,0.38)",
-    "inset 0 -1px 1px rgba(0,0,0,0.42)",
-    "inset 1.5px 0 1px rgba(255,255,255,0.08)",
-    "inset -1.5px 0 1px rgba(0,0,0,0.18)",
-    "0 8px 36px rgba(0,0,0,0.55)",
-    "0 2px 8px rgba(0,0,0,0.35)",
+    "0 8px 36px rgba(0,0,0,0.52)",
+    "0 2px 8px rgba(0,0,0,0.30)",
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
-  background: "linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.06) 100%)",
-  border: "1px solid rgba(255,255,255,0.18)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.05) 100%)",
+  border: "1px solid rgba(255,255,255,0.22)",
   boxShadow: [
-    "inset 0 1.5px 1px rgba(255,255,255,0.40)",
-    "inset 0 -1px 1px rgba(0,0,0,0.20)",
-    "0 2px 10px rgba(0,0,0,0.25)",
+    "inset 0 1.5px 0 rgba(255,255,255,0.38)",
+    "0 2px 10px rgba(0,0,0,0.22)",
   ].join(", "),
 }
 
@@ -251,10 +243,9 @@ function NavBar() {
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          <LensRefract shape="circle" />
-          <LensEdge />
-          <SpecularTop />
-          <LensBottom />
+          <LensBulge shape="circle" />
+          <GlassEdges shape="circle" />
+          <SpecularTop opacity={0.30} />
           <div className="flex flex-col items-center justify-center pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {activeNavMode === 'market' ? (
               <>
@@ -275,10 +266,9 @@ function NavBar() {
           className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
           style={{ ...PILL_STYLE, borderRadius: "100px", height: "64px", zIndex: 51 }}
         >
-          <LensRefract shape="pill" />
-          <LensEdge />
-          <SpecularTop />
-          <LensBottom />
+          <LensBulge shape="pill" />
+          <GlassEdges shape="pill" />
+          <SpecularTop opacity={0.26} />
           <div className="flex items-center justify-between w-full relative" style={{ zIndex: 5 }}>
             {centerTabs.map((tab, idx) => {
               const isActive   = currentView === tab.id
@@ -340,10 +330,9 @@ function NavBar() {
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          <LensRefract shape="circle" />
-          <LensEdge />
-          <SpecularTop />
-          <LensBottom />
+          <LensBulge shape="circle" />
+          <GlassEdges shape="circle" />
+          <SpecularTop opacity={0.30} />
           <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {photoUrl ? (
               <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
