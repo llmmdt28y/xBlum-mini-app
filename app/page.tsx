@@ -16,45 +16,19 @@ import { GroupConfigView } from "@/components/group-config-view"
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react"
 
-// ── THREE.JS IMPORTS ──────────────────────────────────────────────────
-import { Canvas } from '@react-three/fiber'
-import { MeshTransmissionMaterial, Environment } from '@react-three/drei'
-import * as THREE from 'three'
+// ── Componente de carga segura WebGL (Bypass total de SSR para Turbopack) ──
+function SafeWebGLGlassPill({ isActive }: { isActive?: boolean }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [Component, setComponent] = useState<any>(null)
 
-// ── WebGL Liquid Glass Component ──────────────────────────────────────
-function WebGLGlassPill({ isActive }: { isActive?: boolean }) {
-  return (
-    <div className="absolute inset-0 w-full h-full -z-10 rounded-[inherit] overflow-hidden pointer-events-none">
-      <Canvas shadows camera={{ position: [0, 0, 5], fov: 20 }}>
-        <ambientLight intensity={isActive ? 1.2 : 0.8} />
-        <directionalLight position={[10, 10, 10]} intensity={2} />
-        
-        <mesh>
-          {/* Un plano lo suficientemente grande para cubrir los contenedores */}
-          <planeGeometry args={[15, 5]} />
-          <MeshTransmissionMaterial
-            background={new THREE.Color(0x000000)} // Ajusta según el fondo general de tu app
-            transmission={1}
-            thickness={1.5}
-            roughness={0.15}
-            chromaticAberration={0.04}
-            anisotropy={0.2}
-            distortion={0.1}
-            distortionScale={0.3}
-            temporalDistortion={0.05}
-            ior={1.5}
-            color={isActive ? "#ffffff" : "#e5e5e5"}
-            transparent={true}
-            opacity={0.1}
-            clearcoat={1}
-            clearcoatRoughness={0.1}
-          />
-        </mesh>
-        
-        <Environment preset="city" />
-      </Canvas>
-    </div>
-  )
+  useEffect(() => {
+    import('@/components/webgl-glass-pill')
+      .then((mod) => setComponent(() => mod.default))
+      .catch((err) => console.error("Error al cargar WebGLGlassPill:", err))
+  }, [])
+
+  if (!Component) return null
+  return <Component isActive={isActive} />
 }
 
 // ── Telegram user helper ──────────────────────────────────────────────
@@ -116,10 +90,9 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Actualizado para WebGL) ─────────────────────
+// ── Liquid Glass Styles (Adaptados para WebGL) ────────────────────────
 
 const BTN_BASE: React.CSSProperties = {
-  // Transparencia base para dejar ver el WebGL por debajo
   backgroundColor: "rgba(255, 255, 255, 0.02)", 
   border: "1px solid rgba(255, 255, 255, 0.08)", 
   transform: "translateZ(0)", 
@@ -142,7 +115,6 @@ const PILL_STYLE: React.CSSProperties = {
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  // Apenas un ligero tinte para denotar el botón activo sobre el canvas
   backgroundColor: "rgba(255, 255, 255, 0.05)",
   border: "1px solid rgba(255, 255, 255, 0.15)",
   boxShadow: [
@@ -209,7 +181,7 @@ function NavBar() {
           zIndex: 51,
         }}
       >
-        <WebGLGlassPill />
+        <SafeWebGLGlassPill />
         <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none select-none">
           {activeNavMode === 'market' ? (
             <>
@@ -235,7 +207,7 @@ function NavBar() {
           zIndex: 51,
         }}
       >
-        <WebGLGlassPill isActive={true} />
+        <SafeWebGLGlassPill isActive={true} />
         <div className="flex items-center justify-between w-full relative z-10">
           {centerTabs.map((tab, idx) => {
             const isActive   = currentView === tab.id
@@ -291,7 +263,7 @@ function NavBar() {
           zIndex: 51,
         }}
       >
-        <WebGLGlassPill />
+        <SafeWebGLGlassPill />
         <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pointer-events-none select-none">
           {photoUrl ? (
             <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
