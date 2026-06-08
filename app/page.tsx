@@ -75,21 +75,6 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass layers ───────────────────────────────────────────────
-function GlassRim() {
-  return (
-    <div aria-hidden="true" style={{
-      position: "absolute", inset: 0, pointerEvents: "none",
-      borderRadius: "inherit", zIndex: 3,
-      boxShadow: [
-        "inset 1px 1px 2px rgba(255, 255, 255, 0.12)", 
-        "inset -1px -1px 2px rgba(0, 0, 0, 0.20)"      
-      ].join(", "),
-      background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.0) 30%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0.1) 100%)",
-    }} />
-  )
-}
-
 // ── NavBar ────────────────────────────────────────────────────────────
 function NavBar() {
   const { currentView, setCurrentView } = useApp()
@@ -152,8 +137,7 @@ function NavBar() {
             transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
           }}
         >
-          <GlassRim />
-          <div className="flex flex-col items-center justify-center pointer-events-none select-none relative" style={{ zIndex: 5 }}>
+          <div className="flex flex-col items-center justify-center pointer-events-none select-none relative w-full h-full" style={{ zIndex: 10 }}>
             {activeNavMode === 'market' ? (
               <>
                 <Home size={22} color={inactiveColor} strokeWidth={2} />
@@ -173,8 +157,7 @@ function NavBar() {
           className="liquid-glass-panel pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
           style={{ borderRadius: "100px", height: "64px", zIndex: 51 }}
         >
-          <GlassRim />
-          <div className="flex items-center justify-between w-full relative" style={{ zIndex: 5 }}>
+          <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
             {centerTabs.map((tab, idx) => {
               const isActive   = currentView === tab.id
               const isDisabled = !!tab.disabled
@@ -190,7 +173,7 @@ function NavBar() {
                   className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none ${isActive ? 'active-pill' : ''}`}
                   style={{
                     pointerEvents: isDisabled ? "none" : "auto",
-                    transition: "all 0.25s ease",
+                    transition: "all 0.2s ease",
                     transform: pressedId === tab.id ? "scale(0.93)" : "scale(1)",
                   }}
                 >
@@ -234,14 +217,13 @@ function NavBar() {
             transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
           }}
         >
-          <GlassRim />
-          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none relative" style={{ zIndex: 5 }}>
+          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none relative" style={{ zIndex: 10 }}>
             {photoUrl ? (
-              <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
+              <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
                 <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center">
+              <div className="flex flex-col items-center justify-center relative z-10">
                 <CircleUser
                   size={22}
                   color={currentView === 'profile' ? neonBlue : inactiveColor}
@@ -358,7 +340,7 @@ function AppContent() {
 export default function Page() {
   return (
     <AppProvider>
-      {/* ── Filtro SVG Global (Liquid Glass) ── */}
+      {/* ── Filtro SVG Global (Extraído exactamente del código proporcionado) ── */}
       <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }}>
         <defs>
           <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
@@ -385,14 +367,13 @@ export default function Page() {
         </defs>
       </svg>
 
-      {/* ── Estilos CSS Globales ── */}
+      {/* ── Estilos CSS Globales (Valores exactos del fragmento) ── */}
       <style dangerouslySetInnerHTML={{ __html: `
         .liquid-glass-panel {
           position: relative;
           isolation: isolate;
-          overflow: hidden;
-          border: none;
-          box-shadow: 0 16px 32px rgba(0, 0, 0, 0.40), 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.08);
+          box-shadow: 0px 0px 21px -8px rgba(255, 255, 255, 0.3);
+          cursor: pointer;
         }
         
         .liquid-glass-panel::before {
@@ -401,7 +382,8 @@ export default function Page() {
           inset: 0;
           z-index: 0;
           border-radius: inherit;
-          background-color: rgba(20, 20, 20, 0.45); /* Base sutil para integrar en UI oscura */
+          box-shadow: inset 0 0 5px -8px rgba(255, 255, 255, 0.7);
+          background-color: rgba(255, 255, 255, 0);
           pointer-events: none;
         }
 
@@ -411,19 +393,20 @@ export default function Page() {
           inset: 0;
           z-index: -1;
           border-radius: inherit;
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
+          backdrop-filter: blur(0px);
+          -webkit-backdrop-filter: blur(0px);
           filter: url(#glass-distortion);
           -webkit-filter: url(#glass-distortion);
+          isolation: isolate;
           pointer-events: none;
         }
 
         .active-pill {
-          background-color: rgba(0, 0, 0, 0.25) !important;
-          box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.30), 
-                      inset 2px 0 6px -2px rgba(255, 255, 255, 0.12), 
-                      inset -2px 0 6px -2px rgba(255, 255, 255, 0.12), 
-                      0 1px 1px rgba(255, 255, 255, 0.05) !important;
+          background: rgba(255, 255, 255, 0.1) !important;
+          border: 1px solid rgba(255, 255, 255, 0.2) !important;
+          backdrop-filter: blur(8px) !important;
+          -webkit-backdrop-filter: blur(8px) !important;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
         }
       `}} />
 
