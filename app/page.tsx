@@ -75,75 +75,67 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass SVG Defs ─────────────────────────────────────────────
-// PROBLEMA RAIZ: feImage con data URI como mapa de desplazamiento está
-// bloqueado en Chromium mobile / Telegram WebView por restricciones de
-// taint/CORS del compositor. El filtro se ignora silenciosamente → efecto ausente.
-// SOLUCIÓN: mapa de desplazamiento 100% inline con feTurbulence (frecuencia
-// muy baja = bump suave tipo lente) + feColorMatrix para amplificar.
-// No depende de recursos externos → funciona en todos los WebViews.
-function LiquidGlassDefs() {
+// ── Liquid Glass CSS-only layers ─────────────────────────────────────
+// SVG filter: url(#id) no puede distorsionar el backdrop en Telegram WebView
+// porque el padre tiene isolation:isolate + overflow:hidden, lo que hace que
+// el hijo con backdropFilter solo "vea" su propio interior (vacío).
+// Reemplazamos con capas CSS puras que simulan el efecto óptico de lente convexo:
+//   1. LensRefract  — gradiente radial que simula la curvatura del vidrio
+//   2. SpecularTop  — franja brillante superior (reflexión especular)
+//   3. LensBottom   — acumulación de luz en borde inferior
+//   4. LensEdge     — borde interior brillante que da profundidad al vidrio
+
+// Simulación óptica de refracción: gradiente radial que imita un lente convexo
+function LensRefract({ shape }: { shape: "pill" | "circle" }) {
+  const gradient = shape === "circle"
+    ? // Círculo: gradiente radial centrado ligeramente arriba
+      "radial-gradient(ellipse 70% 65% at 48% 38%, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.04) 45%, rgba(0,0,0,0.10) 75%, rgba(0,0,0,0.18) 100%)"
+    : // Píldora: gradiente radial más ancho y aplanado
+      "radial-gradient(ellipse 80% 70% at 50% 35%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 50%, rgba(0,0,0,0.08) 80%, rgba(0,0,0,0.15) 100%)"
   return (
-    <svg aria-hidden="true" style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}>
-      <defs>
-        {/* Filtro píldora: lente convexo suave para la barra central */}
-        <filter id="lg-pill" x="-10%" y="-25%" width="120%" height="150%" colorInterpolationFilters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.025" numOctaves="1" seed="2" result="noise" />
-          <feColorMatrix type="matrix"
-            values="3 0 0 0 -0.5  0 3 0 0 -0.5  0 0 0 0 0.5  0 0 0 1 0"
-            in="noise" result="map" />
-          <feDisplacementMap in="SourceGraphic" in2="map" scale="18" xChannelSelector="R" yChannelSelector="G" result="displaced" />
-          <feGaussianBlur in="displaced" stdDeviation="0.5" />
-        </filter>
-        {/* Filtro círculo: lente convexo para los botones redondos */}
-        <filter id="lg-circle" x="-18%" y="-18%" width="136%" height="136%" colorInterpolationFilters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.018 0.018" numOctaves="1" seed="5" result="noise" />
-          <feColorMatrix type="matrix"
-            values="3 0 0 0 -0.5  0 3 0 0 -0.5  0 0 0 0 0.5  0 0 0 1 0"
-            in="noise" result="map" />
-          <feDisplacementMap in="SourceGraphic" in2="map" scale="13" xChannelSelector="R" yChannelSelector="G" result="displaced" />
-          <feGaussianBlur in="displaced" stdDeviation="0.4" />
-        </filter>
-      </defs>
-    </svg>
+    <div aria-hidden="true" style={{
+      position: "absolute", inset: 0, pointerEvents: "none",
+      borderRadius: "inherit", zIndex: 1,
+      background: gradient,
+    }} />
   )
 }
 
-// Specular highlight (franja brillante superior)
+// Franja especular superior (reflexión de luz en borde superior del vidrio)
 function SpecularTop() {
   return (
     <div aria-hidden="true" style={{
       position: "absolute", inset: 0, pointerEvents: "none",
       borderRadius: "inherit", zIndex: 2,
-      background: "linear-gradient(180deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.00) 40%)",
+      background: "linear-gradient(180deg, rgba(255,255,255,0.32) 0%, rgba(255,255,255,0.08) 25%, rgba(255,255,255,0.00) 55%)",
     }} />
   )
 }
 
-// Acumulación de luz en borde inferior
+// Acumulación de luz en borde inferior del lente
 function LensBottom() {
   return (
     <div aria-hidden="true" style={{
       position: "absolute", bottom: 0, left: 0, right: 0,
-      height: "38%", pointerEvents: "none",
+      height: "40%", pointerEvents: "none",
       borderRadius: "inherit", zIndex: 2,
-      background: "linear-gradient(0deg, rgba(255,255,255,0.10) 0%, transparent 100%)",
+      background: "linear-gradient(0deg, rgba(255,255,255,0.12) 0%, transparent 100%)",
     }} />
   )
 }
 
-// Capa de refracción — KEY FIX: filter en div interno + backdropFilter:blur(0.01px)
-// blur(0.01px) garantiza stacking context en Chromium/WebView (blur(0px) es un no-op
-// y no crea stacking context de forma fiable en el WebView de Telegram)
-function RefractLayer({ filterId }: { filterId: string }) {
+// Borde interior brillante (da sensación de grosor del vidrio)
+function LensEdge() {
   return (
     <div aria-hidden="true" style={{
-      position: "absolute", inset: -1, pointerEvents: "none",
-      borderRadius: "inherit", zIndex: 1,
-      filter: `url(#${filterId})`,
-      background: "rgba(255,255,255,0.025)",
-      backdropFilter: "blur(0.01px)",
-      WebkitBackdropFilter: "blur(0.01px)",
+      position: "absolute", inset: 0, pointerEvents: "none",
+      borderRadius: "inherit", zIndex: 3,
+      boxShadow: [
+        "inset 0 1px 0 rgba(255,255,255,0.45)",
+        "inset 0 -1px 0 rgba(255,255,255,0.10)",
+        "inset 1px 0 0 rgba(255,255,255,0.12)",
+        "inset -1px 0 0 rgba(255,255,255,0.06)",
+      ].join(", "),
     }} />
   )
 }
@@ -238,7 +230,7 @@ function NavBar() {
 
   return (
     <>
-      <LiquidGlassDefs />
+      
       <div
         className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
         style={{ bottom: safeBottom }}
@@ -259,7 +251,8 @@ function NavBar() {
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          <RefractLayer filterId="lg-circle" />
+          <LensRefract shape="circle" />
+          <LensEdge />
           <SpecularTop />
           <LensBottom />
           <div className="flex flex-col items-center justify-center pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
@@ -282,7 +275,8 @@ function NavBar() {
           className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
           style={{ ...PILL_STYLE, borderRadius: "100px", height: "64px", zIndex: 51 }}
         >
-          <RefractLayer filterId="lg-pill" />
+          <LensRefract shape="pill" />
+          <LensEdge />
           <SpecularTop />
           <LensBottom />
           <div className="flex items-center justify-between w-full relative" style={{ zIndex: 5 }}>
@@ -346,7 +340,8 @@ function NavBar() {
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          <RefractLayer filterId="lg-circle" />
+          <LensRefract shape="circle" />
+          <LensEdge />
           <SpecularTop />
           <LensBottom />
           <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
