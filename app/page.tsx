@@ -82,10 +82,9 @@ function GlassRim() {
     <div aria-hidden="true" style={{
       position: "absolute", inset: 0, pointerEvents: "none",
       borderRadius: "inherit", zIndex: 3,
-      // Brillos mucho más suaves y difuminados, nada de líneas duras
       boxShadow: [
-        "inset 1px 1px 2px rgba(255, 255, 255, 0.12)", // Brillo superior muy sutil
-        "inset -1px -1px 2px rgba(0, 0, 0, 0.20)"      // Sombra inferior sutil
+        "inset 1px 1px 2px rgba(255, 255, 255, 0.12)", 
+        "inset -1px -1px 2px rgba(0, 0, 0, 0.20)"      
       ].join(", "),
       background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.0) 30%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0.1) 100%)",
     }} />
@@ -96,13 +95,10 @@ function GlassRim() {
 const GLASS_BASE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  // Eliminamos casi todo el fondo negro. Solo un levísimo 3% para estabilizar.
   backgroundColor: "rgba(0, 0, 0, 0.03)",
   
-  // TEXTURA ESMERILADA CORREGIDA: Opacidad del ruido bajada de 0.07 a 0.03. Ahora es microscópica.
   backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E\")",
   
-  // Aumentamos el brillo (1.30) y la saturación (2.5) para que los colores estallen como en el prototipo
   backdropFilter: "blur(14px) saturate(2.5) contrast(1.05) brightness(1.30)",
   WebkitBackdropFilter: "blur(14px) saturate(2.5) contrast(1.05) brightness(1.30)",
   
@@ -125,19 +121,20 @@ const PILL_STYLE: React.CSSProperties = {
 
 // Tab activo: cápsula INCRUSTADA dentro de la barra
 const activePillStyle: React.CSSProperties = {
-  // Casi transparente. Evitamos el efecto "agujero negro".
-  backgroundColor: "rgba(0, 0, 0, 0.08)",
+  // Oscurecimiento súper sutil solo para dar la sensación de profundidad
+  backgroundColor: "rgba(0, 0, 0, 0.15)",
   
-  // Mantenemos la doble refracción para el "espejo", pero con un poco más de brillo
-  backdropFilter: "blur(8px) saturate(1.2) brightness(1.05)",
-  WebkitBackdropFilter: "blur(8px) saturate(1.2) brightness(1.05)",
+  // ELIMINADO: backdrop-filter. Dejamos que el color fluya idéntico al de la barra principal.
   
   boxShadow: [
-    // Sombras internas mucho más suaves y expandidas
-    "inset 2px 4px 12px rgba(0, 0, 0, 0.25)", 
-    // Brillos de recorte suavizados
-    "inset 1px 1px 2px rgba(255, 255, 255, 0.08)",
-    "1px 1px 2px rgba(255, 255, 255, 0.08)",
+    // Sombra superior para la hendidura
+    "inset 0 4px 10px rgba(0, 0, 0, 0.25)", 
+    // CLAVE: Brillos concentrados exclusivamente en los lados (eje X)
+    // El spread negativo (-2px) evita que la luz se fugue hacia el centro o arriba/abajo
+    "inset 3px 0 8px -2px rgba(255, 255, 255, 0.20)",  // Arco de luz izquierdo
+    "inset -3px 0 8px -2px rgba(255, 255, 255, 0.20)", // Arco de luz derecho
+    // Rebote inferior sutil
+    "0 1px 1px rgba(255, 255, 255, 0.05)",
   ].join(", "),
 }
 
