@@ -16,6 +16,47 @@ import { GroupConfigView } from "@/components/group-config-view"
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react"
 
+// ── THREE.JS IMPORTS ──────────────────────────────────────────────────
+import { Canvas } from '@react-three/fiber'
+import { MeshTransmissionMaterial, Environment } from '@react-three/drei'
+import * as THREE from 'three'
+
+// ── WebGL Liquid Glass Component ──────────────────────────────────────
+function WebGLGlassPill({ isActive }: { isActive?: boolean }) {
+  return (
+    <div className="absolute inset-0 w-full h-full -z-10 rounded-[inherit] overflow-hidden pointer-events-none">
+      <Canvas shadows camera={{ position: [0, 0, 5], fov: 20 }}>
+        <ambientLight intensity={isActive ? 1.2 : 0.8} />
+        <directionalLight position={[10, 10, 10]} intensity={2} />
+        
+        <mesh>
+          {/* Un plano lo suficientemente grande para cubrir los contenedores */}
+          <planeGeometry args={[15, 5]} />
+          <MeshTransmissionMaterial
+            background={new THREE.Color(0x000000)} // Ajusta según el fondo general de tu app
+            transmission={1}
+            thickness={1.5}
+            roughness={0.15}
+            chromaticAberration={0.04}
+            anisotropy={0.2}
+            distortion={0.1}
+            distortionScale={0.3}
+            temporalDistortion={0.05}
+            ior={1.5}
+            color={isActive ? "#ffffff" : "#e5e5e5"}
+            transparent={true}
+            opacity={0.1}
+            clearcoat={1}
+            clearcoatRoughness={0.1}
+          />
+        </mesh>
+        
+        <Environment preset="city" />
+      </Canvas>
+    </div>
+  )
+}
+
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = {
   id: number
@@ -75,20 +116,17 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Crystal Clear Dark Mode - OPTIMIZADO) ────────
+// ── Liquid Glass Styles (Actualizado para WebGL) ─────────────────────
 
 const BTN_BASE: React.CSSProperties = {
-  backgroundColor: "rgba(255, 255, 255, 0.05)", 
-  backdropFilter: "blur(24px) saturate(180%)",
-  WebkitBackdropFilter: "blur(24px) saturate(180%)",
-  // Refracción superior
-  border: "1px solid rgba(255, 255, 255, 0.06)", 
-  borderTop: "1px solid rgba(255, 255, 255, 0.20)", 
+  // Transparencia base para dejar ver el WebGL por debajo
+  backgroundColor: "rgba(255, 255, 255, 0.02)", 
+  border: "1px solid rgba(255, 255, 255, 0.08)", 
   transform: "translateZ(0)", 
-  willChange: "transform", 
   boxShadow: [
-    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.15)",
-    "0 12px 32px 0px rgba(0, 0, 0, 0.35)" 
+    "inset 1px 1px 1px 0px rgba(255, 255, 255, 0.15)",
+    "inset -1px -1px 1px 0px rgba(255, 255, 255, 0.05)",
+    "0 10px 30px 0px rgba(0, 0, 0, 0.7)"
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
@@ -96,21 +134,21 @@ const BTN_BASE: React.CSSProperties = {
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
   boxShadow: [
-    "inset 0px 1px 1px 0px rgba(255, 255, 255, 0.15)",
-    "0 8px 24px 0px rgba(0, 0, 0, 0.25)"
+    "inset 1px 1px 1px 0px rgba(255, 255, 255, 0.15)",
+    "inset -1px -1px 1px 0px rgba(255, 255, 255, 0.05)",
+    "0 6px 20px 0px rgba(0, 0, 0, 0.4)" 
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  backgroundColor: "rgba(255, 255, 255, 0.08)",
-  backdropFilter: "blur(24px) saturate(200%) brightness(110%)", 
-  WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(110%)",
-  border: "1px solid rgba(255, 255, 255, 0.08)",
-  borderTop: "1px solid rgba(51, 181, 247, 0.3)", // Tinte sutil neón en el borde superior
+  // Apenas un ligero tinte para denotar el botón activo sobre el canvas
+  backgroundColor: "rgba(255, 255, 255, 0.05)",
+  border: "1px solid rgba(255, 255, 255, 0.15)",
   boxShadow: [
-    "inset 0px 1px 2px 0px rgba(255, 255, 255, 0.20)", 
-    "0 4px 16px 0px rgba(0, 0, 0, 0.4)"
+    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.25)", 
+    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.08)",
+    "0 4px 12px 0px rgba(0, 0, 0, 0.3)"
   ].join(", "),
 }
 
@@ -133,29 +171,8 @@ function NavBar() {
     if (activeNavMode !== storedNavMode) setStoredNavMode(activeNavMode)
   }, [activeNavMode, storedNavMode])
 
-  // Función segura para Feedback Háptico
-  const triggerHaptic = (type: 'light' | 'selection') => {
-    if (typeof window !== "undefined") {
-      const haptic = (window as any).Telegram?.WebApp?.HapticFeedback
-      if (haptic) {
-        try {
-          if (type === 'light' && haptic.impactOccurred) haptic.impactOccurred('light')
-          if (type === 'selection' && haptic.selectionChanged) haptic.selectionChanged()
-        } catch (e) {
-          console.warn("Haptic API error", e)
-        }
-      }
-    }
-  }
-
   const handleLeftActionButton = () => {
-    triggerHaptic('light')
     setCurrentView(activeNavMode === 'market' ? 'home' as any : 'market' as any)
-  }
-
-  const handleCenterTabClick = (tabId: string) => {
-    triggerHaptic('selection')
-    setCurrentView(tabId as any)
   }
 
   const centerTabs = activeNavMode === 'market'
@@ -179,16 +196,11 @@ function NavBar() {
       className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
       style={{ bottom: safeBottom }}
     >
-      {/* Fondo dinámico desenfocado DETRÁS del cristal (Luz Ambiental Distribuida) */}
-      <div className="absolute -bottom-10 left-0 right-0 h-40 z-[-1] pointer-events-none opacity-25 overflow-visible">
-        <div className="absolute top-1/2 left-[10%] w-[150px] h-[100px] bg-[#8B5CF6] rounded-[100%] mix-blend-lighten filter blur-[50px] transform -translate-y-1/2" />
-        <div className="absolute top-1/2 right-[10%] w-[150px] h-[100px] bg-[#33b5f7] rounded-[100%] mix-blend-lighten filter blur-[50px] transform -translate-y-1/2" />
-      </div>
 
       {/* ── BOTÓN IZQUIERDO ── */}
       <button
         onClick={handleLeftActionButton}
-        className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
+        className="relative pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
         style={{
           ...BTN_BASE,
           width: "64px",
@@ -197,7 +209,8 @@ function NavBar() {
           zIndex: 51,
         }}
       >
-        <div className="flex flex-col items-center justify-center pointer-events-none select-none">
+        <WebGLGlassPill />
+        <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none select-none">
           {activeNavMode === 'market' ? (
             <>
               <Home size={22} color={inactiveColor} strokeWidth={2} />
@@ -214,7 +227,7 @@ function NavBar() {
 
       {/* ── PÍLDORA CENTRAL ── */}
       <div
-        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
+        className="relative pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
         style={{
           ...PILL_STYLE,
           borderRadius: "100px",
@@ -222,17 +235,18 @@ function NavBar() {
           zIndex: 51,
         }}
       >
-        <div className="flex items-center justify-between w-full relative">
+        <WebGLGlassPill isActive={true} />
+        <div className="flex items-center justify-between w-full relative z-10">
           {centerTabs.map((tab, idx) => {
-            const isActive = currentView === tab.id
+            const isActive   = currentView === tab.id
             const isDisabled = !!tab.disabled
-            const Icon = tab.icon
+            const Icon       = tab.icon
 
             return (
               <button
                 key={`${tab.id}-${idx}`}
                 disabled={isDisabled}
-                onClick={() => !isDisabled && handleCenterTabClick(tab.id)}
+                onClick={() => !isDisabled && setCurrentView(tab.id as any)}
                 className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] active:scale-95 select-none"
                 style={{
                   pointerEvents: isDisabled ? "none" : "auto",
@@ -247,17 +261,17 @@ function NavBar() {
                       size={22}
                       color={isActive ? neonBlue : inactiveColor}
                       strokeWidth={isActive ? 2.5 : 2}
-                      className="transition-colors duration-300"
+                      className="transition-colors duration-300 relative z-10"
                     />
                     <span
-                      className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
+                      className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 relative z-10 ${isActive ? "font-bold" : "font-semibold"}`}
                       style={{ color: isActive ? neonBlue : inactiveColor }}
                     >
                       {tab.label}
                     </span>
                   </>
                 ) : (
-                  <div className="w-[6px] h-[6px] rounded-full bg-white/10" />
+                  <div className="w-[6px] h-[6px] rounded-full bg-white/10 relative z-10" />
                 )}
               </button>
             )
@@ -267,8 +281,8 @@ function NavBar() {
 
       {/* ── BOTÓN DERECHO: Profile ── */}
       <button
-        onClick={() => handleCenterTabClick('profile')}
-        className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
+        onClick={() => setCurrentView('profile')}
+        className="relative pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
         style={{
           ...BTN_BASE,
           width: "64px",
@@ -277,9 +291,10 @@ function NavBar() {
           zIndex: 51,
         }}
       >
-        <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none">
+        <WebGLGlassPill />
+        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pointer-events-none select-none">
           {photoUrl ? (
-            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-white/10">
+            <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
               <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
             </div>
           ) : (
@@ -368,9 +383,8 @@ function AppContent() {
         </div>
       )}
 
-      {/* bg-black mantenido para no romper la visibilidad de los componentes hijos */}
       <div
-        className="bg-black flex flex-col relative overflow-x-hidden"
+        className="bg-black flex flex-col relative"
         style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
       >
         {currentView === "home"               && (<><Header /><HomeView /></>)}
