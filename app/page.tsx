@@ -1,200 +1,304 @@
 "use client"
 
-import { AppProvider, useApp } from "@/lib/app-context"
-import { Header } from "@/components/header"
-import { HomeView } from "@/components/home-view"
-import { SettingsView } from "@/components/settings-view"
-import { PremiumView } from "@/components/premium-view"
-import { ReferralView } from "@/components/referral-view"
-import { ProfileView } from "@/components/profile-view"
-import { XRewardsView } from "@/components/x-rewards-view"
-import { MarketView } from "@/components/market-view"
-import { ScheduleView } from "@/components/schedule-view"
-import { LevelsView } from "@/components/levels-view"
-import { ShopView } from "@/components/shop-view"
-import { GroupConfigView } from "@/components/group-config-view"
-import { useEffect, useState } from "react"
-import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import { Home, Store, Clock, Target, CircleUser } from "lucide-react"
 
-// ── Telegram user helper ──────────────────────────────────────────────
-type TgUser = {
-  id: number
-  first_name?: string
-  last_name?: string
-  username?: string
-  photo_url?: string
-}
-
+// ─────────────────────────────────────────────────────────
+// Types & helpers (mini stub — adáptalo a tu app-context)
+// ─────────────────────────────────────────────────────────
+type TgUser = { photo_url?: string }
 function getTgUser(): TgUser | undefined {
   if (typeof window === "undefined") return undefined
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
-// ── Maintenance Screen ────────────────────────────────────────────────
-function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
-  const [tapCount, setTapCount] = useState(0)
-
-  const handleSecretTap = () => {
-    setTapCount(prev => {
-      if (prev + 1 >= 7) { onUnlock(); return 0 }
-      return prev + 1
-    })
-  }
-
-  useEffect(() => {
-    if (tapCount > 0) {
-      const timer = setTimeout(() => setTapCount(0), 1500)
-      return () => clearTimeout(timer)
-    }
-  }, [tapCount])
-
+// ─────────────────────────────────────────────────────────
+// SVG Liquid-Glass Filter  (feTurbulence + feDisplacementMap)
+// Solo se renderiza UNA vez en el DOM, fuera del flujo visual.
+// ─────────────────────────────────────────────────────────
+function LiquidGlassDefs() {
   return (
-    <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center select-none overflow-hidden">
-      <div onClick={handleSecretTap} className="absolute top-0 left-0 w-24 h-24 z-50" />
-      <div className="relative mb-8 pointer-events-none select-none">
-        <img
-          src="/steampunkjulia_agadsqcaakb7raq.webp"
-          alt="Maintenance"
-          draggable={false}
-          className="w-48 h-48 object-contain pointer-events-none select-none"
-          style={{ WebkitUserSelect: "none", WebkitTouchCallout: "none", userSelect: "none" }}
-        />
-      </div>
-      <div className="flex flex-col items-center gap-1">
-        <h1 className="text-white text-[24px] font-bold tracking-tight"
-          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif" }}>
-          Currently working
-        </h1>
-        <p className="text-[#8e8e93] text-[17px] font-medium"
-          style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" }}>
-          come back later 🚀
-        </p>
-      </div>
-    </div>
+    <svg
+      aria-hidden="true"
+      style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
+    >
+      <defs>
+        {/* ── Filtro para la píldora central ── */}
+        <filter id="lg-pill" x="-5%" y="-5%" width="110%" height="110%"
+          colorInterpolationFilters="sRGB">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.65 0.75"
+            numOctaves="1"
+            seed="2"
+            result="noise"
+          />
+          <feColorMatrix
+            in="noise"
+            type="saturate"
+            values="0"
+            result="grayNoise"
+          />
+          <feBlend in="SourceGraphic" in2="grayNoise" mode="screen" result="lit" />
+          <feComposite in="lit" in2="SourceGraphic" operator="in" result="clipped" />
+          <feGaussianBlur in="clipped" stdDeviation="0.4" result="softLit" />
+          <feBlend in="SourceGraphic" in2="softLit" mode="screen" />
+        </filter>
+
+        {/* ── Filtro de refracción para los botones laterales ── */}
+        <filter id="lg-btn" x="-10%" y="-10%" width="120%" height="120%"
+          colorInterpolationFilters="sRGB">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.9 0.85"
+            numOctaves="1"
+            seed="7"
+            result="noise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="3"
+            xChannelSelector="R"
+            yChannelSelector="G"
+            result="displaced"
+          />
+          <feGaussianBlur in="displaced" stdDeviation="0.3" result="softDisp" />
+          <feBlend in="SourceGraphic" in2="softDisp" mode="screen" />
+        </filter>
+
+        {/* ── Gradiente para specular highlight (borde superior brillante) ── */}
+        <linearGradient id="lg-specular" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.55)" />
+          <stop offset="35%" stopColor="rgba(255,255,255,0.08)" />
+          <stop offset="100%" stopColor="rgba(255,255,255,0.00)" />
+        </linearGradient>
+
+        {/* ── Gradiente para borde "lensing" inferior ── */}
+        <linearGradient id="lg-lens-bottom" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.00)" />
+          <stop offset="100%" stopColor="rgba(255,255,255,0.12)" />
+        </linearGradient>
+      </defs>
+    </svg>
   )
 }
 
-// ── NavBar ────────────────────────────────────────────────────────────
-function NavBar() {
-  const { currentView, setCurrentView } = useApp()
+// ─────────────────────────────────────────────────────────
+// Estilos base
+// ─────────────────────────────────────────────────────────
+
+// Píldora central
+const pillBase: React.CSSProperties = {
+  position: "relative",
+  backdropFilter: "blur(28px) saturate(220%) brightness(1.12)",
+  WebkitBackdropFilter: "blur(28px) saturate(220%) brightness(1.12)",
+  backgroundColor: "rgba(255,255,255,0.07)",
+  borderRadius: 100,
+  border: "1px solid rgba(255,255,255,0.13)",
+  boxShadow: [
+    // Luz superior (specular)
+    "inset 0 1.5px 1px rgba(255,255,255,0.40)",
+    // Sombra interna inferior (profundidad)
+    "inset 0 -1px 1px rgba(0,0,0,0.35)",
+    // Rim light lateral izquierdo
+    "inset 1.5px 0 1px rgba(255,255,255,0.10)",
+    // Rim light lateral derecho (negativo)
+    "inset -1.5px 0 1px rgba(0,0,0,0.20)",
+    // Sombra proyectada
+    "0 8px 32px rgba(0,0,0,0.55)",
+    "0 2px 8px rgba(0,0,0,0.35)",
+  ].join(", "),
+  transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+  overflow: "hidden",  // para el specular overlay
+}
+
+// Botón circular (izquierda / derecha)
+const circleBase: React.CSSProperties = {
+  position: "relative",
+  width: 64,
+  height: 64,
+  borderRadius: "50%",
+  backdropFilter: "blur(32px) saturate(250%) brightness(1.15)",
+  WebkitBackdropFilter: "blur(32px) saturate(250%) brightness(1.15)",
+  backgroundColor: "rgba(255,255,255,0.06)",
+  border: "1px solid rgba(255,255,255,0.14)",
+  boxShadow: [
+    "inset 0 2px 1.5px rgba(255,255,255,0.45)",
+    "inset 0 -1.5px 1px rgba(0,0,0,0.30)",
+    "inset 1.5px 0 1px rgba(255,255,255,0.12)",
+    "inset -1.5px 0 1px rgba(0,0,0,0.22)",
+    "0 6px 24px rgba(0,0,0,0.50)",
+    "0 2px 6px rgba(0,0,0,0.30)",
+  ].join(", "),
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+  userSelect: "none",
+  transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease",
+  flexShrink: 0,
+  // Aplica el filtro SVG de refracción
+  filter: "url(#lg-btn)",
+  overflow: "hidden",
+}
+
+// Tab activo dentro de la píldora
+const activeTabStyle: React.CSSProperties = {
+  backdropFilter: "blur(20px) saturate(280%) brightness(1.25)",
+  WebkitBackdropFilter: "blur(20px) saturate(280%) brightness(1.25)",
+  backgroundColor: "rgba(255,255,255,0.13)",
+  border: "1px solid rgba(255,255,255,0.20)",
+  boxShadow: [
+    "inset 0 2px 2px rgba(255,255,255,0.50)",
+    "inset 0 -1px 1px rgba(0,0,0,0.25)",
+    "0 2px 8px rgba(0,0,0,0.25)",
+  ].join(", "),
+}
+
+// ─────────────────────────────────────────────────────────
+// Componente NavBar
+// ─────────────────────────────────────────────────────────
+type View =
+  | "home" | "schedule" | "market" | "shop" | "levels"
+  | "profile" | "settings" | "premium" | "referral"
+  | "x-rewards" | "account_setup" | "additional_details"
+  | "group_config"
+
+interface NavBarProps {
+  currentView: View
+  setCurrentView: (v: View) => void
+}
+
+export function NavBar({ currentView, setCurrentView }: NavBarProps) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
-  const [storedNavMode, setStoredNavMode] = useState<'home' | 'market'>('home')
+  const [storedNavMode, setStoredNavMode] = useState<"home" | "market">("home")
+  const [pressedId, setPressedId] = useState<string | null>(null)
 
   useEffect(() => {
     const user = getTgUser()
     if (user?.photo_url) setPhotoUrl(user.photo_url)
   }, [])
 
-  const isMarketSection = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
-  const isHomeSection   = currentView === 'home'   || currentView === 'schedule'
-  const activeNavMode   = isMarketSection ? 'market' : (isHomeSection ? 'home' : storedNavMode)
+  const isMarketSection =
+    currentView === "market" || currentView === "shop" || currentView === "levels"
+  const isHomeSection =
+    currentView === "home" || currentView === "schedule"
+  const activeNavMode =
+    isMarketSection ? "market" : isHomeSection ? "home" : storedNavMode
 
   useEffect(() => {
     if (activeNavMode !== storedNavMode) setStoredNavMode(activeNavMode)
   }, [activeNavMode, storedNavMode])
 
-  const handleLeftActionButton = () => {
-    setCurrentView(activeNavMode === 'market' ? 'home' as any : 'market' as any)
+  const handleLeftButton = () => {
+    setCurrentView(activeNavMode === "market" ? "home" : "market")
   }
 
-  const centerTabs = activeNavMode === 'market'
-    ? [
-        { id: "market", label: "Market",    icon: Store,  disabled: false },
-        { id: "shop",   label: "Shop",      icon: Target, disabled: false },
-        { id: "levels", label: "BP Levels", icon: Target, disabled: false },
-      ]
-    : [
-        { id: "home",     label: "Home",  icon: Home,  disabled: false },
-        { id: "schedule", label: "Tasks", icon: Clock, disabled: false },
-        { id: "none2",    label: "None",  icon: null,  disabled: true  },
-      ]
+  const centerTabs =
+    activeNavMode === "market"
+      ? [
+          { id: "market",  label: "Market",    icon: Store,  disabled: false },
+          { id: "shop",    label: "Shop",      icon: Target, disabled: false },
+          { id: "levels",  label: "BP Levels", icon: Target, disabled: false },
+        ]
+      : [
+          { id: "home",     label: "Home",  icon: Home,  disabled: false },
+          { id: "schedule", label: "Tasks", icon: Clock, disabled: false },
+          { id: "none2",    label: "",      icon: null,  disabled: true  },
+        ]
 
-  const neonBlue          = "#33b5f7"
-  const inactiveColor     = "rgba(255,255,255,0.62)"
-  const safeBottom        = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)"
+  const BLUE   = "#33b5f7"
+  const DIM    = "rgba(255,255,255,0.55)"
+  const SAFE_B = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom,0px)) + 18px)"
+
+  // Specular overlay — franja brillante en la parte superior del cristal
+  const specularOverlay = (
+    <div
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        borderRadius: "inherit",
+        background: "linear-gradient(180deg, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.00) 42%)",
+        zIndex: 10,
+      }}
+    />
+  )
+
+  // Lens bottom edge — efecto "lente" en borde inferior
+  const lensEdge = (
+    <div
+      aria-hidden="true"
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: "40%",
+        pointerEvents: "none",
+        borderRadius: "inherit",
+        background: "linear-gradient(0deg, rgba(255,255,255,0.10) 0%, transparent 100%)",
+        zIndex: 10,
+      }}
+    />
+  )
 
   return (
     <>
-      {/* ── ESTILOS LIQUID GLASS PUROS (Modo Oscuro, Sin SVG) ── */}
-      <style>{`
-        .nav-pill {
-          /* Fondo ultra translúcido para mantener el modo oscuro */
-          background: rgba(255, 255, 255, 0.02);
-          
-          /* Desenfoque fuerte y saturación agresiva para que los cofres resalten */
-          backdrop-filter: blur(24px) saturate(250%) brightness(105%);
-          -webkit-backdrop-filter: blur(24px) saturate(250%) brightness(105%);
-          
-          /* Borde de corte limpio */
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          
-          /* Iluminación volumétrica 3D */
-          box-shadow: 
-            0 12px 35px rgba(0,0,0,0.6),
-            inset 0 1px 1px rgba(255, 255, 255, 0.2), /* Luz rebotando arriba */
-            inset 0 -1px 2px rgba(0,0,0,0.3); /* Sombra pesada abajo */
-            
-          position: relative;
-          overflow: hidden;
-          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-          transform: translateZ(0); /* Aceleración GPU */
-        }
-
-        /* ── EL SECRETO DEL VOLUMEN (Brillo radial) ── */
-        .nav-pill::before {
-          content: '';
-          position: absolute;
-          inset: -20%;
-          /* Un destello de luz suave en la parte superior que simula la curva del cristal */
-          background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 60%);
-          pointer-events: none;
-          border-radius: inherit;
-        }
-
-        .nav-pill:active {
-          transform: scale(0.96);
-        }
-
-        /* Estado del botón activo (ej: Profile seleccionado) */
-        .nav-pill.active-state {
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          box-shadow: 
-            0 4px 16px rgba(0,0,0,0.4),
-            inset 0 1.5px 2px rgba(255, 255, 255, 0.3),
-            inset 0 -1px 2px rgba(0,0,0,0.2);
-          transform: scale(1.02);
-        }
-      `}</style>
+      {/* Filtros SVG ocultos */}
+      <LiquidGlassDefs />
 
       <div
-        className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
-        style={{ bottom: safeBottom }}
+        className="fixed left-0 right-0 z-50 flex justify-between items-center pointer-events-none"
+        style={{ bottom: SAFE_B, padding: "0 14px" }}
       >
-        {/* ── BOTÓN IZQUIERDO ── */}
+        {/* ── Botón izquierdo ── */}
         <button
-          onClick={handleLeftActionButton}
-          className="nav-pill pointer-events-auto flex flex-col items-center justify-center shrink-0 w-[64px] h-[64px] rounded-[100px] z-[51]"
+          onClick={handleLeftButton}
+          onPointerDown={() => setPressedId("left")}
+          onPointerUp={() => setPressedId(null)}
+          onPointerLeave={() => setPressedId(null)}
+          className="pointer-events-auto"
+          style={{
+            ...circleBase,
+            transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
+          }}
         >
-          <div className="flex flex-col items-center justify-center pointer-events-none select-none z-10">
-            {activeNavMode === 'market' ? (
+          {specularOverlay}
+          {lensEdge}
+          <div style={{ position: "relative", zIndex: 5, display: "flex", flexDirection: "column", alignItems: "center" }}>
+            {activeNavMode === "market" ? (
               <>
-                <Home size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Home</span>
+                <Home size={21} color={DIM} strokeWidth={2} />
+                <span style={{ fontSize: 10, marginTop: 3, fontWeight: 600, letterSpacing: "-0.3px", color: DIM }}>Home</span>
               </>
             ) : (
               <>
-                <Store size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Market</span>
+                <Store size={21} color={DIM} strokeWidth={2} />
+                <span style={{ fontSize: 10, marginTop: 3, fontWeight: 600, letterSpacing: "-0.3px", color: DIM }}>Market</span>
               </>
             )}
           </div>
         </button>
 
-        {/* ── PÍLDORA CENTRAL ── */}
-        <div className="nav-pill pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5 h-[64px] rounded-[100px] z-[51]">
-          <div className="flex items-center justify-between w-full relative z-10">
+        {/* ── Píldora central ── */}
+        <div
+          className="pointer-events-auto flex items-center flex-1 mx-3"
+          style={{
+            ...pillBase,
+            height: 64,
+            padding: "0 6px",
+          }}
+        >
+          {/* Specular strip */}
+          {specularOverlay}
+          {lensEdge}
+
+          <div style={{ position: "relative", zIndex: 5, display: "flex", width: "100%" }}>
             {centerTabs.map((tab, idx) => {
               const isActive   = currentView === tab.id
               const isDisabled = !!tab.disabled
@@ -204,165 +308,115 @@ function NavBar() {
                 <button
                   key={`${tab.id}-${idx}`}
                   disabled={isDisabled}
-                  onClick={() => !isDisabled && setCurrentView(tab.id as any)}
-                  className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none transition-transform duration-200 active:scale-95 ${isActive ? 'active-state' : ''}`}
-                  style={{ pointerEvents: isDisabled ? "none" : "auto" }}
+                  onClick={() => !isDisabled && setCurrentView(tab.id as View)}
+                  onPointerDown={() => !isDisabled && setPressedId(tab.id)}
+                  onPointerUp={() => setPressedId(null)}
+                  onPointerLeave={() => setPressedId(null)}
+                  className="relative flex flex-col items-center justify-center select-none"
+                  style={{
+                    flex: 1,
+                    height: 54,
+                    borderRadius: 100,
+                    border: "none",
+                    background: "transparent",
+                    cursor: isDisabled ? "default" : "pointer",
+                    pointerEvents: isDisabled ? "none" : "auto",
+                    transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+                    transform: isActive
+                      ? "scale(1.07)"
+                      : pressedId === tab.id
+                      ? "scale(0.93)"
+                      : "scale(1)",
+                    ...(isActive ? activeTabStyle : {}),
+                  }}
                 >
-                  <div className="flex flex-col items-center justify-center pointer-events-none z-10">
-                    {Icon ? (
-                      <>
-                        <Icon
-                          size={22}
-                          color={isActive ? neonBlue : inactiveColor}
-                          strokeWidth={isActive ? 2.5 : 2}
-                          className="transition-colors duration-300"
-                        />
-                        <span
-                          className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 ${isActive ? "font-bold" : "font-semibold"}`}
-                          style={{ color: isActive ? neonBlue : inactiveColor }}
-                        >
-                          {tab.label}
-                        </span>
-                      </>
-                    ) : (
-                      <div className="w-[6px] h-[6px] rounded-full bg-white/10" />
-                    )}
-                  </div>
+                  {Icon ? (
+                    <>
+                      <Icon
+                        size={22}
+                        color={isActive ? BLUE : DIM}
+                        strokeWidth={isActive ? 2.5 : 1.8}
+                        style={{ transition: "color 0.25s ease" }}
+                      />
+                      <span
+                        style={{
+                          fontSize: 10,
+                          marginTop: 3,
+                          fontWeight: isActive ? 700 : 600,
+                          letterSpacing: "-0.3px",
+                          color: isActive ? BLUE : DIM,
+                          transition: "color 0.25s ease",
+                        }}
+                      >
+                        {tab.label}
+                      </span>
+                    </>
+                  ) : (
+                    <div
+                      style={{
+                        width: 5,
+                        height: 5,
+                        borderRadius: "50%",
+                        background: "rgba(255,255,255,0.15)",
+                      }}
+                    />
+                  )}
                 </button>
               )
             })}
           </div>
         </div>
 
-        {/* ── BOTÓN DERECHO: Profile ── */}
+        {/* ── Botón derecho: Profile ── */}
         <button
-          onClick={() => setCurrentView('profile')}
-          className={`nav-pill pointer-events-auto flex flex-col items-center justify-center shrink-0 w-[64px] h-[64px] rounded-[100px] z-[51] ${currentView === 'profile' ? 'active-state' : ''}`}
+          onClick={() => setCurrentView("profile")}
+          onPointerDown={() => setPressedId("right")}
+          onPointerUp={() => setPressedId(null)}
+          onPointerLeave={() => setPressedId(null)}
+          className="pointer-events-auto"
+          style={{
+            ...circleBase,
+            transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
+          }}
         >
-          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none z-10">
+          {specularOverlay}
+          {lensEdge}
+          <div style={{ position: "relative", zIndex: 5, display: "flex", flexDirection: "column", alignItems: "center" }}>
             {photoUrl ? (
-              <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
-                <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  border: "1.5px solid rgba(255,255,255,0.18)",
+                }}
+              >
+                <img src={photoUrl} alt="User" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center">
+              <>
                 <CircleUser
-                  size={22}
-                  color={currentView === 'profile' ? neonBlue : inactiveColor}
-                  strokeWidth={currentView === 'profile' ? 2.5 : 2}
+                  size={21}
+                  color={currentView === "profile" ? BLUE : DIM}
+                  strokeWidth={currentView === "profile" ? 2.5 : 1.8}
                 />
                 <span
-                  className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
-                  style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
+                  style={{
+                    fontSize: 10,
+                    marginTop: 3,
+                    fontWeight: currentView === "profile" ? 700 : 600,
+                    letterSpacing: "-0.3px",
+                    color: currentView === "profile" ? BLUE : DIM,
+                  }}
                 >
                   Profile
                 </span>
-              </div>
+              </>
             )}
           </div>
         </button>
       </div>
     </>
-  )
-}
-
-// ── App shell ──────────────────────────────────────────────────────────
-function AppContent() {
-  const { currentView, setCurrentView, isLoading } = useApp()
-  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards", "schedule"].includes(currentView)
-
-  const [imagesLoaded,  setImagesLoaded]  = useState(false)
-  const [showLoading,   setShowLoading]   = useState(true)
-  const [fadeLoading,   setFadeLoading]   = useState(false)
-  const [isMaintenance, setIsMaintenance] = useState(false)
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tg = (window as any).Telegram?.WebApp
-    if (tg) {
-      tg.ready()
-      try {
-        if (tg.requestFullscreen) { tg.requestFullscreen() } else { tg.expand() }
-      } catch { tg.expand() }
-    }
-  }, [])
-
-  useEffect(() => {
-    const checkImages = () => {
-      const images = Array.from(document.images)
-      if (images.length === 0) { setImagesLoaded(true); return }
-      let loadedCount = 0
-      const checkDone = () => { if (++loadedCount === images.length) setImagesLoaded(true) }
-      images.forEach(img => {
-        if (img.complete) { checkDone() }
-        else {
-          img.addEventListener('load',  checkDone, { once: true })
-          img.addEventListener('error', checkDone, { once: true })
-        }
-      })
-    }
-    const timer    = setTimeout(checkImages, 50)
-    const fallback = setTimeout(() => setImagesLoaded(true), 3000)
-    return () => { clearTimeout(timer); clearTimeout(fallback) }
-  }, [currentView, isMaintenance])
-
-  useEffect(() => {
-    if (!isLoading && imagesLoaded) {
-      setFadeLoading(true)
-      const t = setTimeout(() => setShowLoading(false), 400)
-      return () => clearTimeout(t)
-    }
-  }, [isLoading, imagesLoaded])
-
-  if (isMaintenance) {
-    return <MaintenanceScreen onUnlock={() => setIsMaintenance(false)} />
-  }
-
-  return (
-    <>
-      {showLoading && (
-        <div
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
-            fadeLoading ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          <Loader2 className="w-10 h-10 text-white animate-spin" />
-        </div>
-      )}
-
-      <div
-        className="bg-black flex flex-col relative"
-        style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
-      >
-        {currentView === "home"               && (<><Header /><HomeView /></>)}
-        {currentView === "levels"             && <LevelsView />}
-        {currentView === "shop"               && <ShopView />}
-        {currentView === "settings"           && <SettingsView />}
-        {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
-        {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
-        {currentView === "premium"            && <PremiumView />}
-        {currentView === "referral"           && <ReferralView />}
-        {currentView === "profile"            && <ProfileView />}
-        {currentView === "x-rewards"          && <XRewardsView />}
-        {currentView === "market"             && <MarketView />}
-        {currentView === "schedule"           && <ScheduleView />}
-        {currentView === "group_config"       && (
-          <GroupConfigView
-            onClose={() => setCurrentView("home")}
-            apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""}
-          />
-        )}
-
-        {showNav && <NavBar />}
-      </div>
-    </>
-  )
-}
-
-export default function Page() {
-  return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
   )
 }
