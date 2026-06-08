@@ -76,36 +76,33 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 }
 
 // ── Liquid Glass SVG Defs ─────────────────────────────────────────────
-// FIX: feDisplacementMap con mapa radial (lente convexo real)
-// vs. el feTurbulence anterior de alta frecuencia (ruido granular incorrecto)
-// FIX 2: useState+useEffect en lugar de guard window===undefined para evitar
-// que los filtros SVG sean null durante hydration y causen el parpadeo/desaparición
+// PROBLEMA RAIZ: feImage con data URI como mapa de desplazamiento está
+// bloqueado en Chromium mobile / Telegram WebView por restricciones de
+// taint/CORS del compositor. El filtro se ignora silenciosamente → efecto ausente.
+// SOLUCIÓN: mapa de desplazamiento 100% inline con feTurbulence (frecuencia
+// muy baja = bump suave tipo lente) + feColorMatrix para amplificar.
+// No depende de recursos externos → funciona en todos los WebViews.
 function LiquidGlassDefs() {
-  const [uris, setUris] = useState<{ pill: string; circle: string } | null>(null)
-
-  useEffect(() => {
-    const pillMap   = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><defs><radialGradient id="g" cx="50%" cy="40%" r="58%"><stop offset="0%" stop-color="#8080ff"/><stop offset="55%" stop-color="#808080"/><stop offset="100%" stop-color="#3838b8"/></radialGradient></defs><rect width="200" height="80" fill="url(#g)"/></svg>`
-    const circleMap = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><defs><radialGradient id="g" cx="50%" cy="38%" r="60%"><stop offset="0%" stop-color="#8080ff"/><stop offset="52%" stop-color="#808080"/><stop offset="100%" stop-color="#3030a8"/></radialGradient></defs><rect width="64" height="64" fill="url(#g)"/></svg>`
-    setUris({
-      pill:   `data:image/svg+xml;base64,${btoa(pillMap)}`,
-      circle: `data:image/svg+xml;base64,${btoa(circleMap)}`,
-    })
-  }, [])
-
-  if (!uris) return null
-
   return (
     <svg aria-hidden="true" style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}>
       <defs>
-        <filter id="lg-pill" x="-8%" y="-20%" width="116%" height="140%" colorInterpolationFilters="sRGB">
-          <feImage href={uris.pill} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
-          <feDisplacementMap in="SourceGraphic" in2="map" scale="20" xChannelSelector="R" yChannelSelector="G" result="displaced" />
-          <feGaussianBlur in="displaced" stdDeviation="0.6" />
-        </filter>
-        <filter id="lg-circle" x="-15%" y="-15%" width="130%" height="130%" colorInterpolationFilters="sRGB">
-          <feImage href={uris.circle} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
-          <feDisplacementMap in="SourceGraphic" in2="map" scale="15" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+        {/* Filtro píldora: lente convexo suave para la barra central */}
+        <filter id="lg-pill" x="-10%" y="-25%" width="120%" height="150%" colorInterpolationFilters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.025" numOctaves="1" seed="2" result="noise" />
+          <feColorMatrix type="matrix"
+            values="3 0 0 0 -0.5  0 3 0 0 -0.5  0 0 0 0 0.5  0 0 0 1 0"
+            in="noise" result="map" />
+          <feDisplacementMap in="SourceGraphic" in2="map" scale="18" xChannelSelector="R" yChannelSelector="G" result="displaced" />
           <feGaussianBlur in="displaced" stdDeviation="0.5" />
+        </filter>
+        {/* Filtro círculo: lente convexo para los botones redondos */}
+        <filter id="lg-circle" x="-18%" y="-18%" width="136%" height="136%" colorInterpolationFilters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.018 0.018" numOctaves="1" seed="5" result="noise" />
+          <feColorMatrix type="matrix"
+            values="3 0 0 0 -0.5  0 3 0 0 -0.5  0 0 0 0 0.5  0 0 0 1 0"
+            in="noise" result="map" />
+          <feDisplacementMap in="SourceGraphic" in2="map" scale="13" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+          <feGaussianBlur in="displaced" stdDeviation="0.4" />
         </filter>
       </defs>
     </svg>
