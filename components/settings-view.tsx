@@ -995,20 +995,27 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         
         <TelegramInputGroup>
           <TelegramInput label="Name" maxLength={64} value={nameField} onChange={setNameField} />
+          <div 
+            onClick={() => setPage("gender_select")}
+            onPointerDown={createRipple}
+            className="relative w-full px-4 pt-3 flex flex-col transition-colors duration-200 bg-transparent active:bg-white/5 cursor-pointer overflow-hidden"
+          >
+            <div className="flex justify-between items-center mb-0.5 relative z-10 pointer-events-none">
+              <span className="text-[13px] font-medium text-[#8e8e93]" style={{ fontFamily: SF }}>
+                Gender
+              </span>
+            </div>
+            <div className="w-full flex items-center justify-between pb-3 relative z-10 pointer-events-none" style={{ minHeight: "24px" }}>
+              <span className={genderField ? "text-white" : "text-[#555558]"} style={{ fontFamily: SF, fontSize: "16px" }}>
+                {genderField || "Select gender"}
+              </span>
+              <ChevronRight className="w-5 h-5 text-[#8e8e93]" />
+            </div>
+            <div className="absolute bottom-0 left-4 right-0 h-[1px] bg-[#2c2c2e]" />
+          </div>
           <TelegramInput label="Age" maxLength={3} value={ageField} onChange={setAgeField} />
           <TelegramInput label="City" maxLength={64} value={cityField} onChange={setCityField} isLast />
         </TelegramInputGroup>
-
-        <div className="mb-4 mt-2 shrink-0">
-          <Section>
-            <Row 
-              label="Gender" 
-              value={genderField || "Select gender"} 
-              onClick={() => setPage("gender_select")} 
-              last 
-            />
-          </Section>
-        </div>
 
         <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
@@ -1022,8 +1029,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={saveBasicInfo} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
-              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-white font-medium active:opacity-80 transition-opacity" 
+              style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Update</span>
             </button>
@@ -1046,10 +1053,9 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         </TelegramInputGroup>
 
         <div className="mb-4 mt-2 shrink-0">
-          <Section>
+          <Section title="Time zone">
             <Row 
-              label="Time zone" 
-              value={timezoneField || "Select time zone"} 
+              label={timezoneField || "Select time zone"} 
               onClick={() => setPage("timezone_select")} 
               last 
             />
@@ -1068,8 +1074,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={saveAdditionalInfo} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
-              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-white font-medium active:opacity-80 transition-opacity" 
+              style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Update</span>
             </button>
@@ -1102,8 +1108,8 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             <button 
               onClick={saveNoirInfo} 
               onPointerDown={createRipple}
-              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-black font-medium active:opacity-80 transition-opacity" 
-              style={{ background: "#ffffff", fontFamily: SF, fontSize: "16px" }}
+              className="relative overflow-hidden flex-1 py-3.5 rounded-full text-white font-medium active:opacity-80 transition-opacity" 
+              style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
             >
               <span className="relative z-10">Update</span>
             </button>
