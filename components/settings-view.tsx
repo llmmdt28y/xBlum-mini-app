@@ -938,7 +938,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
           {GENDERS.map((g, idx, arr) => (
             <div key={g}>
               <button 
-                onClick={() => { setGenderField(g); setPage("basic_info") }} 
+                onClick={() => { setGenderField(g); }} 
                 onPointerDown={createRipple}
                 className="relative overflow-hidden w-full px-4 py-3.5 flex items-center gap-3.5 active:bg-white/5 transition-colors text-left"
               >
@@ -966,7 +966,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             return (
               <div key={tz.name}>
                 <button 
-                  onClick={() => { setTimezoneField(displayVal); setPage("additional_details") }} 
+                  onClick={() => { setTimezoneField(displayVal); }} 
                   onPointerDown={createRipple}
                   className="relative overflow-hidden w-full px-4 py-3.5 flex items-center gap-3.5 active:bg-white/5 transition-colors text-left"
                 >
@@ -995,14 +995,20 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
         
         <TelegramInputGroup>
           <TelegramInput label="Name" maxLength={64} value={nameField} onChange={setNameField} />
-          <Row 
-            label="Gender" 
-            value={genderField || "Select gender"} 
-            onClick={() => setPage("gender_select")} 
-          />
           <TelegramInput label="Age" maxLength={3} value={ageField} onChange={setAgeField} />
           <TelegramInput label="City" maxLength={64} value={cityField} onChange={setCityField} isLast />
         </TelegramInputGroup>
+
+        <div className="mb-4 mt-2 shrink-0">
+          <Section>
+            <Row 
+              label="Gender" 
+              value={genderField || "Select gender"} 
+              onClick={() => setPage("gender_select")} 
+              last 
+            />
+          </Section>
+        </div>
 
         <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
@@ -1034,6 +1040,11 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
       
       <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
         
+        <TelegramInputGroup>
+          <TelegramInput label="Occupation" maxLength={128} value={occupationField} onChange={setOccupationField} />
+          <TelegramInput label="Interests" maxLength={256} value={interestsField} onChange={setInterestsField} isLast />
+        </TelegramInputGroup>
+
         <div className="mb-4 mt-2 shrink-0">
           <Section>
             <Row 
@@ -1044,11 +1055,6 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
             />
           </Section>
         </div>
-
-        <TelegramInputGroup>
-          <TelegramInput label="Occupation" maxLength={128} value={occupationField} onChange={setOccupationField} />
-          <TelegramInput label="Interests" maxLength={256} value={interestsField} onChange={setInterestsField} isLast />
-        </TelegramInputGroup>
 
         <div className="mt-auto pt-8 flex items-center gap-4 w-full relative z-10 shrink-0">
             <button 
