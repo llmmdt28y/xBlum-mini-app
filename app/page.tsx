@@ -79,32 +79,19 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 
 function GlassRim() {
   return (
-    <>
-      {/* CAPA 1: Efecto Óptico de Borde (La técnica de lente/lupa invertida) */}
-      <div aria-hidden="true" style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        borderRadius: "inherit", zIndex: 2,
-        backdropFilter: "invert(0.12) brightness(1.5)",
-        WebkitBackdropFilter: "invert(0.12) brightness(1.5)",
-        // La máscara oculta el centro y solo aplica la distorsión en los bordes curvos
-        maskImage: "radial-gradient(ellipse at center, transparent 65%, black 100%)",
-        WebkitMaskImage: "radial-gradient(ellipse at center, transparent 65%, black 100%)",
-      }} />
-
-      {/* CAPA 2: Reflejos Especulares (Brillos y sombras inset) */}
-      <div aria-hidden="true" style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        borderRadius: "inherit", zIndex: 3,
-        boxShadow: [
-          "inset 0 1px 1px rgba(255, 255, 255, 0.55)", // Brillo blanco fuerte arriba (como solicitaste)
-          "inset 0 -1px 1px rgba(0, 0, 0, 0.40)",      // Sombra base
-          "inset 1px 0 1px rgba(255, 255, 255, 0.05)", // Brillo lateral sutil
-          "inset -1px 0 1px rgba(255, 255, 255, 0.05)"
-        ].join(", "),
-        // Degradado muy sutil para dar volumen sin matar el color
-        background: "linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.0) 20%, rgba(0,0,0,0.0) 80%, rgba(0,0,0,0.15) 100%)",
-      }} />
-    </>
+    <div aria-hidden="true" style={{
+      position: "absolute", inset: 0, pointerEvents: "none",
+      borderRadius: "inherit", zIndex: 3,
+      // Revertido a brillos de borde nítidos y sutiles (gris o blanco)
+      boxShadow: [
+        "inset 0 1px 0 rgba(255, 255, 255, 0.15)", // Brillo superior nítido pero sutil
+        "inset 0 -1px 0 rgba(0, 0, 0, 0.20)",       // Sombra inferior sutil
+        "inset 1px 0 0 rgba(255, 255, 255, 0.05)",  // Brillos laterales ultra sutiles
+        "inset -1px 0 0 rgba(255, 255, 255, 0.05)"
+      ].join(", "),
+      // Degradado ultra sutil para dar volumen sin teñir
+      background: "linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.0) 20%, rgba(0,0,0,0.0) 80%, rgba(0,0,0,0.12) 100%)",
+    }} />
   )
 }
 
@@ -112,16 +99,16 @@ function GlassRim() {
 const GLASS_BASE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  // Base casi totalmente transparente para máxima claridad de color
-  backgroundColor: "rgba(18, 18, 24, 0.08)",
+  // Base ultra translúcida para máxima claridad y sangrado de color
+  backgroundColor: "rgba(18, 18, 24, 0.05)",
   // Blur subido a 16px para mayor "sangrado", saturate a 2.4 para potenciar el fondo
   backdropFilter: "blur(16px) saturate(2.4) brightness(1.05)",
   WebkitBackdropFilter: "blur(16px) saturate(2.4) brightness(1.05)",
   border: "none", 
   boxShadow: [
-    "0 16px 32px rgba(0, 0, 0, 0.45)", 
-    "0 4px 12px rgba(0, 0, 0, 0.25)",
-    "inset 0 0 0 1px rgba(255, 255, 255, 0.03)", // Delimitador levísimo
+    "0 20px 40px rgba(0, 0, 0, 0.50)",   // Sombra de caída más profunda y expansiva
+    "0 4px 12px rgba(0, 0, 0, 0.25)",    // Sombra de proximidad
+    "0 0 0 1px rgba(255, 255, 255, 0.04)" // Anillo delimitador exterior ultra fino (un brillo sutil)
   ].join(", "),
 }
 
@@ -136,13 +123,13 @@ const PILL_STYLE: React.CSSProperties = {
 
 // Tab activo: cápsula INCRUSTADA dentro de la barra
 const activePillStyle: React.CSSProperties = {
-  // El tono oscuro que sugeriste para contrastar con el fondo amplificado
-  backgroundColor: "rgba(0, 0, 0, 0.42)",
+  // Un tono más oscuro y nítido para la cápsula incrustada
+  backgroundColor: "rgba(0, 0, 0, 0.45)",
   boxShadow: [
-    "inset 0 4px 10px rgba(0, 0, 0, 0.50)",
-    "inset 0 1px 3px rgba(0, 0, 0, 0.70)",
-    // Rebote de luz (simula el corte sobre el GlassRim)
-    "0 1px 1px rgba(255, 255, 255, 0.20)",
+    "inset 0 4px 12px rgba(0, 0, 0, 0.55)", // Sombras internas profundas para el efecto de "corte"
+    "inset 0 1px 3px rgba(0, 0, 0, 0.75)",
+    // Rebote de luz nítido simulando el corte sobre el GlassRim
+    "0 1px 1px rgba(255, 255, 255, 0.22)",
   ].join(", "),
 }
 
@@ -209,7 +196,7 @@ function NavBar() {
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          {/* Se inserta GlassRim aquí */}
+          {/* Se inserta GlassRim simplificado aquí */}
           <GlassRim />
           <div className="flex flex-col items-center justify-center pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {activeNavMode === 'market' ? (
@@ -231,7 +218,7 @@ function NavBar() {
           className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
           style={{ ...PILL_STYLE, borderRadius: "100px", height: "64px", zIndex: 51 }}
         >
-          {/* Se inserta GlassRim aquí */}
+          {/* Se inserta GlassRim simplificado aquí */}
           <GlassRim />
           <div className="flex items-center justify-between w-full relative" style={{ zIndex: 5 }}>
             {centerTabs.map((tab, idx) => {
@@ -291,135 +278,4 @@ function NavBar() {
             height: "64px",
             borderRadius: "100px",
             zIndex: 51,
-            transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
-          }}
-        >
-          {/* Se inserta GlassRim aquí */}
-          <GlassRim />
-          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
-            {photoUrl ? (
-              <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
-                <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center">
-                <CircleUser
-                  size={22}
-                  color={currentView === 'profile' ? neonBlue : inactiveColor}
-                  strokeWidth={currentView === 'profile' ? 2.5 : 2}
-                />
-                <span
-                  className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
-                  style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
-                >
-                  Profile
-                </span>
-              </div>
-            )}
-          </div>
-        </button>
-      </div>
-    </>
-  )
-}
-
-// ── App shell ──────────────────────────────────────────────────────────
-function AppContent() {
-  const { currentView, setCurrentView, isLoading } = useApp()
-  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards", "schedule"].includes(currentView)
-
-  const [imagesLoaded,  setImagesLoaded]  = useState(false)
-  const [showLoading,   setShowLoading]   = useState(true)
-  const [fadeLoading,   setFadeLoading]   = useState(false)
-  const [isMaintenance, setIsMaintenance] = useState(false)
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tg = (window as any).Telegram?.WebApp
-    if (tg) {
-      tg.ready()
-      try {
-        if (tg.requestFullscreen) { tg.requestFullscreen() } else { tg.expand() }
-      } catch { tg.expand() }
-    }
-  }, [])
-
-  useEffect(() => {
-    const checkImages = () => {
-      const images = Array.from(document.images)
-      if (images.length === 0) { setImagesLoaded(true); return }
-      let loadedCount = 0
-      const checkDone = () => { if (++loadedCount === images.length) setImagesLoaded(true) }
-      images.forEach(img => {
-        if (img.complete) { checkDone() }
-        else {
-          img.addEventListener('load',  checkDone, { once: true })
-          img.addEventListener('error', checkDone, { once: true })
-        }
-      })
-    }
-    const timer    = setTimeout(checkImages, 50)
-    const fallback = setTimeout(() => setImagesLoaded(true), 3000)
-    return () => { clearTimeout(timer); clearTimeout(fallback) }
-  }, [currentView, isMaintenance])
-
-  useEffect(() => {
-    if (!isLoading && imagesLoaded) {
-      setFadeLoading(true)
-      const t = setTimeout(() => setShowLoading(false), 400)
-      return () => clearTimeout(t)
-    }
-  }, [isLoading, imagesLoaded])
-
-  if (isMaintenance) {
-    return <MaintenanceScreen onUnlock={() => setIsMaintenance(false)} />
-  }
-
-  return (
-    <>
-      {showLoading && (
-        <div
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
-            fadeLoading ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          <Loader2 className="w-10 h-10 text-white animate-spin" />
-        </div>
-      )}
-
-      <div
-        className="bg-black flex flex-col relative"
-        style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
-      >
-        {currentView === "home"               && (<><Header /><HomeView /></>)}
-        {currentView === "levels"             && <LevelsView />}
-        {currentView === "shop"               && <ShopView />}
-        {currentView === "settings"           && <SettingsView />}
-        {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
-        {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
-        {currentView === "premium"            && <PremiumView />}
-        {currentView === "referral"           && <ReferralView />}
-        {currentView === "profile"            && <ProfileView />}
-        {currentView === "x-rewards"          && <XRewardsView />}
-        {currentView === "market"             && <MarketView />}
-        {currentView === "schedule"           && <ScheduleView />}
-        {currentView === "group_config"       && (
-          <GroupConfigView
-            onClose={() => setCurrentView("home")}
-            apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""}
-          />
-        )}
-
-        {showNav && <NavBar />}
-      </div>
-    </>
-  )
-}
-
-export default function Page() {
-  return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
-  )
-}
+            transform: pressedId === "right"
