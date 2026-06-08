@@ -16,21 +16,6 @@ import { GroupConfigView } from "@/components/group-config-view"
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react"
 
-// ── Componente de carga segura WebGL (Bypass total de SSR para Turbopack) ──
-function SafeWebGLGlassPill({ isActive }: { isActive?: boolean }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [Component, setComponent] = useState<any>(null)
-
-  useEffect(() => {
-    import('@/components/webgl-glass-pill')
-      .then((mod) => setComponent(() => mod.default))
-      .catch((err) => console.error("Error al cargar WebGLGlassPill:", err))
-  }, [])
-
-  if (!Component) return null
-  return <Component isActive={isActive} />
-}
-
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = {
   id: number
@@ -90,16 +75,18 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
   )
 }
 
-// ── Liquid Glass Styles (Adaptados para WebGL) ────────────────────────
+// ── Liquid Glass CSS Styles (Grado Apple iOS) ─────────────────────────
 
 const BTN_BASE: React.CSSProperties = {
-  backgroundColor: "rgba(255, 255, 255, 0.02)", 
-  border: "1px solid rgba(255, 255, 255, 0.08)", 
-  transform: "translateZ(0)", 
+  backgroundColor: "rgba(255, 255, 255, 0.04)", 
+  // El filtro nativo que SÍ distorsiona el fondo HTML (cofres)
+  backdropFilter: "blur(24px) saturate(180%) brightness(110%)",
+  WebkitBackdropFilter: "blur(24px) saturate(180%) brightness(110%)", 
+  border: "1px solid rgba(255, 255, 255, 0.12)", 
   boxShadow: [
-    "inset 1px 1px 1px 0px rgba(255, 255, 255, 0.15)",
-    "inset -1px -1px 1px 0px rgba(255, 255, 255, 0.05)",
-    "0 10px 30px 0px rgba(0, 0, 0, 0.7)"
+    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.2)", // Brillo luz superior
+    "inset -1.5px -1.5px 2px 0px rgba(0, 0, 0, 0.1)", // Sombra volumen inferior
+    "0 10px 30px 0px rgba(0, 0, 0, 0.5)" // Sombra proyectada profunda
   ].join(", "),
   transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
 }
@@ -107,20 +94,22 @@ const BTN_BASE: React.CSSProperties = {
 const PILL_STYLE: React.CSSProperties = {
   ...BTN_BASE,
   boxShadow: [
-    "inset 1px 1px 1px 0px rgba(255, 255, 255, 0.15)",
-    "inset -1px -1px 1px 0px rgba(255, 255, 255, 0.05)",
+    "inset 1px 1px 2px 0px rgba(255, 255, 255, 0.15)",
+    "inset -1px -1px 2px 0px rgba(0, 0, 0, 0.1)",
     "0 6px 20px 0px rgba(0, 0, 0, 0.4)" 
   ].join(", "),
 }
 
 const activePillStyle: React.CSSProperties = {
   ...BTN_BASE,
-  backgroundColor: "rgba(255, 255, 255, 0.05)",
-  border: "1px solid rgba(255, 255, 255, 0.15)",
+  backgroundColor: "rgba(255, 255, 255, 0.08)",
+  backdropFilter: "blur(28px) saturate(200%) brightness(120%)",
+  WebkitBackdropFilter: "blur(28px) saturate(200%) brightness(120%)",
+  border: "1px solid rgba(255, 255, 255, 0.25)",
   boxShadow: [
-    "inset 1.5px 1.5px 2px 0px rgba(255, 255, 255, 0.25)", 
-    "inset -1px -1px 2px 0px rgba(255, 255, 255, 0.08)",
-    "0 4px 12px 0px rgba(0, 0, 0, 0.3)"
+    "inset 2px 2px 3px 0px rgba(255, 255, 255, 0.3)", 
+    "inset -1px -1px 2px 0px rgba(0, 0, 0, 0.15)",
+    "0 4px 12px 0px rgba(0, 0, 0, 0.4)"
   ].join(", "),
 }
 
@@ -172,7 +161,7 @@ function NavBar() {
       {/* ── BOTÓN IZQUIERDO ── */}
       <button
         onClick={handleLeftActionButton}
-        className="relative pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
+        className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0 relative overflow-hidden"
         style={{
           ...BTN_BASE,
           width: "64px",
@@ -181,8 +170,7 @@ function NavBar() {
           zIndex: 51,
         }}
       >
-        <SafeWebGLGlassPill />
-        <div className="relative z-10 flex flex-col items-center justify-center pointer-events-none select-none">
+        <div className="flex flex-col items-center justify-center pointer-events-none select-none z-10">
           {activeNavMode === 'market' ? (
             <>
               <Home size={22} color={inactiveColor} strokeWidth={2} />
@@ -199,7 +187,7 @@ function NavBar() {
 
       {/* ── PÍLDORA CENTRAL ── */}
       <div
-        className="relative pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
+        className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5 relative overflow-hidden"
         style={{
           ...PILL_STYLE,
           borderRadius: "100px",
@@ -207,7 +195,6 @@ function NavBar() {
           zIndex: 51,
         }}
       >
-        <SafeWebGLGlassPill isActive={true} />
         <div className="flex items-center justify-between w-full relative z-10">
           {centerTabs.map((tab, idx) => {
             const isActive   = currentView === tab.id
@@ -254,7 +241,7 @@ function NavBar() {
       {/* ── BOTÓN DERECHO: Profile ── */}
       <button
         onClick={() => setCurrentView('profile')}
-        className="relative pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0"
+        className="pointer-events-auto flex flex-col items-center justify-center active:scale-95 shrink-0 relative overflow-hidden"
         style={{
           ...BTN_BASE,
           width: "64px",
@@ -263,8 +250,7 @@ function NavBar() {
           zIndex: 51,
         }}
       >
-        <SafeWebGLGlassPill />
-        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full pointer-events-none select-none">
+        <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none z-10">
           {photoUrl ? (
             <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
               <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
