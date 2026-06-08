@@ -166,9 +166,10 @@ function NavBar() {
       className="absolute top-0 bottom-0 rounded-[100px] sliding-pill"
       style={{
         width: `${100 / centerTabs.length}%`,
-        transform: `translateX(${activeIndex * 100}%) ${pressedId === centerTabs[activeIndex]?.id ? 'scale(0.93)' : 'scale(1)'}`,
+        transform: `translate3d(${activeIndex * 100}%, 0, 0) ${pressedId === centerTabs[activeIndex]?.id ? 'scale3d(0.93, 0.93, 1)' : 'scale3d(1, 1, 1)'}`,
         opacity: activeIndex >= 0 ? 1 : 0,
-        transition: "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease",
+        transition: "transform 0.4s cubic-bezier(0.25, 1.15, 0.5, 1), opacity 0.3s ease",
+        willChange: "transform",
         pointerEvents: "none",
         zIndex: 0
       }}
@@ -189,8 +190,9 @@ function NavBar() {
         className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[58px] select-none`}
         style={{
           pointerEvents: isDisabled ? "none" : "auto",
-          transition: "transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)",
-          transform: pressedId === tab.id ? "scale(0.93)" : "scale(1)",
+          transition: "transform 0.4s cubic-bezier(0.25, 1.15, 0.5, 1)",
+          transform: pressedId === tab.id ? "scale3d(0.93, 0.93, 1)" : "translate3d(0, 0, 0)",
+          willChange: "transform",
           zIndex: 10
         }}
         >
@@ -390,6 +392,7 @@ export default function Page() {
         position: relative;
         isolation: isolate;
         box-shadow: 0px 0px 21px -50px rgba(255, 255, 255, 0.3);
+        transform: translateZ(0);
       }
 
       .liquid-glass-panel::before {
@@ -415,16 +418,16 @@ export default function Page() {
   -webkit-filter: url(#glass-distortion);
   isolation: isolate;
   pointer-events: none;
+  transform: translateZ(0);
+  will-change: backdrop-filter, filter;
       }
 
       .sliding-pill {
-        background: rgba(20, 20, 22, 0.65);
+        background: rgba(20, 20, 22, 0.35);
         box-shadow: 
           inset 0px 1.5px 1px rgba(255, 255, 255, 0.15), 
           inset 0px -1.5px 1px rgba(255, 255, 255, 0.05),
           0px 4px 10px rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
       }
       `}} />
 
