@@ -372,7 +372,7 @@ export default function Page() {
         .liquid-glass-panel {
           position: relative;
           isolation: isolate;
-          box-shadow: 0px 0px 21px -8px rgba(255, 255, 255, 0.3);
+          box-shadow: 0px 4px 24px -6px rgba(0, 0, 0, 0.6);
         }
         
         .liquid-glass-panel::before {
@@ -381,8 +381,9 @@ export default function Page() {
           inset: 0;
           z-index: 0;
           border-radius: inherit;
-          box-shadow: inset 0 0 7px -5px rgba(255, 255, 255, 0.7);
-          background-color: rgba(255, 255, 255, 0);
+          box-shadow: inset 1.5px 1.5px 3px rgba(255, 255, 255, 0.25),
+                      inset -1px -1px 3px rgba(255, 255, 255, 0.05);
+          background-color: rgba(20, 20, 25, 0.55);
           pointer-events: none;
         }
 
@@ -401,11 +402,11 @@ export default function Page() {
         }
 
         .active-pill {
-          background: rgba(255, 255, 255, 0.1) !important;
-          border: 1px solid rgba(255, 255, 255, 0.2) !important;
+          background: rgba(255, 255, 255, 0.08) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
           backdrop-filter: blur(8px) !important;
           -webkit-backdrop-filter: blur(8px) !important;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+          box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.15), 0 4px 6px rgba(0, 0, 0, 0.2) !important;
         }
       `}} />
 
