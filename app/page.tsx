@@ -83,75 +83,69 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
 // 4. Sin capas hijas innecesarias que bloqueen el backdrop
 
 // Franja especular superior — línea blanca muy sutil en el borde superior
-// Brillo superior — reflector de luz en borde top del cristal
-function SpecularTop({ opacity = 0.22 }: { opacity?: number }) {
+// ── Liquid Glass — rewrite fiel al prototipo ──────────────────────────
+// Análisis pixel a pixel de la referencia:
+// • Barra: cristal oscuro ~0.80 opacidad, blur 36px, un solo bloque visual
+// • Botón activo: cápsula INCRUSTADA (más oscura, con margen interior)
+// • Círculos laterales: misma apariencia que la barra, integrados visualmente
+// • Borde: 1px blanco a 0.12 — casi imperceptible
+// • Sombra: pronunciada hacia abajo
+// • Sin colores artificiales — todo viene del backdrop
+
+// Highlight superior: línea de luz en el borde top del cristal
+function GlassSurface() {
   return (
     <div aria-hidden="true" style={{
-      position: "absolute", top: 0, left: 0, right: 0,
-      height: "40%", pointerEvents: "none",
-      borderRadius: "inherit", zIndex: 2,
-      background: `linear-gradient(180deg, rgba(255,255,255,${opacity}) 0%, rgba(255,255,255,0) 100%)`,
+      position: "absolute", inset: 0, pointerEvents: "none",
+      borderRadius: "inherit", zIndex: 3,
+      // Línea brillante top, muy sutil en el resto
+      boxShadow: [
+        "inset 0 1px 0 rgba(255,255,255,0.18)",
+        "inset 0 -1px 0 rgba(0,0,0,0.30)",
+      ].join(", "),
+      // Degradado sutil: ligeramente más claro arriba
+      background: "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.00) 40%)",
     }} />
   )
 }
 
-// Borde con inversión en las orillas — simula la lupa/refracción del vidrio real
-// El mask hace que solo afecte el anillo exterior, no el centro
-function GlassRim() {
-  return (
-    <>
-      {/* Inset shadows: brillo fuerte top, sutil en resto */}
-      <div aria-hidden="true" style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        borderRadius: "inherit", zIndex: 4,
-        boxShadow: [
-          "inset 0 1.5px 0 rgba(255,255,255,0.55)",
-          "inset 0 -1px 0 rgba(255,255,255,0.12)",
-          "inset 1.5px 0 0 rgba(255,255,255,0.14)",
-          "inset -1.5px 0 0 rgba(255,255,255,0.07)",
-        ].join(", "),
-      }} />
-      {/* Anillo de refracción en bordes — invierte levemente el contenido */}
-      <div aria-hidden="true" style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        borderRadius: "inherit", zIndex: 1,
-        backdropFilter: "blur(2px) invert(0.12) brightness(1.5)",
-        WebkitBackdropFilter: "blur(2px) invert(0.12) brightness(1.5)",
-        WebkitMaskImage: "radial-gradient(ellipse at center, transparent 68%, black 88%)",
-        maskImage: "radial-gradient(ellipse at center, transparent 68%, black 88%)",
-      }} />
-    </>
-  )
-}
-
-// ── Liquid Glass base styles ───────────────────────────────────────────
-const BTN_BASE: React.CSSProperties = {
+// ── Estilos base ──────────────────────────────────────────────────────
+// Cristal oscuro semitransparente con blur fuerte — fiel al prototipo
+const GLASS_BASE: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  backgroundColor: "rgba(0, 0, 0, 0.10)",
-  // blur moderado + saturate alto amplifica los colores del fondo
-  backdropFilter: "blur(10px) saturate(2.0) brightness(1.05)",
-  WebkitBackdropFilter: "blur(10px) saturate(2.0) brightness(1.05)",
-  border: "1px solid rgba(255,255,255,0.22)",
-  boxShadow: "0 4px 20px rgba(0,0,0,0.28)",
+  // Oscuro pero no totalmente opaco — el fondo se difumina dentro
+  backgroundColor: "rgba(12, 12, 18, 0.80)",
+  // Blur fuerte (36px) para frosted glass real, saturate moderado
+  backdropFilter: "blur(36px) saturate(1.4) brightness(0.95)",
+  WebkitBackdropFilter: "blur(36px) saturate(1.4) brightness(0.95)",
+  // Borde sutil — apenas visible como en el prototipo
+  border: "1px solid rgba(255,255,255,0.12)",
+  // Sombra flotante pronunciada
+  boxShadow: [
+    "0 8px 40px rgba(0,0,0,0.65)",
+    "0 2px 8px rgba(0,0,0,0.40)",
+  ].join(", "),
+}
+
+const BTN_BASE: React.CSSProperties = {
+  ...GLASS_BASE,
   transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)",
 }
 
 const PILL_STYLE: React.CSSProperties = {
-  position: "relative",
-  overflow: "hidden",
-  backgroundColor: "rgba(0, 0, 0, 0.10)",
-  backdropFilter: "blur(10px) saturate(2.0) brightness(1.05)",
-  WebkitBackdropFilter: "blur(10px) saturate(2.0) brightness(1.05)",
-  border: "1px solid rgba(255,255,255,0.18)",
-  boxShadow: "0 4px 20px rgba(0,0,0,0.26)",
+  ...GLASS_BASE,
 }
 
-// Tab activo: más oscuro, el fondo amplificado contrasta mejor
+// Tab activo: cápsula INCRUSTADA dentro de la barra
+// Más oscura que el contenedor, con padding interno para dar sensación de hundido
 const activePillStyle: React.CSSProperties = {
-  background: "rgba(0, 0, 0, 0.42)",
-  border: "1px solid rgba(255,255,255,0.24)",
-  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28)",
+  backgroundColor: "rgba(0, 0, 0, 0.55)",
+  // Borde interior muy sutil
+  boxShadow: [
+    "inset 0 2px 6px rgba(0,0,0,0.50)",
+    "inset 0 1px 0 rgba(255,255,255,0.08)",
+  ].join(", "),
 }
 
 // ── NavBar ────────────────────────────────────────────────────────────
@@ -217,8 +211,7 @@ function NavBar() {
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          <SpecularTop opacity={0.18} />
-          <GlassRim />
+          <GlassSurface />
           <div className="flex flex-col items-center justify-center pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {activeNavMode === 'market' ? (
               <>
@@ -239,8 +232,7 @@ function NavBar() {
           className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
           style={{ ...PILL_STYLE, borderRadius: "100px", height: "64px", zIndex: 51 }}
         >
-          <SpecularTop opacity={0.15} />
-          <GlassRim />
+          <GlassSurface />
           <div className="flex items-center justify-between w-full relative" style={{ zIndex: 5 }}>
             {centerTabs.map((tab, idx) => {
               const isActive   = currentView === tab.id
@@ -257,8 +249,8 @@ function NavBar() {
                   className="relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none"
                   style={{
                     pointerEvents: isDisabled ? "none" : "auto",
-                    transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                    transform: isActive ? "scale(1.06)" : pressedId === tab.id ? "scale(0.93)" : "scale(1)",
+                    transition: "all 0.25s ease",
+                    transform: pressedId === tab.id ? "scale(0.93)" : "scale(1)",
                     ...(isActive ? activePillStyle : {}),
                   }}
                 >
@@ -302,8 +294,7 @@ function NavBar() {
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
           }}
         >
-          <SpecularTop opacity={0.18} />
-          <GlassRim />
+          <GlassSurface />
           <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none" style={{ position: "relative", zIndex: 5 }}>
             {photoUrl ? (
               <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10">
