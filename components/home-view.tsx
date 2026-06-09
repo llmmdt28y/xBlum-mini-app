@@ -42,6 +42,32 @@ const imageProtectionStyle = {
   userSelect: 'none' as any,
 }
 
+const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
+  const element = event.currentTarget
+  if (element.disabled) return
+
+  const circle = document.createElement("span")
+  const diameter = Math.max(element.clientWidth, element.clientHeight)
+  const radius = diameter / 2
+
+  const rect = element.getBoundingClientRect()
+  circle.style.width = circle.style.height = `${diameter}px`
+  circle.style.left = `${event.clientX - rect.left - radius}px`
+  circle.style.top = `${event.clientY - rect.top - radius}px`
+  circle.classList.add("ripple")
+
+  const existingRipple = element.querySelector(".ripple")
+  if (existingRipple) {
+    existingRipple.remove()
+  }
+
+  element.appendChild(circle)
+
+  setTimeout(() => {
+    circle.remove()
+  }, 600)
+}
+
 // --- Connectors Database ---
 const CONNECTORS_DB = [
   { 
@@ -181,9 +207,24 @@ export function HomeView() {
   return (
     <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-28">
       
-      {/* ── ESTILOS PARA OCULTAR SCROLLBAR ── */}
+      {/* ── ESTILOS GLOBALES ── */}
       <style dangerouslySetInnerHTML={{__html: `
         .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .ripple {
+          position: absolute;
+          border-radius: 50%;
+          transform: scale(0);
+          animation: ripple-anim 600ms linear;
+          background-color: rgba(150, 150, 150, 0.25);
+          pointer-events: none;
+          z-index: 0;
+        }
+        @keyframes ripple-anim {
+          to {
+            transform: scale(4);
+            opacity: 0;
+          }
+        }
       `}} />
 
       {/* --- COMPLETE ACCOUNT SUPERIOR --- */}
@@ -365,45 +406,43 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Carrusel Horizontal */}
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
-          
-          {/* Connectors Card */}
-          <div className="min-w-[80%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
+        {/* Connectors Card */}
+        <div className="w-full bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg mb-2">
             <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>Connectors</h2>
-            <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
-
-            <div className="flex flex-col gap-1">
-              {CONNECTORS_DB.slice(0, 3).map((c) => (
-                <div key={c.id} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0 border border-white/5">
-                      <img src={c.src} alt={c.name} className="w-5 h-5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
-                    </div>
-                    <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
-                  </div>
-                  <button 
-                    onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                    className="px-3.5 py-1.5 rounded-[14px] bg-white text-black text-[12px] font-bold hover:bg-neutral-200 transition-colors" style={{ fontFamily: SF }}
-                  >
-                    View
-                  </button>
-                </div>
-              ))}
-            </div>
+            <p className="text-[12px] text-[#8e8e93] mb-4" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
 
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
-              className="mt-3 w-full py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#202022] transition-colors" style={{ fontFamily: SF }}
+              onPointerDown={createRipple}
+              className="relative overflow-hidden w-full py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#202022] transition-colors mb-3" style={{ fontFamily: SF }}
             >
-              <Plus className="w-4 h-4 text-white" /> Add connection
+              <div className="relative z-10 flex items-center justify-center gap-2 pointer-events-none">
+                <Plus className="w-4 h-4 text-white" /> Add connection
+              </div>
             </button>
-          </div>
 
-          {/* Coming Soon Card */}
-          <div className="min-w-[80%] snap-center rounded-[24px] p-4 border-2 border-dashed border-[#2c2c2e] bg-transparent flex flex-col items-center justify-center">
-            <p className="text-[#636366] font-semibold text-[16px]" style={{ fontFamily: SFD }}>Coming soon...</p>
-          </div>
+            <div className="flex flex-col">
+              {CONNECTORS_DB.slice(0, 3).map((c, i, arr) => (
+                <div key={c.id} className="flex flex-col">
+                  <button 
+                    onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                    onPointerDown={createRipple}
+                    className="relative overflow-hidden w-full flex items-center justify-between py-2.5 active:bg-white/5 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3 relative z-10 pointer-events-none">
+                      <div className="w-9 h-9 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0 border border-white/5">
+                        <img src={c.src} alt={c.name} className="w-5 h-5 object-contain" draggable={false} style={imageProtectionStyle} />
+                      </div>
+                      <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
+                    </div>
+                    <div className="relative z-10 px-3.5 py-1.5 rounded-[14px] bg-white text-black text-[12px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
+                      View
+                    </div>
+                  </button>
+                  {i < arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-[48px]" />}
+                </div>
+              ))}
+            </div>
         </div>
       </div>
 
