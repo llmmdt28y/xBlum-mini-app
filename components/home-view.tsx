@@ -366,7 +366,13 @@ export function HomeView() {
         </div>
 
         {/* Carrusel Horizontal */}
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
+        <div 
+          className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4"
+          style={{
+            maskImage: "linear-gradient(to right, black 85%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to right, black 85%, transparent 100%)"
+          }}
+        >
           
           {/* Connectors Card */}
           <div className="min-w-[80%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
@@ -401,8 +407,11 @@ export function HomeView() {
           </div>
 
           {/* Coming Soon Card */}
-          <div className="min-w-[80%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col items-center justify-center shadow-lg">
-            <p className="text-[#8e8e93] font-semibold text-[16px]" style={{ fontFamily: SFD }}>Coming soon...</p>
+          <div 
+            className="min-w-[80%] snap-center rounded-[24px] p-4 border border-white/5 flex flex-col items-center justify-center shadow-lg"
+            style={{ background: "linear-gradient(to right, rgba(17,17,17,1) 0%, rgba(17,17,17,0.2) 100%)" }}
+          >
+            <p className="text-[#8e8e93]/60 font-semibold text-[16px]" style={{ fontFamily: SFD }}>Coming soon...</p>
           </div>
         </div>
       </div>
