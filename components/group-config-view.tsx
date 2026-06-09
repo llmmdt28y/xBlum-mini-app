@@ -341,7 +341,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "noir_ai") {
     return (
-      <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Noir AI" />
         
         <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-4 pb-4 space-y-6">
@@ -392,7 +392,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "anti_flood") {
     return (
-      <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Anti-Flood" />
         
         <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-4 space-y-6">
@@ -440,7 +440,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "auto_tags") {
     return (
-      <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Auto-Tags" />
         
         <div className="flex-1 flex flex-col overflow-y-auto pb-6">
