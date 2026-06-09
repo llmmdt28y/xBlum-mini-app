@@ -751,7 +751,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   
   const revertUnsavedChanges = () => {
     if (page === "basic_info") {
-      setNameField(prefs.name?.toString() || "")
+      setNameField(prefs.name?.toString() || displayName)
       setGenderField(prefs.gender?.toString() || "")
       setAgeField(prefs.age?.toString() || "")
       setCityField(prefs.city?.toString() || "")
@@ -769,7 +769,7 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
     let hasUnsaved = false;
     
     if (page === "basic_info") {
-      if (nameField !== (prefs.name?.toString() || "") ||
+      if (nameField !== (prefs.name?.toString() || displayName) ||
           genderField !== (prefs.gender?.toString() || "") ||
           ageField !== (prefs.age?.toString() || "") ||
           cityField !== (prefs.city?.toString() || "")) {
