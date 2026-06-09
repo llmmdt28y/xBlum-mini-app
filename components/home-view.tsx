@@ -172,6 +172,33 @@ export function HomeView() {
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
 
+  const sheetRef = useRef<HTMLDivElement>(null)
+  const sheetTouchY = useRef<number | null>(null)
+
+  const handleSheetTouchStart = (e: React.TouchEvent) => {
+    sheetTouchY.current = e.touches[0].clientY
+    if (sheetRef.current) sheetRef.current.style.transition = 'none'
+  }
+  const handleSheetTouchMove = (e: React.TouchEvent) => {
+    if (sheetTouchY.current === null) return
+    const diff = e.touches[0].clientY - sheetTouchY.current
+    if (diff > 0 && sheetRef.current) {
+      sheetRef.current.style.transform = `translateY(${diff}px)`
+      e.stopPropagation()
+    }
+  }
+  const handleSheetTouchEnd = (e: React.TouchEvent) => {
+    if (sheetTouchY.current === null) return
+    const diff = e.changedTouches[0].clientY - sheetTouchY.current
+    if (diff > 100) {
+      setModalState({ view: "closed", connectorId: null })
+    } else if (sheetRef.current) {
+      sheetRef.current.style.transition = 'transform 0.3s ease-out'
+      sheetRef.current.style.transform = `translateY(0px)`
+    }
+    sheetTouchY.current = null
+  }
+
   // Cálculos dinámicos de Progreso de Account Setup
   const isBasicComplete = !!(userPreferences?.name?.trim() && userPreferences?.gender?.trim() && userPreferences?.age?.toString()?.trim() && userPreferences?.city?.trim())
   const isAdditionalComplete = !!(userPreferences?.timezone?.trim() && userPreferences?.occupation?.trim() && userPreferences?.interests?.trim())
@@ -414,7 +441,7 @@ export function HomeView() {
             <button 
               onClick={() => setModalState({ view: "list", connectorId: null })}
               onPointerDown={createRipple}
-              className="relative overflow-hidden w-full py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#202022] transition-colors mb-3" style={{ fontFamily: SF }}
+              className="relative overflow-hidden mx-auto w-[85%] py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#202022] transition-colors mb-3" style={{ fontFamily: SF }}
             >
               <div className="relative z-10 flex items-center justify-center gap-2 pointer-events-none">
                 <Plus className="w-4 h-4 text-white" /> Add connection
@@ -448,19 +475,32 @@ export function HomeView() {
 
       {/* --- EMERGENT MODALS --- */}
       {modalState.view !== "closed" && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={() => setModalState({ view: "closed", connectorId: null })} />
+        <div className="fixed inset-0 z-[60] flex items-end justify-center touch-none">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in touch-none duration-300" 
+            onClick={() => setModalState({ view: "closed", connectorId: null })} 
+            onTouchMove={(e) => e.stopPropagation()} 
+          />
 
-          <div className="relative w-full max-w-md rounded-t-[24px] animate-in slide-in-from-bottom duration-300 flex flex-col" style={{ background: "#111", borderTop: "1px solid #1c1c1e", maxHeight: "85vh" }}>
+          <div 
+            ref={sheetRef}
+            className="relative w-full max-w-md rounded-t-[24px] animate-in slide-in-from-bottom duration-300 flex flex-col" 
+            style={{ background: "#111111", borderTop: "1px solid #1c1c1e", maxHeight: "85vh", transform: `translateY(0px)` }}
+          >
             
+            {/* Draggable Header Handle */}
+            <div className="w-full shrink-0" onTouchStart={handleSheetTouchStart} onTouchMove={handleSheetTouchMove} onTouchEnd={handleSheetTouchEnd}>
+              <div className="w-12 h-1.5 bg-[#2c2c2e] rounded-full mx-auto mt-4 mb-2 shrink-0" />
+            </div>
+
             {modalState.view === "list" && (
-                <div className="flex flex-col p-4 h-full">
-                    <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col px-4 pb-4 h-full overflow-hidden">
+                    <div className="flex items-center justify-between mb-4 mt-2 shrink-0">
                         <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>Add connection</h2>
-                        <button onClick={() => setModalState({ view: "closed", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-70 transition-opacity"><X className="w-5 h-5 text-white" /></button>
+                        <button onClick={() => setModalState({ view: "closed", connectorId: null })} onPointerDown={createRipple} className="relative overflow-hidden w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-70 transition-opacity"><X className="w-5 h-5 text-white relative z-10" /></button>
                     </div>
                     
-                    <div className="relative mb-6">
+                    <div className="relative mb-6 shrink-0">
                       <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#636366]" />
                       <input 
                         type="text" placeholder="Search connectors" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
@@ -486,9 +526,9 @@ export function HomeView() {
 
             {modalState.view === "detail" && activeConnectorData && (
               <div className="flex flex-col overflow-hidden h-full">
-                <div className="flex items-center justify-between p-4 border-b border-[#1c1c1e]">
+                <div className="flex items-center justify-between px-4 pb-4 border-b border-[#1c1c1e] shrink-0">
                   <div className="flex items-center gap-3">
-                    <button onClick={() => setModalState({ view: "list", connectorId: null })} className="w-8 h-8 flex items-center justify-center rounded-full active:bg-[#1c1c1e] transition-colors"><ArrowLeft className="w-5 h-5 text-[#8e8e93]" /></button>
+                    <button onClick={() => setModalState({ view: "list", connectorId: null })} onPointerDown={createRipple} className="relative overflow-hidden w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-70 transition-opacity"><ArrowLeft className="w-5 h-5 text-[#8e8e93] relative z-10" /></button>
                     <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-7 h-7 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                     <h2 className="text-white font-bold text-[17px]">{activeConnectorData.name}</h2>
                   </div>
