@@ -1603,10 +1603,11 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
 
       {/* ── Feedback Modal ── */}
       {showReportModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center">
+        <div className="fixed inset-0 z-50 flex items-end justify-center touch-none">
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500 ease-out"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500 ease-out touch-none"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
+            onTouchMove={(e) => { e.stopPropagation() }}
           />
           <div ref={sheetRef} className="relative w-full rounded-t-[24px] animate-in fade-in duration-500 ease-out flex flex-col"
                style={{ background: "#111111", borderTop: "1px solid #1c1c1e", transform: `translateY(0px)`, transition: 'transform 0.3s ease-out' }}>
