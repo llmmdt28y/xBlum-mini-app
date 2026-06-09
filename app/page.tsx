@@ -378,7 +378,7 @@ export default function Page() {
     <feDisplacementMap
     in="SourceGraphic"
     in2="blurred"
-    scale="100"
+    scale="5"
     xChannelSelector="R"
     yChannelSelector="G"
     />
@@ -412,8 +412,8 @@ export default function Page() {
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   filter: url(#glass-distortion);
   -webkit-filter: url(#glass-distortion);
   isolation: isolate;
