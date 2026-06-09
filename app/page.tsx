@@ -378,7 +378,7 @@ export default function Page() {
     <feDisplacementMap
     in="SourceGraphic"
     in2="blurred"
-    scale="20"
+    scale="100"
     xChannelSelector="R"
     yChannelSelector="G"
     />
