@@ -365,11 +365,8 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Carrusel Horizontal */}
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
-          
-          {/* Connectors Card */}
-          <div className="min-w-[80%] snap-center bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
+        {/* Connectors Card */}
+        <div className="w-full bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
             <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>Connectors</h2>
             <p className="text-[12px] text-[#8e8e93] mb-3" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
 
@@ -399,10 +396,6 @@ export function HomeView() {
               <Plus className="w-4 h-4 text-white" /> Add connection
             </button>
           </div>
-
-          {/* My Tools removed */}
-
-        </div>
       </div>
 
       {/* --- EMERGENT MODALS --- */}
