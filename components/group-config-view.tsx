@@ -328,7 +328,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (loadingGroups) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center animate-in fade-in duration-500 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div key="loading" className="flex-1 flex flex-col items-center justify-center animate-in fade-in duration-500 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <div className="w-8 h-8 rounded-full border-2 border-[#60a5fa] border-t-transparent animate-spin mb-4" />
         <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Loading groups...</span>
       </div>
@@ -341,7 +341,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "noir_ai") {
     return (
-      <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div key="noir_ai" className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Noir AI" />
         
         <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-4 pb-4 space-y-6">
@@ -392,7 +392,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "anti_flood") {
     return (
-      <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div key="anti_flood" className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Anti-Flood" />
         
         <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-4 space-y-6">
@@ -440,7 +440,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "auto_tags") {
     return (
-      <div className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div key="auto_tags" className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
         <SubHeader title="Auto-Tags" />
         
         <div className="flex-1 flex flex-col overflow-y-auto pb-6">
@@ -565,7 +565,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   }
 
   return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+    <div key="main" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
       <style>{`
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
