@@ -436,17 +436,7 @@ export function HomeView() {
         {/* Connectors Card */}
         <div className="w-full bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg mb-2">
             <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>Connectors</h2>
-            <p className="text-[12px] text-[#8e8e93] mb-4" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
-
-            <button 
-              onClick={() => setModalState({ view: "list", connectorId: null })}
-              onPointerDown={createRipple}
-              className="relative overflow-hidden mx-auto w-[85%] py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#202022] transition-colors mb-3" style={{ fontFamily: SF }}
-            >
-              <div className="relative z-10 flex items-center justify-center gap-2 pointer-events-none">
-                <Plus className="w-4 h-4 text-white" /> Add connection
-              </div>
-            </button>
+            <p className="text-[12px] text-[#8e8e93] mb-2" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
 
             <div className="flex flex-col">
               {CONNECTORS_DB.slice(0, 3).map((c, i, arr) => (
@@ -470,6 +460,16 @@ export function HomeView() {
                 </div>
               ))}
             </div>
+
+            <button 
+              onClick={() => setModalState({ view: "list", connectorId: null })}
+              onPointerDown={createRipple}
+              className="mt-3 relative overflow-hidden w-full py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#202022] transition-colors" style={{ fontFamily: SF }}
+            >
+              <div className="relative z-10 flex items-center justify-center gap-2 pointer-events-none">
+                <Plus className="w-4 h-4 text-white" /> Add connection
+              </div>
+            </button>
         </div>
       </div>
 
