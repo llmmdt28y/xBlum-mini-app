@@ -433,43 +433,58 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Connectors Card */}
-        <div className="w-full bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg mb-2">
-            <h2 className="text-[18px] font-bold text-white mb-0.5" style={{ fontFamily: SFD }}>Connectors</h2>
-            <p className="text-[12px] text-[#8e8e93] mb-2" style={{ fontFamily: SF }}>Extend capabilities with your apps</p>
-
-            <div className="flex flex-col">
-              {CONNECTORS_DB.slice(0, 3).map((c, i, arr) => (
-                <div key={c.id} className="flex flex-col">
-                  <button 
-                    onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                    onPointerDown={createRipple}
-                    className="relative overflow-hidden w-full flex items-center justify-between py-2.5 active:bg-white/5 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3 relative z-10 pointer-events-none">
-                      <div className="w-9 h-9 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0 border border-white/5">
-                        <img src={c.src} alt={c.name} className="w-5 h-5 object-contain" draggable={false} style={imageProtectionStyle} />
-                      </div>
-                      <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
-                    </div>
-                    <div className="relative z-10 px-3.5 py-1.5 rounded-[14px] bg-white text-black text-[12px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
-                      View
-                    </div>
-                  </button>
-                  {i < arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-[48px]" />}
-                </div>
-              ))}
+        {/* Connectors Section */}
+        <div className="mb-2">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center shrink-0">
+                <Hexagon className="w-[13px] h-[13px] text-black" strokeWidth={2.5} />
+              </div>
+              <h2 className="text-white font-semibold text-[16px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                Connectors
+              </h2>
             </div>
 
-            <button 
-              onClick={() => setModalState({ view: "list", connectorId: null })}
-              onPointerDown={createRipple}
-              className="mt-3 relative overflow-hidden w-full py-2.5 bg-[#1c1c1e] border border-white/5 rounded-[16px] flex items-center justify-center gap-2 text-[14px] font-medium text-white hover:bg-[#202022] transition-colors" style={{ fontFamily: SF }}
-            >
-              <div className="relative z-10 flex items-center justify-center gap-2 pointer-events-none">
-                <Plus className="w-4 h-4 text-white" /> Add connection
+            <div className="w-[85%] max-w-[320px] mx-auto bg-[#111111] rounded-[24px] p-4 border border-white/5 flex flex-col shadow-lg">
+              <div className="flex flex-col">
+                {CONNECTORS_DB.slice(0, 3).map((c, i, arr) => (
+                  <div key={c.id} className="flex flex-col">
+                    <button 
+                      onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                      onPointerDown={createRipple}
+                      className="relative overflow-hidden w-full flex items-center justify-between py-2.5 active:bg-white/5 transition-colors text-left"
+                    >
+                      <div className="flex items-center gap-3 relative z-10 pointer-events-none">
+                        <div className="w-9 h-9 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0 border border-white/5">
+                          <img src={c.src} alt={c.name} className="w-5 h-5 object-contain" draggable={false} style={imageProtectionStyle} />
+                        </div>
+                        <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
+                      </div>
+                      <div className="relative z-10 px-3.5 py-1.5 rounded-[14px] bg-white text-black text-[12px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
+                        View
+                      </div>
+                    </button>
+                    {i < arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-[48px]" />}
+                  </div>
+                ))}
               </div>
-            </button>
+
+              <button 
+                onClick={() => setModalState({ view: "list", connectorId: null })}
+                onPointerDown={createRipple}
+                className="mt-3 relative overflow-hidden w-full py-[10px] rounded-full flex items-center justify-center gap-2 text-[13.5px] font-semibold text-white active:scale-95 transition-all"
+                style={{ 
+                  fontFamily: SF,
+                  backgroundColor: "#1c1c1e", 
+                  border: "1px solid rgba(255, 255, 255, 0.10)", 
+                  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)", 
+                  transform: "translateZ(0)"
+                }}
+              >
+                <div className="relative z-10 flex items-center justify-center gap-2 pointer-events-none">
+                  <Plus className="w-4 h-4 text-white" /> Add connection
+                </div>
+              </button>
+            </div>
         </div>
       </div>
 
