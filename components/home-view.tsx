@@ -435,33 +435,32 @@ export function HomeView() {
 
         {/* Connectors Section */}
         <div className="mb-2 w-[94%] mx-auto">
-            <div className="flex items-center mb-3 px-1">
-              <h2 className="text-white font-semibold text-[16px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+            <div className="mb-3 pl-1">
+              <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Connectors
               </h2>
             </div>
 
-            <div className="w-full bg-[#111111] rounded-[24px] overflow-hidden border border-white/5 flex flex-col shadow-lg relative">
-              <div className="flex flex-col">
+            <div className="w-full bg-[#151517] rounded-[24px] overflow-hidden flex flex-col shadow-lg relative">
+              <div className="flex flex-col py-2">
                 {CONNECTORS_DB.slice(0, 3).map((c, i, arr) => (
-                  <div key={c.id} className="flex flex-col">
-                    <button 
-                      onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                      onPointerDown={createRipple}
-                      className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3 active:bg-white/5 transition-colors text-left"
-                    >
-                      <div className="flex items-center gap-3 relative z-10 pointer-events-none">
-                        <div className="w-9 h-9 bg-[#1c1c1e] rounded-xl flex items-center justify-center shrink-0 border border-white/5">
-                          <img src={c.src} alt={c.name} className="w-5 h-5 object-contain" draggable={false} style={imageProtectionStyle} />
-                        </div>
-                        <span className="text-[14px] font-medium text-white" style={{ fontFamily: SF }}>{c.name}</span>
+                  <button 
+                    key={c.id}
+                    onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                    onPointerDown={createRipple}
+                    className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3.5 relative z-10 pointer-events-none">
+                      <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
+                      <div className="flex flex-col">
+                        <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5" style={{ fontFamily: SF }}>{c.name}</span>
+                        <span className="text-[13px] text-[#8e8e93] leading-[1.2]" style={{ fontFamily: SF }}>{c.detailCategory}</span>
                       </div>
-                      <div className="relative z-10 px-3.5 py-1.5 rounded-[14px] bg-white text-black text-[12px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
-                        View
-                      </div>
-                    </button>
-                    {i < arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-[64px]" />}
-                  </div>
+                    </div>
+                    <div className="relative z-10 px-4 py-1.5 rounded-full bg-white/10 text-white text-[12px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
+                      View
+                    </div>
+                  </button>
                 ))}
               </div>
 
