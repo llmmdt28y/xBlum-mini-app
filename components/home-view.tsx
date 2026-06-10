@@ -442,14 +442,14 @@ export function HomeView() {
             </div>
 
             <div 
-              className="w-full bg-[#151517] rounded-[20px] overflow-hidden flex flex-col shadow-lg relative"
-              onPointerDown={createRipple}
+              className="w-full bg-[#151517] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative"
             >
               <div className="flex flex-col py-2">
                 {CONNECTORS_DB.slice(0, 3).map((c, i, arr) => (
                   <button 
                     key={c.id}
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                    onPointerDown={createRipple}
                     className="relative w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
                   >
                     <div className="flex items-center gap-3.5 relative z-10 pointer-events-none">
@@ -469,7 +469,7 @@ export function HomeView() {
               <div className="px-4 pb-4 pt-1">
                 <button 
                   onClick={() => setModalState({ view: "list", connectorId: null })}
-                  onPointerDown={(e) => { e.stopPropagation(); createRipple(e); }}
+                  onPointerDown={createRipple}
                   className="relative overflow-hidden w-full py-[10px] rounded-full flex items-center justify-center gap-2 text-[13.5px] font-semibold text-white active:scale-95 transition-all"
                   style={{ 
                     fontFamily: SF,
