@@ -434,21 +434,23 @@ export function HomeView() {
         </div>
 
         {/* Connectors Section */}
-        <div className="mb-2 w-[94%] mx-auto">
-            <div className="mb-3 pl-1">
+        <div className="mb-2 w-[96%] mx-auto">
+            <div className="mt-2 mb-2 pl-1">
               <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Connectors
               </h2>
             </div>
 
-            <div className="w-full bg-[#151517] rounded-[24px] overflow-hidden flex flex-col shadow-lg relative">
+            <div 
+              className="w-full bg-[#151517] rounded-[20px] overflow-hidden flex flex-col shadow-lg relative"
+              onPointerDown={createRipple}
+            >
               <div className="flex flex-col py-2">
                 {CONNECTORS_DB.slice(0, 3).map((c, i, arr) => (
                   <button 
                     key={c.id}
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                    onPointerDown={createRipple}
-                    className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
+                    className="relative w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
                   >
                     <div className="flex items-center gap-3.5 relative z-10 pointer-events-none">
                       <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
@@ -467,7 +469,7 @@ export function HomeView() {
               <div className="px-4 pb-4 pt-1">
                 <button 
                   onClick={() => setModalState({ view: "list", connectorId: null })}
-                  onPointerDown={createRipple}
+                  onPointerDown={(e) => { e.stopPropagation(); createRipple(e); }}
                   className="relative overflow-hidden w-full py-[10px] rounded-full flex items-center justify-center gap-2 text-[13.5px] font-semibold text-white active:scale-95 transition-all"
                   style={{ 
                     fontFamily: SF,
