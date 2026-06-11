@@ -96,10 +96,10 @@ export function ProfileView() {
         <div className="absolute right-4 top-8 z-30 flex items-center">
           <button 
             onClick={() => setCurrentView("settings")} 
-            className="w-[32px] h-[32px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
+            className="w-[44px] h-[44px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
             style={greyGlowStyle}
           >
-            <Settings className="w-[18px] h-[18px] text-white" />
+            <Settings className="w-[22px] h-[22px] text-white" />
           </button>
         </div>
 
@@ -161,7 +161,7 @@ export function ProfileView() {
       </div>
 
       {/* CONTENEDOR INVENTARIO BORDES REDONDEADOS */}
-      <div className="bg-[#121212] rounded-t-[32px] w-full min-h-[60vh] pt-6 px-4 pb-32 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
+      <div className="bg-[#121212] rounded-t-[32px] w-full min-h-[60vh] mt-8 pt-6 px-4 pb-32 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
 
         {/* NAVEGACIÓN (TABS) */}
         <div className="flex items-center gap-6 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
@@ -263,39 +263,50 @@ export function ProfileView() {
 
         </div>
 
-        {/* ESTADO VACÍO (EMPTY STATE ACTUALIZADO) */}
+        {/* ESTADO VACÍO (EMPTY STATE DINÁMICO) */}
         <div className="flex flex-col items-center justify-center text-center mt-12 px-6">
           <div className="w-[140px] h-[140px] relative mb-6 flex items-center justify-center">
-            {/* Solo la imagen WebP, sin círculos ni fondos detrás */}
-            <img 
-              src="/no-gifts.webp" 
-              alt="No Gifts" 
-              className="w-full h-full object-contain pointer-events-none select-none drop-shadow-2xl" 
-              draggable={false} 
-              style={{ WebkitTouchCallout: "none" }}
-              onError={(e) => {
-                // Fallback limpio por si no carga la imagen
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = '<span class="text-5xl">🎁</span>';
-              }}
-            />
+            {activeTab === "Gifts" && (
+              <img 
+                src="/empty-gift.gif" 
+                alt="Empty Gifts" 
+                className="w-full h-full object-contain pointer-events-none select-none drop-shadow-2xl grayscale" 
+                draggable={false} 
+                style={{ WebkitTouchCallout: "none" }}
+              />
+            )}
+            {activeTab !== "Gifts" && (
+              <img 
+                src="/no-offers.gif" 
+                alt="Empty State" 
+                className="w-full h-full object-contain pointer-events-none select-none drop-shadow-2xl"
+                draggable={false} 
+                style={{ WebkitTouchCallout: "none" }}
+              />
+            )}
           </div>
           
           <h2 className="text-[18px] font-bold text-white mb-2 tracking-tight" style={{ fontFamily: SFD }}>
-            You have no Gifts
+            {activeTab === "Gifts" && "If there are no Gifts"}
+            {activeTab === "Offers" && "No orders yet"}
+            {activeTab === "Transactions" && "No transactions yet"}
           </h2>
           
           <p className="text-[#8e8e93] text-[14px] leading-relaxed max-w-[280px] mb-6" style={{ fontFamily: SF }}>
-            You can buy in the marketplace
+            {activeTab === "Gifts" && "You can buy in the marketplace"}
+            {activeTab === "Offers" && "Once you place an order, it will appear here"}
+            {activeTab === "Transactions" && "You haven't made any transactions yet"}
           </p>
 
-          <button 
-            onClick={() => setCurrentView("market")} 
-            className="flex items-center justify-center gap-1.5 text-white px-8 py-2.5 rounded-xl font-semibold text-[15px] active:scale-95 transition-transform" 
-            style={{ ...blueGlowStyle, fontFamily: SF }}
-          >
-            Go to Market <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
-          </button>
+          {activeTab === "Gifts" && (
+            <button 
+              onClick={() => setCurrentView("market")} 
+              className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-transform shrink-0" 
+              style={{ ...blueGlowStyle, fontFamily: SF }}
+            >
+              Go to Market <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
+            </button>
+          )}
         </div>
 
       </div>
