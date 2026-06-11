@@ -96,10 +96,10 @@ export function ProfileView() {
         <div className="absolute right-4 top-8 z-30 flex items-center">
           <button 
             onClick={() => setCurrentView("settings")} 
-            className="w-[44px] h-[44px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
+            className="w-[36px] h-[36px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
             style={greyGlowStyle}
           >
-            <Settings className="w-[22px] h-[22px] text-white" />
+            <Settings className="w-[18px] h-[18px] text-white" />
           </button>
         </div>
 
@@ -161,7 +161,7 @@ export function ProfileView() {
       </div>
 
       {/* CONTENEDOR INVENTARIO BORDES REDONDEADOS */}
-      <div className="bg-[#121212] rounded-t-[32px] w-full min-h-[60vh] mt-8 pt-6 px-4 pb-32 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
+      <div className="bg-[#121212] rounded-t-[32px] w-full min-h-[40vh] mt-8 pt-6 px-4 pb-10 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
 
         {/* NAVEGACIÓN (TABS) */}
         <div className="flex items-center gap-6 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
@@ -229,7 +229,14 @@ export function ProfileView() {
                     className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
                     style={{ ...greyGlowStyle, fontFamily: SF }}
                   >
-                    + Add Collection
+                    Listed
+                  </button>
+
+                  <button 
+                    className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
+                    style={{ ...greyGlowStyle, fontFamily: SF }}
+                  >
+                    Unlisted
                   </button>
                 </>
               )}
@@ -264,8 +271,8 @@ export function ProfileView() {
         </div>
 
         {/* ESTADO VACÍO (EMPTY STATE DINÁMICO) */}
-        <div className="flex flex-col items-center justify-center text-center mt-12 px-6">
-          <div className="w-[140px] h-[140px] relative mb-6 flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center text-center mt-6 px-6">
+          <div className="w-[140px] h-[140px] relative mb-3 flex items-center justify-center">
             {activeTab === "Gifts" && (
               <img 
                 src="/empty-gift.gif" 
@@ -286,13 +293,13 @@ export function ProfileView() {
             )}
           </div>
           
-          <h2 className="text-[18px] font-bold text-white mb-2 tracking-tight" style={{ fontFamily: SFD }}>
+          <h2 className="text-[18px] font-bold text-white mb-1 tracking-tight" style={{ fontFamily: SFD }}>
             {activeTab === "Gifts" && "If there are no Gifts"}
             {activeTab === "Offers" && "No orders yet"}
             {activeTab === "Transactions" && "No transactions yet"}
           </h2>
           
-          <p className="text-[#8e8e93] text-[14px] leading-relaxed max-w-[280px] mb-6" style={{ fontFamily: SF }}>
+          <p className="text-[#8e8e93] text-[14px] leading-relaxed max-w-[280px] mb-3" style={{ fontFamily: SF }}>
             {activeTab === "Gifts" && "You can buy in the marketplace"}
             {activeTab === "Offers" && "Once you place an order, it will appear here"}
             {activeTab === "Transactions" && "You haven't made any transactions yet"}
