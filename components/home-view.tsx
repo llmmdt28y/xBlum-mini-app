@@ -443,20 +443,23 @@ export function HomeView() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#e65c00] via-[#ff6a00] to-[#ff8c33]" />
           
           {/* Decorative subtle dots */}
-          <div className="absolute top-3 left-[38%] w-1.5 h-1.5 bg-white/70 rounded-full blur-[0.5px] pointer-events-none" />
-          <div className="absolute bottom-3 left-[48%] w-2.5 h-2.5 bg-white/50 rounded-full blur-[1px] pointer-events-none" />
-          <div className="absolute top-4 right-[32%] w-2 h-2 bg-white/60 rounded-full blur-[0.5px] pointer-events-none" />
-          <div className="absolute bottom-5 left-[10%] w-1.5 h-1.5 bg-white/40 rounded-full blur-[0.5px] pointer-events-none" />
-          <div className="absolute top-6 right-[15%] w-1.5 h-1.5 bg-white/50 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute top-[15px] left-[42%] w-1 h-1 bg-white/20 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute bottom-[20px] left-[52%] w-1.5 h-1.5 bg-white/30 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute top-[40px] left-[58%] w-1 h-1 bg-white/25 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute top-[10px] left-[65%] w-1.5 h-1.5 bg-white/20 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute bottom-[10px] left-[62%] w-1 h-1 bg-white/15 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute top-[25px] left-[38%] w-1 h-1 bg-white/30 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute bottom-[35px] left-[46%] w-1 h-1 bg-white/20 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute top-[50px] left-[70%] w-1.5 h-1.5 bg-white/25 rounded-full blur-[0.5px] pointer-events-none" />
           
           <div className="relative z-10 flex items-center justify-between pl-5 pr-2 h-[96px]">
             {/* Left side content */}
             <div className="flex flex-col items-start justify-center pt-1 pointer-events-none relative">
-              <h2 className="text-white font-extrabold text-[24px] leading-none mb-1 drop-shadow-md relative z-10" style={{ fontFamily: SFD, letterSpacing: "-0.03em" }}>
+              <h2 className="text-white font-extrabold text-[27px] leading-none mb-1 drop-shadow-md relative z-10" style={{ fontFamily: SFD, letterSpacing: "-0.03em" }}>
                 SuperNoir free
               </h2>
-              <div className="bg-gradient-to-r from-[#ff8226] to-[#ff9f40] px-6 py-[7px] rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.15)] border border-white/20 -rotate-[3.5deg] origin-left -mt-[3px] ml-1 relative z-20">
-                <span className="text-white font-extrabold text-[15px] leading-none drop-shadow-sm tracking-wide" style={{ fontFamily: SF }}>Try now</span>
+              <div className="bg-gradient-to-r from-[#ff8226] to-[#ff9f40] px-4 py-[4px] rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.15)] border border-white/20 -rotate-[3.5deg] origin-left -mt-[4px] ml-1 relative z-20">
+                <span className="text-white font-extrabold text-[19px] leading-none drop-shadow-sm tracking-wide" style={{ fontFamily: SF }}>Try now</span>
               </div>
             </div>
 
