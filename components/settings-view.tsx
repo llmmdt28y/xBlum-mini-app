@@ -575,7 +575,15 @@ export type SettingsPage = "main" | "model" | "lang" | "prefs" | "basic_info" | 
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export function SettingsView({ initialPage = "main", returnView = "profile" }: { initialPage?: SettingsPage, returnView?: string }) {
+export function SettingsView({ 
+  initialPage = "main", 
+  returnView = "profile",
+  onPageChange
+}: { 
+  initialPage?: SettingsPage, 
+  returnView?: string,
+  onPageChange?: (isMain: boolean) => void 
+}) {
   const {
     setCurrentView, language, setLanguage,
     selectedModel, setSelectedModel,
@@ -593,6 +601,12 @@ export function SettingsView({ initialPage = "main", returnView = "profile" }: {
   // -----------------------------
   const [saving, setSaving] = useState("")
   const [showReportModal, setShowReportModal] = useState(false)
+
+  useEffect(() => {
+    if (onPageChange) {
+      onPageChange(page === "main" && !showReportModal)
+    }
+  }, [page, showReportModal, onPageChange])
   const [reportType, setReportType] = useState("General feedback")
   const [reportDescription, setReportDescription] = useState("")
   const [showReportTypeDropdown, setShowReportTypeDropdown] = useState(false)
