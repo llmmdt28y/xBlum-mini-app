@@ -364,7 +364,29 @@ export default function Page() {
     {/* ── Filtro SVG Global (Aurora Gel) ── */}
     <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }}>
     <defs>
-    <filter id="glass-distortion" x="-20%" y="-20%" width="140%" height="140%">
+    <filter id="glass-distortion-before" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence
+    type="fractalNoise"
+    baseFrequency="0.001 0.001"
+    numOctaves="2"
+    seed="92"
+    result="noise"
+    />
+    <feGaussianBlur
+    in="noise"
+    stdDeviation="2"
+    result="blurred"
+    />
+    <feDisplacementMap
+    in="SourceGraphic"
+    in2="blurred"
+    scale="70"
+    xChannelSelector="R"
+    yChannelSelector="G"
+    />
+    </filter>
+
+    <filter id="glass-distortion-after" x="-20%" y="-20%" width="140%" height="140%">
     <feTurbulence
     type="fractalNoise"
     baseFrequency="0.001 0.001"
@@ -409,10 +431,10 @@ export default function Page() {
   inset: 0;
   z-index: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 7px -5px rgba(255, 255, 255, 0.7);
-  background-color: rgba(255, 255, 255, 0);
-  filter: url(#glass-distortion);
-  -webkit-filter: url(#glass-distortion);
+  box-shadow: inset 0px 2px 6px rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.01);
+  filter: url(#glass-distortion-before);
+  -webkit-filter: url(#glass-distortion-before);
   pointer-events: none;
       }
 
@@ -422,10 +444,10 @@ export default function Page() {
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  backdrop-filter: blur(11px);
-  -webkit-backdrop-filter: blur(11px);
-  filter: url(#glass-distortion);
-  -webkit-filter: url(#glass-distortion);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  filter: url(#glass-distortion-after);
+  -webkit-filter: url(#glass-distortion-after);
   isolation: isolate;
   pointer-events: none;
   transform: translateZ(0);
