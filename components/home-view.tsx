@@ -433,6 +433,38 @@ export function HomeView() {
           </div>
         </div>
 
+        {/* SuperNoir Banner */}
+        <div 
+          onClick={() => setCurrentView("premium")}
+          onPointerDown={createRipple}
+          className="w-[96%] mx-auto mb-5 mt-1 relative overflow-hidden rounded-[20px] shadow-lg cursor-pointer active:scale-[0.98] transition-transform"
+        >
+          {/* Background Gradient matching Premium View */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#e65c00] via-[#ff6a00] to-[#ff8c33]" />
+          
+          {/* Decorative Sparkles */}
+          <Sparkles className="absolute top-2 left-[38%] w-3 h-3 text-white/40 pointer-events-none" />
+          <Sparkles className="absolute bottom-3 left-[45%] w-4 h-4 text-white/30 pointer-events-none" />
+          <Sparkles className="absolute top-3 right-[30%] w-3 h-3 text-white/50 pointer-events-none" />
+          
+          <div className="relative z-10 flex items-center justify-between pl-5 pr-2 h-[96px]">
+            {/* Left side content */}
+            <div className="flex flex-col items-start justify-center pt-1 pointer-events-none">
+              <h2 className="text-white font-extrabold text-[24px] leading-none mb-1.5 drop-shadow-md" style={{ fontFamily: SFD, letterSpacing: "-0.03em" }}>
+                SuperNoir free
+              </h2>
+              <div className="bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full shadow-sm">
+                <span className="text-white font-bold text-[14px] leading-none" style={{ fontFamily: SF }}>Try now</span>
+              </div>
+            </div>
+
+            {/* Right side placeholder for image */}
+            <div className="w-[100px] h-full shrink-0 relative pointer-events-none">
+              {/* Sube tu imagen aquí. Sugerencia de estilo para la imagen: className="absolute bottom-0 right-0 w-[110px] h-auto object-contain" */}
+            </div>
+          </div>
+        </div>
+
         {/* Connectors Section */}
         <div className="mb-2 w-[96%] mx-auto">
             <div className="mt-2 mb-2 pl-1">
