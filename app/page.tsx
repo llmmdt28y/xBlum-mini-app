@@ -364,7 +364,7 @@ export default function Page() {
     {/* ── Filtro SVG Global (Aurora Gel) ── */}
     <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }}>
     <defs>
-    <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+    <filter id="glass-distortion" x="-20%" y="-20%" width="140%" height="140%">
     <feTurbulence
     type="fractalNoise"
     baseFrequency="0.001 0.001"
@@ -383,6 +383,12 @@ export default function Page() {
     scale="70"
     xChannelSelector="R"
     yChannelSelector="G"
+    result="displaced"
+    />
+    <feComposite
+    in="displaced"
+    in2="SourceGraphic"
+    operator="in"
     />
     </filter>
     </defs>
@@ -403,8 +409,10 @@ export default function Page() {
   inset: 0;
   z-index: 0;
   border-radius: inherit;
-  box-shadow: inset 0 0 7px -50px rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 0 7px -5px rgba(255, 255, 255, 0.7);
   background-color: rgba(255, 255, 255, 0);
+  filter: url(#glass-distortion);
+  -webkit-filter: url(#glass-distortion);
   pointer-events: none;
       }
 
@@ -414,8 +422,8 @@ export default function Page() {
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(11px);
+  -webkit-backdrop-filter: blur(11px);
   filter: url(#glass-distortion);
   -webkit-filter: url(#glass-distortion);
   isolation: isolate;
