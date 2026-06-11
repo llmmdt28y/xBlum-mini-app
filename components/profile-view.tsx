@@ -90,7 +90,7 @@ export function ProfileView() {
       {/* ESPACIO SUPERIOR SEGURO TELEGRAM */}
       <div className="sticky top-0 z-30 flex items-center justify-center w-full pointer-events-none" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)", background: "transparent" }}></div>
 
-      <div className="px-4 pb-32 relative z-10">
+      <div className="px-4 pb-8 relative z-10">
 
         {/* HEADER: BOTÓN SETTINGS */}
         <div className="absolute right-4 top-8 z-30 flex items-center">
@@ -158,9 +158,13 @@ export function ProfileView() {
 
           </div>
         </div>
+      </div>
+
+      {/* CONTENEDOR INVENTARIO BORDES REDONDEADOS */}
+      <div className="bg-[#121212] rounded-t-[32px] w-full min-h-[60vh] pt-6 px-4 pb-32 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
 
         {/* NAVEGACIÓN (TABS) */}
-        <div className="flex items-center gap-6 mt-8 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
+        <div className="flex items-center gap-6 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
           {tabs.map((tab) => {
             const isActive = activeTab === tab
             return (
