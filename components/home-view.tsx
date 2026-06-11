@@ -442,19 +442,21 @@ export function HomeView() {
           {/* Background Gradient matching Premium View */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#e65c00] via-[#ff6a00] to-[#ff8c33]" />
           
-          {/* Decorative Sparkles */}
-          <Sparkles className="absolute top-2 left-[38%] w-3 h-3 text-white/40 pointer-events-none" />
-          <Sparkles className="absolute bottom-3 left-[45%] w-4 h-4 text-white/30 pointer-events-none" />
-          <Sparkles className="absolute top-3 right-[30%] w-3 h-3 text-white/50 pointer-events-none" />
+          {/* Decorative subtle dots */}
+          <div className="absolute top-3 left-[38%] w-1.5 h-1.5 bg-white/70 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute bottom-3 left-[48%] w-2.5 h-2.5 bg-white/50 rounded-full blur-[1px] pointer-events-none" />
+          <div className="absolute top-4 right-[32%] w-2 h-2 bg-white/60 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute bottom-5 left-[10%] w-1.5 h-1.5 bg-white/40 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute top-6 right-[15%] w-1.5 h-1.5 bg-white/50 rounded-full blur-[0.5px] pointer-events-none" />
           
           <div className="relative z-10 flex items-center justify-between pl-5 pr-2 h-[96px]">
             {/* Left side content */}
-            <div className="flex flex-col items-start justify-center pt-1 pointer-events-none">
-              <h2 className="text-white font-extrabold text-[24px] leading-none mb-1.5 drop-shadow-md" style={{ fontFamily: SFD, letterSpacing: "-0.03em" }}>
+            <div className="flex flex-col items-start justify-center pt-1 pointer-events-none relative">
+              <h2 className="text-white font-extrabold text-[24px] leading-none mb-1 drop-shadow-md relative z-10" style={{ fontFamily: SFD, letterSpacing: "-0.03em" }}>
                 SuperNoir free
               </h2>
-              <div className="bg-white/20 backdrop-blur-md px-3.5 py-1 rounded-full shadow-sm">
-                <span className="text-white font-bold text-[14px] leading-none" style={{ fontFamily: SF }}>Try now</span>
+              <div className="bg-gradient-to-r from-[#ff8226] to-[#ff9f40] px-6 py-[7px] rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.15)] border border-white/20 -rotate-[3.5deg] origin-left -mt-[3px] ml-1 relative z-20">
+                <span className="text-white font-extrabold text-[15px] leading-none drop-shadow-sm tracking-wide" style={{ fontFamily: SF }}>Try now</span>
               </div>
             </div>
 
