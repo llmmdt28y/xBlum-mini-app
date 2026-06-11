@@ -80,12 +80,21 @@ export function ProfileView() {
     return () => { tg.BackButton.offClick(handleBack) }
   }, [setCurrentView])
 
+  const handleComingSoon = () => {
+    const tg = (window as any).Telegram?.WebApp
+    if (tg?.showAlert) {
+      tg.showAlert("Coming soon! Stay tuned.")
+    } else {
+      alert("Coming soon! Stay tuned.")
+    }
+  }
+
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
   const tabs = ["Gifts", "Offers", "Transactions"]
 
   return (
-    <div className="flex-1 overflow-y-auto relative bg-[#000000] text-white animate-in fade-in duration-300 min-h-screen">
+    <div className="flex-1 overflow-y-auto flex flex-col relative bg-[#000000] text-white animate-in fade-in duration-300 min-h-screen">
       
       {/* ESPACIO SUPERIOR SEGURO TELEGRAM */}
       <div className="sticky top-0 z-30 flex items-center justify-center w-full pointer-events-none" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)", background: "transparent" }}></div>
@@ -161,7 +170,7 @@ export function ProfileView() {
       </div>
 
       {/* CONTENEDOR INVENTARIO BORDES REDONDEADOS */}
-      <div className="bg-[#121212] rounded-t-[32px] w-full min-h-[40vh] mt-8 pt-6 px-4 pb-10 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
+      <div className="bg-[#121212] rounded-t-[32px] w-full flex-1 mt-8 pt-6 px-4 pb-10 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
 
         {/* NAVEGACIÓN (TABS) */}
         <div className="flex items-center gap-6 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
@@ -307,7 +316,7 @@ export function ProfileView() {
 
           {activeTab === "Gifts" && (
             <button 
-              onClick={() => setCurrentView("market")} 
+              onClick={handleComingSoon} 
               className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-transform shrink-0" 
               style={{ ...blueGlowStyle, fontFamily: SF }}
             >
