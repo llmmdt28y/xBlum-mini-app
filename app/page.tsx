@@ -115,7 +115,7 @@ function NavBar() {
 
   const neonBlue      = "#33b5f7"
   const inactiveColor = "rgba(255,255,255,0.62)"
-  const safeBottom    = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 20px)"
+  const safeBottom    = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 10px)"
 
   return (
     <>
