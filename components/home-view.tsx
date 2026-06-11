@@ -321,7 +321,7 @@ export function HomeView() {
 
 
         {/* Recommended For You Section */}
-        <div className="mt-2 mb-4">
+        <div className="mt-2 mb-2">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center shrink-0">
               <BookOpen className="w-[13px] h-[13px] text-black" strokeWidth={2.5} />
@@ -436,8 +436,7 @@ export function HomeView() {
         {/* SuperNoir Banner */}
         <div 
           onClick={() => setCurrentView("premium")}
-          onPointerDown={createRipple}
-          className="w-[96%] mx-auto mb-5 mt-1 relative overflow-hidden rounded-[20px] shadow-lg cursor-pointer active:scale-[0.98] transition-transform"
+          className="w-[96%] mx-auto mb-3 mt-1 relative overflow-hidden rounded-[20px] shadow-lg cursor-pointer"
         >
           {/* Background Gradient matching Premium View */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#e65c00] via-[#ff6a00] to-[#ff8c33]" />
@@ -456,7 +455,7 @@ export function HomeView() {
             {/* Left side content */}
             <div className="flex flex-col items-start justify-center pt-1 pointer-events-none relative">
               <h2 className="text-white font-extrabold text-[27px] leading-none mb-1 drop-shadow-md relative z-10" style={{ fontFamily: SFD, letterSpacing: "-0.03em" }}>
-                SuperNoir free
+                SuperNoir Free
               </h2>
               <div className="bg-gradient-to-r from-[#ff8226] to-[#ff9f40] px-4 py-[4px] rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.15)] border border-white/20 -rotate-[3.5deg] origin-left -mt-[4px] ml-1 relative z-20">
                 <span className="text-white font-extrabold text-[19px] leading-none drop-shadow-sm tracking-wide" style={{ fontFamily: SF }}>Try now</span>
