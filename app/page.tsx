@@ -266,7 +266,8 @@ function NavBar() {
 // ── App shell ──────────────────────────────────────────────────────────
 function AppContent() {
   const { currentView, setCurrentView, isLoading } = useApp()
-  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards", "schedule"].includes(currentView)
+  const [isSettingsMain, setIsSettingsMain] = useState(true)
+  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards", "schedule"].includes(currentView) || (currentView === "settings_nav" && isSettingsMain)
 
   const [imagesLoaded,  setImagesLoaded]  = useState(false)
   const [showLoading,   setShowLoading]   = useState(true)
@@ -335,7 +336,7 @@ function AppContent() {
     {currentView === "levels"             && <LevelsView />}
     {currentView === "shop"               && <ShopView />}
     {currentView === "settings"           && <SettingsView />}
-    {currentView === "settings_nav"       && <SettingsView returnView="home" />}
+    {currentView === "settings_nav"       && <SettingsView returnView="home" onPageChange={(isMain) => setIsSettingsMain(isMain)} />}
     {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
     {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
     {currentView === "premium"            && <PremiumView />}
