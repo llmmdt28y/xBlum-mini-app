@@ -403,7 +403,7 @@ export default function Page() {
   inset: 0;
   z-index: 0;
   border-radius: inherit;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px -10px 25px inset, rgba(255, 255, 255, 0.74) 0px -1px 4px 1px inset;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px -10px 25px inset, rgba(255, 255, 255, 0.2) 0px -1px 4px 1px inset;
   background-color: rgba(255, 255, 255, 0);
   pointer-events: none;
       }
@@ -414,8 +414,8 @@ export default function Page() {
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  backdrop-filter: blur(11px) brightness(1.5) saturate(1.1);
-  -webkit-backdrop-filter: blur(11px) brightness(1.5) saturate(1.1);
+  backdrop-filter: blur(5px) brightness(1.2) saturate(1.1);
+  -webkit-backdrop-filter: blur(5px) brightness(1.2) saturate(1.1);
   filter: url(#glass-distortion);
   -webkit-filter: url(#glass-distortion);
   isolation: isolate;
