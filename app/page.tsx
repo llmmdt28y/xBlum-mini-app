@@ -14,7 +14,7 @@ import { LevelsView } from "@/components/levels-view"
 import { ShopView } from "@/components/shop-view"
 import { GroupConfigView } from "@/components/group-config-view"
 import { useEffect, useState } from "react"
-import { Home, Target, Store, CircleUser, Loader2, Clock } from "lucide-react"
+import { Home, Target, Store, CircleUser, Loader2, Clock, Settings } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = {
@@ -88,7 +88,7 @@ function NavBar() {
   }, [])
 
   const isMarketSection = currentView === 'market' || currentView === 'shop' || currentView === 'levels'
-  const isHomeSection   = currentView === 'home'   || currentView === 'schedule'
+  const isHomeSection   = currentView === 'home'   || currentView === 'schedule' || currentView === 'settings_nav'
   const activeNavMode   = isMarketSection ? 'market' : (isHomeSection ? 'home' : storedNavMode)
 
   useEffect(() => {
@@ -108,7 +108,7 @@ function NavBar() {
   : [
     { id: "home",     label: "Home",  icon: Home,  disabled: false },
     { id: "schedule", label: "Tasks", icon: Clock, disabled: false },
-    { id: "none2",    label: "None",  icon: null,  disabled: true  },
+    { id: "settings_nav", label: "Settings", icon: Settings, disabled: false },
   ]
 
   const activeIndex = centerTabs.findIndex(t => t.id === currentView)
@@ -335,6 +335,7 @@ function AppContent() {
     {currentView === "levels"             && <LevelsView />}
     {currentView === "shop"               && <ShopView />}
     {currentView === "settings"           && <SettingsView />}
+    {currentView === "settings_nav"       && <SettingsView returnView="home" />}
     {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
     {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
     {currentView === "premium"            && <PremiumView />}
