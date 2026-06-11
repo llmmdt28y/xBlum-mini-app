@@ -53,7 +53,7 @@ export function ProfileView() {
   const [username, setUsername] = useState("")
   
   // Estado para la navegación
-  const [activeTab, setActiveTab] = useState("Collected")
+  const [activeTab, setActiveTab] = useState("Gifts")
 
   // Obtener datos del usuario de Telegram
   useEffect(() => {
@@ -82,7 +82,7 @@ export function ProfileView() {
 
   const initials = displayName.split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase()
 
-  const tabs = ["Collected", "Offers", "Favorites", "Activity"]
+  const tabs = ["Gifts", "Offers", "Transactions"]
 
   return (
     <div className="flex-1 overflow-y-auto relative bg-[#000000] text-white animate-in fade-in duration-300 min-h-screen">
@@ -96,7 +96,7 @@ export function ProfileView() {
         <div className="absolute right-4 top-8 z-30 flex items-center">
           <button 
             onClick={() => setCurrentView("settings")} 
-            className="w-[56px] h-[32px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
+            className="w-[32px] h-[32px] flex items-center justify-center rounded-full active:opacity-80 transition-opacity"
             style={greyGlowStyle}
           >
             <Settings className="w-[18px] h-[18px] text-white" />
@@ -205,37 +205,61 @@ export function ProfileView() {
           </div>
 
           {/* Fila 2: Embudo y Botones de Filtro */}
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
-            <button 
-              className="flex items-center justify-center w-[34px] h-[34px] rounded-full shrink-0 active:scale-95 transition-all"
-              style={greyGlowStyle}
-            >
-              <Filter className="w-[16px] h-[16px] text-white" strokeWidth={2.5} />
-            </button>
+          {activeTab !== "Transactions" && (
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide py-1">
+              <button 
+                className="flex items-center justify-center w-[34px] h-[34px] rounded-full shrink-0 active:scale-95 transition-all"
+                style={greyGlowStyle}
+              >
+                <Filter className="w-[16px] h-[16px] text-white" strokeWidth={2.5} />
+              </button>
 
-            <div className="w-[1px] h-[16px] bg-[#48484a] shrink-0 mx-1" />
+              <div className="w-[1px] h-[16px] bg-[#48484a] shrink-0 mx-1" />
 
-            <button 
-              className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
-              style={{ ...greyGlowStyle, fontFamily: SF }}
-            >
-              Type
-            </button>
+              {activeTab === "Gifts" && (
+                <>
+                  <button 
+                    className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
+                    style={{ ...greyGlowStyle, fontFamily: SF }}
+                  >
+                    All Gifts
+                  </button>
 
-            <button 
-              className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
-              style={{ ...greyGlowStyle, fontFamily: SF }}
-            >
-              Price
-            </button>
+                  <button 
+                    className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
+                    style={{ ...greyGlowStyle, fontFamily: SF }}
+                  >
+                    + Add Collection
+                  </button>
+                </>
+              )}
 
-            <button 
-              className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
-              style={{ ...greyGlowStyle, fontFamily: SF }}
-            >
-              Date
-            </button>
-          </div>
+              {activeTab === "Offers" && (
+                <>
+                  <button 
+                    className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
+                    style={{ ...greyGlowStyle, fontFamily: SF }}
+                  >
+                    All
+                  </button>
+
+                  <button 
+                    className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
+                    style={{ ...greyGlowStyle, fontFamily: SF }}
+                  >
+                    Active
+                  </button>
+
+                  <button 
+                    className="flex items-center justify-center px-5 h-[34px] rounded-full font-semibold text-[14px] text-white shrink-0 active:scale-95 transition-all"
+                    style={{ ...greyGlowStyle, fontFamily: SF }}
+                  >
+                    Archived
+                  </button>
+                </>
+              )}
+            </div>
+          )}
 
         </div>
 
