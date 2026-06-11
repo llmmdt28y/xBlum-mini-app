@@ -467,7 +467,7 @@ export function HomeView() {
               <img 
                 src="/SuperNoir-Free-Banner.png" 
                 alt="SuperNoir Free" 
-                className="absolute right-[-10px] top-1/2 -translate-y-1/2 w-[140px] h-auto object-contain drop-shadow-md" 
+                className="absolute right-[2px] top-1/2 -translate-y-1/2 w-[140px] h-auto object-contain drop-shadow-md" 
                 draggable={false} 
                 onContextMenu={(e) => e.preventDefault()}
                 style={imageProtectionStyle}
@@ -493,7 +493,7 @@ export function HomeView() {
                     key={c.id}
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
                     onPointerDown={createRipple}
-                    className="relative w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
+                    className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
                   >
                     <div className="flex items-center gap-3.5 relative z-10 pointer-events-none">
                       <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
