@@ -321,7 +321,7 @@ export function HomeView() {
 
 
         {/* Recommended For You Section */}
-        <div className="mt-2 mb-2">
+        <div className="mt-2 mb-0">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center shrink-0">
               <BookOpen className="w-[13px] h-[13px] text-black" strokeWidth={2.5} />
@@ -436,7 +436,7 @@ export function HomeView() {
         {/* SuperNoir Banner */}
         <div 
           onClick={() => setCurrentView("premium")}
-          className="w-[96%] mx-auto mb-3 mt-1 relative overflow-hidden rounded-[20px] shadow-lg cursor-pointer"
+          className="w-[96%] mx-auto mb-1 mt-0 relative overflow-hidden rounded-[20px] shadow-lg cursor-pointer"
         >
           {/* Background Gradient matching Premium View */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#e65c00] via-[#ff6a00] to-[#ff8c33]" />
@@ -462,9 +462,16 @@ export function HomeView() {
               </div>
             </div>
 
-            {/* Right side placeholder for image */}
-            <div className="w-[100px] h-full shrink-0 relative pointer-events-none">
-              {/* Sube tu imagen aquí. Sugerencia de estilo para la imagen: className="absolute bottom-0 right-0 w-[110px] h-auto object-contain" */}
+            {/* Right side image */}
+            <div className="w-[120px] h-full shrink-0 relative pointer-events-none">
+              <img 
+                src="/SuperNoir-Free-Banner.png" 
+                alt="SuperNoir Free" 
+                className="absolute right-[-10px] top-1/2 -translate-y-1/2 w-[140px] h-auto object-contain drop-shadow-md" 
+                draggable={false} 
+                onContextMenu={(e) => e.preventDefault()}
+                style={imageProtectionStyle}
+              />
             </div>
           </div>
         </div>
