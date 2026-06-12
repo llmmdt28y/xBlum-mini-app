@@ -260,9 +260,8 @@ export function HomeView() {
       }}>
         <button 
           onClick={() => setCurrentView("account_setup")}
-          className="flex items-center gap-2 rounded-full p-1.5 pr-2.5 active:scale-95 transition-transform shadow-lg pointer-events-auto border border-white/5" 
+          className="flex items-center gap-2 rounded-full p-1.5 pr-2.5 active:scale-95 transition-transform shadow-lg pointer-events-auto bg-[#60a5fa]/10 backdrop-blur-md" 
           style={{ 
-            background: "#0c1524",
             maxWidth: "260px"
           }}
         >
@@ -530,102 +529,103 @@ export function HomeView() {
         </div>
       </div>
 
-      {/* --- EMERGENT MODALS --- */}
+      {/* --- EMERGENT MODALS / FULL SCREEN VIEWS --- */}
       {modalState.view !== "closed" && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center touch-none">
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in touch-none duration-300" 
-            onClick={() => setModalState({ view: "closed", connectorId: null })} 
-            onTouchMove={(e) => e.stopPropagation()} 
-          />
+        <div className="fixed inset-0 z-[60] flex flex-col bg-black animate-in slide-in-from-right duration-300">
+          
+          {modalState.view === "list" && (
+            <div className="flex flex-col h-full overflow-hidden" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
+              {/* Header with Search Bar */}
+              <div className="flex items-center gap-3 px-4 mb-4 mt-2 shrink-0">
+                <button onClick={() => setModalState({ view: "closed", connectorId: null })} onPointerDown={createRipple} className="relative overflow-hidden w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-95 transition-transform shrink-0">
+                  <ArrowLeft className="w-5 h-5 text-white relative z-10" />
+                </button>
+                <div className="relative flex-1">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8e8e93]" />
+                  <input 
+                    type="text" placeholder="Search connectors" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-full text-[#e5e5ea] placeholder:text-[#8e8e93] focus:outline-none text-[15px] bg-white/5"
+                    style={{ fontFamily: SF }}
+                  />
+                </div>
+              </div>
 
-          <div 
-            ref={sheetRef}
-            className="relative w-full max-w-md rounded-t-[24px] animate-in slide-in-from-bottom duration-300 flex flex-col" 
-            style={{ background: "#111111", borderTop: "1px solid #1c1c1e", maxHeight: "85vh", transform: `translateY(0px)` }}
-          >
-            
-            {/* Draggable Header Handle */}
-            <div className="w-full shrink-0" onTouchStart={handleSheetTouchStart} onTouchMove={handleSheetTouchMove} onTouchEnd={handleSheetTouchEnd}>
-              <div className="w-12 h-1.5 bg-[#2c2c2e] rounded-full mx-auto mt-4 mb-2 shrink-0" />
+              {/* Explore Title */}
+              <div className="px-4 mb-3 mt-2">
+                <h2 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Explore</h2>
+              </div>
+
+              {/* Connectors List using the exact style from menu */}
+              <div className="overflow-y-auto hide-scrollbar pb-10 flex-1">
+                {filteredConnectors.map(c => (
+                  <button 
+                    key={c.id} 
+                    onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                    onPointerDown={createRipple}
+                    className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
+                      <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
+                        <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
+                      </div>
+                    </div>
+                    {/* The blue connect button */}
+                    <div className="relative z-10 shrink-0 px-3.5 py-1.5 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[13px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
+                      Connect
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
+          )}
 
-            {modalState.view === "list" && (
-                <div className="flex flex-col px-4 pb-4 h-full overflow-hidden">
-                    <div className="flex items-center justify-between mb-4 mt-2 shrink-0">
-                        <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD }}>Add connection</h2>
-                        <button onClick={() => setModalState({ view: "closed", connectorId: null })} onPointerDown={createRipple} className="relative overflow-hidden w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-70 transition-opacity"><X className="w-5 h-5 text-white relative z-10" /></button>
-                    </div>
-                    
-                    <div className="relative mb-6 shrink-0">
-                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#636366]" />
-                      <input 
-                        type="text" placeholder="Search connectors" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-[16px] text-white placeholder:text-[#636366] focus:outline-none text-[15px]"
-                        style={{ background: "#1c1c1e", border: "1px solid transparent", fontFamily: SF }}
-                      />
-                    </div>
-
-                    <div className="overflow-y-auto hide-scrollbar pb-8 space-y-2 flex-1">
-                        {filteredConnectors.map(c => (
-                            <button key={c.id} onClick={() => setModalState({ view: "detail", connectorId: c.id })} className="w-full flex items-center gap-4 p-3 rounded-2xl active:bg-white/5 transition-colors text-left" style={{ border: "1px solid #1c1c1e" }}>
-                                <img src={c.src} alt={c.name} className="w-8 h-8 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
-                                <div className="flex-1">
-                                    <p className="text-white font-medium">{c.name}</p>
-                                    <p className="text-[#8e8e93] text-[12px]">{c.isConnected ? "Active" : "Tap to connect"}</p>
-                                </div>
-                                <ChevronRight className="w-4 h-4 text-[#48484a]" />
-                            </button>
-                        ))}
-                    </div>
+          {modalState.view === "detail" && activeConnectorData && (
+            <div className="flex flex-col overflow-hidden h-full" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)" }}>
+              <div className="flex items-center justify-between px-4 pb-4 border-b border-[#1c1c1e] shrink-0">
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setModalState({ view: "list", connectorId: null })} onPointerDown={createRipple} className="relative overflow-hidden w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-95 transition-transform">
+                    <ArrowLeft className="w-5 h-5 text-white relative z-10" />
+                  </button>
+                  <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-7 h-7 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                  <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>{activeConnectorData.name}</h2>
                 </div>
-            )}
-
-            {modalState.view === "detail" && activeConnectorData && (
-              <div className="flex flex-col overflow-hidden h-full">
-                <div className="flex items-center justify-between px-4 pb-4 border-b border-[#1c1c1e] shrink-0">
-                  <div className="flex items-center gap-3">
-                    <button onClick={() => setModalState({ view: "list", connectorId: null })} onPointerDown={createRipple} className="relative overflow-hidden w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:opacity-70 transition-opacity"><ArrowLeft className="w-5 h-5 text-[#8e8e93] relative z-10" /></button>
-                    <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-7 h-7 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
-                    <h2 className="text-white font-bold text-[17px]">{activeConnectorData.name}</h2>
+                {activeConnectorData.isConnected ? (
+                  <button className="px-4 py-1.5 bg-red-500/10 text-red-500 text-[13px] font-bold rounded-full flex items-center gap-2 active:opacity-70"><Trash2 className="w-3.5 h-3.5" /> Disconnect</button>
+                ) : (
+                  <button className="px-4 py-1.5 bg-[#60a5fa]/10 text-[#60a5fa] text-[13px] font-bold rounded-full active:opacity-70" style={{ fontFamily: SF }}>Connect</button>
+                )}
+              </div>
+              
+              <div className="p-4 overflow-y-auto hide-scrollbar space-y-5 pb-8 flex-1">
+                <p className="text-[#e5e5ea] text-[14px]" style={{ fontFamily: SF }}>{activeConnectorData.description}</p>
+                {activeConnectorData.isConnected && (
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
+                      <div className="flex flex-col">
+                          <p className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider">Linked account</p>
+                          <p className="text-white text-[14px] font-medium">{activeConnectorData.userEmail}</p>
+                      </div>
+                      <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]" />
                   </div>
-                  {activeConnectorData.isConnected ? (
-                    <button className="px-4 py-1.5 bg-red-500/10 text-red-500 text-[13px] font-bold rounded-full flex items-center gap-2 active:opacity-70"><Trash2 className="w-3.5 h-3.5" /> Disconnect</button>
-                  ) : (
-                    <button className="px-5 py-1.5 bg-white text-black text-[13px] font-bold rounded-full active:opacity-70">Connect</button>
-                  )}
-                </div>
-                
-                <div className="p-4 overflow-y-auto hide-scrollbar space-y-5 pb-8">
-                  <p className="text-[#e5e5ea] text-[14px]" style={{ fontFamily: SF }}>{activeConnectorData.description}</p>
-                  {activeConnectorData.isConnected && (
-                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between">
-                        <div className="flex flex-col">
-                            <p className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider">Linked account</p>
-                            <p className="text-white text-[14px] font-medium">{activeConnectorData.userEmail}</p>
+                )}
+                <div className="space-y-4">
+                  <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
+                  <div className="rounded-2xl border border-[#1c1c1e] overflow-hidden bg-[#151517]">
+                    {activeConnectorData.features.map((feat, i, arr) => (
+                      <div key={i} className="flex gap-4 p-4" style={{ borderBottom: i < arr.length - 1 ? "1px solid #1c1c1e" : "none" }}>
+                        <div className="shrink-0 mt-0.5">{feat.icon}</div>
+                        <div>
+                          <p className="text-white font-semibold text-[15px] mb-0.5">{feat.title}</p>
+                          <p className="text-[#8e8e93] text-[13px] leading-relaxed">{feat.desc}</p>
                         </div>
-                        <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]" />
-                    </div>
-                  )}
-                  <div className="space-y-4">
-                    <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
-                    <div className="rounded-2xl border border-[#1c1c1e] overflow-hidden bg-black/20">
-                      {activeConnectorData.features.map((feat, i, arr) => (
-                        <div key={i} className="flex gap-4 p-4" style={{ borderBottom: i < arr.length - 1 ? "1px solid #1c1c1e" : "none" }}>
-                          <div className="shrink-0 mt-0.5">{feat.icon}</div>
-                          <div>
-                            <p className="text-white font-semibold text-[15px] mb-0.5">{feat.title}</p>
-                            <p className="text-[#8e8e93] text-[13px] leading-relaxed">{feat.desc}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            )}
-            <div style={{ height: "calc(env(safe-area-inset-bottom, 0px) + 20px)" }} />
-          </div>
+            </div>
+          )}
         </div>
       )}
     
