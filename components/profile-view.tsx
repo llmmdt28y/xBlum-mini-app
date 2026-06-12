@@ -170,7 +170,7 @@ export function ProfileView() {
 
         {/* PANEL BANNER DE ACCIONES */}
         <div className="mt-8 w-full px-3">
-          <div className="relative rounded-[20px] overflow-hidden mx-auto shadow-lg">
+          <div className="relative rounded-[20px] overflow-hidden mx-auto shadow-sm">
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
               <img 
@@ -181,10 +181,10 @@ export function ProfileView() {
             </div>
             
             {/* Spacer for the top part of the image to show */}
-            <div className="h-[28px] relative z-10 w-full"></div>
+            <div className="h-[44px] relative z-10 w-full"></div>
             
             {/* Bottom Panel with Blur */}
-            <div className="relative z-10 bg-[#1c1c1e]/40 backdrop-blur-2xl border-t border-white/10 rounded-t-[16px] pt-2 pb-2 px-4 flex justify-between items-center">
+            <div className="relative z-10 bg-[#121212]/60 backdrop-blur-xl border-t border-white/10 rounded-t-[16px] pt-2 pb-2 px-4 flex justify-between items-center">
               <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
                 <PlusCircle className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
                 <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Top Up</span>
