@@ -173,51 +173,51 @@ export function ProfileView() {
         <div className="mt-8 w-full px-3">
           <div className="relative rounded-[20px] overflow-hidden mx-auto shadow-sm bg-gradient-to-r from-[#0047e1] via-[#0062eb] to-[#00a8ff]">
             
-            {/* Puntos Luminosos (Estrellas) */}
-            <div className="absolute top-[12px] right-[130px] w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_3px_rgba(255,255,255,0.7)] animate-pulse" />
-            <div className="absolute top-[28px] right-[90px] w-1 h-1 bg-white rounded-full shadow-[0_0_6px_2px_rgba(255,255,255,0.8)]" />
-            <div className="absolute top-[32px] left-[140px] w-1 h-1 bg-white rounded-full shadow-[0_0_5px_2px_rgba(255,255,255,0.5)] animate-pulse" />
-            <div className="absolute top-[16px] left-[180px] w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_2px_rgba(255,255,255,0.6)]" />
+            {/* Capa de Ruido (Noise) */}
+            <div 
+              className="absolute inset-0 z-20 pointer-events-none opacity-[0.12] mix-blend-overlay"
+              style={{ backgroundImage: "url('data:image/svg+xml;utf8,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}
+            ></div>
 
             {/* Top part showing title and icons */}
-            <div className="relative z-10 w-full h-[46px] flex items-center justify-between px-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-[26px] h-[26px] bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <Zap className="w-[15px] h-[15px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
+            <div className="relative z-10 w-full h-[38px] flex items-center justify-between px-4 mt-1">
+              <div className="flex items-center gap-2">
+                <div className="w-[22px] h-[22px] bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <Zap className="w-[13px] h-[13px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
                 </div>
-                <span className="text-white text-[18px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Top Up</span>
+                <span className="text-white text-[16px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Top Up</span>
               </div>
               
               {/* Imagen a la derecha que el usuario va a subir */}
-              <div className="relative h-full flex items-end justify-end w-[100px]">
+              <div className="relative h-full flex items-end justify-end w-[90px]">
                 <img 
                   src="/top-up-coins.png" 
                   alt="Coins" 
-                  className="h-[46px] object-contain mr-[-8px] mb-[-4px]"
+                  className="h-[40px] object-contain mr-[-8px] mb-[-4px]"
                 />
               </div>
             </div>
             
             {/* Bottom Panel without Blur */}
-            <div className="relative z-10 bg-[#000000]/40 border-t border-white/10 pt-2.5 pb-2.5 px-4 flex justify-between items-center">
+            <div className="relative z-10 bg-[#000000]/40 border-t border-white/10 rounded-t-[14px] pt-2 pb-2 px-4 flex justify-between items-center mt-1">
               <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
-                <PlusCircle className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
-                <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Top Up</span>
+                <PlusCircle className="w-[18px] h-[18px] text-white drop-shadow-md" strokeWidth={2.5} />
+                <span className="text-white text-[11px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Top Up</span>
               </button>
               
               <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
-                <ArrowUp className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
-                <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Withdraw</span>
+                <ArrowUp className="w-[18px] h-[18px] text-white drop-shadow-md" strokeWidth={2.5} />
+                <span className="text-white text-[11px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Withdraw</span>
               </button>
               
               <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
-                <Send className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
-                <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Send</span>
+                <Send className="w-[18px] h-[18px] text-white drop-shadow-md" strokeWidth={2.5} />
+                <span className="text-white text-[11px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Send</span>
               </button>
               
               <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
-                <ShoppingCart className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
-                <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Sell</span>
+                <ShoppingCart className="w-[18px] h-[18px] text-white drop-shadow-md" strokeWidth={2.5} />
+                <span className="text-white text-[11px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Sell</span>
               </button>
             </div>
           </div>
