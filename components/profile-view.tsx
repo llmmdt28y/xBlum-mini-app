@@ -170,7 +170,7 @@ export function ProfileView() {
         </div>
 
         {/* PANEL BANNER DE ACCIONES */}
-        <div className="mt-8 w-full px-3">
+        <div className="mt-4 w-full px-3">
           <div className="relative rounded-[20px] overflow-hidden mx-auto shadow-sm bg-gradient-to-r from-[#0047e1] via-[#0062eb] to-[#00a8ff]">
             
             {/* Polvo de estrellas (Stardust) */}
@@ -247,7 +247,7 @@ export function ProfileView() {
       </div>
 
       {/* CONTENEDOR INVENTARIO BORDES REDONDEADOS */}
-      <div className="bg-[#121212] rounded-t-[32px] w-full flex-1 mt-8 pt-6 px-4 pb-10 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
+      <div className="bg-[#121212] rounded-t-[32px] w-full flex-1 mt-2 pt-6 px-4 pb-10 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
 
         {/* NAVEGACIÓN (TABS) */}
         <div className="flex items-center gap-6 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
