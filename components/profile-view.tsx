@@ -173,49 +173,82 @@ export function ProfileView() {
         <div className="mt-8 w-full px-3">
           <div className="relative rounded-[20px] overflow-hidden mx-auto shadow-sm bg-gradient-to-r from-[#0047e1] via-[#0062eb] to-[#00a8ff]">
             
-            {/* Capa de Ruido (Noise) */}
-            <div 
-              className="absolute inset-0 z-20 pointer-events-none opacity-[0.12] mix-blend-overlay"
-              style={{ backgroundImage: "url('data:image/svg+xml;utf8,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}
-            ></div>
+            {/* Polvo de estrellas (Stardust) */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10%" cy="15%" r="0.5" fill="white" opacity="0.6" />
+              <circle cx="25%" cy="8%" r="1" fill="white" opacity="0.8" />
+              <circle cx="40%" cy="25%" r="0.5" fill="white" opacity="0.5" />
+              <circle cx="60%" cy="10%" r="1" fill="white" opacity="0.9" />
+              <circle cx="75%" cy="20%" r="0.5" fill="white" opacity="0.4" />
+              <circle cx="90%" cy="12%" r="1.5" fill="white" opacity="0.8" />
+              <circle cx="15%" cy="45%" r="0.5" fill="white" opacity="0.5" />
+              <circle cx="35%" cy="55%" r="1" fill="white" opacity="0.7" />
+              <circle cx="55%" cy="40%" r="0.5" fill="white" opacity="0.6" />
+              <circle cx="85%" cy="50%" r="1" fill="white" opacity="0.8" />
+              <circle cx="5%" cy="75%" r="1" fill="white" opacity="0.6" />
+              <circle cx="20%" cy="85%" r="0.5" fill="white" opacity="0.5" />
+              <circle cx="45%" cy="80%" r="1.5" fill="white" opacity="0.7" />
+              <circle cx="65%" cy="70%" r="0.5" fill="white" opacity="0.4" />
+              <circle cx="80%" cy="90%" r="1" fill="white" opacity="0.9" />
+              <circle cx="95%" cy="65%" r="0.5" fill="white" opacity="0.5" />
+              <circle cx="50%" cy="15%" r="0.5" fill="white" opacity="0.8" />
+              <circle cx="70%" cy="35%" r="1" fill="white" opacity="0.6" />
+              <circle cx="30%" cy="75%" r="0.5" fill="white" opacity="0.7" />
+              <circle cx="12%" cy="30%" r="0.8" fill="white" opacity="0.5" />
+              <circle cx="88%" cy="75%" r="0.8" fill="white" opacity="0.6" />
+              <circle cx="58%" cy="85%" r="0.5" fill="white" opacity="0.4" />
+              {/* Estrellas más grandes con brillo tipo destello */}
+              <circle cx="65%" cy="18%" r="1.5" fill="white" filter="url(#glow)" />
+              <circle cx="85%" cy="30%" r="2" fill="white" filter="url(#glow)" />
+              <circle cx="25%" cy="35%" r="1.5" fill="white" filter="url(#glow)" />
+              <defs>
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="2" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+            </svg>
 
             {/* Top part showing title and icons */}
-            <div className="relative z-10 w-full h-[38px] flex items-center justify-between px-4 mt-1">
-              <div className="flex items-center gap-2">
-                <div className="w-[22px] h-[22px] bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <Zap className="w-[13px] h-[13px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
+            <div className="relative z-10 w-full h-[28px] flex items-center justify-between px-4 mt-2 mb-1">
+              <div className="flex items-center gap-1.5">
+                <div className="w-[18px] h-[18px] bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <Zap className="w-[10px] h-[10px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
                 </div>
-                <span className="text-white text-[16px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Top Up</span>
+                <span className="text-white text-[14px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Top Up</span>
               </div>
               
               {/* Imagen a la derecha que el usuario va a subir */}
-              <div className="relative h-full flex items-end justify-end w-[90px]">
+              <div className="relative h-full flex items-center justify-end w-[90px]">
                 <img 
                   src="/top-up-coins.png" 
                   alt="Coins" 
-                  className="h-[40px] object-contain mr-[-8px] mb-[-4px]"
+                  className="h-[32px] object-contain mr-[-8px]"
                 />
               </div>
             </div>
             
             {/* Bottom Panel without Blur */}
-            <div className="relative z-10 bg-[#000000]/40 border-t border-white/10 rounded-t-[14px] pt-2 pb-2 px-4 flex justify-between items-center mt-1">
-              <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
+            <div className="relative z-10 bg-[#000000]/40 border-t border-white/10 rounded-t-[14px] pt-3.5 pb-3.5 px-4 flex justify-between items-center">
+              <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform w-[56px]">
                 <PlusCircle className="w-[18px] h-[18px] text-white drop-shadow-md" strokeWidth={2.5} />
                 <span className="text-white text-[11px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Top Up</span>
               </button>
               
-              <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
+              <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform w-[56px]">
                 <ArrowUp className="w-[18px] h-[18px] text-white drop-shadow-md" strokeWidth={2.5} />
                 <span className="text-white text-[11px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Withdraw</span>
               </button>
               
-              <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
+              <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform w-[56px]">
                 <Send className="w-[18px] h-[18px] text-white drop-shadow-md" strokeWidth={2.5} />
                 <span className="text-white text-[11px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Send</span>
               </button>
               
-              <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
+              <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform w-[56px]">
                 <ShoppingCart className="w-[18px] h-[18px] text-white drop-shadow-md" strokeWidth={2.5} />
                 <span className="text-white text-[11px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Sell</span>
               </button>
