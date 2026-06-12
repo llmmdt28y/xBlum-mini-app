@@ -369,6 +369,7 @@ export function ProfileView() {
               onClick={handleComingSoon} 
               className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-transform shrink-0" 
               style={{ ...blueGlowStyle, fontFamily: SF }}
+            >
               Go to Market <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
             </button>
           )}
