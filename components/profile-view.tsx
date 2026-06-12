@@ -197,42 +197,29 @@ export function ProfileView() {
               <circle cx="12%" cy="30%" r="0.8" fill="white" opacity="0.5" />
               <circle cx="88%" cy="75%" r="0.8" fill="white" opacity="0.6" />
               <circle cx="58%" cy="85%" r="0.5" fill="white" opacity="0.4" />
-              {/* Estrellas más grandes con brillo tipo destello */}
-              <circle cx="65%" cy="18%" r="1.5" fill="white" filter="url(#glow)" />
-              <circle cx="85%" cy="30%" r="2" fill="white" filter="url(#glow)" />
-              <circle cx="25%" cy="35%" r="1.5" fill="white" filter="url(#glow)" />
-              <defs>
-                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="2" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
             </svg>
 
             {/* Top part showing title and icons */}
-            <div className="relative z-10 w-full h-[28px] flex items-center justify-between px-4 mt-2 mb-1">
+            <div className="relative z-10 w-full h-[22px] flex items-center justify-between px-4 mt-1.5 mb-1.5">
               <div className="flex items-center gap-1.5">
-                <div className="w-[18px] h-[18px] bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <Zap className="w-[10px] h-[10px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
+                <div className="w-[16px] h-[16px] bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <Zap className="w-[9px] h-[9px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
                 </div>
-                <span className="text-white text-[14px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Top Up</span>
+                <span className="text-white text-[13px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Top Up</span>
               </div>
               
               {/* Imagen a la derecha que el usuario va a subir */}
-              <div className="relative h-full flex items-center justify-end w-[90px]">
+              <div className="relative h-full flex items-center justify-end w-[80px]">
                 <img 
                   src="/top-up-coins.png" 
                   alt="Coins" 
-                  className="h-[32px] object-contain mr-[-8px]"
+                  className="h-[26px] object-contain mr-[-8px]"
                 />
               </div>
             </div>
             
-            {/* Bottom Panel without Blur */}
-            <div className="relative z-10 bg-[#000000]/40 border-t border-white/10 rounded-t-[14px] pt-3.5 pb-3.5 px-4 flex justify-between items-center">
+            {/* Bottom Panel with Blur */}
+            <div className="relative z-10 bg-[#000000]/30 backdrop-blur-xl border-t border-white/10 rounded-t-[14px] pt-2 pb-2 px-4 flex justify-between items-center">
               <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform w-[56px]">
                 <PlusCircle className="w-[18px] h-[18px] text-white drop-shadow-md" strokeWidth={2.5} />
                 <span className="text-white text-[11px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Top Up</span>
