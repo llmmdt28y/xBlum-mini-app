@@ -200,12 +200,12 @@ export function ProfileView() {
             </svg>
 
             {/* Top part showing title and icons */}
-            <div className="relative z-10 w-full h-[22px] flex items-center justify-between px-4 mt-1.5 mb-1.5">
+            <div className="relative z-10 w-full h-[18px] flex items-center justify-between px-4 mt-1 mb-1">
               <div className="flex items-center gap-1.5">
-                <div className="w-[16px] h-[16px] bg-white rounded-full flex items-center justify-center shadow-sm">
-                  <Zap className="w-[9px] h-[9px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
+                <div className="w-[14px] h-[14px] bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <Zap className="w-[8px] h-[8px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
                 </div>
-                <span className="text-white text-[13px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Top Up</span>
+                <span className="text-white text-[12px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Top Up</span>
               </div>
               
               {/* Imagen a la derecha que el usuario va a subir */}
@@ -213,13 +213,13 @@ export function ProfileView() {
                 <img 
                   src="/top-up-coins.png" 
                   alt="Coins" 
-                  className="h-[26px] object-contain mr-[-8px]"
+                  className="h-[22px] object-contain mr-[-8px]"
                 />
               </div>
             </div>
             
             {/* Bottom Panel with Blur */}
-            <div className="relative z-10 bg-[#000000]/30 backdrop-blur-xl border-t border-white/10 rounded-t-[14px] pt-2 pb-2 px-4 flex justify-between items-center">
+            <div className="relative z-10 bg-[#000000]/30 backdrop-blur-xl border-t border-white/10 rounded-t-[14px] rounded-b-[20px] pt-2 pb-2 px-4 flex justify-between items-center">
               <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform w-[56px]">
                 <PlusCircle className="w-[18px] h-[18px] text-white drop-shadow-md" strokeWidth={2.5} />
                 <span className="text-white text-[11px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Top Up</span>
