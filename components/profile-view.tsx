@@ -169,8 +169,8 @@ export function ProfileView() {
         </div>
 
         {/* PANEL BANNER DE ACCIONES */}
-        <div className="mt-8 w-full">
-          <div className="relative rounded-[24px] overflow-hidden">
+        <div className="mt-8 w-full px-3">
+          <div className="relative rounded-[20px] overflow-hidden mx-auto shadow-lg">
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
               <img 
@@ -181,28 +181,28 @@ export function ProfileView() {
             </div>
             
             {/* Spacer for the top part of the image to show */}
-            <div className="h-[64px] relative z-10 w-full"></div>
+            <div className="h-[28px] relative z-10 w-full"></div>
             
             {/* Bottom Panel with Blur */}
-            <div className="relative z-10 bg-[#1c1c1e]/40 backdrop-blur-2xl border-t border-white/10 rounded-t-[20px] pt-3 pb-3 px-6 flex justify-between items-center">
-              <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform w-[64px]">
-                <PlusCircle className="w-[24px] h-[24px] text-white drop-shadow-md" strokeWidth={2.5} />
-                <span className="text-white text-[13px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Top Up</span>
+            <div className="relative z-10 bg-[#1c1c1e]/40 backdrop-blur-2xl border-t border-white/10 rounded-t-[16px] pt-2 pb-2 px-4 flex justify-between items-center">
+              <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
+                <PlusCircle className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
+                <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Top Up</span>
               </button>
               
-              <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform w-[64px]">
-                <ArrowUp className="w-[24px] h-[24px] text-white drop-shadow-md" strokeWidth={2.5} />
-                <span className="text-white text-[13px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Withdraw</span>
+              <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
+                <ArrowUp className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
+                <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Withdraw</span>
               </button>
               
-              <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform w-[64px]">
-                <Send className="w-[24px] h-[24px] text-white drop-shadow-md" strokeWidth={2.5} />
-                <span className="text-white text-[13px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Send</span>
+              <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
+                <Send className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
+                <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Send</span>
               </button>
               
-              <button className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform w-[64px]">
-                <ShoppingCart className="w-[24px] h-[24px] text-white drop-shadow-md" strokeWidth={2.5} />
-                <span className="text-white text-[13px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Sell</span>
+              <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
+                <ShoppingCart className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
+                <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Sell</span>
               </button>
             </div>
           </div>
