@@ -89,24 +89,24 @@ export function PremiumView() {
         <div className="w-full max-w-md grid grid-cols-2 gap-2 mb-10">
           
           {/* Columna Free */}
-          <div className="flex flex-col pt-3">
-            <div className="text-center pb-4 text-[#8e8e93] font-bold text-[17px] tracking-wide" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>
+          <div className="flex flex-col mt-[2px]">
+            <div className="flex items-center justify-center h-[50px] text-[#8e8e93] font-bold text-[17px] tracking-wide" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>
               Free
             </div>
             
-            <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
+            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#1c1c1e] h-[145px]">
               <img src="/memo.webp" alt="Memo" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Basic Features</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Standard access to core tools and stable AI models.</p>
             </div>
             
-            <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
+            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#1c1c1e] h-[145px]">
               <img src="/search.webp" alt="Search" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Search</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Basic web search for everyday questions.</p>
             </div>
             
-            <div className="flex flex-col items-center text-center p-3 border-t border-[#1c1c1e] min-h-[140px]">
+            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#1c1c1e] h-[145px]">
               <img src="/hourglass.webp" alt="Limits" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Limits</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Fewer limits & up to 5 active tasks.</p>
@@ -115,23 +115,23 @@ export function PremiumView() {
 
           {/* Columna Premium (SuperNoir) */}
           <div className="flex flex-col border-[2px] border-[#ff6a00] rounded-[24px] bg-[#111111] shadow-[0_0_20px_rgba(255,106,0,0.15)] overflow-hidden">
-            <div className="bg-[#ff6a00] text-center py-3">
+            <div className="bg-[#ff6a00] flex items-center justify-center h-[50px]">
               <span className="text-white font-bold text-[17px] tracking-wide" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>SuperNoir</span>
             </div>
             
-            <div className="flex flex-col items-center text-center p-3 min-h-[140px]">
+            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-transparent h-[145px]">
               <img src="/robot.webp" alt="Autonomous AI" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Beta Access</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Early access to experimental tools, beta features & latest models.</p>
             </div>
             
-            <div className="flex flex-col items-center text-center p-3 border-t border-[#ff6a00]/30 min-h-[140px]">
+            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#ff6a00]/30 h-[145px]">
               <img src="/lightning.webp" alt="Lightning" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>DeepSearch</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Advanced reasoning and deep thinking tools.</p>
             </div>
             
-            <div className="flex flex-col items-center text-center p-3 border-t border-[#ff6a00]/30 min-h-[140px]">
+            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#ff6a00]/30 h-[145px]">
               <img src="/rocket.webp" alt="Rocket" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Increased Limits</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Higher limits & up to 15 active tasks.</p>
