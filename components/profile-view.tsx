@@ -201,7 +201,7 @@ export function ProfileView() {
 
             {/* Top part showing title and icons */}
             <div className="relative z-10 w-full h-[18px] flex items-center justify-between px-4 mt-1 mb-1">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 translate-y-[2px]">
                 <div className="w-[14px] h-[14px] bg-white rounded-full flex items-center justify-center shadow-sm">
                   <Zap className="w-[8px] h-[8px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
                 </div>
@@ -247,7 +247,7 @@ export function ProfileView() {
       </div>
 
       {/* CONTENEDOR INVENTARIO BORDES REDONDEADOS */}
-      <div className="bg-[#121212] rounded-t-[32px] w-full flex-1 mt-2 pt-6 px-4 pb-10 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
+      <div className="bg-[#121212] rounded-t-[32px] w-full flex-1 mt-0 pt-6 px-4 pb-32 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
 
         {/* NAVEGACIÓN (TABS) */}
         <div className="flex items-center gap-6 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
