@@ -170,37 +170,31 @@ export function ProfileView() {
 
         {/* BANNER TOP-UP CON BOTONES */}
         <div className="mt-8 w-full px-1">
-          <div className="relative w-full rounded-[24px] bg-transparent">
-            {/* Imagen del banner ajustada un poco más abajo */}
-            <div className="absolute inset-0 z-0 pointer-events-none">
-              <img src="/Top-UP-banner.png" alt="Top UP Banner" className="w-full h-full object-cover object-top translate-y-2 rounded-[24px]" />
-            </div>
+          <div className="relative w-full rounded-[24px] overflow-hidden shadow-lg">
+            {/* Imagen del banner que ya incluye el texto y personaje */}
+            <img src="/Top-UP-banner.png" alt="Top UP Banner" className="w-full h-auto block" />
             
-            {/* Contenido Superior del Banner (Vacío) */}
-            <div className="relative z-10 pt-4 pb-12 px-4">
-            </div>
-
-            {/* Contenedor Inferior Oscuro con Botones (Reducido y con blur) */}
-            <div className="relative z-10 bg-[#242426]/70 backdrop-blur-xl rounded-[24px] px-6 py-2.5 flex items-center justify-between border-t border-white/10 mt-[-10px] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+            {/* Contenedor Inferior Oscuro con Botones (sobre la parte inferior de la imagen) */}
+            <div className="absolute bottom-0 left-0 w-full z-10 bg-[#242426]/60 backdrop-blur-md rounded-t-[20px] px-6 py-3 flex items-center justify-between border-t border-white/10">
               
               <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
-                <PlusCircle className="w-[20px] h-[20px] text-white" strokeWidth={2} />
-                <span className="text-[12px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Top UP</span>
+                <PlusCircle className="w-[20px] h-[20px] text-white" strokeWidth={2.5} />
+                <span className="text-[13px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Add</span>
               </button>
 
               <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
-                <ArrowUp className="w-[20px] h-[20px] text-white" strokeWidth={2} />
-                <span className="text-[12px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Withdraw</span>
+                <ArrowUp className="w-[20px] h-[20px] text-white" strokeWidth={2.5} />
+                <span className="text-[13px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Withdraw</span>
               </button>
 
               <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
-                <Send className="w-[18px] h-[18px] text-white" strokeWidth={2} />
-                <span className="text-[12px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Send</span>
+                <Send className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
+                <span className="text-[13px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Send</span>
               </button>
 
               <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
-                <ShoppingCart className="w-[20px] h-[20px] text-white" strokeWidth={2} />
-                <span className="text-[12px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Sell</span>
+                <ShoppingCart className="w-[20px] h-[20px] text-white" strokeWidth={2.5} />
+                <span className="text-[13px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Sell</span>
               </button>
 
             </div>
