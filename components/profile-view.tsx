@@ -171,30 +171,30 @@ export function ProfileView() {
         {/* BANNER TOP-UP CON BOTONES */}
         <div className="mt-8 w-full px-1">
           <div className="relative w-full rounded-[24px] overflow-hidden shadow-lg">
-            {/* Imagen del banner que ya incluye el texto y personaje */}
-            <img src="/Top-UP-banner.png" alt="Top UP Banner" className="w-full h-auto block" />
+            {/* Imagen del banner */}
+            <img src="/Top-UP-banner.png" alt="Top UP Banner" className="w-full h-auto block scale-[1.02] object-bottom" />
             
-            {/* Contenedor Inferior Oscuro con Botones (sobre la parte inferior de la imagen) */}
-            <div className="absolute bottom-0 left-0 w-full z-10 bg-[#242426]/60 backdrop-blur-md rounded-t-[20px] px-6 py-3 flex items-center justify-between border-t border-white/10">
+            {/* Contenedor Inferior Oscuro con Botones (más reducido verticalmente) */}
+            <div className="absolute bottom-0 left-0 w-full z-10 bg-[#242426]/60 backdrop-blur-md px-6 py-1.5 flex items-center justify-between border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
               
               <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
-                <PlusCircle className="w-[20px] h-[20px] text-white" strokeWidth={2.5} />
-                <span className="text-[13px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Add</span>
+                <PlusCircle className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
+                <span className="text-[12px] text-white font-medium" style={{ fontFamily: SF }}>Top UP</span>
               </button>
 
               <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
-                <ArrowUp className="w-[20px] h-[20px] text-white" strokeWidth={2.5} />
-                <span className="text-[13px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Withdraw</span>
+                <ArrowUp className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
+                <span className="text-[12px] text-white font-medium" style={{ fontFamily: SF }}>Withdraw</span>
               </button>
 
               <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
-                <Send className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
-                <span className="text-[13px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Send</span>
+                <Send className="w-[16px] h-[16px] text-white" strokeWidth={2.5} />
+                <span className="text-[12px] text-white font-medium" style={{ fontFamily: SF }}>Send</span>
               </button>
 
               <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
-                <ShoppingCart className="w-[20px] h-[20px] text-white" strokeWidth={2.5} />
-                <span className="text-[13px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Sell</span>
+                <ShoppingCart className="w-[18px] h-[18px] text-white" strokeWidth={2.5} />
+                <span className="text-[12px] text-white font-medium" style={{ fontFamily: SF }}>Sell</span>
               </button>
 
             </div>
