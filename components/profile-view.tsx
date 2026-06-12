@@ -170,10 +170,10 @@ export function ProfileView() {
 
         {/* BANNER TOP-UP CON BOTONES */}
         <div className="mt-8 w-full px-1">
-          <div className="relative w-full rounded-[24px] bg-[#1c84ff]">
-            {/* Imagen de fondo del banner sobresaliendo y cubriendo todo */}
+          <div className="relative w-full rounded-[24px] bg-transparent">
+            {/* Imagen del banner ajustada un poco más abajo */}
             <div className="absolute inset-0 z-0 pointer-events-none">
-              <img src="/Top-UP-banner.png" alt="Top UP Banner" className="w-full h-[120%] object-cover object-top -mt-6 rounded-[24px]" />
+              <img src="/Top-UP-banner.png" alt="Top UP Banner" className="w-full h-full object-cover object-top translate-y-2 rounded-[24px]" />
             </div>
             
             {/* Contenido Superior del Banner (Vacío) */}
