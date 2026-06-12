@@ -15,7 +15,8 @@ import {
   ArrowUp,
   ShoppingCart,
   Send,
-  Flame
+  Flame,
+  Zap
 } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -170,21 +171,28 @@ export function ProfileView() {
 
         {/* PANEL BANNER DE ACCIONES */}
         <div className="mt-8 w-full px-3">
-          <div className="relative rounded-[20px] overflow-hidden mx-auto shadow-sm">
-            {/* Background Image */}
-            <div className="absolute inset-0 z-0">
-              <img 
-                src="/Top-UP-banner.png" 
-                alt="Top Up" 
-                className="w-full h-full object-cover object-center"
-              />
+          <div className="relative rounded-[20px] overflow-hidden mx-auto shadow-sm bg-gradient-to-r from-[#0047e1] via-[#0062eb] to-[#00a8ff]">
+            {/* Top part showing title and icons */}
+            <div className="relative w-full h-[54px] flex items-center justify-between px-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-[26px] h-[26px] bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <Zap className="w-[15px] h-[15px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
+                </div>
+                <span className="text-white text-[18px] font-bold tracking-tight" style={{ fontFamily: SFD }}>Top Up</span>
+              </div>
+              
+              {/* Imagen a la derecha que el usuario va a subir */}
+              <div className="relative h-full flex items-end justify-end w-[100px]">
+                <img 
+                  src="/top-up-coins.png" 
+                  alt="Coins" 
+                  className="h-[50px] object-contain mr-[-8px] mb-[-4px]"
+                />
+              </div>
             </div>
             
-            {/* Spacer for the top part of the image to show */}
-            <div className="h-[44px] relative z-10 w-full"></div>
-            
-            {/* Bottom Panel with Blur */}
-            <div className="relative z-10 bg-[#121212]/60 backdrop-blur-xl border-t border-white/10 rounded-t-[16px] pt-2 pb-2 px-4 flex justify-between items-center">
+            {/* Bottom Panel without Blur */}
+            <div className="relative z-10 bg-[#000000]/25 border-t border-white/10 pt-2.5 pb-2.5 px-4 flex justify-between items-center">
               <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
                 <PlusCircle className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
                 <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Top Up</span>
@@ -361,7 +369,6 @@ export function ProfileView() {
               onClick={handleComingSoon} 
               className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-transform shrink-0" 
               style={{ ...blueGlowStyle, fontFamily: SF }}
-            >
               Go to Market <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
             </button>
           )}
