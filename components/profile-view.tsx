@@ -141,9 +141,36 @@ export function ProfileView() {
           </p>
         </div>
 
+        {/* FILA DE BOTONES DE ACCIÓN SUPERIOR (RESTAURADOS) */}
+        <div className="flex flex-wrap items-center justify-center mt-6 w-full">
+          <div className="flex items-center justify-center gap-[8px]">
+            <button 
+              className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-all shrink-0" 
+              style={{ ...blueGlowStyle, fontFamily: SF }}
+            >
+              <Gift className="w-[18px] h-[18px]" strokeWidth={2} />
+              Add Gift
+            </button>
+            <button 
+              className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-all shrink-0" 
+              style={{ ...greyGlowStyle, fontFamily: SF }}
+            >
+              <Info className="w-[18px] h-[18px]" strokeWidth={2} />
+              Info
+            </button>
+            <div className="w-[1px] h-[16px] bg-[#48484a] shrink-0 mx-0.5" />
+            <button 
+              className="flex items-center justify-center w-[32px] h-[32px] rounded-full shrink-0 active:scale-95 transition-all"
+              style={greyGlowStyle}
+            >
+              <BellDot className="w-[18px] h-[18px] text-white" strokeWidth={2} />
+            </button>
+          </div>
+        </div>
+
         {/* PANEL BANNER DE ACCIONES */}
-        <div className="mt-6 w-full">
-          <div className="relative rounded-[24px] overflow-hidden bg-[#1c1c1e] shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
+        <div className="mt-8 w-full">
+          <div className="relative rounded-[24px] overflow-hidden">
             {/* Background Image */}
             <div className="absolute inset-0 z-0">
               <img 
