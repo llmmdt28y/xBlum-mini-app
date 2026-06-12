@@ -141,43 +141,67 @@ export function ProfileView() {
           </p>
         </div>
 
+        {/* FILA DE BOTONES DE ACCIÓN SUPERIOR (RESTAURADOS) */}
+        <div className="flex flex-wrap items-center justify-center mt-6 w-full">
+          <div className="flex items-center justify-center gap-[8px]">
+            <button 
+              className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-all shrink-0" 
+              style={{ ...blueGlowStyle, fontFamily: SF }}
+            >
+              <Gift className="w-[18px] h-[18px]" strokeWidth={2} />
+              Add Gift
+            </button>
+            <button 
+              className="flex items-center justify-center gap-1.5 text-white px-3 h-[32px] rounded-full font-semibold text-[16px] active:scale-95 transition-all shrink-0" 
+              style={{ ...greyGlowStyle, fontFamily: SF }}
+            >
+              <Info className="w-[18px] h-[18px]" strokeWidth={2} />
+              Info
+            </button>
+            <div className="w-[1px] h-[16px] bg-[#48484a] shrink-0 mx-0.5" />
+            <button 
+              className="flex items-center justify-center w-[32px] h-[32px] rounded-full shrink-0 active:scale-95 transition-all"
+              style={greyGlowStyle}
+            >
+              <BellDot className="w-[18px] h-[18px] text-white" strokeWidth={2} />
+            </button>
+          </div>
+        </div>
+
         {/* BANNER TOP-UP CON BOTONES */}
         <div className="mt-8 w-full px-1">
-          <div className="relative w-full rounded-[24px] overflow-hidden bg-[#1c84ff]">
-            {/* Imagen de fondo del banner */}
-            <div className="absolute inset-0 z-0 pointer-events-none">
-              <img src="/Top-UP-banner.png" alt="Top UP Banner" className="w-full h-full object-cover" />
+          {/* Quitamos el overflow-hidden para que la imagen pueda sobresalir */}
+          <div className="relative w-full rounded-[24px] bg-[#1c84ff]">
+            {/* Imagen de fondo del banner sobresaliendo hacia arriba */}
+            <div className="absolute w-full bottom-0 z-0 pointer-events-none flex justify-center">
+              <img src="/Top-UP-banner.png" alt="Top UP Banner" className="w-[105%] h-auto -translate-y-4" />
             </div>
             
-            {/* Contenido Superior del Banner */}
-            <div className="relative z-10 pt-4 pb-8 px-4">
-              <div className="flex items-center gap-1.5 text-white font-bold">
-                <Flame className="w-[20px] h-[20px] text-white fill-white" strokeWidth={2} />
-                <span className="text-[16px] tracking-tight" style={{ fontFamily: SF }}>0% commission</span>
-              </div>
+            {/* Contenido Superior del Banner (Vacío) */}
+            <div className="relative z-10 pt-4 pb-12 px-4">
             </div>
 
-            {/* Contenedor Inferior Oscuro con Botones */}
-            <div className="relative z-10 bg-[#242426] rounded-[24px] px-6 py-4 flex items-center justify-between border-t border-white/5 mt-[-20px] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
+            {/* Contenedor Inferior Oscuro con Botones (Reducido y con blur) */}
+            <div className="relative z-10 bg-[#242426]/70 backdrop-blur-xl rounded-[24px] px-6 py-2.5 flex items-center justify-between border-t border-white/10 mt-[-10px] shadow-[0_-4px_20px_rgba(0,0,0,0.3)]">
               
-              <button className="flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-transform w-[60px]">
-                <PlusCircle className="w-[22px] h-[22px] text-white" strokeWidth={2} />
-                <span className="text-[13px] text-white font-medium" style={{ fontFamily: SF }}>Top UP</span>
+              <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
+                <PlusCircle className="w-[20px] h-[20px] text-white" strokeWidth={2} />
+                <span className="text-[12px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Top UP</span>
               </button>
 
-              <button className="flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-transform w-[60px]">
-                <ArrowUp className="w-[22px] h-[22px] text-white" strokeWidth={2} />
-                <span className="text-[13px] text-white font-medium" style={{ fontFamily: SF }}>Withdraw</span>
+              <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
+                <ArrowUp className="w-[20px] h-[20px] text-white" strokeWidth={2} />
+                <span className="text-[12px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Withdraw</span>
               </button>
 
-              <button className="flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-transform w-[60px]">
-                <Send className="w-[20px] h-[20px] text-white" strokeWidth={2} />
-                <span className="text-[13px] text-white font-medium" style={{ fontFamily: SF }}>Send</span>
+              <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
+                <Send className="w-[18px] h-[18px] text-white" strokeWidth={2} />
+                <span className="text-[12px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Send</span>
               </button>
 
-              <button className="flex flex-col items-center justify-center gap-1.5 active:scale-95 transition-transform w-[60px]">
-                <ShoppingCart className="w-[22px] h-[22px] text-white" strokeWidth={2} />
-                <span className="text-[13px] text-white font-medium" style={{ fontFamily: SF }}>Sell</span>
+              <button className="flex flex-col items-center justify-center gap-1 active:scale-95 transition-transform w-[60px]">
+                <ShoppingCart className="w-[20px] h-[20px] text-white" strokeWidth={2} />
+                <span className="text-[12px] text-white font-medium mt-0.5" style={{ fontFamily: SF }}>Sell</span>
               </button>
 
             </div>
