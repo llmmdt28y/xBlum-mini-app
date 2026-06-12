@@ -502,7 +502,7 @@ export function HomeView() {
                       <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
                       <div className="flex flex-col min-w-0">
                         <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
-                        <span className="text-[13px] text-[#8e8e93] leading-[1.2] truncate" style={{ fontFamily: SF }}>{c.description}</span>
+                        <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
                       </div>
                     </div>
                     <div className="relative z-10 shrink-0 px-4 py-1.5 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[12px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
@@ -516,15 +516,14 @@ export function HomeView() {
             <div 
               onClick={() => setModalState({ view: "list", connectorId: null })}
               onPointerDown={createRipple}
-              className="relative w-full mt-3 overflow-hidden rounded-[16px] cursor-pointer active:scale-[0.98] transition-transform flex items-center shadow-sm"
-              style={{ background: "#151517", border: "1px solid rgba(255, 255, 255, 0.05)" }}
+              className="relative w-full mt-3 overflow-hidden rounded-full cursor-pointer active:scale-[0.98] transition-transform flex items-center shadow-sm bg-white/5 border border-white/5"
             >
-              <Search className="absolute left-3.5 w-4 h-4 text-[#636366] pointer-events-none z-10" />
+              <Search className="absolute left-3.5 w-4 h-4 text-[#8e8e93] pointer-events-none z-10" />
               <input 
                 type="text" 
                 placeholder="Search connectors" 
                 readOnly
-                className="w-full pl-[36px] pr-4 py-3 bg-transparent text-[#636366] placeholder:text-[#636366] focus:outline-none text-[15px] pointer-events-none"
+                className="w-full pl-[36px] pr-4 py-3 bg-transparent text-[#e5e5ea] placeholder:text-[#8e8e93] focus:outline-none text-[15px] pointer-events-none"
                 style={{ fontFamily: SF }}
               />
             </div>
