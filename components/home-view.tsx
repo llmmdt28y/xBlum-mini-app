@@ -116,21 +116,6 @@ const CONNECTORS_DB = [
     ]
   },
   { 
-    id: "outlook", 
-    name: "Outlook", 
-    category: "Productivity", 
-    src: "/outlook.png",
-    detailCategory: "Microsoft 365",
-    description: "Integrate your Microsoft outlook account.",
-    isConnected: false,
-    userEmail: "",
-    features: [
-      { icon: <Mail className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, find emails from specific people and summarize email threads." },
-      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Enterprise-grade privacy ensures your data is never used for training." },
-      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your emails stay in Outlook", desc: "Secure real-time access without permanent data storage." }
-    ]
-  },
-  { 
     id: "github", 
     name: "GitHub", 
     category: "Featured", 
@@ -143,6 +128,21 @@ const CONNECTORS_DB = [
       { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search repositories", desc: "Find issues, pull requests, and analyze your codebase." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your code remains yours. We do not train on private repositories." },
       { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Secure access", desc: "Access is granted via secure OAuth tokens." }
+    ]
+  },
+  { 
+    id: "outlook", 
+    name: "Outlook", 
+    category: "Productivity", 
+    src: "/outlook.png",
+    detailCategory: "Microsoft 365",
+    description: "Integrate your Microsoft outlook account.",
+    isConnected: false,
+    userEmail: "",
+    features: [
+      { icon: <Mail className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, find emails from specific people and summarize email threads." },
+      { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Enterprise-grade privacy ensures your data is never used for training." },
+      { icon: <ShieldCheck className="w-5 h-5 text-[#8e8e93]" />, title: "Your emails stay in Outlook", desc: "Secure real-time access without permanent data storage." }
     ]
   },
   { 
@@ -478,55 +478,55 @@ export function HomeView() {
 
         {/* Connectors Section */}
         <div className="mb-2 w-[96%] mx-auto">
-            <div className="mt-2 mb-2 pl-1">
+            <div className="mt-2 mb-3 pl-1">
               <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Connectors
               </h2>
+              <p className="text-[#8e8e93] text-[13px] mt-0.5 leading-snug" style={{ fontFamily: SF }}>
+                Link your favorite apps and services to enhance your experience.
+              </p>
             </div>
 
             <div 
               className="w-full bg-[#151517] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative"
             >
               <div className="flex flex-col py-2">
-                {CONNECTORS_DB.slice(0, 3).map((c, i, arr) => (
+                {CONNECTORS_DB.slice(0, 4).map((c, i, arr) => (
                   <button 
                     key={c.id}
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
                     onPointerDown={createRipple}
                     className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
                   >
-                    <div className="flex items-center gap-3.5 relative z-10 pointer-events-none">
+                    <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
                       <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
-                      <div className="flex flex-col">
-                        <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5" style={{ fontFamily: SF }}>{c.name}</span>
-                        <span className="text-[13px] text-[#8e8e93] leading-[1.2]" style={{ fontFamily: SF }}>{c.detailCategory}</span>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
+                        <span className="text-[13px] text-[#8e8e93] leading-[1.2] truncate" style={{ fontFamily: SF }}>{c.description}</span>
                       </div>
                     </div>
-                    <div className="relative z-10 px-4 py-1.5 rounded-full bg-white/10 text-white text-[12px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
-                      View
+                    <div className="relative z-10 shrink-0 px-4 py-1.5 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[12px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
+                      Connect
                     </div>
                   </button>
                 ))}
               </div>
+            </div>
 
-              <div className="px-4 pb-4 pt-1">
-                <button 
-                  onClick={() => setModalState({ view: "list", connectorId: null })}
-                  onPointerDown={createRipple}
-                  className="relative overflow-hidden w-full py-[10px] rounded-full flex items-center justify-center gap-2 text-[13.5px] font-semibold text-white active:scale-95 transition-all"
-                  style={{ 
-                    fontFamily: SF,
-                    backgroundColor: "#1c1c1e", 
-                    border: "1px solid rgba(255, 255, 255, 0.10)", 
-                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)", 
-                    transform: "translateZ(0)"
-                  }}
-                >
-                  <div className="relative z-10 flex items-center justify-center gap-2 pointer-events-none">
-                    <Plus className="w-4 h-4 text-white" /> Add connection
-                  </div>
-                </button>
-              </div>
+            <div 
+              onClick={() => setModalState({ view: "list", connectorId: null })}
+              onPointerDown={createRipple}
+              className="relative w-full mt-3 overflow-hidden rounded-[16px] cursor-pointer active:scale-[0.98] transition-transform flex items-center shadow-sm"
+              style={{ background: "#151517", border: "1px solid rgba(255, 255, 255, 0.05)" }}
+            >
+              <Search className="absolute left-3.5 w-4 h-4 text-[#636366] pointer-events-none z-10" />
+              <input 
+                type="text" 
+                placeholder="Search connectors" 
+                readOnly
+                className="w-full pl-[36px] pr-4 py-3 bg-transparent text-[#636366] placeholder:text-[#636366] focus:outline-none text-[15px] pointer-events-none"
+                style={{ fontFamily: SF }}
+              />
             </div>
         </div>
       </div>
