@@ -483,7 +483,7 @@ export function HomeView() {
                 Connectors
               </h2>
               <p className="text-[#8e8e93] text-[13px] mt-0.5 leading-snug" style={{ fontFamily: SF }}>
-                Link your favorite apps and services to let Noir automate your work.
+                Link your apps and services to unlock powerful AI automations.
               </p>
             </div>
 
@@ -505,7 +505,7 @@ export function HomeView() {
                         <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
                       </div>
                     </div>
-                    <div className="relative z-10 shrink-0 px-4 py-2 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[14px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
+                    <div className="relative z-10 shrink-0 px-3.5 py-1.5 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[13px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
                       Connect
                     </div>
                   </button>
