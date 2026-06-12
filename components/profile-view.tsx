@@ -172,8 +172,15 @@ export function ProfileView() {
         {/* PANEL BANNER DE ACCIONES */}
         <div className="mt-8 w-full px-3">
           <div className="relative rounded-[20px] overflow-hidden mx-auto shadow-sm bg-gradient-to-r from-[#0047e1] via-[#0062eb] to-[#00a8ff]">
+            
+            {/* Puntos Luminosos (Estrellas) */}
+            <div className="absolute top-[12px] right-[130px] w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_3px_rgba(255,255,255,0.7)] animate-pulse" />
+            <div className="absolute top-[28px] right-[90px] w-1 h-1 bg-white rounded-full shadow-[0_0_6px_2px_rgba(255,255,255,0.8)]" />
+            <div className="absolute top-[32px] left-[140px] w-1 h-1 bg-white rounded-full shadow-[0_0_5px_2px_rgba(255,255,255,0.5)] animate-pulse" />
+            <div className="absolute top-[16px] left-[180px] w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_2px_rgba(255,255,255,0.6)]" />
+
             {/* Top part showing title and icons */}
-            <div className="relative w-full h-[54px] flex items-center justify-between px-4">
+            <div className="relative z-10 w-full h-[46px] flex items-center justify-between px-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-[26px] h-[26px] bg-white rounded-full flex items-center justify-center shadow-sm">
                   <Zap className="w-[15px] h-[15px] text-[#0062eb]" fill="currentColor" strokeWidth={0} />
@@ -186,13 +193,13 @@ export function ProfileView() {
                 <img 
                   src="/top-up-coins.png" 
                   alt="Coins" 
-                  className="h-[50px] object-contain mr-[-8px] mb-[-4px]"
+                  className="h-[46px] object-contain mr-[-8px] mb-[-4px]"
                 />
               </div>
             </div>
             
             {/* Bottom Panel without Blur */}
-            <div className="relative z-10 bg-[#000000]/25 border-t border-white/10 pt-2.5 pb-2.5 px-4 flex justify-between items-center">
+            <div className="relative z-10 bg-[#000000]/40 border-t border-white/10 pt-2.5 pb-2.5 px-4 flex justify-between items-center">
               <button className="flex flex-col items-center gap-1 active:scale-95 transition-transform w-[56px]">
                 <PlusCircle className="w-[20px] h-[20px] text-white drop-shadow-md" strokeWidth={2.5} />
                 <span className="text-white text-[12px] font-medium drop-shadow-md" style={{ fontFamily: SF }}>Top Up</span>
