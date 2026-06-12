@@ -483,7 +483,7 @@ export function HomeView() {
                 Connectors
               </h2>
               <p className="text-[#8e8e93] text-[13px] mt-0.5 leading-snug" style={{ fontFamily: SF }}>
-                Link your favorite apps and services to enhance your experience.
+                Link your favorite apps and services to let Noir automate your work.
               </p>
             </div>
 
@@ -505,7 +505,7 @@ export function HomeView() {
                         <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
                       </div>
                     </div>
-                    <div className="relative z-10 shrink-0 px-4 py-1.5 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[12px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
+                    <div className="relative z-10 shrink-0 px-4 py-2 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[14px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
                       Connect
                     </div>
                   </button>
@@ -516,14 +516,14 @@ export function HomeView() {
             <div 
               onClick={() => setModalState({ view: "list", connectorId: null })}
               onPointerDown={createRipple}
-              className="relative w-full mt-3 overflow-hidden rounded-full cursor-pointer active:scale-[0.98] transition-transform flex items-center shadow-sm bg-white/5 border border-white/5"
+              className="relative w-full mt-3 overflow-hidden rounded-full cursor-pointer active:scale-[0.98] transition-transform flex items-center shadow-sm bg-white/5"
             >
               <Search className="absolute left-3.5 w-4 h-4 text-[#8e8e93] pointer-events-none z-10" />
               <input 
                 type="text" 
                 placeholder="Search connectors" 
                 readOnly
-                className="w-full pl-[36px] pr-4 py-3 bg-transparent text-[#e5e5ea] placeholder:text-[#8e8e93] focus:outline-none text-[15px] pointer-events-none"
+                className="w-full pl-[36px] pr-4 py-2 bg-transparent text-[#e5e5ea] placeholder:text-[#8e8e93] focus:outline-none text-[15px] pointer-events-none"
                 style={{ fontFamily: SF }}
               />
             </div>
