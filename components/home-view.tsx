@@ -276,6 +276,19 @@ export function HomeView() {
             transform: translateX(100%);
           }
         }
+        .skeleton-shimmer {
+          position: relative;
+          overflow: hidden;
+          background-color: #2c2c2e;
+        }
+        .skeleton-shimmer::after {
+          content: "";
+          position: absolute;
+          top: 0; right: 0; bottom: 0; left: 0;
+          transform: translateX(-100%);
+          background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
+          animation: shimmer 1.2s infinite;
+        }
       `}} />
 
       {/* --- COMPLETE ACCOUNT SUPERIOR --- */}
@@ -513,13 +526,13 @@ export function HomeView() {
             <div 
               className="w-full bg-[#151517] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative"
             >
-              <div className="flex flex-col py-2">
+              <div className="flex flex-col">
                 {CONNECTORS_DB.slice(0, 4).map((c, i, arr) => (
                   <button 
                     key={c.id}
                     onClick={() => setModalState({ view: "detail", connectorId: c.id })}
                     onPointerDown={createRipple}
-                    className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
+                    className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5 active:bg-white/5 transition-colors text-left"
                   >
                     <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
                       <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
@@ -591,20 +604,19 @@ export function HomeView() {
               {/* Connectors List using the exact style from menu */}
               <div className="overflow-y-auto hide-scrollbar pb-10 flex-1 px-4">
                 <div className="w-full bg-[#151517] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
-                  <div className="flex flex-col py-2">
+                  <div className="flex flex-col">
                     {isSearching ? (
                       Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5">
-                          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none z-0" />
+                        <div key={i} className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5">
                           <div className="flex items-center gap-3.5 relative z-10 flex-1 min-w-0 pr-3">
-                            <div className="w-8 h-8 rounded-[12px] bg-[#2c2c2e] shrink-0" />
+                            <div className="w-8 h-8 rounded-[12px] skeleton-shimmer shrink-0" />
                             <div className="flex flex-col min-w-0 flex-1 gap-1.5">
-                              <div className="h-3 w-24 bg-[#2c2c2e] rounded-full" />
-                              <div className="h-2.5 w-full bg-[#2c2c2e] rounded-full mt-0.5" />
-                              <div className="h-2.5 w-2/3 bg-[#2c2c2e] rounded-full" />
+                              <div className="h-3 w-24 skeleton-shimmer rounded-full" />
+                              <div className="h-2.5 w-full skeleton-shimmer rounded-full mt-0.5" />
+                              <div className="h-2.5 w-2/3 skeleton-shimmer rounded-full" />
                             </div>
                           </div>
-                          <div className="relative z-10 shrink-0 w-[74px] h-[30px] rounded-full bg-[#2c2c2e]" />
+                          <div className="relative z-10 shrink-0 w-[74px] h-[30px] rounded-full skeleton-shimmer" />
                         </div>
                       ))
                     ) : filteredConnectors.length === 0 ? (
@@ -619,7 +631,7 @@ export function HomeView() {
                           key={c.id} 
                           onClick={() => setModalState({ view: "detail", connectorId: c.id })}
                           onPointerDown={createRipple}
-                          className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
+                          className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5 active:bg-white/5 transition-colors text-left"
                         >
                           <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
                             <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
@@ -682,7 +694,7 @@ export function HomeView() {
                 </div>
                 <div className="pt-4 pb-2">
                   <p className="text-[#636366] text-[12px] leading-relaxed text-center px-4" style={{ fontFamily: SF }}>
-                    Connectors are not created or maintained by xAI. Please exercise caution when granting access to external services.
+                    Connectors are not created or maintained by Noir. We do not control their privacy policies or how they handle your data.
                   </p>
                 </div>
               </div>
