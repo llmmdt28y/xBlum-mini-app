@@ -68,7 +68,7 @@ const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) =>
   }, 600)
 }
 
-// --- Connectors Database ---
+// --- Connectors static metadata (UI only, status loaded from API) ---
 const CONNECTORS_DB = [
   { 
     id: "gmail", 
@@ -77,8 +77,7 @@ const CONNECTORS_DB = [
     src: "/gmail.png",
     detailCategory: "Productivity",
     description: "Connect your Gmail to manage your inbox with Noir.",
-    isConnected: true,
-    userEmail: "user@gmail.com",
+    labelField: "email",
     features: [
       { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, summarize unread emails and find messages from specific people." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your personal data remains private and is never used for training purposes." },
@@ -92,8 +91,7 @@ const CONNECTORS_DB = [
     src: "/google-drive.png",
     detailCategory: "Productivity",
     description: "Access and analyze your cloud documents seamlessly.",
-    isConnected: false,
-    userEmail: "",
+    labelField: "email",
     features: [
       { icon: <HardDrive className="w-5 h-5 text-[#8e8e93]" />, title: "Access your files", desc: "Search documents, summarize presentations and ask questions about your Google Drive files." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your files are accessed only when you request it, with zero training usage." },
@@ -107,8 +105,7 @@ const CONNECTORS_DB = [
     src: "/google-calendar.png",
     detailCategory: "Productivity",
     description: "Keep track of your schedule and meetings.",
-    isConnected: false,
-    userEmail: "",
+    labelField: "email",
     features: [
       { icon: <Calendar className="w-5 h-5 text-[#8e8e93]" />, title: "Search your calendar", desc: "Check today's agenda, find upcoming events and get meeting details." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your schedule is private. We do not use event data for AI training." },
@@ -122,8 +119,7 @@ const CONNECTORS_DB = [
     src: "/github-icon.png",
     detailCategory: "Development",
     description: "Connect to your repositories and manage your code.",
-    isConnected: false,
-    userEmail: "",
+    labelField: "username",
     features: [
       { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search repositories", desc: "Find issues, pull requests, and analyze your codebase." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your code remains yours. We do not train on private repositories." },
@@ -137,8 +133,7 @@ const CONNECTORS_DB = [
     src: "/outlook.png",
     detailCategory: "Microsoft 365",
     description: "Integrate your Microsoft outlook account.",
-    isConnected: false,
-    userEmail: "",
+    labelField: "email",
     features: [
       { icon: <Mail className="w-5 h-5 text-[#8e8e93]" />, title: "Search your emails", desc: "Search your inbox, find emails from specific people and summarize email threads." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Enterprise-grade privacy ensures your data is never used for training." },
@@ -152,8 +147,7 @@ const CONNECTORS_DB = [
     src: "/notion-icon.png",
     detailCategory: "Productivity",
     description: "Access your workspaces and databases.",
-    isConnected: false,
-    userEmail: "",
+    labelField: "email",
     features: [
       { icon: <Search className="w-5 h-5 text-[#8e8e93]" />, title: "Search your workspaces", desc: "Find pages, summarize databases, and query your notes." },
       { icon: <Lock className="w-5 h-5 text-[#8e8e93]" />, title: "We never use your data to train our models", desc: "Your workspace content is entirely excluded from model training." },
@@ -161,6 +155,12 @@ const CONNECTORS_DB = [
     ]
   }
 ];
+
+// Connector runtime status from API
+type ConnectorStatus = { connected: boolean; label: string }
+type ConnectorsState = Record<string, ConnectorStatus>
+
+
 
 function getTg() { return (window as any).Telegram?.WebApp }
 
@@ -172,6 +172,12 @@ export function HomeView() {
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
+  
+  // Connector real-time state from API
+  const [connectorsState, setConnectorsState] = useState<ConnectorsState>({})
+  const [connectorsLoading, setConnectorsLoading] = useState(true)
+  const [connectingId, setConnectingId] = useState<string | null>(null)
+  const [disconnectingId, setDisconnectingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (searchQuery.length > 0) {
@@ -182,6 +188,91 @@ export function HomeView() {
       setIsSearching(false)
     }
   }, [searchQuery])
+
+  // Load connector status from backend
+  const loadConnectorStatus = useCallback(async () => {
+    setConnectorsLoading(true)
+    try {
+      const tg = getTg()
+      const initData = tg?.initData || ""
+      const res = await fetch(`${API_BASE}/api/connectors/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setConnectorsState(data.connectors || {})
+      }
+    } catch (e) {
+      console.error("[Connectors] loadStatus error:", e)
+    } finally {
+      setConnectorsLoading(false)
+    }
+  }, [API_BASE])
+
+  useEffect(() => { loadConnectorStatus() }, [loadConnectorStatus])
+
+  // Connect: get link from backend → close mini-app → open bot message with link
+  const handleConnect = useCallback(async (connectorId: string) => {
+    setConnectingId(connectorId)
+    try {
+      const tg = getTg()
+      const initData = tg?.initData || ""
+      const res = await fetch(`${API_BASE}/api/connectors/link`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData, connector_id: connectorId }),
+      })
+      const data = await res.json()
+      if (data.ok && data.url) {
+        // Close mini-app and open the OAuth URL in Telegram browser
+        try {
+          tg?.openLink?.(data.url)
+        } catch {
+          // Fallback: open inline URL
+          window.open(data.url, "_blank")
+        }
+        // Close the mini-app so the user can see the link in the bot
+        setTimeout(() => { try { tg?.close?.() } catch {} }, 300)
+      } else {
+        alert(data.error || "Could not generate connection link. Try again.")
+      }
+    } catch (e) {
+      console.error("[Connectors] connect error:", e)
+      alert("Network error. Please try again.")
+    } finally {
+      setConnectingId(null)
+    }
+  }, [API_BASE])
+
+  // Disconnect: call backend, then reload status
+  const handleDisconnect = useCallback(async (connectorId: string) => {
+    setDisconnectingId(connectorId)
+    try {
+      const tg = getTg()
+      const initData = tg?.initData || ""
+      const res = await fetch(`${API_BASE}/api/connectors/disconnect`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ initData, connector_id: connectorId }),
+      })
+      const data = await res.json()
+      if (data.ok) {
+        setConnectorsState(prev => ({
+          ...prev,
+          [connectorId]: { connected: false, label: "" }
+        }))
+        setModalState({ view: "closed", connectorId: null })
+      } else {
+        alert(data.error || "Could not disconnect. Try again.")
+      }
+    } catch (e) {
+      console.error("[Connectors] disconnect error:", e)
+    } finally {
+      setDisconnectingId(null)
+    }
+  }, [API_BASE])
 
   const sheetRef = useRef<HTMLDivElement>(null)
   const sheetTouchY = useRef<number | null>(null)
@@ -512,7 +603,7 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Connectors Section */}
+            {/* Connectors Section */}
         <div className="mb-2 w-[96%] mx-auto">
             <div className="mt-2 mb-3 pl-1">
               <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
@@ -527,25 +618,52 @@ export function HomeView() {
               className="w-full bg-[#151517] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative"
             >
               <div className="flex flex-col">
-                {CONNECTORS_DB.slice(0, 4).map((c, i, arr) => (
-                  <button 
-                    key={c.id}
-                    onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                    onPointerDown={createRipple}
-                    className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5 active:bg-white/5 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
-                      <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
-                        <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
+                {connectorsLoading
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5">
+                      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-3">
+                        <div className="w-8 h-8 rounded-[12px] skeleton-shimmer shrink-0" />
+                        <div className="flex flex-col min-w-0 flex-1 gap-1.5">
+                          <div className="h-3 w-24 skeleton-shimmer rounded-full" />
+                          <div className="h-2.5 w-full skeleton-shimmer rounded-full" />
+                        </div>
                       </div>
+                      <div className="shrink-0 w-[70px] h-[28px] rounded-full skeleton-shimmer" />
                     </div>
-                    <div className="relative z-10 shrink-0 px-3.5 py-1.5 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[13px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
-                      Connect
-                    </div>
-                  </button>
-                ))}
+                  ))
+                  : CONNECTORS_DB.slice(0, 4).map((c, i, arr) => {
+                    const status = connectorsState[c.id]
+                    const isConn = status?.connected ?? false
+                    return (
+                      <button 
+                        key={c.id}
+                        onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                        onPointerDown={createRipple}
+                        className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5 active:bg-white/5 transition-colors text-left"
+                      >
+                        <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
+                          <div className="relative">
+                            <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
+                            {isConn && <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-[#151517] shadow" />}
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
+                            <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-1" style={{ fontFamily: SF }}>
+                              {isConn && status?.label ? status.label : c.description}
+                            </span>
+                          </div>
+                        </div>
+                        <div className={`relative z-10 shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-bold pointer-events-none ${
+                          isConn
+                            ? "bg-green-500/10 text-green-400"
+                            : "bg-[#60a5fa]/10 text-[#60a5fa]"
+                        }`} style={{ fontFamily: SF }}>
+                          {isConn ? "Connected" : "Connect"}
+                        </div>
+                      </button>
+                    )
+                  })
+                }
               </div>
             </div>
 
@@ -626,26 +744,34 @@ export function HomeView() {
                         <span className="text-[#8e8e93] text-[13px] mt-1 text-center px-4" style={{ fontFamily: SF }}>Try searching for a different connector.</span>
                       </div>
                     ) : (
-                      filteredConnectors.map(c => (
-                        <button 
-                          key={c.id} 
-                          onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                          onPointerDown={createRipple}
-                          className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5 active:bg-white/5 transition-colors text-left"
-                        >
-                          <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
-                            <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
-                            <div className="flex flex-col min-w-0">
-                              <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
-                              <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
-                            </div>
-                          </div>
-                          {/* The blue connect button */}
-                          <div className="relative z-10 shrink-0 px-3.5 py-1.5 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[13px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
-                            Connect
-                          </div>
-                        </button>
-                      ))
+                      filteredConnectors.map(c => {
+                          const status = connectorsState[c.id]
+                          const isConn = status?.connected ?? false
+                          return (
+                            <button 
+                              key={c.id} 
+                              onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                              onPointerDown={createRipple}
+                              className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5 active:bg-white/5 transition-colors text-left"
+                            >
+                              <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
+                                <div className="relative">
+                                  <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
+                                  {isConn && <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-[#151517]" />}
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
+                                  <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
+                                </div>
+                              </div>
+                              <div className={`relative z-10 shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-bold pointer-events-none ${
+                                isConn ? "bg-green-500/10 text-green-400" : "bg-[#60a5fa]/10 text-[#60a5fa]"
+                              }`} style={{ fontFamily: SF }}>
+                                {isConn ? "Connected" : "Connect"}
+                              </div>
+                            </button>
+                          )
+                        })
                     )}
                   </div>
                 </div>
@@ -653,29 +779,52 @@ export function HomeView() {
             </div>
           )}
 
-          {modalState.view === "detail" && activeConnectorData && (
+          {modalState.view === "detail" && activeConnectorData && (() => {
+            const status = connectorsState[activeConnectorData.id]
+            const isConn = status?.connected ?? false
+            const linkedLabel = status?.label || ""
+            const isConnecting = connectingId === activeConnectorData.id
+            const isDisconnecting = disconnectingId === activeConnectorData.id
+            return (
             <div className="flex flex-col overflow-hidden h-full" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
               <div className="flex items-center justify-between px-4 mb-2 pb-4 border-b border-[#1c1c1e] shrink-0 mt-4">
                 <div className="flex items-center gap-3">
                   <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-7 h-7 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                   <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>{activeConnectorData.name}</h2>
                 </div>
-                {activeConnectorData.isConnected ? (
-                  <button className="px-4 py-1.5 bg-red-500/10 text-red-500 text-[13px] font-bold rounded-full flex items-center gap-2 active:opacity-70"><Trash2 className="w-3.5 h-3.5" /> Disconnect</button>
+                {isConn ? (
+                  <button 
+                    onClick={() => handleDisconnect(activeConnectorData.id)}
+                    disabled={isDisconnecting}
+                    className="px-4 py-1.5 bg-red-500/10 text-red-500 text-[13px] font-bold rounded-full flex items-center gap-2 active:opacity-70 disabled:opacity-50"
+                  >
+                    {isDisconnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    {isDisconnecting ? "Disconnecting…" : "Disconnect"}
+                  </button>
                 ) : (
-                  <button className="px-4 py-1.5 bg-[#60a5fa]/10 text-[#60a5fa] text-[13px] font-bold rounded-full active:opacity-70" style={{ fontFamily: SF }}>Connect</button>
+                  <button 
+                    onClick={() => handleConnect(activeConnectorData.id)}
+                    disabled={isConnecting}
+                    className="px-4 py-1.5 bg-[#60a5fa]/10 text-[#60a5fa] text-[13px] font-bold rounded-full active:opacity-70 disabled:opacity-50 flex items-center gap-1.5"
+                    style={{ fontFamily: SF }}
+                  >
+                    {isConnecting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    {isConnecting ? "Opening…" : "Connect"}
+                  </button>
                 )}
               </div>
               
               <div className="p-4 overflow-y-auto hide-scrollbar space-y-5 pb-8 flex-1">
                 <p className="text-[#e5e5ea] text-[14px]" style={{ fontFamily: SF }}>{activeConnectorData.description}</p>
-                {activeConnectorData.isConnected && (
-                  <div className="px-5 py-2.5 rounded-[24px] bg-white/5 flex items-center justify-between">
-                      <div className="flex flex-col">
-                          <p className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider">Linked account</p>
-                          <p className="text-white text-[14px] font-medium mt-0.5">{activeConnectorData.userEmail}</p>
-                      </div>
-                      <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_#f97316]" />
+                {isConn && (
+                  <div className="px-5 py-3 rounded-[24px] bg-white/5 flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <p className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider">Linked account</p>
+                      <p className="text-white text-[14px] font-medium mt-0.5">
+                        {linkedLabel || "Connected"}
+                      </p>
+                    </div>
+                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]" />
                   </div>
                 )}
                 <div className="space-y-4">
@@ -702,7 +851,8 @@ export function HomeView() {
                 </div>
               </div>
             </div>
-          )}
+          )})()
+          }
         </div>
       )}
     
