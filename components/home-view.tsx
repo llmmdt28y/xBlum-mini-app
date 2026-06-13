@@ -757,7 +757,6 @@ export function HomeView() {
                               <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
                                 <div className="relative">
                                   <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
-                                  {isConn && <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-[#151517]" />}
                                 </div>
                                 <div className="flex flex-col min-w-0">
                                   <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
@@ -765,7 +764,7 @@ export function HomeView() {
                                 </div>
                               </div>
                               <div className={`relative z-10 shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-bold pointer-events-none ${
-                                isConn ? "bg-green-500/10 text-green-400" : "bg-[#60a5fa]/10 text-[#60a5fa]"
+                                isConn ? "bg-orange-500/10 text-orange-400" : "bg-[#60a5fa]/10 text-[#60a5fa]"
                               }`} style={{ fontFamily: SF }}>
                                 {isConn ? "Connected" : "Connect"}
                               </div>
@@ -824,7 +823,7 @@ export function HomeView() {
                         {linkedLabel || "Connected"}
                       </p>
                     </div>
-                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]" />
+                    <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_#f97316]" />
                   </div>
                 )}
                 <div className="space-y-4">
