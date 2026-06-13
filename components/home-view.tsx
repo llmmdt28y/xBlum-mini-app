@@ -697,7 +697,7 @@ export function HomeView() {
                 </div>
                 <div className="-mt-2 pb-2">
                   <p className="text-[#636366] text-[11.5px] leading-relaxed text-center px-4" style={{ fontFamily: SF }}>
-                    Connectors are not created or maintained by Noir. Review permissions before connecting. Usage is subject to the <a href="https://composio.dev/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline underline-offset-2">Composio Privacy Policy</a>.
+                    Connectors are not created or maintained by Noir. Review permissions before connecting. Usage is subject to the <a href="https://composio.dev/privacy" target="_blank" rel="noopener noreferrer" className="text-[#60a5fa] underline decoration-[#60a5fa]/40 active:opacity-70 transition-opacity">Composio Privacy Policy</a>.
                   </p>
                 </div>
               </div>
