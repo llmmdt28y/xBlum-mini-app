@@ -23,7 +23,7 @@ const ICON_COLORS: Record<string, string> = {
   Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b"
 }
 
-// --- Estilos de Liquid Glass originales ---
+// Liquid Glass Styles
 const cardLiquidGlassStyle = {
   background: "rgba(42, 42, 44, 0.85)", 
   backdropFilter: "blur(12px) saturate(150%)", 
@@ -35,7 +35,7 @@ const cardLiquidGlassStyle = {
   willChange: "transform", 
 }
 
-// --- Estilos de Protección de Imágenes ---
+// Image Protection Styles
 const imageProtectionStyle = {
   WebkitTouchCallout: 'none',
   WebkitUserSelect: 'none',
@@ -210,7 +210,7 @@ export function HomeView() {
     sheetTouchY.current = null
   }
 
-  // Cálculos dinámicos de Progreso de Account Setup
+  // Dynamic Account Setup Progress
   const isBasicComplete = !!(userPreferences?.name?.trim() && userPreferences?.gender?.trim() && userPreferences?.age?.toString()?.trim() && userPreferences?.city?.trim())
   const isAdditionalComplete = !!(userPreferences?.timezone?.trim() && userPreferences?.occupation?.trim() && userPreferences?.interests?.trim())
   const isNoirComplete = !!(userPreferences?.favoriteEmoji?.trim() && userPreferences?.personality?.trim())
@@ -218,8 +218,8 @@ export function HomeView() {
   const completedSections = [isBasicComplete, isAdditionalComplete, isNoirComplete].filter(Boolean).length
   const totalSections = 3
   
-  // Cálculo exacto del anillo SVG
-  const radius = 12 // Radio original de la píldora estrecha
+  // SVG Progress Ring Calculation
+  const radius = 12 // Original narrow pill radius
   const circumference = 2 * Math.PI * radius // ~75.40
   const strokeDashoffset = circumference - (completedSections / totalSections) * circumference
 
@@ -253,7 +253,7 @@ export function HomeView() {
   return (
     <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-28">
       
-      {/* ── ESTILOS GLOBALES ── */}
+      {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .ripple {
@@ -291,7 +291,7 @@ export function HomeView() {
         }
       `}} />
 
-      {/* --- COMPLETE ACCOUNT SUPERIOR --- */}
+      {/* Account Setup Progress Pill */}
       <div className="absolute top-0 w-full flex justify-center z-50 pointer-events-none" style={{
         paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
       }}>
@@ -302,7 +302,7 @@ export function HomeView() {
             maxWidth: "260px"
           }}
         >
-          {/* Anillo de Progreso */}
+          {/* Progress Ring */}
           <div className="relative flex items-center justify-center w-[28px] h-[28px] shrink-0">
             <svg className="w-full h-full rotate-180 transform absolute inset-0">
               <circle 
@@ -321,7 +321,7 @@ export function HomeView() {
             <span className="text-[10px] font-semibold text-[#8e8e93]">{completedSections}/{totalSections}</span>
           </div>
           
-          {/* Textos */}
+          {/* Text */}
           <div className="flex flex-col items-start leading-tight min-w-0 pr-1">
             <span className="text-white text-[13px] font-semibold mb-0.5 whitespace-nowrap truncate text-left" style={{ fontFamily: SFD }}>
               {completedSections === 3 ? "Account completed" : "Complete account"}
@@ -339,7 +339,7 @@ export function HomeView() {
         </button>
       </div>
 
-      {/* --- SECCIÓN HERO UNIFICADA (IMAGEN) --- */}
+      {/* Hero Image Section */}
       <div className="w-full relative z-0 -translate-y-2">
         <img 
           src="/noirhand.png" 
@@ -351,7 +351,7 @@ export function HomeView() {
         <div className="absolute bottom-0 w-full h-28 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
       </div>
 
-      {/* --- CONTENIDO PRINCIPAL (Tarjetas) --- */}
+      {/* Main Content */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
         
 
@@ -566,7 +566,7 @@ export function HomeView() {
         </div>
       </div>
 
-      {/* --- EMERGENT MODALS / FULL SCREEN VIEWS --- */}
+      {/* Modals & Full Screen Views */}
       {modalState.view !== "closed" && (
         <div className="fixed inset-0 z-[60] flex flex-col bg-black animate-in slide-in-from-right duration-300">
           
@@ -706,10 +706,10 @@ export function HomeView() {
         </div>
       )}
     
-      {/* ── VISTA EXTERNA: BUSINESS AUTOMATION ── */}
+      {/* External Views */}
       {isBusinessModalOpen && <BusinessAutomationView onClose={() => setIsBusinessModalOpen(false)} />}
 
-      {/* ── MODAL TEMPORAL: BOT INTERACTION ── */}
+      {/* Temporary Modals */}
       {isBotIntModalOpen && (
          <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsBotIntModalOpen(false)} />
