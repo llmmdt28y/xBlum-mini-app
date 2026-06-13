@@ -670,7 +670,7 @@ export function HomeView() {
               <div className="p-4 overflow-y-auto hide-scrollbar space-y-5 pb-8 flex-1">
                 <p className="text-[#e5e5ea] text-[14px]" style={{ fontFamily: SF }}>{activeConnectorData.description}</p>
                 {activeConnectorData.isConnected && (
-                  <div className="p-4 rounded-2xl bg-[#151517] flex items-center justify-between">
+                  <div className="px-5 py-3.5 rounded-[24px] bg-white/5 flex items-center justify-between">
                       <div className="flex flex-col">
                           <p className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider">Linked account</p>
                           <p className="text-white text-[14px] font-medium mt-0.5">{activeConnectorData.userEmail}</p>
@@ -680,20 +680,23 @@ export function HomeView() {
                 )}
                 <div className="space-y-4">
                   <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
-                  <div className="rounded-2xl border border-[#1c1c1e] overflow-hidden bg-[#151517]">
+                  <div className="rounded-2xl overflow-hidden bg-[#151517]">
                     {activeConnectorData.features.map((feat, i, arr) => (
-                      <div key={i} className="flex gap-4 p-4" style={{ borderBottom: i < arr.length - 1 ? "1px solid #1c1c1e" : "none" }}>
-                        <div className="shrink-0 mt-0.5">{feat.icon}</div>
-                        <div>
-                          <p className="text-white font-semibold text-[15px] mb-0.5">{feat.title}</p>
-                          <p className="text-[#8e8e93] text-[13px] leading-relaxed">{feat.desc}</p>
+                      <React.Fragment key={i}>
+                        <div className="flex gap-4 p-4">
+                          <div className="shrink-0 mt-0.5">{feat.icon}</div>
+                          <div>
+                            <p className="text-white font-semibold text-[15px] mb-0.5">{feat.title}</p>
+                            <p className="text-[#8e8e93] text-[13px] leading-relaxed">{feat.desc}</p>
+                          </div>
                         </div>
-                      </div>
+                        {i !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
+                      </React.Fragment>
                     ))}
                   </div>
                 </div>
-                <div className="pt-1 pb-2">
-                  <p className="text-[#636366] text-[12px] leading-relaxed text-center px-4" style={{ fontFamily: SF }}>
+                <div className="-mt-2 pb-2">
+                  <p className="text-[#636366] text-[11.5px] leading-relaxed text-center px-4" style={{ fontFamily: SF }}>
                     Connectors are not created or maintained by Noir. We do not control their privacy policies or how they handle your data.
                   </p>
                 </div>
