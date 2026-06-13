@@ -76,7 +76,7 @@ const CONNECTORS_DB = [
     category: "Featured", 
     src: "/gmail.png",
     detailCategory: "Productivity",
-    description: "Connect your Gmail to manage your inbox with AI.",
+    description: "Connect your Gmail to manage your inbox with Noir.",
     isConnected: true,
     userEmail: "user@gmail.com",
     features: [
@@ -171,6 +171,17 @@ export function HomeView() {
   const [botIntConfig, setBotIntConfig] = useState({ enabled: true, moderation_react: true, auto_execute_mod: false, file_summarize: true })
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
+  const [isSearching, setIsSearching] = useState(false)
+
+  useEffect(() => {
+    if (searchQuery.length > 0) {
+      setIsSearching(true)
+      const t = setTimeout(() => setIsSearching(false), 500)
+      return () => clearTimeout(t)
+    } else {
+      setIsSearching(false)
+    }
+  }, [searchQuery])
 
   const sheetRef = useRef<HTMLDivElement>(null)
   const sheetTouchY = useRef<number | null>(null)
@@ -228,7 +239,15 @@ export function HomeView() {
     return () => tg.BackButton.offClick(handleBack)
   }, [modalState.view])
 
-  const filteredConnectors = CONNECTORS_DB.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredConnectors = useMemo(() => {
+    if (!searchQuery) return CONNECTORS_DB;
+    const q = searchQuery.toLowerCase();
+    return CONNECTORS_DB.filter(c => {
+      const nameParts = c.name.toLowerCase().split(' ');
+      return nameParts.some(w => w.startsWith(q)) || c.name.toLowerCase().startsWith(q);
+    });
+  }, [searchQuery]);
+
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
@@ -250,6 +269,11 @@ export function HomeView() {
           to {
             transform: scale(4);
             opacity: 0;
+          }
+        }
+        @keyframes shimmer {
+          100% {
+            transform: translateX(100%);
           }
         }
       `}} />
@@ -538,51 +562,79 @@ export function HomeView() {
               {/* Header with Search Bar */}
               <div className="flex items-center gap-3 px-4 mb-3 mt-4 shrink-0">
                 <div className="relative flex-1 overflow-hidden rounded-full flex items-center shadow-sm bg-white/5">
-                  <Search className="absolute left-3.5 w-4 h-4 text-[#8e8e93] pointer-events-none z-10" />
+                  <div className="absolute left-3.5 z-10 flex items-center justify-center">
+                    {isSearching ? <Loader2 className="w-4 h-4 text-[#8e8e93] animate-spin" /> : <Search className="w-4 h-4 text-[#8e8e93]" />}
+                  </div>
                   <input 
                     type="text" placeholder="Search connectors" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-[36px] pr-4 py-2 bg-transparent text-[#e5e5ea] placeholder:text-[#8e8e93] focus:outline-none text-[15px]"
+                    className="w-full pl-[36px] pr-10 py-2 bg-transparent text-[#e5e5ea] placeholder:text-[#8e8e93] focus:outline-none text-[15px]"
                     style={{ fontFamily: SF }}
                   />
+                  {searchQuery.length > 0 && (
+                    <button 
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-3.5 z-10 p-0.5 rounded-full bg-[#2c2c2e] text-[#8e8e93] active:scale-95 transition-transform"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-                <button 
-                  onClick={() => setModalState({ view: "closed", connectorId: null })}
-                  className="text-[#60a5fa] font-medium text-[15px] active:opacity-70 transition-opacity shrink-0"
-                  style={{ fontFamily: SF }}
-                >
-                  Cancel
-                </button>
               </div>
 
               {/* Explore Title */}
               <div className="px-4 mb-3 mt-2">
-                <h2 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>Explore</h2>
+                <h2 className="text-white font-bold text-[22px]" style={{ fontFamily: SFD }}>
+                  {searchQuery.length > 0 ? "Search results" : "Explore"}
+                </h2>
               </div>
 
               {/* Connectors List using the exact style from menu */}
               <div className="overflow-y-auto hide-scrollbar pb-10 flex-1 px-4">
-                <div className="w-full bg-[#151517] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative">
+                <div className="w-full bg-[#151517] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
                   <div className="flex flex-col py-2">
-                    {filteredConnectors.map(c => (
-                      <button 
-                        key={c.id} 
-                        onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                        onPointerDown={createRipple}
-                        className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
-                      >
-                        <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
-                          <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
-                            <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
+                    {isSearching ? (
+                      Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5">
+                          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none z-0" />
+                          <div className="flex items-center gap-3.5 relative z-10 flex-1 min-w-0 pr-3">
+                            <div className="w-8 h-8 rounded-[12px] bg-[#2c2c2e] shrink-0" />
+                            <div className="flex flex-col min-w-0 flex-1 gap-1.5">
+                              <div className="h-3 w-24 bg-[#2c2c2e] rounded-full" />
+                              <div className="h-2.5 w-full bg-[#2c2c2e] rounded-full mt-0.5" />
+                              <div className="h-2.5 w-2/3 bg-[#2c2c2e] rounded-full" />
+                            </div>
                           </div>
+                          <div className="relative z-10 shrink-0 w-[74px] h-[30px] rounded-full bg-[#2c2c2e]" />
                         </div>
-                        {/* The blue connect button */}
-                        <div className="relative z-10 shrink-0 px-3.5 py-1.5 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[13px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
-                          Connect
-                        </div>
-                      </button>
-                    ))}
+                      ))
+                    ) : filteredConnectors.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-10 opacity-70">
+                        <Search className="w-10 h-10 text-[#48484a] mb-3" />
+                        <span className="text-white font-semibold text-[16px]" style={{ fontFamily: SF }}>No results found</span>
+                        <span className="text-[#8e8e93] text-[13px] mt-1 text-center px-4" style={{ fontFamily: SF }}>Try searching for a different connector.</span>
+                      </div>
+                    ) : (
+                      filteredConnectors.map(c => (
+                        <button 
+                          key={c.id} 
+                          onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                          onPointerDown={createRipple}
+                          className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors text-left"
+                        >
+                          <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
+                            <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
+                              <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
+                            </div>
+                          </div>
+                          {/* The blue connect button */}
+                          <div className="relative z-10 shrink-0 px-3.5 py-1.5 rounded-full bg-[#60a5fa]/10 text-[#60a5fa] text-[13px] font-bold pointer-events-none" style={{ fontFamily: SF }}>
+                            Connect
+                          </div>
+                        </button>
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
@@ -611,7 +663,7 @@ export function HomeView() {
                           <p className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider">Linked account</p>
                           <p className="text-white text-[14px] font-medium">{activeConnectorData.userEmail}</p>
                       </div>
-                      <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e]" />
+                      <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_8px_#f97316]" />
                   </div>
                 )}
                 <div className="space-y-4">
@@ -627,6 +679,11 @@ export function HomeView() {
                       </div>
                     ))}
                   </div>
+                </div>
+                <div className="pt-4 pb-2">
+                  <p className="text-[#636366] text-[12px] leading-relaxed text-center px-4" style={{ fontFamily: SF }}>
+                    Connectors are not created or maintained by xAI. Please exercise caution when granting access to external services.
+                  </p>
                 </div>
               </div>
             </div>
