@@ -682,7 +682,7 @@ export function HomeView() {
                   <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
                   <div className="rounded-2xl overflow-hidden bg-[#151517]">
                     {activeConnectorData.features.map((feat, i, arr) => (
-                      <React.Fragment key={i}>
+                      <div key={i}>
                         <div className="flex gap-4 p-4">
                           <div className="shrink-0 mt-0.5">{feat.icon}</div>
                           <div>
@@ -691,7 +691,7 @@ export function HomeView() {
                           </div>
                         </div>
                         {i !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
-                      </React.Fragment>
+                      </div>
                     ))}
                   </div>
                 </div>
