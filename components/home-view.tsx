@@ -670,7 +670,7 @@ export function HomeView() {
               <div className="p-4 overflow-y-auto hide-scrollbar space-y-5 pb-8 flex-1">
                 <p className="text-[#e5e5ea] text-[14px]" style={{ fontFamily: SF }}>{activeConnectorData.description}</p>
                 {activeConnectorData.isConnected && (
-                  <div className="px-5 py-3.5 rounded-[24px] bg-white/5 flex items-center justify-between">
+                  <div className="px-5 py-2.5 rounded-[24px] bg-white/5 flex items-center justify-between">
                       <div className="flex flex-col">
                           <p className="text-[#8e8e93] text-[11px] font-bold uppercase tracking-wider">Linked account</p>
                           <p className="text-white text-[14px] font-medium mt-0.5">{activeConnectorData.userEmail}</p>
@@ -697,7 +697,7 @@ export function HomeView() {
                 </div>
                 <div className="-mt-2 pb-2">
                   <p className="text-[#636366] text-[11.5px] leading-relaxed text-center px-4" style={{ fontFamily: SF }}>
-                    Connectors are not created or maintained by Noir. We do not control their privacy policies or how they handle your data.
+                    Connectors are not created or maintained by Noir. Review permissions before connecting. Usage is subject to the <a href="https://composio.dev/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-500 underline underline-offset-2">Composio Privacy Policy</a>.
                   </p>
                 </div>
               </div>
