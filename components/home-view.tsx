@@ -642,31 +642,30 @@ export function HomeView() {
         {/* New SuperNoir Pill Banner */}
         <div 
           onClick={() => setCurrentView("premium")}
-          className="w-[96%] mx-auto mb-3 mt-1 relative rounded-[100px] p-[2px] cursor-pointer overflow-hidden shadow-[0_0_20px_rgba(255,106,0,0.3)] group"
+          className="w-[96%] mx-auto mb-3 mt-1 relative rounded-[100px] p-[1px] cursor-pointer overflow-hidden group"
         >
-          {/* Moving gradient background for border */}
+          {/* Moving gradient background for border (subtler lines, no outer shadow) */}
           <div className="absolute inset-0 z-0 overflow-hidden rounded-[100px]">
-             <div className="absolute top-1/2 left-1/2 w-[200%] h-[500%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_0deg,transparent_0%,#ff6a00_25%,transparent_25%,transparent_50%,#ff6a00_75%,transparent_75%)] animate-[spin_5s_linear_infinite]" />
+             <div className="absolute top-1/2 left-1/2 w-[200%] h-[500%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_0deg,transparent_0%,rgba(255,130,38,0.4)_15%,transparent_16%,transparent_50%,rgba(255,130,38,0.4)_65%,transparent_66%)] animate-[spin_5s_linear_infinite]" />
           </div>
           
           {/* Inner content */}
-          <div className="relative z-10 w-full h-full bg-[#151517] backdrop-blur-md rounded-[100px] px-4 py-3 flex items-center justify-between">
+          <div className="relative z-10 w-full h-full bg-[#151517] backdrop-blur-md rounded-[100px] px-3 py-1.5 flex items-center justify-between">
             
-            <div className="flex items-center gap-4 flex-1">
-              {/* Left: Logo */}
-              <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/5 overflow-hidden relative shadow-inner">
-                <span className="text-[11px] text-white/40" style={{ fontFamily: SF }}>Logo</span>
-                {/* After user uploads image, an <img /> would go here */}
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              {/* Left: Empty Logo Placeholder */}
+              <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 overflow-hidden relative">
+                {/* Empty space for logo */}
               </div>
               
               {/* Middle: Text and Timer */}
-              <div className="flex flex-col items-start justify-center flex-1">
-                <div className="text-white text-[16px] font-extrabold leading-tight tracking-tight" style={{ fontFamily: SFD }}>
+              <div className="flex flex-col items-start justify-center flex-1 min-w-0 pr-1">
+                <div className="text-white text-[14px] font-extrabold leading-tight tracking-tight whitespace-nowrap truncate w-full" style={{ fontFamily: SFD }}>
                   Try Free <span className="text-[#ff8226]">SuperNoir</span>
                 </div>
-                <div className="text-[#8e8e93] text-[12px] font-medium mt-[4px] flex items-center gap-1.5" style={{ fontFamily: SF }}>
+                <div className="text-[#8e8e93] text-[11px] font-medium mt-[2px] flex items-center gap-1.5 whitespace-nowrap truncate w-full" style={{ fontFamily: SF }}>
                   <span>Offer Expires</span>
-                  <span className="flex items-center text-[#ff8226] font-bold tracking-widest bg-[#ff8226]/10 px-1.5 py-0.5 rounded-[6px] text-[11px]">
+                  <span className="flex items-center text-[#ff8226] font-bold tracking-widest bg-[#ff8226]/10 px-1 py-[1px] rounded-[4px] text-[10px]">
                     <SlidingNumber value={timerValues.days} /><span className="mx-[1px] opacity-70">:</span>
                     <SlidingNumber value={timerValues.hours} /><span className="mx-[1px] opacity-70">:</span>
                     <SlidingNumber value={timerValues.minutes} /><span className="mx-[1px] opacity-70">:</span>
@@ -677,7 +676,7 @@ export function HomeView() {
             </div>
 
             {/* Right: Button */}
-            <button className="bg-gradient-to-r from-[#ff8226] to-[#e65c00] text-white font-bold text-[14px] px-5 py-2.5 rounded-[100px] shadow-lg active:scale-95 transition-transform shrink-0 whitespace-nowrap border border-white/10" style={{ fontFamily: SF }}>
+            <button className="bg-gradient-to-r from-[#ff8226] to-[#e65c00] text-white font-bold text-[13px] px-4 py-1.5 rounded-[100px] shadow-sm active:scale-95 transition-transform shrink-0 whitespace-nowrap border border-white/5" style={{ fontFamily: SF }}>
               Claim Offer
             </button>
           </div>
