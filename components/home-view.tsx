@@ -642,39 +642,42 @@ export function HomeView() {
         {/* New SuperNoir Pill Banner */}
         <div 
           onClick={() => setCurrentView("premium")}
-          className="w-[96%] mx-auto mb-3 mt-1 relative rounded-[100px] p-[1.5px] cursor-pointer overflow-hidden shadow-[0_0_15px_rgba(255,130,38,0.15)] group"
+          className="w-[96%] mx-auto mb-3 mt-1 relative rounded-[100px] p-[2px] cursor-pointer overflow-hidden shadow-[0_0_20px_rgba(255,106,0,0.3)] group"
         >
           {/* Moving gradient background for border */}
-          <div className="absolute inset-0 z-0">
-             <div className="absolute inset-y-0 w-[200%] bg-gradient-to-r from-transparent via-[#ff8226] to-transparent animate-[shimmerBorder_2.5s_linear_infinite]" />
+          <div className="absolute inset-0 z-0 overflow-hidden rounded-[100px]">
+             <div className="absolute top-1/2 left-1/2 w-[200%] h-[500%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_0deg,transparent_0%,#ff6a00_25%,transparent_25%,transparent_50%,#ff6a00_75%,transparent_75%)] animate-[spin_5s_linear_infinite]" />
           </div>
           
           {/* Inner content */}
-          <div className="relative z-10 w-full h-full bg-[#151517]/95 backdrop-blur-md rounded-[100px] px-3 py-2 flex items-center justify-between">
-            {/* Left: Logo */}
-            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/5 overflow-hidden relative">
-              <span className="text-[10px] text-white/40" style={{ fontFamily: SF }}>Logo</span>
-              {/* After user uploads image, an <img /> would go here */}
-            </div>
+          <div className="relative z-10 w-full h-full bg-[#151517] backdrop-blur-md rounded-[100px] px-4 py-3 flex items-center justify-between">
             
-            {/* Middle: Text and Timer */}
-            <div className="flex flex-col items-center flex-1 px-2">
-              <div className="text-white text-[14px] font-bold leading-tight" style={{ fontFamily: SFD }}>
-                Try Free <span className="text-[#ff8226]">SuperNoir</span>
+            <div className="flex items-center gap-4 flex-1">
+              {/* Left: Logo */}
+              <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/5 overflow-hidden relative shadow-inner">
+                <span className="text-[11px] text-white/40" style={{ fontFamily: SF }}>Logo</span>
+                {/* After user uploads image, an <img /> would go here */}
               </div>
-              <div className="text-[#8e8e93] text-[11px] font-medium mt-[2px] flex items-center gap-1.5" style={{ fontFamily: SF }}>
-                <span>Offer Expires</span>
-                <span className="flex items-center text-[#ff8226] font-bold tracking-widest bg-orange-500/10 px-1.5 py-0.5 rounded text-[10px]">
-                  <SlidingNumber value={timerValues.days} /><span className="mx-[1px] opacity-70">:</span>
-                  <SlidingNumber value={timerValues.hours} /><span className="mx-[1px] opacity-70">:</span>
-                  <SlidingNumber value={timerValues.minutes} /><span className="mx-[1px] opacity-70">:</span>
-                  <SlidingNumber value={timerValues.seconds} />
-                </span>
+              
+              {/* Middle: Text and Timer */}
+              <div className="flex flex-col items-start justify-center flex-1">
+                <div className="text-white text-[16px] font-extrabold leading-tight tracking-tight" style={{ fontFamily: SFD }}>
+                  Try Free <span className="text-[#ff8226]">SuperNoir</span>
+                </div>
+                <div className="text-[#8e8e93] text-[12px] font-medium mt-[4px] flex items-center gap-1.5" style={{ fontFamily: SF }}>
+                  <span>Offer Expires</span>
+                  <span className="flex items-center text-[#ff8226] font-bold tracking-widest bg-[#ff8226]/10 px-1.5 py-0.5 rounded-[6px] text-[11px]">
+                    <SlidingNumber value={timerValues.days} /><span className="mx-[1px] opacity-70">:</span>
+                    <SlidingNumber value={timerValues.hours} /><span className="mx-[1px] opacity-70">:</span>
+                    <SlidingNumber value={timerValues.minutes} /><span className="mx-[1px] opacity-70">:</span>
+                    <SlidingNumber value={timerValues.seconds} />
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* Right: Button */}
-            <button className="bg-gradient-to-r from-[#ff8226] to-[#e65c00] text-white font-bold text-[13px] px-4 py-1.5 rounded-[100px] shadow-lg active:scale-95 transition-transform shrink-0 whitespace-nowrap border border-white/10" style={{ fontFamily: SF }}>
+            <button className="bg-gradient-to-r from-[#ff8226] to-[#e65c00] text-white font-bold text-[14px] px-5 py-2.5 rounded-[100px] shadow-lg active:scale-95 transition-transform shrink-0 whitespace-nowrap border border-white/10" style={{ fontFamily: SF }}>
               Claim Offer
             </button>
           </div>
