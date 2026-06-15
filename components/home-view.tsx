@@ -164,8 +164,22 @@ type ConnectorsState = Record<string, ConnectorStatus>
 
 function getTg() { return (window as any).Telegram?.WebApp }
 
+const SlidingNumber = ({ value }: { value: number }) => {
+  const str = String(value).padStart(2, '0');
+  return (
+    <div className="flex">
+      {str.split('').map((char, index) => (
+        <span key={`${index}-${char}`} className="inline-block animate-[slideDownDigit_0.25s_ease-out]">
+          {char}
+        </span>
+      ))}
+    </div>
+  );
+};
+
 export function HomeView() {
   const { setCurrentView, userPreferences } = useApp()
+  const [timeLeft, setTimeLeft] = useState(() => 2 * 24 * 60 * 60 * 1000);
   const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false)
   const [isBotIntModalOpen, setIsBotIntModalOpen] = useState(false)
   const [botIntConfig, setBotIntConfig] = useState({ enabled: true, moderation_react: true, auto_execute_mod: false, file_summarize: true })
@@ -178,6 +192,20 @@ export function HomeView() {
   const [connectorsLoading, setConnectorsLoading] = useState(true)
   const [connectingId, setConnectingId] = useState<string | null>(null)
   const [disconnectingId, setDisconnectingId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft(prev => (prev > 1000 ? prev - 1000 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const timerValues = {
+    days: Math.floor(timeLeft / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((timeLeft / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((timeLeft / 1000 / 60) % 60),
+    seconds: Math.floor((timeLeft / 1000) % 60),
+  };
 
   useEffect(() => {
     if (searchQuery.length > 0) {
@@ -366,6 +394,14 @@ export function HomeView() {
           100% {
             transform: translateX(100%);
           }
+        }
+        @keyframes slideDownDigit {
+          from { transform: translateY(-8px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes shimmerBorder {
+          0% { transform: translateX(-150%); }
+          100% { transform: translateX(150%); }
         }
         .skeleton-shimmer {
           position: relative;
@@ -563,7 +599,7 @@ export function HomeView() {
         {/* SuperNoir Banner */}
         <div 
           onClick={() => setCurrentView("premium")}
-          className="w-[96%] mx-auto mb-1 mt-0 relative overflow-hidden rounded-[20px] shadow-lg cursor-pointer"
+          className="hidden w-[96%] mx-auto mb-1 mt-0 relative overflow-hidden rounded-[20px] shadow-lg cursor-pointer"
         >
           {/* Background Gradient matching Premium View */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#e65c00] via-[#ff6a00] to-[#ff8c33]" />
@@ -600,6 +636,47 @@ export function HomeView() {
                 style={imageProtectionStyle}
               />
             </div>
+          </div>
+        </div>
+
+        {/* New SuperNoir Pill Banner */}
+        <div 
+          onClick={() => setCurrentView("premium")}
+          className="w-[96%] mx-auto mb-3 mt-1 relative rounded-[100px] p-[1.5px] cursor-pointer overflow-hidden shadow-[0_0_15px_rgba(255,130,38,0.15)] group"
+        >
+          {/* Moving gradient background for border */}
+          <div className="absolute inset-0 z-0">
+             <div className="absolute inset-y-0 w-[200%] bg-gradient-to-r from-transparent via-[#ff8226] to-transparent animate-[shimmerBorder_2.5s_linear_infinite]" />
+          </div>
+          
+          {/* Inner content */}
+          <div className="relative z-10 w-full h-full bg-[#151517]/95 backdrop-blur-md rounded-[100px] px-3 py-2 flex items-center justify-between">
+            {/* Left: Logo */}
+            <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/5 overflow-hidden relative">
+              <span className="text-[10px] text-white/40" style={{ fontFamily: SF }}>Logo</span>
+              {/* After user uploads image, an <img /> would go here */}
+            </div>
+            
+            {/* Middle: Text and Timer */}
+            <div className="flex flex-col items-center flex-1 px-2">
+              <div className="text-white text-[14px] font-bold leading-tight" style={{ fontFamily: SFD }}>
+                Try Free <span className="text-[#ff8226]">SuperNoir</span>
+              </div>
+              <div className="text-[#8e8e93] text-[11px] font-medium mt-[2px] flex items-center gap-1.5" style={{ fontFamily: SF }}>
+                <span>Offer Expires</span>
+                <span className="flex items-center text-[#ff8226] font-bold tracking-widest bg-orange-500/10 px-1.5 py-0.5 rounded text-[10px]">
+                  <SlidingNumber value={timerValues.days} /><span className="mx-[1px] opacity-70">:</span>
+                  <SlidingNumber value={timerValues.hours} /><span className="mx-[1px] opacity-70">:</span>
+                  <SlidingNumber value={timerValues.minutes} /><span className="mx-[1px] opacity-70">:</span>
+                  <SlidingNumber value={timerValues.seconds} />
+                </span>
+              </div>
+            </div>
+
+            {/* Right: Button */}
+            <button className="bg-gradient-to-r from-[#ff8226] to-[#e65c00] text-white font-bold text-[13px] px-4 py-1.5 rounded-[100px] shadow-lg active:scale-95 transition-transform shrink-0 whitespace-nowrap border border-white/10" style={{ fontFamily: SF }}>
+              Claim Offer
+            </button>
           </div>
         </div>
 
