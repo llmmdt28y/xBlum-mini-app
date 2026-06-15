@@ -642,21 +642,22 @@ export function HomeView() {
         {/* New SuperNoir Pill Banner */}
         <div 
           onClick={() => setCurrentView("premium")}
-          className="w-[96%] mx-auto mb-3 mt-1 relative rounded-[100px] cursor-pointer overflow-hidden group"
+          className="w-[96%] mx-auto mb-3 mt-1 relative rounded-[100px] p-[1.5px] cursor-pointer overflow-hidden group"
         >
-          {/* Moving gradient background (glow shining through) */}
+          {/* Moving gradient background for border */}
           <div className="absolute inset-0 z-0 overflow-hidden rounded-[100px]">
-             <div className="absolute top-1/2 left-1/2 w-[200%] h-[500%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_0deg,transparent_0%,rgba(255,130,38,0.5)_15%,transparent_16%,transparent_50%,rgba(255,130,38,0.5)_65%,transparent_66%)] animate-[spin_5s_linear_infinite]" />
+             <div className="absolute top-1/2 left-1/2 w-[200%] h-[500%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_0deg,transparent_0%,rgba(255,130,38,0.6)_10%,transparent_12%,transparent_50%,rgba(255,130,38,0.6)_60%,transparent_62%)] animate-[spin_5s_linear_infinite]" />
           </div>
           
-          {/* Inner content */}
-          <div className="relative z-10 w-full h-full bg-[#ff8226]/10 backdrop-blur-lg rounded-[100px] px-3 py-2 flex items-center justify-between">
+          {/* Inner content (Solid background blocks glow, transparent orange tint) */}
+          <div className="relative z-10 w-full h-full bg-[#080808] rounded-[100px]">
+            <div className="w-full h-full bg-[#ff8226]/15 rounded-[100px] px-3 py-2.5 flex items-center justify-between">
             
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              {/* Left: Empty Logo Placeholder */}
-              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden relative">
-                {/* Empty space for logo */}
-              </div>
+              <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                {/* Left: Empty Logo Placeholder */}
+                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 overflow-hidden relative">
+                  {/* Empty space for logo */}
+                </div>
               
               {/* Middle: Text and Timer */}
               <div className="flex flex-col items-start justify-center flex-1 min-w-0 pr-1">
@@ -679,6 +680,7 @@ export function HomeView() {
             <button className="bg-gradient-to-r from-[#ff8226] to-[#e65c00] text-white font-bold text-[13px] px-4 py-1.5 rounded-[100px] shadow-sm active:scale-95 transition-transform shrink-0 whitespace-nowrap border border-white/5" style={{ fontFamily: SF }}>
               Claim Offer
             </button>
+            </div>
           </div>
         </div>
 
