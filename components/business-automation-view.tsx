@@ -567,7 +567,7 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
               <button
                 onClick={(e) => { createRipple(e as any); handleSaveRole() }}
                 disabled={!newRoleName.trim() || !newRolePrompt.trim()}
-                {/* Button updated to blue rounded-full */}
+
                 className="w-full relative overflow-hidden isolate transform-gpu flex items-center justify-center py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg disabled:opacity-70"
                 style={{ background: "#60a5fa", fontSize: "16px", fontFamily: SF, WebkitMaskImage: '-webkit-radial-gradient(white, black)' }}
               >
@@ -819,7 +819,7 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
                         })
                       }}
                       disabled={!localAfkText.trim()}
-                      {/* Save Message button updated to rounded-full */}
+
                       className="w-full relative overflow-hidden isolate transform-gpu flex items-center justify-center gap-2 py-3.5 mt-2 rounded-full text-white font-bold active:opacity-80 transition-all duration-200 shadow-lg disabled:opacity-70"
                       style={{
                         fontSize: "16px", fontFamily: SF,
