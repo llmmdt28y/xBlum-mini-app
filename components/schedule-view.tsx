@@ -107,10 +107,15 @@ async function apiPost(endpoint: string, body: Record<string, unknown>) {
 interface ScheduleItem {
   id: number;
   title: string; 
-  description: string; 
+  description: string;
+  prompt: string;
   repeat_type: string; 
   fire_at: string; 
-  extra: string; 
+  extra: string;
+  status: string;
+  last_fired_at?: string;
+  fire_count?: number;
+  repeat_config?: string;
 }
 
 // ── English Mocks ──
@@ -286,6 +291,8 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "", i
 export function ScheduleView() {
   const { setCurrentView, userPreferences, isPremium } = useApp()
   const [tasks, setTasks] = useState<ScheduleItem[]>([])
+  const [taskHistory, setTaskHistory] = useState<any[]>([])
+  const [loadingHistory, setLoadingHistory] = useState(false)
   const [loadingItems, setLoadingItems] = useState(true)
   const [suggestedTasks, setSuggestedTasks] = useState<typeof MOCK_TASKS>([])
   
@@ -304,7 +311,6 @@ export function ScheduleView() {
     setSheetTouchY(null)
   }
   const [selectedTask, setSelectedTask] = useState<ScheduleItem | null>(null)
-  const [pausedTasks, setPausedTasks] = useState<Set<number>>(new Set())
 
   const monthStr = new Date().toLocaleDateString('en-US',{month:'short'}).toUpperCase()
   const yearStr  = new Date().getFullYear().toString()
@@ -463,10 +469,23 @@ export function ScheduleView() {
 
     setIsSaving(true)
     try {
-      const extraData = JSON.stringify({ pushEnabled, emailEnabled, time, specificDate, dayOfWeek, dayOfMonth, frequency })
+      const repeatConfig = JSON.stringify({
+        time,
+        day_of_week: dayOfWeek,
+        day_of_month: dayOfMonth,
+        specific_date: specificDate,
+        timezone: userPreferences?.timezone || "UTC",
+      })
       const data = await apiPost("/api/schedule_create", {
-        title, description: prompt, repeat_type: frequency, 
-        extra: extraData, event_type: "Custom Prompt", fire_at: new Date().toISOString()
+        title,
+        prompt,
+        description: prompt,
+        repeat_type: frequency.toLowerCase(),
+        repeat_config: repeatConfig,
+        event_type: "Custom Prompt",
+        fire_at: new Date().toISOString(),
+        push_enabled: pushEnabled,
+        email_enabled: emailEnabled,
       })
       if(data.success){
         triggerVibration('success')
@@ -492,16 +511,43 @@ export function ScheduleView() {
     } catch(e) { console.error(e) }
   }
 
-  const handleTogglePause = () => {
+  const handleTogglePause = async () => {
     if (!selectedTask) return;
     triggerVibration('light')
-    setPausedTasks(prev => {
-      const next = new Set(prev)
-      if (next.has(selectedTask.id)) next.delete(selectedTask.id)
-      else next.add(selectedTask.id)
-      return next
-    })
+    const isPaused = selectedTask.status === "PAUSED"
+    try {
+      const data = await apiPost("/api/schedule_pause", {
+        item_id: selectedTask.id,
+        action: isPaused ? "resume" : "pause",
+      })
+      if (data.success) {
+        triggerVibration('success')
+        await fetchItems()
+        setSelectedTask(prev => prev ? { ...prev, status: isPaused ? "ACTIVE" : "PAUSED" } : null)
+      }
+    } catch (e) { console.error(e) }
   }
+
+  const fetchHistory = useCallback(async (itemId: number) => {
+    setLoadingHistory(true)
+    setTaskHistory([])
+    try {
+      const tg = getTg(); const initData = tg?.initData ?? ""
+      const res = await fetch(`${API_BASE}/api/schedule_history?item_id=${itemId}&limit=10`, {
+        headers: { "x-init-data": initData }
+      })
+      if (res.ok) {
+        const d = await res.json()
+        if (d.success && Array.isArray(d.history)) setTaskHistory(d.history)
+      }
+    } catch (e) { console.error(e) }
+    finally { setLoadingHistory(false) }
+  }, [])
+
+  // Fetch history when a task is selected
+  useEffect(() => {
+    if (selectedTask) fetchHistory(selectedTask.id)
+  }, [selectedTask?.id, fetchHistory])
 
   const formatFrequencyText = (item: ScheduleItem) => {
     let t = "00:00"; let day = ""
@@ -651,9 +697,14 @@ export function ScheduleView() {
                           <span className="text-white text-[17px] font-medium tracking-tight" style={{ fontFamily: SFD }}>{item.title}</span>
                           <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{formatFrequencyText(item)}</span>
                        </div>
-                       <div className="flex items-center gap-1.5 text-[#636366]">
-                          <Clock className="w-[14px] h-[14px]" strokeWidth={2.5}/>
-                          <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>Scheduled</span>
+                       <div className="flex items-center gap-1.5">
+                          {item.status === "PAUSED" ? (
+                            <><Pause className="w-[14px] h-[14px] text-[#ff9f0a]" strokeWidth={2.5}/>
+                            <span className="text-[13px] font-medium text-[#ff9f0a]" style={{ fontFamily: SF }}>Paused</span></>
+                          ) : (
+                            <><Clock className="w-[14px] h-[14px] text-[#636366]" strokeWidth={2.5}/>
+                            <span className="text-[13px] font-medium text-[#636366]" style={{ fontFamily: SF }}>Scheduled</span></>
+                          )}
                        </div>
                     </div>
                   ))}
@@ -674,9 +725,14 @@ export function ScheduleView() {
                           <span className="text-white text-[17px] font-medium tracking-tight" style={{ fontFamily: SFD }}>{item.title}</span>
                           <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{formatFrequencyText(item)}</span>
                        </div>
-                       <div className="flex items-center gap-1.5 text-[#636366]">
-                          <Clock className="w-[14px] h-[14px]" strokeWidth={2.5}/>
-                          <span className="text-[13px] font-medium" style={{ fontFamily: SF }}>Scheduled</span>
+                       <div className="flex items-center gap-1.5">
+                          {item.status === "PAUSED" ? (
+                            <><Pause className="w-[14px] h-[14px] text-[#ff9f0a]" strokeWidth={2.5}/>
+                            <span className="text-[13px] font-medium text-[#ff9f0a]" style={{ fontFamily: SF }}>Paused</span></>
+                          ) : (
+                            <><Clock className="w-[14px] h-[14px] text-[#636366]" strokeWidth={2.5}/>
+                            <span className="text-[13px] font-medium text-[#636366]" style={{ fontFamily: SF }}>Scheduled</span></>
+                          )}
                        </div>
                     </div>
                   ))}
@@ -724,7 +780,10 @@ export function ScheduleView() {
 
                  <div>
                     <h3 className="text-white text-[17px] font-semibold mb-1.5" style={{fontFamily: SFD}}>Instruction</h3>
-                    <p className="text-[#8e8e93] text-[15px] leading-relaxed" style={{fontFamily: SF}}>{selectedTask.description}</p>
+                    <p className="text-[#8e8e93] text-[15px] leading-relaxed" style={{fontFamily: SF}}>{selectedTask.prompt || selectedTask.description}</p>
+                    {(selectedTask.fire_count ?? 0) > 0 && (
+                      <p className="text-[#555558] text-[13px] mt-2" style={{fontFamily: SF}}>Executed {selectedTask.fire_count} time{(selectedTask.fire_count ?? 0) !== 1 ? 's' : ''}</p>
+                    )}
                  </div>
 
                  <div className="flex flex-col gap-3 mt-2">
@@ -746,7 +805,28 @@ export function ScheduleView() {
 
                  <div className="mt-4">
                     <h3 className="text-white text-[17px] font-semibold mb-3" style={{fontFamily: SFD}}>History</h3>
-                    <p className="text-[#555558] text-[14px]" style={{fontFamily: SF}}>No records yet</p>
+                    {loadingHistory ? (
+                      <div className="flex items-center justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-[#555558]"/></div>
+                    ) : taskHistory.length > 0 ? (
+                      <div className="flex flex-col gap-2">
+                        {taskHistory.map((h, idx) => {
+                          const firedDate = new Date(h.fired_at)
+                          const dateStr = firedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                          const timeStr = firedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                          return (
+                            <div key={h.id || idx} className="bg-[#1c1c1e] rounded-[12px] p-3">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-[#8e8e93] text-[12px]" style={{fontFamily: SF}}>{dateStr} at {timeStr}</span>
+                                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${h.status === 'OK' ? 'bg-[#30d158]/20 text-[#30d158]' : 'bg-[#ff453a]/20 text-[#ff453a]'}`} style={{fontFamily: SF}}>{h.status}</span>
+                              </div>
+                              <p className="text-white text-[13px] leading-snug line-clamp-3" style={{fontFamily: SF}}>{(h.result || '').slice(0, 200)}</p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-[#555558] text-[14px]" style={{fontFamily: SF}}>No records yet</p>
+                    )}
                  </div>
               </div>
            </div>
