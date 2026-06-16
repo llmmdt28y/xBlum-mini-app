@@ -1,7 +1,53 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useApp } from "@/lib/app-context"
+
+const AnimatedIcon = ({ src, alt, className }: { src: string, alt: string, className: string }) => {
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [key, setKey] = useState(0);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (isPlaying) {
+      const timer = setTimeout(() => {
+        if (imgRef.current && canvasRef.current) {
+          const canvas = canvasRef.current;
+          const ctx = canvas.getContext('2d');
+          if (ctx && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+             canvas.width = imgRef.current.naturalWidth;
+             canvas.height = imgRef.current.naturalHeight;
+             ctx.drawImage(imgRef.current, 0, 0, canvas.width, canvas.height);
+          }
+          setIsPlaying(false);
+        }
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [isPlaying, key]);
+
+  return (
+    <div 
+      onClick={() => { if (!isPlaying) { setKey(k => k + 1); setIsPlaying(true); } }} 
+      className={`relative cursor-pointer transition-transform active:scale-90 ${className}`}
+    >
+      <img
+        ref={imgRef}
+        src={`${src}?t=${key}`}
+        alt={alt}
+        className={`w-full h-full object-contain ${!isPlaying ? 'opacity-0' : 'opacity-100'}`}
+        draggable={false}
+        onContextMenu={(e) => e.preventDefault()}
+        crossOrigin="anonymous"
+      />
+      <canvas
+        ref={canvasRef}
+        className={`absolute inset-0 w-full h-full object-contain pointer-events-none ${isPlaying ? 'opacity-0' : 'opacity-100'}`}
+      />
+    </div>
+  );
+};
 
 const SlidingNumber = ({ value }: { value: number }) => {
   const str = String(value).padStart(2, '0');
@@ -67,7 +113,7 @@ export function PremiumView() {
   }
 
   return (
-    <div className="flex-1 min-h-screen flex flex-col bg-[#000000] relative overflow-hidden text-white" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" }}>
+    <div className="flex-1 min-h-screen flex flex-col bg-[#000000] fixed top-0 left-0 w-full h-full z-[70] overflow-hidden text-white" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" }}>
       <style>{`
         @keyframes shimmer-shine {
           0% { transform: translateX(-100%); }
@@ -145,19 +191,19 @@ export function PremiumView() {
             </div>
             
             <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#1c1c1e] h-[145px]">
-              <img src="/memo.webp" alt="Memo" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
+              <AnimatedIcon src="/memo.webp" alt="Memo" className="w-[36px] h-[36px] mb-2 drop-shadow-md" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Basic Features</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Standard access to core tools and stable AI models.</p>
             </div>
             
             <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#1c1c1e] h-[145px]">
-              <img src="/search.webp" alt="Search" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
+              <AnimatedIcon src="/search.webp" alt="Search" className="w-[36px] h-[36px] mb-2 drop-shadow-md" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Search</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Basic web search for everyday questions.</p>
             </div>
             
             <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#1c1c1e] h-[145px]">
-              <img src="/hourglass.webp" alt="Limits" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-md pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
+              <AnimatedIcon src="/hourglass.webp" alt="Limits" className="w-[36px] h-[36px] mb-2 drop-shadow-md" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Limits</h3>
               <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Fewer limits & up to 5 active tasks.</p>
             </div>
@@ -170,19 +216,19 @@ export function PremiumView() {
             </div>
             
             <div className="flex flex-col items-center justify-start text-center p-3 border-t border-transparent h-[145px]">
-              <img src="/robot.webp" alt="Autonomous AI" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
+              <AnimatedIcon src="/robot.webp" alt="Autonomous AI" className="w-[36px] h-[36px] mb-2 drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Beta Access</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Early access to experimental tools, beta features & latest models.</p>
             </div>
             
             <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#ff6a00]/30 h-[145px]">
-              <img src="/lightning.webp" alt="Lightning" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
+              <AnimatedIcon src="/lightning.webp" alt="Lightning" className="w-[36px] h-[36px] mb-2 drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>DeepSearch</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Advanced reasoning and deep thinking tools.</p>
             </div>
             
             <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#ff6a00]/30 h-[145px]">
-              <img src="/rocket.webp" alt="Rocket" className="w-[36px] h-[36px] mb-2 object-contain drop-shadow-[0_0_15px_rgba(255,106,0,0.4)] pointer-events-none select-none" draggable={false} onContextMenu={(e) => e.preventDefault()} />
+              <AnimatedIcon src="/rocket.webp" alt="Rocket" className="w-[36px] h-[36px] mb-2 drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
               <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Increased Limits</h3>
               <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Higher limits & up to 15 active tasks.</p>
             </div>
@@ -195,7 +241,7 @@ export function PremiumView() {
         <button
           onClick={subscribe}
           disabled={isLoading || isPremium}
-          className="w-full max-w-sm py-[18px] shimmer-btn relative overflow-hidden bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-6 shadow-[0_0_20px_rgba(255,106,0,0.3)] shrink-0"
+          className="w-full max-w-sm py-[18px] shimmer-btn relative overflow-hidden bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-2 shadow-[0_0_20px_rgba(255,106,0,0.3)] shrink-0"
         >
           {isPremium ? (
             <span className="relative z-10">SuperNoir Active</span>
@@ -210,11 +256,9 @@ export function PremiumView() {
           )}
         </button>
 
-        {/* Footer Links */}
-        <div className="flex items-center gap-2 text-[11px] text-[#555558] font-medium shrink-0">
-          <button className="hover:text-[#8e8e93]">Terms & Conditions</button>
-          <span>|</span>
-          <button className="hover:text-[#8e8e93]">Privacy Policy</button>
+        {/* Footer Pricing Conversion */}
+        <div className="flex flex-col items-center justify-center text-[11px] text-[#8e8e93] font-medium shrink-0 mt-0">
+          <p>1,150 Telegram Stars ≈ $22.77 USD</p>
         </div>
 
       </div>
