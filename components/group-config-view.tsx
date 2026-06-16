@@ -164,29 +164,38 @@ const TelegramInput = ({ label, maxLength, value, onChange, placeholder = "", is
 }
 
 const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
-  const element = event.currentTarget
-  if (element.disabled) return
+  const element = event.currentTarget;
+  if (element.disabled) return;
 
-  const circle = document.createElement("span")
-  const diameter = Math.max(element.clientWidth, element.clientHeight)
-  const radius = diameter / 2
-
-  const rect = element.getBoundingClientRect()
-  circle.style.width = circle.style.height = `${diameter}px`
-  circle.style.left = `${event.clientX - rect.left - radius}px`
-  circle.style.top = `${event.clientY - rect.top - radius}px`
-  circle.classList.add("ripple")
-
-  const existingRipple = element.querySelector(".ripple")
-  if (existingRipple) {
-    existingRipple.remove()
+  let rippleContainer = element.querySelector('.ripple-container') as HTMLElement;
+  if (!rippleContainer) {
+    rippleContainer = document.createElement('div');
+    rippleContainer.className = 'ripple-container absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none isolate transform-gpu';
+    rippleContainer.style.webkitMaskImage = '-webkit-radial-gradient(white, black)';
+    rippleContainer.style.zIndex = '0';
+    element.appendChild(rippleContainer);
   }
 
-  element.appendChild(circle)
+  const circle = document.createElement("span");
+  const diameter = Math.max(element.clientWidth, element.clientHeight);
+  const radius = diameter / 2;
+
+  const rect = element.getBoundingClientRect();
+  circle.style.width = circle.style.height = `${diameter}px`;
+  circle.style.left = `${event.clientX - rect.left - radius}px`;
+  circle.style.top = `${event.clientY - rect.top - radius}px`;
+  circle.classList.add("ripple");
+
+  const existingRipple = rippleContainer.querySelector(".ripple");
+  if (existingRipple) {
+    existingRipple.remove();
+  }
+
+  rippleContainer.appendChild(circle);
 
   setTimeout(() => {
-    circle.remove()
-  }, 600)
+    circle.remove();
+  }, 600);
 }
 
 export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, apiBaseUrl: string }) {
@@ -354,7 +363,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (loadingGroups) {
     return (
-      <div key="loading" className="flex-1 flex flex-col items-center justify-center animate-in fade-in duration-500 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div key="loading" className="flex-1 flex flex-col items-center justify-center animate-in fade-in duration-500 bg-[#000] fixed top-0 left-0 w-full z-[70]" style={{ height: "var(--tg-viewport-height, 100dvh)" }}>
         <div className="w-8 h-8 rounded-full border-2 border-[#60a5fa] border-t-transparent animate-spin mb-4" />
         <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>Loading groups...</span>
       </div>
@@ -367,10 +376,10 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "noir_ai") {
     return (
-      <div key="noir_ai" className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div key="noir_ai" className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] fixed top-0 left-0 w-full z-[70]" style={{ height: "var(--tg-viewport-height, 100dvh)" }}>
         <SubHeader title="Noir AI" />
         
-        <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-4 pb-4 space-y-6">
+        <div className="flex-1 flex flex-col overflow-y-auto overscroll-none px-4 pt-4 pb-4 space-y-6">
           <div className="flex flex-col items-center justify-center pt-4 pb-2 shrink-0">
             <PenOff className="w-[56px] h-[56px] text-[#8e8e93]" strokeWidth={1.5} />
             <p className="text-[#8e8e93] text-[14px] text-center mt-4 px-6 leading-relaxed" style={{ fontFamily: SF }}>
@@ -419,10 +428,10 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "anti_flood") {
     return (
-      <div key="anti_flood" className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div key="anti_flood" className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] fixed top-0 left-0 w-full z-[70]" style={{ height: "var(--tg-viewport-height, 100dvh)" }}>
         <SubHeader title="Anti-Flood" />
         
-        <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-8 pb-4 space-y-6">
+        <div className="flex-1 flex flex-col overflow-y-auto overscroll-none px-4 pt-8 pb-4 space-y-6">
           <Section>
             <Row 
               label="Enable Anti-Flood" 
@@ -467,10 +476,10 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
   if (subPage === "auto_tags") {
     return (
-      <div key="auto_tags" className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+      <div key="auto_tags" className="flex-1 flex flex-col animate-in slide-in-from-right duration-300 bg-[#000] fixed top-0 left-0 w-full z-[70]" style={{ height: "var(--tg-viewport-height, 100dvh)" }}>
         <SubHeader title="Auto-Tags" />
         
-        <div className="flex-1 flex flex-col overflow-y-auto pb-6">
+        <div className="flex-1 flex flex-col overflow-y-auto overscroll-none pb-6">
           <div className="flex flex-col items-center justify-center pt-6 pb-2 shrink-0">
             <img 
               src="/member-title-tags.webp" 
@@ -592,7 +601,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   }
 
   return (
-    <div key="main" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] absolute inset-0 z-[70]" style={{ height: "var(--tg-viewport-height, 100vh)" }}>
+    <div key="main" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] fixed top-0 left-0 w-full z-[70]" style={{ height: "var(--tg-viewport-height, 100dvh)" }}>
       <style>{`
         @keyframes shimmer {
           0% { transform: translateX(-100%); }
@@ -621,14 +630,14 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         }
         @keyframes ripple-anim {
           to {
-            transform: scale(4);
+            transform: scale(2.5);
             opacity: 0;
           }
         }
       `}</style>
       <SubHeader title="Group Moderation" />
       
-      <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-2 pb-6 space-y-5">
+      <div className="flex-1 flex flex-col overflow-y-auto overscroll-none px-4 pt-2 pb-6 space-y-5">
         
         <div className="flex flex-col items-center justify-center pt-2 pb-0 shrink-0">
           <img 
@@ -655,8 +664,8 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
               <span className="text-white text-[16px] font-semibold truncate leading-tight mt-0.5" style={{ fontFamily: SF }}>{selectedGroupTitle}</span>
             </div>
             
-            <div className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center shrink-0 relative z-10">
-              <ChevronDown className={`w-4 h-4 text-[#8e8e93] transition-transform ${showGroupDropdown ? "rotate-180" : ""}`} />
+            <div className="flex items-center justify-center shrink-0 relative z-10">
+              <ChevronDown className={`w-5 h-5 text-[#60a5fa] transition-transform duration-200 ${showGroupDropdown ? "rotate-180" : ""}`} strokeWidth={2.5} />
             </div>
           </button>
 
