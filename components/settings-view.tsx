@@ -1514,12 +1514,12 @@ export function SettingsView({
   return (
     <>
     {/* This is the main screen wrapper, ensuring fixed top-0 is not present here */}
-    <div key="main" className={`flex-1 flex flex-col ${showReportModal ? 'overflow-hidden' : 'overflow-y-auto overscroll-none'} animate-in fade-in duration-500 ease-out`} style={{ background: "#000000", height: "var(--tg-viewport-height, 100dvh)" }}>
+    <div key="main" className={`flex-1 ${showReportModal ? 'overflow-hidden' : 'overflow-y-auto overscroll-none'} animate-in fade-in duration-500 ease-out`} style={{ background: "#000000" }}>
        <style>{RIPPLE_STYLE}</style>
       
       <SubHeader title="Settings" />
 
-      <div className="px-4 pt-4 pb-40 space-y-6">
+      <div className="px-4 pt-4 pb-40 space-y-6" style={{ minHeight: "101dvh" }}>
 
         {/* ── Profile ── */}
         <Section title="Profile">
