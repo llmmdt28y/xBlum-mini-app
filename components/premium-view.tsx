@@ -3,6 +3,15 @@
 import { useState, useEffect, useRef } from "react"
 import { useApp } from "@/lib/app-context"
 
+const imageProtectionStyle = {
+  WebkitTouchCallout: "none" as const,
+  WebkitUserSelect: "none" as const,
+  KhtmlUserSelect: "none" as const,
+  MozUserSelect: "none" as const,
+  msUserSelect: "none" as const,
+  userSelect: "none" as const,
+};
+
 const AnimatedIcon = ({ src, alt, className }: { src: string, alt: string, className: string }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [key, setKey] = useState(0);
@@ -36,10 +45,11 @@ const AnimatedIcon = ({ src, alt, className }: { src: string, alt: string, class
         ref={imgRef}
         src={`${src}?t=${key}`}
         alt={alt}
-        className={`w-full h-full object-contain ${!isPlaying ? 'opacity-0' : 'opacity-100'}`}
+        className={`w-full h-full object-contain pointer-events-none select-none ${!isPlaying ? 'opacity-0' : 'opacity-100'}`}
         draggable={false}
         onContextMenu={(e) => e.preventDefault()}
         crossOrigin="anonymous"
+        style={imageProtectionStyle}
       />
       <canvas
         ref={canvasRef}
@@ -153,13 +163,14 @@ export function PremiumView() {
         
         {/* Título: SuperNoir */}
         <div className="h-[64px] mb-8 mt-4 flex items-center justify-center relative w-full pointer-events-none z-20">
+          <div className="absolute inset-0 bg-[#ff6a00]/20 blur-3xl rounded-full" />
           <img 
             src="/SuperNoir-subscription-banner.png" 
             alt="SuperNoir" 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none" 
-            style={{ height: "120px", width: "auto", maxWidth: "none" }}
-            draggable={false} 
-            onContextMenu={(e) => e.preventDefault()} 
+            className="h-full w-auto object-contain drop-shadow-2xl pointer-events-none select-none"
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+            style={imageProtectionStyle}
           />
         </div>
 
@@ -247,19 +258,16 @@ export function PremiumView() {
             <span className="relative z-10">SuperNoir Active</span>
           ) : isLoading ? (
             <span className="relative z-10">Processing...</span>
+          ) : timeLeft > 0 ? (
+            <span className="relative z-10">Claim 1 Month for Free</span>
           ) : (
             <div className="flex items-center justify-center gap-1.5 relative z-10">
               <span className="leading-none mt-[1px]">Subscribe for</span>
               <img src="/telegram-star-icon.png" alt="Star" className="w-[18px] h-[18px] object-contain -mt-[1px] pointer-events-none select-none" style={{ filter: "brightness(0) invert(1)" }} draggable={false} onContextMenu={(e) => e.preventDefault()} />
-              <span className="leading-none mt-[1px]">1,150</span>
+              <span className="leading-none mt-[1px]">850</span>
             </div>
           )}
         </button>
-
-        {/* Footer Pricing Conversion */}
-        <div className="flex flex-col items-center justify-center text-[11px] text-[#8e8e93] font-medium shrink-0 mt-0">
-          <p>1,150 Telegram Stars ≈ $22.77 USD</p>
-        </div>
 
       </div>
     </div>
