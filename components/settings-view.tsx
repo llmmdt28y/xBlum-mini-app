@@ -927,8 +927,7 @@ export function SettingsView({
 
   // ── Model page ─────────────────────────────────────────────────────────────
   if (page === "model") return (
-    <div key="model" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto overscroll-none"
-         style={{ background: "#000", minHeight: "100dvh" }}>
+    <div key="model" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 pb-10 space-y-4">
@@ -1016,8 +1015,7 @@ export function SettingsView({
 
   // ── Lang page ──────────────────────────────────────────────────────────────
   if (page === "lang") return (
-    <div key="lang" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto overscroll-none"
-         style={{ background: "#000", minHeight: "100dvh" }}>
+    <div key="lang" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 pb-10 space-y-6">
@@ -1045,8 +1043,7 @@ export function SettingsView({
 
   // ── Gender Select Sub-page ─────────────────────────────────────────────────
   if (page === "gender_select") return (
-    <div key="gender_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto overscroll-none"
-         style={{ background: "#000", minHeight: "100dvh" }}>
+    <div key="gender_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Gender" />
       <div className="px-4 pt-6 pb-10 space-y-6">
@@ -1071,8 +1068,7 @@ export function SettingsView({
 
   // ── Timezone Select Sub-page ───────────────────────────────────────────────
   if (page === "timezone_select") return (
-    <div key="timezone_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out relative overflow-y-auto overscroll-none scrollbar-native"
-         style={{ background: "#000", minHeight: "100dvh" }}>
+    <div key="timezone_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none scrollbar-native" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Time zone" />
       <div className="px-4 pt-6 pb-10 space-y-6">
@@ -1368,8 +1364,7 @@ export function SettingsView({
 
   // ── Capabilities Sub-page ──────────────────────────────────────────────────
   if (page === "capabilities") return (
-    <div key="capabilities" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto overscroll-none"
-         style={{ background: "#000", minHeight: "100dvh" }}>
+    <div key="capabilities" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Capabilities" />
       <div className="px-4 pt-6 pb-40 space-y-6">
@@ -1432,8 +1427,7 @@ export function SettingsView({
     const geminiInfo = mergedTokenStatus?.["Gemini 3.5 Flash"]
 
     return (
-      <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
-           style={{ background: "#000", minHeight: "100dvh" }}>
+      <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
         <style>{RIPPLE_STYLE}</style>
         <SubHeader title="" />
         
