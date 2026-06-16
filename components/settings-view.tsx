@@ -298,7 +298,7 @@ function Section({ title, footer, children, rightAction }: { title?: string; foo
           {rightAction && <div>{rightAction}</div>}
         </div>
       )}
-      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] relative">
+      <div className="rounded-[24px] overflow-hidden shadow-lg bg-[#111111] relative">
         {children}
       </div>
       {footer && (
@@ -523,7 +523,7 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
 }
 
 const TelegramInputGroup = ({ children }: { children: React.ReactNode }) => (
-  <div className="bg-[#111111] rounded-[24px] overflow-hidden flex flex-col mb-4 border border-white/5 shadow-lg">
+  <div className="bg-[#111111] rounded-[24px] overflow-hidden flex flex-col mb-4 shadow-lg">
     {children}
   </div>
 )
@@ -927,8 +927,8 @@ export function SettingsView({
 
   // ── Model page ─────────────────────────────────────────────────────────────
   if (page === "model") return (
-    <div key="model" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto"
-         style={{ background: "#000", minHeight: "100vh" }}>
+    <div key="model" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto overscroll-none"
+         style={{ background: "#000", minHeight: "100dvh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 pb-10 space-y-4">
@@ -1016,8 +1016,8 @@ export function SettingsView({
 
   // ── Lang page ──────────────────────────────────────────────────────────────
   if (page === "lang") return (
-    <div key="lang" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto"
-         style={{ background: "#000", minHeight: "100vh" }}>
+    <div key="lang" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto overscroll-none"
+         style={{ background: "#000", minHeight: "100dvh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 pb-10 space-y-6">
@@ -1045,8 +1045,8 @@ export function SettingsView({
 
   // ── Gender Select Sub-page ─────────────────────────────────────────────────
   if (page === "gender_select") return (
-    <div key="gender_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto"
-         style={{ background: "#000", minHeight: "100vh" }}>
+    <div key="gender_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto overscroll-none"
+         style={{ background: "#000", minHeight: "100dvh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Gender" />
       <div className="px-4 pt-6 pb-10 space-y-6">
@@ -1071,8 +1071,8 @@ export function SettingsView({
 
   // ── Timezone Select Sub-page ───────────────────────────────────────────────
   if (page === "timezone_select") return (
-    <div key="timezone_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out relative overflow-y-auto scrollbar-native"
-         style={{ background: "#000", minHeight: "100vh" }}>
+    <div key="timezone_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out relative overflow-y-auto overscroll-none scrollbar-native"
+         style={{ background: "#000", minHeight: "100dvh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Time zone" />
       <div className="px-4 pt-6 pb-10 space-y-6">
@@ -1103,11 +1103,11 @@ export function SettingsView({
 
   // ── Basic Information Sub-page ─────────────────────────────────────────────
   if (page === "basic_info") return (
-    <div key="basic_info" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+    <div key="basic_info" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Basic Information" />
       
-      <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
+      <div className="px-5 pt-4 flex-1 w-full overflow-y-auto overscroll-none flex flex-col pb-8">
         
         <TelegramInputGroup>
           <TelegramInput label="Name" maxLength={64} value={nameField} onChange={setNameField} />
@@ -1157,11 +1157,11 @@ export function SettingsView({
 
   // ── Additional Details Sub-page ────────────────────────────────────────────
   if (page === "additional_details") return (
-    <div key="additional_details" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+    <div key="additional_details" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Additional Details" />
       
-      <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
+      <div className="px-5 pt-4 flex-1 w-full overflow-y-auto overscroll-none flex flex-col pb-8">
         
         <TelegramInputGroup>
           <TelegramInput label="Occupation" maxLength={128} value={occupationField} onChange={setOccupationField} />
@@ -1202,11 +1202,11 @@ export function SettingsView({
 
   // ── Noir Personality Sub-page ──────────────────────────────────────────────
   if (page === "noir_personality") return (
-    <div key="noir_personality" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out absolute inset-0 z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+    <div key="noir_personality" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Noir Personality" />
       
-      <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
+      <div className="px-5 pt-4 flex-1 w-full overflow-y-auto overscroll-none flex flex-col pb-8">
         
         <ExpandingInput label="Favorite emoji" maxLength={16} value={favoriteEmojiField} onChange={setFavoriteEmojiField} />
         
@@ -1236,8 +1236,8 @@ export function SettingsView({
 
   // ── Prefs page (Account Setup) ─────────────────────────────────────────────
   if (page === "prefs") return (
-    <div key="prefs" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto scrollbar-native"
-         style={{ background: "#000", minHeight: "100vh" }}>
+    <div key="prefs" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto overscroll-none scrollbar-native"
+         style={{ background: "#000", minHeight: "100dvh" }}>
       <style>{RIPPLE_STYLE}</style>
       
       <SubHeader title="Account Setup" />
@@ -1368,8 +1368,8 @@ export function SettingsView({
 
   // ── Capabilities Sub-page ──────────────────────────────────────────────────
   if (page === "capabilities") return (
-    <div key="capabilities" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto"
-         style={{ background: "#000", minHeight: "100vh" }}>
+    <div key="capabilities" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto overscroll-none"
+         style={{ background: "#000", minHeight: "100dvh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Capabilities" />
       <div className="px-4 pt-6 pb-28 space-y-6">
@@ -1433,7 +1433,7 @@ export function SettingsView({
 
     return (
       <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out"
-           style={{ background: "#000", minHeight: "100vh" }}>
+           style={{ background: "#000", minHeight: "100dvh" }}>
         <style>{RIPPLE_STYLE}</style>
         <SubHeader title="" />
         
@@ -1465,7 +1465,7 @@ export function SettingsView({
               const mColor  = pct >= 90 ? "#ef4444" : pct >= 70 ? "#f97316" : "#3b82f6"
 
               return (
-                <div key={label} className="rounded-[20px] bg-[#111111] p-4 border border-white/5 shadow-lg">
+                <div key={label} className="rounded-[20px] bg-[#111111] p-4 shadow-lg">
                   <div className="flex items-center gap-3 mb-3">
                     <img src={logo} alt={label} className="w-7 h-7 object-contain pointer-events-none select-none" draggable={false} onContextMenu={e => e.preventDefault()} style={{ WebkitTouchCallout: "none", userSelect: "none" }} />
                     <span className="text-[15px] font-semibold text-white flex-1" style={{ fontFamily: SF }}>{label}</span>
@@ -1519,7 +1519,7 @@ export function SettingsView({
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
     <>
-    <div key="main" className={`flex-1 ${showReportModal ? 'overflow-hidden' : 'overflow-y-auto'} animate-in fade-in duration-500 ease-out`} style={{ background: "#000" }}>
+    <div key="main" className={`flex-1 ${showReportModal ? 'overflow-hidden' : 'overflow-y-auto overscroll-none'} animate-in fade-in duration-500 ease-out`} style={{ background: "#000" }}>
        <style>{RIPPLE_STYLE}</style>
       
       <SubHeader title="Settings" />
@@ -1577,7 +1577,7 @@ export function SettingsView({
           />
           <Row
             leftNode={<IconFlat icon={MessageCirclePlus} color="#5e5ce6" />}
-            label="AI Chat"
+            label="Chat Automation"
             onClick={() => setPage("business_automation")}
             last
           />
