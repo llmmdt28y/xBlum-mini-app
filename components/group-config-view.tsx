@@ -79,11 +79,11 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
     </>
   );
 
-  const className = `relative w-full flex gap-3.5 px-4 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems}`;
+  const className = `relative w-full flex gap-3.5 px-4 py-3.5 ${onClick ? 'active:bg-white/5 transition-colors cursor-pointer' : ''} text-left items-${alignItems} overflow-hidden`;
 
   return (
     <>
-      <button onClick={onClick} disabled={!onClick && !rightNode} className={className}>
+      <button onClick={onClick} onPointerDown={onClick ? createRipple : undefined} disabled={!onClick && !rightNode} className={className}>
         {content}
       </button>
       {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[46px]' : 'ml-4'}`} />}
@@ -161,6 +161,32 @@ const TelegramInput = ({ label, maxLength, value, onChange, placeholder = "", is
       {!isLast && <div className="absolute bottom-0 left-4 right-0 h-[1px] bg-[#2c2c2e]" />}
     </div>
   )
+}
+
+const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
+  const element = event.currentTarget
+  if (element.disabled) return
+
+  const circle = document.createElement("span")
+  const diameter = Math.max(element.clientWidth, element.clientHeight)
+  const radius = diameter / 2
+
+  const rect = element.getBoundingClientRect()
+  circle.style.width = circle.style.height = `${diameter}px`
+  circle.style.left = `${event.clientX - rect.left - radius}px`
+  circle.style.top = `${event.clientY - rect.top - radius}px`
+  circle.classList.add("ripple")
+
+  const existingRipple = element.querySelector(".ripple")
+  if (existingRipple) {
+    existingRipple.remove()
+  }
+
+  element.appendChild(circle)
+
+  setTimeout(() => {
+    circle.remove()
+  }, 600)
 }
 
 export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, apiBaseUrl: string }) {
@@ -375,6 +401,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             <button 
               onClick={handleSave} 
               disabled={isSaving}
+              onPointerDown={createRipple}
               className="w-full relative overflow-hidden flex items-center justify-center py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg disabled:opacity-70" 
               style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
             >
@@ -473,18 +500,18 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
                <div className="bg-[#111111] rounded-[20px] p-3 flex items-center shadow-lg relative overflow-hidden">
                  
                  {/* Left: Preview Card */}
-                 <div className="flex-1 bg-[#1c1c1e] rounded-[14px] p-2.5 relative overflow-hidden flex items-center mr-3 h-[74px]">
-                   <div className="w-[32px] h-[32px] rounded-full bg-white/5 shrink-0 mr-2.5 flex items-center justify-center">
+                 <div className="flex-1 bg-[#1c1c1e] rounded-[14px] p-2 relative overflow-hidden flex items-center mr-2 h-[60px]">
+                   <div className="w-[28px] h-[28px] rounded-full bg-white/5 shrink-0 mr-2 flex items-center justify-center">
                       <Users className="w-3.5 h-3.5 text-white/20" />
                    </div>
-                   <div className="flex-1 flex flex-col justify-center space-y-1.5">
-                      <div className="w-[45px] h-[5px] bg-[#60a5fa]/60 rounded-full" />
-                      <div className="w-[85%] h-[5px] bg-white/10 rounded-full mt-0.5" />
-                      <div className="w-[60%] h-[5px] bg-white/10 rounded-full" />
+                   <div className="flex-1 flex flex-col justify-center space-y-1">
+                      <div className="w-[45px] h-[4px] bg-[#60a5fa]/60 rounded-full" />
+                      <div className="w-[85%] h-[4px] bg-white/10 rounded-full mt-0.5" />
+                      <div className="w-[60%] h-[4px] bg-white/10 rounded-full" />
                    </div>
                    {/* Tag Pill */}
-                   <div className="absolute top-2 right-2 bg-white/10 px-1.5 py-[2px] rounded-[5px] flex items-center justify-center">
-                      <span className="text-white/90 text-[9px] font-medium" style={{ fontFamily: SF }}>
+                   <div className="absolute top-1.5 right-1.5 bg-white/10 px-1.5 py-[2px] rounded-[5px] flex items-center justify-center">
+                      <span className="text-white/90 text-[8px] font-medium" style={{ fontFamily: SF }}>
                         {tagMode === "activity" ? "👑 OG Member" : tagMode === "join_date" ? "joined 1mo 3d" : "🛡️ Custom"}
                       </span>
                    </div>
@@ -492,13 +519,13 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
                  {/* Right: Picker List */}
                  <div 
-                   className="relative h-[120px] w-[110px] shrink-0"
+                   className="relative h-[90px] w-[110px] shrink-0"
                    style={{ 
                      WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)",
                      maskImage: "linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)"
                    }}
                  >
-                   <div className="absolute top-[40px] w-full h-[40px] border-y-[1.5px] border-[#60a5fa] pointer-events-none z-10" />
+                   <div className="absolute top-[30px] w-full h-[30px] border-y-[1.5px] border-[#60a5fa] pointer-events-none z-10" />
                    
                    <div 
                      ref={pickerRef}
@@ -506,14 +533,14 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
                      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                      onScroll={(e) => {
                         const top = e.currentTarget.scrollTop;
-                        const index = Math.round(top / 40);
+                        const index = Math.round(top / 30);
                         const modes = ["activity", "join_date", "custom"];
                         if (modes[index] && tagMode !== modes[index]) {
                           setTagMode(modes[index]);
                         }
                      }}
                    >
-                     <div className="h-[40px] shrink-0" />
+                     <div className="h-[30px] shrink-0" />
                      {["Activity", "Join Date", "Custom"].map((m, idx) => {
                        const modeKey = m.toLowerCase().replace(' ', '_');
                        const isSelected = tagMode === modeKey;
@@ -523,17 +550,17 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
                            onClick={() => {
                              setTagMode(modeKey);
                              if (pickerRef.current) {
-                               pickerRef.current.scrollTo({ top: idx * 40, behavior: "smooth" });
+                               pickerRef.current.scrollTo({ top: idx * 30, behavior: "smooth" });
                              }
                            }}
-                           className={`h-[40px] w-full flex items-center justify-center snap-center transition-all duration-200 cursor-pointer ${isSelected ? 'text-white text-[15px] font-medium' : 'text-[#8e8e93] text-[14px] opacity-60'}`}
+                           className={`h-[30px] w-full flex items-center justify-center snap-center transition-all duration-200 cursor-pointer ${isSelected ? 'text-white text-[15px] font-medium' : 'text-[#8e8e93] text-[14px] opacity-60'}`}
                            style={{ fontFamily: SF }}
                          >
                            {m}
                          </div>
                        )
                      })}
-                     <div className="h-[40px] shrink-0" />
+                     <div className="h-[30px] shrink-0" />
                    </div>
                  </div>
 
@@ -583,6 +610,21 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
           transform: translateX(-100%);
           animation: shimmer 5s infinite linear;
         }
+        .ripple {
+          position: absolute;
+          border-radius: 50%;
+          transform: scale(0);
+          animation: ripple-anim 600ms linear;
+          background-color: rgba(150, 150, 150, 0.25);
+          pointer-events: none;
+          z-index: 0;
+        }
+        @keyframes ripple-anim {
+          to {
+            transform: scale(4);
+            opacity: 0;
+          }
+        }
       `}</style>
       <SubHeader title="Group Moderation" />
       
@@ -601,42 +643,46 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         <div ref={dropdownRef} className="relative pt-1 shrink-0">
           <button 
             onClick={() => setShowGroupDropdown(!showGroupDropdown)}
-            className="w-full bg-[#111111] rounded-[20px] px-3 py-2 flex items-center gap-3 active:bg-[#1c1c1e] transition-colors shadow-md"
+            onPointerDown={createRipple}
+            className="w-full bg-[#111111] rounded-[20px] px-3 py-2 flex items-center gap-3 active:bg-[#1c1c1e] transition-colors shadow-md overflow-hidden relative"
           >
             <div className="w-[36px] h-[36px] shrink-0 rounded-full bg-[#1c1c1e] flex items-center justify-center text-[#8e8e93] font-medium text-[15px]" style={{ fontFamily: SFD }}>
               {initials}
             </div>
             
-            <div className="flex-1 flex flex-col text-left overflow-hidden">
+            <div className="flex-1 flex flex-col text-left overflow-hidden relative z-10">
               <span className="text-[#8e8e93] text-[13px] font-medium leading-tight" style={{ fontFamily: SF }}>Selected Group</span>
               <span className="text-white text-[16px] font-semibold truncate leading-tight mt-0.5" style={{ fontFamily: SF }}>{selectedGroupTitle}</span>
             </div>
             
-            <div className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center shrink-0 relative z-10">
               <ChevronDown className={`w-4 h-4 text-[#8e8e93] transition-transform ${showGroupDropdown ? "rotate-180" : ""}`} />
             </div>
           </button>
 
           {/* Group Dropdown */}
           {showGroupDropdown && (
-            <div className="absolute top-full mt-3 w-full bg-[#111111] rounded-[24px] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-              {groups.length === 0 ? (
-                <div className="p-4 text-center text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>
-                  No groups found.
-                </div>
-              ) : (
-                groups.map((g, i) => (
-                  <button 
-                    key={g.chat_id}
-                    onClick={() => { setSelectedGroupId(g.chat_id); setShowGroupDropdown(false); }}
-                    className="w-full text-left px-5 py-4 text-white active:bg-white/5 transition-colors flex items-center justify-between"
-                    style={{ fontFamily: SF, fontSize: "16px", borderBottom: i === groups.length - 1 ? "none" : "1px solid #1c1c1e" }}
-                  >
-                    <span className="truncate">{g.chat_title}</span>
-                    {g.chat_id === selectedGroupId && <Check className="w-5 h-5 text-[#60a5fa]" />}
-                  </button>
-                ))
-              )}
+            <div className="absolute top-1 left-0 w-full bg-[#111111] rounded-[20px] shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-white/5">
+              <div className="max-h-[250px] overflow-y-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                {groups.length === 0 ? (
+                  <div className="p-4 text-center text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>
+                    No groups found.
+                  </div>
+                ) : (
+                  groups.map((g, i) => (
+                    <button 
+                      key={g.chat_id}
+                      onClick={() => { setSelectedGroupId(g.chat_id); setShowGroupDropdown(false); }}
+                      onPointerDown={createRipple}
+                      className="w-full text-left px-5 py-4 text-white active:bg-white/5 transition-colors flex items-center justify-between relative overflow-hidden"
+                      style={{ fontFamily: SF, fontSize: "16px", borderBottom: i === groups.length - 1 ? "none" : "1px solid #1c1c1e" }}
+                    >
+                      <span className="truncate relative z-10">{g.chat_title}</span>
+                      {g.chat_id === selectedGroupId && <Check className="w-5 h-5 text-[#60a5fa] relative z-10" />}
+                    </button>
+                  ))
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -701,10 +747,11 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             href="https://t.me/NoirHereBot?startgroup=true" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="w-full bg-[#111111] rounded-[20px] px-4 py-3 flex items-center justify-between active:bg-[#1c1c1e] transition-colors shadow-sm group"
+            onPointerDown={createRipple}
+            className="w-full bg-[#111111] rounded-[20px] px-4 py-3 flex items-center justify-between active:bg-[#1c1c1e] transition-colors shadow-sm group relative overflow-hidden"
           >
-            <span className="text-[#60a5fa] font-semibold text-[16px]" style={{ fontFamily: SF }}>Add a new group</span>
-            <div className="flex items-center justify-center shrink-0 group-active:scale-95 transition-transform">
+            <span className="text-[#60a5fa] font-semibold text-[16px] relative z-10" style={{ fontFamily: SF }}>Add a new group</span>
+            <div className="flex items-center justify-center shrink-0 group-active:scale-95 transition-transform relative z-10">
                <Plus className="w-5 h-5 text-[#60a5fa]" strokeWidth={2.5} />
             </div>
           </a>
