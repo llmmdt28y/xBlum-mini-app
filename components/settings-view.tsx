@@ -1519,7 +1519,7 @@ export function SettingsView({
       
       <SubHeader title="Settings" />
 
-      <div className="px-4 pt-4 pb-40 space-y-6">
+      <div className="px-4 pt-4 space-y-6">
 
         {/* ── Profile ── */}
         <Section title="Profile">
@@ -1607,6 +1607,9 @@ export function SettingsView({
             last
           />
          </Section>
+
+         {/* Explicit spacer to ensure content clears the NavBar */}
+         <div className="h-[140px] w-full shrink-0" />
       </div>
     </div>
 
