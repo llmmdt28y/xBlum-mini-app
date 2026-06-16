@@ -163,14 +163,13 @@ export function PremiumView() {
         
         {/* Título: SuperNoir */}
         <div className="h-[64px] mb-8 mt-4 flex items-center justify-center relative w-full pointer-events-none z-20">
-          <div className="absolute inset-0 bg-[#ff6a00]/20 blur-3xl rounded-full" />
           <img 
             src="/SuperNoir-subscription-banner.png" 
             alt="SuperNoir" 
-            className="h-full w-auto object-contain drop-shadow-2xl pointer-events-none select-none"
-            draggable={false}
-            onContextMenu={(e) => e.preventDefault()}
-            style={imageProtectionStyle}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none" 
+            style={{ height: "120px", width: "auto", maxWidth: "none", ...imageProtectionStyle }}
+            draggable={false} 
+            onContextMenu={(e) => e.preventDefault()} 
           />
         </div>
 
@@ -252,7 +251,7 @@ export function PremiumView() {
         <button
           onClick={subscribe}
           disabled={isLoading || isPremium}
-          className="w-full max-w-sm py-[18px] shimmer-btn relative overflow-hidden bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-2 shadow-[0_0_20px_rgba(255,106,0,0.3)] shrink-0"
+          className="w-full max-w-sm py-[18px] shimmer-btn relative overflow-hidden bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-6 shadow-[0_0_20px_rgba(255,106,0,0.3)] shrink-0"
         >
           {isPremium ? (
             <span className="relative z-10">SuperNoir Active</span>
