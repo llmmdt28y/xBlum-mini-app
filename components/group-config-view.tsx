@@ -46,7 +46,7 @@ function Section({ title, footer, children, rightAction }: { title?: string; foo
           {rightAction && <div>{rightAction}</div>}
         </div>
       )}
-      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] relative">
+      <div className="rounded-[24px] overflow-hidden shadow-lg bg-[#111111] relative">
         {children}
       </div>
       {footer && (
@@ -139,7 +139,7 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "" }:
 }
 
 const TelegramInputGroup = ({ children }: { children: React.ReactNode }) => (
-  <div className="bg-[#111111] rounded-[24px] overflow-hidden flex flex-col mb-4 border border-white/5 shadow-lg">
+  <div className="bg-[#111111] rounded-[24px] overflow-hidden flex flex-col mb-4 shadow-lg">
     {children}
   </div>
 )
@@ -470,7 +470,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
           {autoTagsEnabled && (
             <div className="flex flex-col animate-in fade-in duration-300">
                <h3 className="text-[#60a5fa] font-semibold text-[15px] mb-2 px-4" style={{ fontFamily: SF }}>Appearance & Mode</h3>
-               <div className="bg-[#111111] rounded-[20px] border border-white/5 p-3 flex items-center shadow-lg relative overflow-hidden">
+               <div className="bg-[#111111] rounded-[20px] p-3 flex items-center shadow-lg relative overflow-hidden">
                  
                  {/* Left: Preview Card */}
                  <div className="flex-1 bg-[#1c1c1e] rounded-[14px] p-2.5 relative overflow-hidden flex items-center mr-3 h-[74px]">
@@ -592,7 +592,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
           <img 
             src="/group-moderation-emoji.webp" 
             alt="Group Moderation Emoji" 
-            className="w-24 h-24 object-contain pointer-events-none select-none drop-shadow-2xl"
+            className="w-32 h-32 object-contain pointer-events-none select-none drop-shadow-2xl"
             draggable={false}
           />
         </div>
@@ -601,7 +601,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         <div ref={dropdownRef} className="relative pt-1 shrink-0">
           <button 
             onClick={() => setShowGroupDropdown(!showGroupDropdown)}
-            className="w-full bg-[#111111] border border-white/5 rounded-[20px] px-3 py-2 flex items-center gap-3 active:bg-[#1c1c1e] transition-colors shadow-md"
+            className="w-full bg-[#111111] rounded-[20px] px-3 py-2 flex items-center gap-3 active:bg-[#1c1c1e] transition-colors shadow-md"
           >
             <div className="w-[36px] h-[36px] shrink-0 rounded-full bg-[#1c1c1e] flex items-center justify-center text-[#8e8e93] font-medium text-[15px]" style={{ fontFamily: SFD }}>
               {initials}
@@ -619,7 +619,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
 
           {/* Group Dropdown */}
           {showGroupDropdown && (
-            <div className="absolute top-full mt-3 w-full bg-[#111111] border border-white/5 rounded-[24px] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute top-full mt-3 w-full bg-[#111111] rounded-[24px] shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
               {groups.length === 0 ? (
                 <div className="p-4 text-center text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>
                   No groups found.
@@ -701,16 +701,16 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             href="https://t.me/NoirHereBot?startgroup=true" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="w-full bg-[#111111] border border-white/5 rounded-[16px] px-4 py-3.5 flex items-center justify-between active:bg-[#1c1c1e] transition-colors shadow-sm group"
+            className="w-full bg-[#111111] rounded-[20px] px-4 py-3 flex items-center justify-between active:bg-[#1c1c1e] transition-colors shadow-sm group"
           >
-            <span className="text-[#60a5fa] font-semibold text-[15px]" style={{ fontFamily: SF }}>Add a new group</span>
-            <div className="w-7 h-7 rounded-full bg-[#60a5fa]/10 flex items-center justify-center shrink-0 group-active:scale-95 transition-transform">
-               <Plus className="w-4 h-4 text-[#60a5fa]" strokeWidth={2.5} />
+            <span className="text-[#60a5fa] font-semibold text-[16px]" style={{ fontFamily: SF }}>Add a new group</span>
+            <div className="flex items-center justify-center shrink-0 group-active:scale-95 transition-transform">
+               <Plus className="w-5 h-5 text-[#60a5fa]" strokeWidth={2.5} />
             </div>
           </a>
-          <p className="px-4 text-[#8e8e93] text-[13px] mt-3 leading-relaxed text-center" style={{ fontFamily: SF }}>
+          <div className="px-4 mt-2 text-[#8e8e93] text-[13px] leading-snug" style={{ fontFamily: SF }}>
             Add Noir to your Telegram group to automatically moderate members, manage permissions, and assign custom titles based on chat activity.
-          </p>
+          </div>
         </div>
 
       </div>
