@@ -258,7 +258,7 @@ export function PremiumView() {
           ) : isLoading ? (
             <span className="relative z-10">Processing...</span>
           ) : timeLeft > 0 ? (
-            <span className="relative z-10">Claim 1 Month for Free</span>
+            <span className="relative z-10 text-[19px] font-extrabold tracking-tight">Claim 1 Month for Free</span>
           ) : (
             <div className="flex items-center justify-center gap-1.5 relative z-10">
               <span className="leading-none mt-[1px]">Subscribe for</span>
