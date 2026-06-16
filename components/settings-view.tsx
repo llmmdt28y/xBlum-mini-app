@@ -1519,7 +1519,7 @@ export function SettingsView({
       
       <SubHeader title="Settings" />
 
-      <div className="px-4 pt-4 pb-40 space-y-6" style={{ minHeight: "101dvh" }}>
+      <div className="px-4 pt-4 pb-40 space-y-6">
 
         {/* ── Profile ── */}
         <Section title="Profile">
