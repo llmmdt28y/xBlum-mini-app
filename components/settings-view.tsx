@@ -1513,7 +1513,8 @@ export function SettingsView({
   // ── Main settings page ─────────────────────────────────────────────────────
   return (
     <>
-    <div key="main" className={`flex-1 ${showReportModal ? 'overflow-hidden' : 'overflow-y-auto overscroll-none'} animate-in fade-in duration-500 ease-out`} style={{ background: "#000" }}>
+    {/* This is the main screen wrapper, ensuring fixed top-0 is not present here */}
+    <div key="main" className={`flex-1 ${showReportModal ? 'overflow-hidden' : 'overflow-y-auto overscroll-none'} animate-in fade-in duration-500 ease-out`} style={{ background: "#000000" }}>
        <style>{RIPPLE_STYLE}</style>
       
       <SubHeader title="Settings" />
