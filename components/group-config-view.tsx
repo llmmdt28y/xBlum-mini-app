@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react"
-import { ChevronRight, ChevronDown, Check, Shield, Zap, Users, MessageSquare, Save, Settings2, Trash2, Tags, BrickWall, PenOff } from "lucide-react"
+import { ChevronRight, ChevronDown, Check, Shield, Zap, Users, MessageSquare, Save, Settings2, Trash2, Tags, BrickWall, PenOff, Plus } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -586,15 +586,24 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
       `}</style>
       <SubHeader title="Group Moderation" />
       
-      <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-6 pb-6 space-y-6">
+      <div className="flex-1 flex flex-col overflow-y-auto px-4 pt-2 pb-6 space-y-5">
         
+        <div className="flex flex-col items-center justify-center pt-2 pb-0 shrink-0">
+          <img 
+            src="/group-moderation-emoji.webp" 
+            alt="Group Moderation Emoji" 
+            className="w-24 h-24 object-contain pointer-events-none select-none drop-shadow-2xl"
+            draggable={false}
+          />
+        </div>
+
         {/* Top Profile and Group Selector */}
-        <div ref={dropdownRef} className="relative pt-2 shrink-0">
+        <div ref={dropdownRef} className="relative pt-1 shrink-0">
           <button 
             onClick={() => setShowGroupDropdown(!showGroupDropdown)}
-            className="w-full bg-[#111111] border border-white/5 rounded-[24px] p-3 flex items-center gap-3 active:bg-[#1c1c1e] transition-colors shadow-lg"
+            className="w-full bg-[#111111] border border-white/5 rounded-[20px] px-3 py-2 flex items-center gap-3 active:bg-[#1c1c1e] transition-colors shadow-md"
           >
-            <div className="w-[44px] h-[44px] shrink-0 rounded-full bg-[#1c1c1e] flex items-center justify-center text-[#8e8e93] font-medium text-[18px]" style={{ fontFamily: SFD }}>
+            <div className="w-[36px] h-[36px] shrink-0 rounded-full bg-[#1c1c1e] flex items-center justify-center text-[#8e8e93] font-medium text-[15px]" style={{ fontFamily: SFD }}>
               {initials}
             </div>
             
@@ -692,12 +701,16 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
             href="https://t.me/NoirHereBot?startgroup=true" 
             target="_blank" 
             rel="noopener noreferrer" 
-            className="w-full shimmer-btn relative overflow-hidden flex items-center justify-center gap-2.5 py-3.5 rounded-full font-bold text-white shadow-lg active:scale-[0.98] transition-transform" 
-            style={{ background: "linear-gradient(135deg, #1d4ed8 0%, #7c3aed 100%)", fontFamily: SF, fontSize: "16px" }}
+            className="w-full bg-[#111111] border border-white/5 rounded-[16px] px-4 py-3.5 flex items-center justify-between active:bg-[#1c1c1e] transition-colors shadow-sm group"
           >
-             <Users className="w-[22px] h-[22px]" strokeWidth={2.5} />
-             <span className="relative z-10">Add New Group</span>
+            <span className="text-[#60a5fa] font-semibold text-[15px]" style={{ fontFamily: SF }}>Add a new group</span>
+            <div className="w-7 h-7 rounded-full bg-[#60a5fa]/10 flex items-center justify-center shrink-0 group-active:scale-95 transition-transform">
+               <Plus className="w-4 h-4 text-[#60a5fa]" strokeWidth={2.5} />
+            </div>
           </a>
+          <p className="px-4 text-[#8e8e93] text-[13px] mt-3 leading-relaxed text-center" style={{ fontFamily: SF }}>
+            Add Noir to your Telegram group to automatically moderate members, manage permissions, and assign custom titles based on chat activity.
+          </p>
         </div>
 
       </div>
