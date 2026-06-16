@@ -1372,7 +1372,7 @@ export function SettingsView({
          style={{ background: "#000", minHeight: "100dvh" }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Capabilities" />
-      <div className="px-4 pt-6 pb-28 space-y-6">
+      <div className="px-4 pt-6 pb-40 space-y-6">
 
         <Section title="Memory">
           <Row 
@@ -1437,7 +1437,7 @@ export function SettingsView({
         <style>{RIPPLE_STYLE}</style>
         <SubHeader title="" />
         
-        <div className="px-4 pt-10 pb-28 space-y-6">
+        <div className="px-4 pt-10 pb-40 space-y-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2.5">
               <h1 className="text-[28px] font-bold text-white leading-none" style={{ fontFamily: SFD }}>Usage Limits</h1>
@@ -1524,7 +1524,7 @@ export function SettingsView({
       
       <SubHeader title="Settings" />
 
-      <div className="px-4 pt-4 pb-28 space-y-6">
+      <div className="px-4 pt-4 pb-40 space-y-6">
 
         {/* ── Profile ── */}
         <Section title="Profile">
