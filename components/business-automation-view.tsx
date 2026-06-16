@@ -147,7 +147,7 @@ function Section({ title, footer, titleColor = "#60a5fa", children }: {
           <h2 className="text-[15px] font-semibold" style={{ fontFamily: SF, color: titleColor }}>{title}</h2>
         </div>
       )}
-      <div className="rounded-[24px] overflow-hidden shadow-lg border border-white/5 bg-[#111111] relative">
+      <div className="rounded-[24px] overflow-hidden shadow-lg bg-[#111111] relative">
         {children}
       </div>
       {footer && (
@@ -555,9 +555,9 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
 
       {/* ── NEW / EDIT ROLE ────────────────────────────────────────────────── */}
       {activePage === "new_role" && (
-        <div className="animate-in slide-in-from-right duration-300 w-full absolute inset-0 z-[70] bg-[#000000] flex flex-col" style={{ height: viewportHeight }}>
+        <div className="animate-in slide-in-from-right duration-300 w-full fixed top-0 left-0 w-full z-[70] bg-[#000000] flex flex-col" style={{ height: viewportHeight }}>
           <SubHeader title={editingRoleId ? "Edit Role" : "New Role"} />
-          <div className="px-5 pt-4 flex-1 w-full overflow-y-auto flex flex-col pb-8">
+          <div className="px-5 pt-4 flex-1 w-full overflow-y-auto overscroll-none flex flex-col pb-8">
             <ExpandingInput label="Name"   maxLength={64}   value={newRoleName}   onChange={setNewRoleName} />
             <ExpandingInput label="Prompt" maxLength={1024} value={newRolePrompt} onChange={setNewRolePrompt} />
             <p className="text-[#8e8e93] text-[13px] leading-[1.4] mt-[-16px] mb-6 px-1" style={{ fontFamily: SF }}>
@@ -567,8 +567,9 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
               <button
                 onClick={(e) => { createRipple(e as any); handleSaveRole() }}
                 disabled={!newRoleName.trim() || !newRolePrompt.trim()}
-                className="w-full bg-white text-black font-bold rounded-[14px] py-3.5 transition-opacity disabled:opacity-50 relative overflow-hidden"
-                style={{ fontSize: "16px", fontFamily: SF }}
+                {/* Button updated to blue rounded-full */}
+                className="w-full relative overflow-hidden isolate transform-gpu flex items-center justify-center py-3.5 rounded-full text-white font-bold active:opacity-80 transition-opacity shadow-lg disabled:opacity-70"
+                style={{ background: "#60a5fa", fontSize: "16px", fontFamily: SF, WebkitMaskImage: '-webkit-radial-gradient(white, black)' }}
               >
                 <span className="relative z-10">{editingRoleId ? "Save Changes" : "Create"}</span>
               </button>
@@ -578,17 +579,18 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
       )}
 
       {/* ── SCROLL CONTAINER ──────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 w-full px-0 relative">
+      <div className="flex-1 overflow-y-auto overscroll-none overflow-x-hidden pb-20 w-full px-0 relative">
 
         {/* ── MAIN ──────────────────────────────────────────────────────────── */}
         {activePage === "main" && (
           <div className="animate-in fade-in duration-300 w-full">
-            <SubHeader title="AI Chat" />
+            {/* Updated title to Chat Automation */}
+            <SubHeader title="Chat Automation" />
 
             <div className="flex justify-center mt-6 mb-10">
               <img
                 src="/animatedemojies_agadmqiaasojkec.webp"
-                alt="AI Chat Robot"
+                alt="Chat Automation Robot"
                 className="w-[84px] h-[84px] object-contain drop-shadow-2xl pointer-events-none select-none"
                 draggable={false}
               />
@@ -778,7 +780,7 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
                 <div className="animate-in fade-in slide-in-from-top-2 duration-300 w-full">
 
                   {/* Message composer */}
-                  <div className="bg-[#111111] border border-white/5 shadow-lg rounded-[24px] mb-4 p-4">
+                  <div className="bg-[#111111] shadow-lg rounded-[24px] mb-4 p-4">
                     <div className="flex items-center mb-4 px-2">
                       <div className="w-[52px] h-[52px] rounded-full overflow-hidden bg-[#1c1c1e] flex items-center justify-center shrink-0 border border-white/5 shadow-inner">
                         {tgUser?.photo_url
@@ -817,10 +819,12 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
                         })
                       }}
                       disabled={!localAfkText.trim()}
-                      className="w-full text-white font-bold rounded-[14px] py-3.5 mt-2 relative overflow-hidden flex items-center justify-center gap-2 transition-all duration-200"
+                      {/* Save Message button updated to rounded-full */}
+                      className="w-full relative overflow-hidden isolate transform-gpu flex items-center justify-center gap-2 py-3.5 mt-2 rounded-full text-white font-bold active:opacity-80 transition-all duration-200 shadow-lg disabled:opacity-70"
                       style={{
                         fontSize: "16px", fontFamily: SF,
                         background: "#60a5fa",
+                        WebkitMaskImage: '-webkit-radial-gradient(white, black)',
                         opacity: !localAfkText.trim() ? 0.5 : 1
                       }}
                     >
