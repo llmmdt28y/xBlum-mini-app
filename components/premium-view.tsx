@@ -3,9 +3,37 @@
 import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
 
+const SlidingNumber = ({ value }: { value: number }) => {
+  const str = String(value).padStart(2, '0');
+  return (
+    <div className="flex">
+      {str.split('').map((char, index) => (
+        <span key={`${index}-${char}`} className="inline-block animate-[slideDownDigit_0.25s_ease-out]">
+          {char}
+        </span>
+      ))}
+    </div>
+  );
+};
+
 export function PremiumView() {
   const { setCurrentView, isPremium, openInvoice } = useApp()
   const [isLoading, setIsLoading] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(() => 4 * 24 * 60 * 60 * 1000);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft(prev => (prev > 1000 ? prev - 1000 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const timerValues = {
+    days: Math.floor(timeLeft / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((timeLeft / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((timeLeft / 1000 / 60) % 60),
+    seconds: Math.floor((timeLeft / 1000) % 60),
+  };
 
   // ── Botón Nativo de Telegram ──
   useEffect(() => {
@@ -67,11 +95,15 @@ export function PremiumView() {
           transform: translateX(-100%);
           animation: shimmer-shine 3.5s infinite linear;
         }
+        @keyframes slideDownDigit {
+          from { transform: translateY(-8px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       
-      <div className="flex-1 flex flex-col items-center pt-[calc(var(--tg-safe-area-inset-top,24px)+48px)] px-4 relative z-10 overflow-y-auto no-scrollbar pb-8">
+      <div className="flex-1 flex flex-col items-center pt-[calc(var(--tg-safe-area-inset-top,24px)+24px)] px-4 relative z-10 overflow-hidden pb-6">
         
         {/* Título: SuperNoir */}
         <div className="h-[64px] mb-8 mt-4 flex items-center justify-center relative w-full pointer-events-none z-20">
@@ -85,8 +117,26 @@ export function PremiumView() {
           />
         </div>
 
-        {/* Cuadros Comparativos (Estilo Mira Pro) */}
-        <div className="w-full max-w-md grid grid-cols-2 gap-2 mb-10">
+        {/* Timer Container */}
+        <div className="flex items-center justify-center mb-6 w-full max-w-md shrink-0">
+          <div className="flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-[16px] border-[1.5px] border-dashed border-[#ff6a00]/60 bg-[#ff6a00]/5 text-[#ff6a00] font-bold tracking-widest text-[15px]" style={{ fontFamily: "SF Pro Display, -apple-system, sans-serif" }}>
+            <span className="text-white/80 text-[13px] font-semibold mr-1 tracking-normal">Offer ends in:</span>
+            <SlidingNumber value={timerValues.days} /><span className="text-[13px] text-[#ff6a00]/70 ml-[1px] -mr-[1px]">d</span><span className="mx-1 opacity-50 text-[#ff6a00]">:</span>
+            <SlidingNumber value={timerValues.hours} /><span className="text-[13px] text-[#ff6a00]/70 ml-[1px] -mr-[1px]">h</span><span className="mx-1 opacity-50 text-[#ff6a00]">:</span>
+            <SlidingNumber value={timerValues.minutes} /><span className="text-[13px] text-[#ff6a00]/70 ml-[1px] -mr-[1px]">m</span><span className="mx-1 opacity-50 text-[#ff6a00]">:</span>
+            <SlidingNumber value={timerValues.seconds} /><span className="text-[13px] text-[#ff6a00]/70 ml-[1px] -mr-[1px]">s</span>
+          </div>
+        </div>
+
+        {/* Cuadros Comparativos Scrollables */}
+        <div className="w-full max-w-md flex-1 overflow-y-auto no-scrollbar relative z-10 mb-4 mask-image-bottom">
+           <style>{`
+             .mask-image-bottom {
+               mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+               -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+             }
+           `}</style>
+          <div className="grid grid-cols-2 gap-2 pb-[30px]">
           
           {/* Columna Free */}
           <div className="flex flex-col mt-[2px]">
@@ -138,9 +188,8 @@ export function PremiumView() {
             </div>
           </div>
 
+          </div>
         </div>
-
-        <div className="flex-1" />
 
         {/* Upgrade Button */}
         <button
