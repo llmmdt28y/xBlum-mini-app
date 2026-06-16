@@ -788,13 +788,13 @@ export function ScheduleView() {
 
                  <div className="flex flex-col gap-3 mt-2">
                     <button onClick={handleTogglePause} className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[20px] bg-[#1c1c1e] active:scale-[0.98] transition-transform">
-                       {pausedTasks.has(selectedTask.id) ? (
+                       {selectedTask.status === "PAUSED" ? (
                          <Play className="w-5 h-5 text-white fill-white" />
                        ) : (
                          <Pause className="w-5 h-5 text-white fill-white" />
                        )}
                        <span className="text-white font-bold text-[16px]" style={{fontFamily: SF}}>
-                         {pausedTasks.has(selectedTask.id) ? "Continue" : "Pause"}
+                         {selectedTask.status === "PAUSED" ? "Continue" : "Pause"}
                        </span>
                     </button>
                     <button onClick={() => handleDelete(selectedTask.id)} className="w-full flex items-center justify-center gap-2.5 py-4 rounded-[20px] bg-[#1c1c1e] active:scale-[0.98] transition-transform">
