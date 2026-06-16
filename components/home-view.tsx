@@ -179,7 +179,7 @@ const SlidingNumber = ({ value }: { value: number }) => {
 
 export function HomeView() {
   const { setCurrentView, userPreferences } = useApp()
-  const [timeLeft, setTimeLeft] = useState(() => 2 * 24 * 60 * 60 * 1000);
+  const [timeLeft, setTimeLeft] = useState(() => 4 * 24 * 60 * 60 * 1000);
   const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false)
   const [isBotIntModalOpen, setIsBotIntModalOpen] = useState(false)
   const [botIntConfig, setBotIntConfig] = useState({ enabled: true, moderation_react: true, auto_execute_mod: false, file_summarize: true })
@@ -370,7 +370,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-28">
+    <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-40">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -496,12 +496,12 @@ export function HomeView() {
 
           <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
             
-            {/* Card 1: AI Chat */}
+            {/* Card 1: Chat Automation */}
             <div className="bg-[#151517] p-4 rounded-[20px] w-[176px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
               <div>
                 <MessageCirclePlus className="w-[20px] h-[20px] text-[#d4a373] mb-[10px]" />
                 <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
-                  Configure AI Chat
+                  Configure Chat Automation
                 </h3>
                 <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-4" style={{ fontFamily: SF }}>
                   Auto-reply and manage spam with Business Agent.
@@ -659,7 +659,7 @@ export function HomeView() {
                   <img 
                     src="/NoirLogo.png" 
                     alt="Noir Logo" 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-cover pointer-events-none select-none" 
                     draggable={false} 
                     onContextMenu={(e) => e.preventDefault()}
                     style={imageProtectionStyle}
@@ -807,7 +807,7 @@ export function HomeView() {
               </div>
 
               {/* Connectors List using the exact style from menu */}
-              <div className="overflow-y-auto hide-scrollbar pb-10 flex-1 px-4">
+              <div className="overflow-y-auto overscroll-none hide-scrollbar pb-10 flex-1 px-4">
                 <div className="w-full bg-[#151517] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
                   <div className="flex flex-col">
                     {isSearching ? (
@@ -900,7 +900,7 @@ export function HomeView() {
                 )}
               </div>
               
-              <div className="p-4 overflow-y-auto hide-scrollbar space-y-5 pb-8 flex-1">
+              <div className="p-4 overflow-y-auto overscroll-none hide-scrollbar space-y-5 pb-8 flex-1">
                 <p className="text-[#e5e5ea] text-[14px]" style={{ fontFamily: SF }}>{activeConnectorData.description}</p>
                 {isConn && (
                   <div className="px-5 py-3 rounded-[24px] bg-white/5 flex items-center justify-between">
@@ -949,7 +949,7 @@ export function HomeView() {
       {isBotIntModalOpen && (
          <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsBotIntModalOpen(false)} />
-          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#2c2c2e] flex flex-col max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 transform-gpu">
+          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#2c2c2e] flex flex-col max-h-[90vh] overflow-y-auto overscroll-none animate-in slide-in-from-bottom duration-300 transform-gpu">
              <div className="w-10 h-1 bg-[#3a3a3c] rounded-full mx-auto mb-5 shrink-0" />
              
              <div className="flex items-center justify-between mb-6">
