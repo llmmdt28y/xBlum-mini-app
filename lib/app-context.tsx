@@ -61,6 +61,7 @@ export type AppState = {
   my_rank_weekly: { rank: number; tp: number }
   selectedGroupId: number | null
   modelTokenStatus: Record<string, ModelTokenInfo> | null
+  isNavHidden: boolean
 }
 
 export type AppContextType = AppState & {
@@ -84,6 +85,7 @@ export type AppContextType = AppState & {
   t: (key: string) => string
   setSelectedGroupId: (id: number | null) => void
   refreshModelTokenStatus: () => Promise<void>
+  setIsNavHidden: (b: boolean) => void
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -147,6 +149,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     my_rank_weekly: { rank: 0, tp: 0 },
     selectedGroupId: null,
     modelTokenStatus: null,
+    isNavHidden: false,
   })
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
@@ -373,6 +376,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     t,
     setSelectedGroupId:     id => setState(s => ({ ...s, selectedGroupId: id })),
     refreshModelTokenStatus,
+    setIsNavHidden: b => setState(s => ({ ...s, isNavHidden: b })),
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
