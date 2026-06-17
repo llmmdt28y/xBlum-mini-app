@@ -642,7 +642,7 @@ export function ScheduleView() {
     switch (rt) {
       case "once": return `Once at ${timeStr}`
       case "daily": return `Daily at ${timeStr}`
-      case "weekly": return `${DOW_OPTIONS.find(d=>d.value===day)?.label || day}s at ${timeStr}`
+      case "weekly": return `${day ? (DOW_OPTIONS.find(d=>d.value===day)?.label || day) + "s" : "Weekly"} at ${timeStr}`
       case "monthly": return `Monthly at ${timeStr}`
       default: return `At ${timeStr}`
     }
@@ -689,7 +689,7 @@ export function ScheduleView() {
   )
 
   return (
-    <div className="flex-1 overflow-y-auto overscroll-none animate-in fade-in duration-500 ease-out relative" style={{ background: "#000000", height: "var(--tg-viewport-height, 100dvh)", maxHeight: "var(--tg-viewport-height, 100dvh)" }}>
+    <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-hidden bg-[#000000] text-white select-none relative" style={{ height: "var(--tg-viewport-height, 100dvh)", maxHeight: "var(--tg-viewport-height, 100dvh)" }}>
       <style>{RIPPLE_STYLE}</style>
       {(isCreating || !!selectedTask) && <style>{`.liquid-glass-panel { opacity: 0 !important; pointer-events: none !important; }`}</style>}
 
@@ -728,7 +728,8 @@ export function ScheduleView() {
       </div>
 
       {/* ── Content ── */}
-      <div className="px-5 mt-3 flex flex-col relative z-10">
+      <div className="relative flex-1 overflow-hidden min-h-0 mt-3 z-10" style={{ marginBottom: "calc(var(--tg-safe-area-inset-bottom, 16px) + 130px)" }}>
+        <div className="px-5 h-full flex flex-col overflow-y-auto no-scrollbar pb-2">
         
         
         {/* Compact Mocks */}
@@ -811,13 +812,10 @@ export function ScheduleView() {
              <span className="text-[#8e8e93] text-[15px]" style={{fontFamily: SF}}>No active tasks</span>
           </div>
         )}
-        
-        {/* Explicit spacer to ensure content clears the NavBar & Pill */}
-        <div className="h-[140px] w-full shrink-0" />
+        </div>
+        {/* Fade gradient inside the scroll container, fades tasks as they reach the bottom margin */}
+        <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none z-30" style={{ background: "linear-gradient(to top, #000000 10%, rgba(0,0,0,0) 100%)" }} />
       </div>
-
-      {/* Bottom Fade Gradient - Fixed to screen to fade out tasks under the pill */}
-      <div className="fixed bottom-0 left-0 right-0 h-[220px] pointer-events-none z-30" style={{ background: "linear-gradient(to top, #000000 35%, rgba(0,0,0,0) 100%)" }} />
 
       {/* ── Bottom Bar ── */}
       <div className="fixed left-4 right-4 z-40 p-2 rounded-full flex items-center justify-between shadow-2xl" 
