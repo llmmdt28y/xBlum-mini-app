@@ -689,7 +689,7 @@ export function ScheduleView() {
   )
 
   return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto min-h-screen bg-[#000000] text-white select-none relative">
+    <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-hidden bg-[#000000] text-white select-none relative" style={{ height: "var(--tg-viewport-height, 100dvh)", maxHeight: "var(--tg-viewport-height, 100dvh)" }}>
       <style>{RIPPLE_STYLE}</style>
       {(isCreating || !!selectedTask) && <style>{`.liquid-glass-panel { opacity: 0 !important; pointer-events: none !important; }`}</style>}
 
@@ -728,7 +728,8 @@ export function ScheduleView() {
       </div>
 
       {/* ── Content ── */}
-      <div className="px-5 mt-3 pb-48 flex flex-col overflow-y-auto no-scrollbar relative z-10 flex-1">
+      <div className="relative flex-1 overflow-hidden mt-3 z-10">
+        <div className="px-5 h-full pb-[180px] flex flex-col overflow-y-auto no-scrollbar">
         
         {/* Compact Mocks */}
         <div className="grid grid-cols-2 gap-3 mb-6">
@@ -810,6 +811,9 @@ export function ScheduleView() {
              <span className="text-[#8e8e93] text-[15px]" style={{fontFamily: SF}}>No active tasks</span>
           </div>
         )}
+        </div>
+        {/* Bottom Fade Gradient */}
+        <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none" style={{ background: "linear-gradient(to top, #000000 20%, rgba(0,0,0,0) 100%)" }} />
       </div>
 
       {/* ── Bottom Bar ── */}
