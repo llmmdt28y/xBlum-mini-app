@@ -348,7 +348,7 @@ export function ScheduleView() {
   const generalTasksCount = tasks.filter(t => !isTaskDaily(t)).length
 
   // Counters for the UI
-  const limitGeneral = isPremium ? 15 : 5
+  const limitGeneral = isPremium ? 10 : 5
   const limitDaily = isPremium ? 5 : 2
   const limitTotal = limitGeneral + limitDaily
   
@@ -362,6 +362,16 @@ export function ScheduleView() {
   const [isCreating, setIsCreating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [title, setTitle] = useState("")
+  const [showAllHistory, setShowAllHistory] = useState(false)
+  const { setIsNavHidden } = useApp()
+
+  useEffect(() => {
+    setIsNavHidden(!!selectedTask || isCreating)
+    return () => setIsNavHidden(false)
+  }, [selectedTask, isCreating, setIsNavHidden])
+
+  // Refs for infinite scroll
+  const observer = useRef<IntersectionObserver | null>(null)
   const [prompt, setPrompt] = useState("")
   const [frequency, setFrequency] = useState("Daily")
   const [time, setTime] = useState("08:00")
@@ -459,11 +469,31 @@ export function ScheduleView() {
     }
 
     if (frequency === "Daily" && dailyTasksCount >= limitDaily) {
-      showToast(`You can only have ${limitDaily} daily tasks active simultaneously.`, "error")
+      triggerVibration('error');
+      const tg = getTg();
+      if (tg?.showConfirm) {
+        tg.showConfirm(`You can only have ${limitDaily} daily tasks. Upgrade to Premium for more!`, (ok: boolean) => {
+          if (ok) setCurrentView("premium" as any);
+        });
+      } else {
+        if (confirm(`You can only have ${limitDaily} daily tasks. Upgrade to Premium for more!`)) {
+          setCurrentView("premium" as any);
+        }
+      }
       return
     }
     if (frequency !== "Daily" && generalTasksCount >= limitGeneral) {
-      showToast(`You have reached the limit of ${limitGeneral} general tasks.`, "error")
+      triggerVibration('error');
+      const tg = getTg();
+      if (tg?.showConfirm) {
+        tg.showConfirm(`You have reached the limit of ${limitGeneral} general tasks. Upgrade to Premium!`, (ok: boolean) => {
+          if (ok) setCurrentView("premium" as any);
+        });
+      } else {
+        if (confirm(`You have reached the limit of ${limitGeneral} general tasks. Upgrade to Premium!`)) {
+          setCurrentView("premium" as any);
+        }
+      }
       return
     }
 
@@ -515,6 +545,39 @@ export function ScheduleView() {
     if (!selectedTask) return;
     triggerVibration('light')
     const isPaused = selectedTask.status === "PAUSED"
+
+    if (isPaused) {
+      const isDaily = isTaskDaily(selectedTask);
+      if (isDaily && dailyTasksCount >= limitDaily) {
+        triggerVibration('error');
+        const tg = getTg();
+        if (tg?.showConfirm) {
+          tg.showConfirm(`You can only have ${limitDaily} active daily tasks. Upgrade to Premium for more!`, (ok: boolean) => {
+            if (ok) setCurrentView("premium" as any);
+          });
+        } else {
+          if (confirm(`You can only have ${limitDaily} active daily tasks. Upgrade to Premium for more!`)) {
+            setCurrentView("premium" as any);
+          }
+        }
+        return;
+      }
+      if (!isDaily && generalTasksCount >= limitGeneral) {
+        triggerVibration('error');
+        const tg = getTg();
+        if (tg?.showConfirm) {
+          tg.showConfirm(`You can only have ${limitGeneral} active general tasks. Upgrade to Premium for more!`, (ok: boolean) => {
+            if (ok) setCurrentView("premium" as any);
+          });
+        } else {
+          if (confirm(`You can only have ${limitGeneral} active general tasks. Upgrade to Premium for more!`)) {
+            setCurrentView("premium" as any);
+          }
+        }
+        return;
+      }
+    }
+
     try {
       const data = await apiPost("/api/schedule_pause", {
         item_id: selectedTask.id,
@@ -524,6 +587,8 @@ export function ScheduleView() {
         triggerVibration('success')
         await fetchItems()
         setSelectedTask(prev => prev ? { ...prev, status: isPaused ? "ACTIVE" : "PAUSED" } : null)
+      } else {
+        showToast(data.message || "Could not complete action.", "error")
       }
     } catch (e) { console.error(e) }
   }
@@ -626,7 +691,7 @@ export function ScheduleView() {
   return (
     <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto min-h-screen bg-[#000000] text-white select-none relative">
       <style>{RIPPLE_STYLE}</style>
-      {(isCreating || !!selectedTask) && <style>{`#main-nav-bar { display: none !important; }`}</style>}
+      {(isCreating || !!selectedTask) && <style>{`.liquid-glass-panel { opacity: 0 !important; pointer-events: none !important; }`}</style>}
 
       {/* ── Top Calendar ── */}
       <div className="pt-[calc(var(--tg-safe-area-inset-top,24px)+20px)] relative z-10 flex flex-col">
@@ -803,13 +868,20 @@ export function ScheduleView() {
                     </button>
                  </div>
 
-                 <div className="mt-4">
-                    <h3 className="text-white text-[17px] font-semibold mb-3" style={{fontFamily: SFD}}>History</h3>
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between mb-3">
+                       <h3 className="text-white text-[17px] font-semibold" style={{fontFamily: SFD}}>History</h3>
+                       {taskHistory.length > 3 && (
+                          <button onClick={() => setShowAllHistory(!showAllHistory)} className="text-[#33b5f7] text-[13px] font-medium active:opacity-70 transition-opacity" style={{fontFamily: SF}}>
+                             {showAllHistory ? "Hide" : "View All"}
+                          </button>
+                       )}
+                    </div>
                     {loadingHistory ? (
                       <div className="flex items-center justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-[#555558]"/></div>
                     ) : taskHistory.length > 0 ? (
                       <div className="flex flex-col gap-2">
-                        {taskHistory.map((h, idx) => {
+                        {taskHistory.slice(0, showAllHistory ? undefined : 3).map((h, idx) => {
                           const firedDate = new Date(h.fired_at)
                           const dateStr = firedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                           const timeStr = firedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
