@@ -732,13 +732,9 @@ export function ScheduleView() {
         </button>
       </div>
 
-      {/* ── Content ── */}
-      <div className="relative flex-1 w-full mt-3 z-10">
-        <div className="absolute top-0 left-0 right-0 bottom-[calc(var(--tg-safe-area-inset-bottom,16px)+130px)] px-5 flex flex-col overflow-y-auto custom-scrollbar">
-        
-        
-        {/* Compact Mocks */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+      {/* Compact Mocks (Fixed) */}
+      <div className="px-5 mt-3 shrink-0">
+        <div className="grid grid-cols-2 gap-3">
            {suggestedTasks.map((mock, idx) => (
               <div key={idx} onClick={() => openMockCard(mock)} className="w-full bg-[#1c1c1e] rounded-[16px] p-3.5 flex flex-col gap-1 cursor-pointer active:bg-[#2c2c2e] transition-colors shadow-sm">
                  <span className="text-white text-[15px] font-bold tracking-tight leading-tight line-clamp-1" style={{ fontFamily: SFD }}>
@@ -750,6 +746,11 @@ export function ScheduleView() {
               </div>
            ))}
         </div>
+      </div>
+
+      {/* ── Content ── */}
+      <div className="relative flex-1 w-full mt-4 z-10">
+        <div className="absolute top-0 left-0 right-0 bottom-[calc(var(--tg-safe-area-inset-bottom,16px)+130px)] px-5 flex flex-col overflow-y-auto custom-scrollbar">
 
         {/* Real Tasks List */}
         {loadingItems ? (
