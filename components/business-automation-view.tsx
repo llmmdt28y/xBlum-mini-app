@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react"
 import {
   Loader2,
   ChevronRight, Clock, MessageSquare,
-  CircleUserRound, Plus, Pencil, Copy, Trash2, UserRoundPen
+  CircleUserRound, Plus, Pencil, Copy, Trash2, UserRoundPen, Lock
 } from "lucide-react"
 
 const SF    = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
