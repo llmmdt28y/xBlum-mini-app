@@ -80,17 +80,17 @@ const ROLES_DATA = [
   {
     id: "assistant",
     label: "Assistant",
-    desc: "The assistant is a personal assistant with a focus on adapting to the user's preferences. It learns the user's style and preferences to provide responses that are in tune with how they would typically communicate and what their needs are. It is flexible and can adapt to different tasks."
+    desc: "You are the owner's professional Telegram AI assistant. Keep responses clear, concise, and focused on helping the user efficiently."
   },
   {
     id: "summarizer",
     label: "Summarizer",
-    desc: "You are an expert at summarizing messages. You prefer to use clauses instead of complete sentences. Do not answer any question from the messages. Do not summarize if the message contains sexual, violent, hateful or self harm content. Please keep your summary of the input within 3 sentences, fewer than 60 words."
+    desc: "Summarize the incoming message for the owner in max 2 sentences. Omit conversational filler. Do not answer questions directly."
   },
   {
-    id: "proofreader",
-    label: "Proofreader",
-    desc: "The assistant is a meticulous proofreader. It will carefully examine given texts for grammatical errors, typos, and style issues. It will also suggest improvements to the writing to make it more clear and effective. Focus on fixing grammar, spelling, punctuation, and syntax to enhance the readability of the text."
+    id: "sales",
+    label: "Sales Rep",
+    desc: "You handle business conversations and inquiries on behalf of the owner. Be helpful, professional, and steer conversations toward positive outcomes."
   }
 ]
 
@@ -322,7 +322,7 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
 
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState<
-    'main' | 'roles' | 'new_role' | 'tone' | 'afk_msg'
+    'main' | 'roles' | 'new_role' | 'tone' | 'afk_msg' | 'takeover'
   >('main')
 
   const [viewportHeight, setViewportHeight] = useState("100vh")
@@ -350,6 +350,9 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
     afk_business_days: [1, 2, 3, 4, 5] as number[],
     afk_business_start: "09:00",
     afk_business_end: "18:00",
+    takeover_enabled: true,
+    takeover_duration_m: 30,
+    spam_custom_prompt: "",
     custom_roles: [] as { id: string; label: string; desc: string }[]
   })
 
@@ -614,6 +617,12 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
                   onClick={() => setActivePage("roles")}
                 />
                 <Row
+                  leftNode={<Lock className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
+                  label="Takeover (Pause AI)"
+                  value={config.takeover_enabled ? "On" : "Off"}
+                  onClick={() => setActivePage("takeover")}
+                />
+                <Row
                   leftNode={<MessageSquare className="w-[22px] h-[22px] text-[#8e8e93]" strokeWidth={1.5} />}
                   label="AFK Message"
                   value={config.afk_enabled ? "On" : "Off"}
@@ -638,9 +647,72 @@ export function BusinessAutomationView({ onClose, apiBaseUrl = "" }: BusinessAut
                   label="Spam Filter"
                   rightNode={<SwitchNode on={config.spam_filter_enabled} onToggle={() => setAndSave("spam_filter_enabled", !config.spam_filter_enabled)} />}
                   onClick={() => setAndSave("spam_filter_enabled", !config.spam_filter_enabled)}
+                  last={!config.spam_filter_enabled}
+                />
+                {config.spam_filter_enabled && (
+                  <div className="px-4 pb-4 relative mt-[-4px]">
+                    <ExpandingInput
+                      label="Custom Rules (Optional)"
+                      maxLength={500}
+                      value={config.spam_custom_prompt}
+                      onChange={(val) => setConfig({ ...config, spam_custom_prompt: val })}
+                      onBlur={() => setAndSave("spam_custom_prompt", config.spam_custom_prompt)}
+                      placeholder="e.g. Delete any crypto offers..."
+                      labelBg="#111111"
+                    />
+                  </div>
+                )}
+              </Section>
+            </div>
+          </div>
+        )}
+
+        {/* ── TAKEOVER ──────────────────────────────────────────────────────── */}
+        {activePage === "takeover" && (
+          <div className="animate-in slide-in-from-right duration-300 w-full pb-10 relative">
+            <SubHeader title="Takeover (Pause AI)" />
+
+            <div className="flex flex-col items-center mt-4 mb-8 px-4 text-center relative z-0">
+              <Lock className="w-[64px] h-[64px] text-[#8e8e93] mb-4 drop-shadow-2xl" strokeWidth={1} />
+              <p style={{ fontSize: "15px", color: "#8e8e93", fontFamily: SF, maxWidth: "250px", lineHeight: "1.4" }}>
+                Automatically pause the AI when you reply manually.
+              </p>
+            </div>
+
+            <div className="px-4">
+              <Section>
+                <Row
+                  label="Auto Takeover"
+                  rightNode={<SwitchNode on={config.takeover_enabled} onToggle={() => setAndSave("takeover_enabled", !config.takeover_enabled)} />}
+                  onClick={() => setAndSave("takeover_enabled", !config.takeover_enabled)}
                   last
                 />
               </Section>
+              
+              {config.takeover_enabled && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300 w-full">
+                  <Section title="Pause Duration">
+                    {[
+                      { label: "5 minutes", value: 5 },
+                      { label: "15 minutes", value: 15 },
+                      { label: "30 minutes", value: 30 },
+                      { label: "1 hour", value: 60 },
+                      { label: "2 hours", value: 120 },
+                      { label: "12 hours", value: 720 },
+                    ].map((opt, idx, arr) => (
+                      <Row
+                        key={opt.value}
+                        alignItems="center"
+                        leftNode={<div className="mt-[1px]"><RadioButton selected={config.takeover_duration_m === opt.value} /></div>}
+                        label={opt.label}
+                        hideArrow
+                        last={idx === arr.length - 1}
+                        onClick={() => setAndSave("takeover_duration_m", opt.value)}
+                      />
+                    ))}
+                  </Section>
+                </div>
+              )}
             </div>
           </div>
         )}
