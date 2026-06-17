@@ -265,9 +265,9 @@ function NavBar() {
 
 // ── App shell ──────────────────────────────────────────────────────────
 function AppContent() {
-  const { currentView, setCurrentView, isLoading } = useApp()
+  const { currentView, setCurrentView, isLoading, isNavHidden } = useApp()
   const [isSettingsMain, setIsSettingsMain] = useState(true)
-  const showNav = ["home", "levels", "market", "profile", "shop", "x-rewards", "schedule"].includes(currentView) || (currentView === "settings_nav" && isSettingsMain)
+  const showNav = !isNavHidden && (["home", "levels", "market", "profile", "shop", "x-rewards", "schedule"].includes(currentView) || (currentView === "settings_nav" && isSettingsMain))
 
   const [imagesLoaded,  setImagesLoaded]  = useState(false)
   const [showLoading,   setShowLoading]   = useState(true)
