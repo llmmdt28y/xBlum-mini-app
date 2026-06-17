@@ -689,12 +689,17 @@ export function ScheduleView() {
   )
 
   return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-hidden bg-[#000000] text-white select-none relative" style={{ height: "var(--tg-viewport-height, 100dvh)", maxHeight: "var(--tg-viewport-height, 100dvh)" }}>
+    <div className="fixed inset-0 flex flex-col animate-in fade-in duration-500 ease-out overflow-hidden bg-[#000000] text-white select-none" style={{ height: "var(--tg-viewport-height, 100dvh)" }}>
       <style>{RIPPLE_STYLE}</style>
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2c2c2e; border-radius: 4px; }
+      `}</style>
       {(isCreating || !!selectedTask) && <style>{`.liquid-glass-panel { opacity: 0 !important; pointer-events: none !important; }`}</style>}
 
       {/* ── Top Calendar ── */}
-      <div className="pt-[calc(var(--tg-safe-area-inset-top,24px)+20px)] relative z-10 flex flex-col">
+      <div className="pt-[calc(var(--tg-safe-area-inset-top,24px)+20px)] relative z-10 flex flex-col shrink-0">
         <div className="flex justify-center items-end gap-1">
           <span className="text-white text-[22px] font-bold" style={{fontFamily:SFD}}>{monthStr}</span>
           <span className="text-[#8e8e93] text-[22px] font-bold opacity-70" style={{fontFamily:SFD}}>{yearStr}</span>
@@ -720,7 +725,7 @@ export function ScheduleView() {
         </div>
       </div>
 
-      <div className="px-5 mt-4 flex items-center justify-between">
+      <div className="px-5 mt-4 flex items-center justify-between shrink-0">
         <h1 className="text-[28px] font-bold text-white tracking-tight" style={{ fontFamily: SFD }}>Tasks</h1>
         <button onClick={() => checkTimezoneAndOpen(() => {resetForm(); setIsCreating(true)})} className="w-8 h-8 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-90 transition-transform">
           <Plus className="w-5 h-5 text-white" />
@@ -728,8 +733,8 @@ export function ScheduleView() {
       </div>
 
       {/* ── Content ── */}
-      <div className="relative flex-1 overflow-hidden min-h-0 mt-3 z-10" style={{ marginBottom: "calc(var(--tg-safe-area-inset-bottom, 16px) + 130px)" }}>
-        <div className="px-5 h-full flex flex-col overflow-y-auto no-scrollbar pb-2">
+      <div className="relative flex-1 w-full mt-3 z-10">
+        <div className="absolute top-0 left-0 right-0 bottom-[calc(var(--tg-safe-area-inset-bottom,16px)+130px)] px-5 flex flex-col overflow-y-auto custom-scrollbar">
         
         
         {/* Compact Mocks */}
@@ -812,9 +817,11 @@ export function ScheduleView() {
              <span className="text-[#8e8e93] text-[15px]" style={{fontFamily: SF}}>No active tasks</span>
           </div>
         )}
+        
+          <div className="h-6 w-full shrink-0" />
         </div>
-        {/* Fade gradient inside the scroll container, fades tasks as they reach the bottom margin */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none z-30" style={{ background: "linear-gradient(to top, #000000 10%, rgba(0,0,0,0) 100%)" }} />
+        {/* Fade gradient positioned absolutely to end exactly where the list ends */}
+        <div className="absolute left-0 right-0 h-16 pointer-events-none z-30" style={{ bottom: "calc(var(--tg-safe-area-inset-bottom, 16px) + 130px)", background: "linear-gradient(to top, #000000 10%, rgba(0,0,0,0) 100%)" }} />
       </div>
 
       {/* ── Bottom Bar ── */}
