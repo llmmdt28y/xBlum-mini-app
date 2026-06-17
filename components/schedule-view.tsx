@@ -689,7 +689,7 @@ export function ScheduleView() {
   )
 
   return (
-    <div className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-hidden bg-[#000000] text-white select-none relative" style={{ height: "var(--tg-viewport-height, 100dvh)", maxHeight: "var(--tg-viewport-height, 100dvh)" }}>
+    <div className="flex-1 overflow-y-auto overscroll-none animate-in fade-in duration-500 ease-out relative" style={{ background: "#000000", height: "var(--tg-viewport-height, 100dvh)", maxHeight: "var(--tg-viewport-height, 100dvh)" }}>
       <style>{RIPPLE_STYLE}</style>
       {(isCreating || !!selectedTask) && <style>{`.liquid-glass-panel { opacity: 0 !important; pointer-events: none !important; }`}</style>}
 
@@ -728,8 +728,8 @@ export function ScheduleView() {
       </div>
 
       {/* ── Content ── */}
-      <div className="relative flex-1 overflow-hidden mt-3 z-10">
-        <div className="px-5 h-full pb-[180px] flex flex-col overflow-y-auto no-scrollbar">
+      <div className="px-5 mt-3 flex flex-col relative z-10">
+        
         
         {/* Compact Mocks */}
         <div className="grid grid-cols-2 gap-3 mb-6">
@@ -811,10 +811,13 @@ export function ScheduleView() {
              <span className="text-[#8e8e93] text-[15px]" style={{fontFamily: SF}}>No active tasks</span>
           </div>
         )}
-        </div>
-        {/* Bottom Fade Gradient */}
-        <div className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none" style={{ background: "linear-gradient(to top, #000000 20%, rgba(0,0,0,0) 100%)" }} />
+        
+        {/* Explicit spacer to ensure content clears the NavBar & Pill */}
+        <div className="h-[140px] w-full shrink-0" />
       </div>
+
+      {/* Bottom Fade Gradient - Fixed to screen to fade out tasks under the pill */}
+      <div className="fixed bottom-0 left-0 right-0 h-[220px] pointer-events-none z-30" style={{ background: "linear-gradient(to top, #000000 35%, rgba(0,0,0,0) 100%)" }} />
 
       {/* ── Bottom Bar ── */}
       <div className="fixed left-4 right-4 z-40 p-2 rounded-full flex items-center justify-between shadow-2xl" 
