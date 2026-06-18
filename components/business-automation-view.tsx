@@ -1122,7 +1122,6 @@ export function BusinessAutomationView({
                 />
                 <Row
                   label="Enable AI Assistant"
-                  sublabel="Allow the AI to chat and answer normal questions. Turn this off if you ONLY want to use the AFK Message or Spam Filter."
                   rightNode={
                     <SwitchNode
                       on={config.ai_autoreply_enabled}
@@ -1145,59 +1144,63 @@ export function BusinessAutomationView({
                 />
               </Section>
 
-              <Section title="Suggestions" className="mt-6">
-                {ROLES_DATA.map((role, idx) => (
-                  <Row
-                    key={role.id}
-                    alignItems="start"
-                    preserveWhitespace
-                    leftNode={
-                      <div className="mt-[1px]">
-                        <RadioButton selected={config.use_case === role.id} />
-                      </div>
-                    }
-                    label={role.label}
-                    sublabel={role.desc}
-                    hideArrow
-                    last={idx === ROLES_DATA.length - 1}
-                    onClick={() => setAndSave("use_case", role.id)}
-                  />
-                ))}
-              </Section>
+              <div
+                className={`transition-all duration-300 ${config.ai_autoreply_enabled ? "opacity-100" : "opacity-30 pointer-events-none"}`}
+              >
+                <Section title="Suggestions" className="mt-6">
+                  {ROLES_DATA.map((role, idx) => (
+                    <Row
+                      key={role.id}
+                      alignItems="start"
+                      preserveWhitespace
+                      leftNode={
+                        <div className="mt-[1px]">
+                          <RadioButton selected={config.use_case === role.id} />
+                        </div>
+                      }
+                      label={role.label}
+                      sublabel={role.desc}
+                      hideArrow
+                      last={idx === ROLES_DATA.length - 1}
+                      onClick={() => setAndSave("use_case", role.id)}
+                    />
+                  ))}
+                </Section>
 
-              {config.custom_roles && config.custom_roles.length > 0 && (
-                <div className="mt-6">
-                  <Section title="Roles">
-                    {config.custom_roles.map((role, idx) => (
-                      <Row
-                        key={role.id}
-                        alignItems="start"
-                        preserveWhitespace
-                        leftNode={
-                          <div className="mt-[1px]">
-                            <RadioButton
-                              selected={config.use_case === role.id}
-                            />
-                          </div>
-                        }
-                        label={role.label}
-                        sublabel={role.desc}
-                        hideArrow
-                        last={idx === config.custom_roles.length - 1}
-                        onClick={() => setAndSave("use_case", role.id)}
-                        onLongPress={(x, y) =>
-                          setContextMenu({
-                            visible: true,
-                            x,
-                            y,
-                            roleId: role.id,
-                          })
-                        }
-                      />
-                    ))}
-                  </Section>
-                </div>
-              )}
+                {config.custom_roles && config.custom_roles.length > 0 && (
+                  <div className="mt-6">
+                    <Section title="Roles">
+                      {config.custom_roles.map((role, idx) => (
+                        <Row
+                          key={role.id}
+                          alignItems="start"
+                          preserveWhitespace
+                          leftNode={
+                            <div className="mt-[1px]">
+                              <RadioButton
+                                selected={config.use_case === role.id}
+                              />
+                            </div>
+                          }
+                          label={role.label}
+                          sublabel={role.desc}
+                          hideArrow
+                          last={idx === config.custom_roles.length - 1}
+                          onClick={() => setAndSave("use_case", role.id)}
+                          onLongPress={(x, y) =>
+                            setContextMenu({
+                              visible: true,
+                              x,
+                              y,
+                              roleId: role.id,
+                            })
+                          }
+                        />
+                      ))}
+                    </Section>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
