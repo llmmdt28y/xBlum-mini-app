@@ -1115,7 +1115,7 @@ export function BusinessAutomationView({
                   onClick={() =>
                     setAndSave("roles_offline_only", !config.roles_offline_only)
                   }
-                  alignItems="start"
+                  alignItems="center"
                   last
                 />
               </Section>
@@ -1523,7 +1523,7 @@ export function BusinessAutomationView({
                       onClick={() =>
                         setAndSave("afk_offline_only", !config.afk_offline_only)
                       }
-                      alignItems="start"
+                      alignItems="center"
                       last
                     />
                   </Section>
@@ -1539,10 +1539,10 @@ export function BusinessAutomationView({
             <SubHeader title="Spam Filter" />
 
             <div className="flex flex-col items-center pt-2 pb-6 px-4 text-center relative z-0">
-              <div className="w-[100px] h-[100px] bg-red-500/10 rounded-full flex items-center justify-center mb-4">
+              <div className="flex items-center justify-center mb-4 mt-2">
                 <Trash2
-                  className="w-12 h-12 text-[#ff453a]"
-                  strokeWidth={1.5}
+                  className="w-[64px] h-[64px] text-[#ff453a] drop-shadow-2xl"
+                  strokeWidth={1}
                 />
               </div>
               <p
