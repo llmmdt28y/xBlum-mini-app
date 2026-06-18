@@ -535,8 +535,10 @@ export function BusinessAutomationView({
     use_case: "assistant",
     humanize_enabled: true,
     history_enabled: true,
-    read_enabled: true,
-    spam_filter_enabled: true,
+    greeting_enabled: true,
+    greeting_text: "Hi there! How can I help you today?",
+    ai_autoreply_enabled: true,
+    ai_persona_hint: "",
     afk_enabled: false,
     afk_text: "",
     afk_schedule: "always",
@@ -1114,6 +1116,29 @@ export function BusinessAutomationView({
                   }
                   onClick={() =>
                     setAndSave("roles_offline_only", !config.roles_offline_only)
+                  }
+                  alignItems="center"
+                  last
+                />
+                <Row
+                  label="Enable AI Assistant"
+                  sublabel="Allow the AI to chat and answer normal questions. Turn this off if you ONLY want to use the AFK Message or Spam Filter."
+                  rightNode={
+                    <SwitchNode
+                      on={config.ai_autoreply_enabled}
+                      onToggle={() =>
+                        setAndSave(
+                          "ai_autoreply_enabled",
+                          !config.ai_autoreply_enabled,
+                        )
+                      }
+                    />
+                  }
+                  onClick={() =>
+                    setAndSave(
+                      "ai_autoreply_enabled",
+                      !config.ai_autoreply_enabled,
+                    )
                   }
                   alignItems="center"
                   last
