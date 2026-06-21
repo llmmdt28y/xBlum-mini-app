@@ -466,16 +466,25 @@ export function HomeView() {
         </button>
       </div>
 
-      {/* Hero Image Section */}
-      <div className="w-full relative z-0 -translate-y-2">
-        <img 
-          src="/noirhand.png" 
-          alt="Noir Hand Background" 
-          className="w-full h-[360px] sm:h-[380px] object-cover object-[center_top] scale-105 origin-bottom select-none pointer-events-none" 
-          draggable={false}
-          style={imageProtectionStyle}
-        />
-        <div className="absolute bottom-0 w-full h-28 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
+      {/* Hero Greeting Section */}
+      <div className="w-full relative z-0 -translate-y-2 h-[340px] sm:h-[360px] flex items-center justify-center bg-gradient-to-b from-[#2d468f] via-[#1a254d] to-black overflow-hidden">
+        {/* Subtle decorative glow */}
+        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[150%] h-[120%] bg-[radial-gradient(ellipse_at_top,rgba(96,165,250,0.15)_0%,transparent_70%)] pointer-events-none"></div>
+        
+        <div className="relative z-10 flex flex-col items-center gap-4 px-6 text-center transform -translate-y-4">
+          <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl">
+            <Bot className="w-8 h-8 text-white" strokeWidth={1.5} />
+          </div>
+          <h1 
+            className="text-white font-bold text-[32px] sm:text-[36px] leading-[1.1] tracking-tight drop-shadow-md" 
+            style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}
+          >
+            How can I help<br />you today?
+          </h1>
+        </div>
+        
+        {/* Bottom gradient transition to black */}
+        <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none"></div>
       </div>
 
       {/* Main Content */}
