@@ -467,16 +467,16 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[440px] sm:h-[460px] flex items-center justify-center bg-gradient-to-b from-[#3668f4] via-[#123091] to-[#08103d] overflow-hidden">
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-gradient-to-b from-[#3668f4] via-[#123091] to-[#08103d] overflow-hidden">
         {/* Subtle overlay for additional depth */}
         <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
         
-        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform translate-y-6">
+        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform translate-y-2">
           <h1 
             className="text-white font-bold text-[32px] sm:text-[36px] leading-[1.1] tracking-tight drop-shadow-md" 
             style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
           >
-            Explore what I can do
+            How can I help you<br />today?
           </h1>
 
           {/* Ask anything... Pill */}
@@ -497,7 +497,7 @@ export function HomeView() {
       </div>
 
       {/* Main Content */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-6">
+      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-28">
         
 
 
