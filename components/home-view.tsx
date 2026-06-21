@@ -471,7 +471,7 @@ export function HomeView() {
         {/* Subtle overlay for additional depth */}
         <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
         
-        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform translate-y-2">
+        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-4">
           <h1 
             className="text-white font-bold text-[32px] sm:text-[36px] leading-[1.1] tracking-tight drop-shadow-md" 
             style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
@@ -481,9 +481,9 @@ export function HomeView() {
 
           {/* Ask anything... Pill */}
           <div 
-            className="w-full max-w-[340px] rounded-[100px] flex items-center justify-between p-[6px] pl-5 mt-2 bg-white/[0.06] border border-white/[0.1] backdrop-blur-md shadow-lg"
+            className="inline-flex items-center gap-3 p-[6px] pl-5 mt-2 rounded-[100px] bg-white/[0.06] border border-white/[0.1] backdrop-blur-md shadow-lg"
           >
-            <span className="text-[#8e8e93] text-[15px] font-medium tracking-wide flex-1 text-left" style={{ fontFamily: SF }}>
+            <span className="text-[#8e8e93] text-[15px] font-medium tracking-wide text-left" style={{ fontFamily: SF }}>
               Ask anything...
             </span>
             <div className="w-9 h-9 rounded-full bg-white/[0.08] border border-white/[0.05] flex items-center justify-center shrink-0 active:scale-95 transition-transform cursor-pointer">
@@ -493,11 +493,11 @@ export function HomeView() {
         </div>
         
         {/* Bottom gradient transition to black */}
-        <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
+        <div className="absolute bottom-0 w-full h-56 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
       </div>
 
       {/* Main Content */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-28">
+      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-36">
         
 
 
