@@ -467,7 +467,7 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[440px] sm:h-[460px] flex items-center justify-center bg-gradient-to-b from-[#1D64A2] to-[#0D558D] overflow-hidden">
+      <div className="w-full relative z-0 -translate-y-2 h-[440px] sm:h-[460px] flex items-center justify-center bg-gradient-to-b from-[#3668f4] via-[#123091] to-[#08103d] overflow-hidden">
         {/* Subtle overlay for additional depth */}
         <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
         
