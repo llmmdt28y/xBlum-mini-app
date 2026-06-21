@@ -467,34 +467,30 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[400px] sm:h-[420px] flex items-center justify-center bg-gradient-to-b from-[#34519e] via-[#1e2f60] to-black overflow-hidden">
-        {/* Subtle decorative glow */}
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[150%] h-[120%] bg-[radial-gradient(ellipse_at_top,rgba(96,165,250,0.25)_0%,transparent_70%)] pointer-events-none"></div>
+      <div className="w-full relative z-0 -translate-y-2 h-[380px] sm:h-[400px] flex items-center justify-center bg-[#3553a3] overflow-hidden">
+        {/* Subtle top-down flat gradient to mimic the exact denim blue */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#2e478c]/30 to-transparent pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-6">
           <h1 
-            className="text-white font-bold text-[34px] sm:text-[38px] leading-[1.1] tracking-tight drop-shadow-md" 
-            style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}
+            className="text-white font-bold text-[32px] sm:text-[36px] leading-[1.1] tracking-tight drop-shadow-md" 
+            style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
           >
-            How can I help<br />you today?
+            Explore what I can do
           </h1>
 
           {/* Ask anything... Pill */}
           <div 
-            className="w-full max-w-[340px] rounded-[100px] flex items-center justify-between p-[6px] pl-5 mt-2"
-            style={cardLiquidGlassStyle}
+            className="w-full max-w-[340px] rounded-[100px] flex items-center justify-between p-[6px] pl-5 mt-2 bg-white/[0.06] border border-white/[0.1] backdrop-blur-md shadow-lg"
           >
             <span className="text-[#8e8e93] text-[15px] font-medium tracking-wide flex-1 text-left" style={{ fontFamily: SF }}>
               Ask anything...
             </span>
-            <div className="w-9 h-9 rounded-full bg-white/20 border border-white/10 flex items-center justify-center shrink-0 active:scale-95 transition-transform cursor-pointer">
-              <ArrowUp className="w-5 h-5 text-white" strokeWidth={2.5} />
+            <div className="w-9 h-9 rounded-full bg-white/[0.08] border border-white/[0.05] flex items-center justify-center shrink-0 active:scale-95 transition-transform cursor-pointer">
+              <ArrowUp className="w-4 h-4 text-white/60" strokeWidth={2.5} />
             </div>
           </div>
         </div>
-        
-        {/* Bottom gradient transition to black */}
-        <div className="absolute bottom-0 w-full h-40 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none"></div>
       </div>
 
       {/* Main Content */}
