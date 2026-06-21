@@ -467,11 +467,11 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[380px] sm:h-[400px] flex items-center justify-center bg-[#3553a3] overflow-hidden">
+      <div className="w-full relative z-0 -translate-y-2 h-[440px] sm:h-[460px] flex items-center justify-center bg-[#3553a3] overflow-hidden">
         {/* Subtle top-down flat gradient to mimic the exact denim blue */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#2e478c]/30 to-transparent pointer-events-none"></div>
         
-        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-6">
+        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform translate-y-6">
           <h1 
             className="text-white font-bold text-[32px] sm:text-[36px] leading-[1.1] tracking-tight drop-shadow-md" 
             style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
@@ -491,10 +491,13 @@ export function HomeView() {
             </div>
           </div>
         </div>
+        
+        {/* Bottom gradient transition to black */}
+        <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
       </div>
 
       {/* Main Content */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-20">
+      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-6">
         
 
 
