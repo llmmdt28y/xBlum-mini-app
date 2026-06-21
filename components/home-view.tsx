@@ -467,11 +467,9 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-[#070e20] overflow-hidden">
-        {/* Base top-to-bottom gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#4b38ff] via-[#0d1d52] to-[#070e20] pointer-events-none"></div>
-        {/* Intense central cyan glow to match the exact reference */}
-        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[180%] h-[140%] bg-[radial-gradient(ellipse_at_center,rgba(0,132,255,0.55)_0%,transparent_60%)] pointer-events-none"></div>
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-gradient-to-b from-[#0072ff] to-[#00c6ff] overflow-hidden">
+        {/* Subtle overlay for additional depth */}
+        <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform translate-y-2">
           <h1 
