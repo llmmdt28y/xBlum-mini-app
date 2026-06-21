@@ -467,9 +467,9 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[440px] sm:h-[460px] flex items-center justify-center bg-[#3553a3] overflow-hidden">
-        {/* Subtle top-down flat gradient to mimic the exact denim blue */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#2e478c]/30 to-transparent pointer-events-none"></div>
+      <div className="w-full relative z-0 -translate-y-2 h-[440px] sm:h-[460px] flex items-center justify-center bg-gradient-to-b from-[#0f5c94] via-[#2177ab] to-[#2980b0] overflow-hidden">
+        {/* Subtle overlay for additional depth */}
+        <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform translate-y-6">
           <h1 
