@@ -131,8 +131,8 @@ function NavBar() {
     onPointerLeave={() => setPressedId(null)}
     className="liquid-glass-panel pointer-events-auto shrink-0"
     style={{
-      width: "56px",
-      height: "56px",
+      width: "60px",
+      height: "60px",
       borderRadius: "100px",
       zIndex: 51,
       transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
@@ -157,9 +157,9 @@ function NavBar() {
     {/* ── PÍLDORA CENTRAL ── */}
     <div
     className="liquid-glass-panel pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
-    style={{ borderRadius: "100px", height: "56px", zIndex: 51 }}
+    style={{ borderRadius: "100px", height: "60px", zIndex: 51 }}
     >
-    <div className="flex items-center justify-between w-full relative h-[50px]" style={{ zIndex: 10 }}>
+    <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
     
     {/* Fondo deslizante (Apple jelly effect) */}
     <div 
@@ -228,8 +228,8 @@ function NavBar() {
     onPointerLeave={() => setPressedId(null)}
     className="liquid-glass-panel pointer-events-auto shrink-0"
     style={{
-      width: "56px",
-      height: "56px",
+      width: "60px",
+      height: "60px",
       borderRadius: "100px",
       zIndex: 51,
       transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
@@ -238,7 +238,7 @@ function NavBar() {
     >
     <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none relative" style={{ zIndex: 10 }}>
     {photoUrl ? (
-      <div className="w-[42px] h-[42px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
+      <div className="w-[46px] h-[46px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
       <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
       </div>
     ) : (
