@@ -361,23 +361,28 @@ function AppContent() {
 export default function Page() {
   return (
     <AppProvider>
-    {/* ── Filtro SVG Global (Custom Liquid Glass) ── */}
+    {/* ── Filtro SVG Global (Aurora Gel) ── */}
     <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }}>
       <defs>
-        <filter id="glass-distortion" x="-10%" y="-10%" width="120%" height="120%" colorInterpolationFilters="sRGB">
-          <feImage 
-            width="100%" 
-            height="100%" 
-            preserveAspectRatio="none"
-            xlinkHref="data:image/png;base64,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"
-            result="glassMap"
+        <filter id="glass-distortion" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.005 0.005"
+            numOctaves="2"
+            seed="92"
+            result="noise"
           />
-          <feDisplacementMap 
-            in="SourceGraphic" 
-            in2="glassMap"
-            xChannelSelector="R" 
-            yChannelSelector="G" 
-            scale="48.700230958000276" 
+          <feGaussianBlur
+            in="noise"
+            stdDeviation="2"
+            result="blurred"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="blurred"
+            scale="40"
+            xChannelSelector="R"
+            yChannelSelector="G"
           />
         </filter>
       </defs>
@@ -388,12 +393,36 @@ export default function Page() {
       .liquid-glass-panel {
         position: relative;
         isolation: isolate;
+        box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 8px;
         transform: translateZ(0);
-        /* Exact user shadows and backdrop-filter */
-        box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 8px, rgba(0, 0, 0, 0.15) 0px -10px 25px inset, rgba(255, 255, 255, 0.74) 0px -1px 4px 1px inset;
-        backdrop-filter: url(#glass-distortion) blur(0.25px) brightness(1.5) saturate(1.1);
-        -webkit-backdrop-filter: url(#glass-distortion) blur(0.25px) brightness(1.5) saturate(1.1);
+        backdrop-filter: blur(5px) brightness(1.2) saturate(1.1);
+        -webkit-backdrop-filter: blur(5px) brightness(1.2) saturate(1.1);
+      }
+
+      .liquid-glass-panel::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        border-radius: inherit;
+        box-shadow: rgba(0, 0, 0, 0.15) 0px -10px 25px inset, rgba(255, 255, 255, 0.25) 0px -1px 3px 1px inset;
         background-color: rgba(255, 255, 255, 0);
+        pointer-events: none;
+      }
+
+      .liquid-glass-panel::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        backdrop-filter: blur(1px) brightness(1.3) saturate(1.1);
+        -webkit-backdrop-filter: blur(1px) brightness(1.3) saturate(1.1);
+        filter: url(#glass-distortion);
+        -webkit-filter: url(#glass-distortion);
+        pointer-events: none;
+        mask-image: linear-gradient(to bottom, black 0%, transparent 20%, transparent 80%, black 100%);
+        -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 20%, transparent 80%, black 100%);
       }
 
       .sliding-pill {
