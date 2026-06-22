@@ -131,8 +131,8 @@ function NavBar() {
     onPointerLeave={() => setPressedId(null)}
     className="liquid-glass-panel pointer-events-auto shrink-0"
     style={{
-      width: "64px",
-      height: "64px",
+      width: "56px",
+      height: "56px",
       borderRadius: "100px",
       zIndex: 51,
       transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
@@ -157,9 +157,9 @@ function NavBar() {
     {/* ── PÍLDORA CENTRAL ── */}
     <div
     className="liquid-glass-panel pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
-    style={{ borderRadius: "100px", height: "64px", zIndex: 51 }}
+    style={{ borderRadius: "100px", height: "56px", zIndex: 51 }}
     >
-    <div className="flex items-center justify-between w-full relative h-[58px]" style={{ zIndex: 10 }}>
+    <div className="flex items-center justify-between w-full relative h-[50px]" style={{ zIndex: 10 }}>
     
     {/* Fondo deslizante (Apple jelly effect) */}
     <div 
@@ -228,8 +228,8 @@ function NavBar() {
     onPointerLeave={() => setPressedId(null)}
     className="liquid-glass-panel pointer-events-auto shrink-0"
     style={{
-      width: "64px",
-      height: "64px",
+      width: "56px",
+      height: "56px",
       borderRadius: "100px",
       zIndex: 51,
       transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
@@ -238,7 +238,7 @@ function NavBar() {
     >
     <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none relative" style={{ zIndex: 10 }}>
     {photoUrl ? (
-      <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
+      <div className="w-[42px] h-[42px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
       <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
       </div>
     ) : (
@@ -405,7 +405,7 @@ export default function Page() {
         inset: 0;
         z-index: 0;
         border-radius: inherit;
-        box-shadow: rgba(0, 0, 0, 0.15) 0px -10px 25px inset, rgba(255, 255, 255, 0.25) 0px -1px 3px 1px inset;
+        box-shadow: rgba(0, 0, 0, 0.15) 0px -10px 25px inset, rgba(255, 255, 255, 0.08) 0px -1px 3px 1px inset;
         background-color: rgba(255, 255, 255, 0);
         pointer-events: none;
       }
@@ -421,8 +421,8 @@ export default function Page() {
         filter: url(#glass-distortion);
         -webkit-filter: url(#glass-distortion);
         pointer-events: none;
-        mask-image: linear-gradient(to bottom, black 0%, transparent 20%, transparent 80%, black 100%);
-        -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 20%, transparent 80%, black 100%);
+        mask-image: linear-gradient(to bottom, black 0%, transparent 25%, transparent 75%, black 100%);
+        -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 25%, transparent 75%, black 100%);
       }
 
       .sliding-pill {
