@@ -416,13 +416,17 @@ export function HomeView() {
           background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
           animation: shimmer 1.2s infinite;
         }
-        @keyframes aurora-slide-1 {
-          0% { transform: translateX(-30vw) scale(1); }
-          100% { transform: translateX(30vw) scale(1.1); }
+        @keyframes slide-point-1 {
+          0% { transform: translateX(-30px) rotate(15deg); }
+          100% { transform: translateX(40px) rotate(20deg); }
         }
-        @keyframes aurora-slide-2 {
-          0% { transform: translateX(30vw) scale(1); }
-          100% { transform: translateX(-30vw) scale(0.9); }
+        @keyframes slide-point-2 {
+          0% { transform: translateX(20px) rotate(-10deg); }
+          100% { transform: translateX(-30px) rotate(-5deg); }
+        }
+        @keyframes slide-point-3 {
+          0% { transform: translateX(-20px) rotate(25deg); }
+          100% { transform: translateX(30px) rotate(15deg); }
         }
       `}} />
 
@@ -477,16 +481,25 @@ export function HomeView() {
       {/* Hero Greeting Section */}
       <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-hidden">
         
-        {/* Glowing Aura matching Image Position but with safe standard classes */}
+        {/* Dynamic Logo Points Background */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          {/* Base deep glow (Magenta) */}
-          <div className="absolute -top-[20%] -left-[20%] w-[150%] h-[120%] rounded-full bg-[#FF0080] blur-[120px] opacity-40 animate-[aurora-slide-1_15s_ease-in-out_infinite_alternate]" />
+          {/* Point 1: Magenta (Left side of logo) */}
+          <div 
+            className="absolute -top-[5%] left-[5%] w-[100px] h-[400px] rounded-[100px] blur-[30px] opacity-80 animate-[slide-point-1_10s_ease-in-out_infinite_alternate]" 
+            style={{ background: 'linear-gradient(180deg, #FF0080 0%, #FF4500 100%)' }} 
+          />
 
-          {/* Mid glow (Orange) */}
-          <div className="absolute top-[0%] left-[0%] w-[120%] h-[100%] rounded-full bg-[#FF4500] blur-[100px] opacity-40 animate-[aurora-slide-1_18s_ease-in-out_infinite_alternate]" style={{ animationDelay: '-5s' }} />
+          {/* Point 2: Orange (Center/Bottom of logo) */}
+          <div 
+            className="absolute -top-[10%] left-[35%] w-[140px] h-[440px] rounded-[100px] blur-[40px] opacity-90 animate-[slide-point-2_12s_ease-in-out_infinite_alternate]" 
+            style={{ background: 'linear-gradient(180deg, #FF6A00 0%, #FF4500 100%)' }} 
+          />
 
-          {/* Top center highlight (Yellow) */}
-          <div className="absolute -top-[10%] left-[10%] w-[100%] h-[90%] rounded-full bg-[#FFD700] blur-[90px] opacity-30 animate-[aurora-slide-2_20s_ease-in-out_infinite_alternate]" />
+          {/* Point 3: Yellow (Right top of logo) */}
+          <div 
+            className="absolute -top-[5%] right-[10%] w-[90px] h-[380px] rounded-[100px] blur-[30px] opacity-80 animate-[slide-point-3_14s_ease-in-out_infinite_alternate]" 
+            style={{ background: 'linear-gradient(180deg, #FFD700 0%, #FF8C00 100%)' }} 
+          />
         </div>
 
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
