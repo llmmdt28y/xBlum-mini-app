@@ -396,7 +396,8 @@ export default function Page() {
         inset: 0;
         z-index: 0;
         border-radius: inherit;
-        box-shadow: rgba(0, 0, 0, 0.15) 0px -10px 25px inset, rgba(255, 255, 255, 0.74) 0px -1px 4px 1px inset;
+        /* Reduje el 0.74 del blanco a 0.15 para que no se vea una línea blanca sólida */
+        box-shadow: rgba(0, 0, 0, 0.15) 0px -10px 25px inset, rgba(255, 255, 255, 0.15) 0px -1px 4px 1px inset;
         background-color: rgba(255, 255, 255, 0);
         pointer-events: none;
       }
@@ -407,8 +408,11 @@ export default function Page() {
         inset: 0;
         z-index: -1;
         border-radius: inherit;
-        backdrop-filter: url(#glass-distortion) blur(0.25px) brightness(1.5) saturate(1.1);
-        -webkit-backdrop-filter: url(#glass-distortion) blur(0.25px) brightness(1.5) saturate(1.1);
+        /* Separamos el desenfoque del SVG para que el navegador no anule el efecto */
+        backdrop-filter: blur(0.25px) brightness(1.5) saturate(1.1);
+        -webkit-backdrop-filter: blur(0.25px) brightness(1.5) saturate(1.1);
+        filter: url(#glass-distortion);
+        -webkit-filter: url(#glass-distortion);
         pointer-events: none;
       }
 
