@@ -416,13 +416,13 @@ export function HomeView() {
           background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
           animation: shimmer 1.2s infinite;
         }
-        @keyframes slide-line-1 {
-          0% { transform: translateX(-40px) rotate(25deg) scale(1); }
-          100% { transform: translateX(40px) rotate(20deg) scale(1.1); }
+        @keyframes aurora-slide-1 {
+          0% { transform: translateX(-30vw) scale(1); }
+          100% { transform: translateX(30vw) scale(1.1); }
         }
-        @keyframes slide-line-2 {
-          0% { transform: translateX(-30px) rotate(20deg) scale(1); }
-          100% { transform: translateX(30px) rotate(25deg) scale(0.9); }
+        @keyframes aurora-slide-2 {
+          0% { transform: translateX(30vw) scale(1); }
+          100% { transform: translateX(-30vw) scale(0.9); }
         }
       `}} />
 
@@ -475,25 +475,20 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
+      {/* Hero Greeting Section */}
       <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-hidden">
         
-        {/* Dynamic Abstract Lines Container */}
+        {/* Glowing Aura matching Image Position but with Logo Colors */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          {/* Line 1: Long, goes from top-right to bottom-left */}
-          <div 
-            className="absolute -top-[20%] right-[0%] w-[280px] h-[140%] blur-[90px] opacity-100 mix-blend-screen animate-[slide-line-1_10s_ease-in-out_infinite_alternate]" 
-            style={{ background: 'linear-gradient(180deg, #FF0080 0%, #FF4500 50%, #FFD700 100%)' }} 
-          />
-          
-          {/* Line 2: Short, ends early */}
-          <div 
-            className="absolute top-[0%] left-[5%] w-[220px] h-[65%] blur-[80px] opacity-90 mix-blend-screen animate-[slide-line-2_12s_ease-in-out_infinite_alternate]" 
-            style={{ background: 'linear-gradient(180deg, #FFD700 0%, #FF0080 100%)' }} 
-          />
+          {/* Main Bright Glow - Magenta & Orange shifting left and right */}
+          <div className="absolute -top-[20%] -left-[30%] w-[160%] h-[120%] bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-[#FF0080]/60 via-[#FF4500]/30 to-transparent blur-[100px] opacity-90 animate-[aurora-slide-1_15s_ease-in-out_infinite_alternate]" />
+
+          {/* Secondary Yellow/Orange glow at top center/right shifting oppositely */}
+          <div className="absolute -top-[10%] left-[0%] w-[130%] h-[100%] bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-[#FFD700]/50 via-[#FF4500]/20 to-transparent blur-[80px] opacity-80 animate-[aurora-slide-2_20s_ease-in-out_infinite_alternate]" />
         </div>
 
-        {/* Dark overlay for text readability and bottom fade to integrate smoothly */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black pointer-events-none z-0"></div>
+        {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none z-0"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-4">
           <h1 
