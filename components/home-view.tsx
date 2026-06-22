@@ -475,16 +475,18 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      {/* Hero Greeting Section */}
       <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-hidden">
         
-        {/* Glowing Aura matching Image Position but with Logo Colors */}
+        {/* Glowing Aura matching Image Position but with safe standard classes */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          {/* Main Bright Glow - Magenta & Orange shifting left and right */}
-          <div className="absolute -top-[20%] -left-[30%] w-[160%] h-[120%] bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-[#FF0080]/60 via-[#FF4500]/30 to-transparent blur-[100px] opacity-90 animate-[aurora-slide-1_15s_ease-in-out_infinite_alternate]" />
+          {/* Base deep glow (Magenta) */}
+          <div className="absolute -top-[20%] -left-[20%] w-[150%] h-[120%] rounded-full bg-[#FF0080] blur-[120px] opacity-40 animate-[aurora-slide-1_15s_ease-in-out_infinite_alternate]" />
 
-          {/* Secondary Yellow/Orange glow at top center/right shifting oppositely */}
-          <div className="absolute -top-[10%] left-[0%] w-[130%] h-[100%] bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-[#FFD700]/50 via-[#FF4500]/20 to-transparent blur-[80px] opacity-80 animate-[aurora-slide-2_20s_ease-in-out_infinite_alternate]" />
+          {/* Mid glow (Orange) */}
+          <div className="absolute top-[0%] left-[0%] w-[120%] h-[100%] rounded-full bg-[#FF4500] blur-[100px] opacity-40 animate-[aurora-slide-1_18s_ease-in-out_infinite_alternate]" style={{ animationDelay: '-5s' }} />
+
+          {/* Top center highlight (Yellow) */}
+          <div className="absolute -top-[10%] left-[10%] w-[100%] h-[90%] rounded-full bg-[#FFD700] blur-[90px] opacity-30 animate-[aurora-slide-2_20s_ease-in-out_infinite_alternate]" />
         </div>
 
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
