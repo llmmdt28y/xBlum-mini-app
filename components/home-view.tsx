@@ -416,23 +416,13 @@ export function HomeView() {
           background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
           animation: shimmer 1.2s infinite;
         }
-        @keyframes aurora-1 {
-          0% { transform: translate(0vw, 0vh) scale(1); }
-          33% { transform: translate(15vw, -5vh) scale(1.1); }
-          66% { transform: translate(-10vw, 5vh) scale(0.9); }
-          100% { transform: translate(0vw, 0vh) scale(1); }
+        @keyframes slide-line-1 {
+          0% { transform: translateX(-40px) rotate(25deg) scale(1); }
+          100% { transform: translateX(40px) rotate(20deg) scale(1.1); }
         }
-        @keyframes aurora-2 {
-          0% { transform: translate(0vw, 0vh) scale(1); }
-          33% { transform: translate(-15vw, 5vh) scale(1.2); }
-          66% { transform: translate(10vw, -10vh) scale(0.8); }
-          100% { transform: translate(0vw, 0vh) scale(1); }
-        }
-        @keyframes aurora-3 {
-          0% { transform: translate(0vw, 0vh) scale(1); }
-          33% { transform: translate(10vw, 10vh) scale(1.1); }
-          66% { transform: translate(-10vw, -10vh) scale(0.9); }
-          100% { transform: translate(0vw, 0vh) scale(1); }
+        @keyframes slide-line-2 {
+          0% { transform: translateX(-30px) rotate(20deg) scale(1); }
+          100% { transform: translateX(30px) rotate(25deg) scale(0.9); }
         }
       `}} />
 
@@ -485,31 +475,25 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black">
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-hidden">
         
-        {/* Gapless Aurora Background Container */}
-        <div 
-          className="absolute top-0 left-0 w-full h-[800px] z-0 overflow-hidden pointer-events-none opacity-90 mix-blend-screen" 
-          style={{ maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)' }}
-        >
-          {/* Base gradient layer to ensure no black voids ever */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#FF0080]/30 via-[#FF4500]/20 to-[#FFD700]/10" />
-
-          {/* Magenta/Pink Blob */}
-          <div className="absolute -top-[20%] -left-[20%] w-[120vw] h-[120vw] min-w-[500px] min-h-[500px] bg-[#FF0080] blur-[120px] opacity-80 animate-[aurora-1_15s_linear_infinite]" />
+        {/* Dynamic Abstract Lines Container */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          {/* Line 1: Long, goes from top-right to bottom-left */}
+          <div 
+            className="absolute -top-[20%] right-[0%] w-[280px] h-[140%] blur-[90px] opacity-100 mix-blend-screen animate-[slide-line-1_10s_ease-in-out_infinite_alternate]" 
+            style={{ background: 'linear-gradient(180deg, #FF0080 0%, #FF4500 50%, #FFD700 100%)' }} 
+          />
           
-          {/* Orange Blob */}
-          <div className="absolute top-[0%] left-[10%] w-[130vw] h-[130vw] min-w-[600px] min-h-[600px] bg-[#FF4500] blur-[140px] opacity-80 animate-[aurora-2_20s_linear_infinite]" />
-          
-          {/* Yellow Blob */}
-          <div className="absolute -top-[10%] right-[-10%] w-[110vw] h-[110vw] min-w-[450px] min-h-[450px] bg-[#FFD700] blur-[120px] opacity-70 animate-[aurora-3_18s_linear_infinite]" />
-
-          {/* Additional Magenta Blob to balance */}
-          <div className="absolute top-[10%] right-[-30%] w-[100vw] h-[100vw] min-w-[400px] min-h-[400px] bg-[#FF0080] blur-[140px] opacity-80 animate-[aurora-1_25s_linear_infinite_reverse]" />
+          {/* Line 2: Short, ends early */}
+          <div 
+            className="absolute top-[0%] left-[5%] w-[220px] h-[65%] blur-[80px] opacity-90 mix-blend-screen animate-[slide-line-2_12s_ease-in-out_infinite_alternate]" 
+            style={{ background: 'linear-gradient(180deg, #FFD700 0%, #FF0080 100%)' }} 
+          />
         </div>
 
-        {/* Dark overlay to smoothly fade to black matching the original blue image */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black pointer-events-none z-0"></div>
+        {/* Dark overlay for text readability and bottom fade to integrate smoothly */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black pointer-events-none z-0"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-4">
           <h1 
