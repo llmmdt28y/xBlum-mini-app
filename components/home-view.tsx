@@ -416,6 +416,29 @@ export function HomeView() {
           background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
           animation: shimmer 1.2s infinite;
         }
+        @keyframes gradient-pan {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes blob-1 {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(40px, -50px) scale(1.2); }
+          66% { transform: translate(-20px, 20px) scale(0.8); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes blob-2 {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(-50px, 30px) scale(0.8); }
+          66% { transform: translate(30px, -20px) scale(1.2); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes blob-3 {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, 30px) scale(1.2); }
+          66% { transform: translate(-40px, -20px) scale(0.8); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
       `}} />
 
       {/* Account Setup Progress Pill */}
@@ -467,9 +490,32 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-gradient-to-b from-[#434343] to-[#000000] overflow-hidden">
-        {/* Subtle overlay for additional depth */}
-        <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-hidden">
+        
+        {/* Animated Gradient Panning Background */}
+        <div 
+          className="absolute inset-0 z-0 opacity-40"
+          style={{
+            background: "linear-gradient(-45deg, #0a0a0a, #1a0010, #1a0800, #000c1c)",
+            backgroundSize: "400% 400%",
+            animation: "gradient-pan 15s ease infinite"
+          }}
+        />
+        
+        {/* Dynamic Glowing Blobs (Gemini Style) */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-80 mix-blend-screen">
+          {/* Magenta / Pink Blob */}
+          <div className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] bg-[#ec4899]/40 rounded-full blur-[90px] animate-[blob-1_15s_infinite]" />
+          {/* Orange Blob */}
+          <div className="absolute top-[10%] right-[-10%] w-[60%] h-[60%] bg-[#f97316]/40 rounded-full blur-[90px] animate-[blob-2_20s_infinite]" />
+          {/* Yellow / Gold Blob */}
+          <div className="absolute bottom-[10%] left-[10%] w-[60%] h-[60%] bg-[#eab308]/30 rounded-full blur-[90px] animate-[blob-3_18s_infinite]" />
+          {/* Deep Blue / Indigo Blob */}
+          <div className="absolute bottom-[0%] right-[10%] w-[50%] h-[50%] bg-[#3b82f6]/30 rounded-full blur-[90px] animate-[blob-1_25s_infinite_reverse]" />
+        </div>
+
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-black/10 pointer-events-none z-0"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-4">
           <h1 
