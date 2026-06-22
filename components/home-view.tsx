@@ -416,17 +416,23 @@ export function HomeView() {
           background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
           animation: shimmer 1.2s infinite;
         }
-        @keyframes slide-band-1 {
-          0% { transform: translateX(-120vw) rotate(-15deg) scaleY(1.2); }
-          100% { transform: translateX(120vw) rotate(-15deg) scaleY(1.2); }
+        @keyframes aurora-1 {
+          0% { transform: translate(0vw, 0vh) scale(1); }
+          33% { transform: translate(15vw, -5vh) scale(1.1); }
+          66% { transform: translate(-10vw, 5vh) scale(0.9); }
+          100% { transform: translate(0vw, 0vh) scale(1); }
         }
-        @keyframes slide-band-2 {
-          0% { transform: translateX(-120vw) rotate(10deg) scaleY(0.8); }
-          100% { transform: translateX(120vw) rotate(10deg) scaleY(0.8); }
+        @keyframes aurora-2 {
+          0% { transform: translate(0vw, 0vh) scale(1); }
+          33% { transform: translate(-15vw, 5vh) scale(1.2); }
+          66% { transform: translate(10vw, -10vh) scale(0.8); }
+          100% { transform: translate(0vw, 0vh) scale(1); }
         }
-        @keyframes slide-band-3 {
-          0% { transform: translateX(-120vw) rotate(-5deg) scaleY(1.5); }
-          100% { transform: translateX(120vw) rotate(-5deg) scaleY(1.5); }
+        @keyframes aurora-3 {
+          0% { transform: translate(0vw, 0vh) scale(1); }
+          33% { transform: translate(10vw, 10vh) scale(1.1); }
+          66% { transform: translate(-10vw, -10vh) scale(0.9); }
+          100% { transform: translate(0vw, 0vh) scale(1); }
         }
       `}} />
 
@@ -481,26 +487,29 @@ export function HomeView() {
       {/* Hero Greeting Section */}
       <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black">
         
-        {/* Dynamic Sliding Bands */}
-        <div className="absolute top-0 left-0 w-full h-[700px] z-0 pointer-events-none opacity-100 mix-blend-screen">
-          {/* Magenta/Pink Band */}
-          <div className="absolute top-[5%] w-[100vw] h-[120px] bg-[#FF0080] blur-[80px] animate-[slide-band-1_14s_linear_infinite]" />
-          
-          {/* Orange Band */}
-          <div className="absolute top-[30%] w-[110vw] h-[100px] bg-[#FF4500] blur-[70px] animate-[slide-band-2_18s_linear_infinite]" style={{ animationDelay: '-5s' }} />
-          
-          {/* Yellow Band */}
-          <div className="absolute top-[55%] w-[120vw] h-[140px] bg-[#FFD700] blur-[90px] animate-[slide-band-3_22s_linear_infinite]" style={{ animationDelay: '-12s' }} />
+        {/* Gapless Aurora Background Container */}
+        <div 
+          className="absolute top-0 left-0 w-full h-[800px] z-0 overflow-hidden pointer-events-none opacity-90 mix-blend-screen" 
+          style={{ maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)' }}
+        >
+          {/* Base gradient layer to ensure no black voids ever */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#FF0080]/30 via-[#FF4500]/20 to-[#FFD700]/10" />
 
-          {/* Another Magenta/Pink Band offset for continuous feel */}
-          <div className="absolute top-[20%] w-[90vw] h-[100px] bg-[#FF0080] blur-[80px] animate-[slide-band-1_16s_linear_infinite]" style={{ animationDelay: '-8s' }} />
+          {/* Magenta/Pink Blob */}
+          <div className="absolute -top-[20%] -left-[20%] w-[120vw] h-[120vw] min-w-[500px] min-h-[500px] bg-[#FF0080] blur-[120px] opacity-80 animate-[aurora-1_15s_linear_infinite]" />
           
-          {/* Another Orange offset */}
-          <div className="absolute top-[70%] w-[100vw] h-[110px] bg-[#FF4500] blur-[80px] animate-[slide-band-2_19s_linear_infinite]" style={{ animationDelay: '-14s' }} />
+          {/* Orange Blob */}
+          <div className="absolute top-[0%] left-[10%] w-[130vw] h-[130vw] min-w-[600px] min-h-[600px] bg-[#FF4500] blur-[140px] opacity-80 animate-[aurora-2_20s_linear_infinite]" />
+          
+          {/* Yellow Blob */}
+          <div className="absolute -top-[10%] right-[-10%] w-[110vw] h-[110vw] min-w-[450px] min-h-[450px] bg-[#FFD700] blur-[120px] opacity-70 animate-[aurora-3_18s_linear_infinite]" />
+
+          {/* Additional Magenta Blob to balance */}
+          <div className="absolute top-[10%] right-[-30%] w-[100vw] h-[100vw] min-w-[400px] min-h-[400px] bg-[#FF0080] blur-[140px] opacity-80 animate-[aurora-1_25s_linear_infinite_reverse]" />
         </div>
 
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/10 pointer-events-none z-0"></div>
+        {/* Dark overlay to smoothly fade to black matching the original blue image */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black pointer-events-none z-0"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-4">
           <h1 
