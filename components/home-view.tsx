@@ -416,28 +416,17 @@ export function HomeView() {
           background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
           animation: shimmer 1.2s infinite;
         }
-        @keyframes gradient-pan {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+        @keyframes slide-band-1 {
+          0% { transform: translateX(-120vw) rotate(-15deg) scaleY(1.2); }
+          100% { transform: translateX(120vw) rotate(-15deg) scaleY(1.2); }
         }
-        @keyframes blob-1 {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(40px, -50px) scale(1.2); }
-          66% { transform: translate(-20px, 20px) scale(0.8); }
-          100% { transform: translate(0px, 0px) scale(1); }
+        @keyframes slide-band-2 {
+          0% { transform: translateX(-120vw) rotate(10deg) scaleY(0.8); }
+          100% { transform: translateX(120vw) rotate(10deg) scaleY(0.8); }
         }
-        @keyframes blob-2 {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(-50px, 30px) scale(0.8); }
-          66% { transform: translate(30px, -20px) scale(1.2); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        @keyframes blob-3 {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, 30px) scale(1.2); }
-          66% { transform: translate(-40px, -20px) scale(0.8); }
-          100% { transform: translate(0px, 0px) scale(1); }
+        @keyframes slide-band-3 {
+          0% { transform: translateX(-120vw) rotate(-5deg) scaleY(1.5); }
+          100% { transform: translateX(120vw) rotate(-5deg) scaleY(1.5); }
         }
       `}} />
 
@@ -490,28 +479,24 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-hidden">
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black">
         
-        {/* Animated Gradient Panning Background */}
-        <div 
-          className="absolute inset-0 z-0 opacity-40"
-          style={{
-            background: "linear-gradient(-45deg, #0a0a0a, #1a0010, #1a0800, #000c1c)",
-            backgroundSize: "400% 400%",
-            animation: "gradient-pan 15s ease infinite"
-          }}
-        />
-        
-        {/* Dynamic Glowing Blobs (Gemini Style) */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-80 mix-blend-screen">
-          {/* Magenta / Pink Blob */}
-          <div className="absolute top-[-10%] left-[-10%] w-[70%] h-[70%] bg-[#ec4899]/40 rounded-full blur-[90px] animate-[blob-1_15s_infinite]" />
-          {/* Orange Blob */}
-          <div className="absolute top-[10%] right-[-10%] w-[60%] h-[60%] bg-[#f97316]/40 rounded-full blur-[90px] animate-[blob-2_20s_infinite]" />
-          {/* Yellow / Gold Blob */}
-          <div className="absolute bottom-[10%] left-[10%] w-[60%] h-[60%] bg-[#eab308]/30 rounded-full blur-[90px] animate-[blob-3_18s_infinite]" />
-          {/* Deep Blue / Indigo Blob */}
-          <div className="absolute bottom-[0%] right-[10%] w-[50%] h-[50%] bg-[#3b82f6]/30 rounded-full blur-[90px] animate-[blob-1_25s_infinite_reverse]" />
+        {/* Dynamic Sliding Bands */}
+        <div className="absolute top-0 left-0 w-full h-[700px] z-0 pointer-events-none opacity-100 mix-blend-screen">
+          {/* Magenta/Pink Band */}
+          <div className="absolute top-[5%] w-[100vw] h-[120px] bg-[#FF0080] blur-[80px] animate-[slide-band-1_14s_linear_infinite]" />
+          
+          {/* Orange Band */}
+          <div className="absolute top-[30%] w-[110vw] h-[100px] bg-[#FF4500] blur-[70px] animate-[slide-band-2_18s_linear_infinite]" style={{ animationDelay: '-5s' }} />
+          
+          {/* Yellow Band */}
+          <div className="absolute top-[55%] w-[120vw] h-[140px] bg-[#FFD700] blur-[90px] animate-[slide-band-3_22s_linear_infinite]" style={{ animationDelay: '-12s' }} />
+
+          {/* Another Magenta/Pink Band offset for continuous feel */}
+          <div className="absolute top-[20%] w-[90vw] h-[100px] bg-[#FF0080] blur-[80px] animate-[slide-band-1_16s_linear_infinite]" style={{ animationDelay: '-8s' }} />
+          
+          {/* Another Orange offset */}
+          <div className="absolute top-[70%] w-[100vw] h-[110px] bg-[#FF4500] blur-[80px] animate-[slide-band-2_19s_linear_infinite]" style={{ animationDelay: '-14s' }} />
         </div>
 
         {/* Dark overlay for text readability */}
