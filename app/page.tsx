@@ -395,33 +395,34 @@ export default function Page() {
         isolation: isolate;
         box-shadow: rgba(0, 0, 0, 0.25) 0px 4px 8px;
         transform: translateZ(0);
+        backdrop-filter: blur(5px) brightness(1.2) saturate(1.1);
+        -webkit-backdrop-filter: blur(5px) brightness(1.2) saturate(1.1);
       }
 
       .liquid-glass-panel::before {
         content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px -10px 25px inset, rgba(255, 255, 255, 0.1) 0px -1px 3px 1px inset;
-  background-color: rgba(255, 255, 255, 0);
-  pointer-events: none;
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        border-radius: inherit;
+        box-shadow: rgba(0, 0, 0, 0.15) 0px -10px 25px inset, rgba(255, 255, 255, 0.1) 0px -1px 3px 1px inset;
+        background-color: rgba(255, 255, 255, 0);
+        pointer-events: none;
       }
 
       .liquid-glass-panel::after {
         content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  backdrop-filter: blur(5px) brightness(1.2) saturate(1.1);
-  -webkit-backdrop-filter: blur(5px) brightness(1.2) saturate(1.1);
-  filter: url(#glass-distortion);
-  -webkit-filter: url(#glass-distortion);
-  isolation: isolate;
-  pointer-events: none;
-  transform: translateZ(0);
-  will-change: backdrop-filter, filter;
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        backdrop-filter: blur(2px) brightness(1.1);
+        -webkit-backdrop-filter: blur(2px) brightness(1.1);
+        filter: url(#glass-distortion);
+        -webkit-filter: url(#glass-distortion);
+        pointer-events: none;
+        mask-image: linear-gradient(to bottom, black 0%, transparent 20%, transparent 80%, black 100%);
+        -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 20%, transparent 80%, black 100%);
       }
 
       .sliding-pill {
