@@ -361,31 +361,24 @@ function AppContent() {
 export default function Page() {
   return (
     <AppProvider>
-    {/* ── Filtro SVG Global (Aurora Gel) ── */}
+    {/* ── Filtro SVG Global (Custom Liquid Glass) ── */}
     <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }}>
-    <defs>
-    <filter id="glass-distortion" x="-20%" y="-20%" width="140%" height="140%">
-    <feTurbulence
-    type="fractalNoise"
-    baseFrequency="0.01 0.01"
-    numOctaves="2"
-    seed="92"
-    result="noise"
-    />
-    <feGaussianBlur
-    in="noise"
-    stdDeviation="2"
-    result="blurred"
-    />
-    <feDisplacementMap
-    in="SourceGraphic"
-    in2="blurred"
-    scale="35"
-    xChannelSelector="R"
-    yChannelSelector="G"
-    />
-    </filter>
-    </defs>
+      <defs>
+        <filter id="glass-distortion" x="-10%" y="-10%" width="120%" height="120%" colorInterpolationFilters="sRGB">
+          <feImage 
+            width="100%" 
+            height="100%" 
+            preserveAspectRatio="none"
+            href="data:image/png;base64,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" 
+          />
+          <feDisplacementMap 
+            in="SourceGraphic" 
+            xChannelSelector="R" 
+            yChannelSelector="G" 
+            scale="89.44609085952717" 
+          />
+        </filter>
+      </defs>
     </svg>
 
     {/* ── Estilos CSS Globales (Valores exactos del fragmento Aurora Gel) ── */}
