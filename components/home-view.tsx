@@ -416,15 +416,19 @@ export function HomeView() {
           background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
           animation: shimmer 1.2s infinite;
         }
-        @keyframes bg-shift {
-          0% { background-position: 0% 0%; }
-          100% { background-position: 0% 100%; }
+        @keyframes orb-float-1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(5%, 8%) scale(1.1); }
+          66% { transform: translate(-4%, 5%) scale(0.95); }
         }
-        @keyframes diagonal-slide {
-          0% { transform: translateX(-300px) rotate(30deg); opacity: 0; }
-          10% { opacity: 0.9; }
-          80% { opacity: 0.9; }
-          100% { transform: translateX(120vw) rotate(30deg); opacity: 0; }
+        @keyframes orb-float-2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(-8%, -5%) scale(1.05); }
+          66% { transform: translate(5%, -8%) scale(1.15); }
+        }
+        @keyframes orb-float-3 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(8%, 10%) scale(1.2); }
         }
       `}} />
 
@@ -479,52 +483,39 @@ export function HomeView() {
       {/* Hero Greeting Section */}
       <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-hidden">
         
-        {/* Premium Diagonal Glass Bands (Mockup Presentation Background Aesthetic) */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-black">
-          
-          {/* Band 1: Wide */}
-          <div 
-            className="absolute top-[-5%] left-0 w-[180px] h-[600px] rounded-t-full blur-[12px] opacity-0" 
-            style={{ 
-              background: 'linear-gradient(180deg, #FF0080 0%, #FF4500 60%, transparent 100%)',
-              backgroundSize: '100% 200%',
-              animation: 'diagonal-slide 14s linear infinite, bg-shift 4s ease-in-out infinite alternate'
-            }} 
-          />
-          
-          {/* Band 2: Thin */}
-          <div 
-            className="absolute top-[5%] left-0 w-[90px] h-[450px] rounded-t-full blur-[10px] opacity-0" 
-            style={{ 
-              background: 'linear-gradient(180deg, #FFD700 0%, #FF4500 60%, transparent 100%)',
-              backgroundSize: '100% 200%',
-              animation: 'diagonal-slide 16s linear infinite 4s, bg-shift 5s ease-in-out infinite alternate'
-            }} 
-          />
-
-          {/* Band 3: Medium */}
-          <div 
-            className="absolute top-[0%] left-0 w-[130px] h-[550px] rounded-t-full blur-[14px] opacity-0" 
-            style={{ 
-              background: 'linear-gradient(180deg, #FF6A00 0%, #FF0080 60%, transparent 100%)',
-              backgroundSize: '100% 200%',
-              animation: 'diagonal-slide 15s linear infinite 8s, bg-shift 6s ease-in-out infinite alternate'
-            }} 
-          />
-
-          {/* Band 4: Extra Wide */}
-          <div 
-            className="absolute top-[-10%] left-0 w-[220px] h-[700px] rounded-t-full blur-[16px] opacity-0" 
-            style={{ 
-              background: 'linear-gradient(180deg, #FF0080 0%, #FFD700 60%, transparent 100%)',
-              backgroundSize: '100% 200%',
-              animation: 'diagonal-slide 17s linear infinite 12s, bg-shift 7s ease-in-out infinite alternate'
-            }} 
-          />
+        {/* Premium Ambient Mesh Glow */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#030001]">
+          {/* Blur Wrapper to mix the colors flawlessly */}
+          <div className="absolute inset-0 opacity-80 mix-blend-screen" style={{ filter: 'blur(80px)' }}>
+            
+            {/* Core Magenta Glow */}
+            <div 
+              className="absolute -top-[10%] -left-[10%] w-[80%] h-[70%] bg-[#E6007A] rounded-full"
+              style={{ animation: 'orb-float-1 12s ease-in-out infinite' }}
+            />
+            
+            {/* Vibrant Orange Glow */}
+            <div 
+              className="absolute top-[0%] -right-[10%] w-[90%] h-[80%] bg-[#FF5E00] rounded-full"
+              style={{ animation: 'orb-float-2 15s ease-in-out infinite' }}
+            />
+            
+            {/* Bright Yellow Highlight */}
+            <div 
+              className="absolute top-[20%] left-[20%] w-[60%] h-[60%] bg-[#FFB800] rounded-full opacity-80"
+              style={{ animation: 'orb-float-3 10s ease-in-out infinite' }}
+            />
+            
+            {/* Deep Purple Base to add depth */}
+            <div 
+              className="absolute -bottom-[20%] left-[10%] w-[100%] h-[60%] bg-[#8A00C2] rounded-full opacity-60"
+              style={{ animation: 'orb-float-1 18s ease-in-out infinite reverse' }}
+            />
+          </div>
         </div>
 
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none z-0"></div>
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#030001] via-[#030001]/90 to-transparent pointer-events-none z-0"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-4">
           <h1 
