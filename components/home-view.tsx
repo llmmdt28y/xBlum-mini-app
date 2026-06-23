@@ -473,11 +473,11 @@ export function HomeView() {
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
         <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-0"></div>
         
-        <div className="relative z-10 flex flex-col items-center gap-5 w-full max-w-md px-6 text-center transform -translate-y-4">
+        <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-12">
           <img 
             src="/noir-newlogo.png" 
             alt="Noir Logo" 
-            className="w-24 h-24 object-contain select-none pointer-events-none drop-shadow-xl"
+            className="w-32 h-32 object-contain select-none pointer-events-none"
             draggable={false}
             style={imageProtectionStyle}
           />
