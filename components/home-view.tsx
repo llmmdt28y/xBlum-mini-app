@@ -483,10 +483,10 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-[#1a1a1a] overflow-hidden">
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-[#1a1a1a] overflow-visible">
         
         {/* Premium Ambient Mesh Glow */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#1a1a1a]">
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-visible bg-[#1a1a1a]">
           {/* Blur Wrapper to mix the colors flawlessly */}
           <div className="absolute inset-0 opacity-80 mix-blend-screen" style={{ filter: 'blur(80px)' }}>
             
@@ -579,7 +579,7 @@ export function HomeView() {
           <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
             
             {/* Card 1 */}
-            <div className="bg-[#262626] p-4 rounded-[24px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
                 <div className="text-[22px] mb-[8px]">🧠</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -604,7 +604,7 @@ export function HomeView() {
             </div>
 
             {/* Card 2 */}
-            <div className="bg-[#262626] p-4 rounded-[24px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
                 <div className="text-[22px] mb-[8px]">⏰</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -629,7 +629,7 @@ export function HomeView() {
             </div>
 
             {/* Card 3 */}
-            <div className="bg-[#262626] p-4 rounded-[24px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
                 <div className="text-[22px] mb-[8px]">📰</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -659,7 +659,7 @@ export function HomeView() {
         {/* SuperNoir Banner */}
         <div 
           onClick={() => setCurrentView("premium")}
-          className="hidden w-[96%] mx-auto mb-1 mt-0 relative overflow-hidden rounded-[20px] shadow-lg cursor-pointer"
+          className="hidden w-full mb-1 mt-0 relative overflow-hidden rounded-[16px] shadow-lg cursor-pointer"
         >
           {/* Background Gradient matching Premium View */}
           <div className="absolute inset-0 bg-gradient-to-r from-[#e65c00] via-[#ff6a00] to-[#ff8c33]" />
@@ -702,16 +702,16 @@ export function HomeView() {
         {/* New SuperNoir Pill Banner */}
         <div 
           onClick={() => setCurrentView("premium")}
-          className="w-[96%] mx-auto mb-3 mt-1 relative rounded-[100px] p-[1.5px] cursor-pointer overflow-hidden group"
+          className="w-full mb-3 mt-1 relative rounded-[16px] p-[1.5px] cursor-pointer overflow-hidden group"
         >
           {/* Moving gradient background for border */}
-          <div className="absolute inset-0 z-0 overflow-hidden rounded-[100px]">
+          <div className="absolute inset-0 z-0 overflow-hidden rounded-[16px]">
              <div className="absolute top-1/2 left-1/2 w-[200%] h-[500%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_0deg,transparent_0%,rgba(255,130,38,0.6)_10%,transparent_12%,transparent_50%,rgba(255,130,38,0.6)_60%,transparent_62%)] animate-[spin_5s_linear_infinite]" />
           </div>
           
           {/* Inner content (Solid background blocks glow, transparent orange tint) */}
-          <div className="relative z-10 w-full h-full bg-[#080808] rounded-[100px]">
-            <div className="w-full h-full bg-[#ff8226]/15 rounded-[100px] px-3 py-3 flex items-center justify-between">
+          <div className="relative z-10 w-full h-full bg-[#080808] rounded-[16px]">
+            <div className="w-full h-full bg-[#ff8226]/15 rounded-[16px] px-3 py-3 flex items-center justify-between">
             
               <div className="flex items-center gap-1.5 flex-1 min-w-0">
                 {/* Left: Logo */}
@@ -752,7 +752,7 @@ export function HomeView() {
         </div>
 
             {/* Connectors Section */}
-        <div className="mb-2 w-[96%] mx-auto mt-6">
+        <div className="mb-2 w-full mt-6">
             <div className="mt-2 mb-3 pl-1">
               <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Connectors
@@ -763,7 +763,7 @@ export function HomeView() {
             </div>
 
             <div 
-              className="w-full bg-[#262626] rounded-[24px] overflow-hidden flex flex-col relative"
+              className="w-full bg-[#262626] rounded-[16px] overflow-hidden flex flex-col relative"
             >
               <div className="flex flex-col">
                 {connectorsLoading
