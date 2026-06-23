@@ -120,7 +120,7 @@ function NavBar() {
   return (
     <>
     <div
-    className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none"
+    className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none mx-auto w-full max-w-[480px]"
     style={{ bottom: safeBottom }}
     >
     {/* ── BOTÓN IZQUIERDO ── */}
@@ -329,7 +329,7 @@ function AppContent() {
     )}
 
     <div
-    className="bg-black flex flex-col relative"
+    className="bg-black flex flex-col relative mx-auto w-full max-w-[480px] sm:border-x sm:border-white/5 shadow-2xl"
     style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
     >
     {currentView === "home"               && (<><Header /><HomeView /></>)}
@@ -390,6 +390,18 @@ export default function Page() {
 
     {/* ── Estilos CSS Globales (Valores exactos del fragmento Aurora Gel) ── */}
     <style dangerouslySetInnerHTML={{ __html: `
+      /* Ocultar barra de desplazamiento globalmente */
+      ::-webkit-scrollbar {
+        display: none;
+      }
+      * {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
+      body {
+        background-color: #000;
+      }
+
       .liquid-glass-panel {
         position: relative;
         isolation: isolate;
