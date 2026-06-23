@@ -434,53 +434,7 @@ export function HomeView() {
         }
       `}} />
 
-      {/* Account Setup Progress Pill */}
-      <div className="absolute top-0 w-full flex justify-center z-50 pointer-events-none" style={{
-        paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 12px)"
-      }}>
-        <button 
-          onClick={() => setCurrentView("account_setup")}
-          className="flex items-center gap-2 rounded-full p-1.5 pr-2.5 active:scale-95 transition-transform shadow-lg pointer-events-auto bg-[#60a5fa]/10 backdrop-blur-md" 
-          style={{ 
-            maxWidth: "260px"
-          }}
-        >
-          {/* Progress Ring */}
-          <div className="relative flex items-center justify-center w-[28px] h-[28px] shrink-0">
-            <svg className="w-full h-full rotate-180 transform absolute inset-0">
-              <circle 
-                cx="14" 
-                cy="14" 
-                r="12" 
-                stroke="#38bdf8" 
-                strokeWidth="2.5" 
-                fill="none" 
-                strokeDasharray="75.40" 
-                strokeDashoffset={strokeDashoffset} 
-                strokeLinecap="round" 
-                style={{ transition: "stroke-dashoffset 0.5s ease-in-out" }}
-              />
-            </svg>
-            <span className="text-[10px] font-semibold text-[#8e8e93]">{completedSections}/{totalSections}</span>
-          </div>
-          
-          {/* Text */}
-          <div className="flex flex-col items-start leading-tight min-w-0 pr-1">
-            <span className="text-white text-[13px] font-semibold mb-0.5 whitespace-nowrap truncate text-left" style={{ fontFamily: SFD }}>
-              {completedSections === 3 ? "Account completed" : "Complete account"}
-            </span>
-            <span className="text-[#8e8e93] text-[11px] font-medium whitespace-nowrap truncate text-left" style={{ fontFamily: SF }}>
-              {completedSections === 3 ? "All details are set" : "It will take 2 minutes"}
-            </span>
-          </div>
-          
-          {completedSections < 3 ? (
-            <ChevronRight className="w-3.5 h-3.5 text-[#38bdf8] shrink-0 ml-1" strokeWidth={2.5} />
-          ) : (
-            <Check className="w-3.5 h-3.5 text-[#38bdf8] shrink-0 ml-1" strokeWidth={2.5} />
-          )}
-        </button>
-      </div>
+
 
       {/* Hero Greeting Section */}
       <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-[#1a1a1a] overflow-visible">
@@ -519,7 +473,14 @@ export function HomeView() {
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
         <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-0"></div>
         
-        <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-4">
+        <div className="relative z-10 flex flex-col items-center gap-5 w-full max-w-md px-6 text-center transform -translate-y-4">
+          <img 
+            src="/noir-newlogo.png" 
+            alt="Noir Logo" 
+            className="w-24 h-24 object-contain select-none pointer-events-none drop-shadow-xl"
+            draggable={false}
+            style={imageProtectionStyle}
+          />
           <h1 
             className="text-white font-bold text-[32px] sm:text-[36px] leading-[1.1] tracking-tight drop-shadow-md" 
             style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
