@@ -565,11 +565,14 @@ export function HomeView() {
         
 
 
-        {/* Basic Section (Horizontal Cards) */}
+        {/* Recommended For You Section */}
         <div className="mt-2 mb-6">
           <div className="flex items-center gap-2 mb-3 ml-2">
+            <div className="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center shrink-0">
+              <BookOpen className="w-[13px] h-[13px] text-black" strokeWidth={2.5} />
+            </div>
             <h2 className="text-white font-semibold text-[17px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-              Basic
+              Recommended for you
             </h2>
           </div>
 
@@ -748,12 +751,15 @@ export function HomeView() {
           </div>
         </div>
 
-            {/* Connectors Section (Group Chat) */}
+            {/* Connectors Section */}
         <div className="mb-2 w-[96%] mx-auto mt-6">
             <div className="mt-2 mb-3 pl-1">
-              <h2 className="text-white font-semibold text-[17px] ml-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-                Group Chat
+              <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                Connectors
               </h2>
+              <p className="text-[#a0a0a0] text-[13px] mt-0.5 leading-snug" style={{ fontFamily: SF }}>
+                Link your apps and services to unlock powerful AI automations.
+              </p>
             </div>
 
             <div 
