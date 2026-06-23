@@ -420,23 +420,11 @@ export function HomeView() {
           0% { background-position: 0% 0%; }
           100% { background-position: 0% 100%; }
         }
-        @keyframes slide-across-1 {
-          0% { transform: translateX(-200px) rotate(15deg); opacity: 0; }
-          10% { opacity: 0.8; }
-          80% { opacity: 0.8; }
-          100% { transform: translateX(120vw) rotate(15deg); opacity: 0; }
-        }
-        @keyframes slide-across-2 {
-          0% { transform: translateX(-200px) rotate(20deg); opacity: 0; }
+        @keyframes diagonal-slide {
+          0% { transform: translateX(-300px) rotate(30deg); opacity: 0; }
           10% { opacity: 0.9; }
           80% { opacity: 0.9; }
-          100% { transform: translateX(120vw) rotate(20deg); opacity: 0; }
-        }
-        @keyframes slide-across-3 {
-          0% { transform: translateX(-200px) rotate(10deg); opacity: 0; }
-          10% { opacity: 0.8; }
-          80% { opacity: 0.8; }
-          100% { transform: translateX(120vw) rotate(10deg); opacity: 0; }
+          100% { transform: translateX(120vw) rotate(30deg); opacity: 0; }
         }
       `}} />
 
@@ -491,49 +479,46 @@ export function HomeView() {
       {/* Hero Greeting Section */}
       <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-hidden">
         
-        {/* Dynamic Sweeping Logo Points Background */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          {/* Point 1: Magenta (Medium Width) */}
+        {/* Premium Diagonal Glass Bands (Mockup Presentation Background Aesthetic) */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-black">
+          
+          {/* Band 1: Wide */}
           <div 
-            className="absolute -top-[5%] left-0 w-[120px] h-[450px] blur-[30px] opacity-0" 
+            className="absolute top-[-5%] left-0 w-[180px] h-[600px] rounded-t-full blur-[12px] opacity-0" 
             style={{ 
-              background: 'linear-gradient(180deg, #FF0080 0%, #FF4500 50%, #FFD700 100%)',
+              background: 'linear-gradient(180deg, #FF0080 0%, #FF4500 60%, transparent 100%)',
               backgroundSize: '100% 200%',
-              clipPath: 'polygon(20% 0%, 80% 0%, 100% 20%, 50% 100%, 0% 20%)',
-              animation: 'slide-across-1 14s linear infinite, bg-shift 8s ease-in-out infinite alternate' 
-            }} 
-          />
-
-          {/* Point 2: Orange (Wide Width) */}
-          <div 
-            className="absolute -top-[10%] left-0 w-[170px] h-[350px] blur-[35px] opacity-0" 
-            style={{ 
-              background: 'linear-gradient(180deg, #FF6A00 0%, #FF0080 50%, #FF4500 100%)',
-              backgroundSize: '100% 200%',
-              clipPath: 'polygon(20% 0%, 80% 0%, 100% 20%, 50% 100%, 0% 20%)',
-              animation: 'slide-across-2 16s linear infinite 5s, bg-shift 6s ease-in-out infinite alternate' 
-            }} 
-          />
-
-          {/* Point 3: Yellow (Thin Width) */}
-          <div 
-            className="absolute top-[5%] left-0 w-[70px] h-[500px] blur-[25px] opacity-0" 
-            style={{ 
-              background: 'linear-gradient(180deg, #FFD700 0%, #FF4500 50%, #FF0080 100%)',
-              backgroundSize: '100% 200%',
-              clipPath: 'polygon(20% 0%, 80% 0%, 100% 20%, 50% 100%, 0% 20%)',
-              animation: 'slide-across-3 15s linear infinite 10s, bg-shift 10s ease-in-out infinite alternate' 
+              animation: 'diagonal-slide 14s linear infinite, bg-shift 4s ease-in-out infinite alternate'
             }} 
           />
           
-          {/* Point 4: Magenta/Yellow mix (Medium) */}
+          {/* Band 2: Thin */}
           <div 
-            className="absolute top-[0%] left-0 w-[140px] h-[400px] blur-[30px] opacity-0" 
+            className="absolute top-[5%] left-0 w-[90px] h-[450px] rounded-t-full blur-[10px] opacity-0" 
             style={{ 
-              background: 'linear-gradient(180deg, #FF0080 0%, #FFD700 50%, #FF4500 100%)',
+              background: 'linear-gradient(180deg, #FFD700 0%, #FF4500 60%, transparent 100%)',
               backgroundSize: '100% 200%',
-              clipPath: 'polygon(20% 0%, 80% 0%, 100% 20%, 50% 100%, 0% 20%)',
-              animation: 'slide-across-1 17s linear infinite 13s, bg-shift 7s ease-in-out infinite alternate' 
+              animation: 'diagonal-slide 16s linear infinite 4s, bg-shift 5s ease-in-out infinite alternate'
+            }} 
+          />
+
+          {/* Band 3: Medium */}
+          <div 
+            className="absolute top-[0%] left-0 w-[130px] h-[550px] rounded-t-full blur-[14px] opacity-0" 
+            style={{ 
+              background: 'linear-gradient(180deg, #FF6A00 0%, #FF0080 60%, transparent 100%)',
+              backgroundSize: '100% 200%',
+              animation: 'diagonal-slide 15s linear infinite 8s, bg-shift 6s ease-in-out infinite alternate'
+            }} 
+          />
+
+          {/* Band 4: Extra Wide */}
+          <div 
+            className="absolute top-[-10%] left-0 w-[220px] h-[700px] rounded-t-full blur-[16px] opacity-0" 
+            style={{ 
+              background: 'linear-gradient(180deg, #FF0080 0%, #FFD700 60%, transparent 100%)',
+              backgroundSize: '100% 200%',
+              animation: 'diagonal-slide 17s linear infinite 12s, bg-shift 7s ease-in-out infinite alternate'
             }} 
           />
         </div>
