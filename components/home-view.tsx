@@ -529,7 +529,7 @@ export function HomeView() {
           <div 
             className="inline-flex items-center gap-3 p-[6px] pl-5 mt-2 rounded-[100px] bg-white/[0.06] border border-white/[0.1] backdrop-blur-md shadow-lg"
           >
-            <span className="text-[#8e8e93] text-[15px] font-medium tracking-wide text-left" style={{ fontFamily: SF }}>
+            <span className="text-white text-[15px] font-medium tracking-wide text-left" style={{ fontFamily: SF }}>
               Ask anything...
             </span>
             <div className="w-9 h-9 rounded-full bg-white/[0.08] border border-white/[0.05] flex items-center justify-center shrink-0 active:scale-95 transition-transform cursor-pointer">
@@ -561,13 +561,13 @@ export function HomeView() {
           <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
             
             {/* Card 1: Chat Automation */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[176px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-3 rounded-[20px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <MessageCirclePlus className="w-[20px] h-[20px] text-[#d4a373] mb-[10px]" />
+                <MessageCirclePlus className="w-[20px] h-[20px] text-[#d4a373] mb-[8px]" />
                 <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Configure Chat Automation
                 </h3>
-                <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-4" style={{ fontFamily: SF }}>
+                <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
                   Auto-reply and manage spam with Business Agent.
                 </p>
               </div>
@@ -595,13 +595,13 @@ export function HomeView() {
             </div>
 
             {/* Card 2: Group Moderation */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[176px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-3 rounded-[20px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <Users className="w-[20px] h-[20px] text-[#ffffff] mb-[10px]" />
+                <Users className="w-[20px] h-[20px] text-[#ffffff] mb-[8px]" />
                 <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Group Moderation
                 </h3>
-                <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-4" style={{ fontFamily: SF }}>
+                <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
                   Set up AI bots to moderate your communities.
                 </p>
               </div>
@@ -627,13 +627,13 @@ export function HomeView() {
             </div>
 
             {/* Card 3: Schedules */}
-            <div className="bg-[#151517] p-4 rounded-[20px] w-[176px] shrink-0 border border-white/[0.06] relative overflow-hidden flex flex-col snap-center shadow-lg">
+            <div className="bg-[#151517] p-3 rounded-[20px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <CalendarDays className="w-[20px] h-[20px] text-[#f97316] mb-[10px]" />
+                <CalendarDays className="w-[20px] h-[20px] text-[#f97316] mb-[8px]" />
                 <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Manage Schedules
                 </h3>
-                <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-4" style={{ fontFamily: SF }}>
+                <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
                   Track tasks and automated upcoming events.
                 </p>
               </div>
