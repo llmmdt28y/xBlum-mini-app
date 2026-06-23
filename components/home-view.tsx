@@ -485,13 +485,40 @@ export function HomeView() {
       {/* Hero Greeting Section */}
       <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-visible">
         
-        {/* Optimized Static Ambient Glow */}
+        {/* Hardware Accelerated Radial Glows */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-visible bg-black">
-          {/* Hardware-accelerated static blur without heavy mix-blend-screen */}
-          <div className="absolute inset-0 opacity-50" style={{ filter: 'blur(60px)', transform: 'translateZ(0)' }}>
-            <div className="absolute -top-[10%] -left-[10%] w-[80%] h-[70%] bg-[#E6007A] rounded-full" />
-            <div className="absolute top-[0%] -right-[10%] w-[90%] h-[80%] bg-[#FF5E00] rounded-full" />
-            <div className="absolute top-[20%] left-[20%] w-[60%] h-[60%] bg-[#FFB800] rounded-full opacity-80" />
+          {/* Using radial gradients instead of expensive CSS blur filters */}
+          <div className="absolute inset-0 opacity-80 mix-blend-screen" style={{ transform: 'translateZ(0)' }}>
+            
+            {/* Core Magenta Glow */}
+            <div 
+              className="absolute -top-[20%] -left-[20%] w-[100%] h-[100%]"
+              style={{ 
+                background: 'radial-gradient(circle, rgba(230, 0, 122, 0.8) 0%, rgba(230, 0, 122, 0) 65%)',
+                animation: 'orb-float-1 12s ease-in-out infinite',
+                willChange: 'transform'
+              }}
+            />
+            
+            {/* Vibrant Orange Glow */}
+            <div 
+              className="absolute top-[0%] -right-[20%] w-[110%] h-[110%]"
+              style={{ 
+                background: 'radial-gradient(circle, rgba(255, 94, 0, 0.7) 0%, rgba(255, 94, 0, 0) 65%)',
+                animation: 'orb-float-2 15s ease-in-out infinite',
+                willChange: 'transform'
+              }}
+            />
+            
+            {/* Bright Yellow Highlight */}
+            <div 
+              className="absolute top-[10%] left-[10%] w-[80%] h-[80%] opacity-80"
+              style={{ 
+                background: 'radial-gradient(circle, rgba(255, 184, 0, 0.6) 0%, rgba(255, 184, 0, 0) 65%)',
+                animation: 'orb-float-3 10s ease-in-out infinite',
+                willChange: 'transform'
+              }}
+            />
           </div>
         </div>
 
