@@ -372,7 +372,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-24">
+    <div className="flex-1 flex flex-col bg-[#1a1a1a] min-h-screen text-white overflow-x-hidden font-sans pb-24">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -483,47 +483,41 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-visible">
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-[#1a1a1a] overflow-visible">
         
-        {/* Hardware Accelerated Radial Glows */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-visible bg-black">
-          {/* Using radial gradients instead of expensive CSS blur filters */}
-          <div className="absolute inset-0 opacity-80 mix-blend-screen" style={{ transform: 'translateZ(0)' }}>
+        {/* GPU Optimized Authentic Mesh Glow */}
+        <div className="absolute inset-0 z-0 pointer-events-none bg-[#1a1a1a]" style={{ clipPath: 'polygon(-100% 0, 200% 0, 200% 100%, -100% 100%)' }}>
+          {/* Hardware-accelerated blur wrapper */}
+          <div className="absolute inset-0 opacity-80 mix-blend-screen" style={{ filter: 'blur(80px)', transform: 'translateZ(0)', willChange: 'transform, filter' }}>
             
             {/* Core Magenta Glow */}
             <div 
-              className="absolute -top-[20%] -left-[20%] w-[100%] h-[100%]"
-              style={{ 
-                background: 'radial-gradient(circle, rgba(230, 0, 122, 0.8) 0%, rgba(230, 0, 122, 0) 65%)',
-                animation: 'orb-float-1 12s ease-in-out infinite',
-                willChange: 'transform'
-              }}
+              className="absolute -top-[10%] -left-[10%] w-[80%] h-[70%] bg-[#E6007A] rounded-full"
+              style={{ animation: 'orb-float-1 12s ease-in-out infinite', willChange: 'transform' }}
             />
             
             {/* Vibrant Orange Glow */}
             <div 
-              className="absolute top-[0%] -right-[20%] w-[110%] h-[110%]"
-              style={{ 
-                background: 'radial-gradient(circle, rgba(255, 94, 0, 0.7) 0%, rgba(255, 94, 0, 0) 65%)',
-                animation: 'orb-float-2 15s ease-in-out infinite',
-                willChange: 'transform'
-              }}
+              className="absolute top-[0%] -right-[10%] w-[90%] h-[80%] bg-[#FF5E00] rounded-full"
+              style={{ animation: 'orb-float-2 15s ease-in-out infinite', willChange: 'transform' }}
             />
             
             {/* Bright Yellow Highlight */}
             <div 
-              className="absolute top-[10%] left-[10%] w-[80%] h-[80%] opacity-80"
-              style={{ 
-                background: 'radial-gradient(circle, rgba(255, 184, 0, 0.6) 0%, rgba(255, 184, 0, 0) 65%)',
-                animation: 'orb-float-3 10s ease-in-out infinite',
-                willChange: 'transform'
-              }}
+              className="absolute top-[20%] left-[20%] w-[60%] h-[60%] bg-[#FFB800] rounded-full opacity-80"
+              style={{ animation: 'orb-float-3 10s ease-in-out infinite', willChange: 'transform' }}
+            />
+            
+            {/* Deep Purple Base restored but vertically clipped */}
+            <div 
+              className="absolute -bottom-[20%] left-[10%] w-[100%] h-[60%] bg-[#8A00C2] rounded-full opacity-60"
+              style={{ animation: 'orb-float-1 18s ease-in-out infinite reverse', willChange: 'transform' }}
             />
           </div>
         </div>
 
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none z-0"></div>
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-0"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-4">
           <h1 
@@ -563,7 +557,7 @@ export function HomeView() {
         </div>
         
         {/* Bottom gradient transition to black */}
-        <div className="absolute bottom-0 w-full h-56 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
+        <div className="absolute bottom-0 w-full h-56 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/80 to-transparent pointer-events-none"></div>
       </div>
 
       {/* Main Content */}
@@ -839,7 +833,7 @@ export function HomeView() {
 
       {/* Modals & Full Screen Views */}
       {modalState.view !== "closed" && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-black animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-[#1a1a1a] animate-in slide-in-from-right duration-300">
           
           {modalState.view === "list" && (
             <div className="flex flex-col h-full overflow-hidden" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
