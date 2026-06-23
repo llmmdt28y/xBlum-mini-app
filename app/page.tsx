@@ -280,8 +280,8 @@ function AppContent() {
     if (tg) {
       tg.ready()
       try {
-        if (tg.requestFullscreen) { tg.requestFullscreen() } else { tg.expand() }
-      } catch { tg.expand() }
+        tg.expand()
+      } catch {}
     }
   }, [])
 
@@ -329,7 +329,7 @@ function AppContent() {
     )}
 
     <div
-    className="bg-black flex flex-col relative mx-auto w-full max-w-[480px] sm:border-x sm:border-white/5 shadow-2xl"
+    className="flex flex-col relative mx-auto w-full max-w-[480px]"
     style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
     >
     {currentView === "home"               && (<><Header /><HomeView /></>)}
@@ -399,7 +399,8 @@ export default function Page() {
         scrollbar-width: none;  /* Firefox */
       }
       body {
-        background-color: #000;
+        background-color: #1a1a1a;
+        overflow-x: hidden;
       }
 
       .liquid-glass-panel {
