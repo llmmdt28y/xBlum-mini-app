@@ -508,11 +508,7 @@ export function HomeView() {
               style={{ animation: 'orb-float-3 10s ease-in-out infinite' }}
             />
             
-            {/* Deep Purple Base to add depth */}
-            <div 
-              className="absolute -bottom-[20%] left-[10%] w-[100%] h-[60%] bg-[#8A00C2] rounded-full opacity-60"
-              style={{ animation: 'orb-float-1 18s ease-in-out infinite reverse' }}
-            />
+            {/* Deep Purple Base removed to prevent vertical bleed */}
           </div>
         </div>
 
@@ -833,7 +829,7 @@ export function HomeView() {
 
       {/* Modals & Full Screen Views */}
       {modalState.view !== "closed" && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-black animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-[#1a1a1a] animate-in slide-in-from-right duration-300">
           
           {modalState.view === "list" && (
             <div className="flex flex-col h-full overflow-hidden" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
@@ -868,7 +864,7 @@ export function HomeView() {
 
               {/* Connectors List using the exact style from menu */}
               <div className="overflow-y-auto overscroll-none hide-scrollbar pb-10 flex-1 px-4">
-                <div className="w-full bg-[#151517] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
+                <div className="w-full bg-[#262626] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
                   <div className="flex flex-col">
                     {isSearching ? (
                       Array.from({ length: 3 }).map((_, i) => (
@@ -906,8 +902,8 @@ export function HomeView() {
                                   <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
                                 </div>
                                 <div className="flex flex-col min-w-0">
-                                  <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
-                                  <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
+                                  <span className="text-white font-medium text-[16px] leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SFD }}>{c.name}</span>
+                                  <span className="text-[#a0a0a0] text-[13px] leading-[1.3] line-clamp-2" style={{ fontFamily: SF }}>{c.description}</span>
                                 </div>
                               </div>
                               <div className={`relative z-10 shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-bold pointer-events-none ${
@@ -975,14 +971,14 @@ export function HomeView() {
                 )}
                 <div className="space-y-4">
                   <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
-                  <div className="rounded-2xl overflow-hidden bg-[#151517]">
+                  <div className="rounded-[16px] overflow-hidden bg-[#262626]">
                     {activeConnectorData.features.map((feat, i, arr) => (
                       <div key={i}>
                         <div className="flex gap-4 p-4">
                           <div className="shrink-0 mt-0.5">{feat.icon}</div>
                           <div>
-                            <p className="text-white font-semibold text-[15px] mb-0.5">{feat.title}</p>
-                            <p className="text-[#8e8e93] text-[13px] leading-relaxed">{feat.desc}</p>
+                            <p className="text-white font-medium text-[16px] mb-0.5" style={{ fontFamily: SFD }}>{feat.title}</p>
+                            <p className="text-[#a0a0a0] text-[13px] leading-relaxed" style={{ fontFamily: SF }}>{feat.desc}</p>
                           </div>
                         </div>
                         {i !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
