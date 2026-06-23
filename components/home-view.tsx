@@ -579,7 +579,7 @@ export function HomeView() {
           <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
             
             {/* Card 1 */}
-            <div className="bg-[#1c1c1e] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
                 <div className="text-[22px] mb-[8px]">🧠</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -604,7 +604,7 @@ export function HomeView() {
             </div>
 
             {/* Card 2 */}
-            <div className="bg-[#1c1c1e] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
                 <div className="text-[22px] mb-[8px]">⏰</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -629,7 +629,7 @@ export function HomeView() {
             </div>
 
             {/* Card 3 */}
-            <div className="bg-[#1c1c1e] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
                 <div className="text-[22px] mb-[8px]">📰</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -763,7 +763,7 @@ export function HomeView() {
             </div>
 
             <div 
-              className="w-full bg-[#1c1c1e] rounded-[16px] overflow-hidden flex flex-col relative"
+              className="w-full bg-[#262626] rounded-[16px] overflow-hidden flex flex-col relative"
             >
               <div className="flex flex-col">
                 {connectorsLoading
@@ -868,7 +868,7 @@ export function HomeView() {
 
               {/* Connectors List using the exact style from menu */}
               <div className="overflow-y-auto overscroll-none hide-scrollbar pb-10 flex-1 px-4">
-                <div className="w-full bg-[#1c1c1e] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
+                <div className="w-full bg-[#262626] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
                   <div className="flex flex-col">
                     {isSearching ? (
                       Array.from({ length: 3 }).map((_, i) => (
@@ -975,7 +975,7 @@ export function HomeView() {
                 )}
                 <div className="space-y-4">
                   <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
-                  <div className="rounded-[16px] overflow-hidden bg-[#1c1c1e]">
+                  <div className="rounded-[16px] overflow-hidden bg-[#262626]">
                     {activeConnectorData.features.map((feat, i, arr) => (
                       <div key={i}>
                         <div className="flex gap-4 p-4">
@@ -985,7 +985,7 @@ export function HomeView() {
                             <p className="text-[#a0a0a0] text-[13px] leading-relaxed" style={{ fontFamily: SF }}>{feat.desc}</p>
                           </div>
                         </div>
-                        {i !== arr.length - 1 && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
+                        {i !== arr.length - 1 && <div className="h-[1px] bg-[#262626] relative z-20 ml-4" />}
                       </div>
                     ))}
                   </div>
@@ -1075,7 +1075,7 @@ export function HomeView() {
                 <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95" style={{ fontFamily: SF }}>
                    <Save className="w-4 h-4" /> Apply to Group
                 </button>
-                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#1c1c1e] hover:bg-[#2c2c2e] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#262626] hover:bg-[#2c2c2e] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
                     Cancel
                 </button>
              </div>
