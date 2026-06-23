@@ -372,7 +372,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-24">
+    <div className="flex-1 flex flex-col bg-[#1a1a1a] min-h-screen text-white overflow-x-hidden font-sans pb-24">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -483,10 +483,10 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-hidden">
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-[#1a1a1a] overflow-hidden">
         
         {/* Premium Ambient Mesh Glow */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#030001]">
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#1a1a1a]">
           {/* Blur Wrapper to mix the colors flawlessly */}
           <div className="absolute inset-0 opacity-80 mix-blend-screen" style={{ filter: 'blur(80px)' }}>
             
@@ -517,7 +517,7 @@ export function HomeView() {
         </div>
 
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#030001] via-[#030001]/90 to-transparent pointer-events-none z-0"></div>
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-0"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-4">
           <h1 
@@ -557,7 +557,7 @@ export function HomeView() {
         </div>
         
         {/* Bottom gradient transition to black */}
-        <div className="absolute bottom-0 w-full h-56 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
+        <div className="absolute bottom-0 w-full h-56 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/80 to-transparent pointer-events-none"></div>
       </div>
 
       {/* Main Content */}
@@ -566,112 +566,64 @@ export function HomeView() {
 
 
         {/* Recommended For You Section */}
-        <div className="mt-2 mb-0">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center shrink-0">
-              <BookOpen className="w-[13px] h-[13px] text-black" strokeWidth={2.5} />
-            </div>
-            <h2 className="text-white font-semibold text-[16px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-              Recommended for you
-            </h2>
-          </div>
+        <div className="mt-2 mb-6">
+          <h2 className="text-white font-semibold text-[17px] mb-3 ml-2" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+            Recommended for you
+          </h2>
 
-          <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
+          <div className="bg-[#262626] rounded-[24px] p-2 flex flex-col">
             
             {/* Card 1: Chat Automation */}
-            <div className="bg-[#151517] p-3 rounded-[20px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
-              <div>
-                <MessageCirclePlus className="w-[20px] h-[20px] text-[#d4a373] mb-[8px]" />
-                <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
+            <div 
+              onClick={() => setIsBusinessModalOpen(true)}
+              className="flex items-center gap-4 p-3 rounded-[16px] hover:bg-white/5 cursor-pointer transition-colors active:scale-[0.98]"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-[22px] shrink-0">
+                🤖
+              </div>
+              <div className="flex flex-col flex-1 min-w-0">
+                <h3 className="text-white font-medium text-[16px] leading-[1.2]" style={{ fontFamily: SFD }}>
                   Configure Chat Automation
                 </h3>
-                <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
-                  Auto-reply and manage spam with Business Agent.
+                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mt-[3px] truncate" style={{ fontFamily: SF }}>
+                  Auto-reply and manage spam
                 </p>
-              </div>
-              <div className="mt-auto flex flex-col gap-[12px]">
-                <div className="flex items-center gap-[4px]">
-                  <div className="h-[3px] w-[18px] bg-[#d4a373] rounded-full" />
-                  <div className="h-[3px] w-[6px] bg-[#3a3a3c] rounded-full" />
-                  <div className="h-[3px] w-[6px] bg-[#3a3a3c] rounded-full" />
-                  <div className="h-[3px] w-[6px] bg-[#3a3a3c] rounded-full" />
-                </div>
-                <button 
-                  onClick={() => setIsBusinessModalOpen(true)}
-                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
-                  style={{ 
-                    fontFamily: SF,
-                    backgroundColor: "#1c1c1e", 
-                    border: "1px solid rgba(255, 255, 255, 0.10)", 
-                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)", 
-                    transform: "translateZ(0)"
-                  }}
-                >
-                  Start
-                </button>
               </div>
             </div>
 
             {/* Card 2: Group Moderation */}
-            <div className="bg-[#151517] p-3 rounded-[20px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
-              <div>
-                <Users className="w-[20px] h-[20px] text-[#ffffff] mb-[8px]" />
-                <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
+            <div 
+              onClick={() => setCurrentView("group_config")}
+              className="flex items-center gap-4 p-3 rounded-[16px] hover:bg-white/5 cursor-pointer transition-colors active:scale-[0.98]"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-[22px] shrink-0">
+                🛡️
+              </div>
+              <div className="flex flex-col flex-1 min-w-0">
+                <h3 className="text-white font-medium text-[16px] leading-[1.2]" style={{ fontFamily: SFD }}>
                   Group Moderation
                 </h3>
-                <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
-                  Set up AI bots to moderate your communities.
+                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mt-[3px] truncate" style={{ fontFamily: SF }}>
+                  Set up AI bots to moderate communities
                 </p>
-              </div>
-              <div className="mt-auto flex flex-col gap-[12px]">
-                <div className="flex items-center gap-[4px]">
-                  <div className="h-[3px] w-[18px] bg-[#ffffff] rounded-full" />
-                  <div className="h-[3px] w-[18px] bg-[#3a3a3c] rounded-full" />
-                </div>
-                <button 
-                  onClick={() => setCurrentView("group_config")}
-                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
-                  style={{ 
-                    fontFamily: SF,
-                    backgroundColor: "#1c1c1e", 
-                    border: "1px solid rgba(255, 255, 255, 0.10)", 
-                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)", 
-                    transform: "translateZ(0)"
-                  }}
-                >
-                  Start
-                </button>
               </div>
             </div>
 
             {/* Card 3: Schedules */}
-            <div className="bg-[#151517] p-3 rounded-[20px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
-              <div>
-                <CalendarDays className="w-[20px] h-[20px] text-[#f97316] mb-[8px]" />
-                <h3 className="text-white font-semibold text-[15px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
+            <div 
+              onClick={() => setCurrentView("schedule")}
+              className="flex items-center gap-4 p-3 rounded-[16px] hover:bg-white/5 cursor-pointer transition-colors active:scale-[0.98]"
+            >
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-[22px] shrink-0">
+                📅
+              </div>
+              <div className="flex flex-col flex-1 min-w-0">
+                <h3 className="text-white font-medium text-[16px] leading-[1.2]" style={{ fontFamily: SFD }}>
                   Manage Schedules
                 </h3>
-                <p className="text-[#8e8e93] text-[12px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
-                  Track tasks and automated upcoming events.
+                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mt-[3px] truncate" style={{ fontFamily: SF }}>
+                  Track tasks and automated upcoming events
                 </p>
-              </div>
-              <div className="mt-auto flex flex-col gap-[12px]">
-                <div className="flex items-center gap-[4px]">
-                  <div className="h-[3px] w-[32px] bg-[#f97316] rounded-full" />
-                </div>
-                <button 
-                  onClick={() => setCurrentView("schedule")}
-                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
-                  style={{ 
-                    fontFamily: SF,
-                    backgroundColor: "#1c1c1e", 
-                    border: "1px solid rgba(255, 255, 255, 0.10)", 
-                    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)", 
-                    transform: "translateZ(0)"
-                  }}
-                >
-                  Start
-                </button>
               </div>
             </div>
 
