@@ -565,65 +565,88 @@ export function HomeView() {
         
 
 
-        {/* Recommended For You Section */}
+        {/* Basic Section (Horizontal Cards) */}
         <div className="mt-2 mb-6">
-          <h2 className="text-white font-semibold text-[17px] mb-3 ml-2" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-            Recommended for you
-          </h2>
+          <div className="flex items-center gap-2 mb-3 ml-2">
+            <h2 className="text-white font-semibold text-[17px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+              Basic
+            </h2>
+          </div>
 
-          <div className="bg-[#262626] rounded-[24px] p-2 flex flex-col">
+          <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
             
-            {/* Card 1: Chat Automation */}
-            <div 
-              onClick={() => setIsBusinessModalOpen(true)}
-              className="flex items-center gap-4 p-3 rounded-[16px] hover:bg-white/5 cursor-pointer transition-colors active:scale-[0.98]"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-[22px] shrink-0">
-                🤖
-              </div>
-              <div className="flex flex-col flex-1 min-w-0">
-                <h3 className="text-white font-medium text-[16px] leading-[1.2]" style={{ fontFamily: SFD }}>
-                  Configure Chat Automation
+            {/* Card 1 */}
+            <div className="bg-[#262626] p-4 rounded-[24px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+              <div>
+                <div className="text-[22px] mb-[8px]">🧠</div>
+                <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
+                  Select AI model
                 </h3>
-                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mt-[3px] truncate" style={{ fontFamily: SF }}>
-                  Auto-reply and manage spam
+                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
+                  Choose LLM based on your task
                 </p>
+              </div>
+              <div className="mt-auto flex flex-col gap-[12px] pt-4">
+                <button 
+                  onClick={() => setIsBusinessModalOpen(true)}
+                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
+                  style={{ 
+                    fontFamily: SF,
+                    backgroundColor: "#3a3a3c"
+                  }}
+                >
+                  Start
+                </button>
               </div>
             </div>
 
-            {/* Card 2: Group Moderation */}
-            <div 
-              onClick={() => setCurrentView("group_config")}
-              className="flex items-center gap-4 p-3 rounded-[16px] hover:bg-white/5 cursor-pointer transition-colors active:scale-[0.98]"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-[22px] shrink-0">
-                🛡️
-              </div>
-              <div className="flex flex-col flex-1 min-w-0">
-                <h3 className="text-white font-medium text-[16px] leading-[1.2]" style={{ fontFamily: SFD }}>
-                  Group Moderation
+            {/* Card 2 */}
+            <div className="bg-[#262626] p-4 rounded-[24px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+              <div>
+                <div className="text-[22px] mb-[8px]">⏰</div>
+                <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
+                  Set a bedtime reminder
                 </h3>
-                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mt-[3px] truncate" style={{ fontFamily: SF }}>
-                  Set up AI bots to moderate communities
+                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
+                  A small nudge at the right moment
                 </p>
+              </div>
+              <div className="mt-auto flex flex-col gap-[12px] pt-4">
+                <button 
+                  onClick={() => setCurrentView("group_config")}
+                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
+                  style={{ 
+                    fontFamily: SF,
+                    backgroundColor: "#3a3a3c"
+                  }}
+                >
+                  Start
+                </button>
               </div>
             </div>
 
-            {/* Card 3: Schedules */}
-            <div 
-              onClick={() => setCurrentView("schedule")}
-              className="flex items-center gap-4 p-3 rounded-[16px] hover:bg-white/5 cursor-pointer transition-colors active:scale-[0.98]"
-            >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-[22px] shrink-0">
-                📅
-              </div>
-              <div className="flex flex-col flex-1 min-w-0">
-                <h3 className="text-white font-medium text-[16px] leading-[1.2]" style={{ fontFamily: SFD }}>
-                  Manage Schedules
+            {/* Card 3 */}
+            <div className="bg-[#262626] p-4 rounded-[24px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+              <div>
+                <div className="text-[22px] mb-[8px]">📰</div>
+                <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
+                  Set Up Daily News
                 </h3>
-                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mt-[3px] truncate" style={{ fontFamily: SF }}>
-                  Track tasks and automated upcoming events
+                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
+                  Curated based on your interests
                 </p>
+              </div>
+              <div className="mt-auto flex flex-col gap-[12px] pt-4">
+                <button 
+                  onClick={() => setCurrentView("schedule")}
+                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
+                  style={{ 
+                    fontFamily: SF,
+                    backgroundColor: "#3a3a3c"
+                  }}
+                >
+                  Start
+                </button>
               </div>
             </div>
 
@@ -725,19 +748,16 @@ export function HomeView() {
           </div>
         </div>
 
-            {/* Connectors Section */}
-        <div className="mb-2 w-[96%] mx-auto">
+            {/* Connectors Section (Group Chat) */}
+        <div className="mb-2 w-[96%] mx-auto mt-6">
             <div className="mt-2 mb-3 pl-1">
-              <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-                Connectors
+              <h2 className="text-white font-semibold text-[17px] ml-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                Group Chat
               </h2>
-              <p className="text-[#8e8e93] text-[13px] mt-0.5 leading-snug" style={{ fontFamily: SF }}>
-                Link your apps and services to unlock powerful AI automations.
-              </p>
             </div>
 
             <div 
-              className="w-full bg-[#151517] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative"
+              className="w-full bg-[#262626] rounded-[24px] overflow-hidden flex flex-col relative"
             >
               <div className="flex flex-col">
                 {connectorsLoading
@@ -768,8 +788,8 @@ export function HomeView() {
                             <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[15px] font-medium text-white leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SF }}>{c.name}</span>
-                            <span className="text-[13px] text-[#8e8e93] leading-[1.3] line-clamp-1" style={{ fontFamily: SF }}>
+                            <span className="text-white font-medium text-[16px] leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SFD }}>{c.name}</span>
+                            <span className="text-[#a0a0a0] text-[13px] leading-[1.3] line-clamp-1" style={{ fontFamily: SF }}>
                               {isConn && status?.label ? status.label : c.description}
                             </span>
                           </div>
