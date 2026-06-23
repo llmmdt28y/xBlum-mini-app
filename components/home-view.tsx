@@ -186,6 +186,8 @@ export function HomeView() {
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
+  const [isInputActive, setIsInputActive] = useState(false)
+  const [askQuery, setAskQuery] = useState("")
   
   // Connector real-time state from API
   const [connectorsState, setConnectorsState] = useState<ConnectorsState>({})
@@ -527,14 +529,30 @@ export function HomeView() {
 
           {/* Ask anything... Pill */}
           <div 
-            className="inline-flex items-center gap-3 p-[6px] pl-5 mt-2 rounded-[100px] bg-white/[0.06] border border-white/[0.1] backdrop-blur-md shadow-lg"
+            onClick={() => !isInputActive && setIsInputActive(true)}
+            className={`flex items-center justify-between p-[6px] pl-5 mt-2 rounded-[100px] bg-[#ffffff12] border border-[#ffffff20] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.2)] transition-all duration-300 ease-out cursor-text overflow-hidden
+              ${isInputActive ? "w-full max-w-[360px]" : "w-[240px]"}`}
           >
-            <span className="text-white text-[15px] font-medium tracking-wide text-left" style={{ fontFamily: SF }}>
-              Ask anything...
-            </span>
-            <div className="w-9 h-9 rounded-full bg-white/[0.08] border border-white/[0.05] flex items-center justify-center shrink-0 active:scale-95 transition-transform cursor-pointer">
-              <ArrowUp className="w-4 h-4 text-white/60" strokeWidth={2.5} />
-            </div>
+            {isInputActive ? (
+              <input 
+                autoFocus
+                value={askQuery}
+                onChange={(e) => setAskQuery(e.target.value)}
+                onBlur={(e) => {
+                  if (!e.target.value) setIsInputActive(false)
+                }}
+                placeholder="Ask anything..."
+                className="bg-transparent border-none outline-none text-white text-[16px] font-medium tracking-wide w-full pr-2 placeholder:text-white/60"
+                style={{ fontFamily: SF }}
+              />
+            ) : (
+              <span className="text-white/70 text-[16px] font-medium tracking-wide text-left truncate" style={{ fontFamily: SF }}>
+                Ask anything...
+              </span>
+            )}
+            <button className="w-10 h-10 rounded-full bg-[#ffffff1a] flex items-center justify-center shrink-0 active:scale-95 transition-transform hover:bg-[#ffffff25]">
+              <ArrowUp className="w-[20px] h-[20px] text-white/90" strokeWidth={1.5} />
+            </button>
           </div>
         </div>
         
