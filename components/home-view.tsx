@@ -416,17 +416,23 @@ export function HomeView() {
           background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
           animation: shimmer 1.2s infinite;
         }
-        @keyframes slide-point-1 {
-          0% { transform: translateX(-30px) rotate(15deg); }
-          100% { transform: translateX(40px) rotate(20deg); }
+        @keyframes slide-across-1 {
+          0% { transform: translateX(-200px) rotate(15deg); opacity: 0; }
+          10% { opacity: 0.8; }
+          80% { opacity: 0.8; }
+          100% { transform: translateX(120vw) rotate(15deg); opacity: 0; }
         }
-        @keyframes slide-point-2 {
-          0% { transform: translateX(20px) rotate(-10deg); }
-          100% { transform: translateX(-30px) rotate(-5deg); }
+        @keyframes slide-across-2 {
+          0% { transform: translateX(-200px) rotate(20deg); opacity: 0; }
+          10% { opacity: 0.9; }
+          80% { opacity: 0.9; }
+          100% { transform: translateX(120vw) rotate(20deg); opacity: 0; }
         }
-        @keyframes slide-point-3 {
-          0% { transform: translateX(-20px) rotate(25deg); }
-          100% { transform: translateX(30px) rotate(15deg); }
+        @keyframes slide-across-3 {
+          0% { transform: translateX(-200px) rotate(10deg); opacity: 0; }
+          10% { opacity: 0.8; }
+          80% { opacity: 0.8; }
+          100% { transform: translateX(120vw) rotate(10deg); opacity: 0; }
         }
       `}} />
 
@@ -481,24 +487,30 @@ export function HomeView() {
       {/* Hero Greeting Section */}
       <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-hidden">
         
-        {/* Dynamic Logo Points Background */}
+        {/* Dynamic Sweeping Logo Points Background */}
         <div className="absolute inset-0 z-0 pointer-events-none">
-          {/* Point 1: Magenta (Left side of logo) */}
+          {/* Point 1: Magenta (Medium) */}
           <div 
-            className="absolute -top-[5%] left-[5%] w-[100px] h-[400px] rounded-[100px] blur-[30px] opacity-80 animate-[slide-point-1_10s_ease-in-out_infinite_alternate]" 
+            className="absolute -top-[5%] left-0 w-[100px] h-[400px] rounded-[100px] blur-[30px] opacity-0 animate-[slide-across-1_14s_linear_infinite]" 
             style={{ background: 'linear-gradient(180deg, #FF0080 0%, #FF4500 100%)' }} 
           />
 
-          {/* Point 2: Orange (Center/Bottom of logo) */}
+          {/* Point 2: Orange (Short) */}
           <div 
-            className="absolute -top-[10%] left-[35%] w-[140px] h-[440px] rounded-[100px] blur-[40px] opacity-90 animate-[slide-point-2_12s_ease-in-out_infinite_alternate]" 
-            style={{ background: 'linear-gradient(180deg, #FF6A00 0%, #FF4500 100%)' }} 
+            className="absolute -top-[10%] left-0 w-[130px] h-[320px] rounded-[100px] blur-[40px] opacity-0 animate-[slide-across-2_16s_linear_infinite]" 
+            style={{ background: 'linear-gradient(180deg, #FF6A00 0%, #FF4500 100%)', animationDelay: '5s' }} 
           />
 
-          {/* Point 3: Yellow (Right top of logo) */}
+          {/* Point 3: Yellow (Tall) */}
           <div 
-            className="absolute -top-[5%] right-[10%] w-[90px] h-[380px] rounded-[100px] blur-[30px] opacity-80 animate-[slide-point-3_14s_ease-in-out_infinite_alternate]" 
-            style={{ background: 'linear-gradient(180deg, #FFD700 0%, #FF8C00 100%)' }} 
+            className="absolute top-[5%] left-0 w-[90px] h-[480px] rounded-[100px] blur-[30px] opacity-0 animate-[slide-across-3_18s_linear_infinite]" 
+            style={{ background: 'linear-gradient(180deg, #FFD700 0%, #FF8C00 100%)', animationDelay: '10s' }} 
+          />
+          
+          {/* Point 4: Magenta/Yellow mix (Medium) */}
+          <div 
+            className="absolute top-[0%] left-0 w-[110px] h-[380px] rounded-[100px] blur-[35px] opacity-0 animate-[slide-across-1_15s_linear_infinite]" 
+            style={{ background: 'linear-gradient(180deg, #FF0080 0%, #FFD700 100%)', animationDelay: '15s' }} 
           />
         </div>
 
