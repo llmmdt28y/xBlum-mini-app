@@ -372,7 +372,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-[#1a1a1a] min-h-screen text-white overflow-x-hidden font-sans pb-24">
+    <div className="flex-1 flex flex-col bg-black min-h-screen text-white overflow-x-hidden font-sans pb-24">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -483,37 +483,20 @@ export function HomeView() {
       </div>
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-[#1a1a1a] overflow-visible">
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-black overflow-visible">
         
-        {/* Premium Ambient Mesh Glow */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-visible bg-[#1a1a1a]">
-          {/* Blur Wrapper to mix the colors flawlessly */}
-          <div className="absolute inset-0 opacity-80 mix-blend-screen" style={{ filter: 'blur(80px)' }}>
-            
-            {/* Core Magenta Glow */}
-            <div 
-              className="absolute -top-[10%] -left-[10%] w-[80%] h-[70%] bg-[#E6007A] rounded-full"
-              style={{ animation: 'orb-float-1 12s ease-in-out infinite' }}
-            />
-            
-            {/* Vibrant Orange Glow */}
-            <div 
-              className="absolute top-[0%] -right-[10%] w-[90%] h-[80%] bg-[#FF5E00] rounded-full"
-              style={{ animation: 'orb-float-2 15s ease-in-out infinite' }}
-            />
-            
-            {/* Bright Yellow Highlight */}
-            <div 
-              className="absolute top-[20%] left-[20%] w-[60%] h-[60%] bg-[#FFB800] rounded-full opacity-80"
-              style={{ animation: 'orb-float-3 10s ease-in-out infinite' }}
-            />
-            
-            {/* Deep Purple Base removed to prevent vertical bleed */}
+        {/* Optimized Static Ambient Glow */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-visible bg-black">
+          {/* Hardware-accelerated static blur without heavy mix-blend-screen */}
+          <div className="absolute inset-0 opacity-50" style={{ filter: 'blur(60px)', transform: 'translateZ(0)' }}>
+            <div className="absolute -top-[10%] -left-[10%] w-[80%] h-[70%] bg-[#E6007A] rounded-full" />
+            <div className="absolute top-[0%] -right-[10%] w-[90%] h-[80%] bg-[#FF5E00] rounded-full" />
+            <div className="absolute top-[20%] left-[20%] w-[60%] h-[60%] bg-[#FFB800] rounded-full opacity-80" />
           </div>
         </div>
 
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-0"></div>
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black via-black/90 to-transparent pointer-events-none z-0"></div>
         
         <div className="relative z-10 flex flex-col items-center gap-6 w-full max-w-md px-6 text-center transform -translate-y-4">
           <h1 
@@ -553,7 +536,7 @@ export function HomeView() {
         </div>
         
         {/* Bottom gradient transition to black */}
-        <div className="absolute bottom-0 w-full h-56 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/80 to-transparent pointer-events-none"></div>
+        <div className="absolute bottom-0 w-full h-56 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
       </div>
 
       {/* Main Content */}
@@ -575,7 +558,7 @@ export function HomeView() {
           <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
             
             {/* Card 1 */}
-            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+            <div className="bg-[#1c1c1e] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
                 <div className="text-[22px] mb-[8px]">🧠</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -600,7 +583,7 @@ export function HomeView() {
             </div>
 
             {/* Card 2 */}
-            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+            <div className="bg-[#1c1c1e] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
                 <div className="text-[22px] mb-[8px]">⏰</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -625,7 +608,7 @@ export function HomeView() {
             </div>
 
             {/* Card 3 */}
-            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
+            <div className="bg-[#1c1c1e] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
                 <div className="text-[22px] mb-[8px]">📰</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
@@ -759,7 +742,7 @@ export function HomeView() {
             </div>
 
             <div 
-              className="w-full bg-[#262626] rounded-[16px] overflow-hidden flex flex-col relative"
+              className="w-full bg-[#1c1c1e] rounded-[16px] overflow-hidden flex flex-col relative"
             >
               <div className="flex flex-col">
                 {connectorsLoading
@@ -829,7 +812,7 @@ export function HomeView() {
 
       {/* Modals & Full Screen Views */}
       {modalState.view !== "closed" && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-[#1a1a1a] animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-black animate-in slide-in-from-right duration-300">
           
           {modalState.view === "list" && (
             <div className="flex flex-col h-full overflow-hidden" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
@@ -864,7 +847,7 @@ export function HomeView() {
 
               {/* Connectors List using the exact style from menu */}
               <div className="overflow-y-auto overscroll-none hide-scrollbar pb-10 flex-1 px-4">
-                <div className="w-full bg-[#262626] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
+                <div className="w-full bg-[#1c1c1e] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
                   <div className="flex flex-col">
                     {isSearching ? (
                       Array.from({ length: 3 }).map((_, i) => (
@@ -971,7 +954,7 @@ export function HomeView() {
                 )}
                 <div className="space-y-4">
                   <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
-                  <div className="rounded-[16px] overflow-hidden bg-[#262626]">
+                  <div className="rounded-[16px] overflow-hidden bg-[#1c1c1e]">
                     {activeConnectorData.features.map((feat, i, arr) => (
                       <div key={i}>
                         <div className="flex gap-4 p-4">
