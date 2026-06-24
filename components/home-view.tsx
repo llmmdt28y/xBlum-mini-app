@@ -473,11 +473,11 @@ export function HomeView() {
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
         <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-0"></div>
         
-        <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-6">
+        <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-10">
           <img 
             src="/noir-newlogo.png" 
             alt="Noir Logo" 
-            className="w-24 h-24 mx-auto object-contain select-none pointer-events-none"
+            className="w-28 h-28 mx-auto object-contain select-none pointer-events-none"
             draggable={false}
             style={imageProtectionStyle}
           />
@@ -661,7 +661,7 @@ export function HomeView() {
         </div>
 
         {/* Profile Completion Card */}
-        <div className="w-full bg-[#1c1c1e] rounded-[20px] p-4 mb-2 mt-1">
+        <div className="w-full bg-[#262626] rounded-[16px] p-4 mb-2 mt-1">
           <p className="text-white text-[15px] font-semibold leading-snug mb-4" style={{ fontFamily: SF }}>
             Complete your profile to receive personalized recommendations
           </p>
