@@ -473,11 +473,11 @@ export function HomeView() {
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
         <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-0"></div>
         
-        <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-12">
+        <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-6">
           <img 
             src="/noir-newlogo.png" 
             alt="Noir Logo" 
-            className="w-32 h-32 object-contain select-none pointer-events-none"
+            className="w-24 h-24 mx-auto object-contain select-none pointer-events-none"
             draggable={false}
             style={imageProtectionStyle}
           />
@@ -660,10 +660,27 @@ export function HomeView() {
           </div>
         </div>
 
+        {/* Profile Completion Card */}
+        <div className="w-full bg-[#1c1c1e] rounded-[20px] p-4 mb-2 mt-1">
+          <p className="text-white text-[15px] font-semibold leading-snug mb-4" style={{ fontFamily: SF }}>
+            Complete your profile to receive personalized recommendations
+          </p>
+          {/* Progress bar container */}
+          <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-5">
+            <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: '15%', background: '#60a5fa' }}></div>
+          </div>
+          <button 
+            onClick={() => setCurrentView("profile")}
+            onPointerDown={createRipple}
+            className="relative overflow-hidden w-full py-3.5 rounded-full text-white font-medium active:opacity-80 transition-opacity flex items-center justify-center shadow-sm"
+            style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
+          >
+            <span className="relative z-10">Complete Account</span>
+          </button>
+        </div>
 
-
-            {/* Connectors Section */}
-        <div className="mb-2 w-full mt-6">
+        {/* Connectors Section */}
+        <div className="mb-2 w-full mt-2">
             <div className="mt-2 mb-3 pl-1">
               <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Connectors
