@@ -548,12 +548,12 @@ export function HomeView() {
             {/* Card 1 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="text-[22px] mb-[8px]">🧠</div>
+                <div className="text-[22px] mb-[8px]">🤖</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
-                  Select AI model
+                  Automate your chat
                 </h3>
                 <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
-                  Choose LLM based on your task
+                  Set up smart AI auto-replies
                 </p>
               </div>
               <div className="mt-auto flex flex-col gap-[12px] pt-4">
@@ -573,12 +573,12 @@ export function HomeView() {
             {/* Card 2 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="text-[22px] mb-[8px]">⏰</div>
+                <div className="text-[22px] mb-[8px]">🛡️</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
-                  Set a bedtime reminder
+                  Group Moderation
                 </h3>
                 <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
-                  A small nudge at the right moment
+                  Protect your communities with AI
                 </p>
               </div>
               <div className="mt-auto flex flex-col gap-[12px] pt-4">
@@ -598,12 +598,12 @@ export function HomeView() {
             {/* Card 3 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="text-[22px] mb-[8px]">📰</div>
+                <div className="text-[22px] mb-[8px]">🗓️</div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
-                  Set Up Daily News
+                  Scheduled Tasks
                 </h3>
                 <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
-                  Curated based on your interests
+                  Manage recurring AI routines
                 </p>
               </div>
               <div className="mt-auto flex flex-col gap-[12px] pt-4">
