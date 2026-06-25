@@ -179,6 +179,11 @@ const SlidingNumber = ({ value }: { value: number }) => {
 
 export function HomeView() {
   const { setCurrentView, userPreferences } = useApp()
+
+  const profileFields = ["name", "age", "location", "preferences", "gender", "city", "timezone", "occupation", "interests", "favoriteEmoji", "personality"];
+  const filledCount = profileFields.filter(f => !!(userPreferences as any)?.[f]).length;
+  const profileCompletionPct = Math.round((filledCount / profileFields.length) * 100);
+
   const [timeLeft, setTimeLeft] = useState(() => 4 * 24 * 60 * 60 * 1000);
   const [isBusinessModalOpen, setIsBusinessModalOpen] = useState(false)
   const [isBotIntModalOpen, setIsBotIntModalOpen] = useState(false)
@@ -491,8 +496,9 @@ export function HomeView() {
           {/* Ask anything... Pill */}
           <div 
             onClick={() => !isInputActive && setIsInputActive(true)}
-            className={`flex items-center justify-between p-[6px] pl-5 mt-2 rounded-[100px] bg-[#ffffff12] border border-[#ffffff20] backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.2)] transition-all duration-300 ease-out cursor-text overflow-hidden
+            className={`flex items-center justify-between p-[6px] pl-5 mt-2 rounded-[100px] bg-white/[0.03] border border-white/[0.08] backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.05)] transition-all duration-500 cursor-text overflow-hidden
               ${isInputActive ? "w-full max-w-[360px]" : "w-[240px]"}`}
+            style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
             {isInputActive ? (
               <input 
@@ -662,15 +668,15 @@ export function HomeView() {
 
         {/* Profile Completion Card */}
         <div className="w-full bg-[#262626] rounded-[16px] p-4 mb-2 mt-1">
-          <p className="text-white text-[15px] font-semibold leading-snug mb-4" style={{ fontFamily: SF }}>
+          <p className="text-white text-[15px] font-semibold leading-snug mb-3" style={{ fontFamily: SF }}>
             Complete your profile to receive personalized recommendations
           </p>
           {/* Progress bar container */}
-          <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-5">
-            <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: '15%', background: '#60a5fa' }}></div>
+          <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-3">
+            <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${profileCompletionPct}%`, background: '#60a5fa' }}></div>
           </div>
           <button 
-            onClick={() => setCurrentView("profile")}
+            onClick={() => setCurrentView("account_setup")}
             onPointerDown={createRipple}
             className="relative overflow-hidden w-full py-3.5 rounded-full text-white font-medium active:opacity-80 transition-opacity flex items-center justify-center shadow-sm"
             style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
