@@ -517,7 +517,7 @@ export function HomeView() {
                 Ask anything...
               </span>
             )}
-            <button className="w-10 h-10 rounded-full bg-[#ffffff1a] flex items-center justify-center shrink-0 active:scale-95 transition-transform hover:bg-[#ffffff25]">
+            <button className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-all duration-300 ${askQuery.trim().length > 0 ? 'bg-[#60a5fa] hover:bg-[#4b8ce1]' : 'bg-white/10 hover:bg-white/20'}`}>
               <ArrowUp className="w-[20px] h-[20px] text-white/90" strokeWidth={1.5} />
             </button>
           </div>
@@ -667,18 +667,18 @@ export function HomeView() {
         </div>
 
         {/* Profile Completion Card */}
-        <div className="w-full bg-[#262626] rounded-[16px] p-4 mb-2 mt-1">
-          <p className="text-white text-[15px] font-semibold leading-snug mb-3" style={{ fontFamily: SF }}>
+        <div className="w-full bg-[#262626] rounded-[16px] p-3 mb-2 mt-1">
+          <p className="text-white text-[14px] font-semibold leading-snug mb-2" style={{ fontFamily: SF }}>
             Complete your profile to receive personalized recommendations
           </p>
           {/* Progress bar container */}
-          <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-3">
+          <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-2">
             <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${profileCompletionPct}%`, background: '#60a5fa' }}></div>
           </div>
           <button 
             onClick={() => setCurrentView("account_setup")}
             onPointerDown={createRipple}
-            className="relative overflow-hidden w-full py-3.5 rounded-full text-white font-medium active:opacity-80 transition-opacity flex items-center justify-center shadow-sm"
+            className="relative overflow-hidden w-full py-3 rounded-full text-white font-medium active:opacity-80 transition-opacity flex items-center justify-center shadow-sm"
             style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
           >
             <span className="relative z-10">Complete Account</span>
@@ -737,7 +737,7 @@ export function HomeView() {
                         <div className={`relative z-10 shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-bold pointer-events-none ${
                           isConn
                             ? "bg-orange-500/10 text-orange-400"
-                            : "bg-[#60a5fa]/10 text-[#60a5fa]"
+                            : "bg-[#60a5fa] text-white"
                         }`} style={{ fontFamily: SF }}>
                           {isConn ? "Connected" : "Connect"}
                         </div>
@@ -845,7 +845,7 @@ export function HomeView() {
                                 </div>
                               </div>
                               <div className={`relative z-10 shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-bold pointer-events-none ${
-                                isConn ? "bg-orange-500/10 text-orange-400" : "bg-[#60a5fa]/10 text-[#60a5fa]"
+                                isConn ? "bg-orange-500/10 text-orange-400" : "bg-[#60a5fa] text-white"
                               }`} style={{ fontFamily: SF }}>
                                 {isConn ? "Connected" : "Connect"}
                               </div>
@@ -885,7 +885,7 @@ export function HomeView() {
                   <button 
                     onClick={() => handleConnect(activeConnectorData.id)}
                     disabled={isConnecting}
-                    className="px-4 py-1.5 bg-[#60a5fa]/10 text-[#60a5fa] text-[13px] font-bold rounded-full active:opacity-70 disabled:opacity-50 flex items-center gap-1.5"
+                    className="px-4 py-1.5 bg-[#60a5fa] text-white text-[13px] font-bold rounded-full active:opacity-70 disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
                     style={{ fontFamily: SF }}
                   >
                     {isConnecting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
