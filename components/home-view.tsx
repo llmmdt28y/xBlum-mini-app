@@ -528,12 +528,12 @@ export function HomeView() {
       </div>
 
       {/* Main Content */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-4 px-4 relative z-30 -mt-36">
+      <div className="w-full max-w-md mx-auto flex flex-col gap-2 px-4 relative z-30 -mt-36">
         
 
 
         {/* Recommended For You Section */}
-        <div className="mt-2 mb-6">
+        <div className="mt-2 mb-2">
           <div className="flex items-center gap-2 mb-3 ml-2">
             <div className="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center shrink-0">
               <BookOpen className="w-[13px] h-[13px] text-black" strokeWidth={2.5} />
@@ -667,7 +667,7 @@ export function HomeView() {
         </div>
 
         {/* Profile Completion Card */}
-        <div className="w-full bg-[#262626] rounded-[16px] p-3 mb-2 mt-1">
+        <div className="w-full bg-[#262626] rounded-[16px] p-3">
           <p className="text-white text-[14px] font-semibold leading-snug mb-2" style={{ fontFamily: SF }}>
             Complete your profile to receive personalized recommendations
           </p>
@@ -686,7 +686,7 @@ export function HomeView() {
         </div>
 
         {/* Connectors Section */}
-        <div className="mb-2 w-full mt-2">
+        <div className="w-full">
             <div className="mt-2 mb-3 pl-1">
               <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
                 Connectors
