@@ -356,13 +356,16 @@ function AppContent() {
   )
 }
 
-export default function Page() {
-  const [displacementMap, setDisplacementMap] = useState<string>("")
+// Mapa neutro base64 para evitar el destello blanco antes de que cargue el canvas
+const neutralSVGMap = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect width='1' height='1' fill='rgb(128,128,128)'/%3E%3C/svg%3E";
 
-  // Generador matemático del mapa de desplazamiento "Squircle" (Técnica Kube.io)
+export default function Page() {
+  const [displacementMap, setDisplacementMap] = useState<string>(neutralSVGMap)
+
+  // Generador del mapa "Squircle" 
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      const size = 128 // Tamaño optimizado para GPU
+      const size = 64 // Reducido para mayor velocidad y menor sobrecarga
       const canvas = document.createElement('canvas')
       canvas.width = size
       canvas.height = size
@@ -374,21 +377,18 @@ export default function Page() {
             let nx = (x / size) * 2 - 1 
             let ny = (y / size) * 2 - 1 
             
-            // Aproximación de forma convexa (Squircle) para suavizar la refracción
             let dist = Math.pow(nx, 4) + Math.pow(ny, 4)
             
             if (dist > 1) {
-              ctx.fillStyle = 'rgb(128,128,128)' // Neutro (sin distorsión)
+              ctx.fillStyle = 'rgb(128,128,128)' // Gris puro = sin movimiento
               ctx.fillRect(x, y, 1, 1)
               continue
             }
             
-            // Calculo de vectores normalizados limitados por la intensidad
             let mag = Math.sqrt(dist) 
             let dispX = nx * mag
             let dispY = ny * mag
             
-            // Conversión de Vectores a Canales de Color RGBA (Donde 128 = 0 píxeles de desplazamiento)
             let r = Math.floor(128 + (dispX * 127))
             let g = Math.floor(128 + (dispY * 127))
             
@@ -403,69 +403,62 @@ export default function Page() {
 
   return (
     <AppProvider>
-      {/* ── Filtro SVG Kube.io (Liquid Glass Refraction) ── */}
+      {/* ── Filtro SVG Kube.io Corregido ── */}
       <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }}>
         <defs>
-          <filter id="liquid-glass-filter" colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
-            {/* 1. Cargar el mapa vectorial de refracción generado en JS */}
+          <filter id="liquid-glass-filter" colorInterpolationFilters="sRGB" x="0" y="0" width="100%" height="100%">
             <feImage href={displacementMap} result="displacement_map" width="100%" height="100%" preserveAspectRatio="none" />
-            
-            {/* 2. Aplicar la Ley de Snell virtual usando los canales R y G */}
             <feDisplacementMap 
               in="SourceGraphic" 
               in2="displacement_map" 
-              scale="25" /* Escala ajustada para una refracción realista sin romper bordes */
+              scale="20" /* Nivel de distorsión ajustado */
               xChannelSelector="R" 
               yChannelSelector="G" 
               result="refracted"
             />
-            
-            {/* 3. Suavizar ligeros artefactos de los bordes del mapa de bits */}
-            <feGaussianBlur in="refracted" stdDeviation="0.8" result="final_glass" />
           </filter>
         </defs>
       </svg>
 
-      {/* ── Estilos CSS Híbridos (Liquid Glass + Fallback iOS) ── */}
+      {/* ── Estilos CSS Estabilizados ── */}
       <style dangerouslySetInnerHTML={{ __html: `
         ::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
         body { background-color: #1a1a1a; overflow-x: hidden; }
 
-        /* 1. BASE: Estilo Glassmorphism estándar (Lo que verán los usuarios de iOS) */
+        /* 1. Panel Base: Colores oscuros para evitar sobreexposición */
         .liquid-glass-panel {
           position: relative;
-          background: rgba(40, 40, 45, 0.4);
+          isolation: isolate;
+          background: rgba(30, 30, 35, 0.45); /* Base tintada oscura */
           backdrop-filter: blur(15px) saturate(1.2);
           -webkit-backdrop-filter: blur(15px) saturate(1.2);
-          /* Specular Highlight simulado mediante sombras para no cargar la GPU */
-          box-shadow: 
-            inset 0 1px 1px rgba(255, 255, 255, 0.4), 
-            inset 0 -1px 2px rgba(0, 0, 0, 0.2), 
-            0 8px 32px rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        /* 2. MEJORA PROGRESIVA: Kube.io Liquid Glass (Solo para Android / Chromium) */
-        @supports (backdrop-filter: url(#liquid-glass-filter)) {
-          .liquid-glass-panel {
-            background: transparent;
-            border: none;
-            backdrop-filter: url(#liquid-glass-filter);
-            box-shadow: 
-              inset 0 2px 3px rgba(255, 255, 255, 0.5), /* Fuerte Specular Rim superior */
-              inset 0 -2px 5px rgba(255, 255, 255, 0.1), /* Rim inferior */
-              0 10px 30px rgba(0, 0, 0, 0.4);
-          }
+        /* 2. Capa de distorsión (Aplica el mapa Kube.io al área exacta del componente) */
+        .liquid-glass-panel::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          z-index: -1;
+          border-radius: inherit;
+          backdrop-filter: blur(2px);
+          -webkit-backdrop-filter: blur(2px);
+          filter: url(#liquid-glass-filter);
+          -webkit-filter: url(#liquid-glass-filter);
+          pointer-events: none;
         }
 
+        /* 3. Ajuste de la píldora para que contraste bien */
         .sliding-pill {
-          background: rgba(255, 255, 255, 0.12);
+          background: rgba(255, 255, 255, 0.08); /* Menos blanco */
           box-shadow: 
-            inset 0px 1.5px 1px rgba(255, 255, 255, 0.2), 
-            inset 0px -1.5px 1px rgba(0, 0, 0, 0.1),
-            0px 4px 10px rgba(0, 0, 0, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+            inset 0px 1px 1px rgba(255, 255, 255, 0.1), 
+            inset 0px -1px 1px rgba(0, 0, 0, 0.1),
+            0px 4px 8px rgba(0, 0, 0, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.04);
         }
       `}} />
 
