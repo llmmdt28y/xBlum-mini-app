@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react"
+import Image from "next/image"
 import { ChevronRight, ChevronDown, Check, Shield, Zap, Users, MessageSquare, Save, Settings2, Trash2, Tags, BrickWall, PenOff, Plus } from "lucide-react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -481,9 +482,11 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
         
         <div className="flex-1 flex flex-col overflow-y-auto overscroll-none pb-6">
           <div className="flex flex-col items-center justify-center pt-6 pb-2 shrink-0">
-            <img 
+            <Image 
               src="/member-title-tags.webp" 
               alt="Member Title Tags" 
+              width={144}
+              height={144}
               className="w-36 h-36 object-contain pointer-events-none select-none drop-shadow-2xl"
               draggable={false}
             />
@@ -640,9 +643,11 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
       <div className="flex-1 flex flex-col overflow-y-auto overscroll-none px-4 pt-2 pb-6 space-y-5">
         
         <div className="flex flex-col items-center justify-center pt-2 pb-0 shrink-0">
-          <img 
+          <Image 
             src="/group-moderation-emoji.webp" 
             alt="Group Moderation Emoji" 
+            width={128}
+            height={128}
             className="w-32 h-32 object-contain pointer-events-none select-none drop-shadow-2xl"
             draggable={false}
           />
