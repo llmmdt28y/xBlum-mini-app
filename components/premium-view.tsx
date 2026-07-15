@@ -1,121 +1,36 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import Image from "next/image"
+import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
+import { Check, Gift, MessageCircle, Image as ImageIcon, Video, Sparkles, Bot, Blocks } from "lucide-react"
 
-const imageProtectionStyle = {
-  WebkitTouchCallout: "none" as const,
-  WebkitUserSelect: "none" as const,
-  KhtmlUserSelect: "none" as const,
-  MozUserSelect: "none" as const,
-  msUserSelect: "none" as const,
-  userSelect: "none" as const,
-};
-
-const AnimatedIcon = ({ src, alt, className }: { src: string, alt: string, className: string }) => {
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [key, setKey] = useState(0);
-  const imgRef = useRef<HTMLImageElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    if (isPlaying) {
-      const timer = setTimeout(() => {
-        if (imgRef.current && canvasRef.current) {
-          const canvas = canvasRef.current;
-          const ctx = canvas.getContext('2d');
-          if (ctx && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
-             canvas.width = imgRef.current.naturalWidth;
-             canvas.height = imgRef.current.naturalHeight;
-             ctx.drawImage(imgRef.current, 0, 0, canvas.width, canvas.height);
-          }
-          setIsPlaying(false);
-        }
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [isPlaying, key]);
-
-  return (
-    <div 
-      onClick={() => { if (!isPlaying) { setKey(k => k + 1); setIsPlaying(true); } }} 
-      className={`relative cursor-pointer transition-transform active:scale-90 ${className}`}
-    >
-      <img
-        ref={imgRef}
-        src={`${src}?t=${key}`}
-        alt={alt}
-        className={`w-full h-full object-contain pointer-events-none select-none ${!isPlaying ? 'opacity-0' : 'opacity-100'}`}
-        draggable={false}
-        onContextMenu={(e) => e.preventDefault()}
-        crossOrigin="anonymous"
-        style={imageProtectionStyle}
-      />
-      <canvas
-        ref={canvasRef}
-        className={`absolute inset-0 w-full h-full object-contain pointer-events-none ${isPlaying ? 'opacity-0' : 'opacity-100'}`}
-      />
-    </div>
-  );
-};
-
-const SlidingNumber = ({ value }: { value: number }) => {
-  const str = String(value).padStart(2, '0');
-  return (
-    <div className="flex">
-      {str.split('').map((char, index) => (
-        <span key={`${index}-${char}`} className="inline-block animate-[slideDownDigit_0.25s_ease-out]">
-          {char}
-        </span>
-      ))}
-    </div>
-  );
-};
+const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
+const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
 export function PremiumView() {
   const { setCurrentView, isPremium, openInvoice } = useApp()
   const [isLoading, setIsLoading] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(() => 4 * 24 * 60 * 60 * 1000);
+  const [selectedTier, setSelectedTier] = useState<"pro" | "promax">("promax")
+  const [selectedPlan, setSelectedPlan] = useState<"1m" | "3m" | "1y">("1m")
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft(prev => (prev > 1000 ? prev - 1000 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const timerValues = {
-    days: Math.floor(timeLeft / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((timeLeft / (1000 * 60 * 60)) % 24),
-    minutes: Math.floor((timeLeft / 1000 / 60) % 60),
-    seconds: Math.floor((timeLeft / 1000) % 60),
-  };
-
-  // ── Botón Nativo de Telegram ──
+  // Telegram BackButton
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
     if (!tg?.BackButton) return
-    
     tg.BackButton.show()
-
     const handleBack = () => {
       setCurrentView("home")
       tg.BackButton.hide()
     }
-    
     tg.BackButton.onClick(handleBack)
-    
-    return () => { 
-      tg.BackButton.offClick(handleBack) 
-    }
+    return () => { tg.BackButton.offClick(handleBack) }
   }, [setCurrentView])
 
   async function subscribe() {
     setIsLoading(true)
     try {
-      await openInvoice("premium_1m")
+      await openInvoice(`premium_${selectedPlan}`)
     } catch (e) {
       console.error("[Subscribe]", e)
     } finally {
@@ -123,157 +38,204 @@ export function PremiumView() {
     }
   }
 
+  const isProMax = selectedTier === "promax";
+  const accentColor = isProMax ? "#f97316" : "#8b5cf6"; // Orange for ProMax, Purple for Pro
+
   return (
-    <div className="flex-1 min-h-screen flex flex-col bg-[#000000] fixed top-0 left-0 w-full h-full z-[70] overflow-hidden text-white" style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" }}>
+    <div className="flex-1 min-h-screen flex flex-col bg-[#000000] fixed top-0 left-0 w-full h-full z-[70] overflow-y-auto overscroll-none text-white pb-32" style={{ fontFamily: SFD }}>
       <style>{`
-        @keyframes shimmer-shine {
-          0% { transform: translateX(-100%); }
-          50% { transform: translateX(300%); }
-          100% { transform: translateX(300%); }
-        }
-        @keyframes shimmer-border {
-          0% { border-color: rgba(255,106,0,1); }
-          25% { border-color: rgba(255,255,255,0.9); box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-          50% { border-color: rgba(255,106,0,1); box-shadow: 0 0 0px transparent; }
-          100% { border-color: rgba(255,106,0,1); }
-        }
-        .shimmer-btn {
-          border: 1.5px solid rgba(255,106,0,1);
-          animation: shimmer-border 3.5s infinite linear;
-        }
-        .shimmer-btn::after {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 50%;
-          height: 100%;
-          background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
-          transform: translateX(-100%);
-          animation: shimmer-shine 3.5s infinite linear;
-        }
-        @keyframes slideDownDigit {
-          from { transform: translateY(-8px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-      
-      <div className="flex-1 flex flex-col items-center pt-[calc(var(--tg-safe-area-inset-top,24px)+24px)] px-4 relative z-10 overflow-hidden pb-6">
         
-        {/* Título: SuperNoir */}
-        <div className="h-[64px] mb-8 mt-4 flex items-center justify-center relative w-full pointer-events-none z-20">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[120px]">
-            <Image 
-              src="/SuperNoir-subscription-banner.png" 
-              alt="SuperNoir" 
-              width={350}
-              height={120}
-              className="h-full w-auto pointer-events-none select-none" 
-              style={{ maxWidth: "none", ...imageProtectionStyle }}
-              draggable={false} 
-              onContextMenu={(e) => e.preventDefault()} 
-            />
+        @keyframes border-glow {
+          0% { box-shadow: 0 0 0px transparent; }
+          50% { box-shadow: 0 0 15px ${accentColor}50; }
+          100% { box-shadow: 0 0 0px transparent; }
+        }
+        .active-plan-card {
+          border-color: ${accentColor};
+          background: linear-gradient(180deg, ${accentColor}15 0%, transparent 100%);
+          animation: border-glow 3s infinite;
+        }
+      `}</style>
+
+      <div className="flex-1 flex flex-col pt-[calc(var(--tg-safe-area-inset-top,24px)+16px)] px-4">
+        
+        {/* TOP TOGGLE */}
+        <div className="flex justify-center mb-8">
+          <div className="bg-[#1c1c1e] p-1 rounded-full flex items-center gap-1">
+            <button
+              onClick={() => setSelectedTier("pro")}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[15px] font-semibold transition-all duration-300 ${!isProMax ? "bg-[#8b5cf6] text-white shadow-md shadow-[#8b5cf6]/30" : "text-[#8e8e93]"}`}
+            >
+              <span>😎</span> Pro
+            </button>
+            <button
+              onClick={() => setSelectedTier("promax")}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[15px] font-semibold transition-all duration-300 ${isProMax ? "bg-gradient-to-r from-[#f97316] to-[#ff4500] text-white shadow-md shadow-[#f97316]/30" : "text-[#8e8e93]"}`}
+            >
+              <span>🔥</span> Pro Max
+            </button>
           </div>
         </div>
 
-        {/* Timer Container */}
-        <div className="flex items-center justify-center mb-6 w-full max-w-md shrink-0">
-          <div className="flex items-center justify-center w-full gap-2 px-4 py-2.5 rounded-[16px] border-[1.5px] border-dashed border-[#ff6a00]/60 bg-[#ff6a00]/5 text-[#ff6a00] font-bold tracking-widest text-[15px]" style={{ fontFamily: "SF Pro Display, -apple-system, sans-serif" }}>
-            <span className="text-white/80 text-[13px] font-semibold mr-1 tracking-normal">Offer ends in:</span>
-            <SlidingNumber value={timerValues.days} /><span className="text-[13px] text-[#ff6a00]/70 ml-[1px] -mr-[1px]">d</span><span className="mx-1 opacity-50 text-[#ff6a00]">:</span>
-            <SlidingNumber value={timerValues.hours} /><span className="text-[13px] text-[#ff6a00]/70 ml-[1px] -mr-[1px]">h</span><span className="mx-1 opacity-50 text-[#ff6a00]">:</span>
-            <SlidingNumber value={timerValues.minutes} /><span className="text-[13px] text-[#ff6a00]/70 ml-[1px] -mr-[1px]">m</span><span className="mx-1 opacity-50 text-[#ff6a00]">:</span>
-            <SlidingNumber value={timerValues.seconds} /><span className="text-[13px] text-[#ff6a00]/70 ml-[1px] -mr-[1px]">s</span>
+        {/* 3 CARDS GRID */}
+        <div className="grid grid-cols-3 gap-2.5 mb-6">
+          <div className="bg-[#111111] rounded-[20px] p-3 flex flex-col items-center text-center justify-start border border-white/5 shadow-sm h-full pt-4">
+            <div className="w-9 h-9 rounded-[10px] bg-white flex items-center justify-center shadow-md mb-2">
+              <Blocks className="w-5 h-5 text-blue-500" />
+            </div>
+            <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>1000+ app<br/>integrations</p>
           </div>
-        </div>
-
-        {/* Cuadros Comparativos Scrollables */}
-        <div className="w-full max-w-md flex-1 overflow-y-auto no-scrollbar relative z-10 mb-4 mask-image-bottom">
-           <style>{`
-             .mask-image-bottom {
-               mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-               -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
-             }
-           `}</style>
-          <div className="grid grid-cols-2 gap-2 pb-[30px]">
           
-          {/* Columna Free */}
-          <div className="flex flex-col mt-[2px]">
-            <div className="flex items-center justify-center h-[50px] text-[#8e8e93] font-bold text-[17px] tracking-wide" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>
-              Free
-            </div>
-            
-            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#1c1c1e] h-[145px]">
-              <AnimatedIcon src="/memo.webp" alt="Memo" className="w-[36px] h-[36px] mb-2 drop-shadow-md" />
-              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Basic Features</h3>
-              <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Standard access to core tools and stable AI models.</p>
-            </div>
-            
-            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#1c1c1e] h-[145px]">
-              <AnimatedIcon src="/search.webp" alt="Search" className="w-[36px] h-[36px] mb-2 drop-shadow-md" />
-              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Search</h3>
-              <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Basic web search for everyday questions.</p>
-            </div>
-            
-            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#1c1c1e] h-[145px]">
-              <AnimatedIcon src="/hourglass.webp" alt="Limits" className="w-[36px] h-[36px] mb-2 drop-shadow-md" />
-              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Standard Limits</h3>
-              <p className="text-[#8e8e93] text-[13px] leading-snug font-medium">Fewer limits & up to 5 active tasks.</p>
-            </div>
+          <div className="bg-[#111111] rounded-[20px] p-3 flex flex-col items-center text-center justify-start border border-white/5 shadow-sm h-full pt-4">
+            <div className="text-[32px] leading-none mb-1.5 drop-shadow-lg">🤖</div>
+            <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>Scheduled tasks,<br/>autonomous<br/>work 24/7</p>
           </div>
 
-          {/* Columna Premium (SuperNoir) */}
-          <div className="flex flex-col border-[2px] border-[#ff6a00] rounded-[24px] bg-[#111111] shadow-[0_0_20px_rgba(255,106,0,0.15)] overflow-hidden">
-            <div className="bg-[#ff6a00] flex items-center justify-center h-[50px]">
-              <span className="text-white font-bold text-[17px] tracking-wide" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>SuperNoir</span>
-            </div>
-            
-            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-transparent h-[145px]">
-              <AnimatedIcon src="/robot.webp" alt="Autonomous AI" className="w-[36px] h-[36px] mb-2 drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
-              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Beta Access</h3>
-              <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Early access to experimental tools, beta features & latest models.</p>
-            </div>
-            
-            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#ff6a00]/30 h-[145px]">
-              <AnimatedIcon src="/lightning.webp" alt="Lightning" className="w-[36px] h-[36px] mb-2 drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
-              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>DeepSearch</h3>
-              <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Advanced reasoning and deep thinking tools.</p>
-            </div>
-            
-            <div className="flex flex-col items-center justify-start text-center p-3 border-t border-[#ff6a00]/30 h-[145px]">
-              <AnimatedIcon src="/rocket.webp" alt="Rocket" className="w-[36px] h-[36px] mb-2 drop-shadow-[0_0_15px_rgba(255,106,0,0.4)]" />
-              <h3 className="text-white font-bold text-[15px] mb-1.5 leading-tight" style={{ fontFamily: "'Helvetica Neue', Helvetica, sans-serif" }}>Increased Limits</h3>
-              <p className="text-[#e5e5ea] text-[13px] leading-snug font-medium">Higher limits & up to 15 active tasks.</p>
-            </div>
-          </div>
-
+          <div className="bg-[#111111] rounded-[20px] p-3 flex flex-col items-center text-center justify-start border border-white/5 shadow-sm h-full pt-4">
+            <div className="text-[32px] leading-none mb-1.5 drop-shadow-lg text-yellow-400">✨</div>
+            <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>No watermarks.<br/>Less content<br/>moderation</p>
           </div>
         </div>
 
-        {/* Upgrade Button */}
-        <button
-          onClick={subscribe}
-          disabled={isLoading || isPremium}
-          className="w-full max-w-sm py-[18px] shimmer-btn relative overflow-hidden bg-[#ff6a00] hover:bg-[#ff7a1a] text-white font-bold text-[17px] rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed mb-6 shadow-[0_0_20px_rgba(255,106,0,0.3)] shrink-0"
-        >
-          {isPremium ? (
-            <span className="relative z-10">SuperNoir Active</span>
-          ) : isLoading ? (
-            <span className="relative z-10">Processing...</span>
-          ) : timeLeft > 0 ? (
-            <span className="relative z-10 text-[19px] font-extrabold tracking-tight">Claim 1 Month for Free</span>
-          ) : (
-            <div className="flex items-center justify-center gap-1.5 relative z-10">
-              <span className="leading-none mt-[1px]">Subscribe for</span>
-              <Image src="/telegram-star-icon.png" alt="Star" width={18} height={18} className="object-contain -mt-[1px] pointer-events-none select-none" style={{ filter: "brightness(0) invert(1)" }} draggable={false} onContextMenu={(e) => e.preventDefault()} />
-              <span className="leading-none mt-[1px]">850</span>
+        {/* AI MODELS */}
+        <div className="flex items-center justify-between mb-6 px-1">
+          <div className="flex-1 pr-2">
+            <h2 className="text-[17px] font-bold tracking-tight mb-0.5">Professional AI models</h2>
+            <p className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>Claude Opus 4.8, GPT 5.5, Seedance 2.0</p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-colors" style={{ backgroundColor: accentColor }}>
+              <Sparkles className="w-6 h-6 text-white" strokeWidth={2.5} />
             </div>
-          )}
-        </button>
+            <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center shadow-lg">
+              <Bot className="w-6 h-6 text-black" strokeWidth={2.5} />
+            </div>
+          </div>
+        </div>
+
+        {/* TOKENS BLOCK */}
+        <div className="bg-[#111111] rounded-[24px] p-5 mb-6 border border-white/5 shadow-md">
+          <p className="text-[#8e8e93] text-[11px] font-bold tracking-widest uppercase mb-1">For everyday AI work</p>
+          <h2 className="text-[23px] font-bold mb-5 tracking-tight">2,000 tokens per month</h2>
+          
+          <p className="text-[#8e8e93] text-[12px] font-bold tracking-wider uppercase mb-2">Up to</p>
+          
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
+            <div className="flex items-center gap-1.5">
+              <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: accentColor }}>
+                <MessageCircle className="w-3.5 h-3.5 text-white fill-white" />
+              </div>
+              <span className="font-semibold text-[15px]">1,000 <span className="text-[#8e8e93] font-medium">messages</span></span>
+            </div>
+            <span className="text-[#8e8e93] text-[13px]">or</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center">
+                <ImageIcon className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+              </div>
+              <span className="font-semibold text-[15px]">60 <span className="text-[#8e8e93] font-medium">images</span></span>
+            </div>
+            <span className="text-[#8e8e93] text-[13px]">or</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center">
+                <Video className="w-4 h-4 transition-colors" style={{ color: accentColor }} />
+              </div>
+              <span className="font-semibold text-[15px]">10 <span className="text-[#8e8e93] font-medium">videos</span></span>
+            </div>
+          </div>
+        </div>
+
+        {/* PRICING SELECTOR */}
+        <div className="grid grid-cols-3 gap-2.5">
+          
+          {/* 1 Month */}
+          <div 
+            onClick={() => setSelectedPlan("1m")}
+            className={`relative rounded-2xl p-3.5 cursor-pointer transition-all border-[1.5px] flex flex-col justify-end min-h-[120px] shadow-md ${selectedPlan === "1m" ? "active-plan-card" : "border-[#1c1c1e] bg-[#111111] hover:border-white/10"}`}
+          >
+            {selectedPlan === "1m" && (
+              <div className="absolute -top-[11px] left-1/2 -translate-x-1/2 px-2.5 py-[3px] rounded-full text-[9px] font-extrabold tracking-widest uppercase shadow-sm whitespace-nowrap" style={{ backgroundColor: accentColor, color: "#fff" }}>
+                Best Choice
+              </div>
+            )}
+            {selectedPlan === "1m" && (
+              <div className="absolute top-2.5 right-2.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
+                <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
+              </div>
+            )}
+            <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>1 month</h3>
+            <p className="font-bold text-[22px] mb-0.5 leading-none tracking-tight">$27</p>
+            <p className="text-[12px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[10px]">★</span> 1,499</p>
+          </div>
+
+          {/* 3 Months */}
+          <div 
+            onClick={() => setSelectedPlan("3m")}
+            className={`relative rounded-2xl p-3.5 cursor-pointer transition-all border-[1.5px] overflow-hidden flex flex-col justify-end min-h-[120px] shadow-md ${selectedPlan === "3m" ? "active-plan-card" : "border-[#1c1c1e] bg-[#111111] hover:border-white/10"}`}
+          >
+            {selectedPlan === "3m" && (
+              <div className="absolute top-2.5 right-2.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
+                <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
+              </div>
+            )}
+            <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>3 months</h3>
+            <p className="font-bold text-[22px] mb-0.5 leading-none tracking-tight">$54</p>
+            <p className="text-[12px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[10px]">★</span> 2,999</p>
+            {selectedPlan !== "3m" && (
+               <div className="absolute -right-7 bottom-3 bg-[#ff3b30] text-white text-[10px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
+                 -33%
+               </div>
+            )}
+          </div>
+
+          {/* 1 Year */}
+          <div 
+            onClick={() => setSelectedPlan("1y")}
+            className={`relative rounded-2xl p-3.5 cursor-pointer transition-all border-[1.5px] overflow-hidden flex flex-col justify-end min-h-[120px] shadow-md ${selectedPlan === "1y" ? "active-plan-card" : "border-[#1c1c1e] bg-[#111111] hover:border-white/10"}`}
+          >
+            {selectedPlan === "1y" && (
+              <div className="absolute top-2.5 right-2.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
+                <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
+              </div>
+            )}
+            <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>1 year</h3>
+            <p className="font-bold text-[22px] mb-0.5 leading-none tracking-tight">$162</p>
+            <p className="text-[12px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[10px]">★</span> 8,999</p>
+            {selectedPlan !== "1y" && (
+               <div className="absolute -right-7 bottom-3 bg-[#ff3b30] text-white text-[10px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
+                 -50%
+               </div>
+            )}
+          </div>
+          
+        </div>
 
       </div>
+
+      {/* FIXED FOOTER */}
+      <div className="fixed bottom-0 left-0 w-full px-4 pt-4 pb-[calc(var(--tg-safe-area-inset-bottom,24px)+12px)] bg-[#000000]/95 backdrop-blur-md border-t border-white/5 z-20">
+        <div className="flex items-center gap-2.5 w-full mb-3">
+          <button className="flex-1 py-[15px] rounded-[18px] bg-[#1c1c1e] active:bg-[#2c2c2e] transition-colors flex items-center justify-center gap-2 shadow-sm">
+            <Gift className="w-[18px] h-[18px]" />
+            <span className="font-semibold text-[15px]" style={{ fontFamily: SF }}>Gift to Friends</span>
+          </button>
+          
+          <button 
+            onClick={subscribe}
+            disabled={isLoading || isPremium}
+            className="flex-[1.2] py-[15px] rounded-[18px] transition-all text-white font-bold text-[16px] shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98]"
+            style={{ backgroundColor: accentColor }}
+          >
+            {isPremium ? "SuperNoir Active" : isLoading ? "Processing..." : "Subscribe Now"}
+          </button>
+        </div>
+        <div className="flex justify-center items-center gap-1.5 text-[#8e8e93] text-[12px] font-medium pb-1" style={{ fontFamily: SF }}>
+          <span>Pay with Stars or</span>
+          <span className="flex items-center"><span className="text-[14px] mr-1">💳</span> card</span>
+        </div>
+      </div>
+
     </div>
   )
 }
