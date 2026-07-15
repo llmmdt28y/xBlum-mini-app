@@ -527,7 +527,7 @@ export function HomeView() {
             {/* Card 1 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="mb-[8px] w-[26px] h-[26px]">
+                <div className="mb-[8px] w-[32px] h-[32px]">
                   <img 
                     src="/telegram%20emojis/robot-emoji-telegram.png" 
                     alt="Automate your chat" 
@@ -560,7 +560,7 @@ export function HomeView() {
             {/* Card 2 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="mb-[8px] w-[26px] h-[26px]">
+                <div className="mb-[8px] w-[32px] h-[32px]">
                   <img 
                     src="/telegram%20emojis/police-emoji-telegram.png" 
                     alt="Group Moderation" 
@@ -593,7 +593,7 @@ export function HomeView() {
             {/* Card 3 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="mb-[8px] w-[26px] h-[26px]">
+                <div className="mb-[8px] w-[32px] h-[32px]">
                   <img 
                     src="/telegram%20emojis/calendar-emoji-telegram.png" 
                     alt="Scheduled Tasks" 
