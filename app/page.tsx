@@ -2,17 +2,20 @@
 
 import { AppProvider, useApp } from "@/lib/app-context"
 import { Header } from "@/components/header"
-import { HomeView } from "@/components/home-view"
-import { SettingsView } from "@/components/settings-view"
-import { PremiumView } from "@/components/premium-view"
-import { ReferralView } from "@/components/referral-view"
-import { ProfileView } from "@/components/profile-view"
-import { XRewardsView } from "@/components/x-rewards-view"
-import { MarketView } from "@/components/market-view"
-import { ScheduleView } from "@/components/schedule-view"
-import { LevelsView } from "@/components/levels-view"
-import { ShopView } from "@/components/shop-view"
-import { GroupConfigView } from "@/components/group-config-view"
+import dynamic from "next/dynamic"
+import Image from "next/image"
+
+const HomeView = dynamic(() => import("@/components/home-view").then(mod => mod.HomeView))
+const SettingsView = dynamic(() => import("@/components/settings-view").then(mod => mod.SettingsView))
+const PremiumView = dynamic(() => import("@/components/premium-view").then(mod => mod.PremiumView))
+const ReferralView = dynamic(() => import("@/components/referral-view").then(mod => mod.ReferralView))
+const ProfileView = dynamic(() => import("@/components/profile-view").then(mod => mod.ProfileView))
+const XRewardsView = dynamic(() => import("@/components/x-rewards-view").then(mod => mod.XRewardsView))
+const MarketView = dynamic(() => import("@/components/market-view").then(mod => mod.MarketView))
+const ScheduleView = dynamic(() => import("@/components/schedule-view").then(mod => mod.ScheduleView))
+const LevelsView = dynamic(() => import("@/components/levels-view").then(mod => mod.LevelsView))
+const ShopView = dynamic(() => import("@/components/shop-view").then(mod => mod.ShopView))
+const GroupConfigView = dynamic(() => import("@/components/group-config-view").then(mod => mod.GroupConfigView))
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock, Settings } from "lucide-react"
 
@@ -53,11 +56,13 @@ function MaintenanceScreen({ onUnlock }: { onUnlock: () => void }) {
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center select-none overflow-hidden">
       <div onClick={handleSecretTap} className="absolute top-0 left-0 w-24 h-24 z-50" />
       <div className="relative mb-8 pointer-events-none select-none">
-        <img
+        <Image
           src="/steampunkjulia_agadsqcaakb7raq.webp"
           alt="Maintenance"
+          width={192}
+          height={192}
           draggable={false}
-          className="w-48 h-48 object-contain pointer-events-none select-none"
+          className="object-contain pointer-events-none select-none"
           style={{ WebkitUserSelect: "none", WebkitTouchCallout: "none", userSelect: "none" }}
         />
       </div>
@@ -239,7 +244,7 @@ function NavBar() {
           <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none relative" style={{ zIndex: 10 }}>
             {photoUrl ? (
               <div className="w-[46px] h-[46px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
-                <img src={photoUrl} alt="User" className="w-full h-full object-cover" />
+                <Image src={photoUrl} alt="User" fill sizes="46px" className="object-cover" />
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center relative z-10">
