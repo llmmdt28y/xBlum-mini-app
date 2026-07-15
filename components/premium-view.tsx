@@ -79,6 +79,22 @@ export function PremiumView() {
           </div>
         </div>
 
+        {/* AI MODELS */}
+        <div className="flex items-center justify-between mb-6 px-1">
+          <div className="flex-1 pr-2">
+            <h2 className="text-[17px] font-bold tracking-tight mb-0.5">Unlock exclusive AI models</h2>
+            <p className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>Claude Opus 4.8, GPT 5.5, Seedance 2.0</p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-colors" style={{ backgroundColor: accentColor }}>
+              <Sparkles className="w-6 h-6 text-white" strokeWidth={2.5} />
+            </div>
+            <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center shadow-lg">
+              <Bot className="w-6 h-6 text-black" strokeWidth={2.5} />
+            </div>
+          </div>
+        </div>
+
         {/* 3 CARDS GRID */}
         <div className="grid grid-cols-3 gap-2.5 mb-6">
           <div className="p-1 flex flex-col items-center text-center justify-start h-full pt-2">
@@ -94,29 +110,13 @@ export function PremiumView() {
           </div>
 
           <div className="p-1 flex flex-col items-center text-center justify-start h-full pt-2">
-            <div className="text-[32px] leading-none mb-1.5 drop-shadow-lg text-yellow-400">✨</div>
-            <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>No watermarks.<br/>Less content<br/>moderation</p>
-          </div>
-        </div>
-
-        {/* AI MODELS */}
-        <div className="flex items-center justify-between mb-6 px-1">
-          <div className="flex-1 pr-2">
-            <h2 className="text-[17px] font-bold tracking-tight mb-0.5">Professional AI models</h2>
-            <p className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>Claude Opus 4.8, GPT 5.5, Seedance 2.0</p>
-          </div>
-          <div className="flex gap-2 shrink-0">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-colors" style={{ backgroundColor: accentColor }}>
-              <Sparkles className="w-6 h-6 text-white" strokeWidth={2.5} />
-            </div>
-            <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center shadow-lg">
-              <Bot className="w-6 h-6 text-black" strokeWidth={2.5} />
-            </div>
+            <div className="text-[32px] leading-none mb-1.5 drop-shadow-lg">⚡️</div>
+            <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>Advanced<br/>DeepSearch &<br/>Reasoning</p>
           </div>
         </div>
 
         {/* TOKENS BLOCK */}
-        <div className="bg-[#111111] rounded-[24px] p-5 mb-6 border border-white/5 shadow-md">
+        <div className="bg-[#111111] rounded-[24px] p-5 mb-6 shadow-md">
           <p className="text-[#8e8e93] text-[11px] font-bold tracking-widest uppercase mb-1">For everyday AI work</p>
           <h2 className="text-[23px] font-bold mb-5 tracking-tight">2,000 tokens per month</h2>
           
@@ -152,14 +152,14 @@ export function PremiumView() {
           {/* 1 Month */}
           <div 
             onClick={() => setSelectedPlan("1m")}
-            className={`relative rounded-2xl p-3.5 cursor-pointer transition-all border-[1.5px] flex flex-col justify-end min-h-[120px] shadow-md ${selectedPlan === "1m" ? "active-plan-card" : "border-[#1c1c1e] bg-[#111111] hover:border-white/10"}`}
+            className={`relative rounded-[24px] p-3 cursor-pointer transition-all flex flex-col justify-end min-h-[105px] shadow-md border-[1.5px] ${selectedPlan === "1m" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
           >
             <div className="absolute -top-[11px] left-1/2 -translate-x-1/2 px-2.5 py-[3px] rounded-full text-[9px] font-extrabold tracking-widest uppercase shadow-sm whitespace-nowrap" style={{ backgroundColor: accentColor, color: "#fff" }}>
               Best Choice
             </div>
             {selectedPlan === "1m" && (
-              <div className="absolute top-2.5 right-2.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
-                <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
+              <div className="absolute top-2.5 right-2.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
+                <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
               </div>
             )}
             <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>1 month</h3>
@@ -170,11 +170,11 @@ export function PremiumView() {
           {/* 3 Months */}
           <div 
             onClick={() => setSelectedPlan("3m")}
-            className={`relative rounded-2xl p-3.5 cursor-pointer transition-all border-[1.5px] overflow-hidden flex flex-col justify-end min-h-[120px] shadow-md ${selectedPlan === "3m" ? "active-plan-card" : "border-[#1c1c1e] bg-[#111111] hover:border-white/10"}`}
+            className={`relative rounded-[24px] p-3 cursor-pointer transition-all overflow-hidden flex flex-col justify-end min-h-[105px] shadow-md border-[1.5px] ${selectedPlan === "3m" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
           >
             {selectedPlan === "3m" && (
-              <div className="absolute top-2.5 right-2.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
-                <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
+              <div className="absolute top-2.5 right-2.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
+                <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
               </div>
             )}
             <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>3 months</h3>
@@ -188,11 +188,11 @@ export function PremiumView() {
           {/* 1 Year */}
           <div 
             onClick={() => setSelectedPlan("1y")}
-            className={`relative rounded-2xl p-3.5 cursor-pointer transition-all border-[1.5px] overflow-hidden flex flex-col justify-end min-h-[120px] shadow-md ${selectedPlan === "1y" ? "active-plan-card" : "border-[#1c1c1e] bg-[#111111] hover:border-white/10"}`}
+            className={`relative rounded-[24px] p-3 cursor-pointer transition-all overflow-hidden flex flex-col justify-end min-h-[105px] shadow-md border-[1.5px] ${selectedPlan === "1y" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
           >
             {selectedPlan === "1y" && (
-              <div className="absolute top-2.5 right-2.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
-                <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
+              <div className="absolute top-2.5 right-2.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
+                <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
               </div>
             )}
             <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>1 year</h3>
