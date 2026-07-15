@@ -299,7 +299,7 @@ function Section({ title, footer, children, rightAction }: { title?: string; foo
           {rightAction && <div>{rightAction}</div>}
         </div>
       )}
-      <div className="rounded-[16px] overflow-hidden bg-[#262626] relative">
+      <div className="rounded-[16px] overflow-hidden bg-[#1c1c1e] relative">
         {children}
       </div>
       {footer && (
@@ -363,7 +363,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
         <a href={href} target="_blank" rel="noopener noreferrer" onPointerDown={createRipple} className={className + " block"}>
           {content}
         </a>
-        {!last && <div className={`h-[1px] bg-[#3a3a3c] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+        {!last && <div className={`h-[1px] bg-[#2c2c2e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
       </>
     )
   }
@@ -378,7 +378,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
       >
         {content}
       </button>
-      {!last && <div className={`h-[1px] bg-[#3a3a3c] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+      {!last && <div className={`h-[1px] bg-[#2c2c2e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
     </>
   )
 }
