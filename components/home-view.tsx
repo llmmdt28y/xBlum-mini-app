@@ -442,7 +442,7 @@ export function HomeView() {
 
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex flex-col items-center justify-center bg-[#050505] overflow-visible pt-16">
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex flex-col items-center justify-center bg-[#050505] overflow-visible">
         
         {/* Layer 1: Background Image (Behind everything) */}
         <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-hidden">
@@ -456,18 +456,26 @@ export function HomeView() {
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
         <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-[5]"></div>
         
-        {/* Layer 2: Text (Above everything for readability) */}
-        <div className="relative z-30 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-12">
+        {/* Content Layer */}
+        <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-6">
+          
+          {/* Object (Logo) */}
+          <img 
+            src="/hero.png" 
+            alt="Hero Object" 
+            className="w-36 h-36 mx-auto object-contain select-none pointer-events-none mb-1 drop-shadow-2xl"
+            draggable={false}
+            style={imageProtectionStyle}
+          />
+          
           <h1 
             className="text-white font-bold text-[32px] sm:text-[36px] leading-[1.1] tracking-tight drop-shadow-md" 
             style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
           >
             How can I help you<br />today?
           </h1>
-        </div>
 
-        {/* Layer 3: Ask anything... Pill (Middle, so image can overlap it) */}
-        <div className="relative z-10 flex flex-col items-center w-full max-w-md px-6 transform translate-y-6">
+          {/* Ask anything... Pill */}
           <div 
             onClick={() => !isInputActive && setIsInputActive(true)}
             className={`flex items-center justify-between p-[6px] pl-5 mt-2 rounded-[100px] bg-black/40 border border-white/[0.15] backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 cursor-text overflow-hidden
@@ -496,18 +504,6 @@ export function HomeView() {
             </button>
           </div>
         </div>
-
-        {/* Layer 4: Overlay Object (Front, transparent PNG) */}
-        <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center overflow-hidden">
-          <img 
-            src="/hero.png" 
-            alt="Hero Object" 
-            className="w-full h-full object-cover object-[center_60%] drop-shadow-2xl" 
-          />
-        </div>
-        
-        {/* Bottom gradient transition to black */}
-        <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/60 to-transparent pointer-events-none z-30"></div>
       </div>
 
       {/* Main Content */}
