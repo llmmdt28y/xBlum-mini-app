@@ -442,61 +442,35 @@ export function HomeView() {
 
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex items-center justify-center bg-[#1a1a1a] overflow-visible">
+      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex flex-col items-center justify-center bg-[#050505] overflow-visible pt-16">
         
-        {/* GPU Optimized Authentic Mesh Glow */}
-        <div className="absolute inset-0 z-0 pointer-events-none bg-[#1a1a1a]" style={{ clipPath: 'polygon(-100% 0, 200% 0, 200% 100%, -100% 100%)' }}>
-          {/* Hardware-accelerated blur wrapper */}
-          <div className="absolute inset-0 opacity-80 mix-blend-screen" style={{ filter: 'blur(80px)', transform: 'translateZ(0)', willChange: 'transform, filter' }}>
-            
-            {/* Core Magenta Glow */}
-            <div 
-              className="absolute -top-[10%] -left-[10%] w-[80%] h-[70%] bg-[#E6007A] rounded-full"
-              style={{ animation: 'orb-float-1 12s ease-in-out infinite', willChange: 'transform' }}
-            />
-            
-            {/* Vibrant Orange Glow */}
-            <div 
-              className="absolute top-[0%] -right-[10%] w-[90%] h-[80%] bg-[#FF5E00] rounded-full"
-              style={{ animation: 'orb-float-2 15s ease-in-out infinite', willChange: 'transform' }}
-            />
-            
-            {/* Bright Yellow Highlight */}
-            <div 
-              className="absolute top-[20%] left-[20%] w-[60%] h-[60%] bg-[#FFB800] rounded-full opacity-80"
-              style={{ animation: 'orb-float-3 10s ease-in-out infinite', willChange: 'transform' }}
-            />
-            
-            {/* Deep Purple Base restored but vertically clipped */}
-            <div 
-              className="absolute -bottom-[20%] left-[10%] w-[100%] h-[60%] bg-[#8A00C2] rounded-full opacity-60"
-              style={{ animation: 'orb-float-1 18s ease-in-out infinite reverse', willChange: 'transform' }}
-            />
-          </div>
+        {/* Layer 1: Background Image (Behind everything) */}
+        <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-hidden">
+          <img 
+            src="/hero.png" 
+            alt="Hero Background" 
+            className="w-full h-full object-cover object-[center_60%] opacity-90" 
+          />
         </div>
 
         {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-0"></div>
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-[5]"></div>
         
-        <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-10">
-          <img 
-            src="/noir-newlogo.png" 
-            alt="Noir Logo" 
-            className="w-28 h-28 mx-auto object-contain select-none pointer-events-none"
-            draggable={false}
-            style={imageProtectionStyle}
-          />
+        {/* Layer 2: Text (Above everything for readability) */}
+        <div className="relative z-30 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-12">
           <h1 
             className="text-white font-bold text-[32px] sm:text-[36px] leading-[1.1] tracking-tight drop-shadow-md" 
             style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
           >
             How can I help you<br />today?
           </h1>
+        </div>
 
-          {/* Ask anything... Pill */}
+        {/* Layer 3: Ask anything... Pill (Middle, so image can overlap it) */}
+        <div className="relative z-10 flex flex-col items-center w-full max-w-md px-6 transform translate-y-6">
           <div 
             onClick={() => !isInputActive && setIsInputActive(true)}
-            className={`flex items-center justify-between p-[6px] pl-5 mt-2 rounded-[100px] bg-white/[0.03] border border-white/[0.08] backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.05)] transition-all duration-500 cursor-text overflow-hidden
+            className={`flex items-center justify-between p-[6px] pl-5 mt-2 rounded-[100px] bg-black/40 border border-white/[0.15] backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 cursor-text overflow-hidden
               ${isInputActive ? "w-full max-w-[360px]" : "w-[240px]"}`}
             style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
           >
@@ -517,14 +491,24 @@ export function HomeView() {
                 Ask anything...
               </span>
             )}
-            <button className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-all duration-300 ${askQuery.trim().length > 0 ? 'bg-[#60a5fa] hover:bg-[#4b8ce1]' : 'bg-white/10 hover:bg-white/20'}`}>
+            <button className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-all duration-300 ${askQuery.trim().length > 0 ? 'bg-[#60a5fa] hover:bg-[#4b8ce1]' : 'bg-white/20 hover:bg-white/30'}`}>
               <ArrowUp className="w-[20px] h-[20px] text-white/90" strokeWidth={1.5} />
             </button>
           </div>
         </div>
+
+        {/* Layer 4: Overlay Image (Front, screen blended) */}
+        {/* The screen blend mode makes the black background transparent, letting the bright star overlap the pill */}
+        <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center overflow-hidden mix-blend-screen">
+          <img 
+            src="/hero.png" 
+            alt="Hero Overlay" 
+            className="w-full h-full object-cover object-[center_60%]" 
+          />
+        </div>
         
-        {/* Bottom gradient transition to black */}
-        <div className="absolute bottom-0 w-full h-56 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/80 to-transparent pointer-events-none"></div>
+        {/* Bottom gradient transition to black (Above the overlay so the cut off isn't harsh) */}
+        <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/60 to-transparent pointer-events-none z-30"></div>
       </div>
 
       {/* Main Content */}
