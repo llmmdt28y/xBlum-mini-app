@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState } from "react"
 import { 
@@ -120,9 +121,9 @@ export function ProfileView() {
 
         {/* SECCIÓN DE PERFIL */}
         <div className="flex flex-col items-center pt-10">
-          <div className="w-[90px] h-[90px] rounded-full overflow-hidden bg-[#1c1c1e] flex items-center justify-center mb-3 border border-white/5 shadow-inner">
+          <div className="relative w-[90px] h-[90px] rounded-full overflow-hidden bg-[#1c1c1e] flex items-center justify-center mb-3 border border-white/5 shadow-inner">
             {photoUrl ? (
-              <img src={photoUrl} alt={displayName} className="w-full h-full object-cover" />
+              <Image src={photoUrl} alt={displayName} fill sizes="90px" className="object-cover" />
             ) : (
               <span className="text-white font-bold text-3xl" style={{ fontFamily: SFD }}>
                 {initials || "?"}
@@ -210,10 +211,12 @@ export function ProfileView() {
               
               {/* Imagen a la derecha que el usuario va a subir */}
               <div className="relative h-full flex items-center justify-end w-[80px]">
-                <img 
+                <Image 
                   src="/top-up-coins.png" 
                   alt="Coins" 
-                  className="h-[22px] object-contain mr-[-8px]"
+                  width={60}
+                  height={22}
+                  className="h-[22px] w-auto object-contain mr-[-8px]"
                 />
               </div>
             </div>
@@ -360,19 +363,23 @@ export function ProfileView() {
         <div className="flex flex-col items-center justify-center text-center mt-6 px-6">
           <div className="w-[140px] h-[140px] relative mb-3 flex items-center justify-center">
             {activeTab === "Gifts" && (
-              <img 
+              <Image 
                 src="/empty-gift.gif" 
                 alt="Empty Gifts" 
-                className="w-full h-full object-contain pointer-events-none select-none drop-shadow-2xl grayscale" 
+                fill
+                sizes="140px"
+                className="object-contain pointer-events-none select-none drop-shadow-2xl grayscale" 
                 draggable={false} 
                 style={{ WebkitTouchCallout: "none" }}
               />
             )}
             {activeTab !== "Gifts" && (
-              <img 
+              <Image 
                 src="/no-offers.gif" 
                 alt="Empty State" 
-                className="w-full h-full object-contain pointer-events-none select-none drop-shadow-2xl"
+                fill
+                sizes="140px"
+                className="object-contain pointer-events-none select-none drop-shadow-2xl"
                 draggable={false} 
                 style={{ WebkitTouchCallout: "none" }}
               />
