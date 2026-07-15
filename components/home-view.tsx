@@ -463,7 +463,7 @@ export function HomeView() {
           <img 
             src="/hero.png" 
             alt="Hero Object" 
-            className="w-48 h-48 mx-auto object-contain select-none pointer-events-none mb-1 drop-shadow-2xl"
+            className="w-48 h-48 mx-auto object-contain select-none pointer-events-none drop-shadow-2xl transform translate-y-6"
             draggable={false}
             style={imageProtectionStyle}
           />
