@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useApp, type ModelName } from "@/lib/app-context"
 import { 
   ChevronRight, Check, Earth, CircleUserRound, Lock,
@@ -416,10 +417,12 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
 
   return (
     <div className="w-[32px] h-[32px] flex items-center justify-center shrink-0 relative z-10">
-      <img
+      <Image
         src={MODEL_LOGO[name] || "/grok.png"}
         alt={name}
-        className="w-full h-full object-contain pointer-events-none select-none"
+        fill
+        sizes="32px"
+        className="object-contain pointer-events-none select-none"
         {...imageProps}
         onError={e => {
           const el = e.currentTarget
@@ -1256,10 +1259,12 @@ export function SettingsView({
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <div className="w-[104px] h-[104px] rounded-full overflow-hidden bg-gradient-to-br from-[#1e1e1e] to-[#0a0a0a] flex items-center justify-center border-2 border-transparent relative shadow-lg">
                {photoUrl ? (
-                <img 
+                <Image 
                   src={photoUrl} 
                   alt={displayName} 
-                  className="w-full h-full object-cover select-none pointer-events-none" 
+                  fill
+                  sizes="104px"
+                  className="object-cover select-none pointer-events-none" 
                   draggable={false} 
                   style={{ WebkitTouchCallout: "none" }} 
                   onError={() => setPhotoUrl(null)} 
@@ -1461,7 +1466,9 @@ export function SettingsView({
               return (
                 <div key={label} className="rounded-[20px] bg-[#111111] p-4 shadow-lg">
                   <div className="flex items-center gap-3 mb-3">
-                    <img src={logo} alt={label} className="w-7 h-7 object-contain pointer-events-none select-none" draggable={false} onContextMenu={e => e.preventDefault()} style={{ WebkitTouchCallout: "none", userSelect: "none" }} />
+                    <div className="relative w-7 h-7 shrink-0">
+                      <Image src={logo} alt={label} fill sizes="28px" className="object-contain pointer-events-none select-none" draggable={false} onContextMenu={e => e.preventDefault()} style={{ WebkitTouchCallout: "none", userSelect: "none" }} />
+                    </div>
                     <span className="text-[15px] font-semibold text-white flex-1" style={{ fontFamily: SF }}>{label}</span>
                     <span className="text-[13px] font-medium" style={{ fontFamily: SF, color: pct >= 90 ? "#ef4444" : "#8e8e93" }}>
                       {pct}%
