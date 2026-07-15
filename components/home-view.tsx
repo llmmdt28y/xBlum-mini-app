@@ -527,7 +527,15 @@ export function HomeView() {
             {/* Card 1 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="text-[22px] mb-[8px]">🤖</div>
+                <div className="mb-[8px] w-[26px] h-[26px]">
+                  <img 
+                    src="/robot-emoji-telegram.png" 
+                    alt="Automate your chat" 
+                    className="w-full h-full object-contain select-none pointer-events-none" 
+                    draggable={false} 
+                    style={imageProtectionStyle} 
+                  />
+                </div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Automate your chat
                 </h3>
@@ -552,7 +560,15 @@ export function HomeView() {
             {/* Card 2 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="text-[22px] mb-[8px]">🛡️</div>
+                <div className="mb-[8px] w-[26px] h-[26px]">
+                  <img 
+                    src="/police-emoji-telegram.png" 
+                    alt="Group Moderation" 
+                    className="w-full h-full object-contain select-none pointer-events-none" 
+                    draggable={false} 
+                    style={imageProtectionStyle} 
+                  />
+                </div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Group Moderation
                 </h3>
@@ -577,7 +593,15 @@ export function HomeView() {
             {/* Card 3 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="text-[22px] mb-[8px]">🗓️</div>
+                <div className="mb-[8px] w-[26px] h-[26px]">
+                  <img 
+                    src="/calendar-emoji-telegram.png" 
+                    alt="Scheduled Tasks" 
+                    className="w-full h-full object-contain select-none pointer-events-none" 
+                    draggable={false} 
+                    style={imageProtectionStyle} 
+                  />
+                </div>
                 <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
                   Scheduled Tasks
                 </h3>
