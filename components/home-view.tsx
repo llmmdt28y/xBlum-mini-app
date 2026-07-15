@@ -457,13 +457,13 @@ export function HomeView() {
         <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-[5]"></div>
         
         {/* Content Layer */}
-        <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-6">
+        <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-16">
           
           {/* Object (Logo) */}
           <img 
             src="/hero.png" 
             alt="Hero Object" 
-            className="w-36 h-36 mx-auto object-contain select-none pointer-events-none mb-1 drop-shadow-2xl"
+            className="w-48 h-48 mx-auto object-contain select-none pointer-events-none mb-1 drop-shadow-2xl"
             draggable={false}
             style={imageProtectionStyle}
           />
