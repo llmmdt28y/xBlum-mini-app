@@ -529,7 +529,7 @@ export function HomeView() {
               <div>
                 <div className="mb-[8px] w-[26px] h-[26px]">
                   <img 
-                    src="/robot-emoji-telegram.png" 
+                    src="/telegram%20emojis/robot-emoji-telegram.png" 
                     alt="Automate your chat" 
                     className="w-full h-full object-contain select-none pointer-events-none" 
                     draggable={false} 
@@ -562,7 +562,7 @@ export function HomeView() {
               <div>
                 <div className="mb-[8px] w-[26px] h-[26px]">
                   <img 
-                    src="/police-emoji-telegram.png" 
+                    src="/telegram%20emojis/police-emoji-telegram.png" 
                     alt="Group Moderation" 
                     className="w-full h-full object-contain select-none pointer-events-none" 
                     draggable={false} 
@@ -595,7 +595,7 @@ export function HomeView() {
               <div>
                 <div className="mb-[8px] w-[26px] h-[26px]">
                   <img 
-                    src="/calendar-emoji-telegram.png" 
+                    src="/telegram%20emojis/calendar-emoji-telegram.png" 
                     alt="Scheduled Tasks" 
                     className="w-full h-full object-contain select-none pointer-events-none" 
                     draggable={false} 
