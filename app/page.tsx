@@ -284,7 +284,23 @@ function AppContent() {
     const tg = (window as any).Telegram?.WebApp
     if (tg) {
       tg.ready()
-      try { tg.expand() } catch {}
+      
+      // Detectamos si es la versión web de escritorio/navegador
+      const platform = (tg.platform || '').toLowerCase()
+      const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk'
+      
+      try {
+        // En móviles y desktop nativo usamos Fullscreen si está disponible (Telegram v8.0+)
+        if (!isWeb && typeof tg.requestFullscreen === 'function') {
+          tg.requestFullscreen()
+        } else {
+          // En Web o si no hay soporte, hacemos expand normal
+          tg.expand()
+        }
+      } catch (e) {
+        // Fallback por si requestFullscreen falla (ej. desde algunos menús)
+        try { tg.expand() } catch {}
+      }
     }
   }, [])
 
