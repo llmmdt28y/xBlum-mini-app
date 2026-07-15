@@ -447,7 +447,7 @@ export function HomeView() {
         {/* Layer 1: Background Image (Behind everything) */}
         <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-hidden">
           <img 
-            src="/hero.png" 
+            src="/background-hero.png" 
             alt="Hero Background" 
             className="w-full h-full object-cover object-[center_60%] opacity-90" 
           />
@@ -497,17 +497,16 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Layer 4: Overlay Image (Front, screen blended) */}
-        {/* The screen blend mode makes the black background transparent, letting the bright star overlap the pill */}
-        <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center overflow-hidden mix-blend-screen">
+        {/* Layer 4: Overlay Object (Front, transparent PNG) */}
+        <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center overflow-hidden">
           <img 
             src="/hero.png" 
-            alt="Hero Overlay" 
-            className="w-full h-full object-cover object-[center_60%]" 
+            alt="Hero Object" 
+            className="w-full h-full object-cover object-[center_60%] drop-shadow-2xl" 
           />
         </div>
         
-        {/* Bottom gradient transition to black (Above the overlay so the cut off isn't harsh) */}
+        {/* Bottom gradient transition to black */}
         <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/60 to-transparent pointer-events-none z-30"></div>
       </div>
 
