@@ -45,7 +45,7 @@ const RIPPLE_STYLE = `
     background-color: rgba(150,150,150,0.25);
     pointer-events: none; z-index: 0;
   }
-  @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+  @keyframes ripple-anim { to { transform: scale(2.5); opacity: 0; } }
   .hide-scrollbar::-webkit-scrollbar { display: none; }
   .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   input[type="time"]::-webkit-calendar-picker-indicator {
@@ -72,6 +72,16 @@ const createRipple = (
 ) => {
   const el = event.currentTarget;
   if ((el as any).disabled) return;
+
+  let rippleContainer = el.querySelector('.ripple-container') as HTMLElement;
+  if (!rippleContainer) {
+    rippleContainer = document.createElement('div');
+    rippleContainer.className = 'ripple-container absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none isolate transform-gpu';
+    rippleContainer.style.webkitMaskImage = '-webkit-radial-gradient(white, black)';
+    rippleContainer.style.zIndex = '0';
+    el.appendChild(rippleContainer);
+  }
+
   const circle = document.createElement("span");
   const diameter = Math.max(el.clientWidth, el.clientHeight);
   const radius = diameter / 2;
@@ -80,8 +90,9 @@ const createRipple = (
   circle.style.left = `${event.clientX - rect.left - radius}px`;
   circle.style.top = `${event.clientY - rect.top - radius}px`;
   circle.classList.add("ripple");
-  el.querySelector(".ripple")?.remove();
-  el.appendChild(circle);
+
+  rippleContainer.querySelector(".ripple")?.remove();
+  rippleContainer.appendChild(circle);
   setTimeout(() => circle.remove(), 600);
 };
 
@@ -211,18 +222,18 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2 mb-4 w-full">
+    <div className="flex flex-col gap-1.5 w-full">
       {title && (
-        <div className="px-4 mb-1.5 flex items-center justify-between">
+        <div className="px-4 flex items-center justify-between">
           <h2
-            className="text-[15px] font-semibold"
+            className="text-[14px] font-semibold"
             style={{ fontFamily: SF, color: titleColor }}
           >
             {title}
           </h2>
         </div>
       )}
-      <div className="rounded-[24px] overflow-hidden shadow-lg bg-[#111111] relative">
+      <div className="rounded-[16px] overflow-hidden bg-[#111111] relative">
         {children}
       </div>
       {footer && (
