@@ -292,14 +292,14 @@ function RadioButton({ selected }: { selected: boolean }) {
 
 function Section({ title, footer, children, rightAction }: { title?: string; footer?: React.ReactNode; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
-    <div className="space-y-2 mb-4 w-full"> 
+    <div className="flex flex-col gap-1.5 w-full"> 
       {title && (
-        <div className="px-4 mb-1.5 flex items-center justify-between">
-          <h2 className="text-[#60a5fa] text-[15px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
+        <div className="px-4 flex items-center justify-between">
+          <h2 className="text-[#60a5fa] text-[14px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
           {rightAction && <div>{rightAction}</div>}
         </div>
       )}
-      <div className="rounded-[24px] overflow-hidden shadow-lg bg-[#111111] relative">
+      <div className="rounded-[16px] overflow-hidden bg-[#262626] relative">
         {children}
       </div>
       {footer && (
@@ -363,7 +363,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
         <a href={href} target="_blank" rel="noopener noreferrer" onPointerDown={createRipple} className={className + " block"}>
           {content}
         </a>
-        {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+        {!last && <div className={`h-[1px] bg-[#3a3a3c] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
       </>
     )
   }
@@ -378,7 +378,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
       >
         {content}
       </button>
-      {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+      {!last && <div className={`h-[1px] bg-[#3a3a3c] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
     </>
   )
 }
