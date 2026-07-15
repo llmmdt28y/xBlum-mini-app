@@ -31,7 +31,7 @@ const RIPPLE_STYLE = `
   }
   @keyframes ripple-anim {
     to {
-      transform: scale(4);
+      transform: scale(2.5);
       opacity: 0;
     }
   }
@@ -60,29 +60,38 @@ const triggerVibration = (type: 'light' | 'medium' | 'heavy' | 'error' | 'succes
 
 // Helper Function to create Ripple Effect
 const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
-  const element = event.currentTarget
-  if (element.disabled) return
+  const element = event.currentTarget;
+  if (element.disabled) return;
 
-  const circle = document.createElement("span")
-  const diameter = Math.max(element.clientWidth, element.clientHeight)
-  const radius = diameter / 2
-
-  const rect = element.getBoundingClientRect()
-  circle.style.width = circle.style.height = `${diameter}px`
-  circle.style.left = `${event.clientX - rect.left - radius}px`
-  circle.style.top = `${event.clientY - rect.top - radius}px`
-  circle.classList.add("ripple")
-
-  const existingRipple = element.querySelector(".ripple")
-  if (existingRipple) {
-    existingRipple.remove()
+  let rippleContainer = element.querySelector('.ripple-container') as HTMLElement;
+  if (!rippleContainer) {
+    rippleContainer = document.createElement('div');
+    rippleContainer.className = 'ripple-container absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none isolate transform-gpu';
+    rippleContainer.style.webkitMaskImage = '-webkit-radial-gradient(white, black)';
+    rippleContainer.style.zIndex = '0';
+    element.appendChild(rippleContainer);
   }
 
-  element.appendChild(circle)
+  const circle = document.createElement("span");
+  const diameter = Math.max(element.clientWidth, element.clientHeight);
+  const radius = diameter / 2;
+
+  const rect = element.getBoundingClientRect();
+  circle.style.width = circle.style.height = `${diameter}px`;
+  circle.style.left = `${event.clientX - rect.left - radius}px`;
+  circle.style.top = `${event.clientY - rect.top - radius}px`;
+  circle.classList.add("ripple");
+
+  const existingRipple = rippleContainer.querySelector(".ripple");
+  if (existingRipple) {
+    existingRipple.remove();
+  }
+
+  rippleContainer.appendChild(circle);
 
   setTimeout(() => {
-    circle.remove()
-  }, 600)
+    circle.remove();
+  }, 600);
 }
 
 function getInitData(): string {
@@ -299,7 +308,7 @@ function Section({ title, footer, children, rightAction }: { title?: string; foo
           {rightAction && <div>{rightAction}</div>}
         </div>
       )}
-      <div className="rounded-[16px] overflow-hidden bg-[#1c1c1e] relative">
+      <div className="rounded-[16px] overflow-hidden bg-[#111111] relative">
         {children}
       </div>
       {footer && (
@@ -363,7 +372,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
         <a href={href} target="_blank" rel="noopener noreferrer" onPointerDown={createRipple} className={className + " block"}>
           {content}
         </a>
-        {!last && <div className={`h-[1px] bg-[#2c2c2e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+        {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
       </>
     )
   }
@@ -378,7 +387,7 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
       >
         {content}
       </button>
-      {!last && <div className={`h-[1px] bg-[#2c2c2e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
+      {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
     </>
   )
 }
