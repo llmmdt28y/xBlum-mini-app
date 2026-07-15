@@ -81,19 +81,19 @@ export function PremiumView() {
 
         {/* 3 CARDS GRID */}
         <div className="grid grid-cols-3 gap-2.5 mb-6">
-          <div className="bg-[#111111] rounded-[20px] p-3 flex flex-col items-center text-center justify-start border border-white/5 shadow-sm h-full pt-4">
+          <div className="p-1 flex flex-col items-center text-center justify-start h-full pt-2">
             <div className="w-9 h-9 rounded-[10px] bg-white flex items-center justify-center shadow-md mb-2">
               <Blocks className="w-5 h-5 text-blue-500" />
             </div>
             <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>1000+ app<br/>integrations</p>
           </div>
           
-          <div className="bg-[#111111] rounded-[20px] p-3 flex flex-col items-center text-center justify-start border border-white/5 shadow-sm h-full pt-4">
+          <div className="p-1 flex flex-col items-center text-center justify-start h-full pt-2">
             <div className="text-[32px] leading-none mb-1.5 drop-shadow-lg">🤖</div>
             <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>Scheduled tasks,<br/>autonomous<br/>work 24/7</p>
           </div>
 
-          <div className="bg-[#111111] rounded-[20px] p-3 flex flex-col items-center text-center justify-start border border-white/5 shadow-sm h-full pt-4">
+          <div className="p-1 flex flex-col items-center text-center justify-start h-full pt-2">
             <div className="text-[32px] leading-none mb-1.5 drop-shadow-lg text-yellow-400">✨</div>
             <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>No watermarks.<br/>Less content<br/>moderation</p>
           </div>
@@ -154,11 +154,9 @@ export function PremiumView() {
             onClick={() => setSelectedPlan("1m")}
             className={`relative rounded-2xl p-3.5 cursor-pointer transition-all border-[1.5px] flex flex-col justify-end min-h-[120px] shadow-md ${selectedPlan === "1m" ? "active-plan-card" : "border-[#1c1c1e] bg-[#111111] hover:border-white/10"}`}
           >
-            {selectedPlan === "1m" && (
-              <div className="absolute -top-[11px] left-1/2 -translate-x-1/2 px-2.5 py-[3px] rounded-full text-[9px] font-extrabold tracking-widest uppercase shadow-sm whitespace-nowrap" style={{ backgroundColor: accentColor, color: "#fff" }}>
-                Best Choice
-              </div>
-            )}
+            <div className="absolute -top-[11px] left-1/2 -translate-x-1/2 px-2.5 py-[3px] rounded-full text-[9px] font-extrabold tracking-widest uppercase shadow-sm whitespace-nowrap" style={{ backgroundColor: accentColor, color: "#fff" }}>
+              Best Choice
+            </div>
             {selectedPlan === "1m" && (
               <div className="absolute top-2.5 right-2.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
                 <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
@@ -182,11 +180,9 @@ export function PremiumView() {
             <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>3 months</h3>
             <p className="font-bold text-[22px] mb-0.5 leading-none tracking-tight">$54</p>
             <p className="text-[12px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[10px]">★</span> 2,999</p>
-            {selectedPlan !== "3m" && (
-               <div className="absolute -right-7 bottom-3 bg-[#ff3b30] text-white text-[10px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
-                 -33%
-               </div>
-            )}
+            <div className="absolute -right-7 bottom-3 bg-[#ff3b30] text-white text-[10px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
+              -33%
+            </div>
           </div>
 
           {/* 1 Year */}
@@ -202,11 +198,9 @@ export function PremiumView() {
             <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>1 year</h3>
             <p className="font-bold text-[22px] mb-0.5 leading-none tracking-tight">$162</p>
             <p className="text-[12px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[10px]">★</span> 8,999</p>
-            {selectedPlan !== "1y" && (
-               <div className="absolute -right-7 bottom-3 bg-[#ff3b30] text-white text-[10px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
-                 -50%
-               </div>
-            )}
+            <div className="absolute -right-7 bottom-3 bg-[#ff3b30] text-white text-[10px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
+              -50%
+            </div>
           </div>
           
         </div>
