@@ -331,6 +331,12 @@ function AppContent() {
     }
   }, [isLoading, imagesLoaded])
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    document.body.scrollTop = 0
+    document.documentElement.scrollTop = 0
+  }, [currentView])
+
   if (isMaintenance) {
     return <MaintenanceScreen onUnlock={() => setIsMaintenance(false)} />
   }
