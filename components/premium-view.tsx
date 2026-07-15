@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import Image from "next/image"
 import { useApp } from "@/lib/app-context"
 
 const imageProtectionStyle = {
@@ -163,14 +164,18 @@ export function PremiumView() {
         
         {/* Título: SuperNoir */}
         <div className="h-[64px] mb-8 mt-4 flex items-center justify-center relative w-full pointer-events-none z-20">
-          <img 
-            src="/SuperNoir-subscription-banner.png" 
-            alt="SuperNoir" 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none" 
-            style={{ height: "120px", width: "auto", maxWidth: "none", ...imageProtectionStyle }}
-            draggable={false} 
-            onContextMenu={(e) => e.preventDefault()} 
-          />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[120px]">
+            <Image 
+              src="/SuperNoir-subscription-banner.png" 
+              alt="SuperNoir" 
+              width={350}
+              height={120}
+              className="h-full w-auto pointer-events-none select-none" 
+              style={{ maxWidth: "none", ...imageProtectionStyle }}
+              draggable={false} 
+              onContextMenu={(e) => e.preventDefault()} 
+            />
+          </div>
         </div>
 
         {/* Timer Container */}
@@ -262,7 +267,7 @@ export function PremiumView() {
           ) : (
             <div className="flex items-center justify-center gap-1.5 relative z-10">
               <span className="leading-none mt-[1px]">Subscribe for</span>
-              <img src="/telegram-star-icon.png" alt="Star" className="w-[18px] h-[18px] object-contain -mt-[1px] pointer-events-none select-none" style={{ filter: "brightness(0) invert(1)" }} draggable={false} onContextMenu={(e) => e.preventDefault()} />
+              <Image src="/telegram-star-icon.png" alt="Star" width={18} height={18} className="object-contain -mt-[1px] pointer-events-none select-none" style={{ filter: "brightness(0) invert(1)" }} draggable={false} onContextMenu={(e) => e.preventDefault()} />
               <span className="leading-none mt-[1px]">850</span>
             </div>
           )}
