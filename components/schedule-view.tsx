@@ -25,7 +25,7 @@ const RIPPLE_STYLE = `
     z-index: 0;
   }
   @keyframes ripple-anim {
-    to { transform: scale(4); opacity: 0; }
+    to { transform: scale(2.5); opacity: 0; }
   }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -61,20 +61,33 @@ const showAlert = (msg: string) => {
 }
 
 const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
-  const element = event.currentTarget
-  if (element.disabled) return
-  const circle = document.createElement("span")
-  const diameter = Math.max(element.clientWidth, element.clientHeight)
-  const radius = diameter / 2
-  const rect = element.getBoundingClientRect()
-  circle.style.width = circle.style.height = `${diameter}px`
-  circle.style.left = `${event.clientX - rect.left - radius}px`
-  circle.style.top = `${event.clientY - rect.top - radius}px`
-  circle.classList.add("ripple")
-  const existingRipple = element.querySelector(".ripple")
-  if (existingRipple) existingRipple.remove()
-  element.appendChild(circle)
-  setTimeout(() => circle.remove(), 600)
+  const element = event.currentTarget;
+  if (element.disabled) return;
+
+  let rippleContainer = element.querySelector('.ripple-container') as HTMLElement;
+  if (!rippleContainer) {
+    rippleContainer = document.createElement('div');
+    rippleContainer.className = 'ripple-container absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none isolate transform-gpu';
+    rippleContainer.style.webkitMaskImage = '-webkit-radial-gradient(white, black)';
+    rippleContainer.style.zIndex = '0';
+    element.appendChild(rippleContainer);
+  }
+
+  const circle = document.createElement("span");
+  const diameter = Math.max(element.clientWidth, element.clientHeight);
+  const radius = diameter / 2;
+
+  const rect = element.getBoundingClientRect();
+  circle.style.width = circle.style.height = `${diameter}px`;
+  circle.style.left = `${event.clientX - rect.left - radius}px`;
+  circle.style.top = `${event.clientY - rect.top - radius}px`;
+  circle.classList.add("ripple");
+
+  const existingRipple = rippleContainer.querySelector(".ripple");
+  if (existingRipple) existingRipple.remove();
+
+  rippleContainer.appendChild(circle);
+  setTimeout(() => circle.remove(), 600);
 }
 
 async function apiPost(endpoint: string, body: Record<string, unknown>) {
@@ -188,7 +201,7 @@ function SwitchNode({ on, onToggle, disabled }: { on: boolean; onToggle: () => v
 }
 
 function Section({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-[20px] overflow-hidden bg-[#111111] w-full border border-white/5 shadow-lg">{children}</div>
+  return <div className="rounded-[16px] overflow-hidden bg-[#111111] w-full">{children}</div>
 }
 
 function Row({ label, rightNode, last = false }: { label: string; rightNode?: React.ReactNode; last?: boolean }) {
