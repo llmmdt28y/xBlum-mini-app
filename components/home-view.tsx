@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useApp } from "@/lib/app-context"
 import { 
   Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
@@ -446,10 +447,13 @@ export function HomeView() {
         
         {/* Layer 1: Background Image (Behind everything) */}
         <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-hidden">
-          <img 
+          <Image 
             src="/background-hero.png" 
             alt="Hero Background" 
-            className="w-full h-full object-cover object-[center_60%] opacity-90" 
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[center_60%] opacity-90" 
           />
         </div>
 
@@ -460,10 +464,13 @@ export function HomeView() {
         <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-16">
           
           {/* Object (Logo) */}
-          <img 
+          <Image 
             src="/hero.png" 
             alt="Hero Object" 
-            className="w-48 h-48 mx-auto object-contain select-none pointer-events-none drop-shadow-2xl transform translate-y-6"
+            width={192}
+            height={192}
+            priority
+            className="mx-auto object-contain select-none pointer-events-none drop-shadow-2xl transform translate-y-6"
             draggable={false}
             style={imageProtectionStyle}
           />
@@ -527,11 +534,13 @@ export function HomeView() {
             {/* Card 1 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="mb-[8px] w-[32px] h-[32px]">
-                  <img 
+                <div className="mb-[8px] relative w-[32px] h-[32px]">
+                  <Image 
                     src="/telegram%20emojis/robot-emoji-telegram.png" 
                     alt="Automate your chat" 
-                    className="w-full h-full object-contain select-none pointer-events-none" 
+                    fill
+                    sizes="32px"
+                    className="object-contain select-none pointer-events-none" 
                     draggable={false} 
                     style={imageProtectionStyle} 
                   />
@@ -560,11 +569,13 @@ export function HomeView() {
             {/* Card 2 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="mb-[8px] w-[32px] h-[32px]">
-                  <img 
+                <div className="mb-[8px] relative w-[32px] h-[32px]">
+                  <Image 
                     src="/telegram%20emojis/police-emoji-telegram.png" 
                     alt="Group Moderation" 
-                    className="w-full h-full object-contain select-none pointer-events-none" 
+                    fill
+                    sizes="32px"
+                    className="object-contain select-none pointer-events-none" 
                     draggable={false} 
                     style={imageProtectionStyle} 
                   />
@@ -593,11 +604,13 @@ export function HomeView() {
             {/* Card 3 */}
             <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
               <div>
-                <div className="mb-[8px] w-[32px] h-[32px]">
-                  <img 
+                <div className="mb-[8px] relative w-[32px] h-[32px]">
+                  <Image 
                     src="/telegram%20emojis/calendar-emoji-telegram.png" 
                     alt="Scheduled Tasks" 
-                    className="w-full h-full object-contain select-none pointer-events-none" 
+                    fill
+                    sizes="32px"
+                    className="object-contain select-none pointer-events-none" 
                     draggable={false} 
                     style={imageProtectionStyle} 
                   />
