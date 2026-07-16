@@ -22,6 +22,11 @@ export function PremiumView() {
   const [selectedTier, setSelectedTier] = useState<"lite" | "heavy">("heavy")
   const [selectedPlan, setSelectedPlan] = useState<"1m" | "3m" | "1y">("1m")
 
+  const pricing = {
+    lite: { "1m": 450, "3m": 1200, "1y": 4500 },
+    heavy: { "1m": 950, "3m": 2500, "1y": 8900 }
+  }
+
   // Telegram BackButton
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -176,12 +181,14 @@ export function PremiumView() {
               <div className="absolute -top-[11px] left-1/2 -translate-x-1/2 px-2.5 py-[3px] rounded-full text-[9px] font-extrabold tracking-widest uppercase shadow-sm whitespace-nowrap" style={{ backgroundColor: accentColor, color: "#fff" }}>
                 Best Choice
               </div>
-              <h3 className="font-bold text-[14px] leading-tight mb-1" style={{ fontFamily: SF }}>1 month</h3>
-              <p className="font-bold text-[20px] mb-0.5 leading-none tracking-tight">$27</p>
-              <p className="text-[11px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[9px]">★</span> 1,499</p>
+              <h3 className="font-bold text-[14px] leading-tight mb-2" style={{ fontFamily: SF }}>1 month</h3>
+              <p className="font-bold text-[20px] mb-1 leading-none tracking-tight flex items-center gap-1">
+                <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain brightness-0 invert select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                {pricing[selectedTier]["1m"].toLocaleString()}
+              </p>
             </div>
             {selectedPlan === "1m" && (
-              <div className="absolute -top-1.5 -right-1.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10" style={{ backgroundColor: accentColor }}>
+              <div className="absolute -top-1 -right-1 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10 animate-bounce-pop" style={{ backgroundColor: accentColor }}>
                 <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
               </div>
             )}
@@ -193,15 +200,17 @@ export function PremiumView() {
               onClick={() => setSelectedPlan("3m")}
               className={`relative rounded-[20px] p-2.5 cursor-pointer transition-all overflow-hidden flex flex-col justify-end min-h-[90px] shadow-md border-[1.5px] ${selectedPlan === "3m" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
             >
-              <h3 className="font-bold text-[14px] leading-tight mb-1" style={{ fontFamily: SF }}>3 months</h3>
-              <p className="font-bold text-[20px] mb-0.5 leading-none tracking-tight">$54</p>
-              <p className="text-[11px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[9px]">★</span> 2,999</p>
+              <h3 className="font-bold text-[14px] leading-tight mb-2" style={{ fontFamily: SF }}>3 months</h3>
+              <p className="font-bold text-[20px] mb-1 leading-none tracking-tight flex items-center gap-1">
+                <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain brightness-0 invert select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                {pricing[selectedTier]["3m"].toLocaleString()}
+              </p>
               <div className="absolute -right-7 bottom-2.5 bg-[#ff3b30] text-white text-[9px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
                 -33%
               </div>
             </div>
             {selectedPlan === "3m" && (
-              <div className="absolute -top-1.5 -right-1.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10" style={{ backgroundColor: accentColor }}>
+              <div className="absolute -top-1 -right-1 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10 animate-bounce-pop" style={{ backgroundColor: accentColor }}>
                 <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
               </div>
             )}
@@ -213,15 +222,17 @@ export function PremiumView() {
               onClick={() => setSelectedPlan("1y")}
               className={`relative rounded-[20px] p-2.5 cursor-pointer transition-all overflow-hidden flex flex-col justify-end min-h-[90px] shadow-md border-[1.5px] ${selectedPlan === "1y" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
             >
-              <h3 className="font-bold text-[14px] leading-tight mb-1" style={{ fontFamily: SF }}>1 year</h3>
-              <p className="font-bold text-[20px] mb-0.5 leading-none tracking-tight">$162</p>
-              <p className="text-[11px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[9px]">★</span> 8,999</p>
+              <h3 className="font-bold text-[14px] leading-tight mb-2" style={{ fontFamily: SF }}>1 year</h3>
+              <p className="font-bold text-[20px] mb-1 leading-none tracking-tight flex items-center gap-1">
+                <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain brightness-0 invert select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                {pricing[selectedTier]["1y"].toLocaleString()}
+              </p>
               <div className="absolute -right-7 bottom-2.5 bg-[#ff3b30] text-white text-[9px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
                 -50%
               </div>
             </div>
             {selectedPlan === "1y" && (
-              <div className="absolute -top-1.5 -right-1.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10" style={{ backgroundColor: accentColor }}>
+              <div className="absolute -top-1 -right-1 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10 animate-bounce-pop" style={{ backgroundColor: accentColor }}>
                 <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
               </div>
             )}
