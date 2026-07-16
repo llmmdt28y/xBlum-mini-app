@@ -87,18 +87,18 @@ export function PremiumView() {
           left: -50%;
           width: 200%;
           height: 100%;
-          background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
-          animation: shimmer-sweep 2s cubic-bezier(0.4, 0, 0.2, 1) 1.5s forwards;
+          background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+          animation: shimmer-sweep 1s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards;
           pointer-events: none;
           opacity: 0;
         }
         @keyframes btn-border-glow {
           0% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
-          50% { box-shadow: 0 0 20px rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); }
+          50% { box-shadow: 0 0 25px rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.8); }
           100% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
         }
         .btn-shimmer {
-          animation: btn-border-glow 1.5s 1.5s forwards;
+          animation: btn-border-glow 1.2s 0.5s forwards;
         }
         @keyframes icon-slide-out {
           0% { transform: translateX(14px); opacity: 0; }
@@ -224,7 +224,7 @@ export function PremiumView() {
               </div>
               <h3 className="font-bold text-[14px] leading-tight mb-2" style={{ fontFamily: SF }}>1 month</h3>
               <p className="font-bold text-[20px] mb-1 leading-none tracking-tight flex items-center gap-1">
-                <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain brightness-0 invert select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain brightness-0 invert select-none pointer-events-none mt-[-2px]" draggable={false} style={imageProtectionStyle} />
                 {pricing[selectedTier]["1m"].toLocaleString()}
               </p>
             </div>
@@ -241,7 +241,7 @@ export function PremiumView() {
             >
               <h3 className="font-bold text-[14px] leading-tight mb-2" style={{ fontFamily: SF }}>3 months</h3>
               <p className="font-bold text-[20px] mb-1 leading-none tracking-tight flex items-center gap-1">
-                <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain brightness-0 invert select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain brightness-0 invert select-none pointer-events-none mt-[-2px]" draggable={false} style={imageProtectionStyle} />
                 {pricing[selectedTier]["3m"].toLocaleString()}
               </p>
               <div className="absolute -right-7 bottom-2.5 bg-[#ff3b30] text-white text-[9px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
@@ -261,7 +261,7 @@ export function PremiumView() {
             >
               <h3 className="font-bold text-[14px] leading-tight mb-2" style={{ fontFamily: SF }}>1 year</h3>
               <p className="font-bold text-[20px] mb-1 leading-none tracking-tight flex items-center gap-1">
-                <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain brightness-0 invert select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                <img src="/telegram-star-icon.png" alt="Stars" className="w-[18px] h-[18px] object-contain brightness-0 invert select-none pointer-events-none mt-[-2px]" draggable={false} style={imageProtectionStyle} />
                 {pricing[selectedTier]["1y"].toLocaleString()}
               </p>
               <div className="absolute -right-7 bottom-2.5 bg-[#ff3b30] text-white text-[9px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
@@ -293,8 +293,8 @@ export function PremiumView() {
             {isPremium ? "SuperNoir Active" : isLoading ? "Processing..." : "Subscribe Now"}
           </button>
         </div>
-        <div className="flex justify-center items-center gap-1.5 text-[#8e8e93] text-[12px] font-medium pb-1" style={{ fontFamily: SF }}>
-          <img src="/telegram-star-icon.png" alt="Stars" className="w-[14px] h-[14px] object-contain select-none pointer-events-none opacity-80" draggable={false} style={imageProtectionStyle} />
+        <div className="flex justify-center items-center text-[#8e8e93] text-[12px] font-medium pb-1" style={{ fontFamily: SF }}>
+          <img src="/telegram-star-icon.png" alt="Stars" className="w-[14px] h-[14px] object-contain select-none pointer-events-none opacity-80 mr-[3px] mt-[-2.5px]" draggable={false} style={imageProtectionStyle} />
           <span>Pay with Telegram Stars</span>
         </div>
       </div>
