@@ -7,6 +7,15 @@ import { Check, Gift, Sparkles, Bot, Blocks, Zap, Shield, BarChart, Calendar } f
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
+const imageProtectionStyle = {
+  WebkitTouchCallout: "none" as const,
+  WebkitUserSelect: "none" as const,
+  KhtmlUserSelect: "none" as const,
+  MozUserSelect: "none" as const,
+  msUserSelect: "none" as const,
+  userSelect: "none" as const,
+}
+
 export function PremiumView() {
   const { setCurrentView, isPremium, openInvoice } = useApp()
   const [isLoading, setIsLoading] = useState(false)
@@ -97,11 +106,11 @@ export function PremiumView() {
           <div className="flex shrink-0 items-center">
             {/* ChatGPT (Background, Left) */}
             <div className="w-10 h-10 rounded-[12px] bg-[#1c1c1e] flex items-center justify-center z-10 relative overflow-hidden border-[1.5px] border-[#2c2c2e] opacity-90">
-              <img src="/chatgpt-icon.png" alt="ChatGPT" className="w-full h-full object-cover" />
+              <img src="/chatgpt-icon.png" alt="ChatGPT" className="w-full h-full object-cover select-none pointer-events-none" draggable={false} onContextMenu={(e) => e.preventDefault()} style={imageProtectionStyle} />
             </div>
             {/* Grok (Foreground, Right) */}
             <div className="w-11 h-11 rounded-[14px] bg-[#000] flex items-center justify-center shadow-[-4px_0_15px_rgba(0,0,0,0.6)] z-20 relative overflow-hidden border-[2px] border-black -ml-4">
-              <img src="/grok-icon.png" alt="Grok" className="w-full h-full object-cover" />
+              <img src="/grok-icon.png" alt="Grok" className="w-full h-full object-cover select-none pointer-events-none" draggable={false} onContextMenu={(e) => e.preventDefault()} style={imageProtectionStyle} />
             </div>
           </div>
         </div>
@@ -127,32 +136,50 @@ export function PremiumView() {
         </div>
 
         {/* UNLIMITED MANAGEMENT BLOCK */}
-        <div className="bg-[#111111] rounded-[24px] p-5 mb-6 shadow-md">
-          <p className="text-[#8e8e93] text-[11px] font-bold tracking-widest uppercase mb-1">Take full control</p>
-          <h2 className="text-[23px] font-bold mb-5 tracking-tight">Higher automation limits</h2>
+        <div className="bg-[#111111] rounded-[22px] p-4 mb-5 shadow-md">
+          <p className="text-[11px] font-bold tracking-widest uppercase mb-1" style={{ color: accentColor }}>Take full control</p>
+          <h2 className="text-[21px] font-bold mb-3.5 tracking-tight">Higher automation limits</h2>
           
-          <p className="text-[#8e8e93] text-[12px] font-bold tracking-wider uppercase mb-2">Unlock</p>
-          
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2.5">
             <div className="flex items-center gap-1.5">
-              <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: accentColor }}>
+              <div className="w-[24px] h-[24px] rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: accentColor }}>
                 <Sparkles className="w-3.5 h-3.5 text-white fill-white" />
               </div>
-              <span className="font-semibold text-[15px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
+              <span className="font-semibold text-[14px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
             </div>
             <span className="text-[#8e8e93] text-[13px]">•</span>
             <div className="flex items-center gap-1.5">
-              <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center">
+              <div className="w-[24px] h-[24px] rounded-[7px] bg-[#2c2c2e] flex items-center justify-center">
                 <Calendar className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
               </div>
-              <span className="font-semibold text-[15px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
+              <span className="font-semibold text-[14px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
             </div>
             <span className="text-[#8e8e93] text-[13px]">•</span>
             <div className="flex items-center gap-1.5">
-              <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center">
-                <Zap className="w-4 h-4 transition-colors" style={{ color: accentColor }} />
+        <div className="bg-[#111111] rounded-[20px] p-3.5 mb-5 shadow-md">
+          <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: accentColor }}>Take full control</p>
+          <h2 className="text-[18px] font-bold mb-3 tracking-tight">Higher automation limits</h2>
+          
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <div className="flex items-center gap-1.5">
+              <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: accentColor }}>
+                <Sparkles className="w-3 h-3 text-white fill-white" />
               </div>
-              <span className="font-semibold text-[15px]">Dedicated support <span className="text-[#8e8e93] font-medium">& early access</span></span>
+              <span className="font-semibold text-[13px]">Higher <span className="text-[#8e8e93] font-medium">skills</span></span>
+            </div>
+            <span className="text-[#8e8e93] text-[12px]">•</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-[22px] h-[22px] rounded-[7px] bg-[#2c2c2e] flex items-center justify-center">
+                <Calendar className="w-3 h-3 transition-colors" style={{ color: accentColor }} />
+              </div>
+              <span className="font-semibold text-[13px]">Higher <span className="text-[#8e8e93] font-medium">schedules</span></span>
+            </div>
+            <span className="text-[#8e8e93] text-[12px]">•</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-[22px] h-[22px] rounded-[7px] bg-[#2c2c2e] flex items-center justify-center">
+                <Zap className="w-3 h-3 transition-colors" style={{ color: accentColor }} />
+              </div>
+              <span className="font-semibold text-[13px]">Dedicated support</span>
             </div>
           </div>
         </div>
@@ -161,59 +188,64 @@ export function PremiumView() {
         <div className="grid grid-cols-3 gap-2.5">
           
           {/* 1 Month */}
-          <div 
-            onClick={() => setSelectedPlan("1m")}
-            className={`relative rounded-[24px] p-3 cursor-pointer transition-all flex flex-col justify-end min-h-[105px] shadow-md border-[1.5px] ${selectedPlan === "1m" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
-          >
-            <div className="absolute -top-[11px] left-1/2 -translate-x-1/2 px-2.5 py-[3px] rounded-full text-[9px] font-extrabold tracking-widest uppercase shadow-sm whitespace-nowrap" style={{ backgroundColor: accentColor, color: "#fff" }}>
-              Best Choice
+          <div className="relative">
+            <div 
+              onClick={() => setSelectedPlan("1m")}
+              className={`relative rounded-[20px] p-2.5 cursor-pointer transition-all flex flex-col justify-end min-h-[90px] shadow-md border-[1.5px] ${selectedPlan === "1m" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
+            >
+              <div className="absolute -top-[11px] left-1/2 -translate-x-1/2 px-2.5 py-[3px] rounded-full text-[9px] font-extrabold tracking-widest uppercase shadow-sm whitespace-nowrap" style={{ backgroundColor: accentColor, color: "#fff" }}>
+                Best Choice
+              </div>
+              <h3 className="font-bold text-[14px] leading-tight mb-1" style={{ fontFamily: SF }}>1 month</h3>
+              <p className="font-bold text-[20px] mb-0.5 leading-none tracking-tight">$27</p>
+              <p className="text-[11px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[9px]">★</span> 1,499</p>
             </div>
             {selectedPlan === "1m" && (
-              <div className="absolute top-2.5 right-2.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
+              <div className="absolute -top-1.5 -right-1.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10" style={{ backgroundColor: accentColor }}>
                 <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
               </div>
             )}
-            <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>1 month</h3>
-            <p className="font-bold text-[22px] mb-0.5 leading-none tracking-tight">$27</p>
-            <p className="text-[12px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[10px]">★</span> 1,499</p>
           </div>
 
           {/* 3 Months */}
-          <div 
-            onClick={() => setSelectedPlan("3m")}
-            className={`relative rounded-[24px] p-3 cursor-pointer transition-all overflow-hidden flex flex-col justify-end min-h-[105px] shadow-md border-[1.5px] ${selectedPlan === "3m" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
-          >
+          <div className="relative">
+            <div 
+              onClick={() => setSelectedPlan("3m")}
+              className={`relative rounded-[20px] p-2.5 cursor-pointer transition-all overflow-hidden flex flex-col justify-end min-h-[90px] shadow-md border-[1.5px] ${selectedPlan === "3m" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
+            >
+              <h3 className="font-bold text-[14px] leading-tight mb-1" style={{ fontFamily: SF }}>3 months</h3>
+              <p className="font-bold text-[20px] mb-0.5 leading-none tracking-tight">$54</p>
+              <p className="text-[11px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[9px]">★</span> 2,999</p>
+              <div className="absolute -right-7 bottom-2.5 bg-[#ff3b30] text-white text-[9px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
+                -33%
+              </div>
+            </div>
             {selectedPlan === "3m" && (
-              <div className="absolute top-2.5 right-2.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
+              <div className="absolute -top-1.5 -right-1.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10" style={{ backgroundColor: accentColor }}>
                 <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
               </div>
             )}
-            <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>3 months</h3>
-            <p className="font-bold text-[22px] mb-0.5 leading-none tracking-tight">$54</p>
-            <p className="text-[12px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[10px]">★</span> 2,999</p>
-            <div className="absolute -right-7 bottom-3 bg-[#ff3b30] text-white text-[10px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
-              -33%
-            </div>
           </div>
 
           {/* 1 Year */}
-          <div 
-            onClick={() => setSelectedPlan("1y")}
-            className={`relative rounded-[24px] p-3 cursor-pointer transition-all overflow-hidden flex flex-col justify-end min-h-[105px] shadow-md border-[1.5px] ${selectedPlan === "1y" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
-          >
+          <div className="relative">
+            <div 
+              onClick={() => setSelectedPlan("1y")}
+              className={`relative rounded-[20px] p-2.5 cursor-pointer transition-all overflow-hidden flex flex-col justify-end min-h-[90px] shadow-md border-[1.5px] ${selectedPlan === "1y" ? "active-plan-card" : "border-transparent bg-[#111111]"}`}
+            >
+              <h3 className="font-bold text-[14px] leading-tight mb-1" style={{ fontFamily: SF }}>1 year</h3>
+              <p className="font-bold text-[20px] mb-0.5 leading-none tracking-tight">$162</p>
+              <p className="text-[11px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[9px]">★</span> 8,999</p>
+              <div className="absolute -right-7 bottom-2.5 bg-[#ff3b30] text-white text-[9px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
+                -50%
+              </div>
+            </div>
             {selectedPlan === "1y" && (
-              <div className="absolute top-2.5 right-2.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-sm" style={{ backgroundColor: accentColor }}>
+              <div className="absolute -top-1.5 -right-1.5 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10" style={{ backgroundColor: accentColor }}>
                 <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
               </div>
             )}
-            <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SF }}>1 year</h3>
-            <p className="font-bold text-[22px] mb-0.5 leading-none tracking-tight">$162</p>
-            <p className="text-[12px] font-medium text-[#8e8e93] flex items-center gap-0.5" style={{ fontFamily: SF }}><span className="text-[10px]">★</span> 8,999</p>
-            <div className="absolute -right-7 bottom-3 bg-[#ff3b30] text-white text-[10px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
-              -50%
-            </div>
           </div>
-          
         </div>
 
       </div>
