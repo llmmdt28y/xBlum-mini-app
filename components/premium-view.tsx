@@ -63,16 +63,26 @@ export function PremiumView() {
         
         {/* TOP TOGGLE */}
         <div className="flex justify-center mb-8">
-          <div className="bg-[#1c1c1e] p-1 rounded-full flex items-center gap-1">
+          <div className="bg-[#1c1c1e] p-[3px] rounded-full flex items-center relative w-[220px]">
+            {/* Sliding Pill Background */}
+            <div 
+               className="absolute top-[3px] bottom-[3px] w-[105px] rounded-full transition-all duration-500 shadow-sm"
+               style={{
+                 transform: isProMax ? "translateX(109px)" : "translateX(0px)",
+                 backgroundColor: isProMax ? "rgba(249, 115, 22, 0.25)" : "rgba(139, 92, 246, 0.25)",
+                 border: `1px solid ${isProMax ? "rgba(249, 115, 22, 0.5)" : "rgba(139, 92, 246, 0.5)"}`,
+                 transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)"
+               }}
+            />
             <button
               onClick={() => setSelectedTier("pro")}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[15px] font-semibold transition-all duration-300 ${!isProMax ? "bg-[#8b5cf6] text-white shadow-md shadow-[#8b5cf6]/30" : "text-[#8e8e93]"}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-[15px] font-semibold transition-colors duration-300 z-10 ${!isProMax ? "text-[#a78bfa]" : "text-[#8e8e93]"}`}
             >
               <span>😎</span> Pro
             </button>
             <button
               onClick={() => setSelectedTier("promax")}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[15px] font-semibold transition-all duration-300 ${isProMax ? "bg-gradient-to-r from-[#f97316] to-[#ff4500] text-white shadow-md shadow-[#f97316]/30" : "text-[#8e8e93]"}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-[15px] font-semibold transition-colors duration-300 z-10 ${isProMax ? "text-[#ff964f]" : "text-[#8e8e93]"}`}
             >
               <span>🔥</span> Pro Max
             </button>
@@ -210,7 +220,7 @@ export function PremiumView() {
       {/* FIXED FOOTER */}
       <div className="fixed bottom-0 left-0 w-full px-4 pt-4 pb-[calc(var(--tg-safe-area-inset-bottom,24px)+12px)] bg-[#000000]/95 backdrop-blur-md border-t border-white/5 z-20">
         <div className="flex items-center gap-2.5 w-full mb-3">
-          <button className="flex-1 py-[15px] rounded-[18px] bg-[#1c1c1e] active:bg-[#2c2c2e] transition-colors flex items-center justify-center gap-2 shadow-sm">
+          <button className="flex-1 py-[15px] rounded-full bg-[#1c1c1e] active:bg-[#2c2c2e] transition-colors flex items-center justify-center gap-2 shadow-sm border border-white/5">
             <Gift className="w-[18px] h-[18px]" />
             <span className="font-semibold text-[15px]" style={{ fontFamily: SF }}>Gift to Friends</span>
           </button>
@@ -218,7 +228,7 @@ export function PremiumView() {
           <button 
             onClick={subscribe}
             disabled={isLoading || isPremium}
-            className="flex-[1.2] py-[15px] rounded-[18px] transition-all text-white font-bold text-[16px] shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98]"
+            className="flex-[1.2] py-[15px] rounded-full transition-all text-white font-bold text-[16px] shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98]"
             style={{ backgroundColor: accentColor }}
           >
             {isPremium ? "SuperNoir Active" : isLoading ? "Processing..." : "Subscribe Now"}
