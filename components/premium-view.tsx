@@ -74,6 +74,42 @@ export function PremiumView() {
           background: linear-gradient(180deg, ${accentColor}15 0%, transparent 100%);
           animation: border-glow 3s infinite;
         }
+        @keyframes shimmer-sweep {
+          0% { transform: translateX(-150%) skewX(-15deg); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateX(150%) skewX(-15deg); opacity: 0; }
+        }
+        .btn-shimmer::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -50%;
+          width: 200%;
+          height: 100%;
+          background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+          animation: shimmer-sweep 2s cubic-bezier(0.4, 0, 0.2, 1) 1.5s forwards;
+          pointer-events: none;
+          opacity: 0;
+        }
+        @keyframes btn-border-glow {
+          0% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
+          50% { box-shadow: 0 0 20px rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); }
+          100% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
+        }
+        .btn-shimmer {
+          animation: btn-border-glow 1.5s 1.5s forwards;
+        }
+        @keyframes icon-slide-out {
+          0% { transform: translateX(14px); opacity: 0; }
+          100% { transform: translateX(0); opacity: 0.9; }
+        }
+        .animate-icon-slide {
+          animation: icon-slide-out 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+        }
+        .check-enter {
+          transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+        }
       `}</style>
 
       <div className="flex-1 flex flex-col pt-[calc(var(--tg-safe-area-inset-top,24px)+16px)] px-4">
@@ -113,7 +149,7 @@ export function PremiumView() {
           </div>
           <div className="flex shrink-0 items-center">
             {/* ChatGPT (Background, Left) */}
-            <div className="w-10 h-10 rounded-[12px] bg-[#1c1c1e] flex items-center justify-center z-10 relative overflow-hidden border-[1.5px] border-[#2c2c2e] opacity-90">
+            <div className="w-10 h-10 rounded-[12px] bg-[#1c1c1e] flex items-center justify-center z-10 relative overflow-hidden border-[1.5px] border-[#2c2c2e] opacity-90 animate-icon-slide">
               <img src="/chatgpt-icon.png" alt="ChatGPT" className="w-full h-full object-cover select-none pointer-events-none" draggable={false} onContextMenu={(e) => e.preventDefault()} style={imageProtectionStyle} />
             </div>
             {/* Grok (Foreground, Right) */}
@@ -192,11 +228,9 @@ export function PremiumView() {
                 {pricing[selectedTier]["1m"].toLocaleString()}
               </p>
             </div>
-            {selectedPlan === "1m" && (
-              <div className="absolute -top-1 -right-1 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10 animate-bounce-pop" style={{ backgroundColor: accentColor }}>
-                <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
-              </div>
-            )}
+            <div className={`absolute -top-1 -right-1 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10 check-enter ${selectedPlan === "1m" ? "scale-100 opacity-100" : "scale-50 opacity-0 pointer-events-none"}`} style={{ backgroundColor: accentColor }}>
+              <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
+            </div>
           </div>
 
           {/* 3 Months */}
@@ -214,11 +248,9 @@ export function PremiumView() {
                 -{discount3m}%
               </div>
             </div>
-            {selectedPlan === "3m" && (
-              <div className="absolute -top-1 -right-1 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10 animate-bounce-pop" style={{ backgroundColor: accentColor }}>
-                <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
-              </div>
-            )}
+            <div className={`absolute -top-1 -right-1 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10 check-enter ${selectedPlan === "3m" ? "scale-100 opacity-100" : "scale-50 opacity-0 pointer-events-none"}`} style={{ backgroundColor: accentColor }}>
+              <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
+            </div>
           </div>
 
           {/* 1 Year */}
@@ -236,11 +268,9 @@ export function PremiumView() {
                 -{discount1y}%
               </div>
             </div>
-            {selectedPlan === "1y" && (
-              <div className="absolute -top-1 -right-1 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10 animate-bounce-pop" style={{ backgroundColor: accentColor }}>
-                <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
-              </div>
-            )}
+            <div className={`absolute -top-1 -right-1 w-[20px] h-[20px] rounded-full flex items-center justify-center shadow-md z-10 check-enter ${selectedPlan === "1y" ? "scale-100 opacity-100" : "scale-50 opacity-0 pointer-events-none"}`} style={{ backgroundColor: accentColor }}>
+              <Check className="w-3 h-3 text-white" strokeWidth={3.5} />
+            </div>
           </div>
         </div>
 
@@ -257,7 +287,7 @@ export function PremiumView() {
           <button 
             onClick={subscribe}
             disabled={isLoading || isPremium}
-            className="flex-[1.2] py-[15px] rounded-full transition-all text-white font-bold text-[16px] shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98]"
+            className="relative overflow-hidden flex-[1.2] py-[15px] rounded-full transition-all text-white font-bold text-[16px] shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] btn-shimmer border border-white/10"
             style={{ backgroundColor: accentColor }}
           >
             {isPremium ? "SuperNoir Active" : isLoading ? "Processing..." : "Subscribe Now"}
