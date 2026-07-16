@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
-import { Check, Gift, MessageCircle, Image as ImageIcon, Video, Sparkles, Bot, Blocks } from "lucide-react"
+import { Check, Gift, Sparkles, Bot, Blocks, Zap, Shield, BarChart } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -63,12 +63,12 @@ export function PremiumView() {
         
         {/* TOP TOGGLE */}
         <div className="flex justify-center mb-8">
-          <div className="bg-[#1c1c1e] p-[3px] rounded-full flex items-center relative w-[220px]">
+          <div className="bg-[#1c1c1e] p-[2px] rounded-full flex items-center relative w-[180px]">
             {/* Sliding Pill Background */}
             <div 
-               className="absolute top-[3px] bottom-[3px] w-[105px] rounded-full transition-all duration-500 shadow-sm"
+               className="absolute top-[2px] bottom-[2px] w-[88px] rounded-full transition-all duration-500 shadow-sm"
                style={{
-                 transform: isHeavy ? "translateX(109px)" : "translateX(0px)",
+                 transform: isHeavy ? "translateX(88px)" : "translateX(0px)",
                  backgroundColor: isHeavy ? "rgba(249, 115, 22, 0.25)" : "rgba(106, 90, 205, 0.25)",
                  border: `1px solid ${isHeavy ? "rgba(249, 115, 22, 0.5)" : "rgba(106, 90, 205, 0.5)"}`,
                  transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)"
@@ -76,13 +76,13 @@ export function PremiumView() {
             />
             <button
               onClick={() => setSelectedTier("lite")}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-[15px] font-semibold transition-colors duration-300 z-10 ${!isHeavy ? "text-[#8a7df0]" : "text-[#8e8e93]"}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1 rounded-full text-[14px] font-semibold transition-colors duration-300 z-10 ${!isHeavy ? "text-[#a3b1ff]" : "text-[#8e8e93]"}`}
             >
               Lite
             </button>
             <button
               onClick={() => setSelectedTier("heavy")}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-[15px] font-semibold transition-colors duration-300 z-10 ${isHeavy ? "text-[#ff964f]" : "text-[#8e8e93]"}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1 rounded-full text-[14px] font-semibold transition-colors duration-300 z-10 ${isHeavy ? "text-[#ff964f]" : "text-[#8e8e93]"}`}
             >
               Heavy
             </button>
@@ -125,33 +125,33 @@ export function PremiumView() {
           </div>
         </div>
 
-        {/* TOKENS BLOCK */}
+        {/* UNLIMITED MANAGEMENT BLOCK */}
         <div className="bg-[#111111] rounded-[24px] p-5 mb-6 shadow-md">
-          <p className="text-[#8e8e93] text-[11px] font-bold tracking-widest uppercase mb-1">For everyday AI work</p>
-          <h2 className="text-[23px] font-bold mb-5 tracking-tight">2,000 tokens per month</h2>
+          <p className="text-[#8e8e93] text-[11px] font-bold tracking-widest uppercase mb-1">Maximize your community</p>
+          <h2 className="text-[23px] font-bold mb-5 tracking-tight">Unlimited Group Management</h2>
           
-          <p className="text-[#8e8e93] text-[12px] font-bold tracking-wider uppercase mb-2">Up to</p>
+          <p className="text-[#8e8e93] text-[12px] font-bold tracking-wider uppercase mb-2">Includes</p>
           
           <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
             <div className="flex items-center gap-1.5">
               <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: accentColor }}>
-                <MessageCircle className="w-3.5 h-3.5 text-white fill-white" />
+                <Zap className="w-3.5 h-3.5 text-white fill-white" />
               </div>
-              <span className="font-semibold text-[15px]">1,000 <span className="text-[#8e8e93] font-medium">messages</span></span>
+              <span className="font-semibold text-[15px]">Priority <span className="text-[#8e8e93] font-medium">execution</span></span>
             </div>
-            <span className="text-[#8e8e93] text-[13px]">or</span>
+            <span className="text-[#8e8e93] text-[13px]">•</span>
             <div className="flex items-center gap-1.5">
               <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center">
-                <ImageIcon className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+                <Shield className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
               </div>
-              <span className="font-semibold text-[15px]">60 <span className="text-[#8e8e93] font-medium">images</span></span>
+              <span className="font-semibold text-[15px]">Advanced <span className="text-[#8e8e93] font-medium">anti-spam</span></span>
             </div>
-            <span className="text-[#8e8e93] text-[13px]">or</span>
+            <span className="text-[#8e8e93] text-[13px]">•</span>
             <div className="flex items-center gap-1.5">
               <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center">
-                <Video className="w-4 h-4 transition-colors" style={{ color: accentColor }} />
+                <BarChart className="w-4 h-4 transition-colors" style={{ color: accentColor }} />
               </div>
-              <span className="font-semibold text-[15px]">10 <span className="text-[#8e8e93] font-medium">videos</span></span>
+              <span className="font-semibold text-[15px]">Full <span className="text-[#8e8e93] font-medium">analytics</span></span>
             </div>
           </div>
         </div>
