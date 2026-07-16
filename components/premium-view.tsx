@@ -136,26 +136,6 @@ export function PremiumView() {
         </div>
 
         {/* UNLIMITED MANAGEMENT BLOCK */}
-        <div className="bg-[#111111] rounded-[22px] p-4 mb-5 shadow-md">
-          <p className="text-[11px] font-bold tracking-widest uppercase mb-1" style={{ color: accentColor }}>Take full control</p>
-          <h2 className="text-[21px] font-bold mb-3.5 tracking-tight">Higher automation limits</h2>
-          
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2.5">
-            <div className="flex items-center gap-1.5">
-              <div className="w-[24px] h-[24px] rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: accentColor }}>
-                <Sparkles className="w-3.5 h-3.5 text-white fill-white" />
-              </div>
-              <span className="font-semibold text-[14px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
-            </div>
-            <span className="text-[#8e8e93] text-[13px]">•</span>
-            <div className="flex items-center gap-1.5">
-              <div className="w-[24px] h-[24px] rounded-[7px] bg-[#2c2c2e] flex items-center justify-center">
-                <Calendar className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
-              </div>
-              <span className="font-semibold text-[14px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
-            </div>
-            <span className="text-[#8e8e93] text-[13px]">•</span>
-            <div className="flex items-center gap-1.5">
         <div className="bg-[#111111] rounded-[20px] p-3.5 mb-5 shadow-md">
           <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: accentColor }}>Take full control</p>
           <h2 className="text-[18px] font-bold mb-3 tracking-tight">Higher automation limits</h2>
