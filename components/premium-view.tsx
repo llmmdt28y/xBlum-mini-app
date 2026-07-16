@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
-import { Check, Gift, Sparkles, Bot, Blocks, Zap, Shield, BarChart } from "lucide-react"
+import { Check, Gift, Sparkles, Bot, Blocks, Zap, Shield, BarChart, Calendar } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -70,7 +70,6 @@ export function PremiumView() {
                style={{
                  transform: isHeavy ? "translateX(88px)" : "translateX(0px)",
                  backgroundColor: isHeavy ? "rgba(249, 115, 22, 0.25)" : "rgba(106, 90, 205, 0.25)",
-                 border: `1px solid ${isHeavy ? "rgba(249, 115, 22, 0.5)" : "rgba(106, 90, 205, 0.5)"}`,
                  transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)"
                }}
             />
@@ -127,31 +126,31 @@ export function PremiumView() {
 
         {/* UNLIMITED MANAGEMENT BLOCK */}
         <div className="bg-[#111111] rounded-[24px] p-5 mb-6 shadow-md">
-          <p className="text-[#8e8e93] text-[11px] font-bold tracking-widest uppercase mb-1">Maximize your community</p>
-          <h2 className="text-[23px] font-bold mb-5 tracking-tight">Unlimited Group Management</h2>
+          <p className="text-[#8e8e93] text-[11px] font-bold tracking-widest uppercase mb-1">Take full control</p>
+          <h2 className="text-[23px] font-bold mb-5 tracking-tight">Higher automation limits</h2>
           
-          <p className="text-[#8e8e93] text-[12px] font-bold tracking-wider uppercase mb-2">Includes</p>
+          <p className="text-[#8e8e93] text-[12px] font-bold tracking-wider uppercase mb-2">Unlock</p>
           
           <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
             <div className="flex items-center gap-1.5">
               <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: accentColor }}>
-                <Zap className="w-3.5 h-3.5 text-white fill-white" />
+                <Sparkles className="w-3.5 h-3.5 text-white fill-white" />
               </div>
-              <span className="font-semibold text-[15px]">Priority <span className="text-[#8e8e93] font-medium">execution</span></span>
+              <span className="font-semibold text-[15px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
             </div>
             <span className="text-[#8e8e93] text-[13px]">•</span>
             <div className="flex items-center gap-1.5">
               <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center">
-                <Shield className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+                <Calendar className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
               </div>
-              <span className="font-semibold text-[15px]">Advanced <span className="text-[#8e8e93] font-medium">anti-spam</span></span>
+              <span className="font-semibold text-[15px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
             </div>
             <span className="text-[#8e8e93] text-[13px]">•</span>
             <div className="flex items-center gap-1.5">
               <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center">
-                <BarChart className="w-4 h-4 transition-colors" style={{ color: accentColor }} />
+                <Zap className="w-4 h-4 transition-colors" style={{ color: accentColor }} />
               </div>
-              <span className="font-semibold text-[15px]">Full <span className="text-[#8e8e93] font-medium">analytics</span></span>
+              <span className="font-semibold text-[15px]">Dedicated support <span className="text-[#8e8e93] font-medium">& early access</span></span>
             </div>
           </div>
         </div>
