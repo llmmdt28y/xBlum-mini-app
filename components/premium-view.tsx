@@ -10,7 +10,7 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 export function PremiumView() {
   const { setCurrentView, isPremium, openInvoice } = useApp()
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedTier, setSelectedTier] = useState<"pro" | "promax">("promax")
+  const [selectedTier, setSelectedTier] = useState<"lite" | "heavy">("heavy")
   const [selectedPlan, setSelectedPlan] = useState<"1m" | "3m" | "1y">("1m")
 
   // Telegram BackButton
@@ -38,8 +38,8 @@ export function PremiumView() {
     }
   }
 
-  const isProMax = selectedTier === "promax";
-  const accentColor = isProMax ? "#f97316" : "#8b5cf6"; // Orange for ProMax, Purple for Pro
+  const isHeavy = selectedTier === "heavy";
+  const accentColor = isHeavy ? "#f97316" : "#6a5acd"; // Orange for Heavy, Slate Blue for Lite
 
   return (
     <div className="flex-1 min-h-screen flex flex-col bg-[#000000] fixed top-0 left-0 w-full h-full z-[70] overflow-y-auto overscroll-none text-white pb-32" style={{ fontFamily: SFD }}>
@@ -68,23 +68,23 @@ export function PremiumView() {
             <div 
                className="absolute top-[3px] bottom-[3px] w-[105px] rounded-full transition-all duration-500 shadow-sm"
                style={{
-                 transform: isProMax ? "translateX(109px)" : "translateX(0px)",
-                 backgroundColor: isProMax ? "rgba(249, 115, 22, 0.25)" : "rgba(139, 92, 246, 0.25)",
-                 border: `1px solid ${isProMax ? "rgba(249, 115, 22, 0.5)" : "rgba(139, 92, 246, 0.5)"}`,
+                 transform: isHeavy ? "translateX(109px)" : "translateX(0px)",
+                 backgroundColor: isHeavy ? "rgba(249, 115, 22, 0.25)" : "rgba(106, 90, 205, 0.25)",
+                 border: `1px solid ${isHeavy ? "rgba(249, 115, 22, 0.5)" : "rgba(106, 90, 205, 0.5)"}`,
                  transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)"
                }}
             />
             <button
-              onClick={() => setSelectedTier("pro")}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-[15px] font-semibold transition-colors duration-300 z-10 ${!isProMax ? "text-[#a78bfa]" : "text-[#8e8e93]"}`}
+              onClick={() => setSelectedTier("lite")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-[15px] font-semibold transition-colors duration-300 z-10 ${!isHeavy ? "text-[#8a7df0]" : "text-[#8e8e93]"}`}
             >
-              <span>😎</span> Pro
+              Lite
             </button>
             <button
-              onClick={() => setSelectedTier("promax")}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-[15px] font-semibold transition-colors duration-300 z-10 ${isProMax ? "text-[#ff964f]" : "text-[#8e8e93]"}`}
+              onClick={() => setSelectedTier("heavy")}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-full text-[15px] font-semibold transition-colors duration-300 z-10 ${isHeavy ? "text-[#ff964f]" : "text-[#8e8e93]"}`}
             >
-              <span>🔥</span> Pro Max
+              Heavy
             </button>
           </div>
         </div>
