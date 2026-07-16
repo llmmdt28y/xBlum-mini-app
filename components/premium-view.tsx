@@ -27,6 +27,9 @@ export function PremiumView() {
     heavy: { "1m": 950, "3m": 2500, "1y": 8900 }
   }
 
+  const discount3m = Math.round(100 - (pricing[selectedTier]["3m"] / (pricing[selectedTier]["1m"] * 3)) * 100)
+  const discount1y = Math.round(100 - (pricing[selectedTier]["1y"] / (pricing[selectedTier]["1m"] * 12)) * 100)
+
   // Telegram BackButton
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,17 +138,19 @@ export function PremiumView() {
           </div>
 
           <div className="p-1 flex flex-col items-center text-center justify-start h-full pt-2">
-            <div className="text-[32px] leading-none mb-1.5 drop-shadow-lg">⚡️</div>
-            <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>Advanced<br/>DeepSearch &<br/>Reasoning</p>
+            <div className="text-[32px] leading-none mb-1.5 drop-shadow-lg">💬</div>
+            <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>
+              <span className="font-bold text-white text-[13px]">{selectedTier === "lite" ? "2x" : "5x"} longer</span><br/>conversations<br/>in Chat
+            </p>
           </div>
         </div>
 
         {/* UNLIMITED MANAGEMENT BLOCK */}
-        <div className="bg-[#111111] rounded-[20px] p-3.5 mb-5 shadow-md">
+        <div className="bg-[#111111] rounded-[20px] py-4 px-3.5 mb-5 shadow-md">
           <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: accentColor }}>Take full control</p>
           <h2 className="text-[18px] font-bold mb-3 tracking-tight">Higher automation limits</h2>
           
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2.5">
             <div className="flex items-center gap-1.5">
               <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: accentColor }}>
                 <Sparkles className="w-3 h-3 text-white fill-white" />
@@ -206,7 +211,7 @@ export function PremiumView() {
                 {pricing[selectedTier]["3m"].toLocaleString()}
               </p>
               <div className="absolute -right-7 bottom-2.5 bg-[#ff3b30] text-white text-[9px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
-                -33%
+                -{discount3m}%
               </div>
             </div>
             {selectedPlan === "3m" && (
@@ -228,7 +233,7 @@ export function PremiumView() {
                 {pricing[selectedTier]["1y"].toLocaleString()}
               </p>
               <div className="absolute -right-7 bottom-2.5 bg-[#ff3b30] text-white text-[9px] font-bold px-8 py-[2px] rotate-[-45deg] shadow-lg tracking-wider">
-                -50%
+                -{discount1y}%
               </div>
             </div>
             {selectedPlan === "1y" && (
@@ -259,8 +264,8 @@ export function PremiumView() {
           </button>
         </div>
         <div className="flex justify-center items-center gap-1.5 text-[#8e8e93] text-[12px] font-medium pb-1" style={{ fontFamily: SF }}>
-          <span>Pay with Stars or</span>
-          <span className="flex items-center"><span className="text-[14px] mr-1">💳</span> card</span>
+          <img src="/telegram-star-icon.png" alt="Stars" className="w-[14px] h-[14px] object-contain select-none pointer-events-none opacity-80" draggable={false} style={imageProtectionStyle} />
+          <span>Pay with Telegram Stars</span>
         </div>
       </div>
 
