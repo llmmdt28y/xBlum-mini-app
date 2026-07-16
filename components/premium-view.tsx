@@ -92,14 +92,16 @@ export function PremiumView() {
         <div className="flex items-center justify-between mb-6 px-1">
           <div className="flex-1 pr-2">
             <h2 className="text-[17px] font-bold tracking-tight mb-0.5">Unlock exclusive AI models</h2>
-            <p className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>Claude Opus 4.8, GPT 5.5, Seedance 2.0</p>
+            <p className="text-[#8e8e93] text-[13px] font-medium" style={{ fontFamily: SF }}>Grok 4.5, Gpt 5, Deepseek V4 Pro</p>
           </div>
-          <div className="flex gap-2 shrink-0">
-            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-colors" style={{ backgroundColor: accentColor }}>
-              <Sparkles className="w-6 h-6 text-white" strokeWidth={2.5} />
+          <div className="flex shrink-0 items-center">
+            {/* ChatGPT (Background, Left) */}
+            <div className="w-10 h-10 rounded-[12px] bg-[#1c1c1e] flex items-center justify-center z-10 relative overflow-hidden border-[1.5px] border-[#2c2c2e] opacity-90">
+              <img src="/chatgpt-icon.png" alt="ChatGPT" className="w-full h-full object-cover" />
             </div>
-            <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center shadow-lg">
-              <Bot className="w-6 h-6 text-black" strokeWidth={2.5} />
+            {/* Grok (Foreground, Right) */}
+            <div className="w-11 h-11 rounded-[14px] bg-[#000] flex items-center justify-center shadow-[-4px_0_15px_rgba(0,0,0,0.6)] z-20 relative overflow-hidden border-[2px] border-black -ml-4">
+              <img src="/grok-icon.png" alt="Grok" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>
