@@ -75,30 +75,31 @@ export function PremiumView() {
           animation: border-glow 3s infinite;
         }
         @keyframes shimmer-sweep {
-          0% { transform: translateX(-150%) skewX(-15deg); opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translateX(150%) skewX(-15deg); opacity: 0; }
+          0% { transform: translateX(-200%); opacity: 0; }
+          5% { opacity: 1; }
+          45% { transform: translateX(200%); opacity: 1; }
+          50% { opacity: 0; transform: translateX(200%); }
+          100% { opacity: 0; transform: translateX(200%); }
         }
         .btn-shimmer::after {
           content: '';
           position: absolute;
-          top: 0;
+          top: -50%;
           left: -50%;
           width: 200%;
-          height: 100%;
-          background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
-          animation: shimmer-sweep 1s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards;
+          height: 200%;
+          background: linear-gradient(135deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 70%);
+          animation: shimmer-sweep 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
           pointer-events: none;
-          opacity: 0;
         }
         @keyframes btn-border-glow {
           0% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
-          50% { box-shadow: 0 0 25px rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.8); }
+          25% { box-shadow: 0 0 25px rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.8); }
+          50% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
           100% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
         }
         .btn-shimmer {
-          animation: btn-border-glow 1.2s 0.5s forwards;
+          animation: btn-border-glow 3.5s infinite;
         }
         @keyframes icon-slide-out {
           0% { transform: translateX(14px); opacity: 0; }
@@ -321,7 +322,7 @@ export function PremiumView() {
       {/* FIXED FOOTER */}
       <div className="fixed bottom-0 left-0 w-full px-4 pt-4 pb-[calc(var(--tg-safe-area-inset-bottom,24px)+12px)] bg-[#000000]/95 backdrop-blur-md border-t border-white/5 z-20">
         <div className="flex items-center gap-2.5 w-full mb-3">
-          <button className="flex-1 py-[15px] rounded-full bg-[#1c1c1e] active:bg-[#2c2c2e] transition-colors flex items-center justify-center gap-2 shadow-sm border border-white/5">
+          <button className="flex-1 py-[12px] rounded-full bg-[#1c1c1e] active:bg-[#2c2c2e] transition-colors flex items-center justify-center gap-2 shadow-sm border border-white/5">
             <Gift className="w-[18px] h-[18px]" />
             <span className="font-semibold text-[15px]" style={{ fontFamily: SF }}>Gift to Friends</span>
           </button>
@@ -329,14 +330,13 @@ export function PremiumView() {
           <button 
             onClick={subscribe}
             disabled={isLoading || isPremium}
-            className="relative overflow-hidden flex-[1.2] py-[15px] rounded-full transition-all text-white font-bold text-[16px] shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] btn-shimmer border border-white/10"
+            className="relative overflow-hidden flex-1 py-[12px] rounded-full transition-all text-white font-bold text-[16px] shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] btn-shimmer border border-white/10"
             style={{ backgroundColor: accentColor }}
           >
-            {isPremium ? "SuperNoir Active" : isLoading ? "Processing..." : "Subscribe Now"}
+            {isPremium ? "SuperNoir Active" : isLoading ? "Processing..." : "Subscribe"}
           </button>
         </div>
         <div className="flex justify-center items-center text-[#8e8e93] text-[12px] font-medium pb-1" style={{ fontFamily: SF }}>
-          <img src="/telegram-star-icon.png" alt="Stars" className="w-[14px] h-[14px] object-contain select-none pointer-events-none opacity-80 mr-[3px] mt-[-2.5px]" draggable={false} style={imageProtectionStyle} />
           <span>Pay with Telegram Stars</span>
         </div>
       </div>
