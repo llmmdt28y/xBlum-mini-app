@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
-import { Check, Gift, Sparkles, Bot, Blocks, Zap, Shield, BarChart, Calendar } from "lucide-react"
+import { Check, Gift, Sparkles, Bot, Blocks, Zap, Shield, BarChart, Calendar, MessageSquare } from "lucide-react"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -161,11 +161,11 @@ export function PremiumView() {
 
         {/* UNLIMITED MANAGEMENT BLOCK */}
         <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5">
-          <div className="flex items-center gap-1.5 mb-1.5 mt-[-2px]">
-            <img src="/noir-originalogo.png" alt="Noir" className="w-[18px] h-[18px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
-            <p className="text-[16px] font-bold tracking-tight text-white leading-none">Noir</p>
+          <div className="flex items-center gap-2 mb-2 mt-[-2px]">
+            <img src="/noir-originalogo.png" alt="Noir" className="w-[24px] h-[24px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
+            <h2 className="text-[22px] font-bold tracking-tight text-white leading-none">Noir</h2>
           </div>
-          <p className="text-[13px] font-medium mb-4 tracking-tight text-[#8e8e93] leading-snug" style={{ fontFamily: SF }}>
+          <p className="text-[14px] font-medium mb-4 tracking-tight text-[#8e8e93] leading-snug" style={{ fontFamily: SF }}>
             {isHeavy ? "Ultimate frontier models with uncompromised limits and maximum priority." : "Frontier models & smart workflows with extended benefits."}
           </p>
           <div className="flex flex-col gap-y-3.5">
@@ -173,7 +173,7 @@ export function PremiumView() {
               <>
                 <div className="flex items-center gap-3">
                   <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
-                    <span className="text-[13px]">💬</span>
+                    <MessageSquare className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
                   </div>
                   <span className="font-semibold text-[14px]">2x longer conversations in Chat</span>
                 </div>
@@ -210,6 +210,13 @@ export function PremiumView() {
                 <div className="flex items-center gap-2 mb-0.5 mt-[-4px]">
                   <span className="text-[13px] font-semibold text-[#8e8e93]" style={{ fontFamily: SF }}>Everything in Lite, plus:</span>
                 </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                    <MessageSquare className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+                  </div>
+                  <span className="font-semibold text-[14px]">5x longer conversations in Chat</span>
+                </div>
                 
                 <div className="flex items-center gap-3">
                   <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
@@ -230,13 +237,6 @@ export function PremiumView() {
                     <Gift className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
                   </div>
                   <span className="font-semibold text-[14px]">Early Access to advanced Noir features</span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
-                    <span className="text-[13px]">💬</span>
-                  </div>
-                  <span className="font-semibold text-[14px]">5x longer conversations in Chat</span>
                 </div>
               </>
             )}
