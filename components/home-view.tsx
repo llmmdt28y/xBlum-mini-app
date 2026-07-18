@@ -199,7 +199,7 @@ const SlidingNumber = ({ value }: { value: number }) => {
 };
 
 export function HomeView() {
-  const { setCurrentView, userPreferences, selectedModel, setSelectedModel } = useApp()
+  const { setCurrentView, userPreferences, selectedModel, setSelectedModel, accentColor } = useApp()
 
   const profileFields = ["name", "age", "location", "preferences", "gender", "city", "timezone", "occupation", "interests", "favoriteEmoji", "personality"];
   const filledCount = profileFields.filter(f => !!(userPreferences as any)?.[f]).length;
