@@ -464,26 +464,24 @@ export function HomeView() {
 
 
 
-      {/* Hero Greeting Section */}
-      <div className="w-full relative z-40 -translate-y-2 h-[520px] sm:h-[540px] flex flex-col items-center justify-center bg-[#050505] overflow-visible">
-        
-        {/* Layer 1: Background Image (Behind everything) */}
-        <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-hidden">
-          <Image 
-            src="/background-hero.png" 
-            alt="Hero Background" 
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[center_60%] opacity-90" 
-          />
-        </div>
+      {/* Hero Background Layer */}
+      <div className="absolute top-0 left-0 w-full h-[520px] sm:h-[540px] bg-[#050505] z-0 overflow-hidden pointer-events-none -translate-y-2">
+        <Image 
+          src="/background-hero.png" 
+          alt="Hero Background" 
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_60%] opacity-90" 
+        />
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent"></div>
+      </div>
 
-        {/* Bottom fade into pure black to seamlessly blend with the cards section below */}
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-[5]"></div>
+      {/* Hero Content Section */}
+      <div className="w-full relative z-40 -translate-y-2 h-[520px] sm:h-[540px] flex flex-col items-center justify-center overflow-visible pointer-events-none">
         
         {/* Content Layer */}
-        <div className="relative z-40 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-16">
+        <div className="relative z-40 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-16 pointer-events-auto">
           
           {/* Object (Logo) */}
           <Image 
@@ -512,8 +510,8 @@ export function HomeView() {
               className={`flex items-center rounded-[100px] backdrop-blur-md transition-all duration-500 overflow-hidden shrink-0 h-full shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)]
                 ${isInputActive 
                   ? "w-full flex-1 pl-4 p-[4px] cursor-text bg-black/40 border border-white/[0.15]" 
-                  : "w-[64px] flex-none p-0 justify-center cursor-pointer hover:bg-[#005bb5] bg-[#007aff] border-transparent"}`}
-              style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+                  : "w-[64px] flex-none p-0 justify-center cursor-pointer border-transparent hover:brightness-110 active:brightness-95"}`}
+              style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)', backgroundColor: isInputActive ? undefined : accentColor }}
             >
               {isInputActive ? (
                 <>
