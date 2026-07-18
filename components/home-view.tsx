@@ -483,7 +483,7 @@ export function HomeView() {
         <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent pointer-events-none z-[5]"></div>
         
         {/* Content Layer */}
-        <div className="relative z-10 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-16">
+        <div className="relative z-40 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-16">
           
           {/* Object (Logo) */}
           <Image 
@@ -505,12 +505,12 @@ export function HomeView() {
           </h1>
 
           {/* Ask anything / Model Selector Row */}
-          <div className="flex items-center justify-between mt-4 gap-3 relative w-full h-[52px]">
+          <div className="flex items-center justify-between mt-4 gap-3 relative w-full h-[42px]">
             {/* Search Pill */}
             <div 
               onClick={() => !isInputActive && setIsInputActive(true)}
               className={`flex items-center rounded-[100px] bg-black/40 border border-white/[0.15] backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 overflow-hidden shrink-0 h-full
-                ${isInputActive ? "flex-1 w-full pl-5 p-[6px] cursor-text" : "w-[52px] p-0 justify-center cursor-pointer hover:bg-black/50"}`}
+                ${isInputActive ? "flex-1 w-full pl-4 p-[4px] cursor-text" : "w-[64px] p-0 justify-center cursor-pointer hover:bg-black/50"}`}
               style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
             >
               {isInputActive ? (
@@ -523,32 +523,31 @@ export function HomeView() {
                       if (!e.target.value) setIsInputActive(false)
                     }}
                     placeholder="Ask, search, find..."
-                    className="bg-transparent border-none outline-none text-white text-[16px] font-medium tracking-wide w-full pr-2 placeholder:text-white/60 h-full"
+                    className="bg-transparent border-none outline-none text-white text-[15px] font-medium tracking-wide w-full pr-2 placeholder:text-white/60 h-full"
                     style={{ fontFamily: SF }}
                   />
-                  <button className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-all duration-300 ${askQuery.trim().length > 0 ? 'bg-[#60a5fa] hover:bg-[#4b8ce1]' : 'bg-white/20 hover:bg-white/30'}`}>
-                    <ArrowUp className="w-[20px] h-[20px] text-white/90" strokeWidth={1.5} />
+                  <button className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-all duration-300 ${askQuery.trim().length > 0 ? 'bg-[#60a5fa] hover:bg-[#4b8ce1]' : 'bg-white/20 hover:bg-white/30'}`}>
+                    <ArrowUp className="w-[16px] h-[16px] text-white/90" strokeWidth={1.5} />
                   </button>
                 </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center rounded-full">
-                  <Search className="w-[22px] h-[22px] text-white/90" strokeWidth={2} />
+                  <Search className="w-[18px] h-[18px] text-white/90" strokeWidth={2} />
                 </div>
               )}
             </div>
 
             {/* Model Selector Pill */}
             <div 
-              className={`relative transition-all duration-500 shrink-0 h-full ${isInputActive ? "w-0 opacity-0 pointer-events-none overflow-hidden" : "w-auto opacity-100"}`}
+              className={`relative transition-all duration-500 shrink-0 h-full ${isInputActive ? "w-0 opacity-0 pointer-events-none overflow-hidden" : "flex-1 w-full opacity-100"}`}
               style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
             >
               <button
                 onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-                className="flex items-center gap-1.5 px-5 h-full rounded-[100px] text-white shadow-md transition-all active:scale-95"
-                style={cardLiquidGlassStyle}
+                className="flex items-center justify-between w-full px-4 h-full rounded-[100px] text-white shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all active:scale-95 bg-black/40 border border-white/[0.15] backdrop-blur-md"
               >
-                <span className="font-bold text-[15px] whitespace-nowrap tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={3} />
+                <span className="font-medium text-[15px] whitespace-nowrap tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-300 text-white/70 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
               </button>
 
               {/* Model Menu Popover */}
@@ -556,8 +555,7 @@ export function HomeView() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                   <div 
-                    className="absolute right-0 top-[calc(100%+12px)] w-[260px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 border border-white/10"
-                    style={cardLiquidGlassStyle}
+                    className="absolute right-0 top-[calc(100%+12px)] w-[260px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 border border-white/10 bg-[#1c1c1e]"
                   >
                     <div className="flex flex-col p-2 gap-1">
                       {MODELS.map((m) => (
