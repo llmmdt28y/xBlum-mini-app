@@ -216,6 +216,7 @@ export function HomeView() {
   const [isInputActive, setIsInputActive] = useState(false)
   const [askQuery, setAskQuery] = useState("")
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false)
+  const [loadingModel, setLoadingModel] = useState<string | null>(null)
   
   // Connector real-time state from API
   const [connectorsState, setConnectorsState] = useState<ConnectorsState>({})
@@ -507,11 +508,11 @@ export function HomeView() {
             {/* Search Pill */}
             <div 
               onClick={() => !isInputActive && setIsInputActive(true)}
-              className={`flex items-center rounded-[100px] backdrop-blur-md transition-all duration-500 overflow-hidden shrink-0 h-full shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)]
+              className={`flex items-center rounded-[100px] backdrop-blur-md transition-all duration-300 ease-out overflow-hidden shrink-0 h-full shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)]
                 ${isInputActive 
                   ? "w-full flex-1 pl-4 p-[4px] cursor-text bg-black/40 border border-white/[0.15]" 
-                  : "w-[64px] flex-none p-0 justify-center cursor-pointer border-transparent hover:brightness-110 active:brightness-95"}`}
-              style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)', backgroundColor: isInputActive ? undefined : "#60a5fa" }}
+                  : "w-[64px] flex-none p-0 justify-center cursor-pointer border-transparent hover:brightness-110"}`}
+              style={{ backgroundColor: isInputActive ? undefined : "#60a5fa" }}
             >
               {isInputActive ? (
                 <>
@@ -526,7 +527,7 @@ export function HomeView() {
                     className="bg-transparent border-none outline-none text-white text-[15px] font-medium tracking-wide w-full pr-2 placeholder:text-white/60 h-full"
                     style={{ fontFamily: SF }}
                   />
-                  <button className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-all duration-300 ${askQuery.trim().length > 0 ? 'bg-[#60a5fa] hover:bg-[#4b8ce1]' : 'bg-white/20 hover:bg-white/30'}`}>
+                  <button className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${askQuery.trim().length > 0 ? 'bg-[#60a5fa] hover:bg-[#4b8ce1]' : 'bg-white/20 hover:bg-white/30'}`}>
                     <ArrowUp className="w-[16px] h-[16px] text-white/90" strokeWidth={1.5} />
                   </button>
                 </>
@@ -539,48 +540,55 @@ export function HomeView() {
 
             {/* Model Selector Pill */}
             <div 
-              className={`relative transition-all duration-500 h-full overflow-hidden ${isInputActive ? "w-0 flex-none opacity-0 pointer-events-none" : "w-full flex-1 opacity-100"}`}
-              style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+              className={`relative transition-all duration-300 ease-out h-full ${isInputActive ? "w-0 flex-none opacity-0 pointer-events-none" : "w-full flex-1 opacity-100"}`}
             >
               <button
                 onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-                className="flex items-center justify-between w-full min-w-[120px] px-4 h-full rounded-[100px] text-white shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all active:scale-95 bg-black/40 border border-white/[0.15] backdrop-blur-md"
+                className="flex items-center justify-between w-full min-w-[120px] px-4 h-full rounded-[100px] text-white shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-colors bg-black/40 border border-white/[0.15] backdrop-blur-md hover:bg-black/50"
               >
                 <span className="font-medium text-[15px] whitespace-nowrap tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 text-white/70 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
               </button>
-            </div>
 
-            {/* Model Menu Popover */}
-            {isModelMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
-                <div 
-                  className="absolute right-0 top-[calc(100%+12px)] w-[260px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 border border-white/10 bg-[#1c1c1e]"
-                >
-                  <div className="flex flex-col p-2 gap-1">
-                    {MODELS.map((m) => (
-                      <button
-                        key={m.name}
-                        onClick={() => {
-                          setSelectedModel(m.name as ModelName)
-                          setIsModelMenuOpen(false)
-                        }}
-                        className={`flex items-center justify-between px-3.5 py-3 rounded-[12px] transition-colors text-left ${selectedModel === m.name ? 'bg-white/10' : 'hover:bg-white/5 active:bg-white/10'}`}
-                      >
-                        <div className="flex flex-col items-start gap-1">
-                          <span className="text-[15px] font-bold text-white leading-none" style={{ fontFamily: SF }}>{m.name}</span>
-                          <span className="text-[12px] font-medium text-[#8e8e93] leading-none" style={{ fontFamily: SF }}>{m.desc}</span>
-                        </div>
-                        {selectedModel === m.name && (
-                          <Check className="w-[18px] h-[18px] text-white shrink-0" strokeWidth={3} />
-                        )}
-                      </button>
-                    ))}
+              {/* Model Menu Popover */}
+              {isModelMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
+                  <div 
+                    className="absolute left-0 right-0 top-[calc(100%+12px)] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]"
+                  >
+                    <div className="flex flex-col p-2 gap-1">
+                      {MODELS.map((m) => (
+                        <button
+                          key={m.name}
+                          onClick={() => {
+                            if (selectedModel === m.name) return;
+                            setLoadingModel(m.name);
+                            setTimeout(() => {
+                              setSelectedModel(m.name as ModelName);
+                              setLoadingModel(null);
+                            }, 800);
+                          }}
+                          className={`flex items-center justify-between px-3.5 py-3 rounded-[12px] transition-colors text-left hover:bg-white/5`}
+                        >
+                          <div className="flex flex-col items-start gap-1">
+                            <span className="text-[15px] font-bold text-white leading-none" style={{ fontFamily: SF }}>{m.name}</span>
+                            <span className="text-[12px] font-medium text-[#8e8e93] leading-none" style={{ fontFamily: SF }}>{m.desc}</span>
+                          </div>
+                          {loadingModel === m.name ? (
+                            <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin shrink-0" />
+                          ) : selectedModel === m.name ? (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-[#60a5fa] shrink-0">
+                              <polyline points="22 4 9 17 4 12"></polyline>
+                            </svg>
+                          ) : null}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
