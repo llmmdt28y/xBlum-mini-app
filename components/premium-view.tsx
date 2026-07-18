@@ -182,30 +182,29 @@ export function PremiumView() {
         </div>
 
         {/* UNLIMITED MANAGEMENT BLOCK */}
-        <div className="bg-[#111111] rounded-[20px] py-4 px-3.5 mb-5 shadow-md">
+        <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5">
           <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: accentColor }}>Take full control</p>
-          <h2 className="text-[18px] font-bold mb-3 tracking-tight">Higher automation limits</h2>
+          <h2 className="text-[18px] font-bold mb-4 tracking-tight">Exclusive Perks</h2>
           
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2.5">
-            <div className="flex items-center gap-1.5">
-              <div className="w-[22px] h-[22px] rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: accentColor }}>
-                <Sparkles className="w-3 h-3 text-white fill-white" />
+          <div className="flex flex-col gap-y-3.5">
+            <div className="flex items-center gap-3">
+              <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center transition-colors shadow-sm" style={{ backgroundColor: accentColor }}>
+                <Sparkles className="w-3.5 h-3.5 text-white fill-white" />
               </div>
-              <span className="font-semibold text-[13px]">Higher <span className="text-[#8e8e93] font-medium">skills</span></span>
+              <span className="font-semibold text-[14px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
             </div>
-            <span className="text-[#8e8e93] text-[12px]">•</span>
-            <div className="flex items-center gap-1.5">
-              <div className="w-[22px] h-[22px] rounded-[7px] bg-[#2c2c2e] flex items-center justify-center">
-                <Calendar className="w-3 h-3 transition-colors" style={{ color: accentColor }} />
+            
+            <div className="flex items-center gap-3">
+              <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                <Calendar className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
               </div>
-              <span className="font-semibold text-[13px]">Higher <span className="text-[#8e8e93] font-medium">schedules</span></span>
+              <span className="font-semibold text-[14px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
             </div>
-            <span className="text-[#8e8e93] text-[12px]">•</span>
-            <div className="flex items-center gap-1.5">
-              <div className="w-[22px] h-[22px] rounded-[7px] bg-[#2c2c2e] flex items-center justify-center">
-                <Zap className="w-3 h-3 transition-colors" style={{ color: accentColor }} />
+            <div className="flex items-center gap-3">
+              <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                <Zap className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
               </div>
-              <span className="font-semibold text-[13px]">Dedicated support</span>
+              <span className="font-semibold text-[14px]">{isHeavy ? "Dedicated support & early access" : "Dedicated support"}</span>
             </div>
           </div>
         </div>
