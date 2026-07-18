@@ -465,7 +465,7 @@ export function HomeView() {
 
 
       {/* Hero Greeting Section */}
-      <div className="w-full relative z-0 -translate-y-2 h-[520px] sm:h-[540px] flex flex-col items-center justify-center bg-[#050505] overflow-visible">
+      <div className="w-full relative z-40 -translate-y-2 h-[520px] sm:h-[540px] flex flex-col items-center justify-center bg-[#050505] overflow-visible">
         
         {/* Layer 1: Background Image (Behind everything) */}
         <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center overflow-hidden">
@@ -509,8 +509,10 @@ export function HomeView() {
             {/* Search Pill */}
             <div 
               onClick={() => !isInputActive && setIsInputActive(true)}
-              className={`flex items-center rounded-[100px] bg-black/40 border border-white/[0.15] backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 overflow-hidden shrink-0 h-full
-                ${isInputActive ? "flex-1 w-full pl-4 p-[4px] cursor-text" : "w-[64px] p-0 justify-center cursor-pointer hover:bg-black/50"}`}
+              className={`flex items-center rounded-[100px] backdrop-blur-md transition-all duration-500 overflow-hidden shrink-0 h-full shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)]
+                ${isInputActive 
+                  ? "w-full flex-1 pl-4 p-[4px] cursor-text bg-black/40 border border-white/[0.15]" 
+                  : "w-[64px] flex-none p-0 justify-center cursor-pointer hover:bg-[#005bb5] bg-[#007aff] border-transparent"}`}
               style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
             >
               {isInputActive ? (
@@ -539,12 +541,12 @@ export function HomeView() {
 
             {/* Model Selector Pill */}
             <div 
-              className={`relative transition-all duration-500 shrink-0 h-full ${isInputActive ? "w-0 opacity-0 pointer-events-none overflow-hidden" : "flex-1 w-full opacity-100"}`}
+              className={`relative transition-all duration-500 h-full overflow-hidden ${isInputActive ? "w-0 flex-none opacity-0 pointer-events-none" : "w-full flex-1 opacity-100"}`}
               style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
             >
               <button
                 onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-                className="flex items-center justify-between w-full px-4 h-full rounded-[100px] text-white shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all active:scale-95 bg-black/40 border border-white/[0.15] backdrop-blur-md"
+                className="flex items-center justify-between w-full min-w-[120px] px-4 h-full rounded-[100px] text-white shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all active:scale-95 bg-black/40 border border-white/[0.15] backdrop-blur-md"
               >
                 <span className="font-medium text-[15px] whitespace-nowrap tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 text-white/70 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
