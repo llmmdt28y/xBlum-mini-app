@@ -77,8 +77,8 @@ export function PremiumView() {
         @keyframes shimmer-sweep {
           0% { transform: translateX(-200%); opacity: 0; }
           5% { opacity: 1; }
-          45% { transform: translateX(200%); opacity: 1; }
-          50% { opacity: 0; transform: translateX(200%); }
+          60% { transform: translateX(200%); opacity: 1; }
+          65% { opacity: 0; transform: translateX(200%); }
           100% { opacity: 0; transform: translateX(200%); }
         }
         .btn-shimmer::after {
@@ -89,17 +89,17 @@ export function PremiumView() {
           width: 200%;
           height: 200%;
           background: linear-gradient(135deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 70%);
-          animation: shimmer-sweep 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+          animation: shimmer-sweep 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
           pointer-events: none;
         }
         @keyframes btn-border-glow {
           0% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
-          25% { box-shadow: 0 0 25px rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.8); }
-          50% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
+          30% { box-shadow: 0 0 25px rgba(255,255,255,0.4); border-color: rgba(255,255,255,0.8); }
+          60% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
           100% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); }
         }
         .btn-shimmer {
-          animation: btn-border-glow 3.5s infinite;
+          animation: btn-border-glow 5s infinite;
         }
         @keyframes icon-slide-out {
           0% { transform: translateX(14px); opacity: 0; }
