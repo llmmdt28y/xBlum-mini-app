@@ -110,6 +110,13 @@ export function PremiumView() {
         .check-enter {
           transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
         }
+        @keyframes stack-slide-out {
+          0% { transform: translateX(-15px); opacity: 0; }
+          100% { transform: translateX(0); opacity: 1; }
+        }
+        .animate-stack-1 { animation: stack-slide-out 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both; }
+        .animate-stack-2 { animation: stack-slide-out 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both; }
+        .animate-stack-3 { animation: stack-slide-out 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both; }
       `}</style>
 
       <div className="flex-1 flex flex-col pt-[calc(var(--tg-safe-area-inset-top,24px)+16px)] px-4">
@@ -194,22 +201,22 @@ export function PremiumView() {
                   <Blocks className="w-5 h-5 transition-colors text-white mt-[1px]" />
                   <div className="flex flex-col">
                     <span className="text-[15px] pt-[1px]">1000+ app integrations</span>
-                    <div className="flex items-center mt-2 mb-1">
+                    <div className="flex items-center mt-1 mb-0.5">
                       {/* Google Calendar (Front, Left) */}
-                      <div className="w-[22px] h-[22px] rounded-[6px] bg-white flex items-center justify-center shadow-[-2px_0_6px_rgba(0,0,0,0.6)] z-40 relative overflow-hidden">
-                        <img src="/google-calendar.png" alt="Calendar" className="w-3.5 h-3.5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                      <div className="w-[20px] h-[20px] rounded-[5px] bg-white flex items-center justify-center shadow-[-1px_0_4px_rgba(0,0,0,0.5)] z-40 relative overflow-hidden">
+                        <img src="/google-calendar.png" alt="Calendar" className="w-3 h-3 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                       </div>
                       {/* Gmail (Middle) */}
-                      <div className="w-[22px] h-[22px] rounded-[6px] bg-white flex items-center justify-center shadow-[-2px_0_6px_rgba(0,0,0,0.6)] z-30 relative overflow-hidden -ml-2">
-                        <img src="/gmail.png" alt="Gmail" className="w-3.5 h-3.5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                      <div className="w-[20px] h-[20px] rounded-[5px] bg-white flex items-center justify-center shadow-[-1px_0_4px_rgba(0,0,0,0.5)] z-30 relative overflow-hidden -ml-1.5 animate-stack-1">
+                        <img src="/gmail.png" alt="Gmail" className="w-3 h-3 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                       </div>
                       {/* Notion (Middle Right) */}
-                      <div className="w-[22px] h-[22px] rounded-[6px] bg-white flex items-center justify-center shadow-[-2px_0_6px_rgba(0,0,0,0.5)] z-20 relative overflow-hidden -ml-2 opacity-95">
-                        <img src="/notion-icon.png" alt="Notion" className="w-3.5 h-3.5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                      <div className="w-[20px] h-[20px] rounded-[5px] bg-white flex items-center justify-center shadow-[-1px_0_4px_rgba(0,0,0,0.5)] z-20 relative overflow-hidden -ml-1.5 animate-stack-2 opacity-95">
+                        <img src="/notion-icon.png" alt="Notion" className="w-3 h-3 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                       </div>
                       {/* +1k (Back, Right) */}
-                      <div className="w-[22px] h-[22px] rounded-[6px] bg-[#2c2c2e] flex items-center justify-center shadow-[-2px_0_6px_rgba(0,0,0,0.5)] z-10 relative overflow-hidden -ml-2">
-                        <span className="text-[9px] font-bold text-[#e5e5ea] leading-none pt-[1px]">+1k</span>
+                      <div className="w-[20px] h-[20px] rounded-[5px] bg-[#2c2c2e] flex items-center justify-center shadow-[-1px_0_4px_rgba(0,0,0,0.5)] z-10 relative overflow-hidden -ml-1.5 animate-stack-3">
+                        <span className="text-[8px] font-bold text-[#e5e5ea] leading-none pt-[1px]">+1k</span>
                       </div>
                     </div>
                   </div>
