@@ -511,7 +511,7 @@ export function HomeView() {
                 ${isInputActive 
                   ? "w-full flex-1 pl-4 p-[4px] cursor-text bg-black/40 border border-white/[0.15]" 
                   : "w-[64px] flex-none p-0 justify-center cursor-pointer border-transparent hover:brightness-110 active:brightness-95"}`}
-              style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)', backgroundColor: isInputActive ? undefined : accentColor }}
+              style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)', backgroundColor: isInputActive ? undefined : "#60a5fa" }}
             >
               {isInputActive ? (
                 <>
@@ -549,38 +549,38 @@ export function HomeView() {
                 <span className="font-medium text-[15px] whitespace-nowrap tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 text-white/70 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
               </button>
-
-              {/* Model Menu Popover */}
-              {isModelMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
-                  <div 
-                    className="absolute right-0 top-[calc(100%+12px)] w-[260px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 border border-white/10 bg-[#1c1c1e]"
-                  >
-                    <div className="flex flex-col p-2 gap-1">
-                      {MODELS.map((m) => (
-                        <button
-                          key={m.name}
-                          onClick={() => {
-                            setSelectedModel(m.name as ModelName)
-                            setIsModelMenuOpen(false)
-                          }}
-                          className={`flex items-center justify-between px-3.5 py-3 rounded-[12px] transition-colors text-left ${selectedModel === m.name ? 'bg-white/10' : 'hover:bg-white/5 active:bg-white/10'}`}
-                        >
-                          <div className="flex flex-col items-start gap-1">
-                            <span className="text-[15px] font-bold text-white leading-none" style={{ fontFamily: SF }}>{m.name}</span>
-                            <span className="text-[12px] font-medium text-[#8e8e93] leading-none" style={{ fontFamily: SF }}>{m.desc}</span>
-                          </div>
-                          {selectedModel === m.name && (
-                            <Check className="w-[18px] h-[18px] text-white shrink-0" strokeWidth={3} />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
             </div>
+
+            {/* Model Menu Popover */}
+            {isModelMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
+                <div 
+                  className="absolute right-0 top-[calc(100%+12px)] w-[260px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 border border-white/10 bg-[#1c1c1e]"
+                >
+                  <div className="flex flex-col p-2 gap-1">
+                    {MODELS.map((m) => (
+                      <button
+                        key={m.name}
+                        onClick={() => {
+                          setSelectedModel(m.name as ModelName)
+                          setIsModelMenuOpen(false)
+                        }}
+                        className={`flex items-center justify-between px-3.5 py-3 rounded-[12px] transition-colors text-left ${selectedModel === m.name ? 'bg-white/10' : 'hover:bg-white/5 active:bg-white/10'}`}
+                      >
+                        <div className="flex flex-col items-start gap-1">
+                          <span className="text-[15px] font-bold text-white leading-none" style={{ fontFamily: SF }}>{m.name}</span>
+                          <span className="text-[12px] font-medium text-[#8e8e93] leading-none" style={{ fontFamily: SF }}>{m.desc}</span>
+                        </div>
+                        {selectedModel === m.name && (
+                          <Check className="w-[18px] h-[18px] text-white shrink-0" strokeWidth={3} />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
