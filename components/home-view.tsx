@@ -199,7 +199,7 @@ const SlidingNumber = ({ value }: { value: number }) => {
 };
 
 export function HomeView() {
-  const { setCurrentView, userPreferences } = useApp()
+  const { setCurrentView, userPreferences, selectedModel, setSelectedModel } = useApp()
 
   const profileFields = ["name", "age", "location", "preferences", "gender", "city", "timezone", "occupation", "interests", "favoriteEmoji", "personality"];
   const filledCount = profileFields.filter(f => !!(userPreferences as any)?.[f]).length;
@@ -212,6 +212,10 @@ export function HomeView() {
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
+
+  const [isInputActive, setIsInputActive] = useState(false)
+  const [askQuery, setAskQuery] = useState("")
+  const [isModelMenuOpen, setIsModelMenuOpen] = useState(false)
   
   // Connector real-time state from API
   const [connectorsState, setConnectorsState] = useState<ConnectorsState>({})
