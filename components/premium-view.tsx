@@ -185,27 +185,58 @@ export function PremiumView() {
         <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5">
           <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: accentColor }}>Take full control</p>
           <h2 className="text-[18px] font-bold mb-4 tracking-tight">Exclusive Perks</h2>
-          
           <div className="flex flex-col gap-y-3.5">
-            <div className="flex items-center gap-3">
-              <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center transition-colors shadow-sm" style={{ backgroundColor: accentColor }}>
-                <Sparkles className="w-3.5 h-3.5 text-white fill-white" />
-              </div>
-              <span className="font-semibold text-[14px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
-                <Calendar className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
-              </div>
-              <span className="font-semibold text-[14px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
-                <Zap className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
-              </div>
-              <span className="font-semibold text-[14px]">{isHeavy ? "Dedicated support & early access" : "Dedicated support"}</span>
-            </div>
+            {!isHeavy ? (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                    <Sparkles className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+                  </div>
+                  <span className="font-semibold text-[14px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                    <Calendar className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+                  </div>
+                  <span className="font-semibold text-[14px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                    <Bot className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+                  </div>
+                  <span className="font-semibold text-[14px]">Agent mode with deep research</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-0.5 mt-[-4px]">
+                  <span className="text-[13px] font-semibold text-[#8e8e93]" style={{ fontFamily: SF }}>Everything in Lite, plus:</span>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                    <Zap className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+                  </div>
+                  <span className="font-semibold text-[14px]">Lightning-fast replies</span>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                    <Sparkles className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+                  </div>
+                  <span className="font-semibold text-[14px]">Access our latest, best models</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                    <Gift className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+                  </div>
+                  <span className="font-semibold text-[14px]">Early Access to advanced Noir features</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
