@@ -161,9 +161,9 @@ export function PremiumView() {
 
         {/* UNLIMITED MANAGEMENT BLOCK */}
         <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5">
-          <div className="flex items-center justify-center gap-2 mb-2 mt-[-2px]">
-            <img src="/noir-originalogo.png" alt="Noir" className="w-[28px] h-[28px] object-contain select-none pointer-events-none drop-shadow-md mt-[-2px]" draggable={false} style={imageProtectionStyle} />
-            <h2 className="text-[26px] font-bold tracking-tight text-white leading-none">Noir</h2>
+          <div className="flex items-center gap-2 mb-2 mt-[-2px]">
+            <img src="/noir-originalogo.png" alt="Noir" className="w-[28px] h-[28px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
+            <h2 className="text-[28px] font-bold tracking-tight text-white leading-none">Noir</h2>
           </div>
           <p className="text-[14px] font-medium mb-4 tracking-tight text-[#8e8e93] leading-snug" style={{ fontFamily: SF }}>
             {isHeavy ? "Ultimate frontier models with uncompromised limits and maximum priority." : "Frontier models & smart workflows with extended benefits."}
@@ -173,26 +173,26 @@ export function PremiumView() {
               <>
                 <div className="flex items-center gap-3.5">
                   <MessageSquare className="w-5 h-5 text-white" />
-                  <span className="font-semibold text-[15px]">2x longer conversations in Chat</span>
+                  <span className="font-semibold text-[15px] pt-[1px]">2x longer conversations in Chat</span>
                 </div>
                 <div className="flex items-center gap-3.5">
-                  <Sparkles className="w-5 h-5 transition-colors" style={{ color: accentColor }} />
-                  <span className="font-semibold text-[15px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
-                </div>
-                
-                <div className="flex items-center gap-3.5">
-                  <Calendar className="w-5 h-5 transition-colors" style={{ color: accentColor }} />
-                  <span className="font-semibold text-[15px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
+                  <Sparkles className="w-5 h-5 transition-colors text-white" />
+                  <span className="font-semibold text-[15px] pt-[1px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
                 </div>
                 
                 <div className="flex items-center gap-3.5">
-                  <Bot className="w-5 h-5 transition-colors" style={{ color: accentColor }} />
-                  <span className="font-semibold text-[15px]">Agent mode with deep research</span>
+                  <Calendar className="w-5 h-5 transition-colors text-white" />
+                  <span className="font-semibold text-[15px] pt-[1px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
+                </div>
+                
+                <div className="flex items-center gap-3.5">
+                  <Bot className="w-5 h-5 transition-colors text-white" />
+                  <span className="font-semibold text-[15px] pt-[1px]">Agent mode with deep research</span>
                 </div>
 
                 <div className="flex items-center gap-3.5">
-                  <Blocks className="w-5 h-5 transition-colors" style={{ color: accentColor }} />
-                  <span className="font-semibold text-[15px]">1000+ app integrations</span>
+                  <Blocks className="w-5 h-5 transition-colors text-white" />
+                  <span className="font-semibold text-[15px] pt-[1px]">1000+ app integrations</span>
                 </div>
               </>
             ) : (
@@ -203,22 +203,22 @@ export function PremiumView() {
 
                 <div className="flex items-center gap-3.5">
                   <MessageSquare className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px]">5x longer conversations in Chat</span>
+                  <span className="font-semibold text-[15px] pt-[1px]">5x longer conversations in Chat</span>
                 </div>
                 
                 <div className="flex items-center gap-3.5">
                   <Zap className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px]">Lightning-fast replies</span>
+                  <span className="font-semibold text-[15px] pt-[1px]">Lightning-fast replies</span>
                 </div>
                 
                 <div className="flex items-center gap-3.5">
                   <Sparkles className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px]">Access our latest, best models</span>
+                  <span className="font-semibold text-[15px] pt-[1px]">Access our latest, best models</span>
                 </div>
 
                 <div className="flex items-center gap-3.5">
                   <Gift className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px]">Early Access to advanced Noir features</span>
+                  <span className="font-semibold text-[15px] pt-[1px]">Early Access to advanced Noir features</span>
                 </div>
               </>
             )}
