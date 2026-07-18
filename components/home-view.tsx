@@ -217,6 +217,16 @@ export function HomeView() {
   const [askQuery, setAskQuery] = useState("")
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false)
   const [loadingModel, setLoadingModel] = useState<string | null>(null)
+  const [firstName, setFirstName] = useState("")
+
+  useEffect(() => {
+    const user = (window as any).Telegram?.WebApp?.initDataUnsafe?.user
+    if (user?.first_name) {
+      setFirstName(user.first_name)
+    } else if (user?.username) {
+      setFirstName(user.username)
+    }
+  }, [])
   
   // Connector real-time state from API
   const [connectorsState, setConnectorsState] = useState<ConnectorsState>({})
@@ -500,7 +510,7 @@ export function HomeView() {
             className="text-white font-bold text-[32px] sm:text-[36px] leading-[1.1] tracking-tight drop-shadow-md" 
             style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
           >
-            How can I help you<br />today?
+            Hi, {firstName || "there"}
           </h1>
 
           {/* Ask anything / Model Selector Row */}
@@ -510,7 +520,7 @@ export function HomeView() {
               onClick={() => !isInputActive && setIsInputActive(true)}
               className={`flex items-center rounded-[100px] backdrop-blur-md transition-all duration-300 ease-out overflow-hidden shrink-0 h-full shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)]
                 ${isInputActive 
-                  ? "w-full flex-1 pl-4 p-[4px] cursor-text bg-black/40 border border-white/[0.15]" 
+                  ? "w-full flex-1 pl-4 p-[4px] cursor-text bg-white/[0.12] border border-white/20" 
                   : "w-[64px] flex-none p-0 justify-center cursor-pointer border-transparent hover:brightness-110"}`}
               style={{ backgroundColor: isInputActive ? undefined : "#60a5fa" }}
             >
@@ -544,7 +554,7 @@ export function HomeView() {
             >
               <button
                 onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-                className="flex items-center justify-between w-full min-w-[120px] px-4 h-full rounded-[100px] text-white shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-colors bg-black/40 border border-white/[0.15] backdrop-blur-md hover:bg-black/50"
+                className="flex items-center justify-between w-full min-w-[120px] px-4 h-full rounded-[100px] text-white shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-colors bg-white/[0.12] border border-white/20 backdrop-blur-md hover:bg-white/[0.18]"
               >
                 <span className="font-medium text-[15px] whitespace-nowrap tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 text-white/70 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
