@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useApp } from "@/lib/app-context"
+import { useApp, type ModelName } from "@/lib/app-context"
 import { 
   Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
   ChevronRight, ChevronDown, Loader2, CalendarDays, Search, ShieldCheck, Github, 
@@ -42,6 +42,26 @@ const imageProtectionStyle = {
   WebkitUserSelect: 'none',
   userSelect: 'none' as any,
 }
+
+const MODELS: {
+  name: string
+  desc: string
+  proOnly: boolean
+  initial: string
+}[] = [
+  {
+    name: "Grok 4.3",
+    desc: "Latest capabilities with advanced intelligence",
+    proOnly: false,
+    initial: "G",
+  },
+  {
+    name: "Gemini 3.5 Flash",
+    desc: "Fast and reliable for everyday use",
+    proOnly: false,
+    initial: "G",
+  },
+]
 
 const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
   const element = event.currentTarget
@@ -192,8 +212,6 @@ export function HomeView() {
   const [modalState, setModalState] = useState<{ view: "closed" | "list" | "detail", connectorId: string | null }>({ view: "closed", connectorId: null })
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
-  const [isInputActive, setIsInputActive] = useState(false)
-  const [askQuery, setAskQuery] = useState("")
   
   // Connector real-time state from API
   const [connectorsState, setConnectorsState] = useState<ConnectorsState>({})
@@ -482,33 +500,85 @@ export function HomeView() {
             How can I help you<br />today?
           </h1>
 
-          {/* Ask anything... Pill */}
-          <div 
-            onClick={() => !isInputActive && setIsInputActive(true)}
-            className={`flex items-center justify-between p-[6px] pl-5 mt-2 rounded-[100px] bg-black/40 border border-white/[0.15] backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 cursor-text overflow-hidden
-              ${isInputActive ? "w-full max-w-[360px]" : "w-[240px]"}`}
-            style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
-          >
-            {isInputActive ? (
-              <input 
-                autoFocus
-                value={askQuery}
-                onChange={(e) => setAskQuery(e.target.value)}
-                onBlur={(e) => {
-                  if (!e.target.value) setIsInputActive(false)
-                }}
-                placeholder="Ask anything..."
-                className="bg-transparent border-none outline-none text-white text-[16px] font-medium tracking-wide w-full pr-2 placeholder:text-white/60"
-                style={{ fontFamily: SF }}
-              />
-            ) : (
-              <span className="text-white/70 text-[16px] font-medium tracking-wide text-left truncate" style={{ fontFamily: SF }}>
-                Ask anything...
-              </span>
-            )}
-            <button className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-all duration-300 ${askQuery.trim().length > 0 ? 'bg-[#60a5fa] hover:bg-[#4b8ce1]' : 'bg-white/20 hover:bg-white/30'}`}>
-              <ArrowUp className="w-[20px] h-[20px] text-white/90" strokeWidth={1.5} />
-            </button>
+          {/* Ask anything / Model Selector Row */}
+          <div className="flex items-center justify-between mt-4 gap-3 relative w-full h-[52px]">
+            {/* Search Pill */}
+            <div 
+              onClick={() => !isInputActive && setIsInputActive(true)}
+              className={`flex items-center rounded-[100px] bg-black/40 border border-white/[0.15] backdrop-blur-md shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 overflow-hidden shrink-0 h-full
+                ${isInputActive ? "flex-1 w-full pl-5 p-[6px] cursor-text" : "w-[52px] p-0 justify-center cursor-pointer hover:bg-black/50"}`}
+              style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+            >
+              {isInputActive ? (
+                <>
+                  <input 
+                    autoFocus
+                    value={askQuery}
+                    onChange={(e) => setAskQuery(e.target.value)}
+                    onBlur={(e) => {
+                      if (!e.target.value) setIsInputActive(false)
+                    }}
+                    placeholder="Ask, search, find..."
+                    className="bg-transparent border-none outline-none text-white text-[16px] font-medium tracking-wide w-full pr-2 placeholder:text-white/60 h-full"
+                    style={{ fontFamily: SF }}
+                  />
+                  <button className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 active:scale-95 transition-all duration-300 ${askQuery.trim().length > 0 ? 'bg-[#60a5fa] hover:bg-[#4b8ce1]' : 'bg-white/20 hover:bg-white/30'}`}>
+                    <ArrowUp className="w-[20px] h-[20px] text-white/90" strokeWidth={1.5} />
+                  </button>
+                </>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center rounded-full">
+                  <Search className="w-[22px] h-[22px] text-white/90" strokeWidth={2} />
+                </div>
+              )}
+            </div>
+
+            {/* Model Selector Pill */}
+            <div 
+              className={`relative transition-all duration-500 shrink-0 h-full ${isInputActive ? "w-0 opacity-0 pointer-events-none overflow-hidden" : "w-auto opacity-100"}`}
+              style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
+            >
+              <button
+                onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
+                className="flex items-center gap-1.5 px-5 h-full rounded-[100px] text-white shadow-md transition-all active:scale-95"
+                style={cardLiquidGlassStyle}
+              >
+                <span className="font-bold text-[15px] whitespace-nowrap tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={3} />
+              </button>
+
+              {/* Model Menu Popover */}
+              {isModelMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
+                  <div 
+                    className="absolute right-0 top-[calc(100%+12px)] w-[260px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 border border-white/10"
+                    style={cardLiquidGlassStyle}
+                  >
+                    <div className="flex flex-col p-2 gap-1">
+                      {MODELS.map((m) => (
+                        <button
+                          key={m.name}
+                          onClick={() => {
+                            setSelectedModel(m.name as ModelName)
+                            setIsModelMenuOpen(false)
+                          }}
+                          className={`flex items-center justify-between px-3.5 py-3 rounded-[12px] transition-colors text-left ${selectedModel === m.name ? 'bg-white/10' : 'hover:bg-white/5 active:bg-white/10'}`}
+                        >
+                          <div className="flex flex-col items-start gap-1">
+                            <span className="text-[15px] font-bold text-white leading-none" style={{ fontFamily: SF }}>{m.name}</span>
+                            <span className="text-[12px] font-medium text-[#8e8e93] leading-none" style={{ fontFamily: SF }}>{m.desc}</span>
+                          </div>
+                          {selectedModel === m.name && (
+                            <Check className="w-[18px] h-[18px] text-white shrink-0" strokeWidth={3} />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
