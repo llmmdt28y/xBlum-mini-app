@@ -162,7 +162,7 @@ export function PremiumView() {
         {/* UNLIMITED MANAGEMENT BLOCK */}
         <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5">
           <div className="flex items-center gap-2 mb-2 mt-[-2px]">
-            <img src="/noir-originalogo.png" alt="Noir" className="w-[20px] h-[20px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
+            <img src="/noir-originalogo.png" alt="Noir" className="w-[24px] h-[24px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
             <h2 className="text-[20px] font-bold tracking-tight text-white leading-none">Noir</h2>
           </div>
           <p className="text-[14px] font-medium mb-4 tracking-tight text-[#8e8e93] leading-snug" style={{ fontFamily: SF }}>
@@ -194,18 +194,22 @@ export function PremiumView() {
                   <Blocks className="w-5 h-5 transition-colors text-white mt-[1px]" />
                   <div className="flex flex-col">
                     <span className="text-[15px] pt-[1px]">1000+ app integrations</span>
-                    <div className="flex items-center mt-2.5 mb-0.5">
+                    <div className="flex items-center mt-2 mb-1">
                       {/* Google Calendar (Front, Left) */}
-                      <div className="w-8 h-8 rounded-[9px] bg-white flex items-center justify-center shadow-[-2px_0_8px_rgba(0,0,0,0.6)] z-30 relative overflow-hidden">
-                        <img src="/google-calendar.png" alt="Calendar" className="w-5 h-5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                      <div className="w-[22px] h-[22px] rounded-[6px] bg-white flex items-center justify-center shadow-[-2px_0_6px_rgba(0,0,0,0.6)] z-40 relative overflow-hidden">
+                        <img src="/google-calendar.png" alt="Calendar" className="w-3.5 h-3.5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                       </div>
                       {/* Gmail (Middle) */}
-                      <div className="w-8 h-8 rounded-[9px] bg-white flex items-center justify-center shadow-[-2px_0_8px_rgba(0,0,0,0.6)] z-20 relative overflow-hidden -ml-3">
-                        <img src="/gmail.png" alt="Gmail" className="w-5 h-5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                      <div className="w-[22px] h-[22px] rounded-[6px] bg-white flex items-center justify-center shadow-[-2px_0_6px_rgba(0,0,0,0.6)] z-30 relative overflow-hidden -ml-2">
+                        <img src="/gmail.png" alt="Gmail" className="w-3.5 h-3.5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                       </div>
-                      {/* Notion (Back, Right) */}
-                      <div className="w-8 h-8 rounded-[9px] bg-white flex items-center justify-center shadow-[-2px_0_8px_rgba(0,0,0,0.5)] z-10 relative overflow-hidden -ml-3 opacity-90">
-                        <img src="/notion-icon.png" alt="Notion" className="w-5 h-5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                      {/* Notion (Middle Right) */}
+                      <div className="w-[22px] h-[22px] rounded-[6px] bg-white flex items-center justify-center shadow-[-2px_0_6px_rgba(0,0,0,0.5)] z-20 relative overflow-hidden -ml-2 opacity-95">
+                        <img src="/notion-icon.png" alt="Notion" className="w-3.5 h-3.5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                      </div>
+                      {/* +1k (Back, Right) */}
+                      <div className="w-[22px] h-[22px] rounded-[6px] bg-[#2c2c2e] flex items-center justify-center shadow-[-2px_0_6px_rgba(0,0,0,0.5)] z-10 relative overflow-hidden -ml-2">
+                        <span className="text-[9px] font-bold text-[#e5e5ea] leading-none pt-[1px]">+1k</span>
                       </div>
                     </div>
                   </div>
