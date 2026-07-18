@@ -162,8 +162,8 @@ export function PremiumView() {
         {/* UNLIMITED MANAGEMENT BLOCK */}
         <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5">
           <div className="flex items-center gap-2 mb-2 mt-[-2px]">
-            <img src="/noir-originalogo.png" alt="Noir" className="w-[28px] h-[28px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
-            <h2 className="text-[28px] font-bold tracking-tight text-white leading-none">Noir</h2>
+            <img src="/noir-originalogo.png" alt="Noir" className="w-[20px] h-[20px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
+            <h2 className="text-[20px] font-bold tracking-tight text-white leading-none">Noir</h2>
           </div>
           <p className="text-[14px] font-medium mb-4 tracking-tight text-[#8e8e93] leading-snug" style={{ fontFamily: SF }}>
             {isHeavy ? "Ultimate frontier models with uncompromised limits and maximum priority." : "Frontier models & smart workflows with extended benefits."}
@@ -173,26 +173,42 @@ export function PremiumView() {
               <>
                 <div className="flex items-center gap-3.5">
                   <MessageSquare className="w-5 h-5 text-white" />
-                  <span className="font-semibold text-[15px] pt-[1px]">2x longer conversations in Chat</span>
+                  <span className="text-[15px] pt-[1px]">2x longer conversations in Chat</span>
                 </div>
                 <div className="flex items-center gap-3.5">
                   <Sparkles className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px] pt-[1px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
+                  <span className="text-[15px] pt-[1px]">Higher <span className="text-[#8e8e93] font-medium">skills limits</span></span>
                 </div>
                 
                 <div className="flex items-center gap-3.5">
                   <Calendar className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px] pt-[1px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
+                  <span className="text-[15px] pt-[1px]">Higher <span className="text-[#8e8e93] font-medium">schedules limits</span></span>
                 </div>
                 
                 <div className="flex items-center gap-3.5">
                   <Bot className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px] pt-[1px]">Agent mode with deep research</span>
+                  <span className="text-[15px] pt-[1px]">Agent mode with deep research</span>
                 </div>
 
-                <div className="flex items-center gap-3.5">
-                  <Blocks className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px] pt-[1px]">1000+ app integrations</span>
+                <div className="flex items-start gap-3.5">
+                  <Blocks className="w-5 h-5 transition-colors text-white mt-[1px]" />
+                  <div className="flex flex-col">
+                    <span className="text-[15px] pt-[1px]">1000+ app integrations</span>
+                    <div className="flex items-center mt-2.5 mb-0.5">
+                      {/* Google Calendar (Front, Left) */}
+                      <div className="w-8 h-8 rounded-[9px] bg-white flex items-center justify-center shadow-[-2px_0_8px_rgba(0,0,0,0.6)] z-30 relative overflow-hidden">
+                        <img src="/google-calendar.png" alt="Calendar" className="w-5 h-5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                      </div>
+                      {/* Gmail (Middle) */}
+                      <div className="w-8 h-8 rounded-[9px] bg-white flex items-center justify-center shadow-[-2px_0_8px_rgba(0,0,0,0.6)] z-20 relative overflow-hidden -ml-3">
+                        <img src="/gmail.png" alt="Gmail" className="w-5 h-5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                      </div>
+                      {/* Notion (Back, Right) */}
+                      <div className="w-8 h-8 rounded-[9px] bg-white flex items-center justify-center shadow-[-2px_0_8px_rgba(0,0,0,0.5)] z-10 relative overflow-hidden -ml-3 opacity-90">
+                        <img src="/notion-icon.png" alt="Notion" className="w-5 h-5 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </>
             ) : (
@@ -203,22 +219,22 @@ export function PremiumView() {
 
                 <div className="flex items-center gap-3.5">
                   <MessageSquare className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px] pt-[1px]">5x longer conversations in Chat</span>
+                  <span className="text-[15px] pt-[1px]">5x longer conversations in Chat</span>
                 </div>
                 
                 <div className="flex items-center gap-3.5">
                   <Zap className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px] pt-[1px]">Lightning-fast replies</span>
+                  <span className="text-[15px] pt-[1px]">Lightning-fast replies</span>
                 </div>
                 
                 <div className="flex items-center gap-3.5">
                   <Sparkles className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px] pt-[1px]">Access our latest, best models</span>
+                  <span className="text-[15px] pt-[1px]">Access our latest, best models</span>
                 </div>
 
                 <div className="flex items-center gap-3.5">
                   <Gift className="w-5 h-5 transition-colors text-white" />
-                  <span className="font-semibold text-[15px] pt-[1px]">Early Access to advanced Noir features</span>
+                  <span className="text-[15px] pt-[1px]">Early Access to advanced Noir features</span>
                 </div>
               </>
             )}
