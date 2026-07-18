@@ -159,35 +159,24 @@ export function PremiumView() {
           </div>
         </div>
 
-        {/* 3 CARDS GRID */}
-        <div className="grid grid-cols-3 gap-2.5 mb-6">
-          <div className="p-1 flex flex-col items-center text-center justify-start h-full pt-2">
-            <div className="w-9 h-9 rounded-[10px] bg-white flex items-center justify-center shadow-md mb-2">
-              <Blocks className="w-5 h-5 text-blue-500" />
-            </div>
-            <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>1000+ app<br/>integrations</p>
-          </div>
-          
-          <div className="p-1 flex flex-col items-center text-center justify-start h-full pt-2">
-            <div className="text-[32px] leading-none mb-1.5 drop-shadow-lg">🤖</div>
-            <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>Scheduled tasks,<br/>autonomous<br/>work 24/7</p>
-          </div>
-
-          <div className="p-1 flex flex-col items-center text-center justify-start h-full pt-2">
-            <div className="text-[32px] leading-none mb-1.5 drop-shadow-lg">💬</div>
-            <p className="text-[12px] font-medium leading-[1.2] text-[#e5e5ea]" style={{ fontFamily: SF }}>
-              <span className="font-bold text-white text-[13px]">{selectedTier === "lite" ? "2x" : "5x"} longer</span><br/>conversations<br/>in Chat
-            </p>
-          </div>
-        </div>
-
         {/* UNLIMITED MANAGEMENT BLOCK */}
         <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5">
-          <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: accentColor }}>Take full control</p>
-          <h2 className="text-[18px] font-bold mb-4 tracking-tight">Exclusive Perks</h2>
+          <div className="flex items-center gap-1.5 mb-1.5 mt-[-2px]">
+            <img src="/noir-originalogo.png" alt="Noir" className="w-[18px] h-[18px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
+            <p className="text-[16px] font-bold tracking-tight text-white leading-none">Noir</p>
+          </div>
+          <p className="text-[13px] font-medium mb-4 tracking-tight text-[#8e8e93] leading-snug" style={{ fontFamily: SF }}>
+            {isHeavy ? "Ultimate frontier models with uncompromised limits and maximum priority." : "Frontier models & smart workflows with extended benefits."}
+          </p>
           <div className="flex flex-col gap-y-3.5">
             {!isHeavy ? (
               <>
+                <div className="flex items-center gap-3">
+                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                    <span className="text-[13px]">💬</span>
+                  </div>
+                  <span className="font-semibold text-[14px]">2x longer conversations in Chat</span>
+                </div>
                 <div className="flex items-center gap-3">
                   <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
                     <Sparkles className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
@@ -207,6 +196,13 @@ export function PremiumView() {
                     <Bot className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
                   </div>
                   <span className="font-semibold text-[14px]">Agent mode with deep research</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                    <Blocks className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
+                  </div>
+                  <span className="font-semibold text-[14px]">1000+ app integrations</span>
                 </div>
               </>
             ) : (
@@ -234,6 +230,13 @@ export function PremiumView() {
                     <Gift className="w-3.5 h-3.5 transition-colors" style={{ color: accentColor }} />
                   </div>
                   <span className="font-semibold text-[14px]">Early Access to advanced Noir features</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-[26px] h-[26px] rounded-[8px] bg-[#2c2c2e] flex items-center justify-center shadow-sm">
+                    <span className="text-[13px]">💬</span>
+                  </div>
+                  <span className="font-semibold text-[14px]">5x longer conversations in Chat</span>
                 </div>
               </>
             )}
