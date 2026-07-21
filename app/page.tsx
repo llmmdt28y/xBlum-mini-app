@@ -136,8 +136,8 @@ function NavBar() {
           onPointerLeave={() => setPressedId(null)}
           className="liquid-glass-card pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
           style={{
-            width: "60px",
-            height: "60px",
+            width: "58px",
+            height: "58px",
             borderRadius: "100px",
             zIndex: 51,
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
@@ -161,10 +161,10 @@ function NavBar() {
 
         {/* ── PÍLDORA CENTRAL ── */}
         <div
-          className="liquid-glass-card pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
-          style={{ borderRadius: "100px", height: "60px", zIndex: 51 }}
+          className="liquid-glass-card pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
+          style={{ borderRadius: "100px", height: "58px", zIndex: 51 }}
         >
-          <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
+          <div className="flex items-center justify-between w-full relative h-[52px]" style={{ zIndex: 10 }}>
             
             <div 
               className="absolute top-0 bottom-0"
@@ -195,7 +195,7 @@ function NavBar() {
                   onPointerDown={() => !isDisabled && setPressedId(tab.id)}
                   onPointerUp={() => setPressedId(null)}
                   onPointerLeave={() => setPressedId(null)}
-                  className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[54px] select-none`}
+                  className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[52px] select-none`}
                   style={{
                     pointerEvents: isDisabled ? "none" : "auto",
                     transition: "transform 0.4s cubic-bezier(0.25, 1.15, 0.5, 1)",
@@ -236,8 +236,8 @@ function NavBar() {
           onPointerLeave={() => setPressedId(null)}
           className="liquid-glass-card pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
           style={{
-            width: "60px",
-            height: "60px",
+            width: "58px",
+            height: "58px",
             borderRadius: "100px",
             zIndex: 51,
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
@@ -246,8 +246,8 @@ function NavBar() {
         >
           <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none relative" style={{ zIndex: 10 }}>
             {photoUrl ? (
-              <div className="w-[46px] h-[46px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
-                <Image src={photoUrl} alt="User" fill sizes="46px" className="object-cover" />
+              <div className="w-[44px] h-[44px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
+                <Image src={photoUrl} alt="User" fill sizes="44px" className="object-cover" />
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center relative z-10">
@@ -437,7 +437,7 @@ export default function Page() {
           z-index: 0;
           border-radius: inherit;
           box-shadow: inset 0 0 0px -50px rgba(255, 255, 255, 0.7);
-          background-color: rgba(128, 128, 128, 0.15);
+          background-color: rgba(0, 0, 0, 0.2);
           pointer-events: none;
         }
 
