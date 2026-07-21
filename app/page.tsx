@@ -18,11 +18,6 @@ const ShopView = dynamic(() => import("@/components/shop-view").then(mod => mod.
 const GroupConfigView = dynamic(() => import("@/components/group-config-view").then(mod => mod.GroupConfigView))
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock, Settings } from "lucide-react"
-import {
-  LiquidGlassButton,
-  LiquidGlassContainer,
-  LiquidGlassLink
-} from '@tinymomentum/liquid-glass-react';
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = {
@@ -134,24 +129,16 @@ function NavBar() {
         style={{ bottom: safeBottom }}
       >
         {/* ── BOTÓN IZQUIERDO ── */}
-        <LiquidGlassButton
+        <button
           onClick={handleLeftActionButton}
           onPointerDown={() => setPressedId("left")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
-          width={60}
-          height={60}
-          borderRadius={30}
-          innerShadowColor="rgba(255, 255, 255, 0.7)"
-          innerShadowBlur={15}
-          innerShadowSpread={-3}
-          glassTintColor="#ffffff"
-          glassTintOpacity={40}
-          frostBlurRadius={2}
-          noiseFrequency={0.008}
-          noiseStrength={77}
+          className="liquid-glass-card pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
           style={{
+            width: "60px",
+            height: "60px",
+            borderRadius: "100px",
             zIndex: 51,
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
             transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
@@ -170,21 +157,12 @@ function NavBar() {
               </>
             )}
           </div>
-        </LiquidGlassButton>
+        </button>
 
         {/* ── PÍLDORA CENTRAL ── */}
-        <LiquidGlassContainer
-          className="pointer-events-auto flex items-center justify-between mx-3 px-1.5"
-          borderRadius={28}
-          innerShadowColor="#000000"
-          innerShadowBlur={15}
-          innerShadowSpread={-5}
-          glassTintColor="#ffffff"
-          glassTintOpacity={0}
-          frostBlurRadius={0}
-          noiseFrequency={0.009}
-          noiseStrength={99}
-          style={{ zIndex: 51, flex: 1, width: "100%", height: "60px" }}
+        <div
+          className="liquid-glass-card pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
+          style={{ borderRadius: "100px", height: "60px", zIndex: 51 }}
         >
           <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
             
@@ -245,27 +223,19 @@ function NavBar() {
               )
             })}
           </div>
-        </LiquidGlassContainer>
+        </div>
 
         {/* ── BOTÓN DERECHO: Profile ── */}
-        <LiquidGlassButton
+        <button
           onClick={() => setCurrentView('profile')}
           onPointerDown={() => setPressedId("right")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
-          width={60}
-          height={60}
-          borderRadius={30}
-          innerShadowColor="rgba(255, 255, 255, 0.7)"
-          innerShadowBlur={15}
-          innerShadowSpread={-3}
-          glassTintColor="#ffffff"
-          glassTintOpacity={40}
-          frostBlurRadius={2}
-          noiseFrequency={0.008}
-          noiseStrength={77}
+          className="liquid-glass-card pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
           style={{
+            width: "60px",
+            height: "60px",
+            borderRadius: "100px",
             zIndex: 51,
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
             transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
@@ -292,7 +262,7 @@ function NavBar() {
               </div>
             )}
           </div>
-        </LiquidGlassButton>
+        </button>
       </div>
     </>
   )
@@ -416,10 +386,72 @@ function AppContent() {
 export default function Page() {
   return (
     <AppProvider>
+      <svg width="0" height="0" style={{ position: "absolute" }}>
+        <defs>
+          <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
+            <feTurbulence 
+              type="fractalNoise" 
+              baseFrequency="0.006 0.006"
+              numOctaves="2" 
+              seed="92" 
+              result="noise" 
+            />
+            <feGaussianBlur 
+              in="noise" 
+              stdDeviation="2" 
+              result="blurred" 
+            />
+            <feDisplacementMap 
+              in="SourceGraphic" 
+              in2="blurred" 
+              scale="79"
+              xChannelSelector="R" 
+              yChannelSelector="G" 
+            />
+          </filter>
+        </defs>
+      </svg>
+
       <style dangerouslySetInnerHTML={{ __html: `
         ::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
         body { background-color: #1a1a1a; overflow-x: hidden; }
+
+        /* Liquid Glass Card */
+        .liquid-glass-card {
+          position: relative;
+          isolation: isolate;
+          box-shadow: 0px 6px 24px rgba(0, 0, 0, 0.2);
+          cursor: pointer;
+          background: rgba(30, 30, 35, 0.2);
+        }
+
+        /* Tint and inner shadow layer */
+        .liquid-glass-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          border-radius: inherit;
+          box-shadow: inset 0 0 15px -5px rgba(255, 255, 255, 0.5);
+          background-color: rgba(255, 255, 255, 0);
+          pointer-events: none;
+        }
+
+        /* Backdrop blur and distortion layer */
+        .liquid-glass-card::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          z-index: -1;
+          border-radius: inherit;
+          backdrop-filter: blur(3px);
+          -webkit-backdrop-filter: blur(3px);
+          filter: url(#glass-distortion);
+          -webkit-filter: url(#glass-distortion);
+          isolation: isolate;
+          pointer-events: none;
+        }
 
         .sliding-pill {
           background: rgba(255, 255, 255, 0.1);
