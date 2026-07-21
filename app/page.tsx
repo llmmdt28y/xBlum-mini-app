@@ -425,7 +425,7 @@ export default function Page() {
           position: relative;
           isolation: isolate;
           box-shadow: 0px 0px 0px -8px rgba(255, 255, 255, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          border: none;
           cursor: pointer;
         }
 
