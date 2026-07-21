@@ -51,13 +51,13 @@ const MODELS: {
 }[] = [
   {
     name: "Grok 4.3",
-    desc: "Latest capabilities with advanced intelligence",
+    desc: "For real-time research and complex reasoning",
     proOnly: false,
     initial: "G",
   },
   {
     name: "Gemini 3.5 Flash",
-    desc: "Fast and reliable for everyday use",
+    desc: "For fast, versatile, and cost-efficient tasks",
     proOnly: false,
     initial: "G",
   },
@@ -517,7 +517,7 @@ export function HomeView() {
           <div className="relative w-full mt-4 h-[46px] overflow-visible rounded-full flex items-center shadow-sm bg-white/5 backdrop-blur-md pl-1.5 pr-1.5">
             
             {/* Inner Model Selector */}
-            <div className="relative h-full flex items-center shrink-0">
+            <div className={`relative h-full flex items-center shrink-0 transition-all duration-300 ease-in-out ${isInputActive ? 'max-w-0 opacity-0 overflow-hidden' : 'max-w-[150px] opacity-100'}`}>
                <button
                   onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
                   className="flex items-center gap-1.5 h-[34px] px-3.5 rounded-full bg-white/10 hover:bg-white/[0.15] active:bg-white/20 transition-colors border border-white/5"
@@ -570,6 +570,8 @@ export function HomeView() {
             <input 
               value={askQuery}
               onChange={(e) => setAskQuery(e.target.value)}
+              onFocus={() => setIsInputActive(true)}
+              onBlur={() => setIsInputActive(false)}
               placeholder="Ask, search, find..."
               className="flex-1 w-full bg-transparent border-none outline-none text-[#e5e5ea] text-[15px] font-medium tracking-wide pl-3 pr-2 placeholder:text-[#8e8e93] min-w-0"
               style={{ fontFamily: SF }}

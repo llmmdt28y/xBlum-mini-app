@@ -201,7 +201,7 @@ const MODELS: {
 }[] = [
   {
     name: "Grok 4.3",
-    desc: "Latest capabilities with advanced intelligence",
+    desc: "For real-time research and complex reasoning",
     tag: "New",
     tagColor: "bg-white text-[#111]",
     tagStyle: "rounded-md",
@@ -210,7 +210,7 @@ const MODELS: {
   },
   {
     name: "Gemini 3.5 Flash",
-    desc: "Fast and reliable for everyday use",
+    desc: "For fast, versatile, and cost-efficient tasks",
     tag: null,
     tagColor: "",
     proOnly: false,
