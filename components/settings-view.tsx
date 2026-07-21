@@ -179,7 +179,12 @@ function getTgUser(): TgUser | undefined {
 
 const MODEL_LOGO: Record<string, string> = {
   "Grok 4.3": "/grok.png",
+  "Grok 4.5": "/grok.png",
   "Gemini 3.5 Flash": "/gemini.png",
+  "Claude Sonnet 5": "/claude-color.png",
+  "GPT 5": "/chatgpt-icon.png",
+  "DeepSeek V4 Pro": "/deepseek-color.png",
+  "DeepSeek V4 Flash": "/deepseek-color.png",
 }
 
 interface ModelTokenInfo {
@@ -393,14 +398,17 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
 
 
 
+  const isWhiteLogo = name.includes("Grok");
+  const bgClass = isWhiteLogo ? "bg-[#1c1c1e]" : "bg-white";
+
   return (
-    <div className="w-[32px] h-[32px] flex items-center justify-center shrink-0 relative z-10">
+    <div className={`w-[32px] h-[32px] flex items-center justify-center shrink-0 relative z-10 rounded-[8px] overflow-hidden ${bgClass} shadow-sm border border-white/5`}>
       <Image
         src={MODEL_LOGO[name] || "/grok.png"}
         alt={name}
         fill
         sizes="32px"
-        className="object-contain pointer-events-none select-none"
+        className="object-contain pointer-events-none select-none p-1"
         {...imageProps}
         onError={e => {
           const el = e.currentTarget
