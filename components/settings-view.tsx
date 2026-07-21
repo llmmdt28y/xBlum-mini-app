@@ -401,14 +401,21 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
   const isWhiteLogo = name.includes("Grok");
   const bgClass = isWhiteLogo ? "bg-[#1c1c1e]" : "bg-white";
 
+  let paddingScaleClass = "p-1"
+  if (name.includes("GPT")) {
+    paddingScaleClass = "p-[1px] scale-110"
+  } else if (name.includes("Grok")) {
+    paddingScaleClass = "p-[5px]"
+  }
+
   return (
-    <div className={`w-[32px] h-[32px] flex items-center justify-center shrink-0 relative z-10 rounded-[8px] overflow-hidden ${bgClass} shadow-sm border border-white/5`}>
+    <div className={`w-[32px] h-[32px] flex items-center justify-center shrink-0 relative z-10 rounded-[8px] overflow-hidden ${bgClass} shadow-sm`}>
       <Image
         src={MODEL_LOGO[name] || "/grok.png"}
         alt={name}
         fill
         sizes="32px"
-        className="object-contain pointer-events-none select-none p-1"
+        className={`object-contain pointer-events-none select-none ${paddingScaleClass}`}
         {...imageProps}
         onError={e => {
           const el = e.currentTarget
