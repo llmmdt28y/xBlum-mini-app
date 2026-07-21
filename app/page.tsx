@@ -445,8 +445,8 @@ export default function Page() {
           inset: 0;
           z-index: -1;
           border-radius: inherit;
-          backdrop-filter: blur(12px) saturate(140%);
-          -webkit-backdrop-filter: blur(12px) saturate(140%);
+          backdrop-filter: blur(0px);
+          -webkit-backdrop-filter: blur(0px);
           filter: url(#glass-distortion);
           -webkit-filter: url(#glass-distortion);
           isolation: isolate;
