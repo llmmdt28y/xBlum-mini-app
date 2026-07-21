@@ -421,7 +421,8 @@ export default function Page() {
         .liquid-glass-card {
           position: relative;
           isolation: isolate;
-          box-shadow: 0px 0px 0px -8px rgba(255, 255, 255, 0.3);
+          box-shadow: 0px 6px 24px rgba(0, 0, 0, 0.25);
+          background: rgba(35, 35, 40, 0.55);
           cursor: pointer;
         }
 
@@ -432,8 +433,8 @@ export default function Page() {
           inset: 0;
           z-index: 0;
           border-radius: inherit;
-          box-shadow: inset 0 0 0px -50px rgba(255, 255, 255, 0.7);
-          background-color: rgba(255, 255, 255, 0);
+          box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.12);
+          background-color: transparent;
           pointer-events: none;
         }
 
@@ -444,8 +445,8 @@ export default function Page() {
           inset: 0;
           z-index: -1;
           border-radius: inherit;
-          backdrop-filter: blur(0px);
-          -webkit-backdrop-filter: blur(0px);
+          backdrop-filter: blur(12px) saturate(140%);
+          -webkit-backdrop-filter: blur(12px) saturate(140%);
           filter: url(#glass-distortion);
           -webkit-filter: url(#glass-distortion);
           isolation: isolate;
