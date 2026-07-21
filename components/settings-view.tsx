@@ -391,12 +391,7 @@ function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
     style: { WebkitTouchCallout: "none" as const, userSelect: "none" as const },
   }
 
-  if (locked)
-    return (
-      <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center shrink-0 relative z-10 bg-[#1c1c1e]">
-        <Lock className="w-[16px] h-[16px] text-[#636366]" />
-      </div>
-    )
+
 
   return (
     <div className="w-[32px] h-[32px] flex items-center justify-center shrink-0 relative z-10">
@@ -934,7 +929,7 @@ export function SettingsView({
                   onClick={() => !locked && !limitHit && selectModel(m.name)}
                   onPointerDown={createRipple}
                   className="relative overflow-hidden w-full px-4 py-3.5 flex items-center justify-between transition-colors active:bg-white/5 text-left"
-                  style={{ opacity: locked || limitHit ? 0.5 : 1 }}
+                  style={{ opacity: limitHit ? 0.5 : 1 }}
                 >
                   <div className="flex items-center gap-4 flex-1 min-w-0 relative z-10">
                     <ModelLogo name={m.name} locked={locked} />
@@ -944,18 +939,11 @@ export function SettingsView({
                           {m.name}
                         </span>
 
-                        {m.tag && !locked && !limitHit && (
+                        {m.tag && !limitHit && (
                           <span
-                            className={`text-[9px] font-bold px-1.5 py-0.5 ${m.tagStyle || "rounded"} ${m.tagColor}`}
+                            className={`${m.tagStyle} ${m.tagColor}`}
                             style={{ fontFamily: SF }}>
                             {m.tag}
-                          </span>
-                        )}
-
-                        {locked && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500"
-                            style={{ fontFamily: SF }}>
-                            PRO
                           </span>
                         )}
 

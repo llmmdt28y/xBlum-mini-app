@@ -513,7 +513,7 @@ export function HomeView() {
                  <>
                    <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                    <div 
-                     className="absolute left-0 top-[calc(100%+8px)] w-[280px] rounded-[20px] overflow-y-auto shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#262626] max-h-[300px]"
+                     className="absolute left-0 top-[calc(100%+8px)] w-[280px] rounded-[20px] overflow-y-auto shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#111111] max-h-[300px]"
                    >
                      <div className="flex flex-col p-2 gap-1">
                        {APP_MODELS.map((m) => (
