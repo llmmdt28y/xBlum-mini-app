@@ -156,3 +156,15 @@
 .animate-bounce-pop {
   animation: bounce-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+/* Optimization classes for rendering */
+.defer-render {
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 150px; 
+}
+@supports (content-visibility: hidden) {
+  .defer-render-hidden {
+    display: block;
+    content-visibility: hidden;
+  }
+}

@@ -219,10 +219,12 @@ function Section({
   title?: string;
   footer?: React.ReactNode;
   titleColor?: string;
+  className?: string;
+  deferRender?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1.5 w-full">
+    <div className={`flex flex-col gap-1.5 w-full ${className || ""} ${deferRender ? "defer-render" : ""}`}>
       {title && (
         <div className="px-4 flex items-center justify-between">
           <h2
@@ -1030,7 +1032,7 @@ export function BusinessAutomationView({
             </div>
 
             <div className="px-4">
-              <Section title="Communication Style">
+              <Section title="Communication Style" deferRender>
                 {(["adaptive", "casual", "formal", "empathetic"] as const).map(
                   (opt, idx, arr) => (
                     <Row
@@ -1050,7 +1052,7 @@ export function BusinessAutomationView({
                 )}
               </Section>
 
-              <Section title="Behavior">
+              <Section title="Behavior" deferRender>
                 <Row
                   label="Simulate Typing"
                   sublabel="Inject artificial typing delays for a more organic rhythm."
@@ -1158,7 +1160,7 @@ export function BusinessAutomationView({
               <div
                 className={`transition-all duration-300 ${config.ai_autoreply_enabled ? "opacity-100" : "opacity-30 pointer-events-none"}`}
               >
-                <Section title="Suggestions" className="mt-6">
+                <Section title="Suggestions" className="mt-6" deferRender>
                   {ROLES_DATA.map((role, idx) => (
                     <Row
                       key={role.id}
@@ -1180,7 +1182,7 @@ export function BusinessAutomationView({
 
                 {config.custom_roles && config.custom_roles.length > 0 && (
                   <div className="mt-6">
-                    <Section title="Roles">
+                    <Section title="Roles" deferRender>
                       {config.custom_roles.map((role, idx) => (
                         <Row
                           key={role.id}
@@ -1340,7 +1342,7 @@ export function BusinessAutomationView({
                         : "transition-all duration-300"
                     }
                   >
-                    <Section title="Schedule" titleColor="#60a5fa">
+                    <Section title="Schedule" titleColor="#60a5fa" deferRender>
                       <Row
                         leftNode={
                           <div className="mt-[1px]">

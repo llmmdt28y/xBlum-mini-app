@@ -630,7 +630,7 @@ export function MarketView() {
 
                  <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-6">
                     {MARKET_BOXES.map((box) => (
-                       <div key={box.id} onClick={() => setViewingBoxId(box.id)} className="relative flex flex-col group cursor-pointer animate-in fade-in zoom-in-95 duration-300">
+                       <div key={box.id} onClick={() => setViewingBoxId(box.id)} className="relative flex flex-col group cursor-pointer animate-in fade-in zoom-in-95 duration-300 defer-render">
                           {box.id === 'free' ? (
                              <>
                                 <div className="w-full aspect-[8/9] rounded-[24px] bg-gradient-to-b from-[#ef4444] to-[#991b1b] p-4 flex flex-col relative overflow-hidden shadow-lg border border-white/10 transition-transform hover:brightness-110">
@@ -731,7 +731,7 @@ export function MarketView() {
                   {viewMode === 'grid' ? (
                      <div className="grid grid-cols-2 gap-x-3 gap-y-8 mt-2 pb-10 animate-in fade-in duration-300">
                         {AUCTION_ITEMS.map((item) => (
-                           <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="relative w-full mb-4 group cursor-pointer">
+                           <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="relative w-full mb-4 group cursor-pointer defer-render">
                               <div className="w-full aspect-[8/9] bg-[#161618] rounded-[16px] shadow-sm border border-white/[0.04] group-hover:border-white/10 transition-colors relative overflow-hidden flex flex-col justify-end">
                                  <img src={item.imgSrc} alt={item.title} draggable={false} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ WebkitTouchCallout: "none" }} />
                                  
@@ -764,7 +764,7 @@ export function MarketView() {
                         {AUCTION_ITEMS.map((item) => {
                            const isExpanded = expandedAuctionId === item.id;
                            return (
-                              <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="w-full bg-[#161618] border border-white/[0.04] rounded-[24px] p-2 flex flex-col shadow-sm cursor-pointer transition-all hover:bg-[#1c1c1e] relative overflow-hidden group">
+                              <div key={item.id} onClick={() => setViewingAuctionId(item.id)} className="w-full bg-[#161618] border border-white/[0.04] rounded-[24px] p-2 flex flex-col shadow-sm cursor-pointer transition-all hover:bg-[#1c1c1e] relative overflow-hidden group defer-render">
                                  <div className="flex items-center gap-3">
                                     <div className="w-[88px] h-[88px] bg-[#111111] rounded-[18px] relative overflow-hidden flex-shrink-0 border border-white/[0.02]">
                                        <img src={item.imgSrc} alt={item.title} draggable={false} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ WebkitTouchCallout: "none" }} />
