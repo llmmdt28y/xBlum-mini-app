@@ -383,109 +383,29 @@ function AppContent() {
   )
 }
 
-// Mapa neutro base64 para evitar el destello blanco antes de que cargue el canvas
-const neutralSVGMap = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'%3E%3Crect width='1' height='1' fill='rgb(128,128,128)'/%3E%3C/svg%3E";
-
 export default function Page() {
-  const [displacementMap, setDisplacementMap] = useState<string>(neutralSVGMap)
-
-  // Generador del mapa "Squircle" 
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      const size = 64 // Reducido para mayor velocidad y menor sobrecarga
-      const canvas = document.createElement('canvas')
-      canvas.width = size
-      canvas.height = size
-      const ctx = canvas.getContext('2d')
-      
-      if (ctx) {
-        for (let y = 0; y < size; y++) {
-          for (let x = 0; x < size; x++) {
-            let nx = (x / size) * 2 - 1 
-            let ny = (y / size) * 2 - 1 
-            
-            let dist = Math.pow(nx, 4) + Math.pow(ny, 4)
-            
-            if (dist > 1) {
-              ctx.fillStyle = 'rgb(128,128,128)' // Gris puro = sin movimiento
-              ctx.fillRect(x, y, 1, 1)
-              continue
-            }
-            
-            let mag = Math.sqrt(dist) 
-            let dispX = nx * mag
-            let dispY = ny * mag
-            
-            let r = Math.floor(128 + (dispX * 127))
-            let g = Math.floor(128 + (dispY * 127))
-            
-            ctx.fillStyle = `rgb(${r},${g},128)`
-            ctx.fillRect(x, y, 1, 1)
-          }
-        }
-        setDisplacementMap(canvas.toDataURL())
-      }
-    }
-  }, [])
-
   return (
     <AppProvider>
-      {/* ── Filtro SVG Kube.io Corregido ── */}
-      <svg width="0" height="0" style={{ position: "absolute", pointerEvents: "none" }}>
-        <defs>
-          <filter id="liquid-glass-filter" colorInterpolationFilters="sRGB" x="0" y="0" width="100%" height="100%">
-            <feImage href={displacementMap} result="displacement_map" width="100%" height="100%" preserveAspectRatio="none" />
-            <feDisplacementMap 
-              in="SourceGraphic" 
-              in2="displacement_map" 
-              scale="20" /* Nivel de distorsión ajustado */
-              xChannelSelector="R" 
-              yChannelSelector="G" 
-              result="refracted"
-            />
-          </filter>
-        </defs>
-      </svg>
-
-      {/* ── Estilos CSS Estabilizados ── */}
       <style dangerouslySetInnerHTML={{ __html: `
         ::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
         body { background-color: #1a1a1a; overflow-x: hidden; }
 
-        /* 1. Panel Base: Colores oscuros para evitar sobreexposición */
         .liquid-glass-panel {
           position: relative;
-          isolation: isolate;
-          background: rgba(30, 30, 35, 0.45); /* Base tintada oscura */
-          backdrop-filter: blur(15px) saturate(1.2);
-          -webkit-backdrop-filter: blur(15px) saturate(1.2);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        /* 2. Capa de distorsión (Aplica el mapa Kube.io al área exacta del componente) */
-        .liquid-glass-panel::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: -1;
-          border-radius: inherit;
-          backdrop-filter: blur(2px);
-          -webkit-backdrop-filter: blur(2px);
-          filter: url(#liquid-glass-filter);
-          -webkit-filter: url(#liquid-glass-filter);
-          pointer-events: none;
-        }
-
-        /* 3. Ajuste de la píldora para que contraste bien */
-        .sliding-pill {
-          background: rgba(255, 255, 255, 0.08); /* Menos blanco */
+          background: rgba(28, 28, 30, 0.65);
+          backdrop-filter: blur(24px) saturate(180%);
+          -webkit-backdrop-filter: blur(24px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.12);
           box-shadow: 
-            inset 0px 1px 1px rgba(255, 255, 255, 0.1), 
-            inset 0px -1px 1px rgba(0, 0, 0, 0.1),
-            0px 4px 8px rgba(0, 0, 0, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.04);
+            0 8px 32px 0 rgba(0, 0, 0, 0.3),
+            inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .sliding-pill {
+          background: rgba(255, 255, 255, 0.12);
+          box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+          border: 1px solid rgba(255, 255, 255, 0.1);
         }
       `}} />
 
