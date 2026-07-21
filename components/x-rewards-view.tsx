@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useCallback } from "react"
 import { Info, History, ArrowDownRight, ArrowUpRight, Loader2 } from "lucide-react"
@@ -147,10 +148,12 @@ export function XRewardsView() {
 
           {/* Balance */}
           <div className="flex items-end gap-3 mb-6 relative z-10">
-            <img
+            <Image
               src="/xblum2-icon.png"
               alt="$X"
-              className="w-[52px] h-[52px] object-contain pointer-events-none select-none shrink-0"
+              width={52}
+              height={52}
+              className="object-contain pointer-events-none select-none shrink-0"
               style={{ filter: "drop-shadow(0 4px 12px rgba(255,255,255,0.08))" }}
               {...imageProps}
             />

@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useApp } from "@/lib/app-context"
 import { useEffect, useState, useRef } from "react"
 import { 
@@ -145,7 +146,7 @@ const LootboxVisual = ({ color, imgSrc, size = "normal" }: { color: string, imgS
     <div className={`relative w-full ${containerClass} flex flex-col items-center justify-center`}>
       <div className="absolute w-[60px] h-[60px] opacity-30 rounded-full z-0 pointer-events-none" style={{ backgroundColor: color, filter: 'blur(15px)' }}></div>
       <div className="relative z-10 animate-box-float pointer-events-none">
-        <img src={imgSrc} alt="Lootbox" draggable={false} className={`${imgClass} object-contain mix-blend-screen select-none`} style={{ WebkitTouchCallout: "none" }} />
+        <Image src={imgSrc} alt="Lootbox" fill sizes="100px" className={`${imgClass} object-contain mix-blend-screen select-none`} style={{ WebkitTouchCallout: "none" }} />
       </div>
     </div>
   )
@@ -492,7 +493,7 @@ export function MarketView() {
           <div className="animate-in slide-in-from-right-8 fade-in duration-300 pb-10 pt-20 flex flex-col gap-6">
             
             <div className="w-full max-w-[260px] aspect-square bg-[#111111] border border-[#1c1c1e] rounded-[32px] mx-auto relative flex items-center justify-center shadow-xl mb-2 overflow-hidden">
-               <img src={activeAuctionData.imgSrc} alt={activeAuctionData.title} draggable={false} className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
+               <Image src={activeAuctionData.imgSrc} alt={activeAuctionData.title} fill sizes="(max-width: 768px) 100vw, 300px" className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                {activeAuctionData.owned && (
                  <div className="absolute bottom-4 left-4 relative rounded-full px-3 py-1.5 flex items-center gap-2 shadow-sm z-10 overflow-hidden">
                    <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/10 rounded-full" style={{ contain: 'paint' }} />
@@ -582,7 +583,7 @@ export function MarketView() {
                           <span className="text-white/90 font-bold text-[12px] uppercase tracking-wider mt-0.5" style={{ fontFamily: SF }}>Earn 10% Cashbacks</span>
                        </div>
                        <div className="absolute right-[-10px] bottom-0 h-[110%] w-[130px] flex items-end pointer-events-none">
-                          <img src="/pepe-green.png" className="w-full h-full object-contain object-bottom drop-shadow-[0_5px_15px_rgba(0,0,0,0.3)]" alt="Pepe Green" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                          <Image src="/pepe-green.png" fill sizes="130px" className="w-full h-full object-contain object-bottom drop-shadow-[0_5px_15px_rgba(0,0,0,0.3)]" alt="Pepe Green" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                        </div>
                     </div>
 
@@ -592,7 +593,7 @@ export function MarketView() {
                           <span className="text-white/90 font-bold text-[12px] uppercase tracking-wider mt-0.5" style={{ fontFamily: SF }}>To our TG Channel</span>
                        </div>
                        <div className="absolute right-[-10px] bottom-0 h-[110%] w-[130px] flex items-end pointer-events-none">
-                          <img src="/pepe-blue.png" className="w-full h-full object-contain object-bottom drop-shadow-[0_5px_15px_rgba(0,0,0,0.3)]" alt="Pepe Blue" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                          <Image src="/pepe-blue.png" fill sizes="130px" className="w-full h-full object-contain object-bottom drop-shadow-[0_5px_15px_rgba(0,0,0,0.3)]" alt="Pepe Blue" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                        </div>
                     </div>
                  </div>
@@ -637,7 +638,7 @@ export function MarketView() {
                                       <span className="text-white font-black text-[26px] leading-[1.1] uppercase drop-shadow-md tracking-tight" style={{ fontFamily: SFD }}>FREE<br/>CASE</span>
                                    </div>
                                    <div className="flex-1 w-full relative z-10 flex items-center justify-center mt-6 animate-box-float">
-                                      <img src="/free-gift-box.png" className="w-[120%] h-[120%] object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.4)]" alt="Free Case" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = box.image; }} />
+                                      <Image src="/free-gift-box.png" fill sizes="200px" className="w-[120%] h-[120%] object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.4)]" alt="Free Case" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = box.image; }} />
                                    </div>
                                 </div>
                                 <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] bg-[#2563eb] rounded-[16px] px-3 flex items-center justify-center shadow-[0_4px_15px_rgba(37,99,235,0.4)] z-20 border border-white/10 hover:bg-[#3b82f6] transition-colors">
@@ -652,7 +653,7 @@ export function MarketView() {
                                       <span className="text-white font-bold text-[12px] uppercase tracking-widest truncate block w-full drop-shadow-sm" style={{ fontFamily: SFD }}>{box.name}</span>
                                    </div>
                                    <div className="flex-1 w-full relative z-10 flex items-center justify-center pb-2">
-                                      <img src={box.image} className="w-[90%] h-[90%] object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.6)] transform transition-transform duration-500" alt={box.name} />
+                                      <Image src={box.image} fill sizes="200px" className="w-[90%] h-[90%] object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.6)] transform transition-transform duration-500" alt={box.name} />
                                    </div>
                                 </div>
                                 

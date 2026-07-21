@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useApp } from "@/lib/app-context"
 import { Copy, Users } from "lucide-react"
 import { useState, useEffect } from "react"
@@ -84,9 +85,11 @@ export function ReferralView() {
         
         {/* Sticker and Title */}
         <div className="flex flex-col items-center text-center">
-          <img
+          <Image
             src="/referral-icon.webp"
             alt="Referral Program"
+            width={128}
+            height={128}
             draggable={false}
             className="w-32 h-32 object-contain mb-4 rounded-2xl pointer-events-none select-none"
           />
@@ -104,9 +107,11 @@ export function ReferralView() {
           {/* Benefit 1 */}
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-              <img
+              <Image
                 src="/referral-comission.webp"
                 alt="Commission"
+                width={24}
+                height={24}
                 draggable={false}
                 className="w-6 h-6 object-contain pointer-events-none select-none"
               />
@@ -122,9 +127,11 @@ export function ReferralView() {
           {/* Benefit 2 */}
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-              <img
+              <Image
                 src="/token-icon.png"
                 alt="Pro"
+                width={24}
+                height={24}
                 draggable={false}
                 className="w-6 h-6 object-contain pointer-events-none select-none"
               />
@@ -140,9 +147,11 @@ export function ReferralView() {
           {/* Benefit 3 */}
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
-              <img
+              <Image
                 src="/xblum2-icon.png"
                 alt="Partners"
+                width={24}
+                height={24}
                 draggable={false}
                 className="w-6 h-6 object-contain pointer-events-none select-none"
               />
