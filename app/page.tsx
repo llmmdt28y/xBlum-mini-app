@@ -136,8 +136,8 @@ function NavBar() {
           onPointerLeave={() => setPressedId(null)}
           className="liquid-glass-card pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
           style={{
-            width: "60px",
-            height: "60px",
+            width: "56px",
+            height: "56px",
             borderRadius: "100px",
             zIndex: 51,
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
@@ -162,7 +162,7 @@ function NavBar() {
         {/* ── PÍLDORA CENTRAL ── */}
         <div
           className="liquid-glass-card pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
-          style={{ borderRadius: "100px", height: "60px", zIndex: 51 }}
+          style={{ borderRadius: "100px", height: "56px", zIndex: 51 }}
         >
           <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
             
@@ -233,8 +233,8 @@ function NavBar() {
           onPointerLeave={() => setPressedId(null)}
           className="liquid-glass-card pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
           style={{
-            width: "60px",
-            height: "60px",
+            width: "56px",
+            height: "56px",
             borderRadius: "100px",
             zIndex: 51,
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
@@ -421,7 +421,8 @@ export default function Page() {
         .liquid-glass-card {
           position: relative;
           isolation: isolate;
-          box-shadow: 0px 0px 0px -8px rgba(255, 255, 255, 0.3);
+          box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.3);
+          background: rgba(40, 40, 40, 0.45);
           cursor: pointer;
         }
 
@@ -432,8 +433,8 @@ export default function Page() {
           inset: 0;
           z-index: 0;
           border-radius: inherit;
-          box-shadow: inset 0 0 0px -50px rgba(255, 255, 255, 0.7);
-          background-color: rgba(255, 255, 255, 0);
+          box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.15);
+          background-color: transparent;
           pointer-events: none;
         }
 
