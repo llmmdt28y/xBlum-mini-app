@@ -391,7 +391,7 @@ export default function Page() {
           <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
             <feTurbulence 
               type="fractalNoise" 
-              baseFrequency="0.006 0.006"
+              baseFrequency="0.02 0.02"
               numOctaves="2" 
               seed="92" 
               result="noise" 
@@ -404,7 +404,7 @@ export default function Page() {
             <feDisplacementMap 
               in="SourceGraphic" 
               in2="blurred" 
-              scale="79"
+              scale="19"
               xChannelSelector="R" 
               yChannelSelector="G" 
             />
@@ -421,9 +421,8 @@ export default function Page() {
         .liquid-glass-card {
           position: relative;
           isolation: isolate;
-          box-shadow: 0px 6px 24px rgba(0, 0, 0, 0.2);
+          box-shadow: 0px 0px 0px -8px rgba(255, 255, 255, 0.3);
           cursor: pointer;
-          background: rgba(30, 30, 35, 0.2);
         }
 
         /* Tint and inner shadow layer */
@@ -433,7 +432,7 @@ export default function Page() {
           inset: 0;
           z-index: 0;
           border-radius: inherit;
-          box-shadow: inset 0 0 15px -5px rgba(255, 255, 255, 0.5);
+          box-shadow: inset 0 0 0px -50px rgba(255, 255, 255, 0.7);
           background-color: rgba(255, 255, 255, 0);
           pointer-events: none;
         }
@@ -445,8 +444,8 @@ export default function Page() {
           inset: 0;
           z-index: -1;
           border-radius: inherit;
-          backdrop-filter: blur(3px);
-          -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(0px);
+          -webkit-backdrop-filter: blur(0px);
           filter: url(#glass-distortion);
           -webkit-filter: url(#glass-distortion);
           isolation: isolate;
