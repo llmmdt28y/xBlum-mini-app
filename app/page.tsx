@@ -18,6 +18,12 @@ const ShopView = dynamic(() => import("@/components/shop-view").then(mod => mod.
 const GroupConfigView = dynamic(() => import("@/components/group-config-view").then(mod => mod.GroupConfigView))
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock, Settings } from "lucide-react"
+import {
+  LiquidGlassButton,
+  LiquidGlassContainer,
+  LiquidGlassLink
+} from '@tinymomentum/liquid-glass-react';
+import '@tinymomentum/liquid-glass-react/dist/components/LiquidGlassBase.css';
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = {
@@ -129,16 +135,24 @@ function NavBar() {
         style={{ bottom: safeBottom }}
       >
         {/* ── BOTÓN IZQUIERDO ── */}
-        <button
+        <LiquidGlassButton
           onClick={handleLeftActionButton}
           onPointerDown={() => setPressedId("left")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="liquid-glass-panel pointer-events-auto shrink-0"
+          className="pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
+          width={60}
+          height={60}
+          borderRadius={100}
+          innerShadowColor="rgba(255, 255, 255, 0.5)"
+          innerShadowBlur={15}
+          innerShadowSpread={-5}
+          glassTintColor="#1e1e23"
+          glassTintOpacity={20}
+          frostBlurRadius={2}
+          noiseFrequency={0.015}
+          noiseStrength={20}
           style={{
-            width: "60px",
-            height: "60px",
-            borderRadius: "100px",
             zIndex: 51,
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
             transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
@@ -157,12 +171,22 @@ function NavBar() {
               </>
             )}
           </div>
-        </button>
+        </LiquidGlassButton>
 
         {/* ── PÍLDORA CENTRAL ── */}
-        <div
-          className="liquid-glass-panel pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
-          style={{ borderRadius: "100px", height: "60px", zIndex: 51 }}
+        <LiquidGlassContainer
+          className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
+          height={60}
+          borderRadius={100}
+          innerShadowColor="rgba(255, 255, 255, 0.5)"
+          innerShadowBlur={15}
+          innerShadowSpread={-5}
+          glassTintColor="#1e1e23"
+          glassTintOpacity={20}
+          frostBlurRadius={2}
+          noiseFrequency={0.015}
+          noiseStrength={20}
+          style={{ zIndex: 51 }}
         >
           <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
             
@@ -223,19 +247,27 @@ function NavBar() {
               )
             })}
           </div>
-        </div>
+        </LiquidGlassContainer>
 
         {/* ── BOTÓN DERECHO: Profile ── */}
-        <button
+        <LiquidGlassButton
           onClick={() => setCurrentView('profile')}
           onPointerDown={() => setPressedId("right")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="liquid-glass-panel pointer-events-auto shrink-0"
+          className="pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
+          width={60}
+          height={60}
+          borderRadius={100}
+          innerShadowColor="rgba(255, 255, 255, 0.5)"
+          innerShadowBlur={15}
+          innerShadowSpread={-5}
+          glassTintColor="#1e1e23"
+          glassTintOpacity={20}
+          frostBlurRadius={2}
+          noiseFrequency={0.015}
+          noiseStrength={20}
           style={{
-            width: "60px",
-            height: "60px",
-            borderRadius: "100px",
             zIndex: 51,
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
             transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
@@ -262,7 +294,7 @@ function NavBar() {
               </div>
             )}
           </div>
-        </button>
+        </LiquidGlassButton>
       </div>
     </>
   )
@@ -391,19 +423,8 @@ export default function Page() {
         * { -ms-overflow-style: none; scrollbar-width: none; }
         body { background-color: #1a1a1a; overflow-x: hidden; }
 
-        .liquid-glass-panel {
-          position: relative;
-          background: rgba(28, 28, 30, 0.65);
-          backdrop-filter: blur(24px) saturate(180%);
-          -webkit-backdrop-filter: blur(24px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          box-shadow: 
-            0 8px 32px 0 rgba(0, 0, 0, 0.3),
-            inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
-        }
-
         .sliding-pill {
-          background: rgba(255, 255, 255, 0.12);
+          background: rgba(255, 255, 255, 0.1);
           box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
           border: 1px solid rgba(255, 255, 255, 0.1);
         }
