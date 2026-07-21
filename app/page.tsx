@@ -143,15 +143,15 @@ function NavBar() {
           className="pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
           width={60}
           height={60}
-          borderRadius={100}
-          innerShadowColor="rgba(255, 255, 255, 0.5)"
+          borderRadius={30}
+          innerShadowColor="rgba(255, 255, 255, 0.7)"
           innerShadowBlur={15}
-          innerShadowSpread={-5}
-          glassTintColor="#1e1e23"
-          glassTintOpacity={20}
+          innerShadowSpread={-3}
+          glassTintColor="#ffffff"
+          glassTintOpacity={0}
           frostBlurRadius={2}
-          noiseFrequency={0.015}
-          noiseStrength={20}
+          noiseFrequency={0.008}
+          noiseStrength={77}
           style={{
             zIndex: 51,
             transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
@@ -175,18 +175,18 @@ function NavBar() {
 
         {/* ── PÍLDORA CENTRAL ── */}
         <LiquidGlassContainer
-          className="pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1.5"
+          className="pointer-events-auto flex items-center justify-between mx-3 px-1.5"
           height={60}
-          borderRadius={100}
-          innerShadowColor="rgba(255, 255, 255, 0.5)"
+          borderRadius={30}
+          innerShadowColor="#000000"
           innerShadowBlur={15}
           innerShadowSpread={-5}
-          glassTintColor="#1e1e23"
-          glassTintOpacity={20}
-          frostBlurRadius={2}
-          noiseFrequency={0.015}
-          noiseStrength={20}
-          style={{ zIndex: 51 }}
+          glassTintColor="#ffffff"
+          glassTintOpacity={0}
+          frostBlurRadius={0}
+          noiseFrequency={0.009}
+          noiseStrength={99}
+          style={{ zIndex: 51, flex: 1, width: "100%" }}
         >
           <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
             
@@ -258,15 +258,15 @@ function NavBar() {
           className="pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
           width={60}
           height={60}
-          borderRadius={100}
-          innerShadowColor="rgba(255, 255, 255, 0.5)"
+          borderRadius={30}
+          innerShadowColor="rgba(255, 255, 255, 0.7)"
           innerShadowBlur={15}
-          innerShadowSpread={-5}
-          glassTintColor="#1e1e23"
-          glassTintOpacity={20}
+          innerShadowSpread={-3}
+          glassTintColor="#ffffff"
+          glassTintOpacity={0}
           frostBlurRadius={2}
-          noiseFrequency={0.015}
-          noiseStrength={20}
+          noiseFrequency={0.008}
+          noiseStrength={77}
           style={{
             zIndex: 51,
             transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
