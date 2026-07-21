@@ -507,7 +507,7 @@ export function HomeView() {
           />
           
           <h1 
-            className="text-white font-bold text-[32px] sm:text-[36px] leading-[1.1] tracking-tight drop-shadow-md" 
+            className="text-white font-bold text-[28px] sm:text-[32px] leading-[1.1] tracking-tight drop-shadow-md" 
             style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
           >
             Hi, {firstName || "there"}
