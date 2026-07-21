@@ -23,7 +23,6 @@ import {
   LiquidGlassContainer,
   LiquidGlassLink
 } from '@tinymomentum/liquid-glass-react';
-import '@tinymomentum/liquid-glass-react/dist/components/LiquidGlassBase.css';
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = {
@@ -148,7 +147,7 @@ function NavBar() {
           innerShadowBlur={15}
           innerShadowSpread={-3}
           glassTintColor="#ffffff"
-          glassTintOpacity={0}
+          glassTintOpacity={40}
           frostBlurRadius={2}
           noiseFrequency={0.008}
           noiseStrength={77}
@@ -176,8 +175,7 @@ function NavBar() {
         {/* ── PÍLDORA CENTRAL ── */}
         <LiquidGlassContainer
           className="pointer-events-auto flex items-center justify-between mx-3 px-1.5"
-          height={60}
-          borderRadius={30}
+          borderRadius={28}
           innerShadowColor="#000000"
           innerShadowBlur={15}
           innerShadowSpread={-5}
@@ -186,7 +184,7 @@ function NavBar() {
           frostBlurRadius={0}
           noiseFrequency={0.009}
           noiseStrength={99}
-          style={{ zIndex: 51, flex: 1, width: "100%" }}
+          style={{ zIndex: 51, flex: 1, width: "100%", height: "60px" }}
         >
           <div className="flex items-center justify-between w-full relative h-[54px]" style={{ zIndex: 10 }}>
             
@@ -263,7 +261,7 @@ function NavBar() {
           innerShadowBlur={15}
           innerShadowSpread={-3}
           glassTintColor="#ffffff"
-          glassTintOpacity={0}
+          glassTintOpacity={40}
           frostBlurRadius={2}
           noiseFrequency={0.008}
           noiseStrength={77}
