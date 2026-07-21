@@ -200,12 +200,38 @@ const MODELS: {
   initial: string
 }[] = [
   {
+    name: "Grok 4.5",
+    desc: "For coding, agentic tasks, and engineering workflows",
+    tag: "PRO",
+    tagColor: "bg-[#f97316] text-white",
+    tagStyle: "rounded-[4px] uppercase text-[9px] font-bold tracking-wider px-1.5 py-0.5",
+    proOnly: true,
+    initial: "G",
+  },
+  {
+    name: "Claude Sonnet 5",
+    desc: "For nuanced writing and advanced coding",
+    tag: "PRO",
+    tagColor: "bg-[#f97316] text-white",
+    tagStyle: "rounded-[4px] uppercase text-[9px] font-bold tracking-wider px-1.5 py-0.5",
+    proOnly: true,
+    initial: "C",
+  },
+  {
     name: "Grok 4.3",
     desc: "For real-time research and complex reasoning",
-    tag: "New",
-    tagColor: "bg-white text-[#111]",
-    tagStyle: "rounded-md",
+    tag: null,
+    tagColor: "",
     proOnly: false,
+    initial: "G",
+  },
+  {
+    name: "GPT 5",
+    desc: "For reliable reasoning and everyday tasks",
+    tag: "PRO",
+    tagColor: "bg-[#f97316] text-white",
+    tagStyle: "rounded-[4px] uppercase text-[9px] font-bold tracking-wider px-1.5 py-0.5",
+    proOnly: true,
     initial: "G",
   },
   {
@@ -215,6 +241,23 @@ const MODELS: {
     tagColor: "",
     proOnly: false,
     initial: "G",
+  },
+  {
+    name: "DeepSeek V4 Pro",
+    desc: "Powerful reasoning for complex tasks",
+    tag: "PRO",
+    tagColor: "bg-[#f97316] text-white",
+    tagStyle: "rounded-[4px] uppercase text-[9px] font-bold tracking-wider px-1.5 py-0.5",
+    proOnly: true,
+    initial: "D",
+  },
+  {
+    name: "DeepSeek V4 Flash",
+    desc: "Fast, efficient, and great for coding",
+    tag: null,
+    tagColor: "",
+    proOnly: false,
+    initial: "D",
   },
 ]
 
