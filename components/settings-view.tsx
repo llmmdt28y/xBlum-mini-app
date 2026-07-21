@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useApp, type ModelName } from "@/lib/app-context"
+import { useApp, type ModelName, APP_MODELS } from "@/lib/app-context"
 import { 
   ChevronRight, Check, Earth, CircleUserRound, Lock,
   FileText, ShieldCheck, MessageCircle, ChevronDown, X, Trash2, 
@@ -190,76 +190,7 @@ interface ModelTokenInfo {
   reset_iso: string
 }
 
-const MODELS: {
-  name: string
-  desc: string
-  tag: string | null
-  tagColor: string
-  tagStyle?: string
-  proOnly: boolean
-  initial: string
-}[] = [
-  {
-    name: "Grok 4.5",
-    desc: "For coding, agentic tasks, and engineering workflows",
-    tag: "PRO",
-    tagColor: "bg-[#f97316] text-white",
-    tagStyle: "rounded-[4px] uppercase text-[9px] font-bold tracking-wider px-1.5 py-0.5",
-    proOnly: true,
-    initial: "G",
-  },
-  {
-    name: "Claude Sonnet 5",
-    desc: "For nuanced writing and advanced coding",
-    tag: "PRO",
-    tagColor: "bg-[#f97316] text-white",
-    tagStyle: "rounded-[4px] uppercase text-[9px] font-bold tracking-wider px-1.5 py-0.5",
-    proOnly: true,
-    initial: "C",
-  },
-  {
-    name: "Grok 4.3",
-    desc: "For real-time research and complex reasoning",
-    tag: null,
-    tagColor: "",
-    proOnly: false,
-    initial: "G",
-  },
-  {
-    name: "GPT 5",
-    desc: "For reliable reasoning and everyday tasks",
-    tag: "PRO",
-    tagColor: "bg-[#f97316] text-white",
-    tagStyle: "rounded-[4px] uppercase text-[9px] font-bold tracking-wider px-1.5 py-0.5",
-    proOnly: true,
-    initial: "G",
-  },
-  {
-    name: "Gemini 3.5 Flash",
-    desc: "For fast, versatile, and cost-efficient tasks",
-    tag: null,
-    tagColor: "",
-    proOnly: false,
-    initial: "G",
-  },
-  {
-    name: "DeepSeek V4 Pro",
-    desc: "Powerful reasoning for complex tasks",
-    tag: "PRO",
-    tagColor: "bg-[#f97316] text-white",
-    tagStyle: "rounded-[4px] uppercase text-[9px] font-bold tracking-wider px-1.5 py-0.5",
-    proOnly: true,
-    initial: "D",
-  },
-  {
-    name: "DeepSeek V4 Flash",
-    desc: "Fast, efficient, and great for coding",
-    tag: null,
-    tagColor: "",
-    proOnly: false,
-    initial: "D",
-  },
-]
+
 
 const LANGS = [
   { code: "en", name: "English", subName: "English" },
@@ -453,7 +384,7 @@ function SubHeader({ title, rightNode }: { title: string, rightNode?: React.Reac
 }
 
 function ModelLogo({ name, locked }: { name: string; locked: boolean }) {
-  const model = MODELS.find(m => m.name === name)
+  const model = APP_MODELS.find(m => m.name === name)
   const imageProps = {
     draggable: false,
     onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
@@ -987,7 +918,7 @@ export function SettingsView({
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 pb-10 space-y-4">
         <Section>
-          {MODELS.map((m, idx, arr) => {
+          {APP_MODELS.map((m, idx, arr) => {
             const locked = m.proOnly && !isPremium
             const tokenInfo: ModelTokenInfo | undefined = mergedTokenStatus?.[m.name]
             const pct      = tokenInfo?.pct ?? 0

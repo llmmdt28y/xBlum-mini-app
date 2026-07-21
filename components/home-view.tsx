@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useApp, type ModelName } from "@/lib/app-context"
+import { useApp, type ModelName, APP_MODELS } from "@/lib/app-context"
 import { 
   Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
   ChevronRight, ChevronDown, Loader2, CalendarDays, Search, ShieldCheck, Github, 
@@ -43,55 +43,7 @@ const imageProtectionStyle = {
   userSelect: 'none' as any,
 }
 
-const MODELS: {
-  name: string
-  desc: string
-  proOnly: boolean
-  initial: string
-}[] = [
-  {
-    name: "Grok 4.5",
-    desc: "For coding, agentic tasks, and engineering workflows",
-    proOnly: true,
-    initial: "G",
-  },
-  {
-    name: "Claude Sonnet 5",
-    desc: "For nuanced writing and advanced coding",
-    proOnly: true,
-    initial: "C",
-  },
-  {
-    name: "Grok 4.3",
-    desc: "For real-time research and complex reasoning",
-    proOnly: false,
-    initial: "G",
-  },
-  {
-    name: "GPT 5",
-    desc: "For reliable reasoning and everyday tasks",
-    proOnly: true,
-    initial: "G",
-  },
-  {
-    name: "Gemini 3.5 Flash",
-    desc: "For fast, versatile, and cost-efficient tasks",
-    proOnly: false,
-    initial: "G",
-  },
-  {
-    name: "DeepSeek V4 Pro",
-    desc: "Powerful reasoning for complex tasks",
-    proOnly: true,
-    initial: "D",
-  },
-  {
-    name: "DeepSeek V4 Flash",
-    desc: "Fast, efficient, and great for coding",
-    proOnly: false,
-    initial: "D",
-  },
-]
+
 
 const createRipple = (event: React.PointerEvent<any> | React.MouseEvent<any>) => {
   const element = event.currentTarget
@@ -561,10 +513,10 @@ export function HomeView() {
                  <>
                    <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                    <div 
-                     className="absolute left-0 top-[calc(100%+8px)] w-[280px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]"
+                     className="absolute left-0 top-[calc(100%+8px)] w-[280px] rounded-[20px] overflow-y-auto shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#262626] max-h-[300px]"
                    >
                      <div className="flex flex-col p-2 gap-1">
-                       {MODELS.map((m) => (
+                       {APP_MODELS.map((m) => (
                          <button
                            key={m.name}
                            onClick={() => {
@@ -577,12 +529,12 @@ export function HomeView() {
                            }}
                            className={`flex items-center justify-between px-3.5 py-2 rounded-[12px] transition-colors text-left hover:bg-white/5`}
                          >
-                           <div className="flex flex-col items-start gap-1 pr-6">
-                             <span className="text-[15px] font-medium text-white leading-none flex items-center gap-2" style={{ fontFamily: SF }}>
+                           <div className="flex flex-col items-start gap-1 pr-4 min-w-0 flex-1">
+                             <span className="text-[15px] font-medium text-white leading-none flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF }}>
                                {m.name}
-                               {m.proOnly && <span className="bg-[#f97316] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-[4px] uppercase tracking-wider">PRO</span>}
+                               {m.tag && <span className={`${m.tagColor} ${m.tagStyle} shrink-0`}>{m.tag}</span>}
                              </span>
-                             <span className="text-[12px] font-normal text-[#8e8e93] leading-snug mt-0.5" style={{ fontFamily: SF }}>{m.desc}</span>
+                             <span className="text-[12px] font-normal text-[#8e8e93] leading-snug mt-0.5 whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
                            </div>
                            {loadingModel === m.name ? (
                              <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin shrink-0" />

@@ -7,7 +7,7 @@ import {
 
 // Se ha simplificado para dejar solo inglés
 export type Language  = "en"
-export type ModelName = "Grok 4.3" | "Gemini 3.5 Flash" | "Grok 4.1" | "GPT-5.4" | "GPT-5.2"
+export type ModelName = "Grok 4.5" | "Claude Sonnet 5" | "GPT 5" | "DeepSeek V4 Pro" | "Grok 4.3" | "Gemini 3.5 Flash" | "DeepSeek V4 Flash" | "Grok 4.1" | "GPT-5.4" | "GPT-5.2"
 export type View      = "home" | "settings" | "store" | "premium" | "referral" | "profile" | "x-rewards" | "schedule" | "account_setup" | "additional_details" | "levels" | "shop" | "market" | "group_config"
 
 export type UserPreferences = {
@@ -33,6 +33,69 @@ export type ModelTokenInfo = {
   pct:       number   // used/limit * 100, capped at 100
   reset_iso: string   // ISO timestamp of next reset
 }
+
+export const APP_MODELS = [
+  {
+    name: "Grok 4.5",
+    desc: "For coding, agentic tasks, and engineering workflows",
+    tag: "PRO",
+    tagColor: "bg-[#f97316] text-white",
+    tagStyle: "rounded-full uppercase text-[10px] font-bold tracking-wider px-2 py-0.5",
+    proOnly: true,
+    initial: "G",
+  },
+  {
+    name: "Claude Sonnet 5",
+    desc: "For nuanced writing and advanced coding",
+    tag: "PRO",
+    tagColor: "bg-[#f97316] text-white",
+    tagStyle: "rounded-full uppercase text-[10px] font-bold tracking-wider px-2 py-0.5",
+    proOnly: true,
+    initial: "C",
+  },
+  {
+    name: "GPT 5",
+    desc: "For reliable reasoning and everyday tasks",
+    tag: "PRO",
+    tagColor: "bg-[#f97316] text-white",
+    tagStyle: "rounded-full uppercase text-[10px] font-bold tracking-wider px-2 py-0.5",
+    proOnly: true,
+    initial: "G",
+  },
+  {
+    name: "DeepSeek V4 Pro",
+    desc: "Powerful reasoning for complex tasks",
+    tag: "PRO",
+    tagColor: "bg-[#f97316] text-white",
+    tagStyle: "rounded-full uppercase text-[10px] font-bold tracking-wider px-2 py-0.5",
+    proOnly: true,
+    initial: "D",
+  },
+  {
+    name: "Grok 4.3",
+    desc: "For real-time research and complex reasoning",
+    tag: null,
+    tagColor: "",
+    proOnly: false,
+    initial: "G",
+  },
+  {
+    name: "Gemini 3.5 Flash",
+    desc: "For fast, versatile, and cost-efficient tasks",
+    tag: null,
+    tagColor: "",
+    proOnly: false,
+    initial: "G",
+  },
+  {
+    name: "DeepSeek V4 Flash",
+    desc: "Fast, efficient, and great for coding",
+    tag: null,
+    tagColor: "",
+    proOnly: false,
+    initial: "D",
+  },
+]
 
 export type AppState = {
   tokens: number            
@@ -117,7 +180,7 @@ function getTgUser() {
 // Users who had "Grok 4" stored before the rename will resolve to "Grok 4.1".
 function _normalizeModel(raw: string | undefined | null): ModelName {
   if (!raw || raw === "Grok 4" || raw === "Grok 4 Mini") return "Grok 4.3"
-  const valid: ModelName[] = ["Grok 4.3", "Gemini 3.5 Flash", "Grok 4.1", "GPT-5.4", "GPT-5.2"]
+  const valid: ModelName[] = ["Grok 4.5", "Claude Sonnet 5", "GPT 5", "DeepSeek V4 Pro", "Grok 4.3", "Gemini 3.5 Flash", "DeepSeek V4 Flash", "Grok 4.1", "GPT-5.4", "GPT-5.2"]
   return valid.includes(raw as ModelName) ? (raw as ModelName) : "Grok 4.3"
 }
 
