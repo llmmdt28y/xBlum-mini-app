@@ -517,7 +517,7 @@ export function HomeView() {
           <div className="relative w-full mt-4 h-[46px] overflow-visible rounded-full flex items-center shadow-sm bg-white/5 backdrop-blur-md pl-1.5 pr-1.5">
             
             {/* Inner Model Selector */}
-            <div className={`relative h-full flex items-center shrink-0 transition-all duration-300 ease-in-out ${isInputActive ? 'max-w-0 opacity-0 overflow-hidden' : 'max-w-[150px] opacity-100'}`}>
+            <div className={`relative h-full flex items-center shrink-0 transition-all duration-300 ease-in-out whitespace-nowrap ${isInputActive ? 'max-w-0 opacity-0 overflow-hidden' : 'max-w-[150px] opacity-100'}`}>
                <button
                   onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
                   className="flex items-center gap-1.5 h-[34px] px-3.5 rounded-full bg-white/10 hover:bg-white/[0.15] active:bg-white/20 transition-colors border border-white/5"
@@ -531,7 +531,7 @@ export function HomeView() {
                  <>
                    <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                    <div 
-                     className="absolute left-0 top-[calc(100%+8px)] w-[240px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e] border border-white/5"
+                     className="absolute left-0 top-[calc(100%+8px)] w-[280px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e] border border-white/5"
                    >
                      <div className="flex flex-col p-2 gap-1">
                        {MODELS.map((m) => (
@@ -545,11 +545,11 @@ export function HomeView() {
                                setLoadingModel(null);
                              }, 800);
                            }}
-                           className={`flex items-center justify-between px-3.5 py-3 rounded-[12px] transition-colors text-left hover:bg-white/5`}
+                           className={`flex items-center justify-between px-3.5 py-2 rounded-[12px] transition-colors text-left hover:bg-white/5`}
                          >
                            <div className="flex flex-col items-start gap-1">
-                             <span className="text-[15px] font-bold text-white leading-none" style={{ fontFamily: SF }}>{m.name}</span>
-                             <span className="text-[12px] font-medium text-[#8e8e93] leading-none" style={{ fontFamily: SF }}>{m.desc}</span>
+                             <span className="text-[15px] font-medium text-white leading-none" style={{ fontFamily: SF }}>{m.name}</span>
+                             <span className="text-[12px] font-normal text-[#8e8e93] leading-none mt-0.5" style={{ fontFamily: SF }}>{m.desc}</span>
                            </div>
                            {loadingModel === m.name ? (
                              <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin shrink-0" />
