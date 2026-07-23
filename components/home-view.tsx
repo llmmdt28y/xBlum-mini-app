@@ -632,21 +632,21 @@ export function HomeView() {
             }}
           >
             {/* Image Placeholder (Mockup/Video) */}
-            <div className="w-full aspect-[4/3] bg-gradient-to-br from-[#1c1c1e] to-[#2c2c2e] rounded-[16px] overflow-hidden relative mb-4 flex items-center justify-center border border-white/5">
-              <span className="text-white/30 font-medium text-[15px]" style={{ fontFamily: SF }}>Placeholder for {activeShowcase}</span>
+            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#1c1c1e] to-[#2c2c2e] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
+              <span className="text-white/30 font-medium text-[13px]" style={{ fontFamily: SF }}>Placeholder</span>
             </div>
 
             {/* Description */}
-            <div className="px-3 pb-3 text-center flex flex-col gap-2">
-              <h3 className="text-white font-bold text-[20px] leading-tight" style={{ fontFamily: SFD }}>
+            <div className="px-3 pb-2 text-center flex flex-col gap-1">
+              <h3 className="text-white font-bold text-[18px] leading-tight" style={{ fontFamily: SFD }}>
                 {activeShowcase}
               </h3>
-              <p className="text-[#a0a0a0] text-[14px] leading-snug" style={{ fontFamily: SF }}>
+              <p className="text-[#a0a0a0] text-[13px] leading-snug" style={{ fontFamily: SF }}>
                 {activeShowcase === "Mini-Apps / Bots Platform" 
-                  ? "Developers can create bots and web Mini-Apps that are natively integrated into the Telegram Messenger. Mini-Apps can be connected to the TON blockchain via TON Connect."
+                  ? "Create bots and Mini-Apps natively integrated into Telegram and the TON blockchain."
                   : activeShowcase === "Gifts"
-                  ? "Send and receive animated gifts with your friends, powered by the TON blockchain."
-                  : "Secure your unique identity on Telegram with collectible TON-based Usernames."
+                  ? "Send and receive animated gifts powered by the TON blockchain."
+                  : "Secure your unique identity with collectible TON-based Usernames."
                 }
               </p>
             </div>
