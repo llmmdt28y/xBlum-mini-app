@@ -281,6 +281,16 @@ function AppContent() {
   const [showLoading,   setShowLoading]   = useState(true)
   const [fadeLoading,   setFadeLoading]   = useState(false)
   const [isMaintenance, setIsMaintenance] = useState(false)
+  const [loadingProgress, setLoadingProgress] = useState(0)
+
+  useEffect(() => {
+    if (loadingProgress < 100) {
+      const timer = setTimeout(() => {
+        setLoadingProgress(prev => Math.min(prev + (Math.random() * 6 + 2), 100))
+      }, 70) // Approx 2.5s to reach 100
+      return () => clearTimeout(timer)
+    }
+  }, [loadingProgress])
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -288,20 +298,16 @@ function AppContent() {
     if (tg) {
       tg.ready()
       
-      // Detectamos si es la versión web de escritorio/navegador
       const platform = (tg.platform || '').toLowerCase()
       const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk'
       
       try {
-        // En móviles y desktop nativo usamos Fullscreen si está disponible (Telegram v8.0+)
         if (!isWeb && typeof tg.requestFullscreen === 'function') {
           tg.requestFullscreen()
         } else {
-          // En Web o si no hay soporte, hacemos expand normal
           tg.expand()
         }
       } catch (e) {
-        // Fallback por si requestFullscreen falla (ej. desde algunos menús)
         try { tg.expand() } catch {}
       }
     }
@@ -309,6 +315,17 @@ function AppContent() {
 
   useEffect(() => {
     const checkImages = () => {
+      // Force preload critical assets
+      const criticalAssets = [
+        "/SuperNoir-Free-Banner.png",
+        "/steampunkjulia_agadsqcaakb7raq.webp",
+        "/noir-originalogo.png"
+      ]
+      criticalAssets.forEach(src => {
+        const img = new window.Image()
+        img.src = src
+      })
+
       const images = Array.from(document.images)
       if (images.length === 0) { setImagesLoaded(true); return }
       let loadedCount = 0
@@ -327,12 +344,12 @@ function AppContent() {
   }, [currentView, isMaintenance])
 
   useEffect(() => {
-    if (!isLoading && imagesLoaded) {
+    if (!isLoading && imagesLoaded && loadingProgress >= 100) {
       setFadeLoading(true)
       const t = setTimeout(() => setShowLoading(false), 400)
       return () => clearTimeout(t)
     }
-  }, [isLoading, imagesLoaded])
+  }, [isLoading, imagesLoaded, loadingProgress])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -348,11 +365,35 @@ function AppContent() {
     <>
       {showLoading && (
         <div
-          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-400 ease-in-out ${
+          className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#111111] transition-opacity duration-400 ease-in-out ${
             fadeLoading ? "opacity-0" : "opacity-100"
           }`}
         >
-          <Loader2 className="w-10 h-10 text-white animate-spin" />
+          {/* Logo with Shine Effect */}
+          <div className="relative overflow-hidden w-[120px] h-[120px] flex items-center justify-center mb-6">
+            <Image 
+              src="/noir-originalogo.png" 
+              alt="Loading" 
+              fill
+              className="object-contain grayscale brightness-[0.4]" 
+            />
+            {/* The sweeping shine element */}
+            <div 
+              className="absolute top-0 left-0 w-[200%] h-[200%] bg-gradient-to-tr from-transparent via-white/50 to-transparent pointer-events-none mix-blend-overlay"
+              style={{
+                animation: "shine-sweep 2.5s infinite ease-in-out",
+                transformOrigin: "center"
+              }}
+            />
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-[180px] h-[4px] bg-[#262626] rounded-full overflow-hidden">
+            <div 
+              className="h-full rounded-full transition-all duration-[70ms] ease-out" 
+              style={{ width: `${loadingProgress}%`, background: '#60a5fa' }}
+            />
+          </div>
         </div>
       )}
 
@@ -459,6 +500,11 @@ export default function Page() {
         .sliding-pill {
           background: rgba(51, 181, 247, 0.15);
           box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes shine-sweep {
+          0% { transform: translate(-100%, 50%) rotate(45deg); }
+          100% { transform: translate(50%, -100%) rotate(45deg); }
         }
       `}} />
 
