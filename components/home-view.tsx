@@ -645,7 +645,6 @@ export function HomeView() {
           <div 
             className="w-full bg-[#262626] rounded-[24px] overflow-hidden flex flex-col p-2 relative shadow-lg"
             style={{
-              border: "1px solid rgba(255, 255, 255, 0.08)",
               boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.1)",
               transform: "translateZ(0)"
             }}
