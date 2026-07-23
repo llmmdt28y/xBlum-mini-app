@@ -499,13 +499,13 @@ export function HomeView() {
           <div className="relative w-full mt-4 h-[46px] overflow-visible rounded-full flex items-center shadow-sm bg-white/5 backdrop-blur-md pl-1.5 pr-1.5">
             
             {/* Inner Model Selector */}
-            <div className={`relative h-full flex items-center shrink-0 transition-all duration-300 ease-in-out whitespace-nowrap ${isInputActive ? 'max-w-0 opacity-0 overflow-hidden' : 'max-w-[150px] opacity-100'}`}>
+            <div className={`relative h-full flex items-center shrink-0 transition-all duration-300 ease-in-out whitespace-nowrap ${isInputActive ? 'max-w-0 opacity-0 overflow-hidden' : 'max-w-[175px] opacity-100'}`}>
                <button
                   onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-                  className="flex items-center gap-1.5 h-[34px] px-3.5 rounded-full bg-white/10 hover:bg-white/[0.15] active:bg-white/20 transition-colors border border-white/5"
+                  className="flex items-center gap-1.5 h-[34px] px-3.5 rounded-full bg-white/10 hover:bg-white/[0.15] active:bg-white/20 transition-colors border border-white/5 max-w-full"
                >
-                 <span className="font-semibold text-[13.5px] text-white" style={{ fontFamily: SF }}>{selectedModel}</span>
-                 <ChevronDown className={`w-3.5 h-3.5 text-white/70 transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
+                 <span className="font-semibold text-[13.5px] text-white truncate flex-1" style={{ fontFamily: SF }}>{selectedModel}</span>
+                 <ChevronDown className={`w-3.5 h-3.5 text-white/70 shrink-0 transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
                </button>
 
                {/* Model Menu Popover */}
@@ -513,8 +513,8 @@ export function HomeView() {
                  <>
                    <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                    <div 
-                     className="absolute left-0 top-[calc(100%+8px)] w-[290px] rounded-[32px] overflow-y-auto overflow-x-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]/75 backdrop-blur-xl transform-gpu border border-white/5 max-h-[350px]"
-                     style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
+                     className="absolute left-0 top-[calc(100%+8px)] w-[290px] rounded-[32px] overflow-y-auto overflow-x-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#252529]/80 border border-white/5 max-h-[350px]"
+                     style={{ backdropFilter: "blur(40px) saturate(150%)", WebkitBackdropFilter: "blur(40px) saturate(150%)" }}
                    >
                      <div className="flex flex-col py-2">
                        {APP_MODELS.map((m, idx) => (
