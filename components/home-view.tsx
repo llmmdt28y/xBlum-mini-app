@@ -201,6 +201,9 @@ export function HomeView() {
   const [loadingModel, setLoadingModel] = useState<string | null>(null)
   const [firstName, setFirstName] = useState("")
 
+  const showcaseTabs = ["Mini-Apps / Bots Platform", "Gifts", "Usernames"]
+  const [activeShowcase, setActiveShowcase] = useState("Mini-Apps / Bots Platform")
+
   useEffect(() => {
     const user = (window as any).Telegram?.WebApp?.initDataUnsafe?.user
     if (user?.first_name) {
@@ -585,124 +588,87 @@ export function HomeView() {
         
 
 
-        {/* Recommended For You Section */}
-        <div className="mt-2 mb-2">
-          <div className="flex items-center gap-2 mb-3 ml-2">
-            <div className="w-[18px] h-[18px] bg-white rounded-[4px] flex items-center justify-center shrink-0">
-              <BookOpen className="w-[13px] h-[13px] text-black" strokeWidth={2.5} />
-            </div>
-            <h2 className="text-white font-semibold text-[17px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-              Recommended for you
-            </h2>
+        {/* Profile Completion Card (Moved Up) */}
+        <div className="w-full bg-[#262626] rounded-[16px] p-3 mt-2">
+          <p className="text-white text-[14px] font-semibold leading-snug mb-2" style={{ fontFamily: SF }}>
+            Complete your profile to receive personalized recommendations
+          </p>
+          {/* Progress bar container */}
+          <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-2">
+            <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${profileCompletionPct}%`, background: '#60a5fa' }}></div>
+          </div>
+          <button 
+            onClick={() => setCurrentView("account_setup")}
+            onPointerDown={createRipple}
+            className="relative overflow-hidden w-full py-3 rounded-full text-white font-medium active:opacity-80 transition-opacity flex items-center justify-center shadow-sm"
+            style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
+          >
+            <span className="relative z-10">Complete Account</span>
+          </button>
+        </div>
+
+        {/* Showcase Section */}
+        <div className="mt-2 w-full flex flex-col gap-3">
+          {/* Tabs */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide py-1">
+            {showcaseTabs.map(tab => {
+              const isActive = activeShowcase === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveShowcase(tab)}
+                  className={`flex items-center justify-center px-4 h-[32px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0 ${isActive ? 'text-black' : 'text-white'}`}
+                  style={{
+                    ...(isActive 
+                      ? {
+                          backgroundColor: "#ffffff",
+                          border: "1px solid rgba(255, 255, 255, 0.8)",
+                          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 1)",
+                          transform: "translateZ(0)"
+                        } 
+                      : {
+                          backgroundColor: "#1c1c1e",
+                          border: "1px solid rgba(255, 255, 255, 0.10)",
+                          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)",
+                          transform: "translateZ(0)"
+                        }),
+                    fontFamily: SF
+                  }}
+                >
+                  {tab}
+                </button>
+              )
+            })}
           </div>
 
-          <div className="flex gap-[12px] overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2 -mx-4 px-4">
-            
-            {/* Card 1 */}
-            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
-              <div>
-                <div className="mb-[8px] relative w-[32px] h-[32px]">
-                  <Image 
-                    src="/telegram%20emojis/robot-emoji-telegram.png" 
-                    alt="Automate your chat" 
-                    fill
-                    sizes="32px"
-                    className="object-contain select-none pointer-events-none" 
-                    draggable={false} 
-                    style={imageProtectionStyle} 
-                  />
-                </div>
-                <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
-                  Automate your chat
-                </h3>
-                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
-                  Set up smart AI auto-replies
-                </p>
-              </div>
-              <div className="mt-auto flex flex-col gap-[12px] pt-4">
-                <button 
-                  onClick={() => setIsBusinessModalOpen(true)}
-                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
-                  style={{ 
-                    fontFamily: SF,
-                    backgroundColor: "#3a3a3c"
-                  }}
-                >
-                  Start
-                </button>
-              </div>
+          {/* Card Container */}
+          <div 
+            className="w-full bg-[#262626] rounded-[24px] overflow-hidden flex flex-col p-2 relative shadow-lg"
+            style={{
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.1)",
+              transform: "translateZ(0)"
+            }}
+          >
+            {/* Image Placeholder (Mockup/Video) */}
+            <div className="w-full aspect-[4/3] bg-gradient-to-br from-[#1c1c1e] to-[#2c2c2e] rounded-[16px] overflow-hidden relative mb-4 flex items-center justify-center border border-white/5">
+              <span className="text-white/30 font-medium text-[15px]" style={{ fontFamily: SF }}>Placeholder for {activeShowcase}</span>
             </div>
 
-            {/* Card 2 */}
-            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
-              <div>
-                <div className="mb-[8px] relative w-[32px] h-[32px]">
-                  <Image 
-                    src="/telegram%20emojis/police-emoji-telegram.png" 
-                    alt="Group Moderation" 
-                    fill
-                    sizes="32px"
-                    className="object-contain select-none pointer-events-none" 
-                    draggable={false} 
-                    style={imageProtectionStyle} 
-                  />
-                </div>
-                <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
-                  Group Moderation
-                </h3>
-                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
-                  Protect your communities with AI
-                </p>
-              </div>
-              <div className="mt-auto flex flex-col gap-[12px] pt-4">
-                <button 
-                  onClick={() => setCurrentView("group_config")}
-                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
-                  style={{ 
-                    fontFamily: SF,
-                    backgroundColor: "#3a3a3c"
-                  }}
-                >
-                  Start
-                </button>
-              </div>
+            {/* Description */}
+            <div className="px-3 pb-3 text-center flex flex-col gap-2">
+              <h3 className="text-white font-bold text-[20px] leading-tight" style={{ fontFamily: SFD }}>
+                {activeShowcase}
+              </h3>
+              <p className="text-[#a0a0a0] text-[14px] leading-snug" style={{ fontFamily: SF }}>
+                {activeShowcase === "Mini-Apps / Bots Platform" 
+                  ? "Developers can create bots and web Mini-Apps that are natively integrated into the Telegram Messenger. Mini-Apps can be connected to the TON blockchain via TON Connect."
+                  : activeShowcase === "Gifts"
+                  ? "Send and receive animated gifts with your friends, powered by the TON blockchain."
+                  : "Secure your unique identity on Telegram with collectible TON-based Usernames."
+                }
+              </p>
             </div>
-
-            {/* Card 3 */}
-            <div className="bg-[#262626] p-4 rounded-[16px] w-[176px] shrink-0 relative overflow-hidden flex flex-col snap-center">
-              <div>
-                <div className="mb-[8px] relative w-[32px] h-[32px]">
-                  <Image 
-                    src="/telegram%20emojis/calendar-emoji-telegram.png" 
-                    alt="Scheduled Tasks" 
-                    fill
-                    sizes="32px"
-                    className="object-contain select-none pointer-events-none" 
-                    draggable={false} 
-                    style={imageProtectionStyle} 
-                  />
-                </div>
-                <h3 className="text-white font-medium text-[16px] leading-[1.25] mb-1.5" style={{ fontFamily: SFD }}>
-                  Scheduled Tasks
-                </h3>
-                <p className="text-[#a0a0a0] text-[13px] leading-[1.35] mb-2" style={{ fontFamily: SF }}>
-                  Manage recurring AI routines
-                </p>
-              </div>
-              <div className="mt-auto flex flex-col gap-[12px] pt-4">
-                <button 
-                  onClick={() => setCurrentView("schedule")}
-                  className="w-full py-[8px] rounded-full text-white text-[13.5px] font-semibold active:scale-95 transition-all"
-                  style={{ 
-                    fontFamily: SF,
-                    backgroundColor: "#3a3a3c"
-                  }}
-                >
-                  Start
-                </button>
-              </div>
-            </div>
-
           </div>
         </div>
 
@@ -747,25 +713,6 @@ export function HomeView() {
               />
             </div>
           </div>
-        </div>
-
-        {/* Profile Completion Card */}
-        <div className="w-full bg-[#262626] rounded-[16px] p-3">
-          <p className="text-white text-[14px] font-semibold leading-snug mb-2" style={{ fontFamily: SF }}>
-            Complete your profile to receive personalized recommendations
-          </p>
-          {/* Progress bar container */}
-          <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-2">
-            <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${profileCompletionPct}%`, background: '#60a5fa' }}></div>
-          </div>
-          <button 
-            onClick={() => setCurrentView("account_setup")}
-            onPointerDown={createRipple}
-            className="relative overflow-hidden w-full py-3 rounded-full text-white font-medium active:opacity-80 transition-opacity flex items-center justify-center shadow-sm"
-            style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
-          >
-            <span className="relative z-10">Complete Account</span>
-          </button>
         </div>
 
         {/* Connectors Section */}
