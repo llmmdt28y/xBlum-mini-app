@@ -588,25 +588,6 @@ export function HomeView() {
         
 
 
-        {/* Profile Completion Card (Moved Up) */}
-        <div className="w-full bg-[#262626] rounded-[16px] p-3 mt-2">
-          <p className="text-white text-[14px] font-semibold leading-snug mb-2" style={{ fontFamily: SF }}>
-            Complete your profile to receive personalized recommendations
-          </p>
-          {/* Progress bar container */}
-          <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-2">
-            <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${profileCompletionPct}%`, background: '#60a5fa' }}></div>
-          </div>
-          <button 
-            onClick={() => setCurrentView("account_setup")}
-            onPointerDown={createRipple}
-            className="relative overflow-hidden w-full py-3 rounded-full text-white font-medium active:opacity-80 transition-opacity flex items-center justify-center shadow-sm"
-            style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
-          >
-            <span className="relative z-10">Complete Account</span>
-          </button>
-        </div>
-
         {/* Showcase Section */}
         <div className="mt-2 w-full flex flex-col gap-3">
           {/* Tabs */}
@@ -670,6 +651,25 @@ export function HomeView() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Profile Completion Card */}
+        <div className="w-full bg-[#262626] rounded-[16px] p-3 mt-1">
+          <p className="text-white text-[14px] font-semibold leading-snug mb-2" style={{ fontFamily: SF }}>
+            Complete your profile to receive personalized recommendations
+          </p>
+          {/* Progress bar container */}
+          <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-2">
+            <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${profileCompletionPct}%`, background: '#60a5fa' }}></div>
+          </div>
+          <button 
+            onClick={() => setCurrentView("account_setup")}
+            onPointerDown={createRipple}
+            className="relative overflow-hidden w-full py-3 rounded-full text-white font-medium active:opacity-80 transition-opacity flex items-center justify-center shadow-sm"
+            style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
+          >
+            <span className="relative z-10">Complete Account</span>
+          </button>
         </div>
 
         {/* SuperNoir Banner */}
