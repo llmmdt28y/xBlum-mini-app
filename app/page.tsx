@@ -397,7 +397,7 @@ function AppContent() {
               src="/noir-originalogo.png" 
               alt="Loading" 
               fill
-              className="object-contain grayscale brightness-[0.4]"
+              className="object-contain grayscale brightness-[0.4] pointer-events-none select-none"
               draggable={false}
               style={{
                 WebkitTouchCallout: 'none',

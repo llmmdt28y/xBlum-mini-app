@@ -214,6 +214,8 @@ function Section({
   title,
   footer,
   titleColor = "#60a5fa",
+  className,
+  deferRender,
   children,
 }: {
   title?: string;
@@ -726,7 +728,9 @@ export function BusinessAutomationView({
         if (userId) params.set("userId", String(userId));
         const url = `${base}/api/business_config_v2?${params.toString()}`;
         console.log("[xBlum] GET", url);
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          headers: { "x-init-data": initData }
+        });
         if (res.ok) {
           const data = await res.json();
           console.log("[xBlum] config loaded:", Object.keys(data));
