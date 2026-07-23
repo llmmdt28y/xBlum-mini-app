@@ -597,7 +597,7 @@ export function HomeView() {
           <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-1">
             <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${profileCompletionPct}%`, background: '#60a5fa' }}></div>
           </div>
-          <p className="text-[#a0a0a0] text-[13px] font-medium mb-3 text-right" style={{ fontFamily: SF }}>
+          <p className="text-white text-[13px] mb-3" style={{ fontFamily: SF }}>
             Profile completion: {profileCompletionPct}%
           </p>
           <button 
