@@ -209,6 +209,23 @@ export function HomeView() {
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false)
   const [loadingModel, setLoadingModel] = useState<string | null>(null)
   const [firstName, setFirstName] = useState("")
+  const modelMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      if (isModelMenuOpen && modelMenuRef.current && !modelMenuRef.current.contains(event.target as Node)) {
+        setIsModelMenuOpen(false)
+      }
+    }
+    if (isModelMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside, { capture: true })
+      document.addEventListener("touchstart", handleClickOutside, { capture: true })
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside, { capture: true })
+      document.removeEventListener("touchstart", handleClickOutside, { capture: true })
+    }
+  }, [isModelMenuOpen])
 
   const showcaseTabs = ["Mini-Apps / Bots Platform", "Gifts", "Usernames"]
   const [activeShowcase, setActiveShowcase] = useState("Mini-Apps / Bots Platform")
@@ -499,7 +516,7 @@ export function HomeView() {
           </h1>
 
           {/* Ask anything / Model Selector Row Wrapper */}
-          <div className="relative w-full mt-4 z-50">
+          <div ref={modelMenuRef} className="relative w-full mt-4 z-50">
             <div 
               className="w-full h-[46px] overflow-visible rounded-full flex items-center shadow-sm bg-white/5 pl-1.5 pr-1.5"
               style={{

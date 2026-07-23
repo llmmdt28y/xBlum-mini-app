@@ -1056,7 +1056,7 @@ export function BusinessAutomationView({
                 )}
               </Section>
 
-              <Section title="Behavior" deferRender>
+              <Section title="Behavior" className="mt-6" deferRender>
                 <Row
                   label="Simulate Typing"
                   sublabel="Inject artificial typing delays for a more organic rhythm."
@@ -1267,7 +1267,7 @@ export function BusinessAutomationView({
               </Section>
 
               {config.afk_enabled && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-300 w-full">
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300 w-full mt-6">
                   {/* Message composer */}
                   <div className="bg-[#111111] shadow-lg rounded-[24px] mb-4 p-4">
                     <div className="flex items-center mb-4 px-2">
