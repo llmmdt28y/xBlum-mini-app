@@ -284,15 +284,6 @@ function AppContent() {
   const [loadingProgress, setLoadingProgress] = useState(0)
 
   useEffect(() => {
-    if (loadingProgress < 100) {
-      const timer = setTimeout(() => {
-        setLoadingProgress(prev => Math.min(prev + (Math.random() * 6 + 2), 100))
-      }, 70) // Approx 2.5s to reach 100
-      return () => clearTimeout(timer)
-    }
-  }, [loadingProgress])
-
-  useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tg = (window as any).Telegram?.WebApp
     if (tg) {
@@ -314,33 +305,63 @@ function AppContent() {
   }, [])
 
   useEffect(() => {
-    const checkImages = () => {
-      // Force preload critical assets
-      const criticalAssets = [
-        "/SuperNoir-Free-Banner.png",
-        "/steampunkjulia_agadsqcaakb7raq.webp",
-        "/noir-originalogo.png"
-      ]
-      criticalAssets.forEach(src => {
-        const img = new window.Image()
-        img.src = src
-      })
+    let loadedCount = 0
+    const criticalAssets = [
+      "/SuperNoir-Free-Banner.png",
+      "/steampunkjulia_agadsqcaakb7raq.webp",
+      "/noir-originalogo.png"
+    ]
+    const domImages = Array.from(document.images)
+    const totalAssets = criticalAssets.length + domImages.length
 
-      const images = Array.from(document.images)
-      if (images.length === 0) { setImagesLoaded(true); return }
-      let loadedCount = 0
-      const checkDone = () => { if (++loadedCount === images.length) setImagesLoaded(true) }
-      images.forEach(img => {
-        if (img.complete) { checkDone() }
-        else {
-          img.addEventListener('load', checkDone, { once: true })
-          img.addEventListener('error', checkDone, { once: true })
-        }
-      })
+    let animationFrameId: number
+    const startTime = Date.now()
+    const MIN_DURATION = 2500
+
+    const step = () => {
+      const elapsed = Date.now() - startTime
+      const timeProgress = Math.min((elapsed / MIN_DURATION) * 100, 100)
+      const assetProgress = totalAssets > 0 ? (loadedCount / totalAssets) * 100 : 100
+      
+      const currentProgress = Math.min(timeProgress, assetProgress)
+      setLoadingProgress(currentProgress)
+
+      if (currentProgress >= 100) {
+        setImagesLoaded(true)
+      } else {
+        animationFrameId = requestAnimationFrame(step)
+      }
     }
-    const timer    = setTimeout(checkImages, 50)
-    const fallback = setTimeout(() => setImagesLoaded(true), 3000)
-    return () => { clearTimeout(timer); clearTimeout(fallback) }
+
+    const updateCount = () => { loadedCount++ }
+
+    criticalAssets.forEach(src => {
+      const img = new window.Image()
+      img.onload = updateCount
+      img.onerror = updateCount
+      img.src = src
+    })
+
+    domImages.forEach(img => {
+      if (img.complete) {
+        updateCount()
+      } else {
+        img.addEventListener('load', updateCount, { once: true })
+        img.addEventListener('error', updateCount, { once: true })
+      }
+    })
+
+    animationFrameId = requestAnimationFrame(step)
+
+    const fallback = setTimeout(() => {
+      setLoadingProgress(100)
+      setImagesLoaded(true)
+    }, 6000)
+
+    return () => { 
+      cancelAnimationFrame(animationFrameId)
+      clearTimeout(fallback) 
+    }
   }, [currentView, isMaintenance])
 
   useEffect(() => {
@@ -468,6 +489,9 @@ export default function Page() {
           box-shadow: 0px 0px 0px -8px rgba(255, 255, 255, 0.3);
           border: none;
           cursor: pointer;
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+          will-change: transform;
         }
 
         /* Tint and inner shadow layer */
@@ -495,6 +519,7 @@ export default function Page() {
           -webkit-filter: url(#glass-distortion);
           isolation: isolate;
           pointer-events: none;
+          will-change: backdrop-filter, filter;
         }
 
         .sliding-pill {

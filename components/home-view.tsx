@@ -500,7 +500,16 @@ export function HomeView() {
 
           {/* Ask anything / Model Selector Row Wrapper */}
           <div className="relative w-full mt-4 z-50">
-            <div className="w-full h-[46px] overflow-visible rounded-full flex items-center shadow-sm bg-white/5 backdrop-blur-md pl-1.5 pr-1.5">
+            <div 
+              className="w-full h-[46px] overflow-visible rounded-full flex items-center shadow-sm bg-white/5 pl-1.5 pr-1.5"
+              style={{
+                backdropFilter: "blur(12px) saturate(150%)",
+                WebkitBackdropFilter: "blur(12px) saturate(150%)",
+                transform: "translateZ(0)",
+                willChange: "transform, backdrop-filter",
+                backfaceVisibility: "hidden"
+              }}
+            >
               
               {/* Inner Model Selector */}
             <div className={`relative h-full flex items-center shrink-0 transition-all duration-300 ease-in-out whitespace-nowrap ${isInputActive ? 'max-w-0 opacity-0 overflow-hidden' : 'max-w-[175px] opacity-100'}`}>
