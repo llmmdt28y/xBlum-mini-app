@@ -513,37 +513,44 @@ export function HomeView() {
                  <>
                    <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                    <div 
-                     className="absolute left-0 top-[calc(100%+8px)] w-[280px] rounded-[20px] overflow-y-auto shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#111111] max-h-[300px]"
+                     className="absolute left-0 top-[calc(100%+8px)] w-[290px] rounded-[32px] overflow-y-auto overflow-x-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]/75 backdrop-blur-xl transform-gpu border border-white/5 max-h-[350px]"
+                     style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
                    >
-                     <div className="flex flex-col p-2 gap-1">
-                       {APP_MODELS.map((m) => (
-                         <button
-                           key={m.name}
-                           onClick={() => {
-                             if (selectedModel === m.name) return;
-                             setLoadingModel(m.name);
-                             setTimeout(() => {
-                               setSelectedModel(m.name as ModelName);
-                               setLoadingModel(null);
-                             }, 800);
-                           }}
-                           className={`flex items-center justify-between px-3.5 py-2 rounded-[12px] transition-colors text-left hover:bg-white/5`}
-                         >
-                           <div className="flex flex-col items-start gap-1 pr-4 min-w-0 flex-1">
-                             <span className="text-[15px] font-medium text-white leading-none flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF }}>
-                               {m.name}
-                               {m.tag && <span className={`${m.tagColor} ${m.tagStyle} shrink-0`}>{m.tag}</span>}
-                             </span>
-                             <span className="text-[12px] font-normal text-[#8e8e93] leading-snug mt-0.5 whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
-                           </div>
-                           {loadingModel === m.name ? (
-                             <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin shrink-0" />
-                           ) : selectedModel === m.name ? (
-                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-[#60a5fa] shrink-0">
-                               <polyline points="22 4 9 17 4 12"></polyline>
-                             </svg>
-                           ) : null}
-                         </button>
+                     <div className="flex flex-col py-2">
+                       {APP_MODELS.map((m, idx) => (
+                         <div key={m.name} className="flex flex-col">
+                           <button
+                             onClick={() => {
+                               if (selectedModel === m.name) return;
+                               setLoadingModel(m.name);
+                               setTimeout(() => {
+                                 setSelectedModel(m.name as ModelName);
+                                 setLoadingModel(null);
+                               }, 800);
+                             }}
+                             className={`flex items-center justify-between px-5 py-3 transition-colors text-left hover:bg-white/10 w-full`}
+                           >
+                             <div className="flex flex-col items-start gap-[2px] pr-4 min-w-0 flex-1">
+                               <span className="text-[17px] font-medium text-white leading-tight flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+                                 {m.name}
+                                 {m.tag && <span className={`${m.tagColor} ${m.tagStyle} shrink-0`}>{m.tag}</span>}
+                               </span>
+                               <span className="text-[14px] font-normal text-[#8e8e93] leading-snug whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
+                             </div>
+                             <div className="shrink-0 flex items-center justify-center w-[20px]">
+                               {loadingModel === m.name ? (
+                                 <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin" />
+                               ) : selectedModel === m.name ? (
+                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[20px] h-[20px] text-[#3b82f6]">
+                                   <polyline points="20 6 9 17 4 12"></polyline>
+                                 </svg>
+                               ) : null}
+                             </div>
+                           </button>
+                           {idx < APP_MODELS.length - 1 && (
+                             <div className="h-[1px] bg-white/[0.08] mx-5" />
+                           )}
+                         </div>
                        ))}
                      </div>
                    </div>
