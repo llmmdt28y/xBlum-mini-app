@@ -513,10 +513,9 @@ export function HomeView() {
                  <>
                    <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                    <div 
-                     className="absolute left-0 top-[calc(100%+8px)] w-[290px] rounded-[32px] overflow-y-auto overflow-x-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#252529]/80 border border-white/5 max-h-[350px]"
-                     style={{ backdropFilter: "blur(40px) saturate(150%)", WebkitBackdropFilter: "blur(40px) saturate(150%)" }}
+                     className="liquid-glass-card cursor-default absolute left-0 top-[calc(100%+8px)] w-[290px] rounded-[32px] overflow-y-auto overflow-x-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 max-h-[350px]"
                    >
-                     <div className="flex flex-col py-2">
+                     <div className="flex flex-col py-2 relative" style={{ zIndex: 10 }}>
                        {APP_MODELS.map((m, idx) => (
                          <div key={m.name} className="flex flex-col">
                            <button
