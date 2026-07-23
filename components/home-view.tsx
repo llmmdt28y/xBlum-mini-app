@@ -578,6 +578,7 @@ export function HomeView() {
           )}
         </div>
       </div>
+    </div>
 
       {/* Main Content */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-2 px-4 relative z-30 -mt-36">
