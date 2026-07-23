@@ -1370,10 +1370,7 @@ export function BusinessAutomationView({
                         label="Outside of Business Hours"
                         hideArrow
                         onClick={() => setAndSave("afk_schedule", "outside")}
-                        last={
-                          config.afk_schedule !== "outside" &&
-                          config.afk_schedule !== "custom"
-                        }
+                        last={config.afk_schedule === "outside"}
                       />
 
                       {/* Business Hours sub-panel */}
@@ -1494,7 +1491,7 @@ export function BusinessAutomationView({
                         label="Custom Schedule"
                         hideArrow
                         onClick={() => setAndSave("afk_schedule", "custom")}
-                        last={config.afk_schedule !== "custom"}
+                        last
                       />
 
                       {/* Custom time range */}
@@ -1550,7 +1547,7 @@ export function BusinessAutomationView({
                     </Section>
                   </div>
 
-                  <Section>
+                  <Section className="mt-6">
                     <Row
                       label="Only if Offline"
                       sublabel="Send AFK message only when you haven't been active for 10+ minutes."
