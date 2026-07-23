@@ -533,8 +533,8 @@ export function HomeView() {
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
               <div 
-                className="cursor-default absolute left-[6px] top-[54px] w-[290px] rounded-[32px] shadow-[0_16px_40px_rgba(0,0,0,0.6)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]/75 border border-white/[0.06]"
-                style={{ backdropFilter: "blur(48px) saturate(200%)", WebkitBackdropFilter: "blur(48px) saturate(200%)" }}
+                className="cursor-default absolute left-[6px] top-[54px] w-[290px] rounded-[32px] shadow-[0_16px_40px_rgba(0,0,0,0.6)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]/40 border border-white/[0.06] transform-gpu"
+                style={{ backdropFilter: "blur(40px) saturate(150%)", WebkitBackdropFilter: "blur(40px) saturate(150%)", willChange: "transform, opacity", backfaceVisibility: "hidden" }}
               >
                 <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[350px] rounded-[32px]" style={{ zIndex: 10 }}>
                   {APP_MODELS.map((m, idx) => (
