@@ -513,7 +513,8 @@ export function HomeView() {
                  <>
                    <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                    <div 
-                     className="liquid-glass-card cursor-default !absolute left-0 top-[calc(100%+8px)] w-[290px] rounded-[32px] shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300"
+                     className="cursor-default !absolute left-0 top-[calc(100%+8px)] w-[290px] rounded-[32px] shadow-[0_16px_40px_rgba(0,0,0,0.6)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]/75 border border-white/[0.06]"
+                     style={{ backdropFilter: "blur(48px) saturate(200%)", WebkitBackdropFilter: "blur(48px) saturate(200%)" }}
                    >
                      <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[350px] rounded-[32px]" style={{ zIndex: 10 }}>
                        {APP_MODELS.map((m, idx) => (
@@ -540,8 +541,8 @@ export function HomeView() {
                                {loadingModel === m.name ? (
                                  <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin" />
                                ) : selectedModel === m.name ? (
-                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[20px] h-[20px] text-[#3b82f6]">
-                                   <polyline points="20 6 9 17 4 12"></polyline>
+                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-[#60a5fa]">
+                                   <polyline points="22 4 9 17 4 12"></polyline>
                                  </svg>
                                ) : null}
                              </div>
