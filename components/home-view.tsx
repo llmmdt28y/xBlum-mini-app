@@ -413,7 +413,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-[#1a1a1a] min-h-screen text-white overflow-x-hidden font-sans pb-24">
+    <div className="flex-1 flex flex-col bg-[#211F26] min-h-screen text-white overflow-x-hidden font-sans pb-24">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -487,7 +487,7 @@ export function HomeView() {
           sizes="100vw"
           className="object-cover object-[center_60%] opacity-90" 
         />
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/90 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#211F26] via-[#211F26]/90 to-transparent"></div>
       </div>
 
       {/* Hero Content Section */}
@@ -615,7 +615,7 @@ export function HomeView() {
 
 
         {/* Profile Completion Card */}
-        <div className="w-full bg-[#262626] rounded-[16px] p-3 mt-2">
+        <div className="w-full bg-[#141218] rounded-[16px] p-3 mt-2">
           <p className="text-white text-[14px] font-semibold leading-snug mb-2" style={{ fontFamily: SF }}>
             Complete your profile to receive personalized recommendations
           </p>
@@ -672,7 +672,7 @@ export function HomeView() {
 
           {/* Card Container */}
           <div 
-            className="w-full bg-[#262626] rounded-[24px] overflow-hidden flex flex-col p-2 relative shadow-lg"
+            className="w-full bg-[#141218] rounded-[24px] overflow-hidden flex flex-col p-2 relative shadow-lg"
             style={{
               boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.1)",
               transform: "translateZ(0)"
@@ -757,7 +757,7 @@ export function HomeView() {
             </div>
 
             <div 
-              className="w-full bg-[#262626] rounded-[16px] overflow-hidden flex flex-col relative"
+              className="w-full bg-[#141218] rounded-[16px] overflow-hidden flex flex-col relative"
             >
               <div className="flex flex-col">
                 {connectorsLoading
@@ -827,7 +827,7 @@ export function HomeView() {
 
       {/* Modals & Full Screen Views */}
       {modalState.view !== "closed" && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-[#1a1a1a] animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-[#211F26] animate-in slide-in-from-right duration-300">
           
           {modalState.view === "list" && (
             <div className="flex flex-col h-full overflow-hidden" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
@@ -862,7 +862,7 @@ export function HomeView() {
 
               {/* Connectors List using the exact style from menu */}
               <div className="overflow-y-auto overscroll-none hide-scrollbar pb-10 flex-1 px-4">
-                <div className="w-full bg-[#262626] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
+                <div className="w-full bg-[#141218] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
                   <div className="flex flex-col">
                     {isSearching ? (
                       Array.from({ length: 3 }).map((_, i) => (
@@ -969,7 +969,7 @@ export function HomeView() {
                 )}
                 <div className="space-y-4">
                   <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
-                  <div className="rounded-[16px] overflow-hidden bg-[#262626]">
+                  <div className="rounded-[16px] overflow-hidden bg-[#141218]">
                     {activeConnectorData.features.map((feat, i, arr) => (
                       <div key={i}>
                         <div className="flex gap-4 p-4">
@@ -979,7 +979,7 @@ export function HomeView() {
                             <p className="text-[#a0a0a0] text-[13px] leading-relaxed" style={{ fontFamily: SF }}>{feat.desc}</p>
                           </div>
                         </div>
-                        {i !== arr.length - 1 && <div className="h-[1px] bg-[#262626] relative z-20 ml-4" />}
+                        {i !== arr.length - 1 && <div className="h-[1px] bg-[#141218] relative z-20 ml-4" />}
                       </div>
                     ))}
                   </div>
@@ -1069,7 +1069,7 @@ export function HomeView() {
                 <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95" style={{ fontFamily: SF }}>
                    <Save className="w-4 h-4" /> Apply to Group
                 </button>
-                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#262626] hover:bg-[#2c2c2e] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#141218] hover:bg-[#2c2c2e] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#2c2c2e] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
                     Cancel
                 </button>
              </div>
