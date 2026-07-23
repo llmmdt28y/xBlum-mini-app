@@ -165,6 +165,15 @@ type ConnectorsState = Record<string, ConnectorStatus>
 
 
 
+import useSWR from 'swr'
+
+// Generic fetcher for SWR
+const fetcher = ([url, initData]: [string, string]) => fetch(url, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ initData })
+}).then(res => res.json())
+
 function getTg() { return (window as any).Telegram?.WebApp }
 
 const SlidingNumber = ({ value }: { value: number }) => {
@@ -214,8 +223,6 @@ export function HomeView() {
   }, [])
   
   // Connector real-time state from API
-  const [connectorsState, setConnectorsState] = useState<ConnectorsState>({})
-  const [connectorsLoading, setConnectorsLoading] = useState(true)
   const [connectingId, setConnectingId] = useState<string | null>(null)
   const [disconnectingId, setDisconnectingId] = useState<string | null>(null)
 
@@ -243,29 +250,15 @@ export function HomeView() {
     }
   }, [searchQuery])
 
-  // Load connector status from backend
-  const loadConnectorStatus = useCallback(async () => {
-    setConnectorsLoading(true)
-    try {
-      const tg = getTg()
-      const initData = tg?.initData || ""
-      const res = await fetch(`${API_BASE}/api/connectors/status`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ initData }),
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setConnectorsState(data.connectors || {})
-      }
-    } catch (e) {
-      console.error("[Connectors] loadStatus error:", e)
-    } finally {
-      setConnectorsLoading(false)
-    }
-  }, [API_BASE])
+  const tgInitData = typeof window !== "undefined" ? getTg()?.initData || "" : ""
 
-  useEffect(() => { loadConnectorStatus() }, [loadConnectorStatus])
+  const { data: connectorsData, isLoading: connectorsLoading, mutate: mutateConnectors } = useSWR(
+    tgInitData ? [`${API_BASE}/api/connectors/status`, tgInitData] : null,
+    fetcher,
+    { refreshInterval: 0, revalidateOnFocus: true }
+  )
+
+  const connectorsState: ConnectorsState = connectorsData?.connectors || {}
 
   // Connect: get link from backend → close mini-app → open bot message with link
   const handleConnect = useCallback(async (connectorId: string) => {
@@ -313,10 +306,17 @@ export function HomeView() {
       })
       const data = await res.json()
       if (data.ok) {
-        setConnectorsState(prev => ({
-          ...prev,
-          [connectorId]: { connected: false, label: "" }
-        }))
+        // Optimistic update
+        mutateConnectors(
+          (prevData: any) => ({
+            ...prevData,
+            connectors: {
+              ...(prevData?.connectors || {}),
+              [connectorId]: { connected: false, label: "" }
+            }
+          }),
+          { revalidate: false }
+        )
         setModalState({ view: "closed", connectorId: null })
       } else {
         alert(data.error || "Could not disconnect. Try again.")
@@ -326,7 +326,7 @@ export function HomeView() {
     } finally {
       setDisconnectingId(null)
     }
-  }, [API_BASE])
+  }, [API_BASE, mutateConnectors])
 
   const sheetRef = useRef<HTMLDivElement>(null)
   const sheetTouchY = useRef<number | null>(null)

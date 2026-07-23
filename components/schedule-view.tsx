@@ -7,11 +7,17 @@ import {
   Trash2, ChevronDown, Pause, Play
 } from "lucide-react"
 import React from "react"
+import useSWR from 'swr'
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
+
+// Generic fetcher for SWR
+const fetcher = ([url, initData]: [string, string]) => fetch(url, {
+  headers: { "x-init-data": initData }
+}).then(res => res.json())
 
 // ── Styles ──
 const RIPPLE_STYLE = `
@@ -303,10 +309,8 @@ const ExpandingInput = ({ label, maxLength, value, onChange, placeholder = "", i
 // ── Main Component ──
 export function ScheduleView() {
   const { setCurrentView, userPreferences, isPremium } = useApp()
-  const [tasks, setTasks] = useState<ScheduleItem[]>([])
   const [taskHistory, setTaskHistory] = useState<any[]>([])
   const [loadingHistory, setLoadingHistory] = useState(false)
-  const [loadingItems, setLoadingItems] = useState(true)
   const [suggestedTasks, setSuggestedTasks] = useState<typeof MOCK_TASKS>([])
   
   const [sheetTouchY, setSheetTouchY] = useState<number | null>(null)
@@ -339,6 +343,16 @@ export function ScheduleView() {
     }
     return arr
   },[todayStr])
+
+  const tgInitData = typeof window !== "undefined" ? getTg()?.initData || "" : ""
+  
+  const { data: scheduleData, isLoading: loadingItems, mutate: mutateTasks } = useSWR(
+    tgInitData ? [`${API_BASE}/api/schedule_list`, tgInitData] : null,
+    fetcher,
+    { refreshInterval: 0, revalidateOnFocus: true }
+  )
+  
+  const tasks: ScheduleItem[] = scheduleData?.items || []
 
   const filteredTasks = useMemo(()=>{
     if(selectedDate==="All") return tasks
@@ -410,21 +424,10 @@ export function ScheduleView() {
     }
   },[])
 
-  const fetchItems = useCallback(async()=>{
-    setLoadingItems(true)
-    try {
-      const tg = getTg(); const initData = tg?.initData??""
-      const res = await fetch(`${API_BASE}/api/schedule_list`,{headers:{"x-init-data":initData}})
-      if(res.ok){ const d=await res.json(); if(d.success&&Array.isArray(d.items)) setTasks(d.items) }
-    } catch(e){ console.error(e) }
-    finally { setLoadingItems(false) }
-  },[])
-
   useEffect(()=>{ 
-    fetchItems() 
     const shuffled = [...MOCK_TASKS].sort(() => 0.5 - Math.random())
     setSuggestedTasks(shuffled.slice(0, 2))
-  }, [fetchItems])
+  }, [])
 
   useEffect(()=>{
     const tg = getTg()
@@ -532,7 +535,7 @@ export function ScheduleView() {
       })
       if(data.success){
         triggerVibration('success')
-        await fetchItems()
+        mutateTasks()
         setIsCreating(false)
         resetForm()
       } else { showToast(data.message||"Could not save.","error") }
@@ -548,7 +551,13 @@ export function ScheduleView() {
       const data = await apiPost("/api/schedule_delete",{item_id:id})
       if(data.success){ 
         triggerVibration('success')
-        setTasks(p=>p.filter(t=>t.id!==id))
+        mutateTasks(
+          (prevData: any) => ({
+            ...prevData,
+            items: (prevData?.items || []).filter((t: ScheduleItem) => t.id !== id)
+          }),
+          { revalidate: false }
+        )
         setSelectedTask(null)
       }
     } catch(e) { console.error(e) }
