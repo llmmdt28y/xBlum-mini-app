@@ -495,10 +495,11 @@ export function HomeView() {
             Hi, {firstName || "there"}
           </h1>
 
-          {/* Ask anything / Model Selector Row */}
-          <div className="relative w-full mt-4 h-[46px] overflow-visible rounded-full flex items-center shadow-sm bg-white/5 backdrop-blur-md pl-1.5 pr-1.5">
-            
-            {/* Inner Model Selector */}
+          {/* Ask anything / Model Selector Row Wrapper */}
+          <div className="relative w-full mt-4 z-50">
+            <div className="w-full h-[46px] overflow-visible rounded-full flex items-center shadow-sm bg-white/5 backdrop-blur-md pl-1.5 pr-1.5">
+              
+              {/* Inner Model Selector */}
             <div className={`relative h-full flex items-center shrink-0 transition-all duration-300 ease-in-out whitespace-nowrap ${isInputActive ? 'max-w-0 opacity-0 overflow-hidden' : 'max-w-[175px] opacity-100'}`}>
                <button
                   onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
@@ -507,56 +508,8 @@ export function HomeView() {
                  <span className="font-semibold text-[13.5px] text-white truncate flex-1" style={{ fontFamily: SF }}>{selectedModel}</span>
                  <ChevronDown className={`w-3.5 h-3.5 text-white/70 shrink-0 transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
                </button>
+              </div>
 
-               {/* Model Menu Popover */}
-               {isModelMenuOpen && (
-                 <>
-                   <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
-                   <div 
-                     className="cursor-default !absolute left-0 top-[calc(100%+8px)] w-[290px] rounded-[32px] shadow-[0_16px_40px_rgba(0,0,0,0.6)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]/75 border border-white/[0.06]"
-                     style={{ backdropFilter: "blur(48px) saturate(200%)", WebkitBackdropFilter: "blur(48px) saturate(200%)" }}
-                   >
-                     <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[350px] rounded-[32px]" style={{ zIndex: 10 }}>
-                       {APP_MODELS.map((m, idx) => (
-                         <div key={m.name} className="flex flex-col">
-                           <button
-                             onClick={() => {
-                               if (selectedModel === m.name) return;
-                               setLoadingModel(m.name);
-                               setTimeout(() => {
-                                 setSelectedModel(m.name as ModelName);
-                                 setLoadingModel(null);
-                               }, 800);
-                             }}
-                             className={`flex items-center justify-between px-5 py-3 transition-colors text-left hover:bg-white/10 w-full`}
-                           >
-                             <div className="flex flex-col items-start gap-[2px] pr-4 min-w-0 flex-1">
-                               <span className="text-[17px] font-medium text-white leading-tight flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
-                                 {m.name}
-                                 {m.tag && <span className={`${m.tagColor} ${m.tagStyle} shrink-0`}>{m.tag}</span>}
-                               </span>
-                               <span className="text-[14px] font-normal text-[#8e8e93] leading-snug whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
-                             </div>
-                             <div className="shrink-0 flex items-center justify-center w-[20px]">
-                               {loadingModel === m.name ? (
-                                 <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin" />
-                               ) : selectedModel === m.name ? (
-                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-[#60a5fa]">
-                                   <polyline points="22 4 9 17 4 12"></polyline>
-                                 </svg>
-                               ) : null}
-                             </div>
-                           </button>
-                           {idx < APP_MODELS.length - 1 && (
-                             <div className="h-[1px] bg-white/[0.08] mx-5" />
-                           )}
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-                 </>
-               )}
-            </div>
 
             {/* Input field */}
             <input 
@@ -574,6 +527,55 @@ export function HomeView() {
                <ArrowUp className="w-[16px] h-[16px] text-white/90" strokeWidth={2} />
             </button>
           </div>
+
+          {/* Model Menu Popover */}
+          {isModelMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
+              <div 
+                className="cursor-default absolute left-[6px] top-[54px] w-[290px] rounded-[32px] shadow-[0_16px_40px_rgba(0,0,0,0.6)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]/75 border border-white/[0.06]"
+                style={{ backdropFilter: "blur(48px) saturate(200%)", WebkitBackdropFilter: "blur(48px) saturate(200%)" }}
+              >
+                <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[350px] rounded-[32px]" style={{ zIndex: 10 }}>
+                  {APP_MODELS.map((m, idx) => (
+                    <div key={m.name} className="flex flex-col">
+                      <button
+                        onClick={() => {
+                          if (selectedModel === m.name) return;
+                          setLoadingModel(m.name);
+                          setTimeout(() => {
+                            setSelectedModel(m.name as ModelName);
+                            setLoadingModel(null);
+                          }, 800);
+                        }}
+                        className={`flex items-center justify-between px-5 py-3 transition-colors text-left hover:bg-white/10 w-full`}
+                      >
+                        <div className="flex flex-col items-start gap-[2px] pr-4 min-w-0 flex-1">
+                          <span className="text-[17px] font-medium text-white leading-tight flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+                            {m.name}
+                            {m.tag && <span className={`${m.tagColor} ${m.tagStyle} shrink-0`}>{m.tag}</span>}
+                          </span>
+                          <span className="text-[14px] font-normal text-[#8e8e93] leading-snug whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
+                        </div>
+                        <div className="shrink-0 flex items-center justify-center w-[20px]">
+                          {loadingModel === m.name ? (
+                            <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin" />
+                          ) : selectedModel === m.name ? (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-[#60a5fa]">
+                              <polyline points="22 4 9 17 4 12"></polyline>
+                            </svg>
+                          ) : null}
+                        </div>
+                      </button>
+                      {idx < APP_MODELS.length - 1 && (
+                        <div className="h-[1px] bg-white/[0.08] mx-5" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
