@@ -5,17 +5,18 @@ import { Header } from "@/components/header"
 import dynamic from "next/dynamic"
 import Image from "next/image"
 
-const HomeView = dynamic(() => import("@/components/home-view").then(mod => mod.HomeView))
-const SettingsView = dynamic(() => import("@/components/settings-view").then(mod => mod.SettingsView))
+import { HomeView } from "@/components/home-view"
+import { SettingsView } from "@/components/settings-view"
+import { ProfileView } from "@/components/profile-view"
+import { ScheduleView } from "@/components/schedule-view"
+import { GroupConfigView } from "@/components/group-config-view"
+
 const PremiumView = dynamic(() => import("@/components/premium-view").then(mod => mod.PremiumView))
 const ReferralView = dynamic(() => import("@/components/referral-view").then(mod => mod.ReferralView))
-const ProfileView = dynamic(() => import("@/components/profile-view").then(mod => mod.ProfileView))
 const XRewardsView = dynamic(() => import("@/components/x-rewards-view").then(mod => mod.XRewardsView))
 const MarketView = dynamic(() => import("@/components/market-view").then(mod => mod.MarketView))
-const ScheduleView = dynamic(() => import("@/components/schedule-view").then(mod => mod.ScheduleView))
 const LevelsView = dynamic(() => import("@/components/levels-view").then(mod => mod.LevelsView))
 const ShopView = dynamic(() => import("@/components/shop-view").then(mod => mod.ShopView))
-const GroupConfigView = dynamic(() => import("@/components/group-config-view").then(mod => mod.GroupConfigView))
 import { useEffect, useState } from "react"
 import { Home, Target, Store, CircleUser, Loader2, Clock, Settings } from "lucide-react"
 

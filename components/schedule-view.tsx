@@ -787,7 +787,7 @@ export function ScheduleView() {
                 </div>
                 <div className="flex flex-col">
                   {dailyTasks.map((item, idx) => (
-                    <div key={item.id} onClick={() => setSelectedTask(item)} className={`w-full flex items-center justify-between py-3.5 ${idx !== dailyTasks.length - 1 ? 'border-b border-[#1c1c1e]' : ''} active:opacity-60 transition-opacity cursor-pointer`}>
+                    <div key={item.id} onClick={() => setSelectedTask(item)} className={`defer-render w-full flex items-center justify-between py-3.5 ${idx !== dailyTasks.length - 1 ? 'border-b border-[#1c1c1e]' : ''} active:opacity-60 transition-opacity cursor-pointer`}>
                        <div className="flex flex-col gap-1">
                           <span className="text-white text-[17px] font-medium tracking-tight" style={{ fontFamily: SFD }}>{item.title}</span>
                           <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{formatFrequencyText(item)}</span>
@@ -815,7 +815,7 @@ export function ScheduleView() {
                 </div>
                 <div className="flex flex-col">
                   {generalTasks.map((item, idx) => (
-                    <div key={item.id} onClick={() => setSelectedTask(item)} className={`w-full flex items-center justify-between py-3.5 ${idx !== generalTasks.length - 1 ? 'border-b border-[#1c1c1e]' : ''} active:opacity-60 transition-opacity cursor-pointer`}>
+                    <div key={item.id} onClick={() => setSelectedTask(item)} className={`defer-render w-full flex items-center justify-between py-3.5 ${idx !== generalTasks.length - 1 ? 'border-b border-[#1c1c1e]' : ''} active:opacity-60 transition-opacity cursor-pointer`}>
                        <div className="flex flex-col gap-1">
                           <span className="text-white text-[17px] font-medium tracking-tight" style={{ fontFamily: SFD }}>{item.title}</span>
                           <span className="text-[#8e8e93] text-[14px]" style={{ fontFamily: SF }}>{formatFrequencyText(item)}</span>

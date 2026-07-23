@@ -876,7 +876,7 @@ export function HomeView() {
                               key={c.id} 
                               onClick={() => setModalState({ view: "detail", connectorId: c.id })}
                               onPointerDown={createRipple}
-                              className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5 active:bg-white/5 transition-colors text-left"
+                              className="defer-render relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5 active:bg-white/5 transition-colors text-left"
                             >
                               <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
                                 <div className="relative">
