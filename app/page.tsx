@@ -391,21 +391,41 @@ function AppContent() {
           }`}
         >
           {/* Logo with Shine Effect */}
-          <div className="relative overflow-hidden w-[120px] h-[120px] flex items-center justify-center mb-6">
+          <div className="relative w-[120px] h-[120px] flex items-center justify-center mb-6">
             <Image 
               src="/noir-originalogo.png" 
               alt="Loading" 
               fill
-              className="object-contain grayscale brightness-[0.4]" 
-            />
-            {/* The sweeping shine element */}
-            <div 
-              className="absolute top-0 left-0 w-[200%] h-[200%] bg-gradient-to-tr from-transparent via-white/50 to-transparent pointer-events-none mix-blend-overlay"
+              className="object-contain grayscale brightness-[0.4]"
+              draggable={false}
               style={{
-                animation: "shine-sweep 2.5s infinite ease-in-out",
-                transformOrigin: "center"
+                WebkitTouchCallout: 'none',
+                WebkitUserSelect: 'none',
+                userSelect: 'none'
               }}
             />
+            {/* The sweeping shine element clipped to the logo silhouette */}
+            <div 
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                WebkitMaskImage: 'url("/noir-originalogo.png")',
+                WebkitMaskSize: 'contain',
+                WebkitMaskRepeat: 'no-repeat',
+                WebkitMaskPosition: 'center',
+                maskImage: 'url("/noir-originalogo.png")',
+                maskSize: 'contain',
+                maskRepeat: 'no-repeat',
+                maskPosition: 'center'
+              }}
+            >
+              <div 
+                className="absolute top-0 left-0 w-[200%] h-[200%] bg-gradient-to-tr from-transparent via-white/50 to-transparent mix-blend-overlay"
+                style={{
+                  animation: "shine-sweep 2.5s infinite ease-in-out",
+                  transformOrigin: "center"
+                }}
+              />
+            </div>
           </div>
 
           {/* Progress Bar */}
