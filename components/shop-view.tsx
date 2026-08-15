@@ -104,7 +104,7 @@ export function ShopView() {
       <div className="relative z-10 px-4 mt-6">
         <div className="grid grid-cols-3 gap-3">
           {COSMETICS_INVENTORY.map((item) => (
-            <div key={item.id} className="bg-[#141415] border border-[#2c2c2e] rounded-[16px] p-3 flex flex-col items-center shadow-lg relative overflow-hidden group">
+            <div key={item.id} className="bg-[#141415] border border-[#262626] rounded-[16px] p-3 flex flex-col items-center shadow-lg relative overflow-hidden group">
               
               {/* Icono del objeto (Gris, estilo placeholder) */}
               <div className="w-16 h-16 bg-[#1c1c1e] rounded-[12px] flex items-center justify-center mb-3 border border-white/5 group-hover:border-white/10 transition-colors">
@@ -154,7 +154,7 @@ export function ShopView() {
             </button>
 
             {/* Mitad Superior: Previsualización */}
-            <div className="relative pt-10 pb-8 flex flex-col items-center border-b border-[#2c2c2e] overflow-hidden">
+            <div className="relative pt-10 pb-8 flex flex-col items-center border-b border-[#262626] overflow-hidden">
                {/* Patrón de corazones */}
                <PixelHeartPattern />
                
@@ -195,7 +195,7 @@ export function ShopView() {
               <div className="flex flex-col gap-3.5 mb-8">
                  {['Owner', 'Model', 'Symbol', 'Backdrop', 'Quantity'].map((attr) => (
                     <div key={attr} className="flex items-center gap-3">
-                       <div className="w-1.5 h-1.5 rounded-full bg-[#2c2c2e]" />
+                       <div className="w-1.5 h-1.5 rounded-full bg-[#262626]" />
                        <span className="text-[14px] text-[#8e8e93]" style={{ fontFamily: SF }}>{attr}:</span>
                     </div>
                  ))}

@@ -15,7 +15,7 @@ const Astroid = ({ className }: { className?: string }) => (
 
 function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
-    <button onClick={(e) => { e.stopPropagation(); onToggle(); }} disabled={disabled} className={"relative rounded-full transition-colors duration-100 shrink-0 z-10 " + (disabled ? "opacity-50" : "")} style={{ width: "42px", height: "24px", background: on ? activeColor : "#2c2c2e" }}>
+    <button onClick={(e) => { e.stopPropagation(); onToggle(); }} disabled={disabled} className={"relative rounded-full transition-colors duration-100 shrink-0 z-10 " + (disabled ? "opacity-50" : "")} style={{ width: "42px", height: "24px", background: on ? activeColor : "#262626" }}>
       <span className="absolute rounded-full transition-all duration-100" style={{ width: "16px", height: "16px", top: "4px", background: "#111111", left: on ? "22px" : "4px" }} />
     </button>
   )
@@ -24,7 +24,7 @@ function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boole
 function SwitchNode({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <div className="flex items-center">
-      <div className="w-[1px] h-[22px] bg-[#2c2c2e] mr-3.5" />
+      <div className="w-[1px] h-[22px] bg-[#262626] mr-3.5" />
       <Toggle on={on} onToggle={onToggle} disabled={disabled} activeColor={activeColor} />
     </div>
   )
@@ -159,7 +159,7 @@ const TelegramInput = ({ label, maxLength, value, onChange, placeholder = "", is
         if (maxLength && val.length > maxLength) val = val.slice(0, maxLength)
         onChange(val)
       }} onFocus={() => setIsFocused(true)} onBlur={() => setIsFocused(false)} placeholder={placeholder} className="w-full bg-transparent text-white focus:outline-none resize-none overflow-hidden placeholder:text-[#555558] pb-3" style={{ fontFamily: SF, fontSize: "16px", minHeight: "24px" }} />
-      {!isLast && <div className="absolute bottom-0 left-4 right-0 h-[1px] bg-[#2c2c2e]" />}
+      {!isLast && <div className="absolute bottom-0 left-4 right-0 h-[1px] bg-[#262626]" />}
     </div>
   )
 }

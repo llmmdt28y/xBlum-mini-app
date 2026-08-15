@@ -157,7 +157,7 @@ export function PremiumView() {
           </div>
           <div className="flex shrink-0 items-center">
             {/* ChatGPT (Background, Left) */}
-            <div className="w-10 h-10 rounded-[12px] bg-[#1c1c1e] flex items-center justify-center z-10 relative overflow-hidden border-[1.5px] border-[#2c2c2e] opacity-90 animate-icon-slide">
+            <div className="w-10 h-10 rounded-[12px] bg-[#1c1c1e] flex items-center justify-center z-10 relative overflow-hidden border-[1.5px] border-[#262626] opacity-90 animate-icon-slide">
               <img src="/chatgpt-icon.png" alt="ChatGPT" className="w-full h-full object-cover select-none pointer-events-none" draggable={false} onContextMenu={(e) => e.preventDefault()} style={imageProtectionStyle} />
             </div>
             {/* Grok (Foreground, Right) */}
@@ -216,7 +216,7 @@ export function PremiumView() {
                         <img src="/notion-icon.png" alt="Notion" className="w-3 h-3 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                       </div>
                       {/* +1k (Back, Right) */}
-                      <div className="w-[20px] h-[20px] rounded-[5px] bg-[#2c2c2e] flex items-center justify-center shadow-[-1px_0_4px_rgba(0,0,0,0.5)] z-10 relative overflow-hidden -ml-1.5 animate-stack-3">
+                      <div className="w-[20px] h-[20px] rounded-[5px] bg-[#262626] flex items-center justify-center shadow-[-1px_0_4px_rgba(0,0,0,0.5)] z-10 relative overflow-hidden -ml-1.5 animate-stack-3">
                         <span className="text-[8px] font-bold text-[#e5e5ea] leading-none pt-[1px]">+1k</span>
                       </div>
                     </div>
@@ -322,7 +322,7 @@ export function PremiumView() {
       {/* FIXED FOOTER */}
       <div className="fixed bottom-0 left-0 w-full px-4 pt-4 pb-[calc(var(--tg-safe-area-inset-bottom,24px)+12px)] bg-[#000000]/95  border-t border-white/5 z-20">
         <div className="flex items-center gap-2.5 w-full mb-3">
-          <button className="flex-1 py-[12px] rounded-full bg-[#1c1c1e] active:bg-[#2c2c2e] transition-colors flex items-center justify-center gap-2 shadow-sm border border-white/5">
+          <button className="flex-1 py-[12px] rounded-full bg-[#1c1c1e] active:bg-[#262626] transition-colors flex items-center justify-center gap-2 shadow-sm border border-white/5">
             <Gift className="w-[18px] h-[18px]" />
             <span className="font-semibold text-[15px]" style={{ fontFamily: SF }}>Gift to Friends</span>
           </button>

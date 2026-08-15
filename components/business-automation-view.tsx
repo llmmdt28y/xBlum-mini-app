@@ -151,7 +151,7 @@ function Toggle({
       style={{
         width: "42px",
         height: "24px",
-        background: on ? activeColor : "#2c2c2e",
+        background: on ? activeColor : "#262626",
       }}
     >
       <span
@@ -181,7 +181,7 @@ function SwitchNode({
 }) {
   return (
     <div className="flex items-center">
-      <div className="w-[1px] h-[22px] bg-[#2c2c2e] mr-3.5" />
+      <div className="w-[1px] h-[22px] bg-[#262626] mr-3.5" />
       <Toggle
         on={on}
         onToggle={onToggle}

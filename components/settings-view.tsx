@@ -245,7 +245,7 @@ function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boole
       className={"relative rounded-full transition-colors duration-100 shrink-0 z-10 " + (disabled ? "opacity-50" : "")}
       style={{ 
         width: "42px", height: "24px", 
-        background: on ? activeColor : "#2c2c2e" 
+        background: on ? activeColor : "#262626" 
       }}
     >
       <span
@@ -264,7 +264,7 @@ function Toggle({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boole
 function SwitchNode({ on, onToggle, disabled, activeColor = "#60a5fa" }: { on: boolean; onToggle: () => void; disabled?: boolean; activeColor?: string }) {
   return (
     <div className="flex items-center">
-      <div className="w-[1px] h-[22px] bg-[#2c2c2e] mr-3.5" />
+      <div className="w-[1px] h-[22px] bg-[#262626] mr-3.5" />
       <Toggle on={on} onToggle={onToggle} disabled={disabled} activeColor={activeColor} />
     </div>
   )
@@ -439,7 +439,7 @@ function TokenBar({ pct }: { pct: number }) {
   const clamped = Math.min(100, Math.max(0, pct))
   const color = clamped >= 90 ? "#ef4444" : clamped >= 70 ? "#f97316" : "#3b82f6"
   return (
-    <div className="w-full mt-1.5 rounded-full overflow-hidden relative z-10" style={{ height: "2px", background: "#2c2c2e" }}>
+    <div className="w-full mt-1.5 rounded-full overflow-hidden relative z-10" style={{ height: "2px", background: "#262626" }}>
       <div
         className="h-full rounded-full transition-all duration-500"
         style={{ width: `${clamped}%`, background: color }}
@@ -561,7 +561,7 @@ const TelegramInput = ({ label, maxLength, value, onChange, placeholder = "", is
         rows={1}
       />
       {!isLast && (
-        <div className="absolute bottom-0 left-4 right-0 h-[1px] bg-[#2c2c2e]" />
+        <div className="absolute bottom-0 left-4 right-0 h-[1px] bg-[#262626]" />
       )}
     </div>
   )

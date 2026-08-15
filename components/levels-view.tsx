@@ -284,7 +284,7 @@ export function LevelsView() {
           </div>
           <div className="flex items-center justify-between w-full mb-4 gap-[4px]">
             {Array.from({ length: 24 }).map((_, i) => (
-              <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white' : 'bg-[#2c2c2e]'}`} />
+              <div key={i} className={`h-[5px] flex-1 rounded-[1px] transition-all duration-700 ${i < (progressPercent / 100 * 24) ? 'bg-white' : 'bg-[#262626]'}`} />
             ))}
           </div>
           <p className="text-[13px] text-[#8e8e93] leading-relaxed" style={{ fontFamily: SF }}>
@@ -297,7 +297,7 @@ export function LevelsView() {
       <div className="px-5 mb-10 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 fill-mode-both">
          <button 
             onClick={() => setCurrentView("shop")}
-            className="w-full relative overflow-hidden bg-[#111] border border-[#2c2c2e] rounded-[20px] p-4 flex items-center justify-between active:scale-[0.98] transition-transform shadow-lg"
+            className="w-full relative overflow-hidden bg-[#111] border border-[#262626] rounded-[20px] p-4 flex items-center justify-between active:scale-[0.98] transition-transform shadow-lg"
          >
             {/* Brillo de fondo */}
             <div className="absolute inset-0 pointer-events-none opacity-20" style={{ background: "radial-gradient(circle at 10% 50%, rgba(168,85,247,0.5), transparent 70%)" }} />
@@ -393,7 +393,7 @@ export function LevelsView() {
         )}
       </div>
 
-      <div className="w-full border-t border-dashed border-[#2c2c2e] mb-8" />
+      <div className="w-full border-t border-dashed border-[#262626] mb-8" />
 
       {/* ── DAILY MISSIONS ── */}
       <div className="relative z-10 px-5 w-full flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
@@ -442,14 +442,14 @@ function MissionTimelineCard({ id, title, reward, desc, progress, icon, onClick,
   const loading = status === "verifying"
   const started = status === "started"
 
-  let buttonUI = { text: "Start", bg: "bg-[#2c2c2e] text-white", icon: <ChevronRight size={14} /> }
+  let buttonUI = { text: "Start", bg: "bg-[#262626] text-white", icon: <ChevronRight size={14} /> }
   
   if (isLocked) {
     buttonUI = { text: "Locked", bg: "bg-transparent text-[#636366]", icon: <Lock size={12} /> }
   } else if (isDone) {
     buttonUI = { text: "Done", bg: "bg-transparent text-[#636366]", icon: <Check size={14} /> }
   } else if (loading) {
-    buttonUI = { text: "Checking", bg: "bg-[#2c2c2e] text-white", icon: <Loader2 size={14} className="animate-spin" /> }
+    buttonUI = { text: "Checking", bg: "bg-[#262626] text-white", icon: <Loader2 size={14} className="animate-spin" /> }
   } else if (started) {
     buttonUI = { text: "Check", bg: "bg-white text-black", icon: <Check size={14} /> }
   } else if (id === "chatAI" || id === "invite" || id === "ads" || id === "dailyAI") {
@@ -461,9 +461,9 @@ function MissionTimelineCard({ id, title, reward, desc, progress, icon, onClick,
   return (
     <div className={`flex w-full ${opacityClass} transition-all duration-500`}>
       <div className="w-[28px] flex-shrink-0 flex justify-center relative">
-         {!isLast && <div className="absolute top-[28px] bottom-[-24px] w-[2px] bg-[#2c2c2e]" />}
+         {!isLast && <div className="absolute top-[28px] bottom-[-24px] w-[2px] bg-[#262626]" />}
          <div className={`absolute top-[28px] w-[7px] h-[7px] rounded-full z-10 transition-colors shadow-[0_0_8px_rgba(255,255,255,0.1)] 
-            ${isDone ? 'bg-green-500 shadow-green-500/30' : isLocked ? 'bg-[#2c2c2e]' : 'bg-[#e8a8c1]'}`} 
+            ${isDone ? 'bg-green-500 shadow-green-500/30' : isLocked ? 'bg-[#262626]' : 'bg-[#e8a8c1]'}`} 
          />
       </div>
 

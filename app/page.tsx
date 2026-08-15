@@ -135,7 +135,7 @@ function NavBar() {
           onPointerDown={() => setPressedId("left")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="bg-[#2c2c2e] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
+          className="bg-[#262626] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
           style={{
             width: "58px",
             height: "58px",
@@ -162,7 +162,7 @@ function NavBar() {
 
         {/* ── PÍLDORA CENTRAL ── */}
         <div
-          className="bg-[#2c2c2e] shadow-lg border border-white/10 pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
+          className="bg-[#262626] shadow-lg border border-white/10 pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
           style={{ borderRadius: "100px", height: "58px", zIndex: 51 }}
         >
           <div className="flex items-center justify-between w-full relative h-[52px]" style={{ zIndex: 10 }}>
@@ -235,7 +235,7 @@ function NavBar() {
           onPointerDown={() => setPressedId("right")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="bg-[#2c2c2e] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
+          className="bg-[#262626] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
           style={{
             width: "58px",
             height: "58px",

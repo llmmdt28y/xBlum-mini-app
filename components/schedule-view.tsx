@@ -195,7 +195,7 @@ function Toggle({ on, onToggle, disabled, activeColor = "#ffffff" }: { on: boole
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggle(); }}
       disabled={disabled}
       className={"relative rounded-full transition-colors duration-100 shrink-0 z-10 " + (disabled ? "opacity-50" : "")}
-      style={{ width: "42px", height: "24px", background: on ? activeColor : "#2c2c2e" }}
+      style={{ width: "42px", height: "24px", background: on ? activeColor : "#262626" }}
     >
       <span className="absolute rounded-full transition-all duration-100 shadow-sm" style={{ width: "16px", height: "16px", top: "4px", background: on ? "#000000" : "#8e8e93", left: on ? "22px" : "4px" }} />
     </button>
@@ -695,7 +695,7 @@ export function ScheduleView() {
     <div className="flex items-center gap-3">
       <div className="relative w-[34px] h-[34px] flex items-center justify-center">
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-          <circle cx="18" cy="18" r="14" fill="none" stroke="#2c2c2e" strokeWidth="4.5" />
+          <circle cx="18" cy="18" r="14" fill="none" stroke="#262626" strokeWidth="4.5" />
           <circle cx="18" cy="18" r="14" fill="none" stroke="#ffffff" strokeWidth="4.5" strokeDasharray="88" strokeDashoffset={offset} strokeLinecap="round" className="transition-all duration-700" />
         </svg>
       </div>
@@ -716,7 +716,7 @@ export function ScheduleView() {
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #2c2c2e; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
       `}</style>
       {(isCreating || !!selectedTask) && <style>{`.liquid-glass-panel { opacity: 0 !important; pointer-events: none !important; }`}</style>}
 
@@ -730,7 +730,7 @@ export function ScheduleView() {
           <button onClick={()=>setSelectedDate("All")} className={`relative flex flex-col items-center justify-center w-12 h-14 rounded-full transition-all ${selectedDate==="All"?"text-white":"text-[#8e8e93]"}`} style={selectedDate==="All" ? greyGlowStyle : {}}>
             <span className="text-[14px] font-bold" style={{fontFamily:SF}}>All</span>
           </button>
-          <div className="w-px h-8 bg-[#2c2c2e] mx-1 shrink-0"/>
+          <div className="w-px h-8 bg-[#262626] mx-1 shrink-0"/>
           {calendarDays.map((day,idx)=>{
             const isSel = selectedDate === day.full
             let dotClass = ""
@@ -758,7 +758,7 @@ export function ScheduleView() {
       <div className="px-5 mt-3 shrink-0">
         <div className="grid grid-cols-2 gap-3">
            {suggestedTasks.map((mock, idx) => (
-              <div key={idx} onClick={() => openMockCard(mock)} className="w-full bg-[#1c1c1e] rounded-[16px] p-3.5 flex flex-col gap-1 cursor-pointer active:bg-[#2c2c2e] transition-colors shadow-sm">
+              <div key={idx} onClick={() => openMockCard(mock)} className="w-full bg-[#1c1c1e] rounded-[16px] p-3.5 flex flex-col gap-1 cursor-pointer active:bg-[#262626] transition-colors shadow-sm">
                  <span className="text-white text-[15px] font-bold tracking-tight leading-tight line-clamp-1" style={{ fontFamily: SFD }}>
                    {mock.title}
                  </span>
@@ -867,7 +867,7 @@ export function ScheduleView() {
              style={{ transform: `translateY(${sheetTranslateY}px)`, transition: sheetTouchY === null ? 'transform 0.3s ease-out' : 'none' }}
              onTouchStart={handleSheetTouchStart} onTouchMove={handleSheetTouchMove} onTouchEnd={handleSheetTouchEnd}
            >
-              <div className="w-12 h-1.5 bg-[#2c2c2e] rounded-full self-center mb-6 shrink-0" />
+              <div className="w-12 h-1.5 bg-[#262626] rounded-full self-center mb-6 shrink-0" />
               
               <h2 className="text-white text-center text-[22px] font-bold mb-8" style={{fontFamily: SFD}}>{selectedTask.title}</h2>
 

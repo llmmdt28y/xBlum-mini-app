@@ -447,7 +447,7 @@ export function HomeView() {
         .skeleton-shimmer {
           position: relative;
           overflow: hidden;
-          background-color: #2c2c2e;
+          background-color: #262626;
         }
         .skeleton-shimmer::after {
           content: "";
@@ -482,6 +482,17 @@ export function HomeView() {
         {/* Content Layer */}
         <div className="relative z-40 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-16 pointer-events-auto">
           
+          {/* Object (Logo) */}
+          <Image 
+            src="/hero.png" 
+            alt="Hero Object" 
+            width={192}
+            height={192}
+            priority
+            className="mx-auto object-contain select-none pointer-events-none drop-shadow-2xl transform translate-y-6 grayscale opacity-80"
+            draggable={false}
+            style={imageProtectionStyle}
+          />
 
           <h1 
             className="text-white font-bold text-[28px] sm:text-[32px] leading-[1.1] tracking-tight drop-shadow-md" 
@@ -587,7 +598,7 @@ export function HomeView() {
 
 
         {/* Profile Completion Card */}
-        <div className="w-full bg-[#2c2c2e] rounded-[16px] p-3 mt-2">
+        <div className="w-full bg-[#262626] rounded-[16px] p-3 mt-2">
           <p className="text-white text-[14px] font-semibold leading-snug mb-2" style={{ fontFamily: SF }}>
             Complete your profile to receive personalized recommendations
           </p>
@@ -644,14 +655,14 @@ export function HomeView() {
 
           {/* Card Container */}
           <div 
-            className="w-full bg-[#2c2c2e] rounded-[24px] overflow-hidden flex flex-col p-2 relative shadow-lg"
+            className="w-full bg-[#262626] rounded-[24px] overflow-hidden flex flex-col p-2 relative shadow-lg"
             style={{
               boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4)",
               transform: "translateZ(0)"
             }}
           >
             {/* Image Placeholder (Mockup/Video) */}
-            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#171717] to-[#2c2c2e] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
+            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#171717] to-[#262626] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
               <span className="text-white/30 font-medium text-[13px]" style={{ fontFamily: SF }}>Placeholder</span>
             </div>
 
@@ -729,7 +740,7 @@ export function HomeView() {
             </div>
 
             <div 
-              className="w-full bg-[#2c2c2e] rounded-[16px] overflow-hidden flex flex-col relative"
+              className="w-full bg-[#262626] rounded-[16px] overflow-hidden flex flex-col relative"
             >
               <div className="flex flex-col">
                 {connectorsLoading
@@ -817,7 +828,7 @@ export function HomeView() {
                   {searchQuery.length > 0 && (
                     <button 
                       onClick={() => setSearchQuery("")}
-                      className="absolute right-3.5 z-10 p-0.5 rounded-full bg-[#2c2c2e] text-[#8e8e93] active:scale-95 transition-transform"
+                      className="absolute right-3.5 z-10 p-0.5 rounded-full bg-[#262626] text-[#8e8e93] active:scale-95 transition-transform"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -834,7 +845,7 @@ export function HomeView() {
 
               {/* Connectors List using the exact style from menu */}
               <div className="overflow-y-auto overscroll-none hide-scrollbar pb-10 flex-1 px-4">
-                <div className="w-full bg-[#2c2c2e] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
+                <div className="w-full bg-[#262626] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
                   <div className="flex flex-col">
                     {isSearching ? (
                       Array.from({ length: 3 }).map((_, i) => (
@@ -941,7 +952,7 @@ export function HomeView() {
                 )}
                 <div className="space-y-4">
                   <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
-                  <div className="rounded-[16px] overflow-hidden bg-[#2c2c2e]">
+                  <div className="rounded-[16px] overflow-hidden bg-[#262626]">
                     {activeConnectorData.features.map((feat, i, arr) => (
                       <div key={i}>
                         <div className="flex gap-4 p-4">
@@ -975,7 +986,7 @@ export function HomeView() {
       {isBotIntModalOpen && (
          <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsBotIntModalOpen(false)} />
-          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#2c2c2e] flex flex-col max-h-[90vh] overflow-y-auto overscroll-none animate-in slide-in-from-bottom duration-300 transform-gpu">
+          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#262626] flex flex-col max-h-[90vh] overflow-y-auto overscroll-none animate-in slide-in-from-bottom duration-300 transform-gpu">
              <div className="w-10 h-1 bg-[#3a3a3c] rounded-full mx-auto mb-5 shrink-0" />
              
              <div className="flex items-center justify-between mb-6">
@@ -985,7 +996,7 @@ export function HomeView() {
                   </div>
                    <h2 className="text-white font-bold text-[24px]" style={{ fontFamily: SFD }}>Group Agent</h2>
                 </div>
-                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center text-white active:scale-95 transition-transform">
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="w-8 h-8 rounded-full bg-[#262626] flex items-center justify-center text-white active:scale-95 transition-transform">
                    <X className="w-5 h-5" />
                  </button>
              </div>
@@ -1041,7 +1052,7 @@ export function HomeView() {
                 <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95" style={{ fontFamily: SF }}>
                    <Save className="w-4 h-4" /> Apply to Group
                 </button>
-                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#2c2c2e] hover:bg-[#3a3a3c] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#3a3a3c] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#262626] hover:bg-[#3a3a3c] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#3a3a3c] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
                     Cancel
                 </button>
              </div>

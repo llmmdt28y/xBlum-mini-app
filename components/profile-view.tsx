@@ -179,7 +179,7 @@ export function ProfileView() {
       <div className="bg-[#121212] rounded-t-[32px] w-full flex-1 mt-0 pt-6 px-4 pb-32 relative z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.5)] border-t border-white/5">
 
         {/* NAVEGACIÓN (TABS) */}
-        <div className="flex items-center gap-6 border-b border-[#2c2c2e] overflow-x-auto scrollbar-hide px-2">
+        <div className="flex items-center gap-6 border-b border-[#262626] overflow-x-auto scrollbar-hide px-2">
           {tabs.map((tab) => {
             const isActive = activeTab === tab
             return (
