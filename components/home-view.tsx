@@ -474,37 +474,29 @@ export function HomeView() {
       `}} />
 
       {/* Subtle Premium Background */}
+      {/* Subtle Premium Background (Linear Style) */}
       <div className="absolute top-0 left-0 w-full h-[400px] z-0 overflow-hidden pointer-events-none">
-        {/* Spotlight */}
+        {/* Soft Overhead Spotlight */}
         <div 
-          className="absolute top-[-150px] left-1/2 -translate-x-1/2 w-[600px] h-[400px]" 
-          style={{ background: "radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%)" }}
+          className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[800px] h-[500px]" 
+          style={{ background: "radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 70%)" }}
         />
-        {/* SVG Plus Grid (Unfinished lines look) */}
-        <div className="absolute inset-0 opacity-[0.12]" style={{ WebkitMaskImage: "radial-gradient(circle at 50% 30%, black, transparent 70%)", maskImage: "radial-gradient(circle at 50% 30%, black, transparent 70%)" }}>
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="plus-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 20 16 L 20 24 M 16 20 L 24 20" stroke="white" strokeWidth="1" fill="none" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#plus-grid)" />
-          </svg>
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0A]/50 to-[#0A0A0A]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0A]/60 to-[#0A0A0A]" />
       </div>
 
       {/* Hero Content Section */}
-      <div className="w-full relative z-40 h-[400px] sm:h-[420px] flex flex-col items-center justify-center overflow-visible pointer-events-none">
+      <div className="w-full max-w-md mx-auto relative z-40 h-[380px] flex flex-col justify-center px-6 pointer-events-none">
         
-        {/* Top-Left Model Selector */}
-        <div className="absolute top-4 left-4 z-50 pointer-events-auto">
-          <div ref={modelMenuRef} className="relative">
+        {/* Content Layer */}
+        <div className="relative z-40 flex flex-col items-start gap-4 w-full pointer-events-auto transform translate-y-4">
+          
+          {/* Top-Left Model Selector (Inline above title) */}
+          <div ref={modelMenuRef} className="relative z-50">
             <button
               onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-              className="flex items-center gap-2 h-[34px] px-3.5 rounded-full bg-[#1c1c1e] hover:bg-[#262626] active:scale-95 transition-all border border-[#2c2c2e] shadow-md"
+              className="flex items-center gap-2 h-[34px] px-3.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] active:scale-95 transition-all border border-white/[0.05] shadow-sm backdrop-blur-md"
             >
-              <span className="font-semibold text-[13px] text-[#e5e5ea] tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
+              <span className="font-medium text-[13px] text-[#e5e5ea] tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
               <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
             </button>
 
@@ -556,20 +548,21 @@ export function HomeView() {
               </div>
               </>
             )}
-            </div>
           </div>
 
-        {/* Centered Typography */}
-        <div className="relative z-40 flex flex-col items-center justify-center gap-1.5 w-full max-w-md px-6 text-center pointer-events-auto transform -translate-y-4">
-          <h1 
-            className="text-white font-bold text-[38px] sm:text-[42px] leading-[1.1] tracking-wide drop-shadow-lg" 
-            style={{ fontFamily: SFD, letterSpacing: "0.02em" }}
-          >
-            NOIR
-          </h1>
-          <p className="text-[#8e8e93] text-[15px]" style={{ fontFamily: SF }}>
-            Hello, {firstName || "there"}. Ready to assist.
-          </p>
+          {/* Typography (Left Aligned) */}
+          <div className="flex flex-col gap-2">
+            <h1 
+              className="text-white font-bold text-[44px] leading-[1.05] tracking-tight drop-shadow-lg" 
+              style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}
+            >
+              NOIR
+            </h1>
+            <p className="text-[#a1a1aa] text-[16px] leading-relaxed max-w-[280px]" style={{ fontFamily: SF }}>
+              A new standard for intelligent agents. Hello, {firstName || "there"}.
+            </p>
+          </div>
+
         </div>
       </div>
 
