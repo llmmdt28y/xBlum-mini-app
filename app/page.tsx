@@ -135,7 +135,7 @@ function NavBar() {
           onPointerDown={() => setPressedId("left")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="liquid-glass-card pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
+          className="bg-[#2c2c2e] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
           style={{
             width: "58px",
             height: "58px",
@@ -162,7 +162,7 @@ function NavBar() {
 
         {/* ── PÍLDORA CENTRAL ── */}
         <div
-          className="liquid-glass-card pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
+          className="bg-[#2c2c2e] shadow-lg border border-white/10 pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
           style={{ borderRadius: "100px", height: "58px", zIndex: 51 }}
         >
           <div className="flex items-center justify-between w-full relative h-[52px]" style={{ zIndex: 10 }}>
@@ -235,7 +235,7 @@ function NavBar() {
           onPointerDown={() => setPressedId("right")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="liquid-glass-card pointer-events-auto shrink-0 p-0 m-0 border-none outline-none"
+          className="bg-[#2c2c2e] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
           style={{
             width: "58px",
             height: "58px",
@@ -503,45 +503,7 @@ export default function Page() {
         * { -ms-overflow-style: none; scrollbar-width: none; }
         body { background-color: #1a1a1a; overflow-x: hidden; }
 
-        /* Liquid Glass Card */
-        .liquid-glass-card {
-          position: relative;
-          isolation: isolate;
-          box-shadow: 0px 0px 0px -8px rgba(255, 255, 255, 0.3);
-          border: none;
-          cursor: pointer;
-          transform: translateZ(0);
-          -webkit-transform: translateZ(0);
-          will-change: transform;
-        }
 
-        /* Tint and inner shadow layer */
-        .liquid-glass-card::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-          border-radius: inherit;
-          box-shadow: inset 0 0 0px -50px rgba(255, 255, 255, 0.7);
-          background-color: rgba(0, 0, 0, 0.2);
-          pointer-events: none;
-        }
-
-        /* Backdrop blur and distortion layer */
-        .liquid-glass-card::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: -1;
-          border-radius: inherit;
-          backdrop-filter: blur(3px);
-          -webkit-backdrop-filter: blur(3px);
-          filter: url(#glass-distortion);
-          -webkit-filter: url(#glass-distortion);
-          isolation: isolate;
-          pointer-events: none;
-          will-change: backdrop-filter, filter;
-        }
 
         .sliding-pill {
           background: rgba(51, 181, 247, 0.15);
