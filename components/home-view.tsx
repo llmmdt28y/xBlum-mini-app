@@ -548,12 +548,12 @@ export function HomeView() {
           {/* Typography (Left Aligned, High Contrast like Image) */}
           <div className="flex flex-col mt-2">
             <h1 
-              className="text-[#F4F4F5] font-bold text-[48px] leading-[1.0] tracking-tight drop-shadow-sm" 
+              className="text-[#F4F4F5] font-bold text-[40px] leading-[1.0] tracking-tight drop-shadow-sm" 
               style={{ fontFamily: SFD, letterSpacing: "-0.04em" }}
             >
               NOIR
             </h1>
-            <p className="text-[#E4E4E7] font-semibold text-[22px] leading-snug mt-1 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.02em" }}>
+            <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
               Built for the future.
               <br />
               Available today.
@@ -561,9 +561,9 @@ export function HomeView() {
           </div>
 
           {/* Ask NOIR Input Bar */}
-          <div className="w-full mt-4">
+          <div className="w-full mt-2.5">
             <div 
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl w-full border transition-all duration-300 shadow-sm
+              className={`flex items-center gap-3 px-4 py-3 rounded-full w-full border transition-all duration-300 shadow-sm
                 ${isInputActive ? 'bg-[#1c1c1e] border-[#3a3a3c]' : 'bg-[#121212]/80 border-[#2c2c2e] hover:bg-[#1c1c1e]'}
               `}
               style={{ backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
