@@ -206,6 +206,9 @@ export function HomeView() {
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false)
   const [loadingModel, setLoadingModel] = useState<string | null>(null)
   const [firstName, setFirstName] = useState("")
+  
+  const [isInputActive, setIsInputActive] = useState(false)
+  const [askQuery, setAskQuery] = useState("")
   const modelMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -542,17 +545,41 @@ export function HomeView() {
             )}
           </div>
 
-          {/* Typography (Left Aligned) */}
-          <div className="flex flex-col gap-2">
+          {/* Typography (Left Aligned, High Contrast like Image) */}
+          <div className="flex flex-col mt-2">
             <h1 
-              className="text-white font-bold text-[44px] leading-[1.05] tracking-tight drop-shadow-lg" 
-              style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}
+              className="text-[#F4F4F5] font-bold text-[48px] leading-[1.0] tracking-tight drop-shadow-sm" 
+              style={{ fontFamily: SFD, letterSpacing: "-0.04em" }}
             >
               NOIR
             </h1>
-            <p className="text-[#a1a1aa] text-[16px] leading-relaxed max-w-[280px]" style={{ fontFamily: SF }}>
-              A new standard for intelligent agents. Hello, {firstName || "there"}.
+            <p className="text-[#E4E4E7] font-semibold text-[22px] leading-snug mt-1 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.02em" }}>
+              Built for the future.
+              <br />
+              Available today.
             </p>
+          </div>
+
+          {/* Ask NOIR Input Bar */}
+          <div className="w-full mt-4">
+            <div 
+              className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl w-full border transition-all duration-300 shadow-sm
+                ${isInputActive ? 'bg-[#1c1c1e] border-[#3a3a3c]' : 'bg-[#121212]/80 border-[#2c2c2e] hover:bg-[#1c1c1e]'}
+              `}
+              style={{ backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
+            >
+              <Search className={`w-5 h-5 shrink-0 transition-colors ${isInputActive ? 'text-[#60a5fa]' : 'text-[#8e8e93]'}`} strokeWidth={2.5} />
+              <input 
+                type="text"
+                placeholder="Ask NOIR anything..."
+                value={askQuery}
+                onChange={(e) => setAskQuery(e.target.value)}
+                onFocus={() => setIsInputActive(true)}
+                onBlur={() => setIsInputActive(false)}
+                className="w-full bg-transparent text-white placeholder:text-[#8e8e93] text-[16px] font-medium focus:outline-none"
+                style={{ fontFamily: SF }}
+              />
+            </div>
           </div>
 
         </div>
