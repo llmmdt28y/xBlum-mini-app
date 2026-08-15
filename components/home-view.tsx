@@ -227,9 +227,6 @@ export function HomeView() {
     }
   }, [isModelMenuOpen])
 
-  const showcaseTabs = ["Mini-Apps / Bots Platform", "Gifts", "Usernames"]
-  const [activeShowcase, setActiveShowcase] = useState("Mini-Apps / Bots Platform")
-
   useEffect(() => {
     const user = (window as any).Telegram?.WebApp?.initDataUnsafe?.user
     if (user?.first_name) {
@@ -610,67 +607,19 @@ export function HomeView() {
           </button>
         </div>
 
-        {/* Showcase Section */}
-        <div className="mt-2 w-full flex flex-col gap-3">
-          {/* Tabs */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide py-1">
-            {showcaseTabs.map(tab => {
-              const isActive = activeShowcase === tab;
-              return (
-                <button
-                  key={tab}
-                  onClick={() => setActiveShowcase(tab)}
-                  className={`flex items-center justify-center px-4 h-[32px] rounded-full font-semibold text-[15px] active:scale-95 transition-all shrink-0 ${isActive ? 'text-black' : 'text-white'}`}
-                  style={{
-                    ...(isActive 
-                      ? {
-                          backgroundColor: "#ffffff",
-                          border: "1px solid rgba(255, 255, 255, 0.8)",
-                          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
-                          transform: "translateZ(0)"
-                        } 
-                      : {
-                          backgroundColor: "#121212",
-                          border: "1px solid rgba(255, 255, 255, 0.10)",
-                          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
-                          transform: "translateZ(0)"
-                        }),
-                    fontFamily: SF
-                  }}
-                >
-                  {tab}
-                </button>
-              )
-            })}
+        {/* Carousel Showcase Section */}
+        <div className="mt-4 w-full flex flex-col items-center gap-3 relative">
+          {/* Image Placeholder (Mockup/Video) */}
+          <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#121212] to-[#1e1e1e] rounded-[24px] overflow-hidden relative flex items-center justify-center border border-white/5 shadow-lg">
+            <span className="text-white/30 font-medium text-[14px]" style={{ fontFamily: SF }}>Placeholder 1</span>
           </div>
-
-          {/* Card Container */}
-          <div 
-            className="w-full bg-[#1e1e1e] rounded-[24px] overflow-hidden flex flex-col p-2 relative shadow-lg"
-            style={{
-              boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4)",
-              transform: "translateZ(0)"
-            }}
-          >
-            {/* Image Placeholder (Mockup/Video) */}
-            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#121212] to-[#1e1e1e] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
-              <span className="text-white/30 font-medium text-[13px]" style={{ fontFamily: SF }}>Placeholder</span>
-            </div>
-
-            {/* Description */}
-            <div className="px-3 pb-2 text-center flex flex-col gap-1">
-              <h3 className="text-white font-bold text-[18px] leading-tight" style={{ fontFamily: SFD }}>
-                {activeShowcase}
-              </h3>
-              <p className="text-[#a0a0a0] text-[13px] leading-snug" style={{ fontFamily: SF }}>
-                {activeShowcase === "Mini-Apps / Bots Platform" 
-                  ? "Create bots and Mini-Apps natively integrated into Telegram and the TON blockchain."
-                  : activeShowcase === "Gifts"
-                  ? "Send and receive animated gifts powered by the TON blockchain."
-                  : "Secure your unique identity with collectible TON-based Usernames."
-                }
-              </p>
-            </div>
+          
+          {/* Pagination Indicators */}
+          <div className="flex items-center justify-center gap-1.5 mt-1">
+            <div className="h-1 w-5 bg-white rounded-full"></div>
+            <div className="h-1 w-1.5 bg-[#3a3a3c] rounded-full transition-all duration-300"></div>
+            <div className="h-1 w-1.5 bg-[#3a3a3c] rounded-full transition-all duration-300"></div>
+            <div className="h-1 w-1.5 bg-[#3a3a3c] rounded-full transition-all duration-300"></div>
           </div>
         </div>
 
