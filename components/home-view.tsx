@@ -473,19 +473,25 @@ export function HomeView() {
           50% { transform: translate(8%, 10%) scale(1.2); }
         }
         .bg-grid {
-          background-size: 30px 30px;
-          background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-          mask-image: linear-gradient(to bottom, black 20%, transparent 80%);
-          -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 80%);
+          background-size: 60px 60px;
+          background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+          mask-image: radial-gradient(circle at 50% 20%, black, transparent 70%);
+          -webkit-mask-image: radial-gradient(circle at 50% 20%, black, transparent 70%);
         }
       `}} />
 
 
 
-      {/* Subtle Animated Background Grid */}
+      {/* Subtle Premium Background */}
       <div className="absolute top-0 left-0 w-full h-[400px] z-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-grid opacity-60 transform-gpu" />
+        {/* Spotlight */}
+        <div 
+          className="absolute top-[-150px] left-1/2 -translate-x-1/2 w-[600px] h-[400px]" 
+          style={{ background: "radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%)" }}
+        />
+        {/* Soft Grid */}
+        <div className="absolute inset-0 bg-grid opacity-80 transform-gpu" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#121212]/50 to-[#121212]" />
       </div>
 
@@ -507,10 +513,10 @@ export function HomeView() {
           {/* Typography */}
           <div className="flex flex-col gap-1.5">
             <h1 
-              className="text-white font-bold text-[36px] sm:text-[40px] leading-[1.1] tracking-tight drop-shadow-lg" 
-              style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}
+              className="text-white font-bold text-[36px] sm:text-[40px] leading-[1.1] tracking-wide drop-shadow-lg" 
+              style={{ fontFamily: SFD, letterSpacing: "0.02em" }}
             >
-              xBlum AI
+              NOIR
             </h1>
             <p className="text-[#8e8e93] text-[15px]" style={{ fontFamily: SF }}>
               Hello, {firstName || "there"}. Ready to assist.
