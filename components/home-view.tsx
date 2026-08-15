@@ -413,7 +413,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-[#0A0A0A] min-h-screen text-white overflow-x-hidden font-sans pb-24">
+    <div className="flex-1 flex flex-col bg-[#000000] min-h-screen text-white overflow-x-hidden font-sans pb-24">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -483,13 +483,13 @@ export function HomeView() {
       >
         
         {/* Content Layer */}
-        <div className="relative z-40 flex flex-col items-start gap-4 w-full pointer-events-auto mt-4">
+        <div className="relative z-40 flex flex-col items-start gap-3 w-full pointer-events-auto mt-1">
           
           {/* Top-Left Model Selector (Inline above title) */}
           <div ref={modelMenuRef} className="relative z-50">
             <button
               onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-              className="flex items-center gap-2 h-[34px] px-3.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] active:scale-95 transition-all border border-white/[0.05] shadow-sm backdrop-blur-md"
+              className="flex items-center gap-2 h-[34px] px-3.5 rounded-full bg-[#161616] hover:bg-[#262626] active:scale-95 transition-all border border-[#2c2c2e] shadow-sm"
             >
               <span className="font-medium text-[13px] text-[#e5e5ea] tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
               <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
@@ -500,7 +500,7 @@ export function HomeView() {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                 <div 
-                  className="cursor-default absolute left-0 top-[42px] w-[260px] rounded-[24px] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#0A0A0A]/98 border border-[#2c2c2e] transform-gpu"
+                  className="cursor-default absolute left-0 top-[42px] w-[260px] rounded-[24px] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#000000]/98 border border-[#2c2c2e] transform-gpu"
                   style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
                 >
                   <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[300px] rounded-[24px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
@@ -546,14 +546,14 @@ export function HomeView() {
           </div>
 
           {/* Typography (Left Aligned, High Contrast like Image) */}
-          <div className="flex flex-col mt-2">
+          <div className="flex flex-col mt-0.5">
             <h1 
               className="text-[#F4F4F5] font-bold text-[40px] leading-[1.0] tracking-tight drop-shadow-sm" 
               style={{ fontFamily: SFD, letterSpacing: "-0.04em" }}
             >
               NOIR
             </h1>
-            <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+            <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1.5 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
               Built for the future.
               <br />
               Available today.
@@ -561,12 +561,11 @@ export function HomeView() {
           </div>
 
           {/* Ask NOIR Input Bar */}
-          <div className="w-full mt-2.5">
+          <div className="w-full mt-2">
             <div 
-              className={`flex items-center gap-3 px-4 py-3 rounded-full w-full border transition-all duration-300 shadow-sm
-                ${isInputActive ? 'bg-[#1c1c1e] border-[#3a3a3c]' : 'bg-[#121212]/80 border-[#2c2c2e] hover:bg-[#1c1c1e]'}
+              className={`flex items-center gap-3 px-4 py-3.5 rounded-full w-full border transition-all duration-300 shadow-sm
+                ${isInputActive ? 'bg-[#222222] border-[#3a3a3c]' : 'bg-[#161616] border-[#2c2c2e] hover:bg-[#1c1c1e]'}
               `}
-              style={{ backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
             >
               <Search className={`w-5 h-5 shrink-0 transition-colors ${isInputActive ? 'text-[#60a5fa]' : 'text-[#8e8e93]'}`} strokeWidth={2.5} />
               <input 
@@ -632,7 +631,7 @@ export function HomeView() {
                           transform: "translateZ(0)"
                         } 
                       : {
-                          backgroundColor: "#0A0A0A",
+                          backgroundColor: "#000000",
                           border: "1px solid rgba(255, 255, 255, 0.10)",
                           boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
                           transform: "translateZ(0)"
@@ -655,7 +654,7 @@ export function HomeView() {
             }}
           >
             {/* Image Placeholder (Mockup/Video) */}
-            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#0A0A0A] to-[#1e1e1e] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
+            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#000000] to-[#1e1e1e] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
               <span className="text-white/30 font-medium text-[13px]" style={{ fontFamily: SF }}>Placeholder</span>
             </div>
 
@@ -803,7 +802,7 @@ export function HomeView() {
 
       {/* Modals & Full Screen Views */}
       {modalState.view !== "closed" && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-[#0A0A0A] animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-[#000000] animate-in slide-in-from-right duration-300">
           
           {modalState.view === "list" && (
             <div className="flex flex-col h-full overflow-hidden" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
@@ -903,7 +902,7 @@ export function HomeView() {
             const isDisconnecting = disconnectingId === activeConnectorData.id
             return (
             <div className="flex flex-col overflow-hidden h-full" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
-              <div className="flex items-center justify-between px-4 mb-2 pb-4 border-b border-[#0A0A0A] shrink-0 mt-4">
+              <div className="flex items-center justify-between px-4 mb-2 pb-4 border-b border-[#000000] shrink-0 mt-4">
                 <div className="flex items-center gap-3">
                   <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-7 h-7 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                   <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>{activeConnectorData.name}</h2>
@@ -1009,8 +1008,8 @@ export function HomeView() {
                 </button>
              </div>
 
-             <div className="bg-[#111111] border border-[#0A0A0A] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
-                <div className="flex items-center justify-between p-3 border-b border-[#0A0A0A]">
+             <div className="bg-[#111111] border border-[#000000] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
+                <div className="flex items-center justify-between p-3 border-b border-[#000000]">
                   <div className="flex flex-col">
                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
                     <span className="text-[#8e8e93] text-[12px]">Comments on bans/mutes</span>
@@ -1020,7 +1019,7 @@ export function HomeView() {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-3 border-b border-[#0A0A0A]">
+                <div className="flex items-center justify-between p-3 border-b border-[#000000]">
                   <div className="flex flex-col pr-4">
                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Auto-Execute Mod</span>
                     <span className="text-[#8e8e93] text-[12px]">Agent can run /ban /mute commands automatically</span>
