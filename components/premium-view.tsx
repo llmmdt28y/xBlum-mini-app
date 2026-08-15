@@ -320,7 +320,7 @@ export function PremiumView() {
       </div>
 
       {/* FIXED FOOTER */}
-      <div className="fixed bottom-0 left-0 w-full px-4 pt-4 pb-[calc(var(--tg-safe-area-inset-bottom,24px)+12px)] bg-[#000000]/95 backdrop-blur-md border-t border-white/5 z-20">
+      <div className="fixed bottom-0 left-0 w-full px-4 pt-4 pb-[calc(var(--tg-safe-area-inset-bottom,24px)+12px)] bg-[#000000]/95  border-t border-white/5 z-20">
         <div className="flex items-center gap-2.5 w-full mb-3">
           <button className="flex-1 py-[12px] rounded-full bg-[#1c1c1e] active:bg-[#2c2c2e] transition-colors flex items-center justify-center gap-2 shadow-sm border border-white/5">
             <Gift className="w-[18px] h-[18px]" />

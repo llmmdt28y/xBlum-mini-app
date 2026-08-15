@@ -861,7 +861,7 @@ export function ScheduleView() {
       {/* ── View Task Bottom Sheet ── */}
       {selectedTask && (
         <div className="absolute inset-0 z-[70] flex flex-col justify-end animate-in fade-in duration-300">
-           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedTask(null)} />
+           <div className="absolute inset-0 bg-black/70 " onClick={() => setSelectedTask(null)} />
            <div 
              className="relative w-full bg-[#111111] rounded-t-[28px] p-6 pb-12 flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[#1c1c1e] animate-in slide-in-from-bottom duration-400"
              style={{ transform: `translateY(${sheetTranslateY}px)`, transition: sheetTouchY === null ? 'transform 0.3s ease-out' : 'none' }}

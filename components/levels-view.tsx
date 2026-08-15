@@ -251,7 +251,7 @@ export function LevelsView() {
       }} />
 
       {/* Header Título */}
-      <div className="sticky top-0 z-30 flex items-center justify-center w-full bg-black/80 backdrop-blur-md border-b border-white/5"
+      <div className="sticky top-0 z-30 flex items-center justify-center w-full bg-black/80  border-b border-white/5"
            style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 24px)" }}>
         <h2 className="text-[17px] font-bold text-white" style={{ fontFamily: SFD }}>Level {currentLevel.lv}</h2>
       </div>

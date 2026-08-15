@@ -26,11 +26,9 @@ const ICON_COLORS: Record<string, string> = {
 
 // Liquid Glass Styles
 const cardLiquidGlassStyle = {
-  background: "rgba(42, 42, 44, 0.85)", 
-  backdropFilter: "blur(12px) saturate(150%)", 
-  WebkitBackdropFilter: "blur(12px) saturate(150%)",
-  border: "1px solid rgba(255, 255, 255, 0.12)", 
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)", 
+  backgroundColor: "rgba(28, 28, 30, 0.95)",
+  border: "1px solid rgba(255, 255, 255, 0.08)",
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
   transform: "translateZ(0)", 
   WebkitTransform: "translateZ(0)",
   willChange: "transform", 
@@ -519,12 +517,9 @@ export function HomeView() {
           <div ref={modelMenuRef} className="relative w-full mt-4 z-50">
             <div 
               className="w-full h-[46px] overflow-visible rounded-full flex items-center shadow-sm bg-white/5 pl-1.5 pr-1.5"
-              style={{
-                backdropFilter: "blur(12px) saturate(150%)",
-                WebkitBackdropFilter: "blur(12px) saturate(150%)",
-                transform: "translateZ(0)",
-                willChange: "transform, backdrop-filter",
-                backfaceVisibility: "hidden"
+              style={{ 
+                backgroundColor: "rgba(28, 28, 30, 0.95)",
+                border: "1px solid rgba(255, 255, 255, 0.08)"
               }}
             >
               
@@ -562,8 +557,8 @@ export function HomeView() {
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
               <div 
-                className="cursor-default absolute left-[6px] top-[54px] w-[290px] rounded-[32px] shadow-[0_16px_40px_rgba(0,0,0,0.6)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]/40 border border-white/[0.06] transform-gpu"
-                style={{ backdropFilter: "blur(40px) saturate(150%)", WebkitBackdropFilter: "blur(40px) saturate(150%)", willChange: "transform, opacity", backfaceVisibility: "hidden" }}
+                className="cursor-default absolute left-[6px] top-[54px] w-[290px] rounded-[32px] shadow-xl z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]/98 border border-white/[0.06] transform-gpu"
+                style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
               >
                 <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[350px] rounded-[32px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
                   {APP_MODELS.map((m, idx) => (
@@ -652,13 +647,13 @@ export function HomeView() {
                       ? {
                           backgroundColor: "#ffffff",
                           border: "1px solid rgba(255, 255, 255, 0.8)",
-                          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 1)",
+                          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
                           transform: "translateZ(0)"
                         } 
                       : {
                           backgroundColor: "#1c1c1e",
                           border: "1px solid rgba(255, 255, 255, 0.10)",
-                          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.15)",
+                          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
                           transform: "translateZ(0)"
                         }),
                     fontFamily: SF
@@ -674,7 +669,7 @@ export function HomeView() {
           <div 
             className="w-full bg-[#2c2c2e] rounded-[24px] overflow-hidden flex flex-col p-2 relative shadow-lg"
             style={{
-              boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4)",
               transform: "translateZ(0)"
             }}
           >
@@ -711,14 +706,14 @@ export function HomeView() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#e65c00] via-[#ff6a00] to-[#ff8c33]" />
           
           {/* Decorative subtle dots */}
-          <div className="absolute top-[15px] left-[42%] w-1 h-1 bg-white/20 rounded-full blur-[0.5px] pointer-events-none" />
-          <div className="absolute bottom-[20px] left-[52%] w-1.5 h-1.5 bg-white/30 rounded-full blur-[0.5px] pointer-events-none" />
-          <div className="absolute top-[40px] left-[58%] w-1 h-1 bg-white/25 rounded-full blur-[0.5px] pointer-events-none" />
-          <div className="absolute top-[10px] left-[65%] w-1.5 h-1.5 bg-white/20 rounded-full blur-[0.5px] pointer-events-none" />
-          <div className="absolute bottom-[10px] left-[62%] w-1 h-1 bg-white/15 rounded-full blur-[0.5px] pointer-events-none" />
-          <div className="absolute top-[25px] left-[38%] w-1 h-1 bg-white/30 rounded-full blur-[0.5px] pointer-events-none" />
-          <div className="absolute bottom-[35px] left-[46%] w-1 h-1 bg-white/20 rounded-full blur-[0.5px] pointer-events-none" />
-          <div className="absolute top-[50px] left-[70%] w-1.5 h-1.5 bg-white/25 rounded-full blur-[0.5px] pointer-events-none" />
+          <div className="absolute top-[15px] left-[42%] w-1 h-1 bg-white/20 rounded-full pointer-events-none" />
+          <div className="absolute bottom-[20px] left-[52%] w-1.5 h-1.5 bg-white/30 rounded-full pointer-events-none" />
+          <div className="absolute top-[40px] left-[58%] w-1 h-1 bg-white/25 rounded-full pointer-events-none" />
+          <div className="absolute top-[10px] left-[65%] w-1.5 h-1.5 bg-white/20 rounded-full pointer-events-none" />
+          <div className="absolute bottom-[10px] left-[62%] w-1 h-1 bg-white/15 rounded-full pointer-events-none" />
+          <div className="absolute top-[25px] left-[38%] w-1 h-1 bg-white/30 rounded-full pointer-events-none" />
+          <div className="absolute bottom-[35px] left-[46%] w-1 h-1 bg-white/20 rounded-full pointer-events-none" />
+          <div className="absolute top-[50px] left-[70%] w-1.5 h-1.5 bg-white/25 rounded-full pointer-events-none" />
           
           <div className="relative z-10 flex items-center justify-between pl-5 pr-2 h-[96px]">
             {/* Left side content */}

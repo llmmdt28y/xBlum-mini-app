@@ -88,7 +88,7 @@ export function ShopView() {
       }} />
 
       {/* Header */}
-      <div className="sticky top-0 z-30 flex items-center justify-between w-full px-5 bg-black/80 backdrop-blur-md border-b border-white/5"
+      <div className="sticky top-0 z-30 flex items-center justify-between w-full px-5 bg-black/80  border-b border-white/5"
            style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(max(var(--tg-safe-area-inset-top, 44px), 44px) + 24px)" }}>
         <button onClick={() => setCurrentView("levels")} className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-full border border-white/10 active:scale-95 transition-transform">
            <ChevronLeft size={20} className="text-white" />
@@ -137,7 +137,7 @@ export function ShopView() {
 
       {/* ── Modal de Compra (BottomSheet / Center Modal) ── */}
       {selectedItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-5 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-5 bg-black/80  animate-in fade-in duration-200">
           
           {/* Overlay para cerrar haciendo clic fuera */}
           <div className="absolute inset-0" onClick={closeBuyModal} />
@@ -148,7 +148,7 @@ export function ShopView() {
             {/* Botón de Cerrar */}
             <button 
                onClick={closeBuyModal} 
-               className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-black/40 rounded-full text-white/70 hover:text-white backdrop-blur-md"
+               className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center bg-black/40 rounded-full text-white/70 hover:text-white "
             >
               <X size={18} />
             </button>
@@ -181,7 +181,7 @@ export function ShopView() {
                  <span className="text-[13px] text-[#8e8e93]" style={{ fontFamily: SF }}>online</span>
                </div>
                
-               <div className="relative z-10 mt-3 px-3 py-1 bg-black/40 rounded-full border border-white/5 backdrop-blur-md">
+               <div className="relative z-10 mt-3 px-3 py-1 bg-black/40 rounded-full border border-white/5 ">
                  <span className="text-[11px] font-medium text-[#a1a1aa] tracking-widest uppercase" style={{ fontFamily: SF }}>
                    OBJECT ID: {selectedItem.id}
                  </span>

@@ -16,22 +16,18 @@ const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neu
 
 // ── CONSTANTES DE ESTILO LIQUID GLASS REAL (NAV BAR Y PÍLDORAS) ──
 const liquidGlassStyle = {
-  background: "rgba(30, 30, 30, 0.35)", 
-  backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", 
-  WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(1.1)",
+  background: "rgba(30, 30, 30, 0.95)", 
   border: "1px solid rgba(255, 255, 255, 0.12)", 
-  boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)",
+  boxShadow: "0 12px 40px rgba(0, 0, 0, 0.45)",
   transform: "translateZ(0)", 
   WebkitTransform: "translateZ(0)",
 }
 
 // ── LIQUID GLASS AMARILLO PARA EL BOTÓN TOP-UP ──
 const yellowLiquidGlassStyle = {
-  background: "rgba(234, 179, 8, 0.18)", // Fondo un poco amarillo/dorado
-  backdropFilter: "blur(24px) saturate(200%) brightness(1.1)", 
-  WebkitBackdropFilter: "blur(24px) saturate(200%) brightness(1.1)",
+  background: "rgba(234, 179, 8, 0.4)", 
   border: "1px solid rgba(250, 204, 21, 0.25)", 
-  boxShadow: "0 12px 40px rgba(0, 0, 0, 0.35), inset 0 1.5px 1px rgba(255, 255, 255, 0.3)", 
+  boxShadow: "0 12px 40px rgba(0, 0, 0, 0.35)", 
   transform: "translateZ(0)", 
   WebkitTransform: "translateZ(0)",
   willChange: "transform",
@@ -39,11 +35,9 @@ const yellowLiquidGlassStyle = {
 
 // ── MATTE BLUR OPTIMIZADO PARA TARJETAS (CERO LAG) ──
 const cardLiquidGlassStyle = {
-  background: "rgba(42, 42, 44, 0.85)", 
-  backdropFilter: "blur(12px) saturate(150%)", 
-  WebkitBackdropFilter: "blur(12px) saturate(150%)",
+  background: "rgba(42, 42, 44, 0.95)", 
   border: "1px solid rgba(255, 255, 255, 0.12)", 
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.2)", 
+  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)", 
   transform: "translateZ(0)", 
   WebkitTransform: "translateZ(0)",
   willChange: "transform", 
@@ -289,7 +283,7 @@ export function MarketView() {
         <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none">
            
            {/* 1. BLUR OPTIMIZADO: Termina justo después de las píldoras */}
-           <div className="absolute top-0 left-0 right-0 h-[154px] bg-[#0a0a0b]/60 backdrop-blur-[12px] backdrop-saturate-[180%] border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
+           <div className="absolute top-0 left-0 right-0 h-[154px] bg-[#0a0a0b]/60   border-b border-white/[0.04] pointer-events-none" style={{ contain: 'paint' }} />
 
            {/* 2. TOP UP PILL: Posición alineada con el botón Back nativo de Telegram */}
            <div className="absolute top-[58px] left-0 right-0 flex justify-center pointer-events-auto">
@@ -496,7 +490,7 @@ export function MarketView() {
                <Image src={activeAuctionData.imgSrc} alt={activeAuctionData.title} fill sizes="(max-width: 768px) 100vw, 300px" className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style={{ WebkitTouchCallout: "none" }} />
                {activeAuctionData.owned && (
                  <div className="absolute bottom-4 left-4 relative rounded-full px-3 py-1.5 flex items-center gap-2 shadow-sm z-10 overflow-hidden">
-                   <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/10 rounded-full" style={{ contain: 'paint' }} />
+                   <div className="absolute inset-0 bg-[#0a0a0b]/80   border border-white/10 rounded-full" style={{ contain: 'paint' }} />
                    <div className="relative z-10 flex items-center gap-2">
                      <div className="w-4 h-4 rounded-full bg-gradient-to-tr from-[#3b82f6] to-[#a855f7] border border-white/20" />
                      <span className="text-white text-[12px] font-medium" style={{ fontFamily: SF }}>Owned by <span className="font-bold">you</span></span>
@@ -658,7 +652,7 @@ export function MarketView() {
                                 </div>
                                 
                                 <div className="absolute -bottom-[20px] left-0 right-0 w-full h-[46px] rounded-[16px] px-3.5 flex items-center justify-between shadow-lg z-20 group">
-                                   <div className="absolute inset-0 bg-[#0a0a0b]/80 backdrop-blur-[8px] backdrop-saturate-[150%] border border-white/[0.08] rounded-[16px] transition-all group-hover:bg-[#0a0a0b] group-hover:border-white/15" style={{ contain: 'paint' }} />
+                                   <div className="absolute inset-0 bg-[#0a0a0b]/80   border border-white/[0.08] rounded-[16px] transition-all group-hover:bg-[#0a0a0b] group-hover:border-white/15" style={{ contain: 'paint' }} />
                                    <div className="relative z-10 flex items-center gap-1.5 overflow-hidden">
                                       <div className="w-[20px] h-[20px] rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
                                          <Gift className="w-[10px] h-[10px] text-white" />
