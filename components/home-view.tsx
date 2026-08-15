@@ -203,8 +203,6 @@ export function HomeView() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearching, setIsSearching] = useState(false)
 
-  const [isInputActive, setIsInputActive] = useState(false)
-  const [askQuery, setAskQuery] = useState("")
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false)
   const [loadingModel, setLoadingModel] = useState<string | null>(null)
   const [firstName, setFirstName] = useState("")
@@ -501,13 +499,13 @@ export function HomeView() {
         {/* Content Layer */}
         <div className="relative z-40 flex flex-col items-center gap-4 w-full max-w-md px-6 text-center transform -translate-y-8 pointer-events-auto">
           
-          {/* Badge */}
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1e1e1e] border border-white/5 shadow-sm mb-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          {/* Minimalist Status */}
+          <div className="flex items-center gap-2 mb-1">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
             </span>
-            <span className="text-[12px] font-medium text-[#8e8e93] uppercase tracking-widest" style={{ fontFamily: SF }}>Core Online</span>
+            <span className="text-[11px] font-semibold text-[#8e8e93] uppercase tracking-[0.2em]" style={{ fontFamily: SF }}>System Online</span>
           </div>
 
           {/* Typography */}
@@ -523,54 +521,25 @@ export function HomeView() {
             </p>
           </div>
 
-          {/* Ask anything / Model Selector Row Wrapper */}
-          <div ref={modelMenuRef} className="relative w-full mt-4 z-50">
-            <div 
-              className="w-full h-[46px] overflow-visible rounded-full flex items-center shadow-sm bg-white/5 pl-1.5 pr-1.5"
-              style={{ 
-                backgroundColor: "rgba(28, 28, 30, 0.95)",
-                border: "1px solid rgba(255, 255, 255, 0.08)"
-              }}
+          {/* Model Selector (Standalone Premium Pill) */}
+          <div ref={modelMenuRef} className="relative mt-5 z-50 w-full flex justify-center">
+            <button
+              onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
+              className="flex items-center gap-2 h-[38px] px-4 rounded-full bg-[#1c1c1e] hover:bg-[#262626] active:scale-95 transition-all border border-[#2c2c2e] shadow-lg"
             >
-              
-              {/* Inner Model Selector */}
-            <div className={`relative h-full flex items-center shrink-0 transition-all duration-300 ease-in-out whitespace-nowrap ${isInputActive ? 'max-w-0 opacity-0 overflow-hidden' : 'max-w-[175px] opacity-100'}`}>
-               <button
-                  onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-                  className="flex items-center gap-1.5 h-[34px] px-3.5 rounded-full bg-white/10 hover:bg-white/[0.15] active:bg-white/20 transition-colors border border-white/5 max-w-full"
-               >
-                 <span className="font-semibold text-[13.5px] text-white truncate flex-1" style={{ fontFamily: SF }}>{selectedModel}</span>
-                 <ChevronDown className={`w-3.5 h-3.5 text-white/70 shrink-0 transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
-               </button>
-              </div>
-
-
-            {/* Input field */}
-            <input 
-              value={askQuery}
-              onChange={(e) => setAskQuery(e.target.value)}
-              onFocus={() => setIsInputActive(true)}
-              onBlur={() => setIsInputActive(false)}
-              placeholder="Ask, search, find..."
-              className="flex-1 w-full bg-transparent border-none outline-none text-[#e5e5ea] text-[15px] font-medium tracking-wide pl-3 pr-2 placeholder:text-[#8e8e93] min-w-0"
-              style={{ fontFamily: SF }}
-            />
-
-            {/* Submit Button */}
-            <button className={`w-[34px] h-[34px] rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${askQuery.trim().length > 0 ? 'bg-[#60a5fa] hover:bg-[#4b8ce1]' : 'bg-white/10 hover:bg-white/20'}`}>
-               <ArrowUp className="w-[16px] h-[16px] text-white/90" strokeWidth={2} />
+              <span className="font-semibold text-[13.5px] text-[#e5e5ea] tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
             </button>
-          </div>
 
-          {/* Model Menu Popover */}
-          {isModelMenuOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
-              <div 
-                className="cursor-default absolute left-[6px] top-[54px] w-[290px] rounded-[32px] shadow-xl z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#121212]/98 border border-white/[0.06] transform-gpu"
-                style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
-              >
-                <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[350px] rounded-[32px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
+            {/* Model Menu Popover */}
+            {isModelMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
+                <div 
+                  className="cursor-default absolute left-1/2 -translate-x-1/2 top-[48px] w-[290px] rounded-[32px] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#121212]/98 border border-[#2c2c2e] transform-gpu"
+                  style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
+                >
+                  <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[350px] rounded-[32px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
                   {APP_MODELS.map((m, idx) => (
                     <div key={m.name} className="flex flex-col">
                       <button
