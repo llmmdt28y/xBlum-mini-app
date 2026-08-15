@@ -411,7 +411,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-[#1c1c1e] min-h-screen text-white overflow-x-hidden font-sans pb-24">
+    <div className="flex-1 flex flex-col bg-[#171717] min-h-screen text-white overflow-x-hidden font-sans pb-24">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -475,37 +475,14 @@ export function HomeView() {
 
 
 
-      {/* Hero Background Layer */}
-      <div className="absolute top-0 left-0 w-full h-[520px] sm:h-[540px] bg-[#050505] z-0 overflow-hidden pointer-events-none -translate-y-2">
-        <Image 
-          src="/background-hero.png" 
-          alt="Hero Background" 
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[center_60%] opacity-90" 
-        />
-        <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#1c1c1e] via-[#1c1c1e]/90 to-transparent"></div>
-      </div>
-
+      {/* Hero Background Layer (Removed) */}
       {/* Hero Content Section */}
       <div className="w-full relative z-40 -translate-y-2 h-[520px] sm:h-[540px] flex flex-col items-center justify-center overflow-visible pointer-events-none">
         
         {/* Content Layer */}
         <div className="relative z-40 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-16 pointer-events-auto">
           
-          {/* Object (Logo) */}
-          <Image 
-            src="/hero.png" 
-            alt="Hero Object" 
-            width={192}
-            height={192}
-            priority
-            className="mx-auto object-contain select-none pointer-events-none drop-shadow-2xl transform translate-y-6"
-            draggable={false}
-            style={imageProtectionStyle}
-          />
-          
+
           <h1 
             className="text-white font-bold text-[28px] sm:text-[32px] leading-[1.1] tracking-tight drop-shadow-md" 
             style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
@@ -557,7 +534,7 @@ export function HomeView() {
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
               <div 
-                className="cursor-default absolute left-[6px] top-[54px] w-[290px] rounded-[32px] shadow-xl z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]/98 border border-white/[0.06] transform-gpu"
+                className="cursor-default absolute left-[6px] top-[54px] w-[290px] rounded-[32px] shadow-xl z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#171717]/98 border border-white/[0.06] transform-gpu"
                 style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
               >
                 <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[350px] rounded-[32px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
@@ -651,7 +628,7 @@ export function HomeView() {
                           transform: "translateZ(0)"
                         } 
                       : {
-                          backgroundColor: "#1c1c1e",
+                          backgroundColor: "#171717",
                           border: "1px solid rgba(255, 255, 255, 0.10)",
                           boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
                           transform: "translateZ(0)"
@@ -674,7 +651,7 @@ export function HomeView() {
             }}
           >
             {/* Image Placeholder (Mockup/Video) */}
-            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#1c1c1e] to-[#2c2c2e] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
+            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#171717] to-[#2c2c2e] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
               <span className="text-white/30 font-medium text-[13px]" style={{ fontFamily: SF }}>Placeholder</span>
             </div>
 
@@ -822,7 +799,7 @@ export function HomeView() {
 
       {/* Modals & Full Screen Views */}
       {modalState.view !== "closed" && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-[#1c1c1e] animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-[#171717] animate-in slide-in-from-right duration-300">
           
           {modalState.view === "list" && (
             <div className="flex flex-col h-full overflow-hidden" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
@@ -922,7 +899,7 @@ export function HomeView() {
             const isDisconnecting = disconnectingId === activeConnectorData.id
             return (
             <div className="flex flex-col overflow-hidden h-full" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
-              <div className="flex items-center justify-between px-4 mb-2 pb-4 border-b border-[#1c1c1e] shrink-0 mt-4">
+              <div className="flex items-center justify-between px-4 mb-2 pb-4 border-b border-[#171717] shrink-0 mt-4">
                 <div className="flex items-center gap-3">
                   <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-7 h-7 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                   <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>{activeConnectorData.name}</h2>
@@ -1028,8 +1005,8 @@ export function HomeView() {
                 </button>
              </div>
 
-             <div className="bg-[#111111] border border-[#1c1c1e] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
-                <div className="flex items-center justify-between p-3 border-b border-[#1c1c1e]">
+             <div className="bg-[#111111] border border-[#171717] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
+                <div className="flex items-center justify-between p-3 border-b border-[#171717]">
                   <div className="flex flex-col">
                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
                     <span className="text-[#8e8e93] text-[12px]">Comments on bans/mutes</span>
@@ -1039,7 +1016,7 @@ export function HomeView() {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-3 border-b border-[#1c1c1e]">
+                <div className="flex items-center justify-between p-3 border-b border-[#171717]">
                   <div className="flex flex-col pr-4">
                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Auto-Execute Mod</span>
                     <span className="text-[#8e8e93] text-[12px]">Agent can run /ban /mute commands automatically</span>
