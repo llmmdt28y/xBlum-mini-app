@@ -410,7 +410,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-[#121212] min-h-screen text-white overflow-x-hidden font-sans pb-24">
+    <div className="flex-1 flex flex-col bg-[#0A0A0A] min-h-screen text-white overflow-x-hidden font-sans pb-24">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -470,16 +470,8 @@ export function HomeView() {
           0%, 100% { transform: translate(0, 0) scale(1); }
           50% { transform: translate(8%, 10%) scale(1.2); }
         }
-        .bg-grid {
-          background-size: 60px 60px;
-          background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-          mask-image: radial-gradient(circle at 50% 20%, black, transparent 70%);
-          -webkit-mask-image: radial-gradient(circle at 50% 20%, black, transparent 70%);
         }
       `}} />
-
-
 
       {/* Subtle Premium Background */}
       <div className="absolute top-0 left-0 w-full h-[400px] z-0 overflow-hidden pointer-events-none">
@@ -488,46 +480,31 @@ export function HomeView() {
           className="absolute top-[-150px] left-1/2 -translate-x-1/2 w-[600px] h-[400px]" 
           style={{ background: "radial-gradient(ellipse at center, rgba(255,255,255,0.03) 0%, transparent 70%)" }}
         />
-        {/* Soft Grid */}
-        <div className="absolute inset-0 bg-grid opacity-80 transform-gpu" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#121212]/50 to-[#121212]" />
+        {/* SVG Plus Grid (Unfinished lines look) */}
+        <div className="absolute inset-0 opacity-[0.12]" style={{ WebkitMaskImage: "radial-gradient(circle at 50% 30%, black, transparent 70%)", maskImage: "radial-gradient(circle at 50% 30%, black, transparent 70%)" }}>
+          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="plus-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 20 16 L 20 24 M 16 20 L 24 20" stroke="white" strokeWidth="1" fill="none" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#plus-grid)" />
+          </svg>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0A]/50 to-[#0A0A0A]" />
       </div>
 
       {/* Hero Content Section */}
       <div className="w-full relative z-40 h-[400px] sm:h-[420px] flex flex-col items-center justify-center overflow-visible pointer-events-none">
         
-        {/* Content Layer */}
-        <div className="relative z-40 flex flex-col items-center gap-4 w-full max-w-md px-6 text-center transform -translate-y-8 pointer-events-auto">
-          
-          {/* Minimalist Status */}
-          <div className="flex items-center gap-2 mb-1">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-            </span>
-            <span className="text-[11px] font-semibold text-[#8e8e93] uppercase tracking-[0.2em]" style={{ fontFamily: SF }}>System Online</span>
-          </div>
-
-          {/* Typography */}
-          <div className="flex flex-col gap-1.5">
-            <h1 
-              className="text-white font-bold text-[36px] sm:text-[40px] leading-[1.1] tracking-wide drop-shadow-lg" 
-              style={{ fontFamily: SFD, letterSpacing: "0.02em" }}
-            >
-              NOIR
-            </h1>
-            <p className="text-[#8e8e93] text-[15px]" style={{ fontFamily: SF }}>
-              Hello, {firstName || "there"}. Ready to assist.
-            </p>
-          </div>
-
-          {/* Model Selector (Standalone Premium Pill) */}
-          <div ref={modelMenuRef} className="relative mt-5 z-50 w-full flex justify-center">
+        {/* Top-Left Model Selector */}
+        <div className="absolute top-4 left-4 z-50 pointer-events-auto">
+          <div ref={modelMenuRef} className="relative">
             <button
               onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-              className="flex items-center gap-2 h-[38px] px-4 rounded-full bg-[#1c1c1e] hover:bg-[#262626] active:scale-95 transition-all border border-[#2c2c2e] shadow-lg"
+              className="flex items-center gap-2 h-[34px] px-3.5 rounded-full bg-[#1c1c1e] hover:bg-[#262626] active:scale-95 transition-all border border-[#2c2c2e] shadow-md"
             >
-              <span className="font-semibold text-[13.5px] text-[#e5e5ea] tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
+              <span className="font-semibold text-[13px] text-[#e5e5ea] tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
               <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
             </button>
 
@@ -536,10 +513,10 @@ export function HomeView() {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                 <div 
-                  className="cursor-default absolute left-1/2 -translate-x-1/2 top-[48px] w-[290px] rounded-[32px] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#121212]/98 border border-[#2c2c2e] transform-gpu"
+                  className="cursor-default absolute left-0 top-[42px] w-[260px] rounded-[24px] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#0A0A0A]/98 border border-[#2c2c2e] transform-gpu"
                   style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
                 >
-                  <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[350px] rounded-[32px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
+                  <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[300px] rounded-[24px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
                   {APP_MODELS.map((m, idx) => (
                     <div key={m.name} className="flex flex-col">
                       <button
@@ -554,11 +531,11 @@ export function HomeView() {
                         className={`flex items-center justify-between px-5 py-3 transition-colors text-left hover:bg-white/10 w-full`}
                       >
                         <div className="flex flex-col items-start gap-[2px] pr-4 min-w-0 flex-1">
-                          <span className="text-[17px] font-medium text-white leading-tight flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+                          <span className="text-[16px] font-medium text-white leading-tight flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
                             {m.name}
                             {m.tag && <span className={`${m.tagColor} ${m.tagStyle} shrink-0`}>{m.tag}</span>}
                           </span>
-                          <span className="text-[14px] font-normal text-[#8e8e93] leading-snug whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
+                          <span className="text-[13px] font-normal text-[#8e8e93] leading-snug whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
                         </div>
                         <div className="shrink-0 flex items-center justify-center w-[20px]">
                           {loadingModel === m.name ? (
@@ -577,11 +554,24 @@ export function HomeView() {
                   ))}
                 </div>
               </div>
-            </>
-          )}
+            )}
+            </div>
+          </div>
+        </div>
+
+        {/* Centered Typography */}
+        <div className="relative z-40 flex flex-col items-center justify-center gap-1.5 w-full max-w-md px-6 text-center pointer-events-auto transform -translate-y-4">
+          <h1 
+            className="text-white font-bold text-[38px] sm:text-[42px] leading-[1.1] tracking-wide drop-shadow-lg" 
+            style={{ fontFamily: SFD, letterSpacing: "0.02em" }}
+          >
+            NOIR
+          </h1>
+          <p className="text-[#8e8e93] text-[15px]" style={{ fontFamily: SF }}>
+            Hello, {firstName || "there"}. Ready to assist.
+          </p>
         </div>
       </div>
-    </div>
 
       {/* Main Content */}
       <div className="w-full max-w-md mx-auto flex flex-col gap-2 px-4 relative z-30 -mt-36">
@@ -630,7 +620,7 @@ export function HomeView() {
                           transform: "translateZ(0)"
                         } 
                       : {
-                          backgroundColor: "#121212",
+                          backgroundColor: "#0A0A0A",
                           border: "1px solid rgba(255, 255, 255, 0.10)",
                           boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
                           transform: "translateZ(0)"
@@ -653,7 +643,7 @@ export function HomeView() {
             }}
           >
             {/* Image Placeholder (Mockup/Video) */}
-            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#121212] to-[#1e1e1e] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
+            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#0A0A0A] to-[#1e1e1e] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
               <span className="text-white/30 font-medium text-[13px]" style={{ fontFamily: SF }}>Placeholder</span>
             </div>
 
@@ -801,7 +791,7 @@ export function HomeView() {
 
       {/* Modals & Full Screen Views */}
       {modalState.view !== "closed" && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-[#121212] animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-[#0A0A0A] animate-in slide-in-from-right duration-300">
           
           {modalState.view === "list" && (
             <div className="flex flex-col h-full overflow-hidden" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
@@ -901,7 +891,7 @@ export function HomeView() {
             const isDisconnecting = disconnectingId === activeConnectorData.id
             return (
             <div className="flex flex-col overflow-hidden h-full" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
-              <div className="flex items-center justify-between px-4 mb-2 pb-4 border-b border-[#121212] shrink-0 mt-4">
+              <div className="flex items-center justify-between px-4 mb-2 pb-4 border-b border-[#0A0A0A] shrink-0 mt-4">
                 <div className="flex items-center gap-3">
                   <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-7 h-7 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                   <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>{activeConnectorData.name}</h2>
@@ -1007,8 +997,8 @@ export function HomeView() {
                 </button>
              </div>
 
-             <div className="bg-[#111111] border border-[#121212] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
-                <div className="flex items-center justify-between p-3 border-b border-[#121212]">
+             <div className="bg-[#111111] border border-[#0A0A0A] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
+                <div className="flex items-center justify-between p-3 border-b border-[#0A0A0A]">
                   <div className="flex flex-col">
                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
                     <span className="text-[#8e8e93] text-[12px]">Comments on bans/mutes</span>
@@ -1018,7 +1008,7 @@ export function HomeView() {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-3 border-b border-[#121212]">
+                <div className="flex items-center justify-between p-3 border-b border-[#0A0A0A]">
                   <div className="flex flex-col pr-4">
                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Auto-Execute Mod</span>
                     <span className="text-[#8e8e93] text-[12px]">Agent can run /ban /mute commands automatically</span>
