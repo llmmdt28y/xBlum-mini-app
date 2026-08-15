@@ -472,23 +472,15 @@ export function HomeView() {
         }
         }
       `}} />
-
-      {/* Subtle Premium Background */}
-      {/* Subtle Premium Background (Linear Style) */}
-      <div className="absolute top-0 left-0 w-full h-[400px] z-0 overflow-hidden pointer-events-none">
-        {/* Soft Overhead Spotlight */}
-        <div 
-          className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[800px] h-[500px]" 
-          style={{ background: "radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 70%)" }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0A0A]/60 to-[#0A0A0A]" />
-      </div>
-
+      
       {/* Hero Content Section */}
-      <div className="w-full max-w-md mx-auto relative z-40 h-[380px] flex flex-col justify-center px-6 pointer-events-none">
+      <div 
+        className="w-full max-w-md mx-auto relative z-40 flex flex-col px-6 pointer-events-none mb-6"
+        style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}
+      >
         
         {/* Content Layer */}
-        <div className="relative z-40 flex flex-col items-start gap-4 w-full pointer-events-auto transform translate-y-4">
+        <div className="relative z-40 flex flex-col items-start gap-4 w-full pointer-events-auto mt-4">
           
           {/* Top-Left Model Selector (Inline above title) */}
           <div ref={modelMenuRef} className="relative z-50">
@@ -544,8 +536,8 @@ export function HomeView() {
                       )}
                     </div>
                   ))}
+                  </div>
                 </div>
-              </div>
               </>
             )}
           </div>
@@ -567,7 +559,7 @@ export function HomeView() {
       </div>
 
       {/* Main Content */}
-      <div className="w-full max-w-md mx-auto flex flex-col gap-2 px-4 relative z-30 -mt-36">
+      <div className="w-full max-w-md mx-auto flex flex-col gap-2 px-4 relative z-30">
         
 
 
