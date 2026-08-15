@@ -558,7 +558,6 @@ export function HomeView() {
             )}
             </div>
           </div>
-        </div>
 
         {/* Centered Typography */}
         <div className="relative z-40 flex flex-col items-center justify-center gap-1.5 w-full max-w-md px-6 text-center pointer-events-auto transform -translate-y-4">
