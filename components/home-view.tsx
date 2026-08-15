@@ -486,7 +486,7 @@ export function HomeView() {
         <div className="relative z-40 flex flex-col items-start w-full pointer-events-auto mt-4">
           
           {/* Top-Left Model Selector */}
-          <div ref={modelMenuRef} className="relative z-50 mb-3">
+          <div ref={modelMenuRef} className="relative z-50 mb-3 -ml-1">
             <button
               onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
               className="flex items-center gap-2 h-[34px] px-3.5 rounded-full bg-[#161616] hover:bg-[#262626] active:scale-95 transition-all border border-[#2c2c2e] shadow-sm"
@@ -554,15 +554,15 @@ export function HomeView() {
               NOIR
             </h1>
             <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1.5 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
-              Hi, {firstName || "there"}.<br />
-              Built for the future. Available today.
+              The new standard for intelligent agents.<br />
+              Hi, {firstName || "there"}.
             </p>
           </div>
 
           {/* Ask NOIR Input Bar */}
           <div className="w-full mt-2">
             <div 
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-full w-full border transition-all duration-300 shadow-sm
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-full w-full border transition-all duration-300 shadow-sm
                 ${isInputActive ? 'bg-[#222222] border-[#3a3a3c]' : 'bg-[#161616] border-[#2c2c2e] hover:bg-[#1c1c1e]'}
               `}
             >
