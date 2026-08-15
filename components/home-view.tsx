@@ -413,7 +413,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-[#000000] min-h-screen text-white overflow-x-hidden font-sans pb-24">
+    <div className="flex-1 flex flex-col bg-[#0A0A0A] min-h-screen text-white overflow-x-hidden font-sans pb-24">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -449,7 +449,7 @@ export function HomeView() {
         .skeleton-shimmer {
           position: relative;
           overflow: hidden;
-          background-color: #1e1e1e;
+          background-color: #141414;
         }
         .skeleton-shimmer::after {
           content: "";
@@ -482,68 +482,68 @@ export function HomeView() {
         style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}
       >
         
-        {/* Content Layer */}
-        <div className="relative z-40 flex flex-col items-start gap-3 w-full pointer-events-auto mt-1">
-          
-          {/* Top-Left Model Selector (Inline above title) */}
-          <div ref={modelMenuRef} className="relative z-50">
-            <button
-              onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-              className="flex items-center gap-2 h-[34px] px-3.5 rounded-full bg-[#161616] hover:bg-[#262626] active:scale-95 transition-all border border-[#2c2c2e] shadow-sm"
-            >
-              <span className="font-medium text-[13px] text-[#e5e5ea] tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
-            </button>
+        {/* Absolute Top-Left Model Selector */}
+        <div ref={modelMenuRef} className="absolute left-6 z-50 pointer-events-auto" style={{ top: "calc(var(--tg-safe-area-inset-top, 24px) + 16px)" }}>
+          <button
+            onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
+            className="flex items-center gap-2 h-[34px] px-3.5 rounded-full bg-[#161616] hover:bg-[#262626] active:scale-95 transition-all border border-[#2c2c2e] shadow-sm"
+          >
+            <span className="font-medium text-[13px] text-[#e5e5ea] tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
+            <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
+          </button>
 
-            {/* Model Menu Popover */}
-            {isModelMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
-                <div 
-                  className="cursor-default absolute left-0 top-[42px] w-[260px] rounded-[24px] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#000000]/98 border border-[#2c2c2e] transform-gpu"
-                  style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
-                >
-                  <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[300px] rounded-[24px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
-                  {APP_MODELS.map((m, idx) => (
-                    <div key={m.name} className="flex flex-col">
-                      <button
-                        onClick={() => {
-                          if (selectedModel === m.name) return;
-                          setLoadingModel(m.name);
-                          setTimeout(() => {
-                            setSelectedModel(m.name as ModelName);
-                            setLoadingModel(null);
-                          }, 800);
-                        }}
-                        className={`flex items-center justify-between px-5 py-3 transition-colors text-left hover:bg-white/10 w-full`}
-                      >
-                        <div className="flex flex-col items-start gap-[2px] pr-4 min-w-0 flex-1">
-                          <span className="text-[16px] font-medium text-white leading-tight flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
-                            {m.name}
-                            {m.tag && <span className={`${m.tagColor} ${m.tagStyle} shrink-0`}>{m.tag}</span>}
-                          </span>
-                          <span className="text-[13px] font-normal text-[#8e8e93] leading-snug whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
-                        </div>
-                        <div className="shrink-0 flex items-center justify-center w-[20px]">
-                          {loadingModel === m.name ? (
-                            <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin" />
-                          ) : selectedModel === m.name ? (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-[#60a5fa]">
-                              <polyline points="22 4 9 17 4 12"></polyline>
-                            </svg>
-                          ) : null}
-                        </div>
-                      </button>
-                      {idx < APP_MODELS.length - 1 && (
-                        <div className="h-[1px] bg-white/[0.08] mx-5" />
-                      )}
-                    </div>
-                  ))}
+          {/* Model Menu Popover */}
+          {isModelMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
+              <div 
+                className="cursor-default absolute left-0 top-[42px] w-[260px] rounded-[24px] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#0A0A0A]/98 border border-[#2c2c2e] transform-gpu"
+                style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
+              >
+                <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[300px] rounded-[24px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
+                {APP_MODELS.map((m, idx) => (
+                  <div key={m.name} className="flex flex-col">
+                    <button
+                      onClick={() => {
+                        if (selectedModel === m.name) return;
+                        setLoadingModel(m.name);
+                        setTimeout(() => {
+                          setSelectedModel(m.name as ModelName);
+                          setLoadingModel(null);
+                        }, 800);
+                      }}
+                      className={`flex items-center justify-between px-5 py-3 transition-colors text-left hover:bg-white/10 w-full`}
+                    >
+                      <div className="flex flex-col items-start gap-[2px] pr-4 min-w-0 flex-1">
+                        <span className="text-[16px] font-medium text-white leading-tight flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+                          {m.name}
+                          {m.tag && <span className={`${m.tagColor} ${m.tagStyle} shrink-0`}>{m.tag}</span>}
+                        </span>
+                        <span className="text-[13px] font-normal text-[#8e8e93] leading-snug whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
+                      </div>
+                      <div className="shrink-0 flex items-center justify-center w-[20px]">
+                        {loadingModel === m.name ? (
+                          <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin" />
+                        ) : selectedModel === m.name ? (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-[#60a5fa]">
+                            <polyline points="22 4 9 17 4 12"></polyline>
+                          </svg>
+                        ) : null}
+                      </div>
+                    </button>
+                    {idx < APP_MODELS.length - 1 && (
+                      <div className="h-[1px] bg-white/[0.08] mx-5" />
+                    )}
                   </div>
+                ))}
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Content Layer */}
+        <div className="relative z-40 flex flex-col items-start gap-3 w-full pointer-events-auto mt-16">
 
           {/* Typography (Left Aligned, High Contrast like Image) */}
           <div className="flex flex-col mt-0.5">
@@ -554,9 +554,7 @@ export function HomeView() {
               NOIR
             </h1>
             <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1.5 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
-              Built for the future.
-              <br />
-              Available today.
+              Hi, {firstName || "there"}. How can I help you today?
             </p>
           </div>
 
@@ -590,7 +588,7 @@ export function HomeView() {
 
 
         {/* Profile Completion Card */}
-        <div className="w-full bg-[#1e1e1e] rounded-[16px] p-3 mt-2">
+        <div className="w-full bg-[#141414] rounded-[16px] p-3 mt-2">
           <p className="text-white text-[14px] font-semibold leading-snug mb-2" style={{ fontFamily: SF }}>
             Complete your profile to receive personalized recommendations
           </p>
@@ -631,7 +629,7 @@ export function HomeView() {
                           transform: "translateZ(0)"
                         } 
                       : {
-                          backgroundColor: "#000000",
+                          backgroundColor: "#0A0A0A",
                           border: "1px solid rgba(255, 255, 255, 0.10)",
                           boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
                           transform: "translateZ(0)"
@@ -647,14 +645,14 @@ export function HomeView() {
 
           {/* Card Container */}
           <div 
-            className="w-full bg-[#1e1e1e] rounded-[24px] overflow-hidden flex flex-col p-2 relative shadow-lg"
+            className="w-full bg-[#141414] rounded-[24px] overflow-hidden flex flex-col p-2 relative shadow-lg"
             style={{
               boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4)",
               transform: "translateZ(0)"
             }}
           >
             {/* Image Placeholder (Mockup/Video) */}
-            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#000000] to-[#1e1e1e] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
+            <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#0A0A0A] to-[#141414] rounded-[16px] overflow-hidden relative mb-2 flex items-center justify-center border border-white/5">
               <span className="text-white/30 font-medium text-[13px]" style={{ fontFamily: SF }}>Placeholder</span>
             </div>
 
@@ -732,7 +730,7 @@ export function HomeView() {
             </div>
 
             <div 
-              className="w-full bg-[#1e1e1e] rounded-[16px] overflow-hidden flex flex-col relative"
+              className="w-full bg-[#141414] rounded-[16px] overflow-hidden flex flex-col relative"
             >
               <div className="flex flex-col">
                 {connectorsLoading
@@ -802,7 +800,7 @@ export function HomeView() {
 
       {/* Modals & Full Screen Views */}
       {modalState.view !== "closed" && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-[#000000] animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-[60] flex flex-col bg-[#0A0A0A] animate-in slide-in-from-right duration-300">
           
           {modalState.view === "list" && (
             <div className="flex flex-col h-full overflow-hidden" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
@@ -820,7 +818,7 @@ export function HomeView() {
                   {searchQuery.length > 0 && (
                     <button 
                       onClick={() => setSearchQuery("")}
-                      className="absolute right-3.5 z-10 p-0.5 rounded-full bg-[#1e1e1e] text-[#8e8e93] active:scale-95 transition-transform"
+                      className="absolute right-3.5 z-10 p-0.5 rounded-full bg-[#141414] text-[#8e8e93] active:scale-95 transition-transform"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -837,7 +835,7 @@ export function HomeView() {
 
               {/* Connectors List using the exact style from menu */}
               <div className="overflow-y-auto overscroll-none hide-scrollbar pb-10 flex-1 px-4">
-                <div className="w-full bg-[#1e1e1e] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
+                <div className="w-full bg-[#141414] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
                   <div className="flex flex-col">
                     {isSearching ? (
                       Array.from({ length: 3 }).map((_, i) => (
@@ -902,7 +900,7 @@ export function HomeView() {
             const isDisconnecting = disconnectingId === activeConnectorData.id
             return (
             <div className="flex flex-col overflow-hidden h-full" style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, 24px) + 24px)" }}>
-              <div className="flex items-center justify-between px-4 mb-2 pb-4 border-b border-[#000000] shrink-0 mt-4">
+              <div className="flex items-center justify-between px-4 mb-2 pb-4 border-b border-[#0A0A0A] shrink-0 mt-4">
                 <div className="flex items-center gap-3">
                   <img src={activeConnectorData.src} alt={activeConnectorData.name} className="w-7 h-7 object-contain select-none pointer-events-none" draggable={false} style={imageProtectionStyle} />
                   <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>{activeConnectorData.name}</h2>
@@ -944,7 +942,7 @@ export function HomeView() {
                 )}
                 <div className="space-y-4">
                   <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
-                  <div className="rounded-[16px] overflow-hidden bg-[#1e1e1e]">
+                  <div className="rounded-[16px] overflow-hidden bg-[#141414]">
                     {activeConnectorData.features.map((feat, i, arr) => (
                       <div key={i}>
                         <div className="flex gap-4 p-4">
@@ -978,7 +976,7 @@ export function HomeView() {
       {isBotIntModalOpen && (
          <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsBotIntModalOpen(false)} />
-          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#1e1e1e] flex flex-col max-h-[90vh] overflow-y-auto overscroll-none animate-in slide-in-from-bottom duration-300 transform-gpu">
+          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#141414] flex flex-col max-h-[90vh] overflow-y-auto overscroll-none animate-in slide-in-from-bottom duration-300 transform-gpu">
              <div className="w-10 h-1 bg-[#3a3a3c] rounded-full mx-auto mb-5 shrink-0" />
              
              <div className="flex items-center justify-between mb-6">
@@ -988,7 +986,7 @@ export function HomeView() {
                   </div>
                    <h2 className="text-white font-bold text-[24px]" style={{ fontFamily: SFD }}>Group Agent</h2>
                 </div>
-                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="w-8 h-8 rounded-full bg-[#1e1e1e] flex items-center justify-center text-white active:scale-95 transition-transform">
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="w-8 h-8 rounded-full bg-[#141414] flex items-center justify-center text-white active:scale-95 transition-transform">
                    <X className="w-5 h-5" />
                  </button>
              </div>
@@ -1008,8 +1006,8 @@ export function HomeView() {
                 </button>
              </div>
 
-             <div className="bg-[#111111] border border-[#000000] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
-                <div className="flex items-center justify-between p-3 border-b border-[#000000]">
+             <div className="bg-[#111111] border border-[#0A0A0A] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
+                <div className="flex items-center justify-between p-3 border-b border-[#0A0A0A]">
                   <div className="flex flex-col">
                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
                     <span className="text-[#8e8e93] text-[12px]">Comments on bans/mutes</span>
@@ -1019,7 +1017,7 @@ export function HomeView() {
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between p-3 border-b border-[#000000]">
+                <div className="flex items-center justify-between p-3 border-b border-[#0A0A0A]">
                   <div className="flex flex-col pr-4">
                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Auto-Execute Mod</span>
                     <span className="text-[#8e8e93] text-[12px]">Agent can run /ban /mute commands automatically</span>
@@ -1044,7 +1042,7 @@ export function HomeView() {
                 <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95" style={{ fontFamily: SF }}>
                    <Save className="w-4 h-4" /> Apply to Group
                 </button>
-                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#1e1e1e] hover:bg-[#3a3a3c] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#3a3a3c] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#141414] hover:bg-[#3a3a3c] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#3a3a3c] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
                     Cancel
                 </button>
              </div>
