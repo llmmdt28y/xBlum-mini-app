@@ -24,18 +24,6 @@ const ICON_COLORS: Record<string, string> = {
   Pill:"#fb7185", Activity:"#10b981", TrendingUp:"#22c55e", CheckSquare:"#3b82f6", Lightbulb:"#f59e0b"
 }
 
-const METEORS = [
-  { top: "10%", left: "80%", delay: "0s", duration: "3s" },
-  { top: "30%", left: "60%", delay: "2s", duration: "4s" },
-  { top: "50%", left: "90%", delay: "1.5s", duration: "3.5s" },
-  { top: "20%", left: "40%", delay: "3s", duration: "4.5s" },
-  { top: "70%", left: "70%", delay: "0.5s", duration: "3.2s" },
-  { top: "80%", left: "30%", delay: "4s", duration: "4s" },
-  { top: "15%", left: "20%", delay: "1s", duration: "3.8s" },
-  { top: "60%", left: "10%", delay: "2.5s", duration: "4.2s" },
-  { top: "5%",  left: "50%", delay: "0.8s", duration: "3s" },
-  { top: "40%", left: "85%", delay: "3.5s", duration: "4.8s" }
-];
 
 // Liquid Glass Styles
 const cardLiquidGlassStyle = {
@@ -484,74 +472,50 @@ export function HomeView() {
           0%, 100% { transform: translate(0, 0) scale(1); }
           50% { transform: translate(8%, 10%) scale(1.2); }
         }
-        @keyframes meteor {
-          0% { transform: rotate(215deg) translateX(0); opacity: 1; }
-          70% { opacity: 1; }
-          100% { transform: rotate(215deg) translateX(-1000px); opacity: 0; }
-        }
-        .meteor {
-          position: absolute;
-          width: 2px;
-          height: 2px;
-          background-color: #fff;
-          border-radius: 50%;
-          box-shadow: 0 0 0 4px rgba(255,255,255,0.1), 0 0 0 8px rgba(255,255,255,0.1), 0 0 20px rgba(255,255,255,1);
-          animation: meteor linear infinite;
-          opacity: 0;
-        }
-        .meteor::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 50px;
-          height: 1px;
-          background: linear-gradient(90deg, #fff, transparent);
+        .bg-grid {
+          background-size: 30px 30px;
+          background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+          mask-image: linear-gradient(to bottom, black 20%, transparent 80%);
+          -webkit-mask-image: linear-gradient(to bottom, black 20%, transparent 80%);
         }
       `}} />
 
 
 
-      {/* Meteor Background Layer */}
-      <div className="absolute top-0 left-0 w-full h-[520px] sm:h-[540px] z-0 overflow-hidden pointer-events-none">
-        {METEORS.map((m, i) => (
-          <div 
-            key={i} 
-            className="meteor" 
-            style={{
-              top: m.top,
-              left: m.left,
-              animationDelay: m.delay,
-              animationDuration: m.duration
-            }}
-          />
-        ))}
+      {/* Subtle Animated Background Grid */}
+      <div className="absolute top-0 left-0 w-full h-[400px] z-0 overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 bg-grid opacity-60 transform-gpu" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#121212]/50 to-[#121212]" />
       </div>
 
       {/* Hero Content Section */}
-      <div className="w-full relative z-40 -translate-y-2 h-[520px] sm:h-[540px] flex flex-col items-center justify-center overflow-visible pointer-events-none">
+      <div className="w-full relative z-40 h-[400px] sm:h-[420px] flex flex-col items-center justify-center overflow-visible pointer-events-none">
         
         {/* Content Layer */}
-        <div className="relative z-40 flex flex-col items-center gap-2 w-full max-w-md px-6 text-center transform -translate-y-16 pointer-events-auto">
+        <div className="relative z-40 flex flex-col items-center gap-4 w-full max-w-md px-6 text-center transform -translate-y-8 pointer-events-auto">
           
-          {/* Object (Logo) */}
-          <Image 
-            src="/hero.png" 
-            alt="Hero Object" 
-            width={192}
-            height={192}
-            priority
-            className="mx-auto object-contain select-none pointer-events-none drop-shadow-2xl transform translate-y-6"
-            draggable={false}
-            style={imageProtectionStyle}
-          />
+          {/* Badge */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#1e1e1e] border border-white/5 shadow-sm mb-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            <span className="text-[12px] font-medium text-[#8e8e93] uppercase tracking-widest" style={{ fontFamily: SF }}>Core Online</span>
+          </div>
 
-          <h1 
-            className="text-white font-bold text-[28px] sm:text-[32px] leading-[1.1] tracking-tight drop-shadow-md" 
-            style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}
-          >
-            Hi, {firstName || "there"}
-          </h1>
+          {/* Typography */}
+          <div className="flex flex-col gap-1.5">
+            <h1 
+              className="text-white font-bold text-[36px] sm:text-[40px] leading-[1.1] tracking-tight drop-shadow-lg" 
+              style={{ fontFamily: SFD, letterSpacing: "-0.02em" }}
+            >
+              xBlum AI
+            </h1>
+            <p className="text-[#8e8e93] text-[15px]" style={{ fontFamily: SF }}>
+              Hello, {firstName || "there"}. Ready to assist.
+            </p>
+          </div>
 
           {/* Ask anything / Model Selector Row Wrapper */}
           <div ref={modelMenuRef} className="relative w-full mt-4 z-50">
