@@ -11,6 +11,8 @@ import {
 
 import { BusinessAutomationView } from "./business-automation-view"
 import { CanvasText } from "./ui/canvas-text"
+import { ShootingStars } from "./ui/shooting-stars"
+import { StarsBackground } from "./ui/stars-background"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { cn } from "@/lib/utils"
 
@@ -607,15 +609,10 @@ export function HomeView() {
         </div>
       </div>
 
-      {/* Grid Background Effect */}
-      <div className="absolute top-[120px] left-0 right-0 h-[300px] z-0 pointer-events-none">
-        <div
-          className={cn(
-            "absolute inset-0",
-            "[background-size:40px_40px]",
-            "[background-image:linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]"
-          )}
-        />
+      {/* Stars Background Effect */}
+      <div className="absolute top-[120px] left-0 right-0 h-[300px] z-0 pointer-events-none overflow-hidden">
+        <StarsBackground />
+        <ShootingStars />
         {/* Radial gradient for the container to give a faded look */}
         <div className="pointer-events-none absolute inset-0 bg-[#121212] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
       </div>
