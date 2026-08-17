@@ -22,16 +22,16 @@ const SF  = "inherit"
 const SFD = "inherit"
 
 const CANVAS_COLORS = [
-  "rgba(0, 153, 255, 1)",
-  "rgba(0, 153, 255, 0.9)",
-  "rgba(0, 153, 255, 0.8)",
-  "rgba(0, 153, 255, 0.7)",
-  "rgba(0, 153, 255, 0.6)",
-  "rgba(0, 153, 255, 0.5)",
-  "rgba(0, 153, 255, 0.4)",
-  "rgba(0, 153, 255, 0.3)",
-  "rgba(0, 153, 255, 0.2)",
-  "rgba(0, 153, 255, 0.1)",
+  "rgba(249, 115, 22, 1)",
+  "rgba(249, 115, 22, 0.9)",
+  "rgba(249, 115, 22, 0.8)",
+  "rgba(249, 115, 22, 0.7)",
+  "rgba(249, 115, 22, 0.6)",
+  "rgba(249, 115, 22, 0.5)",
+  "rgba(249, 115, 22, 0.4)",
+  "rgba(249, 115, 22, 0.3)",
+  "rgba(249, 115, 22, 0.2)",
+  "rgba(249, 115, 22, 0.1)",
 ];
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
@@ -502,11 +502,11 @@ export function HomeView() {
       {/* Hero Content Section */}
       <div 
         className="w-full max-w-md mx-auto relative z-40 flex flex-col px-6 pointer-events-none mb-4"
-        style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 0px)) + 20px)" }}
+        style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 24px)) + 24px)" }}
       >
         
         {/* Content Layer */}
-        <div className="relative z-40 flex flex-col items-start w-full pointer-events-auto mt-4">
+        <div className="relative z-40 flex flex-col items-start w-full pointer-events-auto mt-8">
           
           {/* Top-Left Model Selector */}
           <div ref={modelMenuRef} className="relative z-50 mb-3 -ml-1">
@@ -576,7 +576,7 @@ export function HomeView() {
             >
               <CanvasText
                 text="NOIR"
-                backgroundClassName="bg-blue-600 dark:bg-blue-700"
+                backgroundClassName="bg-orange-500 dark:bg-orange-600"
                 colors={CANVAS_COLORS}
                 lineGap={4}
                 animationDuration={20}
