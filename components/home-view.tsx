@@ -472,7 +472,7 @@ export function HomeView() {
         .skeleton-shimmer {
           position: relative;
           overflow: hidden;
-          background-color: #1e1e1e;
+          background-color: #1c1c1e;
         }
         .skeleton-shimmer::after {
           content: "";
@@ -523,10 +523,10 @@ export function HomeView() {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                 <div 
-                  className="cursor-default absolute left-0 top-[42px] w-[260px] rounded-[24px] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#121212]/98 border border-[#2c2c2e] transform-gpu"
+                  className="cursor-default absolute left-0 top-[42px] w-[260px] rounded-[16px] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#121212]/98 border border-[#2c2c2e] transform-gpu"
                   style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
                 >
-                  <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[300px] rounded-[24px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
+                  <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[300px] rounded-[16px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
                   {APP_MODELS.map((m, idx) => (
                     <div key={m.name} className="flex flex-col">
                       <button
@@ -551,7 +551,7 @@ export function HomeView() {
                           {loadingModel === m.name ? (
                             <Loader2 className="w-[18px] h-[18px] text-[#8e8e93] animate-spin" />
                           ) : selectedModel === m.name ? (
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-[#60a5fa]">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] text-[#3390ec]">
                               <polyline points="22 4 9 17 4 12"></polyline>
                             </svg>
                           ) : null}
@@ -593,10 +593,10 @@ export function HomeView() {
           <div className="w-full mt-2">
             <div 
               className={`flex items-center gap-3 px-4 py-2.5 rounded-full w-full border transition-all duration-300 shadow-sm
-                ${isInputActive ? 'bg-[#222222] border-[#3a3a3c]' : 'bg-[#161616] border-[#2c2c2e] hover:bg-[#1c1c1e]'}
+                ${isInputActive ? 'bg-[#2c2c2e] border-[#3a3a3c]' : 'bg-[#1c1c1e] border-[#2c2c2e] hover:bg-[#1c1c1e]'}
               `}
             >
-              <Search className={`w-5 h-5 shrink-0 transition-colors ${isInputActive ? 'text-[#60a5fa]' : 'text-[#8e8e93]'}`} strokeWidth={2.5} />
+              <Search className={`w-5 h-5 shrink-0 transition-colors ${isInputActive ? 'text-[#3390ec]' : 'text-[#8e8e93]'}`} strokeWidth={2.5} />
               <input 
                 type="text"
                 placeholder="Ask NOIR anything..."
@@ -629,15 +629,15 @@ export function HomeView() {
         {/* Noir Pro / Account Setup Card (Xyrios style) */}
         <div 
           onClick={() => setCurrentView("account_setup")}
-          className="w-full bg-[#1e1e1e] rounded-[16px] p-4 mt-2 flex flex-col gap-2 relative overflow-hidden cursor-pointer"
+          className="w-full bg-[#1c1c1e] rounded-[16px] p-4 mt-2 flex flex-col gap-2 relative overflow-hidden cursor-pointer"
         >
           <div className="flex items-center justify-between z-10">
             <div className="flex items-center gap-2">
-              <CircleUser className="w-5 h-5 text-[#60a5fa]" />
+              <CircleUser className="w-5 h-5 text-[#3390ec]" />
               <span className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Account Setup</span>
             </div>
-            <div className="w-8 h-8 rounded-full border border-[#60a5fa] bg-transparent flex items-center justify-center">
-              <ArrowUpRight className="w-4 h-4 text-[#60a5fa]" />
+            <div className="w-8 h-8 rounded-full border border-[#3390ec] bg-transparent flex items-center justify-center">
+              <ArrowUpRight className="w-4 h-4 text-[#3390ec]" />
             </div>
           </div>
           <p className="text-[#a0a0a0] text-[13px] leading-snug mt-1 z-10" style={{ fontFamily: SF }}>
@@ -752,7 +752,7 @@ export function HomeView() {
             </div>
 
             <div 
-              className="w-full bg-[#1e1e1e] rounded-[16px] overflow-hidden flex flex-col relative"
+              className="w-full bg-[#1c1c1e] rounded-[16px] overflow-hidden flex flex-col relative"
             >
               <div className="flex flex-col">
                 {connectorsLoading
@@ -792,7 +792,7 @@ export function HomeView() {
                         <div className={`relative z-10 shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-bold pointer-events-none ${
                           isConn
                             ? "bg-orange-500/10 text-orange-400"
-                            : "bg-[#60a5fa] text-white"
+                            : "bg-[#3390ec] text-white"
                         }`} style={{ fontFamily: SF }}>
                           {isConn ? "Connected" : "Connect"}
                         </div>
@@ -840,7 +840,7 @@ export function HomeView() {
                   {searchQuery.length > 0 && (
                     <button 
                       onClick={() => setSearchQuery("")}
-                      className="absolute right-3.5 z-10 p-0.5 rounded-full bg-[#1e1e1e] text-[#8e8e93] active:scale-95 transition-transform"
+                      className="absolute right-3.5 z-10 p-0.5 rounded-full bg-[#1c1c1e] text-[#8e8e93] active:scale-95 transition-transform"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -857,7 +857,7 @@ export function HomeView() {
 
               {/* Connectors List using the exact style from menu */}
               <div className="overflow-y-auto overscroll-none hide-scrollbar pb-10 flex-1 px-4">
-                <div className="w-full bg-[#1e1e1e] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
+                <div className="w-full bg-[#1c1c1e] rounded-[16px] overflow-hidden flex flex-col shadow-lg relative min-h-[100px]">
                   <div className="flex flex-col">
                     {isSearching ? (
                       Array.from({ length: 3 }).map((_, i) => (
@@ -900,7 +900,7 @@ export function HomeView() {
                                 </div>
                               </div>
                               <div className={`relative z-10 shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-bold pointer-events-none ${
-                                isConn ? "bg-orange-500/10 text-orange-400" : "bg-[#60a5fa] text-white"
+                                isConn ? "bg-orange-500/10 text-orange-400" : "bg-[#3390ec] text-white"
                               }`} style={{ fontFamily: SF }}>
                                 {isConn ? "Connected" : "Connect"}
                               </div>
@@ -940,7 +940,7 @@ export function HomeView() {
                   <button 
                     onClick={() => handleConnect(activeConnectorData.id)}
                     disabled={isConnecting}
-                    className="px-4 py-1.5 bg-[#60a5fa] text-white text-[13px] font-bold rounded-full active:opacity-70 disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
+                    className="px-4 py-1.5 bg-[#3390ec] text-white text-[13px] font-bold rounded-full active:opacity-70 disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
                     style={{ fontFamily: SF }}
                   >
                     {isConnecting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
@@ -964,7 +964,7 @@ export function HomeView() {
                 )}
                 <div className="space-y-4">
                   <h3 className="text-[#8e8e93] text-[13px] font-medium ml-1">About this connector</h3>
-                  <div className="rounded-[16px] overflow-hidden bg-[#1e1e1e]">
+                  <div className="rounded-[16px] overflow-hidden bg-[#1c1c1e]">
                     {activeConnectorData.features.map((feat, i, arr) => (
                       <div key={i}>
                         <div className="flex gap-4 p-4">
@@ -981,7 +981,7 @@ export function HomeView() {
                 </div>
                 <div className="-mt-2 pb-2">
                   <p className="text-[#636366] text-[11.5px] leading-relaxed text-center px-4" style={{ fontFamily: SF }}>
-                    Connectors are not created or maintained by Noir. Review permissions before connecting. Usage is subject to the <a href="https://composio.dev/privacy" target="_blank" rel="noopener noreferrer" className="text-[#60a5fa] underline decoration-[#60a5fa]/40 active:opacity-70 transition-opacity">Composio Privacy Policy</a>.
+                    Connectors are not created or maintained by Noir. Review permissions before connecting. Usage is subject to the <a href="https://composio.dev/privacy" target="_blank" rel="noopener noreferrer" className="text-[#3390ec] underline decoration-[#3390ec]/40 active:opacity-70 transition-opacity">Composio Privacy Policy</a>.
                   </p>
                 </div>
               </div>
@@ -998,7 +998,7 @@ export function HomeView() {
       {isBotIntModalOpen && (
          <div className="fixed inset-0 z-[9999] flex flex-col justify-end">
           <div className="absolute inset-0 bg-black/70 animate-in fade-in duration-300" onClick={() => setIsBotIntModalOpen(false)} />
-          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#1e1e1e] flex flex-col max-h-[90vh] overflow-y-auto overscroll-none animate-in slide-in-from-bottom duration-300 transform-gpu">
+          <div className="relative w-full bg-[#161618] rounded-t-[28px] px-5 pt-4 pb-[40px] border-t border-[#1c1c1e] flex flex-col max-h-[90vh] overflow-y-auto overscroll-none animate-in slide-in-from-bottom duration-300 transform-gpu">
              <div className="w-10 h-1 bg-[#3a3a3c] rounded-full mx-auto mb-5 shrink-0" />
              
              <div className="flex items-center justify-between mb-6">
@@ -1008,7 +1008,7 @@ export function HomeView() {
                   </div>
                    <h2 className="text-white font-bold text-[24px]" style={{ fontFamily: SFD }}>Group Agent</h2>
                 </div>
-                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="w-8 h-8 rounded-full bg-[#1e1e1e] flex items-center justify-center text-white active:scale-95 transition-transform">
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="w-8 h-8 rounded-full bg-[#1c1c1e] flex items-center justify-center text-white active:scale-95 transition-transform">
                    <X className="w-5 h-5" />
                  </button>
              </div>
@@ -1028,7 +1028,7 @@ export function HomeView() {
                 </button>
              </div>
 
-             <div className="bg-[#111111] border border-[#121212] rounded-[20px] p-2 flex flex-col gap-1 mb-6">
+             <div className="bg-[#111111] border border-[#121212] rounded-[16px] p-2 flex flex-col gap-1 mb-6">
                 <div className="flex items-center justify-between p-3 border-b border-[#121212]">
                   <div className="flex flex-col">
                     <span className="text-white font-semibold text-[15px]" style={{ fontFamily: SF }}>Moderation React</span>
@@ -1064,7 +1064,7 @@ export function HomeView() {
                 <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors shadow-sm active:scale-95" style={{ fontFamily: SF }}>
                    <Save className="w-4 h-4" /> Apply to Group
                 </button>
-                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#1e1e1e] hover:bg-[#3a3a3c] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#3a3a3c] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
+                <button type="button" onClick={() => setIsBotIntModalOpen(false)} className="flex-1 bg-[#1c1c1e] hover:bg-[#3a3a3c] text-[#a855f7] font-bold text-[15px] py-3.5 rounded-[16px] flex items-center justify-center gap-2 transition-colors border border-[#3a3a3c] active:scale-95 shadow-sm" style={{ fontFamily: SF }}>
                     Cancel
                 </button>
              </div>
