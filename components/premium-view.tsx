@@ -62,6 +62,11 @@ export function PremiumView() {
 
   return (
     <div className="flex-1 min-h-screen flex flex-col bg-[#000000] fixed top-0 left-0 w-full h-full z-[70] overflow-y-auto overscroll-none text-white pb-32" style={{ fontFamily: SFD }}>
+      {isHeavy && (
+        <div className="absolute top-0 left-0 w-full h-[60vh] pointer-events-none z-0" style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)' }}>
+          <DarkVeil speed={0.4} opacity={0.6} className="z-0 opacity-60 mix-blend-screen" />
+        </div>
+      )}
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -179,7 +184,6 @@ export function PremiumView() {
                   backgroundImage: "linear-gradient(to right, #1f1f1f 1px, transparent 1px), linear-gradient(to bottom, #1f1f1f 1px, transparent 1px)"
                 }}
               />
-              <DarkVeil speed={0.4} opacity={0.5} className="z-0 opacity-40 mix-blend-screen" />
               <Spotlight fill="white" className="-top-10 -left-10 z-0 opacity-80" />
             </>
           )}
