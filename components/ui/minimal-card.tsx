@@ -8,7 +8,7 @@ const MinimalCard = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-[24px] bg-[#222224] p-3 flex flex-col overflow-hidden transition-all hover:bg-[#2c2c2e]",
+      "rounded-[24px] bg-[#1e1e1e] p-3 flex flex-col overflow-hidden transition-all hover:bg-[#262626]",
       className
     )}
     {...props}
