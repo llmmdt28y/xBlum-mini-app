@@ -18,8 +18,8 @@ import { MinimalCard, MinimalCardImage, MinimalCardTitle, MinimalCardDescription
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { cn } from "@/lib/utils"
 
-const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
-const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
+const SF  = "inherit"
+const SFD = "inherit"
 
 const CANVAS_COLORS = [
   "rgba(0, 153, 255, 1)",
