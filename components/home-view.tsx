@@ -578,13 +578,12 @@ export function HomeView() {
                 text="NOIR"
                 backgroundClassName="bg-[#121212]"
                 colors={CANVAS_COLORS}
-                animationDuration={20}
                 lineGap={4}
-                curveIntensity={60}
+                animationDuration={20}
                 className="w-full text-left inline-block"
               />
             </h1>
-            <p className="text-[#8e8e93] font-bold text-[16px] leading-snug mt-1.5 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+            <p className="text-[#8e8e93] font-bold text-[14.5px] leading-snug mt-1.5 max-w-[320px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
               The new standard for intelligent agents.<br />
               Hi, {firstName || "there"}.
             </p>
