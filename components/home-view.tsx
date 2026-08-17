@@ -13,6 +13,7 @@ import { BusinessAutomationView } from "./business-automation-view"
 import { CanvasText } from "./ui/canvas-text"
 import { ShootingStars } from "./ui/shooting-stars"
 import { StarsBackground } from "./ui/stars-background"
+import { RainbowButton } from "./ui/rainbow-button"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { cn } from "@/lib/utils"
 
@@ -507,13 +508,13 @@ export function HomeView() {
           
           {/* Top-Left Model Selector */}
           <div ref={modelMenuRef} className="relative z-50 mb-3 -ml-1">
-            <button
+            <RainbowButton
+              size="sm"
               onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-              className="flex items-center gap-2 h-[34px] px-3.5 rounded-full bg-[#161616] hover:bg-[#262626] active:scale-95 transition-all border border-[#2c2c2e] shadow-sm"
             >
               <span className="font-medium text-[13px] text-[#e5e5ea] tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
               <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
-            </button>
+            </RainbowButton>
 
             {/* Model Menu Popover */}
             {isModelMenuOpen && (
