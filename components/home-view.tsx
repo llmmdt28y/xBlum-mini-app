@@ -11,7 +11,6 @@ import {
 
 import { BusinessAutomationView } from "./business-automation-view"
 import { CanvasText } from "./ui/canvas-text"
-import { TextGif, gifUrls } from "./ui/text-gif"
 import { ShootingStars } from "./ui/shooting-stars"
 import { StarsBackground } from "./ui/stars-background"
 import { RainbowButton } from "./ui/rainbow-button"
@@ -575,25 +574,16 @@ export function HomeView() {
               className="font-bold text-[44px] leading-[1.0] tracking-tight drop-shadow-sm flex flex-col items-start" 
               style={{ fontFamily: SFD, letterSpacing: "-0.04em" }}
             >
-              {/* BACKUP: CanvasText (Olas) */}
-              {/* <CanvasText
+              <CanvasText
                 text="NOIR"
                 backgroundClassName="bg-[#121212]"
                 animationDuration={20}
                 lineGap={4}
                 curveIntensity={60}
                 className="w-full text-left inline-block"
-              /> */}
-
-              {/* NEW: TextGif */}
-              <TextGif 
-                text="NOIR" 
-                gifUrl={gifUrls[3]}
-                fallbackColor="#F4F4F5"
-                className="w-full text-left inline-block text-[44px] leading-[1.0]"
               />
             </h1>
-            <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1.5 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+            <p className="text-[#8e8e93] font-bold text-[16px] leading-snug mt-1.5 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
               The new standard for intelligent agents.<br />
               Hi, {firstName || "there"}.
             </p>
@@ -614,7 +604,7 @@ export function HomeView() {
                 onChange={(e) => setAskQuery(e.target.value)}
                 onFocus={() => setIsInputActive(true)}
                 onBlur={() => setIsInputActive(false)}
-                className="w-full bg-transparent text-white placeholder:text-[#8e8e93] text-[16px] font-medium focus:outline-none"
+                className="w-full bg-transparent text-white placeholder:text-[#8e8e93] text-[16px] font-normal focus:outline-none"
                 style={{ fontFamily: SF }}
               />
             </div>
