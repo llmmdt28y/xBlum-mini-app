@@ -6,7 +6,7 @@ import {
   Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
   ChevronRight, ChevronDown, Loader2, CalendarDays, Search, ShieldCheck, Github, 
   Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2, Sparkles,
-  Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight, Check, MessageCirclePlus, Users, BookOpen, ArrowUpRight, ArrowDownToLine
+  Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight, Check, MessageCirclePlus, Users, BookOpen, ArrowUpRight, ArrowDownToLine, CircleUser
 } from "lucide-react"
 
 import { BusinessAutomationView } from "./business-automation-view"
@@ -598,11 +598,11 @@ export function HomeView() {
         >
           <div className="flex items-center justify-between z-10">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-white" />
-              <span className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Noir Setup</span>
+              <CircleUser className="w-5 h-5 text-[#60a5fa]" />
+              <span className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Account Setup</span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center">
-              <ArrowUpRight className="w-4 h-4 text-[#a0a0a0]" />
+            <div className="w-8 h-8 rounded-full border border-[#60a5fa] bg-transparent flex items-center justify-center">
+              <ArrowUpRight className="w-4 h-4 text-[#60a5fa]" />
             </div>
           </div>
           <p className="text-[#a0a0a0] text-[13px] leading-snug mt-1 z-10" style={{ fontFamily: SF }}>
