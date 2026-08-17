@@ -119,7 +119,7 @@ function NavBar() {
 
   const activeIndex = centerTabs.findIndex(t => t.id === currentView)
 
-  const neonBlue      = "#33b5f7"
+  const neonBlue      = "#3390ec"
   const inactiveColor = "rgba(255,255,255,0.62)"
   const safeBottom    = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 10px)"
 
@@ -135,7 +135,7 @@ function NavBar() {
           onPointerDown={() => setPressedId("left")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="bg-[#262626] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
+          className="bg-[#1c1c1e] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
           style={{
             width: "58px",
             height: "58px",
@@ -162,7 +162,7 @@ function NavBar() {
 
         {/* ── PÍLDORA CENTRAL ── */}
         <div
-          className="bg-[#262626] shadow-lg border border-white/10 pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
+          className="bg-[#1c1c1e] shadow-lg border border-white/10 pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
           style={{ borderRadius: "100px", height: "58px", zIndex: 51 }}
         >
           <div className="flex items-center justify-between w-full relative h-[52px]" style={{ zIndex: 10 }}>
@@ -235,7 +235,7 @@ function NavBar() {
           onPointerDown={() => setPressedId("right")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="bg-[#262626] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
+          className="bg-[#1c1c1e] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
           style={{
             width: "58px",
             height: "58px",
@@ -501,13 +501,13 @@ export default function Page() {
       <style dangerouslySetInnerHTML={{ __html: `
         ::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
-        body { background-color: #1a1a1a; overflow-x: hidden; }
-        html, body { background-color: #0a0a0a !important; overflow-x: hidden; }
+        body { background-color: #121212; overflow-x: hidden; }
+        html, body { background-color: #121212 !important; overflow-x: hidden; }
 
 
 
         .sliding-pill {
-          background: rgba(51, 181, 247, 0.15);
+          background: rgba(51, 144, 236, 0.15);
           box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
         }
 
