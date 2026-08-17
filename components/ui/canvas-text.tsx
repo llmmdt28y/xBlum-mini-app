@@ -138,13 +138,19 @@ export function CanvasText({
       ctx.fillRect(0, 0, width, height);
 
       ctx.globalCompositeOperation = "source-atop";
-      for (let i = 0; i < numLines; i++) {
+      
+      // Calculate how many extra lines we need at the top and bottom 
+      // to prevent empty space when the curves bend up or down
+      const extraLines = Math.ceil(curveIntensity / lineGap) + 5;
+      
+      for (let i = -extraLines; i < numLines + extraLines; i++) {
         const y = i * lineGap;
 
         const curve1 = Math.sin(phase) * curveIntensity;
         const curve2 = Math.sin(phase + 0.5) * curveIntensity * 0.6;
 
-        const colorIndex = i % resolvedColors.length;
+        // Use proper modulo for negative indices so the gradient flows continuously
+        const colorIndex = ((i % resolvedColors.length) + resolvedColors.length) % resolvedColors.length;
         ctx.strokeStyle = resolvedColors[colorIndex];
         ctx.lineWidth = lineWidth;
 
