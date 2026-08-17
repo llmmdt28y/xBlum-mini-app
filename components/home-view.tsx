@@ -557,31 +557,21 @@ export function HomeView() {
             >
               <CanvasText
                 text="NOIR"
-                backgroundClassName="bg-[#121212]"
+                backgroundClassName="bg-blue-600 dark:bg-blue-700"
                 colors={[
-                  // intense blue -> lighter blue -> intense blue
-                  "rgba(0, 68, 255, 1)",
-                  "rgba(0, 85, 255, 0.9)",
-                  "rgba(0, 102, 255, 0.8)",
-                  "rgba(0, 119, 255, 0.7)",
-                  "rgba(0, 136, 255, 0.6)",
+                  "rgba(0, 153, 255, 1)",
+                  "rgba(0, 153, 255, 0.9)",
+                  "rgba(0, 153, 255, 0.8)",
+                  "rgba(0, 153, 255, 0.7)",
+                  "rgba(0, 153, 255, 0.6)",
                   "rgba(0, 153, 255, 0.5)",
-                  "rgba(0, 170, 255, 0.4)",
-                  "rgba(0, 187, 255, 0.3)",
-                  "rgba(0, 204, 255, 0.2)",
-                  "rgba(0, 221, 255, 0.1)",
-                  // perfect loop back up
-                  "rgba(0, 204, 255, 0.2)",
-                  "rgba(0, 187, 255, 0.3)",
-                  "rgba(0, 170, 255, 0.4)",
-                  "rgba(0, 153, 255, 0.5)",
-                  "rgba(0, 136, 255, 0.6)",
-                  "rgba(0, 119, 255, 0.7)",
-                  "rgba(0, 102, 255, 0.8)",
-                  "rgba(0, 85, 255, 0.9)"
+                  "rgba(0, 153, 255, 0.4)",
+                  "rgba(0, 153, 255, 0.3)",
+                  "rgba(0, 153, 255, 0.2)",
+                  "rgba(0, 153, 255, 0.1)",
                 ]}
-                lineGap={3}
-                animationDuration={25}
+                lineGap={4}
+                animationDuration={20}
               />
             </h1>
             <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1.5 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
