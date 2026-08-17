@@ -502,6 +502,7 @@ export default function Page() {
         ::-webkit-scrollbar { display: none; }
         * { -ms-overflow-style: none; scrollbar-width: none; }
         body { background-color: #1a1a1a; overflow-x: hidden; }
+        html, body { background-color: #0a0a0a !important; overflow-x: hidden; }
 
 
 

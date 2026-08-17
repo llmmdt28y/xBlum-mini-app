@@ -226,9 +226,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`flex flex-col gap-1.5 w-full ${className || ""} ${deferRender ? "defer-render" : ""}`}>
+    <div className={`flex flex-col w-full mb-6 ${className || ""} ${deferRender ? "defer-render" : ""}`}>
       {title && (
-        <div className="px-4 flex items-center justify-between">
+        <div className="px-4 flex items-center justify-between mb-1.5">
           <h2
             className="text-[14px] font-semibold"
             style={{ fontFamily: SF, color: titleColor }}

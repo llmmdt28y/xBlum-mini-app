@@ -207,7 +207,7 @@ function SwitchNode({ on, onToggle, disabled }: { on: boolean; onToggle: () => v
 }
 
 function Section({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-col gap-[2px] relative [&>*]:bg-[#111111] [&>*]:rounded-[4px] [&>*:first-child]:rounded-t-[16px] [&>*:last-child]:rounded-b-[16px] [&>*]:overflow-hidden w-full">{children}</div>
+  return <div className="flex flex-col gap-[2px] relative [&>*]:bg-[#111111] [&>*]:rounded-[4px] [&>*:first-child]:rounded-t-[16px] [&>*:last-child]:rounded-b-[16px] [&>*]:overflow-hidden w-full mb-6">{children}</div>
 }
 
 function Row({ label, rightNode, last = false }: { label: string; rightNode?: React.ReactNode; last?: boolean }) {

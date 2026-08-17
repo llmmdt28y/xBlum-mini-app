@@ -40,9 +40,9 @@ function RadioButton({ selected }: { selected: boolean }) {
 
 function Section({ title, footer, children, rightAction }: { title?: string; footer?: React.ReactNode; children: React.ReactNode; rightAction?: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-1.5 w-full"> 
+    <div className="flex flex-col w-full mb-6"> 
       {title && (
-        <div className="px-4 flex items-center justify-between">
+        <div className="px-4 flex items-center justify-between mb-1.5">
           <h2 className="text-[#60a5fa] text-[14px] font-semibold" style={{ fontFamily: SF }}>{title}</h2>
           {rightAction && <div>{rightAction}</div>}
         </div>
