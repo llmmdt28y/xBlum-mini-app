@@ -557,7 +557,7 @@ export function HomeView() {
             >
               <CanvasText
                 text="NOIR"
-                backgroundClassName="bg-blue-600 dark:bg-blue-700"
+                backgroundClassName="bg-[#121212]"
                 colors={[
                   "rgba(0, 153, 255, 1)",
                   "rgba(0, 153, 255, 0.9)",
