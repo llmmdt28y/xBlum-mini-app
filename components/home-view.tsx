@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 
 import { BusinessAutomationView } from "./business-automation-view"
+import { CanvasText } from "./ui/canvas-text"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
@@ -551,12 +552,30 @@ export function HomeView() {
           {/* Typography (Left Aligned, High Contrast like Image) */}
           <div className="flex flex-col mt-0.5">
             <h1 
-              className="text-[#F4F4F5] font-bold text-[40px] leading-[1.0] tracking-tight drop-shadow-sm" 
+              className="text-[#F4F4F5] font-bold text-[36px] leading-[1.1] tracking-tight drop-shadow-sm flex flex-col items-start" 
               style={{ fontFamily: SFD, letterSpacing: "-0.04em" }}
             >
-              NOIR
+              <span>NOIR</span>
+              <CanvasText
+                text="AI Platform"
+                backgroundClassName="bg-[#121212]"
+                colors={[
+                  "rgba(0, 153, 255, 1)",
+                  "rgba(0, 153, 255, 0.9)",
+                  "rgba(0, 153, 255, 0.8)",
+                  "rgba(0, 153, 255, 0.7)",
+                  "rgba(0, 153, 255, 0.6)",
+                  "rgba(0, 153, 255, 0.5)",
+                  "rgba(0, 153, 255, 0.4)",
+                  "rgba(0, 153, 255, 0.3)",
+                  "rgba(0, 153, 255, 0.2)",
+                  "rgba(0, 153, 255, 0.1)",
+                ]}
+                lineGap={3}
+                animationDuration={20}
+              />
             </h1>
-            <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1.5 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+            <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
               The new standard for intelligent agents.<br />
               Hi, {firstName || "there"}.
             </p>
