@@ -6,7 +6,7 @@ import {
   Coins, MessageCircle, AlertTriangle, Clock, Lock, X, ArrowUp, 
   ChevronRight, ChevronDown, Loader2, CalendarDays, Search, ShieldCheck, Github, 
   Mail, Calendar, HardDrive, Plus, Hexagon, ArrowLeft, Trash2, Sparkles,
-  Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight, Check, MessageCirclePlus, Users, BookOpen
+  Briefcase, Bot, Settings2, Save, Power, Zap, Image as ImageIcon, ArrowRight, Check, MessageCirclePlus, Users, BookOpen, ArrowUpRight, ArrowDownToLine
 } from "lucide-react"
 
 import { BusinessAutomationView } from "./business-automation-view"
@@ -157,6 +157,23 @@ const CONNECTORS_DB = [
     ]
   }
 ];
+
+const FEATURED_CONTENT = [
+  { id: 1, title: "Creative Writer", desc: "Craft compelling stories, copy, and content with specialized formatting.", author: "noir_official", users: "16.0M", icon: <Bot className="w-5 h-5 text-[#a855f7]" /> },
+  { id: 2, title: "Data Analyst Pro", desc: "Upload spreadsheets and get instant insights, charts, and summaries.", author: "data_studio", users: "9.8M", icon: <Zap className="w-5 h-5 text-[#eab308]" /> },
+  { id: 3, title: "Code Architect", desc: "Plan complex software architectures and write clean code in 20+ languages.", author: "dev_team", users: "3.1M", icon: <Briefcase className="w-5 h-5 text-[#3b82f6]" /> }
+];
+
+const TOP_AGENTS = [
+  { id: 1, name: "NOIR.CORE", type: "SYSTEM", users: "8.3k", version: "v2.1.0 - v2.4.1", src: "/gmail.png", badgeColor: "bg-red-500/10 text-red-400 border border-red-500/20" },
+  { id: 2, name: "DEV.ENV", type: "SANDBOX", users: "2.9k", version: "v1.21.11 - v26.1", src: "/github-icon.png", badgeColor: "bg-orange-500/10 text-orange-400 border border-orange-500/20" },
+  { id: 3, name: "DATA.ANALYTICS", type: "DATABASE", users: "4.8k", version: "v1.8.9 - v1.21", src: "/google-drive.png", badgeColor: "bg-blue-500/10 text-blue-400 border border-blue-500/20" },
+]
+
+const RECENT_INSTANCES = [
+  { id: 1, title: "Simply Optimized & Up to Date", tag: "NOIR Core", version: "v26.2", time: "Yesterday", icon: <Settings2 className="w-6 h-6 text-[#a0a0a0]" /> },
+  { id: 2, title: "The Ultimate Workflow 1.0.4", tag: "Automations", version: "v1.21.11", time: "5 days ago", icon: <Zap className="w-6 h-6 text-[#a0a0a0]" /> }
+]
 
 // Connector runtime status from API
 type ConnectorStatus = { connected: boolean; label: string }
@@ -585,41 +602,75 @@ export function HomeView() {
         
 
 
-        {/* Profile Completion Card */}
-        <div className="w-full bg-[#1e1e1e] rounded-[16px] p-3 mt-2">
-          <p className="text-white text-[14px] font-semibold leading-snug mb-2" style={{ fontFamily: SF }}>
-            Complete your profile to receive personalized recommendations
-          </p>
-          {/* Progress bar container */}
-          <div className="w-full h-[6px] bg-[#3a3a3c] rounded-full overflow-hidden mb-1">
-            <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${profileCompletionPct}%`, background: '#60a5fa' }}></div>
+        {/* Noir Pro / Account Setup Card (Xyrios style) */}
+        <div 
+          onClick={() => setCurrentView("account_setup")}
+          className="w-full bg-[#1e1e1e] rounded-[16px] p-4 mt-2 flex flex-col gap-2 relative overflow-hidden cursor-pointer"
+        >
+          <div className="flex items-center justify-between z-10">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-white" />
+              <span className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Noir Setup</span>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-[#2c2c2e] flex items-center justify-center">
+              <ArrowUpRight className="w-4 h-4 text-[#a0a0a0]" />
+            </div>
           </div>
-          <p className="text-white text-[13px] mb-3" style={{ fontFamily: SF }}>
-            Profile completion: {profileCompletionPct}%
+          <p className="text-[#a0a0a0] text-[13px] leading-snug mt-1 z-10" style={{ fontFamily: SF }}>
+            Configure your personalized AI assistant. Set your preferences, identity, and connections all in one single place.
           </p>
-          <button 
-            onClick={() => setCurrentView("account_setup")}
-            onPointerDown={createRipple}
-            className="relative overflow-hidden w-full py-3 rounded-full text-white font-medium active:opacity-80 transition-opacity flex items-center justify-center shadow-sm"
-            style={{ background: "#60a5fa", fontFamily: SF, fontSize: "16px" }}
-          >
-            <span className="relative z-10">Complete Account</span>
-          </button>
         </div>
 
-        {/* Carousel Showcase Section */}
-        <div className="mt-4 w-full flex flex-col items-center gap-3 relative">
-          {/* Image Placeholder (Mockup/Video) */}
-          <div className="w-full aspect-[16/9] bg-gradient-to-br from-[#121212] to-[#1e1e1e] rounded-[24px] overflow-hidden relative flex items-center justify-center border border-white/5 shadow-lg">
-            <span className="text-white/30 font-medium text-[14px]" style={{ fontFamily: SF }}>Placeholder 1</span>
+        {/* Content Center (Horizontal Carousel) */}
+        <div className="mt-4 w-full flex flex-col gap-3">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+              Explore content center
+            </h2>
           </div>
           
-          {/* Pagination Indicators */}
-          <div className="flex items-center justify-center gap-1.5 mt-1">
-            <div className="h-1 w-5 bg-white rounded-full"></div>
-            <div className="h-1 w-1.5 bg-[#3a3a3c] rounded-full transition-all duration-300"></div>
-            <div className="h-1 w-1.5 bg-[#3a3a3c] rounded-full transition-all duration-300"></div>
-            <div className="h-1 w-1.5 bg-[#3a3a3c] rounded-full transition-all duration-300"></div>
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2">
+            {FEATURED_CONTENT.map(item => (
+              <div 
+                key={item.id} 
+                className="w-[280px] shrink-0 snap-start bg-[#1e1e1e] rounded-[16px] overflow-hidden flex flex-col shadow-lg border border-[#2c2c2e]"
+              >
+                {/* Banner Image Area */}
+                <div className="w-full h-[120px] bg-gradient-to-br from-[#2a2a2a] to-[#121212] relative flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+                  <span className="text-white/20 font-bold text-[24px]" style={{ fontFamily: SFD }}>NOIR</span>
+                  
+                  {/* Floating Icon */}
+                  <div className="absolute bottom-3 left-3 w-10 h-10 rounded-[12px] bg-[#161618] border border-[#2c2c2e] flex items-center justify-center shadow-md">
+                    {item.icon}
+                  </div>
+                  
+                  {/* Top Right badge */}
+                  <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center">
+                    <Sparkles className="w-3.5 h-3.5 text-white" />
+                  </div>
+                </div>
+
+                {/* Info Area */}
+                <div className="p-4 flex flex-col gap-1.5 flex-1 justify-between">
+                  <div>
+                    <h3 className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>{item.title}</h3>
+                    <p className="text-[#8e8e93] text-[13px] leading-snug mt-1 line-clamp-2" style={{ fontFamily: SF }}>{item.desc}</p>
+                  </div>
+                  
+                  <div className="flex items-center justify-between mt-3 text-[#a0a0a0] text-[12px]" style={{ fontFamily: SF }}>
+                    <div className="flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5" />
+                      <span>{item.author}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <ArrowDownToLine className="w-3.5 h-3.5" />
+                      <span>{item.users}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -668,83 +719,70 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Connectors Section */}
-        <div className="w-full">
-            <div className="mt-2 mb-3 pl-1">
-              <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-                Connectors
-              </h2>
-              <p className="text-[#a0a0a0] text-[13px] mt-0.5 leading-snug" style={{ fontFamily: SF }}>
-                Link your apps and services to unlock powerful AI automations.
-              </p>
-            </div>
-
-            <div 
-              className="w-full bg-[#1e1e1e] rounded-[16px] overflow-hidden flex flex-col relative"
-            >
-              <div className="flex flex-col">
-                {connectorsLoading
-                  ? Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5">
-                      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-3">
-                        <div className="w-8 h-8 rounded-[12px] skeleton-shimmer shrink-0" />
-                        <div className="flex flex-col min-w-0 flex-1 gap-1.5">
-                          <div className="h-3 w-24 skeleton-shimmer rounded-full" />
-                          <div className="h-2.5 w-full skeleton-shimmer rounded-full" />
-                        </div>
-                      </div>
-                      <div className="shrink-0 w-[70px] h-[28px] rounded-full skeleton-shimmer" />
+        {/* Two Column Layout for Lists */}
+        <div className="w-full flex flex-col gap-6 mt-4">
+          
+          {/* Top Agents List */}
+          <div className="w-full">
+            <h2 className="text-white font-bold text-[18px] mb-3 px-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+              Top Agents
+            </h2>
+            <div className="flex flex-col gap-2">
+              {TOP_AGENTS.map((agent, index) => (
+                <div 
+                  key={agent.id}
+                  className="w-full bg-[#1e1e1e] rounded-[16px] overflow-hidden flex items-center p-3 relative border border-[#2c2c2e] shadow-sm active:bg-white/5 transition-colors cursor-pointer"
+                >
+                  <div className="w-12 h-12 rounded-[12px] bg-[#161616] flex items-center justify-center shrink-0 mr-4 border border-white/5">
+                    <img src={agent.src} alt={agent.name} className="w-7 h-7 object-contain" draggable={false} style={imageProtectionStyle} />
+                  </div>
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-white font-bold text-[15px] truncate" style={{ fontFamily: SFD }}>{agent.name}</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] shrink-0 ${agent.badgeColor}`} style={{ fontFamily: SF }}>{agent.type}</span>
                     </div>
-                  ))
-                  : CONNECTORS_DB.slice(0, 4).map((c, i, arr) => {
-                    const status = connectorsState[c.id]
-                    const isConn = status?.connected ?? false
-                    return (
-                      <button 
-                        key={c.id}
-                        onClick={() => setModalState({ view: "detail", connectorId: c.id })}
-                        onPointerDown={createRipple}
-                        className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5 active:bg-white/5 transition-colors text-left"
-                      >
-                        <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
-                          <div className="relative">
-                            <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-white font-medium text-[16px] leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SFD }}>{c.name}</span>
-                            <span className="text-[#a0a0a0] text-[13px] leading-[1.3] line-clamp-1" style={{ fontFamily: SF }}>
-                              {isConn && status?.label ? status.label : c.description}
-                            </span>
-                          </div>
-                        </div>
-                        <div className={`relative z-10 shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-bold pointer-events-none ${
-                          isConn
-                            ? "bg-orange-500/10 text-orange-400"
-                            : "bg-[#60a5fa] text-white"
-                        }`} style={{ fontFamily: SF }}>
-                          {isConn ? "Connected" : "Connect"}
-                        </div>
-                      </button>
-                    )
-                  })
-                }
-              </div>
+                    <div className="flex items-center gap-2 text-[#8e8e93] text-[12px] font-medium" style={{ fontFamily: SF }}>
+                      <div className="flex items-center gap-1">
+                        <Users className="w-3.5 h-3.5" />
+                        <span>{agent.users}</span>
+                      </div>
+                      <span className="text-[#3a3a3c]">•</span>
+                      <span className="truncate">{agent.version}</span>
+                    </div>
+                  </div>
+                  <div className="text-[#a0a0a0] font-bold text-[14px] px-2 shrink-0 opacity-50" style={{ fontFamily: SF }}>#{index + 1}</div>
+                </div>
+              ))}
             </div>
+          </div>
 
-            <div 
-              onClick={() => setModalState({ view: "list", connectorId: null })}
-              onPointerDown={createRipple}
-              className="relative w-full mt-3 overflow-hidden rounded-full cursor-pointer active:scale-[0.98] transition-transform flex items-center shadow-sm bg-white/5"
-            >
-              <Search className="absolute left-3.5 w-4 h-4 text-[#8e8e93] pointer-events-none z-10" />
-              <input 
-                type="text" 
-                placeholder="Search connectors" 
-                readOnly
-                className="w-full pl-[36px] pr-4 py-2 bg-transparent text-[#e5e5ea] placeholder:text-[#8e8e93] focus:outline-none text-[15px] pointer-events-none"
-                style={{ fontFamily: SF }}
-              />
+          {/* Recent Instances Grid */}
+          <div className="w-full">
+            <h2 className="text-white font-bold text-[18px] mb-3 px-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+              Recent Instances
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              {RECENT_INSTANCES.map((instance) => (
+                <div 
+                  key={instance.id}
+                  className="bg-[#1e1e1e] rounded-[16px] p-4 flex flex-col items-center text-center relative border border-[#2c2c2e] shadow-sm active:bg-white/5 transition-colors cursor-pointer"
+                >
+                  <div className="w-12 h-12 rounded-[12px] bg-[#161616] flex items-center justify-center mb-3 border border-white/5">
+                    {instance.icon}
+                  </div>
+                  <h3 className="text-white font-bold text-[14px] leading-tight mb-2 line-clamp-2" style={{ fontFamily: SFD }}>
+                    {instance.title}
+                  </h3>
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <span className="text-[#eab308] font-bold text-[11px]" style={{ fontFamily: SF }}>{instance.tag}</span>
+                    <span className="text-[#8e8e93] text-[11px] font-medium">{instance.version}</span>
+                  </div>
+                  <span className="text-[#8e8e93] text-[11px] font-medium">{instance.time}</span>
+                </div>
+              ))}
             </div>
+          </div>
+          
         </div>
       </div>
 
