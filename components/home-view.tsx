@@ -506,7 +506,7 @@ export function HomeView() {
       >
         
         {/* Content Layer */}
-        <div className="relative z-40 flex flex-col items-start w-full pointer-events-auto mt-8">
+        <div className="relative z-40 flex flex-col items-start w-full pointer-events-auto mt-6">
           
           {/* Top-Left Model Selector */}
           <div ref={modelMenuRef} className="relative z-50 mb-3 -ml-1">
