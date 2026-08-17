@@ -164,17 +164,6 @@ const FEATURED_CONTENT = [
   { id: 3, title: "Code Architect", desc: "Plan complex software architectures and write clean code in 20+ languages.", author: "dev_team", users: "3.1M", icon: <Briefcase className="w-5 h-5 text-[#3b82f6]" /> }
 ];
 
-const TOP_AGENTS = [
-  { id: 1, name: "NOIR.CORE", type: "SYSTEM", users: "8.3k", version: "v2.1.0 - v2.4.1", src: "/gmail.png", badgeColor: "bg-red-500/10 text-red-400 border border-red-500/20" },
-  { id: 2, name: "DEV.ENV", type: "SANDBOX", users: "2.9k", version: "v1.21.11 - v26.1", src: "/github-icon.png", badgeColor: "bg-orange-500/10 text-orange-400 border border-orange-500/20" },
-  { id: 3, name: "DATA.ANALYTICS", type: "DATABASE", users: "4.8k", version: "v1.8.9 - v1.21", src: "/google-drive.png", badgeColor: "bg-blue-500/10 text-blue-400 border border-blue-500/20" },
-]
-
-const RECENT_INSTANCES = [
-  { id: 1, title: "Simply Optimized & Up to Date", tag: "NOIR Core", version: "v26.2", time: "Yesterday", icon: <Settings2 className="w-6 h-6 text-[#a0a0a0]" /> },
-  { id: 2, title: "The Ultimate Workflow 1.0.4", tag: "Automations", version: "v1.21.11", time: "5 days ago", icon: <Zap className="w-6 h-6 text-[#a0a0a0]" /> }
-]
-
 // Connector runtime status from API
 type ConnectorStatus = { connected: boolean; label: string }
 type ConnectorsState = Record<string, ConnectorStatus>
@@ -719,70 +708,83 @@ export function HomeView() {
           </div>
         </div>
 
-        {/* Two Column Layout for Lists */}
-        <div className="w-full flex flex-col gap-6 mt-4">
-          
-          {/* Top Agents List */}
-          <div className="w-full">
-            <h2 className="text-white font-bold text-[18px] mb-3 px-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-              Top Agents
-            </h2>
-            <div className="flex flex-col gap-2">
-              {TOP_AGENTS.map((agent, index) => (
-                <div 
-                  key={agent.id}
-                  className="w-full bg-[#1e1e1e] rounded-[16px] overflow-hidden flex items-center p-3 relative border border-[#2c2c2e] shadow-sm active:bg-white/5 transition-colors cursor-pointer"
-                >
-                  <div className="w-12 h-12 rounded-[12px] bg-[#161616] flex items-center justify-center shrink-0 mr-4 border border-white/5">
-                    <img src={agent.src} alt={agent.name} className="w-7 h-7 object-contain" draggable={false} style={imageProtectionStyle} />
-                  </div>
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-white font-bold text-[15px] truncate" style={{ fontFamily: SFD }}>{agent.name}</span>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] shrink-0 ${agent.badgeColor}`} style={{ fontFamily: SF }}>{agent.type}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[#8e8e93] text-[12px] font-medium" style={{ fontFamily: SF }}>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-3.5 h-3.5" />
-                        <span>{agent.users}</span>
-                      </div>
-                      <span className="text-[#3a3a3c]">•</span>
-                      <span className="truncate">{agent.version}</span>
-                    </div>
-                  </div>
-                  <div className="text-[#a0a0a0] font-bold text-[14px] px-2 shrink-0 opacity-50" style={{ fontFamily: SF }}>#{index + 1}</div>
-                </div>
-              ))}
+        {/* Connectors Section */}
+        <div className="w-full">
+            <div className="mt-2 mb-3 pl-1">
+              <h2 className="text-white font-bold text-[20px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
+                Connectors
+              </h2>
+              <p className="text-[#a0a0a0] text-[13px] mt-0.5 leading-snug" style={{ fontFamily: SF }}>
+                Link your apps and services to unlock powerful AI automations.
+              </p>
             </div>
-          </div>
 
-          {/* Recent Instances Grid */}
-          <div className="w-full">
-            <h2 className="text-white font-bold text-[18px] mb-3 px-1" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-              Recent Instances
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              {RECENT_INSTANCES.map((instance) => (
-                <div 
-                  key={instance.id}
-                  className="bg-[#1e1e1e] rounded-[16px] p-4 flex flex-col items-center text-center relative border border-[#2c2c2e] shadow-sm active:bg-white/5 transition-colors cursor-pointer"
-                >
-                  <div className="w-12 h-12 rounded-[12px] bg-[#161616] flex items-center justify-center mb-3 border border-white/5">
-                    {instance.icon}
-                  </div>
-                  <h3 className="text-white font-bold text-[14px] leading-tight mb-2 line-clamp-2" style={{ fontFamily: SFD }}>
-                    {instance.title}
-                  </h3>
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <span className="text-[#eab308] font-bold text-[11px]" style={{ fontFamily: SF }}>{instance.tag}</span>
-                    <span className="text-[#8e8e93] text-[11px] font-medium">{instance.version}</span>
-                  </div>
-                  <span className="text-[#8e8e93] text-[11px] font-medium">{instance.time}</span>
-                </div>
-              ))}
+            <div 
+              className="w-full bg-[#1e1e1e] rounded-[16px] overflow-hidden flex flex-col relative"
+            >
+              <div className="flex flex-col">
+                {connectorsLoading
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5">
+                      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-3">
+                        <div className="w-8 h-8 rounded-[12px] skeleton-shimmer shrink-0" />
+                        <div className="flex flex-col min-w-0 flex-1 gap-1.5">
+                          <div className="h-3 w-24 skeleton-shimmer rounded-full" />
+                          <div className="h-2.5 w-full skeleton-shimmer rounded-full" />
+                        </div>
+                      </div>
+                      <div className="shrink-0 w-[70px] h-[28px] rounded-full skeleton-shimmer" />
+                    </div>
+                  ))
+                  : CONNECTORS_DB.slice(0, 4).map((c, i, arr) => {
+                    const status = connectorsState[c.id]
+                    const isConn = status?.connected ?? false
+                    return (
+                      <button 
+                        key={c.id}
+                        onClick={() => setModalState({ view: "detail", connectorId: c.id })}
+                        onPointerDown={createRipple}
+                        className="relative overflow-hidden w-full flex items-center justify-between px-4 py-3.5 first:pt-5 last:pb-5 active:bg-white/5 transition-colors text-left"
+                      >
+                        <div className="flex items-center gap-3.5 relative z-10 pointer-events-none flex-1 min-w-0 pr-3">
+                          <div className="relative">
+                            <img src={c.src} alt={c.name} className="w-8 h-8 object-contain shrink-0" draggable={false} style={imageProtectionStyle} />
+                          </div>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-white font-medium text-[16px] leading-[1.2] mb-0.5 truncate" style={{ fontFamily: SFD }}>{c.name}</span>
+                            <span className="text-[#a0a0a0] text-[13px] leading-[1.3] line-clamp-1" style={{ fontFamily: SF }}>
+                              {isConn && status?.label ? status.label : c.description}
+                            </span>
+                          </div>
+                        </div>
+                        <div className={`relative z-10 shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-bold pointer-events-none ${
+                          isConn
+                            ? "bg-orange-500/10 text-orange-400"
+                            : "bg-[#60a5fa] text-white"
+                        }`} style={{ fontFamily: SF }}>
+                          {isConn ? "Connected" : "Connect"}
+                        </div>
+                      </button>
+                    )
+                  })
+                }
+              </div>
             </div>
-          </div>
-          
+
+            <div 
+              onClick={() => setModalState({ view: "list", connectorId: null })}
+              onPointerDown={createRipple}
+              className="relative w-full mt-3 overflow-hidden rounded-full cursor-pointer active:scale-[0.98] transition-transform flex items-center shadow-sm bg-white/5"
+            >
+              <Search className="absolute left-3.5 w-4 h-4 text-[#8e8e93] pointer-events-none z-10" />
+              <input 
+                type="text" 
+                placeholder="Search connectors" 
+                readOnly
+                className="w-full pl-[36px] pr-4 py-2 bg-transparent text-[#e5e5ea] placeholder:text-[#8e8e93] focus:outline-none text-[15px] pointer-events-none"
+                style={{ fontFamily: SF }}
+              />
+            </div>
         </div>
       </div>
 
