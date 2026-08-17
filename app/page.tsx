@@ -18,7 +18,7 @@ const MarketView = dynamic(() => import("@/components/market-view").then(mod => 
 const LevelsView = dynamic(() => import("@/components/levels-view").then(mod => mod.LevelsView))
 const ShopView = dynamic(() => import("@/components/shop-view").then(mod => mod.ShopView))
 import { useEffect, useState } from "react"
-import { Home, Target, Store, CircleUser, Loader2, Clock, Settings } from "lucide-react"
+import { Compass, Target, Store, CircleUser, Loader2, Clock, Settings } from "lucide-react"
 
 // ── Telegram user helper ──────────────────────────────────────────────
 type TgUser = {
@@ -112,7 +112,7 @@ function NavBar() {
       { id: "levels", label: "BP Levels", icon: Target, disabled: false },
     ]
     : [
-      { id: "home",     label: "Home",  icon: Home,  disabled: false },
+      { id: "home",     label: "Discover",  icon: Compass,  disabled: false },
       { id: "schedule", label: "Tasks", icon: Clock, disabled: false },
       { id: "settings_nav", label: "Settings", icon: Settings, disabled: false },
     ]
@@ -148,8 +148,8 @@ function NavBar() {
           <div className="flex flex-col items-center justify-center pointer-events-none select-none relative w-full h-full" style={{ zIndex: 10 }}>
             {activeNavMode === 'market' ? (
               <>
-                <Home size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Home</span>
+                <Compass size={22} color={inactiveColor} strokeWidth={2} />
+                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Discover</span>
               </>
             ) : (
               <>
