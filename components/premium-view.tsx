@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
 import { Check, Gift, Sparkles, Bot, Blocks, Zap, Shield, BarChart, Calendar, MessageSquare } from "lucide-react"
+import { Spotlight } from "@/components/ui/spotlight-new"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -168,15 +169,17 @@ export function PremiumView() {
         </div>
 
         {/* UNLIMITED MANAGEMENT BLOCK */}
-        <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5">
-          <div className="flex items-center gap-2 mb-2 mt-[-2px]">
-            <img src="/noir-originalogo.png" alt="Noir" className="w-[24px] h-[24px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
-            <h2 className="text-[20px] font-bold tracking-tight text-white leading-none">Noir</h2>
-          </div>
-          <p className="text-[14px] font-medium mb-4 tracking-tight text-[#8e8e93] leading-snug" style={{ fontFamily: SF }}>
-            {isHeavy ? "Ultimate frontier models with uncompromised limits and maximum priority." : "Frontier models & smart workflows with extended benefits."}
-          </p>
-          <div className="flex flex-col gap-y-3.5">
+        <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5 relative overflow-hidden">
+          {isHeavy && <Spotlight fill="rgba(255,255,255,0.7)" className="z-0" />}
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-2 mt-[-2px]">
+              <img src="/noir-originalogo.png" alt="Noir" className="w-[24px] h-[24px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
+              <h2 className="text-[20px] font-bold tracking-tight text-white leading-none">Noir</h2>
+            </div>
+            <p className="text-[14px] font-medium mb-4 tracking-tight text-[#8e8e93] leading-snug" style={{ fontFamily: SF }}>
+              {isHeavy ? "Ultimate frontier models with uncompromised limits and maximum priority." : "Frontier models & smart workflows with extended benefits."}
+            </p>
+            <div className="flex flex-col gap-y-3.5">
             {!isHeavy ? (
               <>
                 <div className="flex items-center gap-3.5">
@@ -250,6 +253,7 @@ export function PremiumView() {
                 </div>
               </>
             )}
+          </div>
           </div>
         </div>
 
