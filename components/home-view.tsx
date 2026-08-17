@@ -610,7 +610,7 @@ export function HomeView() {
       </div>
 
       {/* Stars Background Effect */}
-      <div className="absolute top-[120px] left-0 right-0 h-[300px] z-0 pointer-events-none overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-[450px] z-0 pointer-events-none overflow-hidden">
         <StarsBackground />
         <ShootingStars />
         {/* Radial gradient for the container to give a faded look */}
