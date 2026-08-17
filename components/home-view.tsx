@@ -663,12 +663,12 @@ export function HomeView() {
             {[
               {
                 title: "Sick title",
-                desc: "How to design with gestures and motion that feel intuitive and natural.",
+                desc: "test cards",
                 img: "/basic-img.png"
               },
               {
                 title: "Sick title",
-                desc: "How to design with gestures and motion that feel intuitive and natural.",
+                desc: "test cards",
                 img: "/basic-img.png"
               }
             ].map((card, idx) => (

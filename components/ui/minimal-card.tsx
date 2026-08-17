@@ -20,7 +20,7 @@ const MinimalCardImage = React.forwardRef<
   HTMLImageElement,
   React.ImgHTMLAttributes<HTMLImageElement>
 >(({ className, ...props }, ref) => (
-  <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#2c2c2e]">
+  <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#2c2c2e]">
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img
       ref={ref}
