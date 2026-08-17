@@ -332,7 +332,7 @@ export function MarketView() {
         )}
         
         {viewingBoxId && activeBoxData ? (
-          <div className="animate-in slide-in-from-right-8 fade-in duration-300 min-h-screen pb-20 pt-8 px-5">
+          <div className="animate-in slide-in-from-right-8 fade-in duration-300 min-h-[var(--tg-viewport-stable-height,100dvh)] pb-20 pt-8 px-5">
              <div className="flex items-center justify-between mb-8">
                 <div className="w-8" />
                 <h2 className="text-white font-bold text-[24px] text-center" style={{ fontFamily: SFD }}>{activeBoxData.name}</h2>

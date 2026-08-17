@@ -61,7 +61,7 @@ export function PremiumView() {
   const accentColor = isHeavy ? "#f97316" : "#6a5acd"; // Orange for Heavy, Slate Blue for Lite
 
   return (
-    <div className="flex-1 min-h-screen flex flex-col bg-[#000000] fixed top-0 left-0 w-full h-full z-[70] overflow-y-auto overscroll-none text-white pb-32" style={{ fontFamily: SFD }}>
+    <div className="flex-1 min-h-[var(--tg-viewport-stable-height,100dvh)] flex flex-col bg-[#000000] fixed top-0 left-0 w-full h-full z-[70] overflow-y-auto overscroll-none text-white pb-32" style={{ fontFamily: SFD }}>
       {isHeavy && (
         <div className="absolute top-0 left-0 w-full h-[60vh] pointer-events-none z-0" style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)' }}>
           <DarkVeil speed={0.4} opacity={0.6} className="z-0 opacity-60 mix-blend-screen" />

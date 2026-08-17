@@ -243,7 +243,7 @@ export function LevelsView() {
   }, [setCurrentView, tg])
 
   return (
-    <div className="flex-1 bg-[#060606] min-h-screen relative overflow-x-hidden pb-32 select-none animate-in fade-in duration-500">
+    <div className="flex-1 bg-[#060606] min-h-[var(--tg-viewport-stable-height,100dvh)] relative overflow-x-hidden pb-32 select-none animate-in fade-in duration-500">
       
       <div className="absolute inset-0 pointer-events-none opacity-40" style={{
         backgroundImage: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 1px, transparent 1px)`,

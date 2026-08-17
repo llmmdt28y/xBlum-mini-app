@@ -436,7 +436,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-[#121212] min-h-screen text-white overflow-x-hidden font-sans pb-24 relative">
+    <div className="flex-1 flex flex-col bg-[#121212] min-h-[var(--tg-viewport-stable-height,100dvh)] text-white overflow-x-hidden font-sans pb-24 relative">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
