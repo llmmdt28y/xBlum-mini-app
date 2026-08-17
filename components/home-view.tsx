@@ -18,8 +18,8 @@ import { MinimalCard, MinimalCardImage, MinimalCardTitle, MinimalCardDescription
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { cn } from "@/lib/utils"
 
-const SF  = "inherit"
-const SFD = "inherit"
+const SF  = "var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif"
+const SFD = "var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif"
 
 const CANVAS_COLORS = [
   "rgba(249, 115, 22, 1)",

@@ -4,7 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import Script from 'next/script'
 import './globals.css'
 
-const dmSans = DM_Sans({ subsets: ["latin"] })
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" })
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -50,7 +50,7 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
       </head>
-      <body className={`${dmSans.className} antialiased bg-[#0a0a0a]`}>
+      <body className={`${dmSans.variable} font-sans antialiased bg-[#0a0a0a]`}>
         {children}
         <Analytics />
       </body>
