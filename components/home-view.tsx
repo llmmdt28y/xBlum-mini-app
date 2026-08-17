@@ -583,7 +583,7 @@ export function HomeView() {
                 className="w-full text-left inline-block"
               />
             </h1>
-            <p className="text-[#8e8e93] font-bold text-[14.5px] leading-snug mt-1.5 max-w-[320px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+            <p className="text-white/90 font-medium text-[14.5px] leading-snug mt-1.5 max-w-[320px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
               The new standard for intelligent agents.<br />
               Hi, {firstName || "there"}.
             </p>
