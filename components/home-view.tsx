@@ -11,6 +11,7 @@ import {
 
 import { BusinessAutomationView } from "./business-automation-view"
 import { CanvasText } from "./ui/canvas-text"
+import { TextGif, gifUrls } from "./ui/text-gif"
 import { ShootingStars } from "./ui/shooting-stars"
 import { StarsBackground } from "./ui/stars-background"
 import { RainbowButton } from "./ui/rainbow-button"
@@ -571,15 +572,26 @@ export function HomeView() {
           {/* Typography (Left Aligned, High Contrast like Image) */}
           <div className="flex flex-col mt-0.5">
             <h1 
-              className="text-[#F4F4F5] font-bold text-[44px] leading-[1.0] tracking-tight drop-shadow-sm flex flex-col items-start" 
+              className="font-bold text-[44px] leading-[1.0] tracking-tight drop-shadow-sm flex flex-col items-start" 
               style={{ fontFamily: SFD, letterSpacing: "-0.04em" }}
             >
-              <CanvasText
+              {/* BACKUP: CanvasText (Olas) */}
+              {/* <CanvasText
                 text="NOIR"
-                backgroundClassName="bg-blue-600 dark:bg-blue-700"
-                colors={CANVAS_COLORS}
-                lineGap={4}
+                backgroundClassName="bg-[#121212]"
                 animationDuration={20}
+                lineGap={4}
+                curveIntensity={60}
+                className="w-full text-left inline-block"
+              /> */}
+
+              {/* NEW: TextGif */}
+              <TextGif 
+                text="NOIR" 
+                gifUrl={gifUrls[0]}
+                fallbackColor="#F4F4F5"
+                className="w-full text-left inline-block"
+                size="xl"
               />
             </h1>
             <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1.5 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
