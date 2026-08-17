@@ -588,7 +588,7 @@ export function HomeView() {
               {/* NEW: TextGif */}
               <TextGif 
                 text="NOIR" 
-                gifUrl={gifUrls[0]}
+                gifUrl={gifUrls[1]}
                 fallbackColor="#F4F4F5"
                 className="w-full text-left inline-block"
                 size="xl"
