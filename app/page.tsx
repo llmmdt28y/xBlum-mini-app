@@ -135,7 +135,7 @@ function NavBar() {
           onPointerDown={() => setPressedId("left")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="bg-[#1c1c1e] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
+          className="bg-[#1c1c1e] shadow-lg pointer-events-auto shrink-0 p-0 m-0 outline-none"
           style={{
             width: "58px",
             height: "58px",
@@ -149,12 +149,12 @@ function NavBar() {
             {activeNavMode === 'market' ? (
               <>
                 <Compass size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Discover</span>
+                <span className="text-[11px] mt-1 font-semibold tracking-tight font-sans" style={{ color: inactiveColor }}>Discover</span>
               </>
             ) : (
               <>
                 <Store size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight" style={{ color: inactiveColor }}>Market</span>
+                <span className="text-[11px] mt-1 font-semibold tracking-tight font-sans" style={{ color: inactiveColor }}>Market</span>
               </>
             )}
           </div>
@@ -162,7 +162,7 @@ function NavBar() {
 
         {/* ── PÍLDORA CENTRAL ── */}
         <div
-          className="bg-[#1c1c1e] shadow-lg border border-white/10 pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
+          className="bg-[#1c1c1e] shadow-lg pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
           style={{ borderRadius: "100px", height: "58px", zIndex: 51 }}
         >
           <div className="flex items-center justify-between w-full relative h-[52px]" style={{ zIndex: 10 }}>
@@ -214,7 +214,7 @@ function NavBar() {
                         className="transition-colors duration-300 relative z-10"
                       />
                       <span
-                        className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 relative z-10 ${isActive ? "font-bold" : "font-semibold"}`}
+                        className={`mt-1 tracking-tight text-[11px] transition-colors duration-300 relative z-10 font-sans ${isActive ? "font-bold" : "font-semibold"}`}
                         style={{ color: isActive ? neonBlue : inactiveColor }}
                       >
                         {tab.label}
@@ -235,7 +235,7 @@ function NavBar() {
           onPointerDown={() => setPressedId("right")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="bg-[#1c1c1e] shadow-lg border border-white/10 pointer-events-auto shrink-0 p-0 m-0 outline-none"
+          className="bg-[#1c1c1e] shadow-lg pointer-events-auto shrink-0 p-0 m-0 outline-none"
           style={{
             width: "58px",
             height: "58px",
@@ -258,7 +258,7 @@ function NavBar() {
                   strokeWidth={currentView === 'profile' ? 2.5 : 2}
                 />
                 <span
-                  className={`text-[11px] mt-1 tracking-tight ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
+                  className={`text-[11px] mt-1 tracking-tight font-sans ${currentView === 'profile' ? "font-bold" : "font-semibold"}`}
                   style={{ color: currentView === 'profile' ? neonBlue : inactiveColor }}
                 >
                   Profile
