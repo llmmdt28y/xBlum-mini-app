@@ -588,10 +588,9 @@ export function HomeView() {
               {/* NEW: TextGif */}
               <TextGif 
                 text="NOIR" 
-                gifUrl={gifUrls[1]}
+                gifUrl={gifUrls[3]}
                 fallbackColor="#F4F4F5"
-                className="w-full text-left inline-block"
-                size="xl"
+                className="w-full text-left inline-block text-[44px] leading-[1.0]"
               />
             </h1>
             <p className="text-[#8e8e93] font-normal text-[16px] leading-snug mt-1.5 max-w-[280px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
