@@ -430,7 +430,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-[#121212] min-h-screen text-white overflow-x-hidden font-sans pb-24">
+    <div className="flex-1 flex flex-col bg-[#121212] min-h-screen text-white overflow-x-hidden font-sans pb-24 relative">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -604,6 +604,19 @@ export function HomeView() {
           </div>
 
         </div>
+      </div>
+
+      {/* Grid Background Effect */}
+      <div className="absolute top-[120px] left-0 right-0 h-[300px] z-0 pointer-events-none">
+        <div
+          className={cn(
+            "absolute inset-0",
+            "[background-size:40px_40px]",
+            "[background-image:linear-gradient(to_right,#262626_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]"
+          )}
+        />
+        {/* Radial gradient for the container to give a faded look */}
+        <div className="pointer-events-none absolute inset-0 bg-[#121212] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
       </div>
 
       {/* Main Content */}
