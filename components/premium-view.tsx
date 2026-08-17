@@ -169,7 +169,7 @@ export function PremiumView() {
         </div>
 
         {/* UNLIMITED MANAGEMENT BLOCK */}
-        <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5 relative overflow-hidden">
+        <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md relative overflow-hidden">
           {isHeavy && (
             <>
               <div
