@@ -16,6 +16,19 @@ import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 const SF  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
 
+const CANVAS_COLORS = [
+  "rgba(0, 153, 255, 1)",
+  "rgba(0, 153, 255, 0.9)",
+  "rgba(0, 153, 255, 0.8)",
+  "rgba(0, 153, 255, 0.7)",
+  "rgba(0, 153, 255, 0.6)",
+  "rgba(0, 153, 255, 0.5)",
+  "rgba(0, 153, 255, 0.4)",
+  "rgba(0, 153, 255, 0.3)",
+  "rgba(0, 153, 255, 0.2)",
+  "rgba(0, 153, 255, 0.1)",
+];
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? ""
 
 const ICON_COLORS: Record<string, string> = {
@@ -558,18 +571,7 @@ export function HomeView() {
               <CanvasText
                 text="NOIR"
                 backgroundClassName="bg-[#121212]"
-                colors={[
-                  "rgba(0, 153, 255, 1)",
-                  "rgba(0, 153, 255, 0.9)",
-                  "rgba(0, 153, 255, 0.8)",
-                  "rgba(0, 153, 255, 0.7)",
-                  "rgba(0, 153, 255, 0.6)",
-                  "rgba(0, 153, 255, 0.5)",
-                  "rgba(0, 153, 255, 0.4)",
-                  "rgba(0, 153, 255, 0.3)",
-                  "rgba(0, 153, 255, 0.2)",
-                  "rgba(0, 153, 255, 0.1)",
-                ]}
+                colors={CANVAS_COLORS}
                 lineGap={4}
                 animationDuration={20}
               />
