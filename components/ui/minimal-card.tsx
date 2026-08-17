@@ -8,7 +8,7 @@ const MinimalCard = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-2xl bg-[#1e1e1e] p-4 flex flex-col gap-3 overflow-hidden transition-all hover:bg-[#262626] border border-[#2c2c2e]",
+      "rounded-[24px] bg-[#222224] p-3 flex flex-col overflow-hidden transition-all hover:bg-[#2c2c2e]",
       className
     )}
     {...props}
@@ -20,7 +20,7 @@ const MinimalCardImage = React.forwardRef<
   HTMLImageElement,
   React.ImgHTMLAttributes<HTMLImageElement>
 >(({ className, ...props }, ref) => (
-  <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-[#2c2c2e]">
+  <div className="relative w-full aspect-[2/1] rounded-[16px] overflow-hidden bg-[#2c2c2e]">
     {/* eslint-disable-next-line @next/next/no-img-element */}
     <img
       ref={ref}
@@ -39,7 +39,7 @@ const MinimalCardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "font-semibold text-white leading-none tracking-tight text-lg mt-1",
+      "font-bold text-white text-[17px] leading-tight mt-3 px-1",
       className
     )}
     {...props}
@@ -53,7 +53,7 @@ const MinimalCardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-[#8e8e93] leading-snug", className)}
+    className={cn("text-[14px] text-[#8e8e93] leading-[1.3] mt-1.5 px-1 mb-1", className)}
     {...props}
   />
 ))
