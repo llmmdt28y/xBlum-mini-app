@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
 import { Check, Gift, Sparkles, Bot, Blocks, Zap, Shield, BarChart, Calendar, MessageSquare } from "lucide-react"
 import { Spotlight } from "@/components/ui/spotlight"
+import { DarkVeil } from "@/components/ui/dark-veil"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -178,6 +179,7 @@ export function PremiumView() {
                   backgroundImage: "linear-gradient(to right, #1f1f1f 1px, transparent 1px), linear-gradient(to bottom, #1f1f1f 1px, transparent 1px)"
                 }}
               />
+              <DarkVeil speed={0.4} opacity={0.5} className="z-0 opacity-40 mix-blend-screen" />
               <Spotlight fill="white" className="-top-10 -left-10 z-0 opacity-80" />
             </>
           )}
