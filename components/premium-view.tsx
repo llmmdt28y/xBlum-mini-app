@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
 import { Check, Gift, Sparkles, Bot, Blocks, Zap, Shield, BarChart, Calendar, MessageSquare } from "lucide-react"
-import { Spotlight } from "@/components/ui/spotlight-new"
+import { Spotlight } from "@/components/ui/spotlight"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -170,7 +170,17 @@ export function PremiumView() {
 
         {/* UNLIMITED MANAGEMENT BLOCK */}
         <div className="bg-[#111111] rounded-[20px] py-4 px-4 mb-5 shadow-md border border-white/5 relative overflow-hidden">
-          {isHeavy && <Spotlight fill="rgba(255,255,255,0.7)" className="z-0" />}
+          {isHeavy && (
+            <>
+              <div
+                className="pointer-events-none absolute inset-0 [background-size:30px_30px] select-none z-0"
+                style={{
+                  backgroundImage: "linear-gradient(to right, #1f1f1f 1px, transparent 1px), linear-gradient(to bottom, #1f1f1f 1px, transparent 1px)"
+                }}
+              />
+              <Spotlight fill="white" className="-top-10 -left-10 z-0 opacity-80" />
+            </>
+          )}
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-2 mt-[-2px]">
               <img src="/noir-originalogo.png" alt="Noir" className="w-[24px] h-[24px] object-contain select-none pointer-events-none drop-shadow-md" draggable={false} style={imageProtectionStyle} />
