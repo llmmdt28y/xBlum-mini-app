@@ -571,7 +571,7 @@ export function HomeView() {
             >
               <CanvasText
                 text="NOIR"
-                backgroundClassName="bg-[#121212]"
+                backgroundClassName="bg-blue-600 dark:bg-blue-700"
                 colors={CANVAS_COLORS}
                 lineGap={4}
                 animationDuration={20}
