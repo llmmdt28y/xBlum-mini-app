@@ -571,12 +571,13 @@ export function HomeView() {
           {/* Typography (Left Aligned, High Contrast like Image) */}
           <div className="flex flex-col mt-0.5">
             <h1 
-              className="font-bold text-[44px] leading-[1.0] tracking-tight drop-shadow-sm flex flex-col items-start" 
+              className="text-[#F4F4F5] font-bold text-[44px] leading-[1.0] tracking-tight drop-shadow-sm flex flex-col items-start" 
               style={{ fontFamily: SFD, letterSpacing: "-0.04em" }}
             >
               <CanvasText
                 text="NOIR"
                 backgroundClassName="bg-[#121212]"
+                colors={CANVAS_COLORS}
                 animationDuration={20}
                 lineGap={4}
                 curveIntensity={60}
