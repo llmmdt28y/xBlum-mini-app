@@ -14,6 +14,7 @@ import { CanvasText } from "./ui/canvas-text"
 import { ShootingStars } from "./ui/shooting-stars"
 import { StarsBackground } from "./ui/stars-background"
 import { RainbowButton } from "./ui/rainbow-button"
+import { MinimalCard, MinimalCardImage, MinimalCardTitle, MinimalCardDescription } from "./ui/minimal-card"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { cn } from "@/lib/utils"
 
@@ -234,6 +235,7 @@ export function HomeView() {
   const [isInputActive, setIsInputActive] = useState(false)
   const [askQuery, setAskQuery] = useState("")
   const modelMenuRef = useRef<HTMLDivElement>(null)
+  const [activeCardIndex, setActiveCardIndex] = useState(0)
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent | TouchEvent) {
@@ -649,48 +651,45 @@ export function HomeView() {
               Explore content center
             </h2>
           </div>
-          
-          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2">
-            {FEATURED_CONTENT.map(item => (
-              <div 
-                key={item.id} 
-                className="w-[280px] shrink-0 snap-start bg-[#1e1e1e] rounded-[16px] overflow-hidden flex flex-col shadow-lg border border-[#2c2c2e]"
-              >
-                {/* Banner Image Area */}
-                <div className="w-full h-[120px] bg-gradient-to-br from-[#2a2a2a] to-[#121212] relative flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
-                  <span className="text-white/20 font-bold text-[24px]" style={{ fontFamily: SFD }}>NOIR</span>
-                  
-                  {/* Floating Icon */}
-                  <div className="absolute bottom-3 left-3 w-10 h-10 rounded-[12px] bg-[#161618] border border-[#2c2c2e] flex items-center justify-center shadow-md">
-                    {item.icon}
-                  </div>
-                  
-                  {/* Top Right badge */}
-                  <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center">
-                    <Sparkles className="w-3.5 h-3.5 text-white" />
-                  </div>
-                </div>
+          <div 
+            className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2"
+            onScroll={(e) => {
+              const el = e.currentTarget;
+              const cardWidth = el.scrollWidth / 2;
+              const index = Math.round(el.scrollLeft / cardWidth);
+              setActiveCardIndex(Math.min(1, Math.max(0, index)));
+            }}
+          >
+            {[
+              {
+                title: "Sick title",
+                desc: "How to design with gestures and motion that feel intuitive and natural.",
+                img: "/basic-img.png"
+              },
+              {
+                title: "Sick title",
+                desc: "How to design with gestures and motion that feel intuitive and natural.",
+                img: "/basic-img.png"
+              }
+            ].map((card, idx) => (
+              <MinimalCard key={idx} className="w-[85vw] max-w-[320px] shrink-0 snap-center">
+                <MinimalCardImage src={card.img} />
+                <MinimalCardTitle>{card.title}</MinimalCardTitle>
+                <MinimalCardDescription>{card.desc}</MinimalCardDescription>
+              </MinimalCard>
+            ))}
+          </div>
 
-                {/* Info Area */}
-                <div className="p-4 flex flex-col gap-1.5 flex-1 justify-between">
-                  <div>
-                    <h3 className="text-white font-bold text-[16px] leading-tight" style={{ fontFamily: SFD }}>{item.title}</h3>
-                    <p className="text-[#8e8e93] text-[13px] leading-snug mt-1 line-clamp-2" style={{ fontFamily: SF }}>{item.desc}</p>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-3 text-[#a0a0a0] text-[12px]" style={{ fontFamily: SF }}>
-                    <div className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5" />
-                      <span>{item.author}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <ArrowDownToLine className="w-3.5 h-3.5" />
-                      <span>{item.users}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {/* Pagination Indicators */}
+          <div className="flex items-center justify-center gap-1.5 mt-1">
+            {[0, 1].map((idx) => (
+              <div 
+                key={idx}
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-300",
+                  activeCardIndex === idx ? "w-5 bg-white" : "w-1.5 bg-[#3a3a3c]"
+                )}
+              />
             ))}
           </div>
         </div>
