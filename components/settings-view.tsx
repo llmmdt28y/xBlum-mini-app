@@ -287,7 +287,7 @@ function Section({ title, footer, children, rightAction }: { title?: string; foo
           {rightAction && <div>{rightAction}</div>}
         </div>
       )}
-      <div className="rounded-[16px] overflow-hidden bg-[#111111] relative">
+      <div className="flex flex-col gap-[2px] relative [&>*]:bg-[#111111] [&>*]:rounded-[4px] [&>*:first-child]:rounded-t-[16px] [&>*:last-child]:rounded-b-[16px] [&>*]:overflow-hidden">
         {children}
       </div>
       {footer && (
@@ -351,7 +351,6 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
         <a href={href} target="_blank" rel="noopener noreferrer" onPointerDown={createRipple} className={className + " block"}>
           {content}
         </a>
-        {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
       </>
     )
   }
@@ -366,7 +365,6 @@ function Row({ label, sublabel, value, leftNode, rightNode, onClick, hideArrow =
       >
         {content}
       </button>
-      {!last && <div className={`h-[1px] bg-[#1c1c1e] relative z-20 ${leftNode ? 'ml-[52px]' : 'ml-4'}`} />}
     </>
   )
 }

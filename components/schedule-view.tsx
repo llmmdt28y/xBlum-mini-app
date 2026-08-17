@@ -207,7 +207,7 @@ function SwitchNode({ on, onToggle, disabled }: { on: boolean; onToggle: () => v
 }
 
 function Section({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-[16px] overflow-hidden bg-[#111111] w-full">{children}</div>
+  return <div className="flex flex-col gap-[2px] relative [&>*]:bg-[#111111] [&>*]:rounded-[4px] [&>*:first-child]:rounded-t-[16px] [&>*:last-child]:rounded-b-[16px] [&>*]:overflow-hidden w-full">{children}</div>
 }
 
 function Row({ label, rightNode, last = false }: { label: string; rightNode?: React.ReactNode; last?: boolean }) {
@@ -217,7 +217,6 @@ function Row({ label, rightNode, last = false }: { label: string; rightNode?: Re
         <span className="text-[16px] font-medium text-white" style={{ fontFamily: SF }}>{label}</span>
         {rightNode && <div className="flex items-center relative z-10 shrink-0 ml-2">{rightNode}</div>}
       </div>
-      {!last && <div className="h-[1px] bg-[#1c1c1e] relative z-20 ml-4" />}
     </>
   )
 }
