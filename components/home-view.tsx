@@ -623,23 +623,16 @@ export function HomeView() {
         
 
 
-        {/* Noir Pro / Account Setup Card (Xyrios style) */}
+        {/* Account Setup Card */}
         <div 
           onClick={() => setCurrentView("account_setup")}
-          className="w-full bg-[#1c1c1e] rounded-[16px] p-4 mt-2 flex flex-col gap-2 relative overflow-hidden cursor-pointer"
+          className="w-full bg-[#1c1c1e] rounded-[16px] py-3.5 px-4 mt-2 flex items-center justify-between relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
         >
-          <div className="flex items-center justify-between z-10">
-            <div className="flex items-center gap-2">
-              <CircleUser className="w-5 h-5 text-[#3390ec]" />
-              <span className="text-white font-bold text-[18px]" style={{ fontFamily: SFD }}>Account Setup</span>
-            </div>
-            <div className="w-8 h-8 rounded-full border border-[#3390ec] bg-transparent flex items-center justify-center">
-              <ArrowUpRight className="w-4 h-4 text-[#3390ec]" />
-            </div>
+          <div className="flex items-center gap-3 z-10">
+            <CircleUser className="w-5 h-5 text-[#3390ec]" />
+            <span className="text-white font-bold text-[16.5px]" style={{ fontFamily: SFD }}>Complete Account</span>
           </div>
-          <p className="text-[#a0a0a0] text-[13px] leading-snug mt-1 z-10" style={{ fontFamily: SF }}>
-            Configure your personalized AI assistant. Set your preferences, identity, and connections all in one single place.
-          </p>
+          <ChevronRight className="w-5 h-5 text-[#3390ec] z-10" strokeWidth={3} />
         </div>
 
         {/* Content Center (Horizontal Carousel) */}
