@@ -667,20 +667,18 @@ export function HomeView() {
               { title: "Analytics", desc: "Data insights", icon: HardDrive },
               { title: "Vision", desc: "Image analysis", icon: ImageIcon },
               { title: "Language", desc: "Text processing", icon: MessageCircle },
-              { title: "Generation", desc: "Content creation", icon: Sparkles },
-              { title: "Security", desc: "Safe execution", icon: ShieldCheck },
             ].map((skill, idx) => (
               <div 
                 key={idx}
-                className="w-full bg-[#1c1c1e] rounded-[16px] p-4 flex flex-col items-start relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+                className="w-full bg-[#1c1c1e] rounded-[14px] p-3 flex flex-col items-start relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
               >
-                <div className="w-8 h-8 rounded-full bg-[#3390ec]/10 flex items-center justify-center mb-3">
-                  <skill.icon className="w-4 h-4 text-[#3390ec]" />
+                <div className="flex items-center gap-2 mb-1.5">
+                  <skill.icon className="w-[18px] h-[18px] text-[#3390ec]" />
+                  <h3 className="text-white font-bold text-[14.5px] leading-tight" style={{ fontFamily: SFD }}>
+                    {skill.title}
+                  </h3>
                 </div>
-                <h3 className="text-white font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SFD }}>
-                  {skill.title}
-                </h3>
-                <p className="text-[#8e8e93] text-[13px] leading-snug">
+                <p className="text-[#8e8e93] text-[12.5px] leading-snug">
                   {skill.desc}
                 </p>
               </div>
