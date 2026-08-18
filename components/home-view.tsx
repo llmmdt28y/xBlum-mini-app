@@ -12,6 +12,7 @@ import {
 import { BusinessAutomationView } from "./business-automation-view"
 import { CanvasText } from "./ui/canvas-text"
 import GradientText from "./ui/gradient-text"
+import RotatingText from "./ui/rotating-text"
 import { DarkVeil } from "./ui/dark-veil"
 import Aurora from "./ui/aurora"
 
@@ -584,7 +585,20 @@ export function HomeView() {
               </GradientText>
             </h1>
             <p className="text-white/90 font-medium text-[14.5px] leading-snug -mt-0.5 max-w-[320px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
-              The new standard for intelligent agents.<br />
+              The new standard for{' '}
+              <RotatingText
+                texts={['intelligent agents.', 'automation.', 'smart workflows.', 'creators.', 'businesses.']}
+                mainClassName="text-[#3390ec] font-bold inline-flex"
+                staggerFrom="last"
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "-120%" }}
+                staggerDuration={0.025}
+                splitLevelClassName="overflow-hidden pb-0.5"
+                transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                rotationInterval={3000}
+              />
+              <br />
               Hi, {firstName || "there"}.
             </p>
           </div>
