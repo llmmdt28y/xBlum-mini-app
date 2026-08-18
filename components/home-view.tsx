@@ -654,52 +654,36 @@ export function HomeView() {
           <ArrowRight className="w-5 h-5 text-[#3390ec] z-10" strokeWidth={3} />
         </div>
 
-        {/* Content Center (Horizontal Carousel) */}
+        {/* Skills Section */}
         <div className="mt-4 w-full flex flex-col gap-3">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
-              Explore content center
+              Skills
             </h2>
           </div>
-          <div 
-            className="flex gap-3 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-2"
-            onScroll={(e) => {
-              const el = e.currentTarget;
-              const cardWidth = el.scrollWidth / 2;
-              const index = Math.round(el.scrollLeft / cardWidth);
-              setActiveCardIndex(Math.min(1, Math.max(0, index)));
-            }}
-          >
+          <div className="grid grid-cols-2 gap-3 px-1">
             {[
-              {
-                title: "Sick title",
-                desc: "test cards",
-                img: "/basic-img.png"
-              },
-              {
-                title: "Sick title",
-                desc: "test cards",
-                img: "/basic-img.png"
-              }
-            ].map((card, idx) => (
-              <MinimalCard key={idx} className="w-[85vw] max-w-[320px] shrink-0 snap-center">
-                <MinimalCardImage src={card.img} />
-                <MinimalCardTitle>{card.title}</MinimalCardTitle>
-                <MinimalCardDescription>{card.desc}</MinimalCardDescription>
-              </MinimalCard>
-            ))}
-          </div>
-
-          {/* Pagination Indicators */}
-          <div className="flex items-center justify-center gap-1.5 mt-1">
-            {[0, 1].map((idx) => (
+              { title: "Automation", desc: "Smart workflows", icon: Zap },
+              { title: "Analytics", desc: "Data insights", icon: HardDrive },
+              { title: "Vision", desc: "Image analysis", icon: ImageIcon },
+              { title: "Language", desc: "Text processing", icon: MessageCircle },
+              { title: "Generation", desc: "Content creation", icon: Sparkles },
+              { title: "Security", desc: "Safe execution", icon: ShieldCheck },
+            ].map((skill, idx) => (
               <div 
                 key={idx}
-                className={cn(
-                  "h-1.5 rounded-full transition-all duration-300",
-                  activeCardIndex === idx ? "w-5 bg-white" : "w-1.5 bg-[#3a3a3c]"
-                )}
-              />
+                className="w-full bg-[#1c1c1e] rounded-[16px] p-4 flex flex-col items-start relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+              >
+                <div className="w-8 h-8 rounded-full bg-[#3390ec]/10 flex items-center justify-center mb-3">
+                  <skill.icon className="w-4 h-4 text-[#3390ec]" />
+                </div>
+                <h3 className="text-white font-bold text-[15px] leading-tight mb-1" style={{ fontFamily: SFD }}>
+                  {skill.title}
+                </h3>
+                <p className="text-[#8e8e93] text-[13px] leading-snug">
+                  {skill.desc}
+                </p>
+              </div>
             ))}
           </div>
         </div>
