@@ -447,11 +447,11 @@ function AppContent() {
       >
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentView}
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 30 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            key={showNav ? "main-tabs" : currentView}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             className="flex flex-col flex-1 w-full relative"
           >
             {currentView === "home"               && (<><Header /><HomeView /></>)}
