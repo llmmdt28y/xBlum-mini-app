@@ -44,6 +44,30 @@ export default function RootLayout({
           src="https://telegram.org/js/telegram-web-app.js"
           strategy="beforeInteractive"
         />
+        {/* Forzar configuración global de dimensiones de Telegram inmediatamente */}
+        <Script
+          id="tg-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (window.Telegram && window.Telegram.WebApp) {
+                var tg = window.Telegram.WebApp;
+                tg.ready();
+                try {
+                  var platform = (tg.platform || '').toLowerCase();
+                  var isWeb = platform === 'web' || platform === 'weba' || platform === 'webk';
+                  if (!isWeb && typeof tg.requestFullscreen === 'function') {
+                    tg.requestFullscreen();
+                  } else {
+                    tg.expand();
+                  }
+                } catch(e) {
+                  try { tg.expand(); } catch(err) {}
+                }
+              }
+            `
+          }}
+        />
         {/* Adsgram SDK — carga después del hydration, no bloquea */}
         <Script
           src="https://sad.adsgram.ai/js/sad.min.js"

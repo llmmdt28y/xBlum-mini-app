@@ -286,26 +286,7 @@ function AppContent() {
   const [isMaintenance, setIsMaintenance] = useState(false)
   const [loadingProgress, setLoadingProgress] = useState(0)
 
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tg = (window as any).Telegram?.WebApp
-    if (tg) {
-      tg.ready()
-      
-      const platform = (tg.platform || '').toLowerCase()
-      const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk'
-      
-      try {
-        if (!isWeb && typeof tg.requestFullscreen === 'function') {
-          tg.requestFullscreen()
-        } else {
-          tg.expand()
-        }
-      } catch (e) {
-        try { tg.expand() } catch {}
-      }
-    }
-  }, [])
+  // Telegram initialization is now handled globally in app/layout.tsx
 
   useEffect(() => {
     let loadedCount = 0
