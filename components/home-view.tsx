@@ -577,14 +577,13 @@ export function HomeView() {
               style={{ fontFamily: SFD, letterSpacing: "-0.04em" }}
             >
               <GradientText
-                colors={['#f97316', '#ffedd5', '#f97316']}
                 animationSpeed={3}
-                className="w-full text-left inline-block pb-1"
+                className="w-full text-left inline-block"
               >
                 NOIR
               </GradientText>
             </h1>
-            <p className="text-white/90 font-medium text-[14.5px] leading-snug mt-1.5 max-w-[320px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+            <p className="text-white/90 font-medium text-[14.5px] leading-snug -mt-0.5 max-w-[320px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
               The new standard for intelligent agents.<br />
               Hi, {firstName || "there"}.
             </p>
