@@ -661,35 +661,23 @@ export function HomeView() {
               Skills
             </h2>
           </div>
-          <div className="w-full bg-[#1c1c1e] rounded-[16px] overflow-hidden flex flex-col mt-1">
+          <div className="grid grid-cols-2 gap-2 mt-1 px-1">
             {[
-              { title: "Automate daily workflows", desc: "Automation", emoji: "🤖", badge: "PRO", badgeColor: "bg-[#8b5cf6]" },
+              { title: "Automate daily workflows", desc: "Automation", emoji: "🤖" },
               { title: "Data insights & reporting", desc: "Analytics", emoji: "📊" },
-              { title: "Image generation & analysis", desc: "Vision", emoji: "🎨", badge: "BETA", badgeColor: "bg-[#3390ec]" },
+              { title: "Image generation & analysis", desc: "Vision", emoji: "🎨" },
               { title: "Natural language processing", desc: "Language", emoji: "💬" },
-            ].map((skill, idx, arr) => (
+            ].map((skill, idx) => (
               <div 
                 key={idx}
-                className={cn(
-                  "w-full px-4 py-3 flex items-center gap-3.5 relative cursor-pointer active:bg-[#2c2c2e] transition-colors",
-                  idx !== arr.length - 1 && "border-b border-[#2c2c2e]/50"
-                )}
+                className="w-full bg-[#1c1c1e] rounded-[16px] p-3.5 flex flex-col gap-2 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
               >
-                <div className="text-[24px] flex items-center justify-center shrink-0">
-                  {skill.emoji}
-                </div>
-                <div className="flex flex-col flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-white font-medium text-[16px] leading-tight truncate" style={{ fontFamily: SF }}>
-                      {skill.title}
-                    </h3>
-                    {skill.badge && (
-                      <span className={cn("text-white text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] leading-none shrink-0 tracking-wide mt-0.5", skill.badgeColor)}>
-                        {skill.badge}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[#8e8e93] text-[13.5px] leading-snug truncate mt-0.5" style={{ fontFamily: SF }}>
+                <div className="text-[24px] leading-none mb-0.5">{skill.emoji}</div>
+                <div className="flex flex-col">
+                  <h3 className="text-white font-bold text-[14.5px] leading-tight" style={{ fontFamily: SFD }}>
+                    {skill.title}
+                  </h3>
+                  <p className="text-[#8e8e93] text-[12px] leading-snug mt-1" style={{ fontFamily: SF }}>
                     {skill.desc}
                   </p>
                 </div>
