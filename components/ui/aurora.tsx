@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
@@ -72,18 +73,18 @@ struct ColorStop {
   float position;
 };
 
-#define COLOR_RAMP(colors, factor, finalColor) {              \\
-  int index = 0;                                            \\
-  for (int i = 0; i < 2; i++) {                               \\
-     ColorStop currentColor = colors[i];                    \\
-     bool isInBetween = currentColor.position <= factor;    \\
-     index = int(mix(float(index), float(i), float(isInBetween))); \\
-  }                                                         \\
-  ColorStop currentColor = colors[index];                   \\
-  ColorStop nextColor = colors[index + 1];                  \\
-  float range = nextColor.position - currentColor.position; \\
-  float lerpFactor = (factor - currentColor.position) / range; \\
-  finalColor = mix(currentColor.color, nextColor.color, lerpFactor); \\
+#define COLOR_RAMP(colors, factor, finalColor) {              \
+  int index = 0;                                            \
+  for (int i = 0; i < 2; i++) {                               \
+     ColorStop currentColor = colors[i];                    \
+     bool isInBetween = currentColor.position <= factor;    \
+     index = int(mix(float(index), float(i), float(isInBetween))); \
+  }                                                         \
+  ColorStop currentColor = colors[index];                   \
+  ColorStop nextColor = colors[index + 1];                  \
+  float range = nextColor.position - currentColor.position; \
+  float lerpFactor = (factor - currentColor.position) / range; \
+  finalColor = mix(currentColor.color, nextColor.color, lerpFactor); \
 }
 
 void main() {
@@ -111,12 +112,12 @@ void main() {
 }
 `;
 
-export function Aurora(props: any) {
-  const { colorStops = ['#5227FF', '#7cff67', '#5227FF'], amplitude = 1.0, blend = 0.5, className } = props;
+export default function Aurora(props) {
+  const { colorStops = ['#5227FF', '#7cff67', '#5227FF'], amplitude = 1.0, blend = 0.5 } = props;
   const propsRef = useRef(props);
   propsRef.current = props;
 
-  const ctnDom = useRef<HTMLDivElement>(null);
+  const ctnDom = useRef(null);
 
   useEffect(() => {
     const ctn = ctnDom.current;
@@ -133,7 +134,7 @@ export function Aurora(props: any) {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.canvas.style.backgroundColor = 'transparent';
 
-    let program: any;
+    let program;
 
     function resize() {
       if (!ctn) return;
@@ -151,7 +152,7 @@ export function Aurora(props: any) {
       delete geometry.attributes.uv;
     }
 
-    const colorStopsArray = colorStops.map((hex: string) => {
+    const colorStopsArray = colorStops.map(hex => {
       const c = new Color(hex);
       return [c.r, c.g, c.b];
     });
@@ -172,14 +173,14 @@ export function Aurora(props: any) {
     ctn.appendChild(gl.canvas);
 
     let animateId = 0;
-    const update = (t: number) => {
+    const update = t => {
       animateId = requestAnimationFrame(update);
       const { time = t * 0.01, speed = 1.0 } = propsRef.current;
       program.uniforms.uTime.value = time * speed * 0.1;
       program.uniforms.uAmplitude.value = propsRef.current.amplitude ?? 1.0;
       program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
       const stops = propsRef.current.colorStops ?? colorStops;
-      program.uniforms.uColorStops.value = stops.map((hex: string) => {
+      program.uniforms.uColorStops.value = stops.map(hex => {
         const c = new Color(hex);
         return [c.r, c.g, c.b];
       });
@@ -200,5 +201,5 @@ export function Aurora(props: any) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amplitude]);
 
-  return <div ref={ctnDom} className={`aurora-container ${className || ""}`} />;
+  return <div ref={ctnDom} className="aurora-container" />;
 }
