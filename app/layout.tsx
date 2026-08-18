@@ -53,17 +53,14 @@ export default function RootLayout({
               if (window.Telegram && window.Telegram.WebApp) {
                 var tg = window.Telegram.WebApp;
                 tg.ready();
+                tg.expand(); // ALWAYS expand first as fallback
                 try {
                   var platform = (tg.platform || '').toLowerCase();
                   var isWeb = platform === 'web' || platform === 'weba' || platform === 'webk';
                   if (!isWeb && typeof tg.requestFullscreen === 'function') {
                     tg.requestFullscreen();
-                  } else {
-                    tg.expand();
                   }
-                } catch(e) {
-                  try { tg.expand(); } catch(err) {}
-                }
+                } catch(e) {}
               }
             `
           }}
