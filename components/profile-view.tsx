@@ -101,7 +101,7 @@ export function ProfileView() {
   const tabs = ["Gifts", "Offers", "Transactions"]
 
   return (
-    <div className="flex-1 overflow-y-auto flex flex-col relative bg-[#000000] text-white animate-in fade-in zoom-in-[0.98] duration-200 ease-out min-h-[var(--tg-viewport-stable-height,100dvh)]">
+    <div className="flex-1 overflow-y-auto flex flex-col relative bg-[#000000] text-white animate-in fade-in zoom-in-[0.98] duration-200 ease-out min-h-[calc(var(--vh, 1dvh) * 100)]">
       
       {/* ESPACIO SUPERIOR SEGURO TELEGRAM */}
       <div className="sticky top-0 z-30 flex items-center justify-center w-full pointer-events-none" style={{ paddingTop: "var(--tg-safe-area-inset-top, 24px)", height: "calc(var(--tg-safe-area-inset-top, 24px) + 20px)", background: "transparent" }}></div>

@@ -49,45 +49,25 @@ export default function RootLayout({
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              (function() {
-                function syncViewport() {
-                  if (window.Telegram && window.Telegram.WebApp) {
-                    var tg = window.Telegram.WebApp;
-                    if (tg.viewportHeight) {
-                      document.documentElement.style.setProperty('--tg-viewport-height', tg.viewportHeight + 'px', 'important');
-                    }
-                    if (tg.viewportStableHeight) {
-                      document.documentElement.style.setProperty('--tg-viewport-stable-height', tg.viewportStableHeight + 'px', 'important');
-                    }
+              try {
+                if (window.Telegram && window.Telegram.WebApp) {
+                  var tg = window.Telegram.WebApp;
+                  tg.ready();
+                  tg.expand();
+                  
+                  var platform = (tg.platform || '').toLowerCase();
+                  var isWeb = platform === 'web' || platform === 'weba' || platform === 'webk';
+                  if (!isWeb && typeof tg.requestFullscreen === 'function') {
+                    tg.requestFullscreen();
                   }
                 }
+              } catch (e) {}
 
-                function initTg() {
-                  if (window.Telegram && window.Telegram.WebApp) {
-                    var tg = window.Telegram.WebApp;
-                    tg.ready();
-                    tg.expand();
-                    syncViewport();
-
-                    tg.onEvent('viewportChanged', function(isStateChanged) {
-                      syncViewport();
-                      if (isStateChanged) tg.expand();
-                    });
-
-                    try {
-                      var platform = (tg.platform || '').toLowerCase();
-                      var isWeb = platform === 'web' || platform === 'weba' || platform === 'webk';
-                      if (!isWeb && typeof tg.requestFullscreen === 'function') {
-                        tg.requestFullscreen();
-                      }
-                    } catch(e) {}
-                  }
-                }
-
-                initTg();
-                document.addEventListener('DOMContentLoaded', initTg);
-                window.addEventListener('load', initTg);
-              })();
+              function updateVh() {
+                document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+              }
+              updateVh();
+              window.addEventListener('resize', updateVh);
             `
           }}
         />

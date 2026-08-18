@@ -424,7 +424,7 @@ function AppContent() {
 
       <div
         className="flex flex-col relative mx-auto w-full max-w-[480px] bg-[#121212]"
-        style={{ minHeight: "var(--tg-viewport-height, 100dvh)", overflowX: "hidden" }}
+        style={{ minHeight: "calc(var(--vh, 1dvh) * 100)", overflowX: "hidden" }}
       >
         {currentView === "home"               && (<><Header /><HomeView /></>)}
         {currentView === "levels"             && <LevelsView />}

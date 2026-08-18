@@ -79,7 +79,7 @@ export function ShopView() {
   const closeBuyModal = () => setSelectedItem(null)
 
   return (
-    <div className="flex-1 bg-[#060606] min-h-[var(--tg-viewport-stable-height,100dvh)] relative overflow-x-hidden pb-32 select-none animate-in fade-in duration-500">
+    <div className="flex-1 bg-[#060606] min-h-[calc(var(--vh, 1dvh) * 100)] relative overflow-x-hidden pb-32 select-none animate-in fade-in duration-500">
       
       {/* Fondo global de puntos */}
       <div className="absolute inset-0 pointer-events-none opacity-40 fixed" style={{
