@@ -11,8 +11,8 @@ import {
 
 import { BusinessAutomationView } from "./business-automation-view"
 import { CanvasText } from "./ui/canvas-text"
-import { ShootingStars } from "./ui/shooting-stars"
-import { StarsBackground } from "./ui/stars-background"
+import { DarkVeil } from "./ui/dark-veil"
+
 import { RainbowButton } from "./ui/rainbow-button"
 import { MinimalCard, MinimalCardImage, MinimalCardTitle, MinimalCardDescription } from "./ui/minimal-card"
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
@@ -436,7 +436,7 @@ export function HomeView() {
   const activeConnectorData = CONNECTORS_DB.find(c => c.id === modalState.connectorId)
 
   return (
-    <div className="flex-1 flex flex-col bg-[#121212] min-h-[var(--tg-viewport-stable-height,100dvh)] text-white overflow-x-hidden font-sans pb-24 relative">
+    <div className="flex-1 flex flex-col bg-[#000000] min-h-[var(--tg-viewport-stable-height,100dvh)] text-white overflow-x-hidden font-sans pb-24 relative">
       
       {/* Global Styles */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -613,12 +613,9 @@ export function HomeView() {
         </div>
       </div>
 
-      {/* Stars Background Effect */}
-      <div className="absolute top-0 left-0 right-0 h-[450px] z-0 pointer-events-none overflow-hidden">
-        <StarsBackground />
-        <ShootingStars />
-        {/* Radial gradient for the container to give a faded look */}
-        <div className="pointer-events-none absolute inset-0 bg-[#121212] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+      {/* Background Effect */}
+      <div className="absolute top-0 left-0 w-full h-[60vh] pointer-events-none z-0" style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)' }}>
+        <DarkVeil speed={0.4} opacity={0.6} className="z-0 opacity-60 mix-blend-screen" />
       </div>
 
       {/* Main Content */}
