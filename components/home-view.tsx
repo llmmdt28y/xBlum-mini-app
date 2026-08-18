@@ -670,17 +670,17 @@ export function HomeView() {
             ].map((skill, idx) => (
               <div 
                 key={idx}
-                className="w-full bg-[#1c1c1e] rounded-[16px] p-3.5 flex flex-col gap-2 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+                className="w-full bg-[#1c1c1e] rounded-[16px] p-3 flex flex-col gap-1 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
               >
-                <div className="text-[24px] leading-none mb-0.5">{skill.emoji}</div>
-                <div className="flex flex-col">
-                  <h3 className="text-white font-bold text-[14.5px] leading-tight" style={{ fontFamily: SFD }}>
+                <div className="flex items-center gap-2">
+                  <div className="text-[18px] leading-none">{skill.emoji}</div>
+                  <h3 className="text-white font-bold text-[13px] leading-tight truncate" style={{ fontFamily: SFD }}>
                     {skill.title}
                   </h3>
-                  <p className="text-[#8e8e93] text-[12px] leading-snug mt-1" style={{ fontFamily: SF }}>
-                    {skill.desc}
-                  </p>
                 </div>
+                <p className="text-[#8e8e93] text-[11px] leading-snug line-clamp-2 mt-0.5" style={{ fontFamily: SF }}>
+                  {skill.desc}
+                </p>
               </div>
             ))}
           </div>
