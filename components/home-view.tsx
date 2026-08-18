@@ -595,6 +595,7 @@ export function HomeView() {
                 exit={{ y: "-120%" }}
                 staggerDuration={0.025}
                 splitLevelClassName="overflow-hidden pb-0.5"
+                style={{ WebkitMaskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)', maskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)' }}
                 transition={{ type: "spring", damping: 30, stiffness: 400 }}
                 rotationInterval={3000}
               />
