@@ -11,6 +11,7 @@ import {
 
 import { BusinessAutomationView } from "./business-automation-view"
 import { CanvasText } from "./ui/canvas-text"
+import GradientText from "./ui/gradient-text"
 import { DarkVeil } from "./ui/dark-veil"
 import Aurora from "./ui/aurora"
 
@@ -575,14 +576,13 @@ export function HomeView() {
               className="text-[#F4F4F5] font-bold text-[44px] leading-[1.0] tracking-tight drop-shadow-sm flex flex-col items-start" 
               style={{ fontFamily: SFD, letterSpacing: "-0.04em" }}
             >
-              <CanvasText
-                text="NOIR"
-                backgroundClassName="bg-orange-500 dark:bg-orange-600"
-                colors={CANVAS_COLORS}
-                lineGap={4}
-                animationDuration={20}
-                className="w-full text-left inline-block"
-              />
+              <GradientText
+                colors={['#f97316', '#ffedd5', '#f97316']}
+                animationSpeed={3}
+                className="w-full text-left inline-block pb-1"
+              >
+                NOIR
+              </GradientText>
             </h1>
             <p className="text-white/90 font-medium text-[14.5px] leading-snug mt-1.5 max-w-[320px]" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
               The new standard for intelligent agents.<br />
