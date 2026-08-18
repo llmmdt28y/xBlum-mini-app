@@ -615,7 +615,7 @@ export function HomeView() {
       </div>
 
       {/* Background Effect */}
-      <div className="absolute top-0 left-0 w-full h-[60vh] pointer-events-none z-0 rotate-180 mix-blend-screen opacity-70" style={{ maskImage: 'linear-gradient(to top, black 20%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to top, black 20%, transparent 100%)' }}>
+      <div className="absolute top-0 left-0 w-full h-[60vh] pointer-events-none z-0 mix-blend-screen opacity-70" style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)' }}>
         <Aurora 
           colorStops={['#3390ec', '#005bea', '#33b5f7']}
           amplitude={1.2}
