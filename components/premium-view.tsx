@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
 import { Check, Gift, Sparkles, Bot, Blocks, Zap, Shield, BarChart, Calendar, MessageSquare } from "lucide-react"
 import { Spotlight } from "@/components/ui/spotlight"
-
+import { DarkVeil } from "@/components/ui/dark-veil"
 
 const SF = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif"
 const SFD = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif"
@@ -62,7 +62,11 @@ export function PremiumView() {
 
   return (
     <div className="flex-1 min-h-[var(--tg-viewport-stable-height,100dvh)] flex flex-col bg-[#000000] fixed top-0 left-0 w-full h-full z-[70] overflow-y-auto overscroll-none text-white pb-32" style={{ fontFamily: SFD }}>
-
+      {isHeavy && (
+        <div className="absolute top-0 left-0 w-full h-[60vh] pointer-events-none z-0" style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)' }}>
+          <DarkVeil speed={0.4} opacity={0.6} className="z-0 opacity-60 mix-blend-screen" />
+        </div>
+      )}
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
