@@ -12,6 +12,7 @@ import {
 import { BusinessAutomationView } from "./business-automation-view"
 import { CanvasText } from "./ui/canvas-text"
 import { DarkVeil } from "./ui/dark-veil"
+import { Aurora } from "./ui/aurora"
 
 import { RainbowButton } from "./ui/rainbow-button"
 import { MinimalCard, MinimalCardImage, MinimalCardTitle, MinimalCardDescription } from "./ui/minimal-card"
@@ -615,7 +616,12 @@ export function HomeView() {
 
       {/* Background Effect */}
       <div className="absolute top-0 left-0 w-full h-[60vh] pointer-events-none z-0" style={{ maskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 100%)' }}>
-        <DarkVeil speed={0.4} opacity={0.6} className="z-0 opacity-60 mix-blend-screen" />
+        <Aurora 
+          colorStops={['#3390ec', '#005bea', '#33b5f7']}
+          amplitude={1.2}
+          blend={0.5}
+          className="z-0 mix-blend-screen scale-y-[-1] opacity-70"
+        />
       </div>
 
       {/* Main Content */}
