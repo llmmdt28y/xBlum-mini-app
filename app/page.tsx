@@ -4,6 +4,7 @@ import { AppProvider, useApp } from "@/lib/app-context"
 import { Header } from "@/components/header"
 import dynamic from "next/dynamic"
 import Image from "next/image"
+import { AnimatePresence, motion } from "framer-motion"
 
 import { HomeView } from "@/components/home-view"
 import { SettingsView } from "@/components/settings-view"
@@ -11,12 +12,13 @@ import { ProfileView } from "@/components/profile-view"
 import { ScheduleView } from "@/components/schedule-view"
 import { GroupConfigView } from "@/components/group-config-view"
 
-const PremiumView = dynamic(() => import("@/components/premium-view").then(mod => mod.PremiumView))
-const ReferralView = dynamic(() => import("@/components/referral-view").then(mod => mod.ReferralView))
-const XRewardsView = dynamic(() => import("@/components/x-rewards-view").then(mod => mod.XRewardsView))
-const MarketView = dynamic(() => import("@/components/market-view").then(mod => mod.MarketView))
-const LevelsView = dynamic(() => import("@/components/levels-view").then(mod => mod.LevelsView))
-const ShopView = dynamic(() => import("@/components/shop-view").then(mod => mod.ShopView))
+const LoadingFallback = () => <div className="flex-1 min-h-[100dvh] w-full bg-[#121212]" />;
+const PremiumView = dynamic(() => import("@/components/premium-view").then(mod => mod.PremiumView), { loading: LoadingFallback })
+const ReferralView = dynamic(() => import("@/components/referral-view").then(mod => mod.ReferralView), { loading: LoadingFallback })
+const XRewardsView = dynamic(() => import("@/components/x-rewards-view").then(mod => mod.XRewardsView), { loading: LoadingFallback })
+const MarketView = dynamic(() => import("@/components/market-view").then(mod => mod.MarketView), { loading: LoadingFallback })
+const LevelsView = dynamic(() => import("@/components/levels-view").then(mod => mod.LevelsView), { loading: LoadingFallback })
+const ShopView = dynamic(() => import("@/components/shop-view").then(mod => mod.ShopView), { loading: LoadingFallback })
 import { useEffect, useState } from "react"
 import { Compass, Target, Store, CircleUser, Loader2, Clock, Settings } from "lucide-react"
 
@@ -440,28 +442,39 @@ function AppContent() {
       )}
 
       <div
-        className="flex flex-col relative mx-auto w-full max-w-[480px]"
-        style={{ minHeight: "var(--tg-viewport-height, 100dvh)" }}
+        className="flex flex-col relative mx-auto w-full max-w-[480px] bg-[#121212]"
+        style={{ minHeight: "var(--tg-viewport-height, 100dvh)", overflowX: "hidden" }}
       >
-        {currentView === "home"               && (<><Header /><HomeView /></>)}
-        {currentView === "levels"             && <LevelsView />}
-        {currentView === "shop"               && <ShopView />}
-        {currentView === "settings"           && <SettingsView />}
-        {currentView === "settings_nav"       && <SettingsView returnView="home" onPageChange={(isMain) => setIsSettingsMain(isMain)} />}
-        {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
-        {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
-        {currentView === "premium"            && <PremiumView />}
-        {currentView === "referral"           && <ReferralView />}
-        {currentView === "profile"            && <ProfileView />}
-        {currentView === "x-rewards"          && <XRewardsView />}
-        {currentView === "market"             && <MarketView />}
-        {currentView === "schedule"           && <ScheduleView />}
-        {currentView === "group_config"       && (
-          <GroupConfigView
-            onClose={() => setCurrentView("home")}
-            apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentView}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 30 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="flex flex-col flex-1 w-full relative"
+          >
+            {currentView === "home"               && (<><Header /><HomeView /></>)}
+            {currentView === "levels"             && <LevelsView />}
+            {currentView === "shop"               && <ShopView />}
+            {currentView === "settings"           && <SettingsView />}
+            {currentView === "settings_nav"       && <SettingsView returnView="home" onPageChange={(isMain) => setIsSettingsMain(isMain)} />}
+            {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
+            {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
+            {currentView === "premium"            && <PremiumView />}
+            {currentView === "referral"           && <ReferralView />}
+            {currentView === "profile"            && <ProfileView />}
+            {currentView === "x-rewards"          && <XRewardsView />}
+            {currentView === "market"             && <MarketView />}
+            {currentView === "schedule"           && <ScheduleView />}
+            {currentView === "group_config"       && (
+              <GroupConfigView
+                onClose={() => setCurrentView("home")}
+                apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
 
         {showNav && <NavBar />}
       </div>
