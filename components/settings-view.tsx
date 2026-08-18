@@ -921,7 +921,7 @@ export function SettingsView({
 
   // ── Model page ─────────────────────────────────────────────────────────────
   if (page === "model") return (
-    <div key="model" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
+    <div key="model" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Select Model" />
       <div className="px-4 pt-6 pb-10 space-y-4">
@@ -1002,7 +1002,7 @@ export function SettingsView({
 
   // ── Lang page ──────────────────────────────────────────────────────────────
   if (page === "lang") return (
-    <div key="lang" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
+    <div key="lang" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Language" />
       <div className="px-4 pt-6 pb-10 space-y-6">
@@ -1030,7 +1030,7 @@ export function SettingsView({
 
   // ── Gender Select Sub-page ─────────────────────────────────────────────────
   if (page === "gender_select") return (
-    <div key="gender_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
+    <div key="gender_select" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Gender" />
       <div className="px-4 pt-6 pb-10 space-y-6">
@@ -1055,7 +1055,7 @@ export function SettingsView({
 
   // ── Timezone Select Sub-page ───────────────────────────────────────────────
   if (page === "timezone_select") return (
-    <div key="timezone_select" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none scrollbar-native" style={{ height: viewportHeight }}>
+    <div key="timezone_select" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none scrollbar-native" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Time zone" />
       <div className="px-4 pt-6 pb-10 space-y-6">
@@ -1086,7 +1086,7 @@ export function SettingsView({
 
   // ── Basic Information Sub-page ─────────────────────────────────────────────
   if (page === "basic_info") return (
-    <div key="basic_info" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+    <div key="basic_info" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Basic Information" />
       
@@ -1140,7 +1140,7 @@ export function SettingsView({
 
   // ── Additional Details Sub-page ────────────────────────────────────────────
   if (page === "additional_details") return (
-    <div key="additional_details" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+    <div key="additional_details" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Additional Details" />
       
@@ -1185,7 +1185,7 @@ export function SettingsView({
 
   // ── Noir Personality Sub-page ──────────────────────────────────────────────
   if (page === "noir_personality") return (
-    <div key="noir_personality" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
+    <div key="noir_personality" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000]" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Noir Personality" />
       
@@ -1219,7 +1219,7 @@ export function SettingsView({
 
   // ── Prefs page (Account Setup) ─────────────────────────────────────────────
   if (page === "prefs") return (
-    <div key="prefs" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out overflow-y-auto overscroll-none scrollbar-native"
+    <div key="prefs" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out overflow-y-auto overscroll-none scrollbar-native"
          style={{ background: "#000", minHeight: "100dvh" }}>
       <style>{RIPPLE_STYLE}</style>
       
@@ -1353,7 +1353,7 @@ export function SettingsView({
 
   // ── Capabilities Sub-page ──────────────────────────────────────────────────
   if (page === "capabilities") return (
-    <div key="capabilities" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
+    <div key="capabilities" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Capabilities" />
       <div className="px-4 pt-6 pb-40 space-y-6">
@@ -1416,7 +1416,7 @@ export function SettingsView({
     const geminiInfo = mergedTokenStatus?.["Gemini 3.5 Flash"]
 
     return (
-      <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
+      <div key="usage_limits" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
         <style>{RIPPLE_STYLE}</style>
         <SubHeader title="" />
         
@@ -1505,7 +1505,7 @@ export function SettingsView({
   return (
     <>
     {/* This is the main screen wrapper, ensuring fixed top-0 is not present here */}
-    <div key="main" className={`flex-1 ${showReportModal ? 'overflow-hidden' : 'overflow-y-auto overscroll-none'} animate-in fade-in duration-500 ease-out`} style={{ background: "#000000", height: "var(--tg-viewport-height, 100dvh)", maxHeight: "var(--tg-viewport-height, 100dvh)" }}>
+    <div key="main" className={`flex-1 ${showReportModal ? 'overflow-hidden' : 'overflow-y-auto overscroll-none'} animate-in fade-in zoom-in-[0.98] duration-200 ease-out`} style={{ background: "#000000", height: "var(--tg-viewport-height, 100dvh)", maxHeight: "var(--tg-viewport-height, 100dvh)" }}>
        <style>{RIPPLE_STYLE}</style>
       
       <SubHeader title="Settings" />
@@ -1608,11 +1608,11 @@ export function SettingsView({
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-end justify-center touch-none">
           <div
-            className="absolute inset-0 bg-black/60  animate-in fade-in duration-500 ease-out touch-none"
+            className="absolute inset-0 bg-black/60  animate-in fade-in zoom-in-[0.98] duration-200 ease-out touch-none"
             onClick={() => { if (!submittingReport) { setShowReportModal(false); setReportSent(false) } }}
             onTouchMove={(e) => { e.stopPropagation() }}
           />
-          <div ref={sheetRef} className="relative w-full rounded-t-[24px] animate-in fade-in duration-500 ease-out flex flex-col"
+          <div ref={sheetRef} className="relative w-full rounded-t-[24px] animate-in fade-in zoom-in-[0.98] duration-200 ease-out flex flex-col"
                style={{ background: "#111111", borderTop: "1px solid #1c1c1e", transform: `translateY(0px)`, transition: 'transform 0.3s ease-out' }}>
             <div className="w-full shrink-0" onTouchStart={handleSheetTouchStart} onTouchMove={handleSheetTouchMove} onTouchEnd={handleSheetTouchEnd}>
               <div className="w-12 h-1.5 bg-[#2c2c2e] rounded-full mx-auto mt-4 mb-2 shrink-0" />

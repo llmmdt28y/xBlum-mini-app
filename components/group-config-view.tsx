@@ -603,7 +603,7 @@ export function GroupConfigView({ onClose, apiBaseUrl }: { onClose: () => void, 
   }
 
   return (
-    <div key="main" className="flex-1 flex flex-col animate-in fade-in duration-500 ease-out bg-[#000] fixed top-0 left-0 w-full z-[70]" style={{ height: "var(--tg-viewport-height, 100dvh)" }}>
+    <div key="main" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out bg-[#000] fixed top-0 left-0 w-full z-[70]" style={{ height: "var(--tg-viewport-height, 100dvh)" }}>
       <style>{`
         @keyframes shimmer {
           0% { transform: translateX(-100%); }

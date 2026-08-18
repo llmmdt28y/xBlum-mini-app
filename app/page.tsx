@@ -445,36 +445,25 @@ function AppContent() {
         className="flex flex-col relative mx-auto w-full max-w-[480px] bg-[#121212]"
         style={{ minHeight: "var(--tg-viewport-height, 100dvh)", overflowX: "hidden" }}
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={showNav ? "main-tabs" : currentView}
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="flex flex-col flex-1 w-full relative"
-          >
-            {currentView === "home"               && (<><Header /><HomeView /></>)}
-            {currentView === "levels"             && <LevelsView />}
-            {currentView === "shop"               && <ShopView />}
-            {currentView === "settings"           && <SettingsView />}
-            {currentView === "settings_nav"       && <SettingsView returnView="home" onPageChange={(isMain) => setIsSettingsMain(isMain)} />}
-            {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
-            {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
-            {currentView === "premium"            && <PremiumView />}
-            {currentView === "referral"           && <ReferralView />}
-            {currentView === "profile"            && <ProfileView />}
-            {currentView === "x-rewards"          && <XRewardsView />}
-            {currentView === "market"             && <MarketView />}
-            {currentView === "schedule"           && <ScheduleView />}
-            {currentView === "group_config"       && (
-              <GroupConfigView
-                onClose={() => setCurrentView("home")}
-                apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""}
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
+        {currentView === "home"               && (<><Header /><HomeView /></>)}
+        {currentView === "levels"             && <LevelsView />}
+        {currentView === "shop"               && <ShopView />}
+        {currentView === "settings"           && <SettingsView />}
+        {currentView === "settings_nav"       && <SettingsView returnView="home" onPageChange={(isMain) => setIsSettingsMain(isMain)} />}
+        {currentView === "account_setup"      && <SettingsView initialPage="prefs" returnView="home" />}
+        {currentView === "additional_details" && <SettingsView initialPage="additional_details" returnView="schedule" />}
+        {currentView === "premium"            && <PremiumView />}
+        {currentView === "referral"           && <ReferralView />}
+        {currentView === "profile"            && <ProfileView />}
+        {currentView === "x-rewards"          && <XRewardsView />}
+        {currentView === "market"             && <MarketView />}
+        {currentView === "schedule"           && <ScheduleView />}
+        {currentView === "group_config"       && (
+          <GroupConfigView
+            onClose={() => setCurrentView("home")}
+            apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || ""}
+          />
+        )}
 
         {showNav && <NavBar />}
       </div>

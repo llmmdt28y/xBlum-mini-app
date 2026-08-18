@@ -661,26 +661,38 @@ export function HomeView() {
               Skills
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-3 px-1">
+          <div className="w-full bg-[#1c1c1e] rounded-[16px] overflow-hidden flex flex-col mt-1">
             {[
-              { title: "Automation", desc: "Smart workflows", icon: Zap },
-              { title: "Analytics", desc: "Data insights", icon: HardDrive },
-              { title: "Vision", desc: "Image analysis", icon: ImageIcon },
-              { title: "Language", desc: "Text processing", icon: MessageCircle },
-            ].map((skill, idx) => (
+              { title: "Automate daily workflows", desc: "Automation", emoji: "🤖", badge: "PRO", badgeColor: "bg-[#8b5cf6]" },
+              { title: "Data insights & reporting", desc: "Analytics", emoji: "📊" },
+              { title: "Image generation & analysis", desc: "Vision", emoji: "🎨", badge: "BETA", badgeColor: "bg-[#3390ec]" },
+              { title: "Natural language processing", desc: "Language", emoji: "💬" },
+            ].map((skill, idx, arr) => (
               <div 
                 key={idx}
-                className="w-full bg-[#1c1c1e] rounded-[14px] p-3 flex flex-col items-start relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+                className={cn(
+                  "w-full px-4 py-3 flex items-center gap-3.5 relative cursor-pointer active:bg-[#2c2c2e] transition-colors",
+                  idx !== arr.length - 1 && "border-b border-[#2c2c2e]/50"
+                )}
               >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <skill.icon className="w-[18px] h-[18px] text-[#3390ec]" />
-                  <h3 className="text-white font-bold text-[14.5px] leading-tight" style={{ fontFamily: SFD }}>
-                    {skill.title}
-                  </h3>
+                <div className="text-[24px] flex items-center justify-center shrink-0">
+                  {skill.emoji}
                 </div>
-                <p className="text-[#8e8e93] text-[12.5px] leading-snug">
-                  {skill.desc}
-                </p>
+                <div className="flex flex-col flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-white font-medium text-[16px] leading-tight truncate" style={{ fontFamily: SF }}>
+                      {skill.title}
+                    </h3>
+                    {skill.badge && (
+                      <span className={cn("text-white text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] leading-none shrink-0 tracking-wide mt-0.5", skill.badgeColor)}>
+                        {skill.badge}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[#8e8e93] text-[13.5px] leading-snug truncate mt-0.5" style={{ fontFamily: SF }}>
+                    {skill.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
