@@ -505,11 +505,11 @@ export function HomeView() {
       {/* Hero Content Section */}
       <div 
         className="w-full max-w-md mx-auto relative z-40 flex flex-col px-6 pointer-events-none mb-4"
-        style={{ paddingTop: "calc(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 24px)) + 24px)" }}
+        style={{ paddingTop: "max(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 24px)), 56px)" }}
       >
         
         {/* Content Layer */}
-        <div className="relative z-40 flex flex-col items-start w-full pointer-events-auto mt-10">
+        <div className="relative z-40 flex flex-col items-start w-full pointer-events-auto mt-6">
           
           {/* Top-Left Model Selector */}
           <div ref={modelMenuRef} className="relative z-50 mb-3 -ml-1">
