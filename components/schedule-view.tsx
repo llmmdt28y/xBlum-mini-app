@@ -710,7 +710,7 @@ export function ScheduleView() {
   )
 
   return (
-    <div className="fixed inset-0 flex flex-col animate-in fade-in duration-500 ease-out overflow-hidden bg-[#000000] text-white select-none" style={{ height: "calc(var(--vh, 1dvh) * 100)" }}>
+    <div className="fixed inset-0 flex flex-col animate-in fade-in duration-500 ease-out overflow-hidden bg-[#000000] text-white select-none" style={{ height: "var(--tg-viewport-height, 100dvh)" }}>
       <style>{RIPPLE_STYLE}</style>
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 3px; }

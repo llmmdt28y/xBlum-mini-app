@@ -287,29 +287,25 @@ function AppContent() {
   const [loadingProgress, setLoadingProgress] = useState(0)
 
   useEffect(() => {
-    // Inicialización robusta de Telegram desde React
-    const tg = (window as any).Telegram?.WebApp;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tg = (window as any).Telegram?.WebApp
     if (tg) {
-      tg.ready();
-      tg.expand(); // Obligamos a expandir primero
+      tg.ready()
       
-      // Damos tiempo al puente nativo de Telegram para procesar el expand()
-      setTimeout(() => {
-        try {
-          const platform = (tg.platform || '').toLowerCase();
-          const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk';
-          
-          // Telegram Main App (bot profile) ya es fullscreen.
-          // El Menu Button / Attachment menu nos da un 'chat_type'.
-          const isFromMenuButton = !!tg.initDataUnsafe?.chat_type;
-
-          if (!isWeb && isFromMenuButton && typeof tg.requestFullscreen === 'function') {
-            tg.requestFullscreen();
-          }
-        } catch (e) {}
-      }, 100);
+      const platform = (tg.platform || '').toLowerCase()
+      const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk'
+      
+      try {
+        if (!isWeb && typeof tg.requestFullscreen === 'function') {
+          tg.requestFullscreen()
+        } else {
+          tg.expand()
+        }
+      } catch (e) {
+        try { tg.expand() } catch {}
+      }
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     let loadedCount = 0
@@ -447,7 +443,7 @@ function AppContent() {
 
       <div
         className="flex flex-col relative mx-auto w-full max-w-[480px] bg-[#121212]"
-        style={{ minHeight: "calc(var(--vh, 1dvh) * 100)", overflowX: "hidden" }}
+        style={{ minHeight: "var(--tg-viewport-height, 100dvh)", overflowX: "hidden" }}
       >
         {currentView === "home"               && (<><Header /><HomeView /></>)}
         {currentView === "levels"             && <LevelsView />}

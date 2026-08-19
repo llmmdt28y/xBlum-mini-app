@@ -141,13 +141,6 @@
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
-    
-    /* Forzar dimensiones de dispositivo generalmente */
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-    min-height: calc(var(--vh, 1vh) * 100);
-    width: 100vw;
-    overflow-x: hidden;
   }
 
   /* Excepción importante: Permitir que los inputs y textareas funcionen normal */

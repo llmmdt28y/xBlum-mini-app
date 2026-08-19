@@ -44,21 +44,6 @@ export default function RootLayout({
           src="https://telegram.org/js/telegram-web-app.js"
           strategy="beforeInteractive"
         />
-        <Script
-          id="tg-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              function updateVh() {
-                if (typeof window !== 'undefined') {
-                  document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
-                }
-              }
-              updateVh();
-              window.addEventListener('resize', updateVh);
-            `
-          }}
-        />
         {/* Adsgram SDK — carga después del hydration, no bloquea */}
         <Script
           src="https://sad.adsgram.ai/js/sad.min.js"
