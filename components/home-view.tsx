@@ -526,7 +526,7 @@ export function HomeView() {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                 <div 
-                  className="absolute left-0 top-[calc(100%+8px)] w-[220px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]"
+                  className="absolute left-0 top-[calc(100%+8px)] w-[240px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]"
                 >
                   <div className="flex flex-col p-2 gap-1 relative overflow-y-auto overflow-x-hidden max-h-[300px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
                   {APP_MODELS.map((m, idx) => (
