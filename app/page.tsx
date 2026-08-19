@@ -286,7 +286,21 @@ function AppContent() {
   const [isMaintenance, setIsMaintenance] = useState(false)
   const [loadingProgress, setLoadingProgress] = useState(0)
 
-  // Telegram initialization is now handled globally in app/layout.tsx
+  useEffect(() => {
+    // Inicialización robusta de Telegram desde React
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      try {
+        const platform = (tg.platform || '').toLowerCase();
+        const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk';
+        if (!isWeb && typeof tg.requestFullscreen === 'function') {
+          tg.requestFullscreen();
+        }
+      } catch (e) {}
+    }
+  }, []);
 
   useEffect(() => {
     let loadedCount = 0

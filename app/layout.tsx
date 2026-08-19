@@ -49,22 +49,10 @@ export default function RootLayout({
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              try {
-                if (window.Telegram && window.Telegram.WebApp) {
-                  var tg = window.Telegram.WebApp;
-                  tg.ready();
-                  tg.expand();
-                  
-                  var platform = (tg.platform || '').toLowerCase();
-                  var isWeb = platform === 'web' || platform === 'weba' || platform === 'webk';
-                  if (!isWeb && typeof tg.requestFullscreen === 'function') {
-                    tg.requestFullscreen();
-                  }
-                }
-              } catch (e) {}
-
               function updateVh() {
-                document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+                if (typeof window !== 'undefined') {
+                  document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+                }
               }
               updateVh();
               window.addEventListener('resize', updateVh);
