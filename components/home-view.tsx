@@ -505,7 +505,7 @@ export function HomeView() {
       {/* Hero Content Section */}
       <div 
         className="w-full max-w-md mx-auto relative z-40 flex flex-col px-6 pointer-events-none mb-4"
-        style={{ paddingTop: "max(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 24px)), 56px)" }}
+        style={{ paddingTop: "max(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 24px)), 48px)" }}
       >
         
         {/* Content Layer */}
