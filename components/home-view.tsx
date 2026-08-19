@@ -540,14 +540,14 @@ export function HomeView() {
                             setLoadingModel(null);
                           }, 800);
                         }}
-                        className={`flex items-center justify-between px-3.5 py-3 rounded-[12px] transition-colors text-left hover:bg-white/10 w-full`}
+                        className={`flex items-center justify-between px-2.5 py-3 rounded-[12px] transition-colors text-left hover:bg-white/10 w-full`}
                       >
                         <div className="flex flex-col items-start gap-[2px] pr-4 min-w-0 flex-1">
-                          <span className="text-[16px] font-medium text-white leading-tight flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
+                          <span className="text-[15px] font-medium text-white leading-tight flex items-center gap-2 whitespace-normal break-words" style={{ fontFamily: SF, letterSpacing: "-0.01em" }}>
                             {m.name}
                             {m.tag && <span className={`${m.tagColor} ${m.tagStyle} shrink-0`}>{m.tag}</span>}
                           </span>
-                          <span className="text-[13px] font-normal text-[#8e8e93] leading-snug whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
+                          <span className="text-[12px] font-normal text-[#8e8e93] leading-snug whitespace-normal break-words w-full" style={{ fontFamily: SF }}>{m.desc}</span>
                         </div>
                         <div className="shrink-0 flex items-center justify-center w-[20px]">
                           {loadingModel === m.name ? (
