@@ -294,12 +294,16 @@ function AppContent() {
       tg.expand(); // Obligamos a expandir primero
       
       // Damos tiempo al puente nativo de Telegram para procesar el expand()
-      // antes de pedir el fullscreen, evitando condiciones de carrera (IPC race conditions)
       setTimeout(() => {
         try {
           const platform = (tg.platform || '').toLowerCase();
           const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk';
-          if (!isWeb && typeof tg.requestFullscreen === 'function') {
+          
+          // Telegram Main App (bot profile) ya es fullscreen.
+          // El Menu Button / Attachment menu nos da un 'chat_type'.
+          const isFromMenuButton = !!tg.initDataUnsafe?.chat_type;
+
+          if (!isWeb && isFromMenuButton && typeof tg.requestFullscreen === 'function') {
             tg.requestFullscreen();
           }
         } catch (e) {}
