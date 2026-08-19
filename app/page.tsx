@@ -291,14 +291,19 @@ function AppContent() {
     const tg = (window as any).Telegram?.WebApp;
     if (tg) {
       tg.ready();
-      tg.expand();
-      try {
-        const platform = (tg.platform || '').toLowerCase();
-        const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk';
-        if (!isWeb && typeof tg.requestFullscreen === 'function') {
-          tg.requestFullscreen();
-        }
-      } catch (e) {}
+      tg.expand(); // Obligamos a expandir primero
+      
+      // Damos tiempo al puente nativo de Telegram para procesar el expand()
+      // antes de pedir el fullscreen, evitando condiciones de carrera (IPC race conditions)
+      setTimeout(() => {
+        try {
+          const platform = (tg.platform || '').toLowerCase();
+          const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk';
+          if (!isWeb && typeof tg.requestFullscreen === 'function') {
+            tg.requestFullscreen();
+          }
+        } catch (e) {}
+      }, 100);
     }
   }, []);
 
