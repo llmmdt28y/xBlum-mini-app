@@ -505,7 +505,7 @@ export function HomeView() {
       {/* Hero Content Section */}
       <div 
         className="w-full max-w-md mx-auto relative z-40 flex flex-col px-6 pointer-events-none mb-4"
-        style={{ paddingTop: "max(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 24px)), 48px)" }}
+        style={{ paddingTop: "max(var(--tg-safe-area-inset-top, env(safe-area-inset-top, 24px)), 40px)" }}
       >
         
         {/* Content Layer */}
@@ -526,10 +526,9 @@ export function HomeView() {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsModelMenuOpen(false)} />
                 <div 
-                  className="cursor-default absolute left-0 top-[42px] w-[260px] rounded-[16px] shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#121212]/98 border border-[#2c2c2e] transform-gpu"
-                  style={{ willChange: "transform, opacity", backfaceVisibility: "hidden" }}
+                  className="absolute left-0 top-[calc(100%+8px)] w-[220px] rounded-[20px] overflow-hidden shadow-[0_16px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 bg-[#1c1c1e]"
                 >
-                  <div className="flex flex-col py-2 relative overflow-y-auto overflow-x-hidden max-h-[300px] rounded-[16px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
+                  <div className="flex flex-col p-2 gap-1 relative overflow-y-auto overflow-x-hidden max-h-[300px] [&::-webkit-scrollbar]:hidden" style={{ zIndex: 10 }}>
                   {APP_MODELS.map((m, idx) => (
                     <div key={m.name} className="flex flex-col">
                       <button
@@ -663,10 +662,10 @@ export function HomeView() {
           </div>
           <div className="grid grid-cols-2 gap-2 mt-1 px-1">
             {[
-              { title: "Automate daily workflows", desc: "Automation", emoji: "🤖" },
-              { title: "Data insights & reporting", desc: "Analytics", emoji: "📊" },
-              { title: "Image generation & analysis", desc: "Vision", emoji: "🎨" },
-              { title: "Natural language processing", desc: "Language", emoji: "💬" },
+              { title: "Automate workflows", desc: "Automation", emoji: "🤖" },
+              { title: "Data analysis", desc: "Analytics", emoji: "📊" },
+              { title: "Image generation", desc: "Vision", emoji: "🎨" },
+              { title: "Text processing", desc: "Language", emoji: "💬" },
             ].map((skill, idx) => (
               <div 
                 key={idx}
