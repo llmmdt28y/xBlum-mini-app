@@ -513,13 +513,13 @@ export function HomeView() {
           
           {/* Top-Left Model Selector */}
           <div ref={modelMenuRef} className="relative z-50 mb-3 -ml-1">
-            <RainbowButton
-              size="sm"
+            <button
               onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
+              className="flex items-center gap-1.5 h-[34px] px-3.5 rounded-full bg-white/10 hover:bg-white/[0.15] active:bg-white/20 transition-colors border border-white/5"
             >
-              <span className="font-medium text-[13px] text-[#e5e5ea] tracking-wide" style={{ fontFamily: SF }}>{selectedModel}</span>
-              <ChevronDown className={`w-3.5 h-3.5 text-[#8e8e93] transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
-            </RainbowButton>
+              <span className="font-semibold text-[13.5px] text-white" style={{ fontFamily: SF }}>{selectedModel}</span>
+              <ChevronDown className={`w-3.5 h-3.5 text-white/70 transition-transform duration-300 ${isModelMenuOpen ? "rotate-180" : ""}`} strokeWidth={2.5} />
+            </button>
 
             {/* Model Menu Popover */}
             {isModelMenuOpen && (

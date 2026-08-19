@@ -299,11 +299,7 @@ function AppContent() {
           const platform = (tg.platform || '').toLowerCase()
           const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk'
           
-          // Telegram Main App (bot profile) ya es fullscreen de forma nativa.
-          // El Menu Button / Attachment menu nos da un 'chat_type' (ej. sender, private).
-          const isFromMenuButton = !!tg.initDataUnsafe?.chat_type
-          
-          if (!isWeb && isFromMenuButton && typeof tg.requestFullscreen === 'function') {
+          if (!isWeb && typeof tg.requestFullscreen === 'function') {
             tg.requestFullscreen()
           }
         } catch (e) {}
