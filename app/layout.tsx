@@ -35,6 +35,15 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <head>
         {/*
+          CRÍTICO: El script de Telegram DEBE cargarse antes de cualquier
+          código de React. Sin esto, window.Telegram.WebApp no existe
+          y initData queda vacío → 401 en el servidor.
+          strategy="beforeInteractive" garantiza que carga antes del hydration.
+        */}
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js"
+          strategy="beforeInteractive"
+        />
         {/* Adsgram SDK — carga después del hydration, no bloquea */}
         <Script
           src="https://sad.adsgram.ai/js/sad.min.js"

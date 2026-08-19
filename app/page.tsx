@@ -31,16 +31,10 @@ type TgUser = {
   photo_url?: string
 }
 
-import { retrieveLaunchParams } from '@telegram-apps/sdk';
-
 function getTgUser(): TgUser | undefined {
   if (typeof window === "undefined") return undefined
-  try {
-    const { initData } = retrieveLaunchParams();
-    return initData?.user as TgUser | undefined;
-  } catch (e) {
-    return undefined;
-  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (window as any).Telegram?.WebApp?.initDataUnsafe?.user as TgUser | undefined
 }
 
 // ── Maintenance Screen ────────────────────────────────────────────────
@@ -292,6 +286,26 @@ function AppContent() {
   const [isMaintenance, setIsMaintenance] = useState(false)
   const [loadingProgress, setLoadingProgress] = useState(0)
 
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tg = (window as any).Telegram?.WebApp
+    if (tg) {
+      tg.ready()
+      
+      const platform = (tg.platform || '').toLowerCase()
+      const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk'
+      
+      try {
+        if (!isWeb && typeof tg.requestFullscreen === 'function') {
+          tg.requestFullscreen()
+        } else {
+          tg.expand()
+        }
+      } catch (e) {
+        try { tg.expand() } catch {}
+      }
+    }
+  }, [])
 
   useEffect(() => {
     let loadedCount = 0
@@ -360,33 +374,6 @@ function AppContent() {
       return () => clearTimeout(t)
     }
   }, [isLoading, imagesLoaded, loadingProgress])
-
-  useEffect(() => {
-    async function initTelegramSDK() {
-      try {
-        // Dynamically import to avoid SSR issues
-        const { init, viewport, isTMA } = await import('@telegram-apps/sdk');
-        
-        const isTelegram = await isTMA();
-        if (isTelegram) {
-          init();
-          
-          if (viewport.mount.isAvailable()) {
-            await viewport.mount();
-            viewport.expand();
-          }
-
-          if (viewport.requestFullscreen.isAvailable()) {
-            await viewport.requestFullscreen();
-          }
-        }
-      } catch (error) {
-        console.error("Error initializing Telegram SDK:", error);
-      }
-    }
-    
-    initTelegramSDK();
-  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0)
