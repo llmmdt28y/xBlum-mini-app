@@ -291,19 +291,23 @@ function AppContent() {
     const tg = (window as any).Telegram?.WebApp
     if (tg) {
       tg.ready()
+      tg.expand()
       
-      const platform = (tg.platform || '').toLowerCase()
-      const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk'
-      
-      try {
-        if (!isWeb && typeof tg.requestFullscreen === 'function') {
-          tg.requestFullscreen()
-        } else {
-          tg.expand()
-        }
-      } catch (e) {
-        try { tg.expand() } catch {}
-      }
+      // Damos tiempo al puente nativo de Telegram para procesar el expand()
+      setTimeout(() => {
+        try {
+          const platform = (tg.platform || '').toLowerCase()
+          const isWeb = platform === 'web' || platform === 'weba' || platform === 'webk'
+          
+          // Telegram Main App (bot profile) ya es fullscreen de forma nativa.
+          // El Menu Button / Attachment menu nos da un 'chat_type' (ej. sender, private).
+          const isFromMenuButton = !!tg.initDataUnsafe?.chat_type
+          
+          if (!isWeb && isFromMenuButton && typeof tg.requestFullscreen === 'function') {
+            tg.requestFullscreen()
+          }
+        } catch (e) {}
+      }, 100)
     }
   }, [])
 
