@@ -131,13 +131,12 @@ function NavBar() {
         className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none mx-auto w-full max-w-[480px]"
         style={{ bottom: safeBottom }}
       >
-        {/* ── SINGLE UNIFIED PILL ── */}
+        {/* ── PÍLDORA CENTRAL ── */}
         <div
-          className="bg-[#1c1c1e] shadow-lg pointer-events-auto flex items-center justify-between w-full px-1"
+          className="bg-[#1c1c1e] shadow-lg pointer-events-auto flex items-center justify-center flex-1 mr-3 px-1"
           style={{ borderRadius: "100px", height: "58px", zIndex: 51 }}
         >
-          {/* Left Side: 3 Tabs */}
-          <div className="flex items-center relative h-[52px]" style={{ zIndex: 10 }}>
+          <div className="flex items-center justify-evenly w-full max-w-[290px] relative h-[52px]" style={{ zIndex: 10 }}>
             
             <div 
               className="absolute top-0 bottom-0"
@@ -168,7 +167,7 @@ function NavBar() {
                   onPointerDown={() => !isDisabled && setPressedId(tab.id)}
                   onPointerUp={() => setPressedId(null)}
                   onPointerLeave={() => setPressedId(null)}
-                  className={`relative flex flex-col items-center justify-center rounded-[100px] w-[76px] h-[52px] select-none`}
+                  className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[52px] select-none`}
                   style={{
                     pointerEvents: isDisabled ? "none" : "auto",
                     transition: "transform 0.4s cubic-bezier(0.25, 1.15, 0.5, 1)",
@@ -199,26 +198,28 @@ function NavBar() {
               )
             })}
           </div>
+        </div>
 
-          {/* Right Side: Profile Button */}
-          <button
-            onClick={() => setCurrentView('profile')}
-            onPointerDown={() => setPressedId("right")}
-            onPointerUp={() => setPressedId(null)}
-            onPointerLeave={() => setPressedId(null)}
-            className="shrink-0 p-0 m-0 outline-none flex flex-col items-center justify-center relative"
-            style={{
-              width: "52px",
-              height: "52px",
-              borderRadius: "100px",
-              zIndex: 52,
-              transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
-              transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
-            }}
-          >
+        {/* ── BOTÓN DERECHO: Profile ── */}
+        <button
+          onClick={() => setCurrentView('profile')}
+          onPointerDown={() => setPressedId("right")}
+          onPointerUp={() => setPressedId(null)}
+          onPointerLeave={() => setPressedId(null)}
+          className="bg-[#1c1c1e] shadow-lg pointer-events-auto shrink-0 p-0 m-0 outline-none"
+          style={{
+            width: "58px",
+            height: "58px",
+            borderRadius: "100px",
+            zIndex: 51,
+            transform: pressedId === "right" ? "scale(0.91)" : "scale(1)",
+            transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
+          }}
+        >
+          <div className="flex flex-col items-center justify-center w-full h-full pointer-events-none select-none relative" style={{ zIndex: 10 }}>
             {photoUrl ? (
-              <div className="w-[42px] h-[42px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
-                <Image src={photoUrl} alt="User" fill sizes="42px" className="object-cover" />
+              <div className="w-[44px] h-[44px] rounded-full overflow-hidden border border-[1px] border-white/10 relative z-10">
+                <Image src={photoUrl} alt="User" fill sizes="44px" className="object-cover" />
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center relative z-10">
@@ -235,8 +236,8 @@ function NavBar() {
                 </span>
               </div>
             )}
-          </button>
-        </div>
+          </div>
+        </button>
       </div>
     </>
   )
