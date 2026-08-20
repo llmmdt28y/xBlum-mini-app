@@ -133,7 +133,7 @@ function NavBar() {
       >
         {/* ── PÍLDORA CENTRAL ── */}
         <div
-          className="bg-[#1c1c1e] shadow-lg pointer-events-auto flex items-center justify-between flex-1 max-w-[290px] mr-3 px-1"
+          className="bg-[#1c1c1e] shadow-lg pointer-events-auto flex items-center justify-between w-max mr-3 px-1"
           style={{ borderRadius: "100px", height: "58px", zIndex: 51 }}
         >
           <div className="flex items-center justify-between w-full relative h-[52px]" style={{ zIndex: 10 }}>
@@ -167,7 +167,7 @@ function NavBar() {
                   onPointerDown={() => !isDisabled && setPressedId(tab.id)}
                   onPointerUp={() => setPressedId(null)}
                   onPointerLeave={() => setPressedId(null)}
-                  className={`relative flex flex-col items-center justify-center rounded-[100px] flex-1 h-[52px] select-none`}
+                  className={`relative flex flex-col items-center justify-center rounded-[100px] w-[76px] h-[52px] select-none`}
                   style={{
                     pointerEvents: isDisabled ? "none" : "auto",
                     transition: "transform 0.4s cubic-bezier(0.25, 1.15, 0.5, 1)",
