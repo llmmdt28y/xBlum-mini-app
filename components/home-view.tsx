@@ -575,7 +575,7 @@ export function HomeView() {
             {/* Top-Right Premium Button */}
             <button
               onClick={() => setCurrentView("premium")}
-              className="flex items-center gap-1.5 px-3.5 py-[7px] rounded-full bg-white/80 hover:bg-white/90 active:scale-95 transition-all shadow-sm backdrop-blur-md ml-1"
+              className="flex items-center justify-center gap-1.5 px-3.5 h-[34px] rounded-full bg-white/80 hover:bg-white/90 active:scale-95 transition-all shadow-sm backdrop-blur-md -mr-1"
             >
               <Sparkles className="w-[14px] h-[14px] text-black" strokeWidth={2.5} />
               <span className="text-black font-semibold text-[13px] tracking-tight" style={{ fontFamily: SF }}>Try NoirPro</span>
