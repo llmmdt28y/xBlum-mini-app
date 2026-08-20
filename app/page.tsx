@@ -133,7 +133,7 @@ function NavBar() {
       >
         {/* ── PÍLDORA CENTRAL ── */}
         <div
-          className="bg-white/10 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] pointer-events-auto flex items-center justify-between flex-1 mr-3 px-1"
+          className="bg-[#1c1c1e] shadow-lg pointer-events-auto flex items-center justify-between flex-1 max-w-[290px] mr-3 px-1"
           style={{ borderRadius: "100px", height: "58px", zIndex: 51 }}
         >
           <div className="flex items-center justify-between w-full relative h-[52px]" style={{ zIndex: 10 }}>
@@ -206,7 +206,7 @@ function NavBar() {
           onPointerDown={() => setPressedId("right")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="bg-white/10 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] pointer-events-auto shrink-0 p-0 m-0 outline-none"
+          className="bg-[#1c1c1e] shadow-lg pointer-events-auto shrink-0 p-0 m-0 outline-none"
           style={{
             width: "58px",
             height: "58px",
