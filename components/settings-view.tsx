@@ -1356,7 +1356,7 @@ export function SettingsView({
     <div key="capabilities" className="flex-1 flex flex-col animate-in fade-in zoom-in-[0.98] duration-200 ease-out fixed top-0 left-0 w-full z-[70] bg-[#000000] overflow-y-auto overscroll-none" style={{ height: viewportHeight }}>
       <style>{RIPPLE_STYLE}</style>
       <SubHeader title="Capabilities" />
-      <div className="px-4 pt-6 pb-40 space-y-6">
+      <div className="px-4 pt-6 pb-24 space-y-6">
 
         <Section title="Memory">
           <Row 
@@ -1420,7 +1420,7 @@ export function SettingsView({
         <style>{RIPPLE_STYLE}</style>
         <SubHeader title="" />
         
-        <div className="px-4 pt-10 pb-40 space-y-6">
+        <div className="px-4 pt-10 pb-24 space-y-6">
           <div className="space-y-3">
             <div className="flex items-center gap-2.5">
               <h1 className="text-[28px] font-bold text-white leading-none" style={{ fontFamily: SFD }}>Usage Limits</h1>
@@ -1600,7 +1600,7 @@ export function SettingsView({
          </Section>
 
          {/* Explicit spacer to ensure content clears the NavBar */}
-         <div className="h-[140px] w-full shrink-0" />
+         <div className="h-[96px] w-full shrink-0" />
       </div>
     </div>
 
