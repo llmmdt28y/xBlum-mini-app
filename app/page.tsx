@@ -139,7 +139,7 @@ function NavBar() {
           <div className="flex items-center justify-evenly w-full max-w-[290px] relative h-[52px]" style={{ zIndex: 10 }}>
             
             <div 
-              className="absolute top-0 bottom-0"
+              className="absolute top-0 bottom-0 left-0"
               style={{
                 width: `${100 / centerTabs.length}%`,
                 transform: `translate3d(${activeIndex * 100}%, 0, 0) ${pressedId === centerTabs[activeIndex]?.id ? 'scale3d(0.93, 0.93, 1)' : 'scale3d(1, 1, 1)'}`,
