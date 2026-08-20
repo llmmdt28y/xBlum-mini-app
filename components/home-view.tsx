@@ -669,7 +669,7 @@ export function HomeView() {
             ].map((skill, idx) => (
               <div 
                 key={idx}
-                className="w-full bg-[#1c1c1e] rounded-[16px] py-3.5 px-3 flex flex-col gap-1.5 justify-center relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform min-h-[76px]"
+                className="w-full bg-[#1c1c1e] rounded-[16px] py-2.5 px-3 flex flex-col gap-1 justify-center relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
               >
                 <div className="flex items-center gap-2">
                   <div className="text-[18px] leading-none">{skill.emoji}</div>
