@@ -511,8 +511,10 @@ export function HomeView() {
         {/* Content Layer */}
         <div className="relative z-40 flex flex-col items-start w-full pointer-events-auto mt-6">
           
-          {/* Top-Left Model Selector */}
-          <div ref={modelMenuRef} className="relative z-50 mb-3 -ml-1">
+          {/* Top Row: Model Selector & Premium Button */}
+          <div className="w-full flex items-center justify-between mb-3 -ml-1 relative z-50">
+            {/* Top-Left Model Selector */}
+            <div ref={modelMenuRef} className="relative">
             <RainbowButton
               size="sm"
               onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
@@ -568,6 +570,16 @@ export function HomeView() {
                 </div>
               </>
             )}
+            </div>
+
+            {/* Top-Right Premium Button */}
+            <button
+              onClick={() => setCurrentView("premium")}
+              className="flex items-center gap-1.5 px-3.5 py-[7px] rounded-full bg-white/80 hover:bg-white/90 active:scale-95 transition-all shadow-sm backdrop-blur-md ml-1"
+            >
+              <Sparkles className="w-[14px] h-[14px] text-black" strokeWidth={2.5} />
+              <span className="text-black font-semibold text-[13px] tracking-tight" style={{ fontFamily: SF }}>Try NoirPro</span>
+            </button>
           </div>
 
           {/* Typography (Left Aligned, High Contrast like Image) */}
