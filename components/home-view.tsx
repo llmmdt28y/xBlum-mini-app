@@ -511,10 +511,8 @@ export function HomeView() {
         {/* Content Layer */}
         <div className="relative z-40 flex flex-col items-start w-full pointer-events-auto mt-6">
           
-          {/* Top Row: Model Selector & Premium Button */}
-          <div className="w-full flex items-center justify-between mb-3 -ml-1 relative z-50">
-            {/* Top-Left Model Selector */}
-            <div ref={modelMenuRef} className="relative">
+          {/* Top-Left Model Selector */}
+          <div ref={modelMenuRef} className="relative z-50 mb-3 -ml-1">
             <RainbowButton
               size="sm"
               onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
@@ -570,16 +568,6 @@ export function HomeView() {
                 </div>
               </>
             )}
-            </div>
-
-            {/* Top-Right Premium Button */}
-            <button
-              onClick={() => setCurrentView("premium")}
-              className="flex items-center justify-center gap-1.5 px-3.5 h-[34px] rounded-full bg-white/80 hover:bg-white/90 active:scale-95 transition-all shadow-sm backdrop-blur-md -mr-1"
-            >
-              <Sparkles className="w-[14px] h-[14px] text-black" strokeWidth={2.5} />
-              <span className="text-black font-semibold text-[13px] tracking-tight" style={{ fontFamily: SF }}>Try NoirPro</span>
-            </button>
           </div>
 
           {/* Typography (Left Aligned, High Contrast like Image) */}
@@ -666,13 +654,13 @@ export function HomeView() {
         </div>
 
         {/* Skills Section */}
-        <div className="mt-4 w-full flex flex-col gap-3">
+        <div className="mt-4 w-full flex flex-col gap-1.5">
           <div className="flex items-center justify-between px-1">
             <h2 className="text-white font-bold text-[18px]" style={{ fontFamily: SFD, letterSpacing: "-0.01em" }}>
               Skills
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-2 mt-1 px-1">
+          <div className="grid grid-cols-2 gap-2 px-1">
             {[
               { title: "Automate workflows", desc: "Automation", emoji: "🤖" },
               { title: "Data analysis", desc: "Analytics", emoji: "📊" },
@@ -681,7 +669,7 @@ export function HomeView() {
             ].map((skill, idx) => (
               <div 
                 key={idx}
-                className="w-full bg-[#1c1c1e] rounded-[16px] p-3 flex flex-col gap-1 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+                className="w-full bg-[#1c1c1e] rounded-[16px] py-3.5 px-3 flex flex-col gap-1.5 justify-center relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform min-h-[76px]"
               >
                 <div className="flex items-center gap-2">
                   <div className="text-[18px] leading-none">{skill.emoji}</div>
