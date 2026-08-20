@@ -122,7 +122,7 @@ function NavBar() {
   const activeIndex = centerTabs.findIndex(t => t.id === currentView)
 
   const neonBlue      = "#3390ec"
-  const inactiveColor = "rgba(255,255,255,0.62)"
+  const inactiveColor = "rgba(255,255,255,0.9)"
   const safeBottom    = "calc(var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)) + 10px)"
 
   return (
@@ -131,40 +131,9 @@ function NavBar() {
         className="fixed left-0 right-0 z-50 flex justify-between items-center px-4 pointer-events-none mx-auto w-full max-w-[480px]"
         style={{ bottom: safeBottom }}
       >
-        {/* ── BOTÓN IZQUIERDO ── */}
-        <button
-          onClick={handleLeftActionButton}
-          onPointerDown={() => setPressedId("left")}
-          onPointerUp={() => setPressedId(null)}
-          onPointerLeave={() => setPressedId(null)}
-          className="bg-[#1c1c1e] shadow-lg pointer-events-auto shrink-0 p-0 m-0 outline-none"
-          style={{
-            width: "58px",
-            height: "58px",
-            borderRadius: "100px",
-            zIndex: 51,
-            transform: pressedId === "left" ? "scale(0.91)" : "scale(1)",
-            transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1)"
-          }}
-        >
-          <div className="flex flex-col items-center justify-center pointer-events-none select-none relative w-full h-full" style={{ zIndex: 10 }}>
-            {activeNavMode === 'market' ? (
-              <>
-                <Compass size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight font-sans" style={{ color: inactiveColor }}>Discover</span>
-              </>
-            ) : (
-              <>
-                <Store size={22} color={inactiveColor} strokeWidth={2} />
-                <span className="text-[11px] mt-1 font-semibold tracking-tight font-sans" style={{ color: inactiveColor }}>Market</span>
-              </>
-            )}
-          </div>
-        </button>
-
         {/* ── PÍLDORA CENTRAL ── */}
         <div
-          className="bg-[#1c1c1e] shadow-lg pointer-events-auto flex items-center justify-between flex-1 mx-3 px-1"
+          className="bg-white/10 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] pointer-events-auto flex items-center justify-between flex-1 mr-3 px-1"
           style={{ borderRadius: "100px", height: "58px", zIndex: 51 }}
         >
           <div className="flex items-center justify-between w-full relative h-[52px]" style={{ zIndex: 10 }}>
@@ -237,7 +206,7 @@ function NavBar() {
           onPointerDown={() => setPressedId("right")}
           onPointerUp={() => setPressedId(null)}
           onPointerLeave={() => setPressedId(null)}
-          className="bg-[#1c1c1e] shadow-lg pointer-events-auto shrink-0 p-0 m-0 outline-none"
+          className="bg-white/10 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] pointer-events-auto shrink-0 p-0 m-0 outline-none"
           style={{
             width: "58px",
             height: "58px",
